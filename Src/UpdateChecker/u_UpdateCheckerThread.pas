@@ -23,6 +23,7 @@ unit u_UpdateCheckerThread;
 interface
 
 uses
+  Windows,
   Classes,
   SysUtils,
   SyncObjs,

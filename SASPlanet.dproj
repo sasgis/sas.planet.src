@@ -288,12 +288,12 @@
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeGELonLat.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnEllipsoid.pas" />
     <DCCReference Include="Src\CoordConvert\u_ProjectionTypeMercatorOnSphere.pas" />
-    <DCCReference Include="Src\CoordRepresentation\u_CoordRepresentation.pas" />
     <DCCReference Include="Src\CoordRepresentation\i_CoordFromStringParser.pas" />
     <DCCReference Include="Src\CoordRepresentation\i_CoordRepresentationConfig.pas" />
     <DCCReference Include="Src\CoordRepresentation\i_CoordToStringConverter.pas" />
     <DCCReference Include="Src\CoordRepresentation\t_CoordRepresentation.pas" />
     <DCCReference Include="Src\CoordRepresentation\u_CoordFromStringParser.pas" />
+    <DCCReference Include="Src\CoordRepresentation\u_CoordRepresentation.pas" />
     <DCCReference Include="Src\CoordRepresentation\u_CoordRepresentationConfig.pas" />
     <DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverter.pas" />
     <DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas" />
@@ -316,6 +316,7 @@
     <DCCReference Include="Src\GeoCalc\u_PolygonAreaCalculator.pas" />
     <DCCReference Include="Src\GeoCoder\c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="Src\GeoCoder\i_GeoCoder.pas" />
+    <DCCReference Include="Src\GeoCoder\i_GeoCoderConfig.pas" />
     <DCCReference Include="Src\GeoCoder\i_GeoCoderList.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCodePlacemark.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderBasic.pas" />
@@ -334,6 +335,7 @@
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByURL.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByWikimapia.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderByYandex.pas" />
+    <DCCReference Include="Src\GeoCoder\u_GeoCoderConfig.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCodeResult.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderListBase.pas" />
     <DCCReference Include="Src\GeoCoder\u_GeoCoderListEntity.pas" />
@@ -1116,12 +1118,16 @@
       <Form>frmPascalScriptIDE</Form>
     </DCCReference>
     <DCCReference Include="Src\PascalScript\i_PascalScriptGlobal.pas" />
+    <DCCReference Include="Src\PascalScript\i_PascalScriptLogger.pas" />
+    <DCCReference Include="Src\PascalScript\i_PascalScriptTileCache.pas" />
     <DCCReference Include="Src\PascalScript\t_PascalScript.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptBase64.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptCompiler.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptGlobal.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptLogger.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptMath.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptRegExpr.pas" />
+    <DCCReference Include="Src\PascalScript\u_PascalScriptTileCache.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptTypes.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptUrlTemplate.pas" />
     <DCCReference Include="Src\PascalScript\u_PascalScriptUtils.pas" />
@@ -1406,6 +1412,10 @@
       <Form>frCacheTypeList</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="Src\Settings\fr_GeoCoderApiKey.pas">
+      <Form>frGeoCoderApiKey</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="Src\Settings\fr_GPSConfig.pas">
       <Form>frGPSConfig</Form>
       <DesignClass>TFrame</DesignClass>
@@ -1447,7 +1457,6 @@
     <DCCReference Include="Src\System\u_LanguageManager.pas" />
     <DCCReference Include="Src\System\u_LanguagesEx.pas" />
     <DCCReference Include="Src\System\u_SystemTimeProvider.pas" />
-    <DCCReference Include="Src\TimeZone\u_TimeZoneInfo.pas" />
     <DCCReference Include="Src\Terrain\c_TerrainProvider.pas" />
     <DCCReference Include="Src\Terrain\c_TerrainProviderGUID.pas" />
     <DCCReference Include="Src\Terrain\External\u_ExternalTerrainAPI.pas" />
@@ -1635,13 +1644,21 @@
     <DCCReference Include="Src\TileStorage\u_TileStorageTypeList.pas" />
     <DCCReference Include="Src\TileStorage\u_TileStorageTypeListItem.pas" />
     <DCCReference Include="Src\TileStorage\u_TileStorageTypeListSimple.pas" />
+    <DCCReference Include="Src\TimeZone\u_TimeZoneInfo.pas" />
     <DCCReference Include="Src\t_CommonTypes.pas" />
     <DCCReference Include="Src\t_GeoTypes.pas" />
     <DCCReference Include="Src\UpdateChecker\frm_UpdateChecker.pas">
       <Form>frmUpdateChecker</Form>
     </DCCReference>
     <DCCReference Include="Src\UpdateChecker\i_UpdateDownloader.pas" />
+    <DCCReference Include="Src\UpdateChecker\i_UpdateProgress.pas" />
+    <DCCReference Include="Src\UpdateChecker\t_UpdateChecker.pas" />
+    <DCCReference Include="Src\UpdateChecker\u_UpdateChecker.pas" />
+    <DCCReference Include="Src\UpdateChecker\u_UpdateCheckerFunc.pas" />
+    <DCCReference Include="Src\UpdateChecker\u_UpdateCheckerThread.pas" />
     <DCCReference Include="Src\UpdateChecker\u_UpdateDownloader.pas" />
+    <DCCReference Include="Src\UpdateChecker\u_UpdateDownloaderThread.pas" />
+    <DCCReference Include="Src\UpdateChecker\u_UpdateProgress.pas" />
     <DCCReference Include="Src\UrlByCoord\i_UrlByCoordProvider.pas" />
     <DCCReference Include="Src\UrlByCoord\u_UrlByCoordProvider.pas" />
     <DCCReference Include="Src\u_BitmapFunc.pas" />

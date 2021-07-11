@@ -1130,6 +1130,7 @@ uses
   u_SensorsFromGPSRecorder in 'Src\Sensor\u_SensorsFromGPSRecorder.pas',
   fr_CacheTypeList in 'Src\Settings\fr_CacheTypeList.pas' {frCacheTypeList: TFrame},
   fr_GPSConfig in 'Src\Settings\fr_GPSConfig.pas' {frGPSConfig: TFrame},
+  fr_GeoCoderApiKey in 'Src\Settings\fr_GeoCoderApiKey.pas' {frGeoCoderApiKey: TFrame},
   fr_GpsSatellites in 'Src\Settings\fr_GpsSatellites.pas' {frGpsSatellites: TFrame},
   fr_MapsList in 'Src\Settings\fr_MapsList.pas' {frMapsList: TFrame},
   fr_ShortCutList in 'Src\Settings\fr_ShortCutList.pas' {frShortCutList: TFrame},

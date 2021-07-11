@@ -1492,6 +1492,30 @@ object frmSettings: TfrmSettings
         end
       end
     end
+    object tsSearch: TTabSheet
+      Caption = 'Search'
+      ImageIndex = 11
+      object pnlGoogleApiKey: TPanel
+        Left = 0
+        Top = 0
+        Width = 644
+        Height = 45
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 0
+      end
+      object pnlYandexApiKey: TPanel
+        Left = 0
+        Top = 45
+        Width = 644
+        Height = 45
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 1
+        ExplicitLeft = 3
+        ExplicitTop = 146
+      end
+    end
     object tsGrids: TTabSheet
       Caption = 'Grids'
       ImageIndex = 8

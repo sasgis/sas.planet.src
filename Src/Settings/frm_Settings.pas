@@ -45,10 +45,12 @@ uses
   i_MainFormConfig,
   i_SensorList,
   i_FavoriteMapSetHelper,
+  i_GeoCoderConfig,
   u_ShortcutManager,
   u_CommonFormAndFrameParents,
   frm_FavoriteMapSetEditor,
   fr_FavoriteMapSetManager,
+  fr_GeoCoderApiKey,
   fr_MapsList,
   fr_GPSConfig,
   fr_PathSelect,
@@ -246,6 +248,9 @@ type
     rbManualProxy: TRadioButton;
     pnlProxyRadioButtons: TPanel;
     cbbProxyType: TComboBox;
+    tsSearch: TTabSheet;
+    pnlGoogleApiKey: TPanel;
+    pnlYandexApiKey: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -265,12 +270,14 @@ type
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
-    frShortCutList: TfrShortCutList;
-    frMapsList: TfrMapsList;
-    frGPSConfig: TfrGPSConfig;
+    FfrShortCutList: TfrShortCutList;
+    FfrMapsList: TfrMapsList;
+    FfrGPSConfig: TfrGPSConfig;
     FMainFormConfig: IMainFormConfig;
+    FGeoCoderConfig: IGeoCoderConfig;
     FSensorList: ISensorList;
     FMapTypeEditor: IMapTypeConfigModalEdit;
+
     FfrMapPathSelect: TfrPathSelect;
     FfrTerrainDataPathSelect: TfrPathSelect;
     FfrUserDataPathSelect: TfrPathSelect;
@@ -279,10 +286,11 @@ type
     FfrMarksDbPathSelect: TfrPathSelect;
     FfrMediaDataPathSelect: TfrPathSelect;
     FfrMapSvcScanPathSelect: TfrPathSelect;
-    FfrBaseCahcePathSelect: TfrPathSelect;
-    FfrNewCpath: TfrPathSelect;
-    FfrOldCpath: TfrPathSelect;
-    FfrEScPath: TfrPathSelect;
+    FfrBaseCachePathSelect: TfrPathSelect;
+
+    FfrNewCachePath: TfrPathSelect;
+    FfrOldCachePath: TfrPathSelect;
+    FfrEarthSlicerCachePath: TfrPathSelect;
     FfrGMTilesPath: TfrPathSelect;
     FfrMobileAtlasTilesPath: TfrPathSelect;
     FfrTMSTilesPath: TfrPathSelect;
@@ -291,8 +299,12 @@ type
     FfrBDBVerCachePath: TfrPathSelect;
     FfrSQLiteCachePath: TfrPathSelect;
     FfrGCCachePath: TfrPathSelect;
+
     FfrCacheTypesList: TfrCacheTypeList;
-    frFavoriteMapSetManager: TfrFavoriteMapSetManager;
+    FfrFavoriteMapSetManager: TfrFavoriteMapSetManager;
+
+    FfrGoogleApiKey: TfrGeoCoderApiKey;
+    FfrYandexApiKey: TfrGeoCoderApiKey;
 
     procedure InitCoordRepresentationList;
     procedure InitResamplersList(
@@ -309,6 +321,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMainFormConfig: IMainFormConfig;
+      const AGeoCoderConfig: IGeoCoderConfig;
       const ASensorList: ISensorList;
       const AShortCutManager: TShortcutManager;
       const AMapTypeEditor: IMapTypeConfigModalEdit;
@@ -342,6 +355,7 @@ uses
 constructor TfrmSettings.Create(
   const ALanguageManager: ILanguageManager;
   const AMainFormConfig: IMainFormConfig;
+  const AGeoCoderConfig: IGeoCoderConfig;
   const ASensorList: ISensorList;
   const AShortCutManager: TShortcutManager;
   const AMapTypeEditor: IMapTypeConfigModalEdit;
@@ -351,17 +365,20 @@ constructor TfrmSettings.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
   FMapTypeEditor := AMapTypeEditor;
   FMainFormConfig := AMainFormConfig;
+  FGeoCoderConfig := AGeoCoderConfig;
   FSensorList := ASensorList;
   FOnSave := AOnSave;
   FLinksList := TListenerNotifierLinksList.Create;
-  frShortCutList :=
+
+  FfrShortCutList :=
     TfrShortCutList.Create(
       ALanguageManager,
       AShortCutManager
     );
-  frMapsList :=
+  FfrMapsList :=
     TfrMapsList.Create(
       ALanguageManager,
       GState.InternalBrowser,
@@ -369,7 +386,7 @@ begin
       GState.MapType.GUIConfigList,
       AMapTypeEditor
     );
-  frFavoriteMapSetManager :=
+  FfrFavoriteMapSetManager :=
     TfrFavoriteMapSetManager.Create(
       ALanguageManager,
       GState.MapType.FullMapsSet,
@@ -378,7 +395,7 @@ begin
       AFavoriteMapSetHelper,
       AFavoriteMapSetEditor
     );
-  frGPSConfig :=
+  FfrGPSConfig :=
     TfrGPSConfig.Create(
       ALanguageManager,
       GState.GpsSystem,
@@ -397,6 +414,8 @@ begin
       CTileStorageTypeClassAll,
       [tsacRead]
     );
+
+  // Path tab
   FfrMapPathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
@@ -445,25 +464,27 @@ begin
       gettext_NoOp('Path to map scan DB'),
       GState.Config.MapSvcScanConfig.Path
     );
-  FfrBaseCahcePathSelect :=
+  FfrBaseCachePathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
       gettext_NoOp('Base Cache path'),
       GState.Config.BaseCachePath
     );
-  FfrNewCpath :=
+
+  // Cache tab
+  FfrNewCachePath :=
     TfrPathSelect.Create(
       ALanguageManager,
       gettext_NoOp('Native cache folder:'),
       GState.CacheConfig.NewCPath
     );
-  FfrOldCpath :=
+  FfrOldCachePath :=
     TfrPathSelect.Create(
       ALanguageManager,
       gettext_NoOp('GoogleMV cache folder:'),
       GState.CacheConfig.OldCPath
     );
-  FfrEScPath :=
+  FfrEarthSlicerCachePath :=
     TfrPathSelect.Create(
       ALanguageManager,
       gettext_NoOp('EarthSlicer cache folder:'),
@@ -518,15 +539,27 @@ begin
       GState.CacheConfig.GCCachePath
     );
 
-  PageControl1.ActivePageIndex := 0;
+  // Search tab
+  FfrGoogleApiKey :=
+    TfrGeoCoderApiKey.Create(
+      ALanguageManager,
+      'Google'
+    );
+  FfrYandexApiKey :=
+    TfrGeoCoderApiKey.Create(
+      ALanguageManager,
+      gettext_NoOp('Yandex')
+    );
+
+  PageControl1.ActivePageIndex := 0; // Maps
 end;
 
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
-  frShortCutList.CancelChanges;
-  frMapsList.CancelChanges;
-  frFavoriteMapSetManager.CancelChanges;
-  frGPSConfig.CancelChanges;
+  FfrShortCutList.CancelChanges;
+  FfrMapsList.CancelChanges;
+  FfrFavoriteMapSetManager.CancelChanges;
+  FfrGPSConfig.CancelChanges;
   Close;
 end;
 
@@ -610,10 +643,10 @@ procedure TfrmSettings.btnApplyClick(Sender: TObject);
 var
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
-  VNeedReboot: boolean;
+  VNeedReboot: Boolean;
   VConnsPerServer: TConnsPerServerRec;
 begin
-  VNeedReboot := false;
+  VNeedReboot := False;
 
   FMainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
@@ -755,9 +788,9 @@ begin
     FMainFormConfig.MainConfig.UnlockWrite;
   end;
 
-  FfrNewCpath.ApplyChanges;
-  FfrOldCpath.ApplyChanges;
-  FfrESCPath.ApplyChanges;
+  FfrNewCachePath.ApplyChanges;
+  FfrOldCachePath.ApplyChanges;
+  FfrEarthSlicerCachePath.ApplyChanges;
   FfrGMTilesPath.ApplyChanges;
   FfrMobileAtlasTilesPath.ApplyChanges;
   FfrTMSTilesPath.ApplyChanges;
@@ -777,7 +810,7 @@ begin
   FfrMarksDbPathSelect.ApplyChanges;
   FfrMediaDataPathSelect.ApplyChanges;
   FfrMapSvcScanPathSelect.ApplyChanges;
-  FfrBaseCahcePathSelect.ApplyChanges;
+  FfrBaseCachePathSelect.ApplyChanges;
 
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
   try
@@ -799,13 +832,25 @@ begin
 
   FMainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
-  frShortCutList.ApplyChanges;
-  frMapsList.ApplyChanges;
-  frFavoriteMapSetManager.ApplyChanges;
-  frGPSConfig.ApplyChanges;
+  FfrShortCutList.ApplyChanges;
+  FfrMapsList.ApplyChanges;
+  FfrFavoriteMapSetManager.ApplyChanges;
+  FfrGPSConfig.ApplyChanges;
+
+  // Search tab
+  if FfrGoogleApiKey.Value <> FGeoCoderConfig.GoogleApiKey then begin
+    FGeoCoderConfig.GoogleApiKey := FfrGoogleApiKey.Value;
+    VNeedReboot := True;
+  end;
+  if FfrYandexApiKey.Value <> FGeoCoderConfig.YandexApiKey then begin
+    FGeoCoderConfig.YandexApiKey := FfrYandexApiKey.Value;
+    VNeedReboot := True;
+  end;
+
   if Assigned(FOnSave) then begin
     FOnSave(nil);
   end;
+
   if VNeedReboot then begin
     MessageDlg(SAS_MSG_need_reload_application_curln, mtInformation, [mbOK], 0);
   end;
@@ -818,10 +863,12 @@ end;
 
 destructor TfrmSettings.Destroy;
 begin
-  FreeAndNil(frShortCutList);
-  FreeAndNil(frMapsList);
-  FreeAndNil(frFavoriteMapSetManager);
-  FreeAndNil(frGPSConfig);
+  FreeAndNil(FfrShortCutList);
+  FreeAndNil(FfrMapsList);
+  FreeAndNil(FfrFavoriteMapSetManager);
+  FreeAndNil(FfrGPSConfig);
+  FreeAndNil(FfrCacheTypesList);
+
   FreeAndNil(FfrMapPathSelect);
   FreeAndNil(FfrTerrainDataPathSelect);
   FreeAndNil(FfrTrackPathSelect);
@@ -830,10 +877,11 @@ begin
   FreeAndNil(FfrMarksDbPathSelect);
   FreeAndNil(FfrMediaDataPathSelect);
   FreeAndNil(FfrMapSvcScanPathSelect);
-  FreeAndNil(FfrBaseCahcePathSelect);
-  FreeAndNil(FfrNewCpath);
-  FreeAndNil(FfrOldCpath);
-  FreeAndNil(FfrEScPath);
+  FreeAndNil(FfrBaseCachePathSelect);
+
+  FreeAndNil(FfrNewCachePath);
+  FreeAndNil(FfrOldCachePath);
+  FreeAndNil(FfrEarthSlicerCachePath);
   FreeAndNil(FfrGMTilesPath);
   FreeAndNil(FfrMobileAtlasTilesPath);
   FreeAndNil(FfrTMSTilesPath);
@@ -842,8 +890,11 @@ begin
   FreeAndNil(FfrBDBVerCachePath);
   FreeAndNil(FfrSQLiteCachePath);
   FreeAndNil(FfrGCCachePath);
-  FreeAndNil(FfrCacheTypesList);
-  inherited;
+
+  FreeAndNil(FfrGoogleApiKey);
+  FreeAndNil(FfrYandexApiKey);
+
+  inherited Destroy;
 end;
 
 procedure TfrmSettings.FormShow(Sender: TObject);
@@ -856,11 +907,14 @@ begin
   FLinksList.ActivateLinks;
 
   CBoxLocal.Clear;
-  frShortCutList.Parent := GroupBox5;
-  frMapsList.Parent := tsMaps;
-  frMapsList.Init;
-  frFavoriteMapSetManager.Parent := tsFavorite;
-  frFavoriteMapSetManager.Init;
+  FfrShortCutList.Parent := GroupBox5;
+
+  FfrMapsList.Parent := tsMaps;
+  FfrMapsList.Init;
+
+  FfrFavoriteMapSetManager.Parent := tsFavorite;
+  FfrFavoriteMapSetManager.Init;
+
   FfrMapPathSelect.Show(pnlMapsPath);
   FfrTerrainDataPathSelect.Show(pnlTerrainDataPath);
   FfrUserDataPathSelect.Show(pnlUserDataPath);
@@ -869,10 +923,11 @@ begin
   FfrMarksDbPathSelect.Show(pnlMarksDbPath);
   FfrMediaDataPathSelect.Show(pnlMediaDataPath);
   FfrMapSvcScanPathSelect.Show(pnlMapSvcScan);
-  FfrBaseCahcePathSelect.Show(pnlBaseCahcePath);
-  FfrNewCpath.Show(pnlNewCpath);
-  FfrOldCpath.Show(pnlOldCpath);
-  FfrEScPath.Show(pnlEScPath);
+  FfrBaseCachePathSelect.Show(pnlBaseCahcePath);
+
+  FfrNewCachePath.Show(pnlNewCpath);
+  FfrOldCachePath.Show(pnlOldCpath);
+  FfrEarthSlicerCachePath.Show(pnlEScPath);
   FfrGMTilesPath.Show(pnlGMTilesPath);
   FfrMobileAtlasTilesPath.Show(pnlMATilesPath);
   FfrTMSTilesPath.Show(pnlTMSPath);
@@ -881,10 +936,18 @@ begin
   FfrBDBVerCachePath.Show(pnledtBDBVerCachePath);
   FfrSQLiteCachePath.Show(pnlSQLiteCachePath);
   FfrGCCachePath.Show(pnledtGCCachePath);
+
   FfrCacheTypesList.Show(pnlCacheTypesList);
 
-  frGPSConfig.Parent := tsGPS;
-  frGPSConfig.Init;
+  FfrGPSConfig.Parent := tsGPS;
+  FfrGPSConfig.Init;
+
+  // Search tab
+  FfrGoogleApiKey.Value := FGeoCoderConfig.GoogleApiKey;
+  FfrGoogleApiKey.Parent := pnlGoogleApiKey;
+
+  FfrYandexApiKey.Value := FGeoCoderConfig.YandexApiKey;
+  FfrYandexApiKey.Parent := pnlYandexApiKey;
 
   CBoxLocal.Items.Clear;
   for i := 0 to GState.Config.LanguageManager.LanguageList.Count - 1 do begin
@@ -1057,7 +1120,7 @@ procedure TfrmSettings.FormCloseQuery(
   var CanClose: Boolean
 );
 begin
-  CanClose := frGPSConfig.CanClose;
+  CanClose := FfrGPSConfig.CanClose;
 end;
 
 procedure TfrmSettings.TrBarGammaChange(Sender: TObject);

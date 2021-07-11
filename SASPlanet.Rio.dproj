@@ -2288,6 +2288,10 @@
             <Form>frGPSConfig</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Src\Settings\fr_GeoCoderApiKey.pas">
+            <Form>frGeoCoderApiKey</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Src\Settings\fr_GpsSatellites.pas">
             <Form>frGpsSatellites</Form>
             <DesignClass>TFrame</DesignClass>

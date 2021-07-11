@@ -2063,6 +2063,7 @@ begin
       TfrmSettings.Create(
         GState.Config.LanguageManager,
         FConfig,
+        GState.Config.GeoCoderConfig,
         FSensorList,
         FShortCutManager,
         FMapTypeEditor,
