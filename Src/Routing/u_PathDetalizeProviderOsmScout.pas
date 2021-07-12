@@ -235,10 +235,11 @@ begin
 
       // collect db names (folder == db)
       I := 0;
-      if FindFirst(string(FDatabasePath) + '*.*', faDirectory, VSearchRec) = 0 then
+      if FindFirst(string(FDatabasePath) + '*.*', faAnyFile, VSearchRec) = 0 then
       try
         repeat
-          if VSearchRec.Attr <> faDirectory then begin
+          if (VSearchRec.Attr and faDirectory) = 0 then begin
+            // ignore all except folders
             Continue;
           end;
 
