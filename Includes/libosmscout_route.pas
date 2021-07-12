@@ -15,7 +15,8 @@ type
   TRouteProfile = (
     ROUTE_PROFILE_CAR,
     ROUTE_PROFILE_BIKE,
-    ROUTE_PROFILE_FOOT
+    ROUTE_PROFILE_FOOT,
+    ROUTE_PROFILE_UNDEF
   );
 
   TRouteCalcResult  = (
@@ -36,6 +37,7 @@ var
     init: procedure(); cdecl;
 
     new: function(out ctx: pointer; const db_path: PAnsiChar): boolean; cdecl;
+    new_multi: function(out ctx: pointer; const db_path: PAnsiChar; db_count: uint32_t): boolean; cdecl;
     del: procedure(ctx: pointer); cdecl;
 
     calc: function(ctx: pointer; profile: TRouteProfile; const p1, p2: ppoint_t;
@@ -77,8 +79,8 @@ end;
 
 procedure LibOsmScoutRouteInitialize(const dllname: string);
 const
-  CFuncNames: array[0..5] of string = (
-    'init', 'new', 'del', 'calc', 'clear', 'get_error_message'
+  CFuncNames: array[0..6] of string = (
+    'init', 'new', 'new_multi', 'del', 'calc', 'clear', 'get_error_message'
   );
 var
   I: Integer;

@@ -117,6 +117,7 @@ constructor TPathDetalizeProviderOsmScout.Create(
 begin
   inherited Create('', nil, nil, AVectorGeometryLonLatFactory);
 
+  FCtx := nil;
   FProfile := AProfile;
   FOsmScoutRouteContext := AOsmScoutRouteContext;
 end;
@@ -131,9 +132,6 @@ end;
 
 procedure TPathDetalizeProviderOsmScout.OnAfterGetPath;
 begin
-  if FCtx <> nil then begin
-    router.clear(FCtx);
-  end;
   FCtx := nil;
   Math.SetExceptionMask(FExceptionMask);
   FOsmScoutRouteContext.Release;
@@ -201,7 +199,7 @@ begin
     raise EPathDetalizeProviderOsmScout.Create('Point types mismatch!');
   end;
 
-  FDatabasePath := StringToAnsiSafe(ADatabasePath);
+  FDatabasePath := StringToAnsiSafe(IncludeTrailingPathDelimiter(ADatabasePath));
 
   FCtx := nil;
   FIsInitialized := False;
@@ -224,26 +222,77 @@ begin
 end;
 
 function TOsmScoutRouteContext.Acquire: Pointer;
+var
+  I: Integer;
+  VDataBases: array of AnsiString;
+  VDataBasesArr: array of PAnsiChar;
+  VSearchRec: TSearchRec;
 begin
   FLock.Acquire;
   try
     if not FIsInitialized then begin
       FIsInitialized := True;
-      if not router.new(FCtx, PAnsiChar(FDatabasePath)) then begin
-        try
-          RiseLibOsmScoutError(FCtx, 'new');
-        finally
-          DeleteCtx;
+
+      // collect db names (folder == db)
+      I := 0;
+      if FindFirst(string(FDatabasePath) + '*.*', faDirectory, VSearchRec) = 0 then
+      try
+        repeat
+          if VSearchRec.Attr <> faDirectory then begin
+            Continue;
+          end;
+
+          if Pos('.', VSearchRec.Name) = 1 then begin
+            // ignore folders beginnig with dot (include "." and "..")
+            Continue;
+          end;
+
+          SetLength(VDataBases, I+1);
+          SetLength(VDataBasesArr, I+1);
+
+          VDataBases[I] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
+          VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
+
+          Inc(I);
+        until FindNext(VSearchRec) <> 0;
+      finally
+        FindClose(VSearchRec);
+      end;
+
+      if I = 0 then begin
+        // db is a root folder
+        SetLength(VDataBases, 1);
+        VDataBases[I] := FDatabasePath;
+        Inc(I);
+      end;
+
+      // open
+      if I = 1 then begin
+        if not router.new(FCtx, PAnsiChar(VDataBases[0])) then begin
+          try
+            RiseLibOsmScoutError(FCtx, 'new');
+          finally
+            DeleteCtx;
+          end;
+        end;
+      end else begin
+        if not router.new_multi(FCtx, @VDataBasesArr[0], I) then begin
+          try
+            RiseLibOsmScoutError(FCtx, 'new_multi');
+          finally
+            DeleteCtx;
+          end;
         end;
       end;
     end;
+
     if FCtx = nil then begin
       raise EPathDetalizeProviderOsmScout.Create('Context is not assigned!');
     end;
+
     Result := FCtx;
-  except
+  finally
     FLock.Release;
-    Result := nil;
   end;
 end;
 

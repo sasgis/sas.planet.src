@@ -193,7 +193,7 @@ begin
 
   VOsmScoutRouteContext :=
     NewOsmScoutRouteContext(
-      ExtractFilePath(ParamStr(0)) + 'OsmScout\'
+      ExtractFilePath(ParamStr(0)) + 'osmscout\'
     );
 
   for I := Low(TRouteProfile) to High(TRouteProfile) do begin
