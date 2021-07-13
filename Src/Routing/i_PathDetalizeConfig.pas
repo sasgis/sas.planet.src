@@ -51,6 +51,9 @@ type
     function GetDefaultProvider: TGUID;
     procedure SetDefaultProvider(const AValue: TGUID);
     property DefaultProvider: TGUID read GetDefaultProvider write SetDefaultProvider;
+
+    function GetGarbageCollectionTimeOut: Integer;
+    property GarbageCollectionTimeOut: Integer read GetGarbageCollectionTimeOut;
   end;
 
 implementation

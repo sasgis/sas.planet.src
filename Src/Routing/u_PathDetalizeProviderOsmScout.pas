@@ -27,7 +27,9 @@ uses
   SysUtils,
   libosmscout_route,
   t_GeoTypes,
+  i_NotifierTime,
   i_NotifierOperation,
+  i_PathDetalizeConfig,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_DoublePointsAggregator,
@@ -73,6 +75,8 @@ type
   EPathDetalizeProviderOsmScout = class(Exception);
 
 function NewOsmScoutRouteContext(
+  const AGCNotifier: INotifierTime;
+  const APathDetalizeConfig: IPathDetalizeConfig;
   const ADatabasePath: string
 ): IOsmScoutRouteContext;
 
@@ -80,6 +84,8 @@ implementation
 
 uses
   SyncObjs,
+  i_ListenerTime,
+  u_ListenerTime,
   u_StrFunc,
   u_BaseInterfacedObject;
 
@@ -90,21 +96,38 @@ type
     FLock: TCriticalSection;
     FDatabasePath: AnsiString;
     FIsInitialized: Boolean;
-    procedure DeleteCtx;
+
+    FNotifier: INotifierTime;
+    FListener: IListenerTimeWithUsedFlag;
+
+    procedure OnGarbageCollectionNotify;
+
+    procedure ClearCtx; inline;
+    procedure DeleteCtx; inline;
   private
     { IOsmScoutRouteContext }
     function Acquire: Pointer;
     procedure Release;
   public
-    constructor Create(const ADatabasePath: string);
+    constructor Create(
+      const AGCNotifier: INotifierTime;
+      const APathDetalizeConfig: IPathDetalizeConfig;
+      const ADatabasePath: string
+    );
     destructor Destroy; override;
   end;
 
 function NewOsmScoutRouteContext(
+  const AGCNotifier: INotifierTime;
+  const APathDetalizeConfig: IPathDetalizeConfig;
   const ADatabasePath: string
 ): IOsmScoutRouteContext;
 begin
-  Result := TOsmScoutRouteContext.Create(ADatabasePath);
+  Result := TOsmScoutRouteContext.Create(
+    AGCNotifier,
+    APathDetalizeConfig,
+    ADatabasePath
+  );
 end;
 
 { TPathDetalizeProviderOSMScout }
@@ -191,7 +214,13 @@ end;
 
 { TOsmScoutRouteContext }
 
-constructor TOsmScoutRouteContext.Create(const ADatabasePath: string);
+constructor TOsmScoutRouteContext.Create(
+  const AGCNotifier: INotifierTime;
+  const APathDetalizeConfig: IPathDetalizeConfig;
+  const ADatabasePath: string
+);
+var
+  VTimeOut: Integer;
 begin
   inherited Create;
 
@@ -204,13 +233,35 @@ begin
   FCtx := nil;
   FIsInitialized := False;
   FLock := TCriticalSection.Create;
+
+  VTimeOut := APathDetalizeConfig.GarbageCollectionTimeOut;
+  if VTimeOut > 0 then begin
+    FListener := TListenerTTLCheck.Create(Self.OnGarbageCollectionNotify, VTimeOut);
+    FNotifier := AGCNotifier;
+    FNotifier.Add(FListener);
+  end else begin
+    FNotifier := nil;
+    FListener := nil;
+  end;
 end;
 
 destructor TOsmScoutRouteContext.Destroy;
 begin
+  if Assigned(FNotifier) and Assigned(FListener) then begin
+    FNotifier.Remove(FListener);
+  end;
+
   DeleteCtx;
   FreeAndNil(FLock);
+
   inherited Destroy;
+end;
+
+procedure TOsmScoutRouteContext.ClearCtx;
+begin
+  if FCtx <> nil then begin
+    router.clear(FCtx);
+  end;
 end;
 
 procedure TOsmScoutRouteContext.DeleteCtx;
@@ -229,77 +280,90 @@ var
   VSearchRec: TSearchRec;
 begin
   FLock.Acquire;
-  try
-    if not FIsInitialized then begin
-      FIsInitialized := True;
 
-      // collect db names (folder == db)
-      I := 0;
-      if FindFirst(string(FDatabasePath) + '*.*', faAnyFile, VSearchRec) = 0 then
-      try
-        repeat
-          if (VSearchRec.Attr and faDirectory) = 0 then begin
-            // ignore all except folders
-            Continue;
-          end;
+  if not FIsInitialized then begin
+    FIsInitialized := True;
 
-          if Pos('.', VSearchRec.Name) = 1 then begin
-            // ignore folders beginnig with dot (include "." and "..")
-            Continue;
-          end;
+    // collect db names (folder == db)
+    I := 0;
+    if FindFirst(string(FDatabasePath) + '*.*', faAnyFile, VSearchRec) = 0 then
+    try
+      repeat
+        if (VSearchRec.Attr and faDirectory) = 0 then begin
+          // ignore all except folders
+          Continue;
+        end;
 
-          SetLength(VDataBases, I+1);
-          SetLength(VDataBasesArr, I+1);
+        if Pos('.', VSearchRec.Name) = 1 then begin
+          // ignore folders beginnig with dot (include "." and "..")
+          Continue;
+        end;
 
-          VDataBases[I] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
-          VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
+        SetLength(VDataBases, I+1);
+        SetLength(VDataBasesArr, I+1);
 
-          Inc(I);
-        until FindNext(VSearchRec) <> 0;
-      finally
-        FindClose(VSearchRec);
-      end;
+        VDataBases[I] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
+        VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
 
-      if I = 0 then begin
-        // db is a root folder
-        SetLength(VDataBases, 1);
-        VDataBases[I] := FDatabasePath;
         Inc(I);
-      end;
+      until FindNext(VSearchRec) <> 0;
+    finally
+      FindClose(VSearchRec);
+    end;
 
-      // open
-      if I = 1 then begin
-        if not router.new(FCtx, PAnsiChar(VDataBases[0])) then begin
-          try
-            RiseLibOsmScoutError(FCtx, 'new');
-          finally
-            DeleteCtx;
-          end;
+    if I = 0 then begin
+      // db is a root folder
+      SetLength(VDataBases, 1);
+      VDataBases[I] := FDatabasePath;
+      Inc(I);
+    end;
+
+    // open
+    if I = 1 then begin
+      if not router.new(FCtx, PAnsiChar(VDataBases[0])) then begin
+        try
+          RiseLibOsmScoutError(FCtx, 'new');
+        finally
+          DeleteCtx;
         end;
-      end else begin
-        if not router.new_multi(FCtx, @VDataBasesArr[0], I) then begin
-          try
-            RiseLibOsmScoutError(FCtx, 'new_multi');
-          finally
-            DeleteCtx;
-          end;
+      end;
+    end else begin
+      if not router.new_multi(FCtx, @VDataBasesArr[0], I) then begin
+        try
+          RiseLibOsmScoutError(FCtx, 'new_multi');
+        finally
+          DeleteCtx;
         end;
       end;
     end;
-
-    if FCtx = nil then begin
-      raise EPathDetalizeProviderOsmScout.Create('Context is not assigned!');
-    end;
-
-    Result := FCtx;
-  finally
-    FLock.Release;
   end;
+
+  if FCtx = nil then begin
+    raise EPathDetalizeProviderOsmScout.Create('Context is not assigned!');
+  end;
+
+  Result := FCtx;
 end;
 
 procedure TOsmScoutRouteContext.Release;
 begin
+  if Assigned(FListener) then begin
+    FListener.UpdateUseTime;
+  end else begin
+    ClearCtx;
+  end;
+
   FLock.Release;
+end;
+
+procedure TOsmScoutRouteContext.OnGarbageCollectionNotify;
+begin
+  if FLock.TryEnter then
+  try
+    ClearCtx;
+  finally
+    FLock.Release;
+  end;
 end;
 
 end.

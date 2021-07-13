@@ -181,6 +181,8 @@ end;
 
 procedure AddOsmScoutProvider(
   const AGuidList: TProviderGuidList;
+  const AGCNotifier: INotifierTime;
+  const APathDetalizeConfig: IPathDetalizeConfig;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const ASet: IGUIDInterfaceSet
 );
@@ -193,6 +195,8 @@ begin
 
   VOsmScoutRouteContext :=
     NewOsmScoutRouteContext(
+      AGCNotifier,
+      APathDetalizeConfig,
       ExtractFilePath(ParamStr(0)) + 'osmscout\'
     );
 
@@ -278,6 +282,8 @@ begin
   if IsLibOsmScoutRouteAvailable then begin
     AddOsmScoutProvider(
       FOsmScoutGuidList,
+      AGCNotifier,
+      FPathDetalizeConfig,
       AVectorGeometryLonLatFactory,
       Result
     );

@@ -36,6 +36,7 @@ type
     FArrayOfProjectOSRM: TArrayOfProjectOSRM;
     FEnableAutomaticRouting: Boolean;
     FDefaultProvider: TGUID;
+    FGarbageCollectionTimeOut: Integer;
   private
     { IPathDetalizeConfig }
     function GetEnableProjectOSRM: Boolean;
@@ -48,6 +49,8 @@ type
 
     function GetDefaultProvider: TGUID;
     procedure SetDefaultProvider(const AValue: TGUID);
+
+    function GetGarbageCollectionTimeOut: Integer;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -74,6 +77,7 @@ begin
   FArrayOfProjectOSRM := nil;
   FEnableAutomaticRouting := True;
   FDefaultProvider := CGUID_Zero; // first available
+  FGarbageCollectionTimeOut := 120000; // milliseconds = 2 minutes
 end;
 
 procedure TPathDetalizeConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -124,6 +128,7 @@ begin
     ReadArrayOfProjectOSRM( AConfigData.ReadString('CustomOSRM', '') );
     FEnableAutomaticRouting := AConfigData.ReadBool('EnableAutomaticRouting', FEnableAutomaticRouting);
     FDefaultProvider := ReadGUID(AConfigData, 'DefaultProvider', FDefaultProvider);
+    FGarbageCollectionTimeOut := AConfigData.ReadInteger('GarbageCollectionTimeOut', FGarbageCollectionTimeOut);
     SetChanged;
   end;
 end;
@@ -149,6 +154,7 @@ begin
   AConfigData.WriteString('CustomOSRM', _GetCustomOSRM);
   AConfigData.WriteBool('EnableAutomaticRouting', FEnableAutomaticRouting);
   AConfigData.WriteString('DefaultProvider', GUIDToString(FDefaultProvider));
+  AConfigData.WriteInteger('GarbageCollectionTimeOut', FGarbageCollectionTimeOut);
 end;
 
 function TPathDetalizeConfig.GetArrayOfProjectOSRM: TArrayOfProjectOSRM;
@@ -186,6 +192,16 @@ begin
   LockRead;
   try
     Result := FEnableZlzk;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TPathDetalizeConfig.GetGarbageCollectionTimeOut: Integer;
+begin
+  LockRead;
+  try
+    Result := FGarbageCollectionTimeOut;
   finally
     UnlockRead;
   end;
