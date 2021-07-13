@@ -85,6 +85,7 @@ begin
   try
     FGoogleApiKey := ReadApiKey(CGoogleApiKeyFileName);
     FYandexApiKey := ReadApiKey(CYandexApiKeyFileName);
+    SetChanged;
   finally
     UnlockWrite;
   end;
