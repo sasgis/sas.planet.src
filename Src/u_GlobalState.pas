@@ -24,9 +24,9 @@ interface
 
 uses
   Windows,
-  {$IFDEF SasDebugWithJcl}
+  {$IFDEF USE_JCL_DEBUG}
   JclDebug,
-  {$ENDIF SasDebugWithJcl}
+  {$ENDIF USE_JCL_DEBUG}
   ExtCtrls,
   Classes,
   IniFiles,
@@ -215,12 +215,9 @@ type
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetPerfCounterList: IInternalPerformanceCounterList;
-    {$IFDEF SasDebugWithJcl}
-    procedure DoException(
-      Sender: TObject;
-      E: Exception
-    );
-    {$ENDIF SasDebugWithJcl}
+    {$IFDEF USE_JCL_DEBUG}
+    procedure DoException(Sender: TObject; E: Exception);
+    {$ENDIF USE_JCL_DEBUG}
   public
     property Config: IGlobalConfig read FGlobalConfig;
     property BaseApplicationPath: IPathConfig read FBaseApplicationPath;
@@ -320,7 +317,7 @@ var
 implementation
 
 uses
-  {$IFDEF SasDebugWithJcl}
+  {$IFDEF USE_JCL_DEBUG}
   Forms,
   {$ENDIF}
   {$IFNDef UNICODE}
@@ -1074,11 +1071,8 @@ begin
     );
 end;
 
-{$IFDEF SasDebugWithJcl}
-procedure TGlobalState.DoException(
-  Sender: TObject;
-  E: Exception
-);
+{$IFDEF USE_JCL_DEBUG}
+procedure TGlobalState.DoException(Sender: TObject; E: Exception);
 var
   VStr: TStringList;
 begin
@@ -1087,21 +1081,20 @@ begin
     JclLastExceptStackListToStrings(VStr, True, True, True, True);
     VStr.Insert(0, E.Message);
     VStr.Insert(1, '');
-    Application.MessageBox(PChar(VStr.Text), 'Ошибка', MB_OK or MB_ICONSTOP);
+    Application.MessageBox(PChar(VStr.Text), 'Error', MB_OK or MB_ICONSTOP);
   finally
     FreeAndNil(VStr);
   end;
 end;
-
-{$ENDIF SasDebugWithJcl}
+{$ENDIF USE_JCL_DEBUG}
 
 procedure TGlobalState.StartExceptionTracking;
 begin
-  {$IFDEF SasDebugWithJcl}
+  {$IFDEF USE_JCL_DEBUG}
   JclStackTrackingOptions := JclStackTrackingOptions + [stRAWMode];
   JclStartExceptionTracking;
   Application.OnException := DoException;
-  {$ENDIF SasDebugWithJcl}
+  {$ENDIF USE_JCL_DEBUG}
 end;
 
 procedure TGlobalState.StartThreads;
@@ -1113,10 +1106,10 @@ end;
 
 procedure TGlobalState.StopExceptionTracking;
 begin
-  {$IFDEF SasDebugWithJcl}
+  {$IFDEF USE_JCL_DEBUG}
   Application.OnException := nil;
   JclStopExceptionTracking;
-  {$ENDIF SasDebugWithJcl}
+  {$ENDIF USE_JCL_DEBUG}
 end;
 
 procedure TGlobalState.SystemTimeChanged;
