@@ -6332,7 +6332,7 @@ end;
 
 procedure TfrmMain.TBEditPathMarshClick(Sender: TObject);
 var
-  VResult: IGeometryLonLatLine;
+  VRoute: IGeometryLonLatLine;
   VEntity: IPathDetalizeProviderTreeEntity;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
@@ -6347,14 +6347,14 @@ begin
       VIsError := True;
       try
         VOperationNotifier := TNotifierOperationFake.Create;
-        VResult :=
-          VProvider.GetPath(
+        VRoute :=
+          VProvider.GetRoute(
             VOperationNotifier,
             VOperationNotifier.CurrentOperation,
             VPathOnMapEdit.Path.Geometry,
             FRouteComment
           );
-        VIsError := (VResult = nil);
+        VIsError := (VRoute = nil);
       except
         on E: Exception do begin
           MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOk], 0);
@@ -6362,7 +6362,7 @@ begin
       end;
       if not VIsError then begin
         MakeBackupOfPathOnMapEdit(VPathOnMapEdit, True);
-        VPathOnMapEdit.SetPath(VResult);
+        VPathOnMapEdit.SetPath(VRoute);
       end else begin
         FRouteComment := '';
       end;
@@ -6542,7 +6542,7 @@ begin
     end;
 
     VRoute :=
-      VProvider.GetPath(
+      VProvider.GetRoute(
         VOperationNotifier,
         VOperationNotifier.CurrentOperation,
         VLonLatLine,

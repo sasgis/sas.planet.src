@@ -21,18 +21,18 @@ type
     FInetConfig: IInetConfig;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   protected
-    function ProcessSinglePath(
+    function ProcessSingleLine(
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ASource: IGeometryLonLatSingleLine;
       const APointsAggregator: IDoublePointsAggregator;
       const ABuilder: IGeometryLonLatLineBuilder
     ): Boolean; virtual; abstract;
-    procedure OnBeforeGetPath; virtual;
-    procedure OnAfterGetPath; virtual;
+    procedure OnBeforeGetRoute; virtual;
+    procedure OnAfterGetRoute; virtual;
   private
     { IPathDetalizeProvider }
-    function GetPath(
+    function GetRoute(
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ASource: IGeometryLonLatLine;
@@ -70,7 +70,7 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 end;
 
-function TPathDetalizeProviderBase.GetPath(
+function TPathDetalizeProviderBase.GetRoute(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const ASource: IGeometryLonLatLine;
@@ -87,7 +87,7 @@ begin
   Result := nil;
   AComment := '';
 
-  OnBeforeGetPath;
+  OnBeforeGetRoute;
   try
     VIsLineProcessed := False;
     VPointsAggregator := TDoublePointsAggregator.Create;
@@ -95,7 +95,7 @@ begin
 
     if Supports(ASource, IGeometryLonLatSingleLine, VSingleLine) then begin
       VIsLineProcessed :=
-        ProcessSinglePath(
+        ProcessSingleLine(
           ACancelNotifier,
           AOperationID,
           VSingleLine,
@@ -105,7 +105,7 @@ begin
     end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
       for I := 0 to VMultiLine.Count - 1 do begin
         if
-          ProcessSinglePath(
+          ProcessSingleLine(
             ACancelNotifier,
             AOperationID,
             VMultiLine.Item[I],
@@ -127,16 +127,16 @@ begin
       Result := VBuilder.MakeStaticAndClear;
     end;
   finally
-    OnAfterGetPath;
+    OnAfterGetRoute;
   end;
 end;
 
-procedure TPathDetalizeProviderBase.OnBeforeGetPath;
+procedure TPathDetalizeProviderBase.OnBeforeGetRoute;
 begin
   // empty
 end;
 
-procedure TPathDetalizeProviderBase.OnAfterGetPath;
+procedure TPathDetalizeProviderBase.OnAfterGetRoute;
 begin
   // empty
 end;

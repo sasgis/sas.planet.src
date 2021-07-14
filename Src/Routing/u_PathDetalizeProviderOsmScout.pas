@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2020, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2021, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -38,7 +38,6 @@ uses
 type
   IOsmScoutRouteContext = interface
     ['{60163DE0-6A10-488B-86E5-5ED82F462F6D}']
-
     function Acquire: Pointer;
     procedure Release;
   end;
@@ -55,15 +54,15 @@ type
     FExceptionMask: TFPUExceptionMask;
     {$IFEND}
   protected
-    function ProcessSinglePath(
+    function ProcessSingleLine(
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ASource: IGeometryLonLatSingleLine;
       const APointsAggregator: IDoublePointsAggregator;
       const ABuilder: IGeometryLonLatLineBuilder
     ): Boolean; override;
-    procedure OnBeforeGetPath; override;
-    procedure OnAfterGetPath; override;
+    procedure OnBeforeGetRoute; override;
+    procedure OnAfterGetRoute; override;
   public
     constructor Create(
       const AProfile: TRouteProfile;
@@ -146,7 +145,7 @@ begin
   FOsmScoutRouteContext := AOsmScoutRouteContext;
 end;
 
-procedure TPathDetalizeProviderOsmScout.OnBeforeGetPath;
+procedure TPathDetalizeProviderOsmScout.OnBeforeGetRoute;
 begin
   FCtx := FOsmScoutRouteContext.Acquire;
   FExceptionMask := Math.SetExceptionMask(
@@ -154,14 +153,14 @@ begin
   );
 end;
 
-procedure TPathDetalizeProviderOsmScout.OnAfterGetPath;
+procedure TPathDetalizeProviderOsmScout.OnAfterGetRoute;
 begin
   FCtx := nil;
   Math.SetExceptionMask(FExceptionMask);
   FOsmScoutRouteContext.Release;
 end;
 
-function TPathDetalizeProviderOsmScout.ProcessSinglePath(
+function TPathDetalizeProviderOsmScout.ProcessSingleLine(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const ASource: IGeometryLonLatSingleLine;

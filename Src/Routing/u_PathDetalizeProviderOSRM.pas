@@ -51,7 +51,7 @@ type
       const APointsAggregator: IDoublePointsAggregator
     );
   protected
-    function ProcessSinglePath(
+    function ProcessSingleLine(
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ALonLatLine: IGeometryLonLatSingleLine;
@@ -150,7 +150,7 @@ begin
   end;
 
   VRoutes := VJsonObject.A['routes'];
-  if not Assigned(VRoutes) or (VRoutes.Length < 1) then begin 
+  if not Assigned(VRoutes) or (VRoutes.Length < 1) then begin
     Exit;
   end;
 
@@ -168,7 +168,7 @@ begin
   end;
 end;
 
-function TPathDetalizeProviderOSRM.ProcessSinglePath(
+function TPathDetalizeProviderOSRM.ProcessSingleLine(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const ALonLatLine: IGeometryLonLatSingleLine;
