@@ -99,6 +99,7 @@ type
 
     FNotifier: INotifierTime;
     FListener: IListenerTimeWithUsedFlag;
+    FDeleteCtxByTimeOut: Boolean;
 
     procedure OnGarbageCollectionNotify;
 
@@ -243,6 +244,7 @@ begin
     FNotifier := nil;
     FListener := nil;
   end;
+  FDeleteCtxByTimeOut := False;
 end;
 
 destructor TOsmScoutRouteContext.Destroy;
@@ -349,6 +351,7 @@ procedure TOsmScoutRouteContext.Release;
 begin
   if Assigned(FListener) then begin
     FListener.UpdateUseTime;
+    FDeleteCtxByTimeOut := False;
   end else begin
     ClearCtx;
   end;
@@ -361,6 +364,13 @@ begin
   if FLock.TryEnter then
   try
     ClearCtx;
+    if FDeleteCtxByTimeOut then begin
+      DeleteCtx;
+      FIsInitialized := False;
+    end else begin
+      FListener.UpdateUseTime;
+      FDeleteCtxByTimeOut := True;
+    end;
   finally
     FLock.Release;
   end;
