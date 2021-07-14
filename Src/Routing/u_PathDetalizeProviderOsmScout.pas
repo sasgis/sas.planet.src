@@ -283,69 +283,73 @@ var
   VSearchRec: TSearchRec;
 begin
   FLock.Acquire;
+  try
+    if not FIsInitialized then begin
+      FIsInitialized := True;
 
-  if not FIsInitialized then begin
-    FIsInitialized := True;
+      // collect db names (folder == db)
+      I := 0;
+      if FindFirst(string(FDatabasePath) + '*.*', faAnyFile, VSearchRec) = 0 then
+      try
+        repeat
+          if (VSearchRec.Attr and faDirectory) = 0 then begin
+            // ignore all except folders
+            Continue;
+          end;
 
-    // collect db names (folder == db)
-    I := 0;
-    if FindFirst(string(FDatabasePath) + '*.*', faAnyFile, VSearchRec) = 0 then
-    try
-      repeat
-        if (VSearchRec.Attr and faDirectory) = 0 then begin
-          // ignore all except folders
-          Continue;
-        end;
+          if Pos('.', VSearchRec.Name) = 1 then begin
+            // ignore folders beginnig with dot (include "." and "..")
+            Continue;
+          end;
 
-        if Pos('.', VSearchRec.Name) = 1 then begin
-          // ignore folders beginnig with dot (include "." and "..")
-          Continue;
-        end;
+          SetLength(VDataBases, I+1);
+          SetLength(VDataBasesArr, I+1);
 
-        SetLength(VDataBases, I+1);
-        SetLength(VDataBasesArr, I+1);
+          VDataBases[I] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
+          VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
 
-        VDataBases[I] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
-        VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
+          Inc(I);
+        until FindNext(VSearchRec) <> 0;
+      finally
+        FindClose(VSearchRec);
+      end;
 
+      if I = 0 then begin
+        // db is a root folder
+        SetLength(VDataBases, 1);
+        VDataBases[I] := FDatabasePath;
         Inc(I);
-      until FindNext(VSearchRec) <> 0;
-    finally
-      FindClose(VSearchRec);
-    end;
-
-    if I = 0 then begin
-      // db is a root folder
-      SetLength(VDataBases, 1);
-      VDataBases[I] := FDatabasePath;
-      Inc(I);
-    end;
-
-    // open
-    if I = 1 then begin
-      if not router.new(FCtx, PAnsiChar(VDataBases[0])) then begin
-        try
-          RiseLibOsmScoutError(FCtx, 'new');
-        finally
-          DeleteCtx;
-        end;
       end;
-    end else begin
-      if not router.new_multi(FCtx, @VDataBasesArr[0], I) then begin
-        try
-          RiseLibOsmScoutError(FCtx, 'new_multi');
-        finally
-          DeleteCtx;
+
+      // open
+      if I = 1 then begin
+        if not router.new(FCtx, PAnsiChar(VDataBases[0])) then begin
+          try
+            RiseLibOsmScoutError(FCtx, 'new');
+          finally
+            DeleteCtx;
+          end;
+        end;
+      end else begin
+        if not router.new_multi(FCtx, @VDataBasesArr[0], I) then begin
+          try
+            RiseLibOsmScoutError(FCtx, 'new_multi');
+          finally
+            DeleteCtx;
+          end;
         end;
       end;
     end;
-  end;
 
-  if FCtx = nil then begin
-    raise EPathDetalizeProviderOsmScout.Create('Context is not assigned!');
-  end;
+    if FCtx = nil then begin
+      raise EPathDetalizeProviderOsmScout.Create('Context is not assigned!');
+    end;
 
-  Result := FCtx;
+    Result := FCtx;
+  except
+    FLock.Release;
+    raise;
+  end;
 end;
 
 procedure TOsmScoutRouteContext.Release;
