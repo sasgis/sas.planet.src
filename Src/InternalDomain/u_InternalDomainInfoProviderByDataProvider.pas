@@ -65,7 +65,7 @@ uses
   SysUtils,
   ActiveX,
   UrlMon,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   i_ContentTypeInfo;

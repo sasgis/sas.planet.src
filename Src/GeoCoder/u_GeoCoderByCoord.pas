@@ -26,7 +26,7 @@ uses
   Types,
   Classes,
   sysutils,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   t_GeoTypes,

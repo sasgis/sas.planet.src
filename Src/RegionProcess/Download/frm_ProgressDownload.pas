@@ -156,7 +156,7 @@ uses
   SysUtils,
   Graphics,
   IniFiles,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   CompatibilityIniFiles,
   {$ENDIF}
   i_ConfigDataWriteProvider,

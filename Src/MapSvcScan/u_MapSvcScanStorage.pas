@@ -89,7 +89,7 @@ implementation
 
 uses
   ALSqlite3Wrapper,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   u_ListenerByEvent,

@@ -195,7 +195,7 @@ implementation
 
 uses
   IniFiles,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   CompatibilityIniFiles,
   {$ENDIF}
   ALString,

@@ -53,7 +53,7 @@ type
 implementation
 
 uses
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   u_GeoToStrFunc;

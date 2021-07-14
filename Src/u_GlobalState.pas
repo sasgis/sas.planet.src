@@ -320,7 +320,7 @@ uses
   {$IFDEF USE_JCL_DEBUG}
   Forms,
   {$ENDIF}
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   CompatibilityIniFiles,
   {$ENDIF}

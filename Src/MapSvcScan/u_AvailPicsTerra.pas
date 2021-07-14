@@ -48,7 +48,7 @@ implementation
 uses
   ALString,
   ALStringList,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   u_StrFunc,

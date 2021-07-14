@@ -286,7 +286,7 @@ implementation
 
 uses
   Math,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   c_CoordConverter,

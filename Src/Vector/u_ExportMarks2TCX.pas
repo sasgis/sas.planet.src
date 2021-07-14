@@ -92,7 +92,7 @@ implementation
 uses
   DateUtils,
   ALString,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   t_GeoTypes,

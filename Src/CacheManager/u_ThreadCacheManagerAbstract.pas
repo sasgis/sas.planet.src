@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   i_Listener,

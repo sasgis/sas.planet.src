@@ -85,7 +85,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   ArgumentParser,

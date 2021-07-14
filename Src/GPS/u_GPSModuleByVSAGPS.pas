@@ -186,7 +186,7 @@ uses
   Classes,
   ALString,
   vsagps_public_sysutils,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   t_GeoTypes,

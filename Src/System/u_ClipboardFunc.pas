@@ -36,7 +36,7 @@ uses
   Windows,
   Graphics,
   GR32,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   u_BitmapFunc;

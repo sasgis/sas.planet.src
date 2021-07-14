@@ -89,7 +89,7 @@ uses
   Math,
   SysUtils,
   IniFiles,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   CompatibilityIniFiles,
   {$ENDIF}
   u_GeoFunc,

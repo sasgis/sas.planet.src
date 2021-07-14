@@ -59,7 +59,7 @@ uses
   SysUtils,
   StrUtils,
   Proj4SK42,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   u_GeoToStrFunc;

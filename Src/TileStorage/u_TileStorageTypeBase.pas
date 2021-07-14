@@ -80,7 +80,7 @@ implementation
 uses
   SysUtils,
   IniFiles,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   CompatibilityIniFiles,
   {$ENDIF}
   u_ConfigDataProviderByIniFile,

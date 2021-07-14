@@ -24,7 +24,7 @@ interface
 
 uses
   UrlMon,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   ActiveX;

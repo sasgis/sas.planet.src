@@ -80,7 +80,7 @@ implementation
 uses
   StrUtils,
   SysUtils,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   i_BinaryData;

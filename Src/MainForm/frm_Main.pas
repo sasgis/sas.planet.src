@@ -1112,7 +1112,7 @@ uses
   StrUtils,
   Math,
   IniFiles,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   CompatibilityIniFiles,
   {$ENDIF}

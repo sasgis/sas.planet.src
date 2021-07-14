@@ -25,7 +25,7 @@ interface
 uses
   Classes,
   SysUtils,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   i_Notifier,

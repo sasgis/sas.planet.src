@@ -54,7 +54,7 @@ uses
   SysUtils,
   ALString,
   RegExpr,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   t_GeoTypes,

@@ -23,7 +23,7 @@ unit u_MultiPoligonParser;
 interface
 
 uses
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   {$ENDIF}
   t_GeoTypes,

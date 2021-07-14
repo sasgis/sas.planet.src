@@ -88,7 +88,7 @@ implementation
 uses
   t_GeoTypes,
   IniFiles,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   CompatibilityIniFiles,
   {$ENDIF}
   i_ThreadConfig,

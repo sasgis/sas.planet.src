@@ -114,7 +114,7 @@ uses
   SysUtils,
   Math,
   IniFiles,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   CompatibilityIniFiles,
   {$ENDIF}

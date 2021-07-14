@@ -42,7 +42,7 @@ uses
   SysUtils,
   StrUtils,
   IniFiles,
-  {$IFNDef UNICODE}
+  {$IFNDEF UNICODE}
   Compatibility,
   CompatibilityIniFiles,
   {$ENDIF}
