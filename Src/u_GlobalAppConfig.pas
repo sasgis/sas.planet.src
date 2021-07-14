@@ -23,25 +23,21 @@ unit u_GlobalAppConfig;
 interface
 
 uses
+  i_GlobalAppConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_GlobalAppConfig,
   u_ConfigDataElementBase;
 
 type
   TGlobalAppConfig = class(TConfigDataElementBase, IGlobalAppConfig)
   private
     FIsShowIconInTray: Boolean;
-    FIsSendStatistic: Boolean;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetIsShowIconInTray: Boolean;
     procedure SetIsShowIconInTray(AValue: Boolean);
-
-    function GetIsSendStatistic: Boolean;
-    procedure SetIsSendStatistic(AValue: Boolean);
   public
     constructor Create;
   end;
@@ -54,7 +50,6 @@ constructor TGlobalAppConfig.Create;
 begin
   inherited Create;
   FIsShowIconInTray := False;
-  FIsSendStatistic := False;
 end;
 
 procedure TGlobalAppConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -62,7 +57,6 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FIsShowIconInTray := AConfigData.ReadBool('ShowIconInTray', FIsShowIconInTray);
-    FIsSendStatistic := AConfigData.ReadBool('SendStatistic', FIsSendStatistic);
     SetChanged;
   end;
 end;
@@ -73,16 +67,6 @@ begin
   AConfigData.WriteBool('ShowIconInTray', FIsShowIconInTray);
 end;
 
-function TGlobalAppConfig.GetIsSendStatistic: Boolean;
-begin
-  LockRead;
-  try
-    Result := FIsSendStatistic;
-  finally
-    UnlockRead;
-  end;
-end;
-
 function TGlobalAppConfig.GetIsShowIconInTray: Boolean;
 begin
   LockRead;
@@ -90,19 +74,6 @@ begin
     Result := FIsShowIconInTray;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TGlobalAppConfig.SetIsSendStatistic(AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FIsSendStatistic <> AValue then begin
-      FIsSendStatistic := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
   end;
 end;
 
