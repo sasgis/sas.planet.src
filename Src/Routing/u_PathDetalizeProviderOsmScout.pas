@@ -88,6 +88,9 @@ uses
   u_StrFunc,
   u_BaseInterfacedObject;
 
+resourcestring
+  rsNoDataInDatabase = 'There is no data in database for this location!';
+
 type
   TOsmScoutRouteContext = class(TBaseInterfacedObject, IOsmScoutRouteContext)
   private
@@ -194,8 +197,7 @@ begin
         APointsAggregator.AddPoints(PDoublePointArray(VRoutePoint), VCount);
       end;
       CALC_RESULT_NODATA: begin
-        // There is no data in database for this location
-        Break;
+        raise EPathDetalizeProviderOsmScout.Create(rsNoDataInDatabase);
       end;
       CALC_RESULT_ERROR: begin
         RiseLibOsmScoutError(FCtx, 'calc');
