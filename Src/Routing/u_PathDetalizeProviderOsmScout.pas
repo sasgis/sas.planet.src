@@ -354,14 +354,16 @@ end;
 
 procedure TOsmScoutRouteContext.Release;
 begin
-  if Assigned(FListener) then begin
-    FListener.UpdateUseTime;
-    FDeleteCtxByTimeOut := False;
-  end else begin
-    ClearCtx;
+  try
+    if Assigned(FListener) then begin
+      FListener.UpdateUseTime;
+      FDeleteCtxByTimeOut := False;
+    end else begin
+      ClearCtx;
+    end;
+  finally
+    FLock.Release;
   end;
-
-  FLock.Release;
 end;
 
 procedure TOsmScoutRouteContext.OnGarbageCollectionNotify;
