@@ -158,6 +158,7 @@ begin
   {$IFDEF VER310} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.1 Berlin';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER320} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.2 Tokyo';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER330} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.3 Rio';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
+  {$IFDEF VER340} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.4 Sydney';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF UNKNOWNVERFORBUILDINFO}
     {$MESSAGE ERROR 'Define your compiler version above!'}
   {$ENDIF}
