@@ -51,7 +51,7 @@ type
   ELibOsmScoutRouteError = Exception;
 
 procedure LibOsmScoutRouteInitialize(const dllname: string = libosmscout_route_dll);
-function IsLibOsmScoutRouteAvailable: Boolean;
+function IsLibOsmScoutRouteAvailable(const dllname: string = libosmscout_route_dll): Boolean;
 
 procedure RiseLibOsmScoutError(const ACtx: Pointer; const AFuncName: string);
 
@@ -65,11 +65,20 @@ var
   GLock: TCriticalSection = nil;
   GInitialized: Boolean = False;
 
-function IsLibOsmScoutRouteAvailable: Boolean;
+function GetFullLibName(const dllname: string): string; inline;
+begin
+  Result := ExtractFilePath(ParamStr(0)) + dllname;
+end;
+
+function IsLibOsmScoutRouteAvailable(const dllname: string): Boolean;
 begin
   try
+    if not FileExists(GetFullLibName(dllname)) then begin
+      Result := False;
+      Exit;
+    end;
     if not GInitialized then begin
-      LibOsmScoutRouteInitialize;
+      LibOsmScoutRouteInitialize(dllname);
     end;
     Result := router.Handle > 0;
   except
@@ -93,8 +102,7 @@ begin
     if not GInitialized then
     try
       GInitialized := True;
-
-      VHandle := SafeLoadLibrary(ExtractFilePath(ParamStr(0)) + dllname);
+      VHandle := SafeLoadLibrary(GetFullLibName(dllname));
       if VHandle = 0 then begin
         VHandle := SafeLoadLibrary(dllname);
       end;
