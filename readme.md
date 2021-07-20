@@ -13,7 +13,13 @@
 
 5. Update maps: execute *sas.planet.src\\.bin\Maps\sas.maps\Update.cmd*
 
-6. Now you can open `*.dproj` file (for example: *sas.planet.src\SASPlanet.Rio.dproj*) and compile it!
+6. Now you can open `*.dproj` file (for example: *sas.planet.src\SASPlanet.104.dproj*) and compile it!
+
+---
+
+#### Project files naming
+
+ We have main *SASPlanet.dproj* that compatible with Delphi 2007 and any other (newer) Delphi version. You can use it to create project file for your specific Delphi version, like it already done for Delphi XE2 (*SASPlanet.XE2.dproj*), Delphi 10.4 (*SASPlanet.104.dproj*) and others.
 
 ---
 
