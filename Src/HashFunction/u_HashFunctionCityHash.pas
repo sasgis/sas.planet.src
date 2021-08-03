@@ -30,13 +30,15 @@ uses
 type
   THashFunctionCityHash = class(TBaseInterfacedObject, IHashFunctionImpl)
   private
+    { IHashFunctionImpl }
     function CalcHash(
-      ABuffer: Pointer;
-      ASize: Integer
+      const ABuffer: Pointer;
+      const ASize: Integer
     ): THashValue;
+
     function CalcHashWithSeed(
-      ABuffer: Pointer;
-      ASize: Integer;
+      const ABuffer: Pointer;
+      const ASize: Integer;
       const ASeed: THashValue
     ): THashValue;
   end;
@@ -49,8 +51,8 @@ uses
 { THashFunctionCityHash }
 
 function THashFunctionCityHash.CalcHash(
-  ABuffer: Pointer;
-  ASize: Integer
+  const ABuffer: Pointer;
+  const ASize: Integer
 ): THashValue;
 begin
   if ABuffer <> nil then begin
@@ -61,8 +63,8 @@ begin
 end;
 
 function THashFunctionCityHash.CalcHashWithSeed(
-  ABuffer: Pointer;
-  ASize: Integer;
+  const ABuffer: Pointer;
+  const ASize: Integer;
   const ASeed: THashValue
 ): THashValue;
 begin

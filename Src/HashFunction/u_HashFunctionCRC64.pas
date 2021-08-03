@@ -27,19 +27,22 @@ uses
   i_HashFunctionImpl,
   u_BaseInterfacedObject;
 
-// взято отсюда http://www.delphisources.ru/pages/faq/base/hash_crc64.html
+// Source: http://www.delphisources.ru/pages/faq/base/hash_crc64.html
+
 type
   THashFunctionCRC64 = class(TBaseInterfacedObject, IHashFunctionImpl)
   private
-    T: array[Byte] of UInt64;
+    FTable: array [Byte] of UInt64;
   private
+    { IHashFunctionImpl }
     function CalcHash(
-      ABuffer: Pointer;
-      ASize: Integer
+      const ABuffer: Pointer;
+      const ASize: Integer
     ): THashValue;
+
     function CalcHashWithSeed(
-      ABuffer: Pointer;
-      ASize: Integer;
+      const ABuffer: Pointer;
+      const ASize: Integer;
       const ASeed: THashValue
     ): THashValue;
   public
@@ -50,40 +53,13 @@ implementation
 
 { THashFunctionCRC64 }
 
-function THashFunctionCRC64.CalcHash(
-  ABuffer: Pointer;
-  ASize: Integer
-): THashValue;
-begin
-  Result := not THashValue(0);
-  Result := CalcHashWithSeed(ABuffer, ASize, Result);
-end;
-
-function THashFunctionCRC64.CalcHashWithSeed(
-  ABuffer: Pointer;
-  ASize: Integer;
-  const ASeed: THashValue
-): THashValue;
-var
-  MyCRC64: UInt64;
-  I: Cardinal;
-  PData: ^Byte;
-begin
-  PData := ABuffer;
-  MyCRC64 := ASeed;
-  for I := 1 to ASize do begin
-    MyCRC64 := MyCRC64 shr 8 xor T[Cardinal(MyCRC64) and $FF xor PData^];
-    Inc(PData);
-  end;
-  Result := MyCRC64;
-end;
-
 constructor THashFunctionCRC64.Create;
 var
   I, J: Byte;
   D: UInt64;
 begin
   inherited Create;
+
   for I := 0 to 255 do begin
     D := I;
     for J := 1 to 8 do begin
@@ -93,8 +69,36 @@ begin
         D := D shr 1;
       end;
     end;
-    T[I] := D;
+    FTable[I] := D;
   end;
+end;
+
+function THashFunctionCRC64.CalcHash(
+  const ABuffer: Pointer;
+  const ASize: Integer
+): THashValue;
+begin
+  Result := not THashValue(0);
+  Result := CalcHashWithSeed(ABuffer, ASize, Result);
+end;
+
+function THashFunctionCRC64.CalcHashWithSeed(
+  const ABuffer: Pointer;
+  const ASize: Integer;
+  const ASeed: THashValue
+): THashValue;
+var
+  I: Integer;
+  VData: PByte;
+  VCRC64: UInt64;
+begin
+  VData := ABuffer;
+  VCRC64 := ASeed;
+  for I := 0 to ASize - 1 do begin
+    VCRC64 := VCRC64 shr 8 xor FTable[Cardinal(VCRC64) and $FF xor VData^];
+    Inc(VData);
+  end;
+  Result := VCRC64;
 end;
 
 end.
