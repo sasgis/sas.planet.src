@@ -357,7 +357,11 @@ uses
   u_DatumFactory,
   u_GeoCalc,
   u_HashFunctionCityHash,
+  {$IFDEF DEBUG}
   u_HashFunctionWithCounter,
+  {$ELSE}
+  u_HashFunctionByImpl,
+  {$ENDIF}
   u_MapVersionFactoryList,
   u_GeoCoderListSimple,
   u_MarkPictureListSimple,
@@ -486,10 +490,16 @@ begin
   FDebugInfoSubSystem := TDebugInfoSubSystem.Create(VInternalDebugConfig);
 
   FHashFunction :=
+    {$IFDEF DEBUG}
     THashFunctionWithCounter.Create(
       THashFunctionCityHash.Create,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('HashFunction')
     );
+    {$ELSE}
+    THashFunctionByImpl.Create(
+      THashFunctionCityHash.Create
+    );
+    {$ENDIF}
 
   FImageResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
   FMapVersionFactoryList :=
