@@ -44,7 +44,6 @@ uses
   TBX,
   TBXDkPanels,
   TBXGraphics,
-  CityHash,
   frm_MarkSystemConfigEdit,
   frm_MarksExportConfig,
   i_Listener,
@@ -310,6 +309,7 @@ type
 implementation
 
 uses
+  CityHash, // for GetNodeUID inlining
   ExplorerSort,
   gnugettext,
   t_GeoTypes,
