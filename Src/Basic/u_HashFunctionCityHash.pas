@@ -53,7 +53,11 @@ function THashFunctionCityHash.CalcHash(
   ASize: Integer
 ): THashValue;
 begin
-  Result := CityHash64(ABuffer, ASize);
+  if ABuffer <> nil then begin
+    Result := CityHash64(ABuffer, ASize);
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function THashFunctionCityHash.CalcHashWithSeed(
@@ -62,7 +66,11 @@ function THashFunctionCityHash.CalcHashWithSeed(
   const ASeed: THashValue
 ): THashValue;
 begin
-  Result := CityHash64WithSeed(ABuffer, ASize, ASeed);
+  if ABuffer <> nil then begin
+    Result := CityHash64WithSeed(ABuffer, ASize, ASeed);
+  end else begin
+    Result := ASeed;
+  end;
 end;
 
 end.
