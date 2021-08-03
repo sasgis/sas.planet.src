@@ -1196,7 +1196,6 @@
         <DCCReference Include="Src\Basic\i_FileNameIterator.pas"/>
         <DCCReference Include="Src\Basic\i_GUIDListStatic.pas"/>
         <DCCReference Include="Src\Basic\i_GUIDSet.pas"/>
-        <DCCReference Include="Src\Basic\i_HashFunctionImpl.pas"/>
         <DCCReference Include="Src\Basic\i_IDList.pas"/>
         <DCCReference Include="Src\Basic\i_InterfaceListSimple.pas"/>
         <DCCReference Include="Src\Basic\i_InterfaceListStatic.pas"/>
@@ -1232,8 +1231,6 @@
         <DCCReference Include="Src\Basic\u_GUIDObjectSet.pas"/>
         <DCCReference Include="Src\Basic\u_GUIDSet.pas"/>
         <DCCReference Include="Src\Basic\u_GUIDTool.pas"/>
-        <DCCReference Include="Src\Basic\u_HashFunctionCRC64.pas"/>
-        <DCCReference Include="Src\Basic\u_HashFunctionCityHash.pas"/>
         <DCCReference Include="Src\Basic\u_IDInterfaceList.pas"/>
         <DCCReference Include="Src\Basic\u_IdListBase.pas"/>
         <DCCReference Include="Src\Basic\u_InterfaceListSimple.pas"/>
@@ -1527,6 +1524,12 @@
         <DCCReference Include="Src\Geometry\u_LonLatRect.pas"/>
         <DCCReference Include="Src\Geometry\u_LonLatRectByPoint.pas"/>
         <DCCReference Include="Src\Geometry\u_ProjectedCalc.pas"/>
+        <DCCReference Include="Src\HashFunction\i_HashFunction.pas"/>
+        <DCCReference Include="Src\HashFunction\i_HashFunctionImpl.pas"/>
+        <DCCReference Include="Src\HashFunction\u_HashFunctionByImpl.pas"/>
+        <DCCReference Include="Src\HashFunction\u_HashFunctionCRC64.pas"/>
+        <DCCReference Include="Src\HashFunction\u_HashFunctionCityHash.pas"/>
+        <DCCReference Include="Src\HashFunction\u_HashFunctionWithCounter.pas"/>
         <DCCReference Include="Src\ImageResampler\c_ImageResampler.pas"/>
         <DCCReference Include="Src\ImageResampler\i_ImageResamplerConfig.pas"/>
         <DCCReference Include="Src\ImageResampler\i_ImageResamplerFactory.pas"/>
@@ -2807,7 +2810,6 @@
         <DCCReference Include="Src\i_GlobalAppConfig.pas"/>
         <DCCReference Include="Src\i_GlobalConfig.pas"/>
         <DCCReference Include="Src\i_GlobalViewMainConfig.pas"/>
-        <DCCReference Include="Src\i_HashFunction.pas"/>
         <DCCReference Include="Src\i_HashInterfaceCache.pas"/>
         <DCCReference Include="Src\i_HtmlToHintTextConverter.pas"/>
         <DCCReference Include="Src\i_InterfaceQueue.pas"/>
@@ -2852,8 +2854,6 @@
         <DCCReference Include="Src\u_GlobalConfig.pas"/>
         <DCCReference Include="Src\u_GlobalState.pas"/>
         <DCCReference Include="Src\u_GlobalViewMainConfig.pas"/>
-        <DCCReference Include="Src\u_HashFunctionByImpl.pas"/>
-        <DCCReference Include="Src\u_HashFunctionWithCounter.pas"/>
         <DCCReference Include="Src\u_HashInterfaceCache2Q.pas"/>
         <DCCReference Include="Src\u_HtmlDoc.pas"/>
         <DCCReference Include="Src\u_HtmlToHintTextConverterStuped.pas"/>
