@@ -68,65 +68,69 @@ type
 {$IFEND}
 
 type
-  size_t  = NativeUInt;
-  uint8   = Byte;
-  uint16  = Word;
-  uint32  = Cardinal;
-  uint64  = System.UInt64;
-  uint128 = record first: uint64; second: uint64; end;
-  p_uint128 = ^uint128;
+  size_t   = NativeUInt;
+  uint8_t  = Byte;
+  uint16_t = Word;
+  uint32_t = Cardinal;
+  uint64_t = UInt64;
 
-function Uint128Low64(const x: p_uint128): uint64; inline;
-function Uint128High64(const x: p_uint128): uint64; inline;
+  uint128_t = record
+    first: uint64_t;
+    second: uint64_t;
+  end;
+  p_uint128_t = ^uint128_t;
+
+function UInt128Low64(const x: p_uint128_t): uint64_t; inline;
+function UInt128High64(const x: p_uint128_t): uint64_t; inline;
 
 // Hash function for a byte array.
-function CityHash64(const buf: pointer; len: size_t): uint64; cdecl; external CityHashLib;
+function CityHash64(const buf: pointer; len: size_t): uint64_t; cdecl; external CityHashLib;
 
 // Hash function for a byte array. For convenience, a 64-bit seed is also hashed into the result.
-function CityHash64WithSeed(const buf: pointer; len: size_t; seed: uint64): uint64; cdecl; external CityHashLib;
+function CityHash64WithSeed(const buf: pointer; len: size_t; seed: uint64_t): uint64_t; cdecl; external CityHashLib;
 
 // Hash function for a byte array. For convenience, two seeds are also hashed into the result.
-function CityHash64WithSeeds(const buf: pointer; len: size_t; seed0, seed1: uint64): uint64; cdecl; external CityHashLib;
+function CityHash64WithSeeds(const buf: pointer; len: size_t; seed0, seed1: uint64_t): uint64_t; cdecl; external CityHashLib;
 
 // Hash function for a byte array.
-function CityHash128(const buf: pointer; len: size_t): uint128; cdecl; external CityHashLib;
+function CityHash128(const buf: pointer; len: size_t): uint128_t; cdecl; external CityHashLib;
 
 // Hash function for a byte array. For convenience, a 128-bit seed is also hashed into the result.
-function CityHash128WithSeed(const buf: pointer; len: size_t; seed: uint128): uint128; cdecl; external CityHashLib;
+function CityHash128WithSeed(const buf: pointer; len: size_t; seed: uint128_t): uint128_t; cdecl; external CityHashLib;
 
 // Hash function for a byte array. Most useful in 32-bit binaries.
-function CityHash32(const buf: pointer; len: size_t): uint32; cdecl; external CityHashLib;
+function CityHash32(const buf: pointer; len: size_t): uint32_t; cdecl; external CityHashLib;
 
 // Hash 128 input bits down to 64 bits of output.
 // This is intended to be a reasonably good hash function.
-function Hash128to64(const x: p_uint128): uint64; inline;  
+function Hash128to64(const x: p_uint128_t): uint64_t; inline;
 
 implementation
 
 const
   kMul = $9ddfea08eb382d69;
 
-function Uint128Low64(const x: p_uint128): uint64; inline;
+function UInt128Low64(const x: p_uint128_t): uint64_t; inline;
 begin
   Result := x.first;
 end;
 
-function Uint128High64(const x: p_uint128): uint64; inline;
+function UInt128High64(const x: p_uint128_t): uint64_t; inline;
 begin
   Result := x.second;
 end;
 
-function Hash128to64(const x: p_uint128): uint64; inline;
+function Hash128to64(const x: p_uint128_t): uint64_t; inline;
 var
-  a, b: uint64;
+  a, b: uint64_t;
 begin
   // Murmur-inspired hashing.
   // const uint64 kMul = 0x9ddfea08eb382d69ULL;
-  a := (Uint128Low64(x) xor Uint128High64(x)) * uint64(kMul);
+  a := (UInt128Low64(x) xor UInt128High64(x)) * uint64_t(kMul);
   a := a xor (a shr 47);
-  b := (Uint128High64(x) xor a) * uint64(kMul);
+  b := (UInt128High64(x) xor a) * uint64_t(kMul);
   b := b xor (b shr 47);
-  b := b * uint64(kMul);
+  b := b * uint64_t(kMul);
   Result := b;
 end;
 
