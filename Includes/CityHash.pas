@@ -62,8 +62,13 @@ interface
 const
   CityHashLib = 'CityHash.dll';
 
+{$IF CompilerVersion <= 18.5}
 type
-  size_t  = Integer;
+  NativeUInt = Cardinal;
+{$IFEND}
+
+type
+  size_t  = NativeUInt;
   uint8   = Byte;
   uint16  = Word;
   uint32  = Cardinal;
