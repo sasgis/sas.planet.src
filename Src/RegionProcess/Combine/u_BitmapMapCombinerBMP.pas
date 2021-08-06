@@ -53,12 +53,12 @@ uses
   SysUtils,
   Types,
   gnugettext,
-  LibBMP,
   t_CommonTypes,
   i_ImageLineProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
   u_ImageLineProvider,
+  u_BmpWriter,
   u_BaseInterfacedObject,
   u_GeoFunc,
   u_ResStrings;

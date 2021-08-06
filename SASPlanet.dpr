@@ -1000,6 +1000,7 @@ uses
   u_BitmapMapCombinerKMZ in 'Src\RegionProcess\Combine\u_BitmapMapCombinerKMZ.pas',
   u_BitmapMapCombinerPNG in 'Src\RegionProcess\Combine\u_BitmapMapCombinerPNG.pas',
   u_BitmapMapCombinerRAW in 'Src\RegionProcess\Combine\u_BitmapMapCombinerRAW.pas',
+  u_BmpWriter in 'Src\RegionProcess\Combine\u_BmpWriter.pas',
   u_CalcWFileParams in 'Src\RegionProcess\Combine\u_CalcWFileParams.pas',
   u_ECWJP2Write in 'Src\RegionProcess\Combine\u_ECWJP2Write.pas',
   u_ImageLineProvider in 'Src\RegionProcess\Combine\u_ImageLineProvider.pas',
