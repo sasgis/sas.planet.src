@@ -32,10 +32,15 @@ type
   protected
     function Relative2LonLatInternal(const APoint: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const APoint: TDoublePoint): TDoublePoint; override;
+  protected
+    procedure ValidateLonLatPos(var APoint: TDoublePoint); override;
+    procedure ValidateLonLatRect(var ARect: TDoubleRect); override;
   end;
 
 implementation
 
+const
+  CMaxLatitude = 90;
 
 { TProjectionTypeGELonLat }
 
@@ -54,6 +59,33 @@ begin
   Result.X :=  (APoint.X - 0.5) * 360;
   Result.Y := -(APoint.Y - 0.5) * 360;
 end;
+
+procedure _ValidateLonLatPos(var APoint: TDoublePoint); inline;
+begin
+  if APoint.X < -180 then begin
+    APoint.X := -180;
+  end else
+  if APoint.X > 180 then begin
+    APoint.X := 180;
+  end;
+
+  if APoint.Y < -CMaxLatitude then begin
+    APoint.Y := -CMaxLatitude;
+  end else
+  if APoint.Y > CMaxLatitude then begin
+    APoint.Y := CMaxLatitude;
+  end;
+end;
+
+procedure TProjectionTypeGELonLat.ValidateLonLatPos(var APoint: TDoublePoint);
+begin
+  _ValidateLonLatPos(APoint);
+end;
+
+procedure TProjectionTypeGELonLat.ValidateLonLatRect(var ARect: TDoubleRect);
+begin
+  _ValidateLonLatPos(ARect.TopLeft);
+  _ValidateLonLatPos(ARect.BottomRight);
 end;
 
 end.

@@ -104,6 +104,18 @@ begin
   VValidLegendWidth := (Config.Width div 4) * 4;
 
   num := GetMetersPerLine(AVisualCoordConverter, VValidLegendWidth);
+  if num <= 0 then begin
+    DrawScaleLegend(
+      VColor,
+      VOutLineColor,
+      VColor,
+      VValidLegendWidth,
+      ' ',
+      ' ',
+      Layer.Bitmap
+    );
+    Exit;
+  end;
 
   if Config.NumbersFormat = slnfNice then begin
     ModifyLenAndWidth(Num, VValidLegendWidth);
@@ -244,7 +256,9 @@ begin
   VFinishPixel := DoublePoint(VStartPixel.X + 1, VStartPixel.Y);
   VProjection.ValidatePixelPosFloat(VFinishPixel, True);
   VStartLonLat := VProjection.PixelPosFloat2LonLat(VStartPixel);
+  VProjection.ProjectionType.ValidateLonLatPos(VStartLonLat);
   VFinishLonLat := VProjection.PixelPosFloat2LonLat(VFinishPixel);
+  VProjection.ProjectionType.ValidateLonLatPos(VFinishLonLat);
   Result := VProjection.ProjectionType.Datum.CalcDist(VStartLonLat, VFinishLonLat) * ALineWidth;
 end;
 

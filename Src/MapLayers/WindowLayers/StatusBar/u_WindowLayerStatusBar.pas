@@ -489,6 +489,7 @@ begin
   VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
   VProjection.ValidatePixelPosFloatStrict(VMapPoint, True);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMapPoint);
+  VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
 
   I := Low(TStatusBarItemID);
   AItems[I].Visible := FConfig.ViewZoomInfo;

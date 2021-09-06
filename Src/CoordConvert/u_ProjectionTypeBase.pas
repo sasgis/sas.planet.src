@@ -47,7 +47,8 @@ type
   protected
     function Relative2LonLatInternal(const APoint: TDoublePoint): TDoublePoint; virtual; abstract;
     function LonLat2RelativeInternal(const APoint: TDoublePoint): TDoublePoint; virtual; abstract;
-  private
+  protected
+    { IProjectionType }
     function GetHash: THashValue;
     function GetDatum: IDatum;
     function GetProjectionEPSG: Integer;
@@ -64,8 +65,8 @@ type
     procedure ValidateRelativePos(var APoint: TDoublePoint);
     procedure ValidateRelativeRect(var ARect: TDoubleRect);
 
-    procedure ValidateLonLatPos(var APoint: TDoublePoint);
-    procedure ValidateLonLatRect(var ARect: TDoubleRect);
+    procedure ValidateLonLatPos(var APoint: TDoublePoint); virtual;
+    procedure ValidateLonLatRect(var ARect: TDoubleRect); virtual;
 
     function CheckRelativePos(const APoint: TDoublePoint): boolean;
     function CheckRelativeRect(const ARect: TDoubleRect): boolean;

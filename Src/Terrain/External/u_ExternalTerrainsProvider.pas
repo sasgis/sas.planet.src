@@ -350,7 +350,7 @@ begin
   if VLat < 80 then begin // 70..79
     ASamplesCount := 1200;
   end else
-  if VLat < 90 then begin // 80..89
+  if VLat <= 90 then begin // 80..90
     ASamplesCount := 600;
   end else begin
     Assert(False);

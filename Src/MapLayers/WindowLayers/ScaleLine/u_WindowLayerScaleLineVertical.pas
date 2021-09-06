@@ -249,10 +249,12 @@ begin
   VCenterPixelXY := AVisualCoordConverter.GetCenterMapPixelFloat;
   VProjection.ValidatePixelPosFloatStrict(VCenterPixelXY, False);
   VStartLonLat := VProjection.PixelPosFloat2LonLat(VCenterPixelXY);
+  VProjection.ProjectionType.ValidateLonLatPos(VStartLonLat);
 
   VFinishPixelXY := DoublePoint(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight / 2);
   if VProjection.CheckPixelPosFloatStrict(VFinishPixelXY) then begin
     VFinishLonLat := VProjection.PixelPosFloat2LonLat(VFinishPixelXY);
+    VProjection.ProjectionType.ValidateLonLatPos(VFinishLonLat);
     AHalfLen := VProjection.ProjectionType.Datum.CalcDist(VStartLonLat, VFinishLonLat);
   end else begin
     AHalfLen := -1;
@@ -261,6 +263,7 @@ begin
   VFinishPixelXY := DoublePoint(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight);
   if VProjection.CheckPixelPosFloatStrict(VFinishPixelXY) then begin
     VFinishLonLat := VProjection.PixelPosFloat2LonLat(VFinishPixelXY);
+    VProjection.ProjectionType.ValidateLonLatPos(VFinishLonLat);
     AFullLen := VProjection.ProjectionType.Datum.CalcDist(VStartLonLat, VFinishLonLat);
   end else begin
     AFullLen := -1;
