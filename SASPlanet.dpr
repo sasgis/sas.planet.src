@@ -225,7 +225,7 @@ uses
   u_ProjectionSetSimple in 'Src\CoordConvert\u_ProjectionSetSimple.pas',
   u_ProjectionTypeBase in 'Src\CoordConvert\u_ProjectionTypeBase.pas',
   u_ProjectionTypeFactorySimple in 'Src\CoordConvert\u_ProjectionTypeFactorySimple.pas',
-  u_ProjectionTypeGELonLat in 'Src\CoordConvert\u_ProjectionTypeGELonLat.pas',
+  u_ProjectionTypeGeographic in 'Src\CoordConvert\u_ProjectionTypeGeographic.pas',
   u_ProjectionTypeMercatorOnEllipsoid in 'Src\CoordConvert\u_ProjectionTypeMercatorOnEllipsoid.pas',
   u_ProjectionTypeMercatorOnSphere in 'Src\CoordConvert\u_ProjectionTypeMercatorOnSphere.pas',
   i_CoordFromStringParser in 'Src\CoordRepresentation\i_CoordFromStringParser.pas',

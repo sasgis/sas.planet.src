@@ -62,7 +62,7 @@ uses
   c_CoordConverter,
   u_ProjectionTypeMercatorOnSphere,
   u_ProjectionTypeMercatorOnEllipsoid,
-  u_ProjectionTypeGELonLat,
+  u_ProjectionTypeGeographic,
   u_ResStrings;
 
 { TProjectionTypeFactorySimple }
@@ -101,7 +101,7 @@ begin
   VDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CGELonLatProjectionEPSG);
-  FLonLat := TProjectionTypeGELonLat.Create(VHash, VDatum, CGELonLatProjectionEPSG);
+  FLonLat := TProjectionTypeGeographic.Create(VHash, VDatum, CGELonLatProjectionEPSG);
 end;
 
 function TProjectionTypeFactorySimple.GetByCode(
@@ -218,7 +218,7 @@ begin
           VHash := FHashFunction.CalcHashByInteger(3);
           FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
           FHashFunction.UpdateHashByInteger(VHash, 0);
-          Result := TProjectionTypeGELonLat.Create(VHash, VDatum, 0);
+          Result := TProjectionTypeGeographic.Create(VHash, VDatum, 0);
         end;
       end;
     else begin

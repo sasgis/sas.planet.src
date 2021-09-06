@@ -19,7 +19,7 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_ProjectionTypeGELonLat;
+unit u_ProjectionTypeGeographic;
 
 interface
 
@@ -28,7 +28,7 @@ uses
   u_ProjectionTypeBase;
 
 type
-  TProjectionTypeGELonLat = class(TProjectionTypeBase)
+  TProjectionTypeGeographic = class(TProjectionTypeBase)
   protected
     function Relative2LonLatInternal(const APoint: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const APoint: TDoublePoint): TDoublePoint; override;
@@ -42,9 +42,9 @@ implementation
 const
   CMaxLatitude = 90;
 
-{ TProjectionTypeGELonLat }
+{ TProjectionTypeGeographic }
 
-function TProjectionTypeGELonLat.LonLat2RelativeInternal(
+function TProjectionTypeGeographic.LonLat2RelativeInternal(
   const APoint: TDoublePoint
 ): TDoublePoint;
 begin
@@ -52,7 +52,7 @@ begin
   Result.Y := (0.5 - APoint.Y / 360);
 end;
 
-function TProjectionTypeGELonLat.Relative2LonLatInternal(
+function TProjectionTypeGeographic.Relative2LonLatInternal(
   const APoint: TDoublePoint
 ): TDoublePoint;
 begin
@@ -77,12 +77,12 @@ begin
   end;
 end;
 
-procedure TProjectionTypeGELonLat.ValidateLonLatPos(var APoint: TDoublePoint);
+procedure TProjectionTypeGeographic.ValidateLonLatPos(var APoint: TDoublePoint);
 begin
   _ValidateLonLatPos(APoint);
 end;
 
-procedure TProjectionTypeGELonLat.ValidateLonLatRect(var ARect: TDoubleRect);
+procedure TProjectionTypeGeographic.ValidateLonLatRect(var ARect: TDoubleRect);
 begin
   _ValidateLonLatPos(ARect.TopLeft);
   _ValidateLonLatPos(ARect.BottomRight);
