@@ -338,7 +338,7 @@ begin
     end;
   end;
 
-  BlockTransfer(
+  BlockTransferZ(
     ATargetBitmap,
     X, Y,
     ATargetBitmap.ClipRect,

@@ -211,7 +211,7 @@ begin
     VResampler := TKernelResampler.Create;
     try
       VResampler.Kernel := TLanczosKernel.Create;
-      GR32_Resamplers.StretchTransfer(
+      GR32_Resamplers.StretchTransferZ(
         FScaledBitmap,
         FScaledBitmap.BoundsRect,
         FScaledBitmap.ClipRect,

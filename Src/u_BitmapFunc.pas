@@ -129,7 +129,7 @@ var
   VSize: TPoint;
 begin
   VSize := ASource.Size;
-  GR32_Resamplers.StretchTransfer(
+  GR32_Resamplers.StretchTransferZ(
     ADst,
     ADstRect,
     ADst.ClipRect,
@@ -160,7 +160,7 @@ var
   VSize: TPoint;
 begin
   VSize := ASource.Size;
-  GR32_Resamplers.StretchTransfer(
+  GR32_Resamplers.StretchTransferZ(
     ADst,
     ADstRect,
     ADst.ClipRect,
@@ -212,7 +212,7 @@ procedure BlockTransferFull(
   AOuterColor: TColor32 = 0
 ); overload;
 begin
-  GR32_Resamplers.BlockTransfer(
+  GR32_Resamplers.BlockTransferZ(
     ADst,
     ADstX,
     ADstY,
@@ -243,7 +243,7 @@ var
   VSize: TPoint;
 begin
   VSize := ASource.Size;
-  GR32_Resamplers.BlockTransfer(
+  GR32_Resamplers.BlockTransferZ(
     ADst,
     ADstX,
     ADstY,
