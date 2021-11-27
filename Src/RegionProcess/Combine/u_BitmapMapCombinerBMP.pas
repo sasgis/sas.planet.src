@@ -53,10 +53,12 @@ uses
   SysUtils,
   Types,
   gnugettext,
+  t_Bitmap32,
   t_CommonTypes,
   i_ImageLineProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
+  i_GeometryProjected,
   u_ImageLineProvider,
   u_BmpWriter,
   u_BaseInterfacedObject,
@@ -70,12 +72,14 @@ type
     FSaveRectCounter: IInternalPerformanceCounter;
     FPrepareDataCounter: IInternalPerformanceCounter;
     FGetLineCounter: IInternalPerformanceCounter;
+    FBgColor: TColor32;
   private
     procedure SaveRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
+      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect
     );
   public
@@ -83,7 +87,8 @@ type
       const AProgressUpdate: IBitmapCombineProgressUpdate;
       const ASaveRectCounter: IInternalPerformanceCounter;
       const APrepareDataCounter: IInternalPerformanceCounter;
-      const AGetLineCounter: IInternalPerformanceCounter
+      const AGetLineCounter: IInternalPerformanceCounter;
+      const ABgColor: TColor32
     );
   end;
 
@@ -91,7 +96,8 @@ constructor TBitmapMapCombinerBMP.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
   const ASaveRectCounter: IInternalPerformanceCounter;
   const APrepareDataCounter: IInternalPerformanceCounter;
-  const AGetLineCounter: IInternalPerformanceCounter
+  const AGetLineCounter: IInternalPerformanceCounter;
+  const ABgColor: TColor32
 );
 begin
   inherited Create;
@@ -99,6 +105,7 @@ begin
   FSaveRectCounter := ASaveRectCounter;
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
+  FBgColor := ABgColor;
 end;
 
 procedure TBitmapMapCombinerBMP.SaveRect(
@@ -106,6 +113,7 @@ procedure TBitmapMapCombinerBMP.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
+  const APolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect
 );
 const
@@ -134,7 +142,9 @@ begin
         FPrepareDataCounter,
         FGetLineCounter,
         AImageProvider,
-        AMapRect
+        APolygon,
+        AMapRect,
+        FBgColor
       );
     for i := 0 to VSize.Y - 1 do begin
       VLineBGR := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);
@@ -192,7 +202,8 @@ begin
       AProgressInfo,
       FSaveRectCounter,
       FPrepareDataCounter,
-      FGetLineCounter
+      FGetLineCounter,
+      AParams.BGColor
     );
 end;
 

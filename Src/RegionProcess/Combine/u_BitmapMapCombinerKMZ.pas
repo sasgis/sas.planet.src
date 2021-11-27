@@ -76,6 +76,7 @@ uses
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_Bitmap32Static,
+  i_GeometryProjected,
   u_BaseInterfacedObject,
   u_TileIteratorByRect,
   u_BinaryDataByMemStream,
@@ -107,6 +108,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
+      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect
     );
   public
@@ -199,6 +201,7 @@ procedure TBitmapMapCombinerKMZ.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
+  const APolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect
 );
 var

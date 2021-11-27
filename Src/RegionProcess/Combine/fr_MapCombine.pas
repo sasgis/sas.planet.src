@@ -143,6 +143,7 @@ type
     function GetSplitCount: TPoint;
     function GetSkipExistingFiles: Boolean;
     function GetBGColor: TColor32;
+    function GetDetectPixelInPoly: Boolean;
     function GetCustomOptions: IMapCombineCustomOptions;
     function GetAllowWrite(const AMapType: IMapType): Boolean;
   public
@@ -351,6 +352,12 @@ begin
   end else begin
     Result := SetAlpha(Color32(FViewConfig.BackGroundColor), 255);
   end;
+end;
+
+function TfrMapCombine.GetDetectPixelInPoly: Boolean;
+begin
+  // ToDo: use checkbox
+  Result := False;
 end;
 
 function TfrMapCombine.GetCustomOptions: IMapCombineCustomOptions;

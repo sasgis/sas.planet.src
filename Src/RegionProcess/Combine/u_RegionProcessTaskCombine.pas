@@ -30,6 +30,7 @@ uses
   i_BitmapTileProvider,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
+  i_GeometryProjected,
   i_MapCalibration,
   i_BitmapMapCombiner,
   u_RegionProcessTaskAbstract;
@@ -38,6 +39,7 @@ type
   TRegionProcessTaskCombine = class(TRegionProcessTaskAbstract)
   private
     FImageProvider: IBitmapTileProvider;
+    FProjectedPolygon: IGeometryProjectedPolygon;
     FMapRect: TRect;
     FMapCalibrationList: IMapCalibrationList;
     FSplitCount: TPoint;
@@ -53,6 +55,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatPolygon;
+      const AProjectedPolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect;
       const ACombiner: IBitmapMapCombiner;
       const AImageProvider: IBitmapTileProvider;
@@ -75,6 +78,7 @@ uses
 constructor TRegionProcessTaskCombine.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatPolygon;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect;
   const ACombiner: IBitmapMapCombiner;
   const AImageProvider: IBitmapTileProvider;
@@ -89,6 +93,7 @@ begin
     APolygon,
     nil
   );
+  FProjectedPolygon := AProjectedPolygon;
   FMapRect := AMapRect;
   FCombiner := ACombiner;
   FImageProvider := AImageProvider;
@@ -183,6 +188,7 @@ begin
           CancelNotifier,
           VCurrentFileName,
           FImageProvider,
+          FProjectedPolygon,
           VCurrentPieceRect
         );
       except

@@ -30,6 +30,7 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Projection,
+  i_GeometryProjected,
   i_ImageLineProvider,
   i_BitmapTileProvider,
   u_BaseInterfacedObject;
@@ -39,14 +40,19 @@ type
   private
     FPrepareDataCounter: IInternalPerformanceCounter;
     FGetLineCounter: IInternalPerformanceCounter;
-    FMapRect: TRect;
+
     FImageProvider: IBitmapTileProvider;
+    FPolygon: IGeometryProjectedPolygon;
+    FMapRect: TRect;
+    FBgColor: TColor32;
     FBytesPerPixel: Integer;
 
     FProjection: IProjection;
     FPreparedTileRect: TRect;
     FPreparedMapRect: TRect;
     FPreparedData: array of Pointer;
+
+    FTilePixArray: array of TColor32;
 
     function GetLocalLine(ALine: Integer): Pointer;
     procedure AddTile(
@@ -80,8 +86,10 @@ type
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
       const AImageProvider: IBitmapTileProvider;
+      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect;
-      ABytesPerPixel: Integer
+      const ABgColor: TColor32;
+      const ABytesPerPixel: Integer
     );
     destructor Destroy; override;
   end;
@@ -92,7 +100,9 @@ type
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
       const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect
+      const APolygon: IGeometryProjectedPolygon;
+      const AMapRect: TRect;
+      const ABgColor: TColor32
     );
   end;
 
@@ -102,7 +112,9 @@ type
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
       const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect
+      const APolygon: IGeometryProjectedPolygon;
+      const AMapRect: TRect;
+      const ABgColor: TColor32
     );
   end;
 
@@ -156,8 +168,10 @@ constructor TImageLineProviderAbstract.Create(
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
   const AImageProvider: IBitmapTileProvider;
+  const APolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect;
-  ABytesPerPixel: Integer
+  const ABgColor: TColor32;
+  const ABytesPerPixel: Integer
 );
 begin
   Assert(Assigned(AImageProvider));
@@ -166,10 +180,13 @@ begin
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
   FImageProvider := AImageProvider;
+  FPolygon := APolygon;
   FMapRect := AMapRect;
+  FBgColor := ABgColor;
   FBytesPerPixel := ABytesPerPixel;
 
   FProjection := FImageProvider.Projection;
+  SetLength(FTilePixArray, 256);
 end;
 
 destructor TImageLineProviderAbstract.Destroy;
@@ -183,7 +200,7 @@ procedure TImageLineProviderAbstract.AddTile(
   const ATile: TPoint
 );
 var
-  i: Integer;
+  I, J: Integer;
   VTileMapRect: TRect;
   VTileSize: TPoint;
   VCopyRectSize: TPoint;
@@ -191,23 +208,55 @@ var
   VCopyRectAtSource: TRect;
   VCopyRectAtTarget: TRect;
   VSourceLine: PColor32;
+  VPixelPoint: TDoublePoint;
+  VCheckPixelInPoly: Boolean;
 begin
   Assert(Assigned(ABitmap));
   Assert(PtInRect(FPreparedTileRect, ATile));
+
   VTileMapRect := FProjection.TilePos2PixelRect(ATile);
   VTileSize := ABitmap.Size;
   Assert(IsPointsEqual(VTileSize, RectSize(VTileMapRect)));
+
   IntersectRect(VCopyMapRect, VTileMapRect, FPreparedMapRect);
 
   VCopyRectSize := RectSize(VCopyMapRect);
   VCopyRectAtTarget := RectMove(VCopyMapRect, FPreparedMapRect.TopLeft);
   VCopyRectAtSource := RectMove(VCopyMapRect, VTileMapRect.TopLeft);
 
-  for i := 0 to VCopyRectSize.Y - 1 do begin
-    VSourceLine := @ABitmap.Data[VCopyRectAtSource.Left + (i + VCopyRectAtSource.Top) * VTileSize.X];
+  VCheckPixelInPoly := False;
+  if FPolygon <> nil then begin
+    VCheckPixelInPoly := FPolygon.IsRectIntersectPolygon( DoubleRect(VCopyMapRect) );
+  end;
+
+  if VCheckPixelInPoly and (Length(FTilePixArray) < VCopyRectSize.X) then begin
+    // This should happen only if we work with tiles more then 256x256 pix
+    SetLength(FTilePixArray, VCopyRectSize.X);
+  end;
+
+  for I := 0 to VCopyRectSize.Y - 1 do begin
+    VSourceLine := @ABitmap.Data[VCopyRectAtSource.Left + (I + VCopyRectAtSource.Top) * VTileSize.X];
+
+    // Fill pixels out of Poligon with Background color
+    if VCheckPixelInPoly then begin
+
+      // Copy source line into temporary buffer since we can't modify the source
+      Move(VSourceLine^, FTilePixArray[0], VCopyRectSize.X * SizeOf(TColor32));
+
+      for J := 0 to VCopyRectSize.X - 1 do begin
+        VPixelPoint.X := VCopyMapRect.Left + J;
+        VPixelPoint.Y := VCopyMapRect.Top + I;
+        if not FPolygon.IsPointInPolygon(VPixelPoint) then begin
+          FTilePixArray[J] := FBgColor;
+        end;
+      end;
+
+      VSourceLine := @FTilePixArray[0];
+    end;
+
     PreparePixleLine(
       VSourceLine,
-      Pointer(Cardinal(FPreparedData[i + VCopyRectAtTarget.Top]) + Cardinal(VCopyRectAtTarget.Left * FBytesPerPixel)),
+      Pointer(Cardinal(FPreparedData[I + VCopyRectAtTarget.Top]) + Cardinal(VCopyRectAtTarget.Left * FBytesPerPixel)),
       VCopyRectSize.X
     );
   end;
@@ -342,14 +391,18 @@ constructor TImageLineProviderNoAlfa.Create(
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
   const AImageProvider: IBitmapTileProvider;
-  const AMapRect: TRect
+  const APolygon: IGeometryProjectedPolygon;
+  const AMapRect: TRect;
+  const ABgColor: TColor32
 );
 begin
   inherited Create(
     APrepareDataCounter,
     AGetLineCounter,
     AImageProvider,
+    APolygon,
     AMapRect,
+    ABgColor,
     3
   );
 end;
@@ -360,14 +413,18 @@ constructor TImageLineProviderWithAlfa.Create(
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
   const AImageProvider: IBitmapTileProvider;
-  const AMapRect: TRect
+  const APolygon: IGeometryProjectedPolygon;
+  const AMapRect: TRect;
+  const ABgColor: TColor32
 );
 begin
   inherited Create(
     APrepareDataCounter,
     AGetLineCounter,
     AImageProvider,
+    APolygon,
     AMapRect,
+    ABgColor,
     4
   );
 end;

@@ -171,6 +171,7 @@ uses
   i_MapVersionRequest,
   u_BaseInterfacedObject,
   u_GeoFunc,
+  u_GeometryFunc,
   u_ResStrings,
   u_RegionProcessTaskCombine,
   u_TextDrawerBasic,
@@ -670,26 +671,36 @@ var
   VFileName: string;
   VSplitCount: TPoint;
   VSkipExistingFiles: Boolean;
+  VDetectPixelInPoly: Boolean;
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
   VProgressUpdate: IBitmapCombineProgressUpdate;
   VCombiner: IBitmapMapCombiner;
+  VMapRect: TRect;
 begin
   VProjection := PrepareProjection;
   VProjectedPolygon := PreparePolygon(VProjection, APolygon);
   VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
+  VDetectPixelInPoly := (ParamsFrame as IRegionProcessParamsFrameMapCombine).DetectPixelInPoly;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
   VSkipExistingFiles := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SkipExistingFiles;
   VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   VCombiner := FCombinerFactory.PrepareMapCombiner(ParamsFrame as IRegionProcessParamsFrameMapCombine, VProgressUpdate);
+  VMapRect := PrepareTargetRect(VProjection, VProjectedPolygon);
+
+  if not VDetectPixelInPoly or IsProjectedPolygonSimpleRect(VProjectedPolygon) then begin
+    VProjectedPolygon := nil;
+  end;
+
   Result :=
     TRegionProcessTaskCombine.Create(
       AProgressInfo,
       APolygon,
-      PrepareTargetRect(VProjection, VProjectedPolygon),
+      VProjectedPolygon,
+      VMapRect,
       VCombiner,
       VImageProvider,
       VMapCalibrations,

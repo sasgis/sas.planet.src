@@ -29,6 +29,7 @@ uses
   t_MapCombineOptions,
   i_NotifierOperation,
   i_GeometryLonLat,
+  i_GeometryProjected,
   i_RegionProcessParamsFrame,
   i_BitmapTileProvider;
 
@@ -45,6 +46,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
+      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect
     );
   end;
