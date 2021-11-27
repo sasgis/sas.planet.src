@@ -244,6 +244,9 @@ begin
       Move(VSourceLine^, FTilePixArray[0], VCopyRectSize.X * SizeOf(TColor32));
 
       for J := 0 to VCopyRectSize.X - 1 do begin
+        if FTilePixArray[J] = FBgColor then begin
+          Continue;
+        end;
         VPixelPoint.X := VCopyMapRect.Left + J;
         VPixelPoint.Y := VCopyMapRect.Top + I;
         if not FPolygon.IsPointInPolygon(VPixelPoint) then begin
