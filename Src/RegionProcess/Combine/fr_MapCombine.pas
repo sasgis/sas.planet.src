@@ -100,6 +100,7 @@ type
     chkUseFillingMap: TCheckBox;
     pnlCustomOpt: TPanel;
     chkSkipExistingFiles: TCheckBox;
+    chkPreciseCropping: TCheckBox;
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
@@ -356,8 +357,7 @@ end;
 
 function TfrMapCombine.GetDetectPixelInPoly: Boolean;
 begin
-  // ToDo: use checkbox
-  Result := False;
+  Result := chkPreciseCropping.Checked;
 end;
 
 function TfrMapCombine.GetCustomOptions: IMapCombineCustomOptions;
