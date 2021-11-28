@@ -138,18 +138,14 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     TabOrder = 5
     object lblThreadCount: TLabel
       AlignWithMargins = True
-      Left = 0
+      Left = 3
       Top = 5
-      Width = 64
+      Width = 68
       Height = 13
-      Margins.Left = 0
-      Margins.Right = 5
-      Alignment = taRightJustify
-      Caption = 'Thread count'
-      Layout = tlCenter
+      Caption = 'Thread count:'
     end
     object seThreadCount: TSpinEdit
-      Left = 69
+      Left = 74
       Top = 2
       Width = 53
       Height = 22
