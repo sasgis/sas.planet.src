@@ -2,8 +2,8 @@ object frmRegionProcess: TfrmRegionProcess
   Left = 234
   Top = 298
   Caption = 'Selection Manager'
-  ClientHeight = 426
-  ClientWidth = 572
+  ClientHeight = 450
+  ClientWidth = 600
   Color = clBtnFace
   Constraints.MinHeight = 400
   Constraints.MinWidth = 580
@@ -17,8 +17,8 @@ object frmRegionProcess: TfrmRegionProcess
   TextHeight = 13
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 389
-    Width = 572
+    Top = 413
+    Width = 600
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
@@ -26,7 +26,7 @@ object frmRegionProcess: TfrmRegionProcess
     TabOrder = 0
     object Button1: TButton
       AlignWithMargins = True
-      Left = 410
+      Left = 438
       Top = 6
       Width = 75
       Height = 25
@@ -38,7 +38,7 @@ object frmRegionProcess: TfrmRegionProcess
     end
     object Button3: TButton
       AlignWithMargins = True
-      Left = 491
+      Left = 519
       Top = 6
       Width = 75
       Height = 25
@@ -102,14 +102,12 @@ object frmRegionProcess: TfrmRegionProcess
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 572
-    Height = 389
+    Width = 600
+    Height = 413
     Align = alClient
     TabOrder = 1
-    ExplicitLeft = 192
-    ExplicitTop = 128
-    ExplicitWidth = 185
-    ExplicitHeight = 41
+    ExplicitWidth = 572
+    ExplicitHeight = 389
   end
   object SaveSelDialog: TSaveDialog
     DefaultExt = '*.hlg'
