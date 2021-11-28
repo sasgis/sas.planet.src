@@ -226,7 +226,7 @@ begin
 
   VCheckPixelInPoly := False;
   if FPolygon <> nil then begin
-    VCheckPixelInPoly := FPolygon.IsRectIntersectPolygon( DoubleRect(VCopyMapRect) );
+    VCheckPixelInPoly := FPolygon.IsRectIntersectBorder( DoubleRect(VCopyMapRect) );
   end;
 
   if VCheckPixelInPoly and (Length(FTilePixArray) < VCopyRectSize.X) then begin
