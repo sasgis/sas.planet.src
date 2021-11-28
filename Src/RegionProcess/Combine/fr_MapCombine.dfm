@@ -116,6 +116,17 @@ object frMapCombine: TfrMapCombine
         Caption = 'Add visible Cached Tiles Map'
         TabOrder = 0
       end
+      object chkPreciseCropping: TCheckBox
+        Left = 3
+        Top = 88
+        Width = 209
+        Height = 17
+        Hint = 'Precise cropping of the image along the boundaries of the polygon'
+        Align = alTop
+        Caption = 'Precise cropping by the polygon'
+        TabOrder = 6
+        ExplicitTop = 103
+      end
       object pnlCustomOpt: TPanel
         Left = 3
         Top = 88
@@ -124,18 +135,6 @@ object frMapCombine: TfrMapCombine
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 5
-      object chkPreciseCropping: TCheckBox
-        Left = 3
-        Top = 88
-        Width = 209
-        Height = 17
-        Hint = 
-          'Precise cropping of the image along the boundaries of the polygo' +
-          'n.'
-        Align = alTop
-        Caption = 'Precise cropping by the polygon'
-        TabOrder = 6
-        ExplicitTop = 103
       end
     end
     object pnlPrTypes: TPanel
