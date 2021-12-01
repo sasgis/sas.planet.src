@@ -158,8 +158,8 @@ type
     function GetBGColor: TColor32;
     property BGColor: TColor32 read GetBGColor;
 
-    function GetDetectPixelInPoly: Boolean;
-    property DetectPixelInPoly: Boolean read GetDetectPixelInPoly;
+    function GetUsePreciseCropping: Boolean;
+    property UsePreciseCropping: Boolean read GetUsePreciseCropping;
 
     function GetCustomOptions: IMapCombineCustomOptions;
     property CustomOptions: IMapCombineCustomOptions read GetCustomOptions;

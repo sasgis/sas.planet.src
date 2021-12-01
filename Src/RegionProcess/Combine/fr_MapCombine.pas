@@ -144,7 +144,7 @@ type
     function GetSplitCount: TPoint;
     function GetSkipExistingFiles: Boolean;
     function GetBGColor: TColor32;
-    function GetDetectPixelInPoly: Boolean;
+    function GetUsePreciseCropping: Boolean;
     function GetCustomOptions: IMapCombineCustomOptions;
     function GetAllowWrite(const AMapType: IMapType): Boolean;
   public
@@ -355,7 +355,7 @@ begin
   end;
 end;
 
-function TfrMapCombine.GetDetectPixelInPoly: Boolean;
+function TfrMapCombine.GetUsePreciseCropping: Boolean;
 begin
   Result := chkPreciseCropping.Checked;
 end;

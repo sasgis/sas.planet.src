@@ -630,8 +630,10 @@ begin
     );
   Result :=
     TBitmapTileProviderWithBGColor.Create(
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).UsePreciseCropping,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
+      AProjectedPolygon,
       FBitmapFactory,
       Result
     );
@@ -671,7 +673,6 @@ var
   VFileName: string;
   VSplitCount: TPoint;
   VSkipExistingFiles: Boolean;
-  VDetectPixelInPoly: Boolean;
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
@@ -684,22 +685,17 @@ begin
   VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
-  VDetectPixelInPoly := (ParamsFrame as IRegionProcessParamsFrameMapCombine).DetectPixelInPoly;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
   VSkipExistingFiles := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SkipExistingFiles;
   VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   VCombiner := FCombinerFactory.PrepareMapCombiner(ParamsFrame as IRegionProcessParamsFrameMapCombine, VProgressUpdate);
   VMapRect := PrepareTargetRect(VProjection, VProjectedPolygon);
 
-  if not VDetectPixelInPoly or IsProjectedPolygonSimpleRect(VProjectedPolygon) then begin
-    VProjectedPolygon := nil;
-  end;
-
   Result :=
     TRegionProcessTaskCombine.Create(
       AProgressInfo,
       APolygon,
-      VProjectedPolygon,
+      nil,
       VMapRect,
       VCombiner,
       VImageProvider,

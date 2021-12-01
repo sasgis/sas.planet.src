@@ -30,19 +30,35 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_Projection,
+  i_GeometryProjected,
   i_BitmapTileProvider,
-  u_BaseInterfacedObject;
+  u_BaseInterfacedObject,
+  u_Bitmap32ByStaticBitmap;
 
 type
-  TBitmapTileProviderWithBGColor = class(TBaseInterfacedObject, IBitmapTileProvider)
+  TBitmapTileProviderWithBgColor = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
-    FBitmap32StaticFactory: IBitmap32StaticFactory;
-    FSourceProvider: IBitmapTileProvider;
-    FEmptyTile: IBitmap32Static;
     FBackGroundColor: TColor32;
     FEmptyColor: TColor32;
+    FPolygon: IGeometryProjectedPolygon;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
+    FSourceProvider: IBitmapTileProvider;
+
+    FMapRect: TRect;
+    FUsePreciseCropping: Boolean;
+
+    FEmptyTile: IBitmap32Static;
+    FProjection: IProjection;
+
+    procedure CropByPolygon(
+      const ABitmap: TBitmap32ByStaticBitmap;
+      const ATileSize: TPoint;
+      const ATile: TPoint
+    );
   private
+    { IBitmapTileProvider }
     function GetProjection: IProjection;
+
     function GetTile(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -50,8 +66,10 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      ABackGroundColor: TColor32;
-      AEmptyColor: TColor32;
+      const AUsePreciseCropping: Boolean;
+      const ABackGroundColor: TColor32;
+      const AEmptyColor: TColor32;
+      const APolygon: IGeometryProjectedPolygon;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ASourceProvider: IBitmapTileProvider
     );
@@ -61,15 +79,19 @@ implementation
 
 uses
   GR32,
+  Math,
+  t_GeoTypes,
   u_BitmapFunc,
   u_GeoFunc,
-  u_Bitmap32ByStaticBitmap;
+  u_GeometryFunc;
 
 { TBitmapTileProviderWithBGColor }
 
-constructor TBitmapTileProviderWithBGColor.Create(
-  ABackGroundColor: TColor32;
-  AEmptyColor: TColor32;
+constructor TBitmapTileProviderWithBgColor.Create(
+  const AUsePreciseCropping: Boolean;
+  const ABackGroundColor: TColor32;
+  const AEmptyColor: TColor32;
+  const APolygon: IGeometryProjectedPolygon;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ASourceProvider: IBitmapTileProvider
 );
@@ -77,17 +99,20 @@ var
   VTileSize: TPoint;
   VTargetBmp: TBitmap32ByStaticBitmap;
 begin
+  Assert(Assigned(APolygon));
   Assert(Assigned(ASourceProvider));
   Assert(Assigned(ABitmap32StaticFactory));
+
   inherited Create;
-  FSourceProvider := ASourceProvider;
+
   FBackGroundColor := ABackGroundColor;
   FEmptyColor := AEmptyColor;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FSourceProvider := ASourceProvider;
 
-  VTileSize := ASourceProvider.Projection.GetTileSize(Types.Point(0, 0));
   VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
+    VTileSize := FSourceProvider.Projection.GetTileSize(Types.Point(0, 0));
     VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
     VTargetBmp.Clear(FEmptyColor);
     FEmptyTile := VTargetBmp.MakeAndClear;
@@ -95,15 +120,26 @@ begin
     VTargetBmp.Free;
   end;
 
-  Assert(FSourceProvider <> nil);
+  FProjection := FSourceProvider.Projection;
+
+  FUsePreciseCropping :=
+    AUsePreciseCropping and
+    not IsProjectedPolygonSimpleRect(APolygon);
+
+  if FUsePreciseCropping then begin
+    FPolygon := APolygon;
+    FMapRect := RectFromDoubleRect(FPolygon.Bounds, rrOutside);
+  end else begin
+    FPolygon := nil;
+  end;
 end;
 
-function TBitmapTileProviderWithBGColor.GetProjection: IProjection;
+function TBitmapTileProviderWithBgColor.GetProjection: IProjection;
 begin
-  Result := FSourceProvider.Projection;
+  Result := FProjection;
 end;
 
-function TBitmapTileProviderWithBGColor.GetTile(
+function TBitmapTileProviderWithBgColor.GetTile(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ATile: TPoint
@@ -119,12 +155,13 @@ begin
       ATile
     );
   if Result <> nil then begin
-    if FBackGroundColor <> 0 then begin
+    if FUsePreciseCropping or (FBackGroundColor <> 0) then begin
       VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
-        VTileSize := FSourceProvider.Projection.GetTileSize(ATile);
+        VTileSize := FProjection.GetTileSize(ATile);
         VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
         VTargetBmp.Clear(FBackGroundColor);
+
         BlockTransferFull(
           VTargetBmp,
           0,
@@ -132,13 +169,18 @@ begin
           Result,
           dmBlend
         );
+
+        if FUsePreciseCropping then begin
+          CropByPolygon(VTargetBmp, VTileSize, ATile);
+        end;
+
         Result := VTargetBmp.MakeAndClear;
       finally
         VTargetBmp.Free;
       end;
     end;
   end else begin
-    VTileSize := FSourceProvider.Projection.GetTileSize(ATile);
+    VTileSize := FProjection.GetTileSize(ATile);
     if IsPointsEqual(VTileSize, FEmptyTile.Size) then begin
       Result := FEmptyTile;
     end else begin
@@ -150,6 +192,47 @@ begin
       finally
         VTargetBmp.Free;
       end;
+    end;
+  end;
+end;
+
+procedure TBitmapTileProviderWithBgColor.CropByPolygon(
+  const ABitmap: TBitmap32ByStaticBitmap;
+  const ATileSize: TPoint;
+  const ATile: TPoint
+);
+var
+  I, J: Integer;
+  VTileMapRect: TRect;
+  VCopyRectSize: TPoint;
+  VCopyMapRect: TRect;
+  VCopyRectAtSource: TRect;
+  VPix: PColor32;
+  VPixelPoint: TDoublePoint;
+begin
+  VTileMapRect := FProjection.TilePos2PixelRect(ATile);
+
+  Types.IntersectRect(VCopyMapRect, VTileMapRect, FMapRect);
+
+  if not FPolygon.IsRectIntersectBorder( DoubleRect(VCopyMapRect) ) then begin
+    Exit;
+  end;
+
+  VCopyRectSize := RectSize(VCopyMapRect);
+  VCopyRectAtSource := RectMove(VCopyMapRect, VTileMapRect.TopLeft);
+
+  for I := 0 to VCopyRectSize.Y - 1 do begin
+    VPix := @ABitmap.Bits[VCopyRectAtSource.Left + (I + VCopyRectAtSource.Top) * ATileSize.X];
+
+    for J := 0 to VCopyRectSize.X - 1 do begin
+      if VPix^ <> FBackGroundColor then begin
+        VPixelPoint.X := VCopyMapRect.Left + J;
+        VPixelPoint.Y := VCopyMapRect.Top + I;
+        if not FPolygon.IsPointInPolygon(VPixelPoint) then begin
+          VPix^ := FBackGroundColor;
+        end;
+      end;
+      Inc(VPix);
     end;
   end;
 end;
