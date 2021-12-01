@@ -27,6 +27,7 @@ uses
   u_MarkCategoryListToTree_Test in 'u_MarkCategoryListToTree_Test.pas',
   u_PascalScriptUrlTemplate_Test in 'u_PascalScriptUrlTemplate_Test.pas',
   u_PathConfig_Test in 'u_PathConfig_Test.pas',
+  u_ProjectedPolygonWithRect_Test in 'u_ProjectedPolygonWithRect_Test.pas',
   u_ProjectedSingleLine_Test in 'u_ProjectedSingleLine_Test.pas',
   u_RegularExpressions_Test in 'u_RegularExpressions_Test.pas',
   u_SASTestCase in 'u_SASTestCase.pas',
