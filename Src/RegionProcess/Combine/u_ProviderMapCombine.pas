@@ -171,7 +171,6 @@ uses
   i_MapVersionRequest,
   u_BaseInterfacedObject,
   u_GeoFunc,
-  u_GeometryFunc,
   u_ResStrings,
   u_RegionProcessTaskCombine,
   u_TextDrawerBasic,
@@ -695,7 +694,6 @@ begin
     TRegionProcessTaskCombine.Create(
       AProgressInfo,
       APolygon,
-      nil,
       VMapRect,
       VCombiner,
       VImageProvider,

@@ -55,7 +55,6 @@ uses
   LibJpegWrite,
   gnugettext,
   Exif,
-  t_Bitmap32,
   t_GeoTypes,
   t_CommonTypes,
   t_MapCombineOptions,
@@ -63,7 +62,6 @@ uses
   i_Projection,
   i_BitmapTileProvider,
   i_ImageLineProvider,
-  i_GeometryProjected,
   u_BaseInterfacedObject,
   u_ImageLineProvider,
   u_GeoFunc,
@@ -75,7 +73,6 @@ type
     FProgressUpdate: IBitmapCombineProgressUpdate;
     FWidth: Integer;
     FHeight: Integer;
-    FBgColor: TColor32;
     FQuality: Integer;
     FSaveRectCounter: IInternalPerformanceCounter;
     FPrepareDataCounter: IInternalPerformanceCounter;
@@ -96,7 +93,6 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect
     );
   public
@@ -105,7 +101,6 @@ type
       const ASaveRectCounter: IInternalPerformanceCounter;
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
-      const ABgColor: TColor32;
       const AQuality: Integer;
       const ASaveGeoRefInfoToExif: Boolean
     );
@@ -118,7 +113,6 @@ constructor TBitmapMapCombinerJPG.Create(
   const ASaveRectCounter: IInternalPerformanceCounter;
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
-  const ABgColor: TColor32;
   const AQuality: Integer;
   const ASaveGeoRefInfoToExif: Boolean
 );
@@ -128,7 +122,6 @@ begin
   FSaveRectCounter := ASaveRectCounter;
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
-  FBgColor := ABgColor;
   FQuality := AQuality;
   FSaveGeoRefInfoToExif := ASaveGeoRefInfoToExif;
 end;
@@ -138,7 +131,6 @@ procedure TBitmapMapCombinerJPG.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
-  const APolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect
 );
 const
@@ -172,9 +164,7 @@ begin
         FPrepareDataCounter,
         FGetLineCounter,
         AImageProvider,
-        APolygon,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
   end else begin
     FLineProvider :=
@@ -182,9 +172,7 @@ begin
         FPrepareDataCounter,
         FGetLineCounter,
         AImageProvider,
-        APolygon,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
   end;
 
@@ -269,7 +257,6 @@ begin
       FSaveRectCounter,
       FPrepareDataCounter,
       FGetLineCounter,
-      AParams.BGColor,
       AParams.CustomOptions.Quality,
       AParams.CustomOptions.IsSaveGeoRefInfoToExif
     );

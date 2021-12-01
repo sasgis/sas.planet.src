@@ -60,7 +60,6 @@ uses
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_ImageLineProvider,
-  i_GeometryProjected,
   u_BaseInterfacedObject,
   u_ImageLineProvider,
   u_GeoFunc;
@@ -82,7 +81,6 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect
     );
   public
@@ -119,7 +117,6 @@ procedure TBitmapMapCombinerRAW.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
-  const APolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect
 );
 var
@@ -150,9 +147,7 @@ begin
           FPrepareDataCounter,
           FGetLineCounter,
           AImageProvider,
-          APolygon,
-          AMapRect,
-          FBgColor
+          AMapRect
         );
     end else begin
       VBytesPerPix := 3;
@@ -161,9 +156,7 @@ begin
           FPrepareDataCounter,
           FGetLineCounter,
           AImageProvider,
-          APolygon,
-          AMapRect,
-          FBgColor
+          AMapRect
         );
     end;
     VBgColor.ARGB := FBgColor;

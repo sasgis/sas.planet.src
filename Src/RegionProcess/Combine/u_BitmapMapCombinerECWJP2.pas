@@ -83,7 +83,6 @@ uses
   libecwj2,
   ALString,
   t_ECW,
-  t_Bitmap32,
   t_CommonTypes,
   t_MapCombineOptions,
   c_CoordConverter,
@@ -91,7 +90,6 @@ uses
   i_BitmapTileProvider,
   i_Projection,
   i_ImageLineProvider,
-  i_GeometryProjected,
   u_BaseInterfacedObject,
   u_CalcWFileParams,
   u_ECWJP2Write,
@@ -111,7 +109,6 @@ type
     FGetLineCounter: IInternalPerformanceCounter;
     FImageLineProvider: IImageLineProvider;
     FLinesCount: Integer;
-    FBgColor: TColor32;
     FQuality: Integer;
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
@@ -130,7 +127,6 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect
     );
   public
@@ -139,7 +135,6 @@ type
       const ASaveRectCounter: IInternalPerformanceCounter;
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
-      const ABgColor: TColor32;
       const AQuality: Integer
     );
   end;
@@ -149,7 +144,6 @@ constructor TBitmapMapCombinerECWJP2.Create(
   const ASaveRectCounter: IInternalPerformanceCounter;
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
-  const ABgColor: TColor32;
   const AQuality: Integer
 );
 begin
@@ -158,7 +152,6 @@ begin
   FSaveRectCounter := ASaveRectCounter;
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
-  FBgColor := ABgColor;
   FQuality := AQuality;
 end;
 
@@ -198,7 +191,6 @@ procedure TBitmapMapCombinerECWJP2.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
-  const APolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect
 );
 const
@@ -237,9 +229,7 @@ begin
           FPrepareDataCounter,
           FGetLineCounter,
           AImageProvider,
-          APolygon,
-          AMapRect,
-          FBgColor
+          AMapRect
         );
       VProjection := AImageProvider.Projection;
       VCurrentPieceRect := AMapRect;
@@ -390,7 +380,6 @@ begin
       FSaveRectCounter,
       FPrepareDataCounter,
       FGetLineCounter,
-      AParams.BGColor,
       AParams.CustomOptions.Quality
     );
 end;
@@ -448,7 +437,6 @@ begin
       FSaveRectCounter,
       FPrepareDataCounter,
       FGetLineCounter,
-      AParams.BGColor,
       VQuality
     );
 end;

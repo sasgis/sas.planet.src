@@ -55,12 +55,10 @@ uses
   gnugettext,
   GeoTiffWriter,
   t_GeoTIFF,
-  t_Bitmap32,
   t_CommonTypes,
   t_MapCombineOptions,
   c_CoordConverter,
   i_Projection,
-  i_GeometryProjected,
   i_ImageLineProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
@@ -77,7 +75,6 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FThreadNumber: Integer;
-    FBgColor: TColor32;
     FWithAlpha: Boolean;
     FFileFormat: TGeoTiffFileFormat;
     FCompression: TGeoTiffCompression;
@@ -100,7 +97,6 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect
     );
   public
@@ -110,7 +106,6 @@ type
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
       const AThreadNumber: Integer;
-      const ABgColor: TColor32;
       const AWithAlpha: Boolean = True;
       const AFileFormat: TGeoTiffFileFormat = gtfOld;
       const ACompression: TGeoTiffCompression = gtcLZW
@@ -125,7 +120,6 @@ constructor TBitmapMapCombinerGeoTIFF.Create(
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
   const AThreadNumber: Integer;
-  const ABgColor: TColor32;
   const AWithAlpha: Boolean;
   const AFileFormat: TGeoTiffFileFormat;
   const ACompression: TGeoTiffCompression
@@ -137,7 +131,6 @@ begin
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
   FThreadNumber := AThreadNumber;
-  FBgColor := ABgColor;
   FWithAlpha := AWithAlpha;
   FFileFormat := AFileFormat;
   FCompression := ACompression;
@@ -175,7 +168,6 @@ procedure TBitmapMapCombinerGeoTIFF.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
-  const APolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect
 );
 var
@@ -251,9 +243,7 @@ begin
           FPrepareDataCounter,
           FGetLineCounter,
           AImageProvider,
-          APolygon,
-          VCurrentPieceRect,
-          FBgColor
+          VCurrentPieceRect
         );
     end;
   end else begin
@@ -265,7 +255,6 @@ begin
           AImageProvider,
           VThreadNumber,
           VCurrentPieceRect
-          //ToDo: FBgColor
         );
     end else begin
       FLineProvider :=
@@ -273,9 +262,7 @@ begin
           FPrepareDataCounter,
           FGetLineCounter,
           AImageProvider,
-          APolygon,
-          VCurrentPieceRect,
-          FBgColor
+          VCurrentPieceRect
         );
     end;
   end;
@@ -350,7 +337,6 @@ begin
       FPrepareDataCounter,
       FGetLineCounter,
       AParams.CustomOptions.ThreadCount,
-      AParams.BGColor,
       AParams.CustomOptions.IsSaveAlfa,
       AParams.CustomOptions.GeoTiffFormat,
       AParams.CustomOptions.GeoTiffCompression

@@ -54,13 +54,11 @@ uses
   Types,
   gnugettext,
   LibPngWriter,
-  t_Bitmap32,
   t_CommonTypes,
   t_MapCombineOptions,
   i_ImageLineProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
-  i_GeometryProjected,
   u_BaseInterfacedObject,
   u_ImageLineProvider,
   u_GeoFunc,
@@ -72,7 +70,6 @@ type
     FProgressUpdate: IBitmapCombineProgressUpdate;
     FWidth: Integer;
     FHeight: Integer;
-    FBgColor: TColor32;
     FWithAlpha: Boolean;
     FSaveRectCounter: IInternalPerformanceCounter;
     FPrepareDataCounter: IInternalPerformanceCounter;
@@ -92,7 +89,6 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const APolygon: IGeometryProjectedPolygon;
       const AMapRect: TRect
     );
   public
@@ -101,8 +97,7 @@ type
       const ASaveRectCounter: IInternalPerformanceCounter;
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
-      const ABgColor: TColor32;
-      const AWithAlpha: Boolean
+      AWithAlpha: Boolean
     );
   end;
 
@@ -113,8 +108,7 @@ constructor TBitmapMapCombinerPNG.Create(
   const ASaveRectCounter: IInternalPerformanceCounter;
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
-  const ABgColor: TColor32;
-  const AWithAlpha: Boolean
+  AWithAlpha: Boolean
 );
 begin
   inherited Create;
@@ -122,7 +116,6 @@ begin
   FSaveRectCounter := ASaveRectCounter;
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
-  FBgColor := ABgColor;
   FWithAlpha := AWithAlpha;
 end;
 
@@ -131,7 +124,6 @@ procedure TBitmapMapCombinerPNG.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
-  const APolygon: IGeometryProjectedPolygon;
   const AMapRect: TRect
 );
 const
@@ -170,9 +162,7 @@ begin
         FPrepareDataCounter,
         FGetLineCounter,
         AImageProvider,
-        APolygon,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
   end else begin
     VBitsPerPix := 24;
@@ -181,9 +171,7 @@ begin
         FPrepareDataCounter,
         FGetLineCounter,
         AImageProvider,
-        APolygon,
-        AMapRect,
-        FBgColor
+        AMapRect
       );
   end;
 
@@ -258,7 +246,6 @@ begin
       FSaveRectCounter,
       FPrepareDataCounter,
       FGetLineCounter,
-      AParams.BGColor,
       AParams.CustomOptions.IsSaveAlfa
     );
 end;
