@@ -89,7 +89,7 @@ end;
 
 function TBenchmarkItemBitmap32BlockTransferFull.RunOneStep: Integer;
 begin
-  GR32_Resamplers.BlockTransfer(
+  GR32_Resamplers.BlockTransferZ(
     FDest,
     0,
     0,

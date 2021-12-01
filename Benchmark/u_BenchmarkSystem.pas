@@ -97,7 +97,7 @@ uses
   u_InternalPerformanceCounterFake,
   u_ProjectionTypeMercatorOnSphere,
   u_ProjectionTypeMercatorOnEllipsoid,
-  u_ProjectionTypeGELonLat,
+  u_ProjectionTypeGeographic,
   u_ProjectionTypeFactorySimple,
   u_ProjectionBasic256x256,
   u_DoublePointsAggregator,
@@ -300,7 +300,7 @@ begin
   AList.Add(VItem);
 
   VDatum := TDatum.Create(0, 0, 6378137, 6356752);
-  VProjectionType := TProjectionTypeGELonLat.Create(0, VDatum, 0);
+  VProjectionType := TProjectionTypeGeographic.Create(0, VDatum, 0);
 
   VItem := TBenchmarkItemProjectionTypeForvard.Create('SimpleLonLat', VProjectionType);
   AList.Add(VItem);
