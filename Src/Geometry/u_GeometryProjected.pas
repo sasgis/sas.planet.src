@@ -772,14 +772,14 @@ var
 begin
   Result := false;
   if FOuterBorder.IsRectIntersectBorder(ARect) then begin
+    Result := True;
+  end else begin
     Result := False;
     for i := 0 to FHoleList.Count - 1 do begin
       VContour := IGeometryProjectedContour(FHoleList.Items[i]);
-      if VContour.IsPointInPolygon(ARect.TopLeft) then begin
-        if not VContour.IsRectIntersectBorder(ARect) then begin
-          Result := False;
-          Break;
-        end;
+      if VContour.IsRectIntersectBorder(ARect) then begin
+        Result := True;
+        Break;
       end;
     end;
   end;
