@@ -121,7 +121,9 @@ object frMapCombine: TfrMapCombine
         Top = 88
         Width = 209
         Height = 17
-        Hint = 'Precise cropping of the image along the boundaries of the polygon'
+        Hint = 
+          'Precise cropping of the image along the boundaries of the polygo' +
+          'n'
         Align = alTop
         Caption = 'Precise cropping by the polygon'
         TabOrder = 6
