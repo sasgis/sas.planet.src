@@ -770,7 +770,6 @@ var
   i: Integer;
   VContour: IGeometryProjectedContour;
 begin
-  Result := false;
   if FOuterBorder.IsRectIntersectBorder(ARect) then begin
     Result := True;
   end else begin
