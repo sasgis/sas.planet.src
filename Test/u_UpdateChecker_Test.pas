@@ -123,16 +123,20 @@ const
     '    href="/sas_team/sas.planet.bin/downloads/SAS.Planet.Release.200606.zip">SAS.Planet.Release.200606.zip</a>' + #10 +
     '</td>' + #10;
 var
+  VStr: AnsiString;
   VData: IBinaryData;
 begin
   case FUpdateSource of
-    usHome:      VData := TBinaryData.CreateByAnsiString(CHomeFakeHtml[FUpdateChannel]);
-    usBitBucket: VData := TBinaryData.CreateByAnsiString(CBitBucketFakeHtml);
-    usGitHub:    VData := TBinaryData.CreateByAnsiString(CGitHubFakeHtml);
+    usHome:      VStr := CHomeFakeHtml[FUpdateChannel];
+    usBitBucket: VStr := CBitBucketFakeHtml;
+    usGitHub:    VStr := CGitHubFakeHtml;
   else
-    Assert(False);
+    raise Exception.CreateFmt(
+      'Unexpected UpdateSource value: %d', [Integer(FUpdateSource)]
+    );
   end;
 
+  VData := TBinaryData.CreateByAnsiString(VStr);
   Result := TDownloadResultOk.Create(nil, 200, '', '', VData);
 end;
 
