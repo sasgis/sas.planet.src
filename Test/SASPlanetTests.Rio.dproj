@@ -63,7 +63,7 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <DCC_ExeOutput>..\.bin</DCC_ExeOutput>
         <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
-        <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <Manifest_File>None</Manifest_File>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
@@ -1060,6 +1060,7 @@
         <DCCReference Include="u_MarkCategoryListToTree_Test.pas"/>
         <DCCReference Include="u_PascalScriptUrlTemplate_Test.pas"/>
         <DCCReference Include="u_PathConfig_Test.pas"/>
+        <DCCReference Include="u_ProjectedPolygonWithRect_Test.pas"/>
         <DCCReference Include="u_ProjectedSingleLine_Test.pas"/>
         <DCCReference Include="u_RegularExpressions_Test.pas"/>
         <DCCReference Include="u_SASTestCase.pas"/>
