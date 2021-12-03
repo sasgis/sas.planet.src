@@ -759,9 +759,6 @@ function CalcTileCountInProjectedSinglePolygon(
       VTileRect1.Right := ATileRect.Left + VRectSize.X div 2;
       VTileRect2 := ATileRect;
       VTileRect2.Left := VTileRect1.Right;
-      Result :=
-        CalcTileCountInProjectedSinglePolygonRecursive(VTileRect1) +
-        CalcTileCountInProjectedSinglePolygonRecursive(VTileRect2);
     end else begin
       if VRectSize.Y <= 1 then begin
         Result := 1;
@@ -771,10 +768,10 @@ function CalcTileCountInProjectedSinglePolygon(
       VTileRect1.Bottom := ATileRect.Top + VRectSize.Y div 2;
       VTileRect2 := ATileRect;
       VTileRect2.Top := VTileRect1.Bottom;
-      Result :=
-        CalcTileCountInProjectedSinglePolygonRecursive(VTileRect1) +
-        CalcTileCountInProjectedSinglePolygonRecursive(VTileRect2);
     end;
+    Result :=
+      CalcTileCountInProjectedSinglePolygonRecursive(VTileRect1) +
+      CalcTileCountInProjectedSinglePolygonRecursive(VTileRect2);
   end;
 var
   VRect: TRect;
