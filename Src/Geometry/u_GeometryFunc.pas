@@ -727,15 +727,59 @@ function CalcTileCountInProjectedSinglePolygon(
   const AProjection: IProjection;
   const AGeometry: IGeometryProjectedSinglePolygon
 ): Int64;
+  function CalcTileCountInProjectedSinglePolygonRecursive(
+    const ATileRect: TRect
+  ): Int64;
+  var
+    VPixelRect: TDoubleRect;
+    VRectSize: TPoint;
+    VIntersection: TRectWithPolygonIntersection;
+    VTileRect1: TRect;
+    VTileRect2: TRect;
+  begin
+    VRectSize := RectSize(ATileRect);
+    VPixelRect := DoubleRect(AProjection.TileRect2PixelRect(ATileRect));
+    VIntersection := AGeometry.CheckRectIntersection(VPixelRect);
+    if VIntersection = rwpNoIntersect  then begin
+      Result := 0;
+      Exit;
+    end;
+
+    if VIntersection = rwpRectInPolygon  then begin
+      Result := VRectSize.X * VRectSize.Y;
+      Exit;
+    end;
+
+    if VRectSize.X > VRectSize.Y then begin
+      if VRectSize.X <= 1 then begin
+        Result := 1;
+        Exit;
+      end;
+      VTileRect1 := ATileRect;
+      VTileRect1.Right := ATileRect.Left + VRectSize.X div 2;
+      VTileRect2 := ATileRect;
+      VTileRect2.Left := VTileRect1.Right;
+      Result :=
+        CalcTileCountInProjectedSinglePolygonRecursive(VTileRect1) +
+        CalcTileCountInProjectedSinglePolygonRecursive(VTileRect2);
+    end else begin
+      if VRectSize.Y <= 1 then begin
+        Result := 1;
+        Exit;
+      end;
+      VTileRect1 := ATileRect;
+      VTileRect1.Bottom := ATileRect.Top + VRectSize.Y div 2;
+      VTileRect2 := ATileRect;
+      VTileRect2.Top := VTileRect1.Bottom;
+      Result :=
+        CalcTileCountInProjectedSinglePolygonRecursive(VTileRect1) +
+        CalcTileCountInProjectedSinglePolygonRecursive(VTileRect2);
+    end;
+  end;
 var
   VRect: TRect;
   VTileRect: ITileRect;
-  VIterator: TTileIteratorByRectRecord;
-  VTile: TPoint;
-  VPixelRect: TDoubleRect;
 begin
-  Result := 0;
-
   VTileRect := TryProjectedPolygonToTileRect(AProjection, AGeometry);
   if VTileRect <> nil then begin
     Result := (VTileRect.Right - VTileRect.Left) * (VTileRect.Bottom - VTileRect.Top);
@@ -747,13 +791,7 @@ begin
       AProjection.PixelRectFloat2TileRectFloat(AGeometry.Bounds),
       rrOutside
     );
-  VIterator.Init(VRect);
-  while VIterator.Next(VTile) do begin
-    VPixelRect := AProjection.TilePos2PixelRectFloat(VTile);
-    if AGeometry.IsRectIntersectPolygon(VPixelRect) then begin
-      Inc(Result);
-    end;
-  end;
+  Result := CalcTileCountInProjectedSinglePolygonRecursive(VRect);
 end;
 
 function CalcTileCountInProjectedPolygon(
