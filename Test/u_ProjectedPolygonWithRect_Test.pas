@@ -35,6 +35,7 @@ type
     procedure TestRectR11IntersectPolygon;
     procedure TestRectR12FarAway;
     procedure TestRectR13AroundPolygon;
+    procedure TestRectR14AroundSecond;
   end;
 
 implementation
@@ -135,6 +136,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(20,10,90,90);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckTrue(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckTrue(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckTrue(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -152,6 +160,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(240,40,280,70);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckFalse(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -169,6 +184,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(190,80,220,90);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckFalse(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -186,6 +208,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(90,100,110,110);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpRectInPolygon);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpRectInPolygon);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckFalse(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -203,6 +232,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(80,130,120,160);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpRectInPolygon);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckTrue(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckTrue(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckTrue(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -220,6 +256,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(220,160,260,190);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpRectInPolygon);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpRectInPolygon);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpRectInPolygon);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckTrue(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckTrue(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -237,6 +280,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(300,160,350,190);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckFalse(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -254,6 +304,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(430,140,470,170);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpRectInPolygon);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpRectInPolygon);
+
   CheckTrue(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -271,6 +328,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(390,190,430,220);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpIntersectPartial);
+
   CheckTrue(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckTrue(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -288,6 +352,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(130,210,160,230);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckFalse(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -305,6 +376,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(40,220,80,250);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckTrue(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckTrue(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckTrue(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -322,6 +400,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(540,40,580,70);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpNoIntersect);
+
   CheckFalse(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -339,6 +424,13 @@ var
   VRect: TDoubleRect;
 begin
   VRect := DoubleRect(10,20,520,260);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpPolygonInRect);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpPolygonInRect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpPolygonInRect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpPolygonInRect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpPolygonInRect);
+
   CheckTrue(FMultiPolygon.IsRectIntersectPolygon(VRect));
   CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
   CheckTrue(FPolygonMain.IsRectIntersectPolygon(VRect));
@@ -346,6 +438,30 @@ begin
   CheckTrue(FPolygonMainOuter.IsRectIntersectPolygon(VRect));
   CheckFalse(FPolygonMainOuter.IsRectIntersectBorder(VRect));
   CheckTrue(FPolygonMainHole.IsRectIntersectPolygon(VRect));
+  CheckFalse(FPolygonMainHole.IsRectIntersectBorder(VRect));
+  CheckTrue(FPolygonSecond.IsRectIntersectPolygon(VRect));
+  CheckFalse(FPolygonSecond.IsRectIntersectBorder(VRect));
+end;
+
+procedure TestProjectedPolygonWithRect.TestRectR14AroundSecond;
+var
+  VRect: TDoubleRect;
+begin
+  VRect := DoubleRect(400,10,500,250);
+
+  Check(FMultiPolygon.CheckRectIntersection(VRect) = rwpIntersectPartial);
+  Check(FPolygonMain.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainOuter.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonMainHole.CheckRectIntersection(VRect) = rwpNoIntersect);
+  Check(FPolygonSecond.CheckRectIntersection(VRect) = rwpPolygonInRect);
+
+  CheckTrue(FMultiPolygon.IsRectIntersectPolygon(VRect));
+  CheckFalse(FMultiPolygon.IsRectIntersectBorder(VRect));
+  CheckFalse(FPolygonMain.IsRectIntersectPolygon(VRect));
+  CheckFalse(FPolygonMain.IsRectIntersectBorder(VRect));
+  CheckFalse(FPolygonMainOuter.IsRectIntersectPolygon(VRect));
+  CheckFalse(FPolygonMainOuter.IsRectIntersectBorder(VRect));
+  CheckFalse(FPolygonMainHole.IsRectIntersectPolygon(VRect));
   CheckFalse(FPolygonMainHole.IsRectIntersectBorder(VRect));
   CheckTrue(FPolygonSecond.IsRectIntersectPolygon(VRect));
   CheckFalse(FPolygonSecond.IsRectIntersectBorder(VRect));

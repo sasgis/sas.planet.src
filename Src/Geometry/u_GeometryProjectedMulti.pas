@@ -61,6 +61,7 @@ type
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
+    function CheckRectIntersection(const ARect: TDoubleRect): TRectWithPolygonIntersection;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
@@ -190,6 +191,38 @@ begin
     VLine := GetItem(i);
     if VLine.IsPointOnBorder(APoint, ADist) then begin
       Result := True;
+      Break;
+    end;
+  end;
+end;
+
+function TGeometryProjectedMultiPolygon.CheckRectIntersection(
+  const ARect: TDoubleRect
+): TRectWithPolygonIntersection;
+var
+  i: Integer;
+  VIntersectRect: TDoubleRect;
+  VLine: IGeometryProjectedSinglePolygon;
+begin
+  if not IntersecProjectedRect(VIntersectRect, FBounds, ARect) then begin
+    Result := rwpNoIntersect;
+    Exit;
+  end;
+  if DoubleRectsEqual(VIntersectRect, FBounds) then begin
+    Result := rwpPolygonInRect;
+    Exit;
+  end;
+
+  Result := rwpNoIntersect;
+  for i := 0 to FList.Count - 1 do begin
+    VLine := GetItem(i);
+    Result := VLine.CheckRectIntersection(ARect);
+    if Result = rwpIntersectPartial then begin
+      Break;
+    end else if Result = rwpPolygonInRect then begin
+      Result := rwpIntersectPartial;
+      Break;
+    end else if Result = rwpRectInPolygon then begin
       Break;
     end;
   end;

@@ -29,6 +29,7 @@ uses
 type
   TPointRounding = (prClosest, prToTopLeft, prToBottomRight);
   TRectRounding = (rrClosest, rrOutside, rrInside, rrToTopLeft);
+  TRectWithPolygonIntersection = (rwpNoIntersect, rwpIntersectPartial, rwpRectInPolygon, rwpPolygonInRect);
 
   PDoublePoint = ^TDoublePoint;
 

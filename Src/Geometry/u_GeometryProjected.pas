@@ -82,6 +82,7 @@ type
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
+    function CheckRectIntersection(const ARect: TDoubleRect): TRectWithPolygonIntersection;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
@@ -117,6 +118,7 @@ type
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
+    function CheckRectIntersection(const ARect: TDoubleRect): TRectWithPolygonIntersection;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
@@ -443,6 +445,117 @@ begin
   end;
 end;
 
+function TGeometryProjectedContour.CheckRectIntersection(
+  const ARect: TDoubleRect
+): TRectWithPolygonIntersection;
+var
+  VIntersectRect: TDoubleRect;
+  VPrevPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+  VIntersect: Double;
+  VDelta: TDoublePoint;
+  VRectIn: Boolean;
+  VPoints: PDoublePointArray;
+  i: Integer;
+begin
+  if not IntersecProjectedRect(VIntersectRect, FBounds, ARect) then begin
+    Result := rwpNoIntersect;
+    Exit;
+  end;
+  if DoubleRectsEqual(VIntersectRect, FBounds) then begin
+    Result := rwpPolygonInRect;
+    Exit;
+  end;
+
+  VPoints := FPoints.Points;
+  VRectIn := PixelPointInRect(VPoints[0], ARect);
+  // Find intersectin of rect with contour
+  // and check topleft point of rect inside contour
+  if FCount > 1 then begin
+    VPrevPoint := VPoints[FCount - 1];
+    for i := 0 to FCount - 1 do begin
+      VCurrPoint := VPoints[i];
+      VDelta.X := VCurrPoint.X - VPrevPoint.X;
+      VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
+      if (VDelta.Y < 0) then begin
+        if (VCurrPoint.Y <= ARect.Top) and (ARect.Top < VPrevPoint.Y) then begin
+          VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+          if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+            Result := rwpIntersectPartial;
+            Exit;
+          end;
+          if (ARect.Left > VIntersect) then begin
+            VRectIn := not VRectIn;
+          end;
+        end;
+        if (VCurrPoint.Y <= ARect.Bottom) and (ARect.Bottom < VPrevPoint.Y) then begin
+          VIntersect := VDelta.X * (ARect.Bottom - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+          if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+            Result := rwpIntersectPartial;
+            Exit;
+          end;
+        end;
+      end else if (VDelta.Y > 0) then begin
+        if (VCurrPoint.Y > ARect.Top) and (ARect.Top >= VPrevPoint.Y) then begin
+          VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+          if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+            Result := rwpIntersectPartial;
+            Exit;
+          end;
+          if (ARect.Left > VIntersect) then begin
+            VRectIn := not VRectIn;
+          end;
+        end;
+        if (VCurrPoint.Y > ARect.Bottom) and (ARect.Bottom >= VPrevPoint.Y) then begin
+          VIntersect := VDelta.X * (ARect.Bottom - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+          if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+            Result := rwpIntersectPartial;
+            Exit;
+          end;
+        end;
+      end;
+
+      if (VDelta.X < 0) then begin
+        if (VCurrPoint.X <= ARect.Left) and (ARect.Left < VPrevPoint.X) then begin
+          VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+          if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+            Result := rwpIntersectPartial;
+            Exit;
+          end;
+        end;
+        if (VCurrPoint.X <= ARect.Right) and (ARect.Right < VPrevPoint.X) then begin
+          VIntersect := VDelta.Y * (ARect.Right - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+          if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+            Result := rwpIntersectPartial;
+            Exit;
+          end;
+        end;
+      end else if (VDelta.X > 0) then begin
+        if (VCurrPoint.X > ARect.Left) and (ARect.Left >= VPrevPoint.X) then begin
+          VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+          if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+            Result := rwpIntersectPartial;
+            Exit;
+          end;
+        end;
+        if (VCurrPoint.X > ARect.Right) and (ARect.Right >= VPrevPoint.X) then begin
+          VIntersect := VDelta.Y * (ARect.Right - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+          if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+            Result := rwpIntersectPartial;
+            Exit;
+          end;
+        end;
+      end;
+      VPrevPoint := VCurrPoint;
+    end;
+  end;
+  if VRectIn then begin
+    Result := rwpRectInPolygon;
+  end else begin
+    Result := rwpNoIntersect;
+  end;
+end;
+
 function TGeometryProjectedContour.IsRectIntersectBorder(
   const ARect: TDoubleRect): Boolean;
 var
@@ -757,6 +870,30 @@ begin
       VContour := IGeometryProjectedContour(FHoleList.Items[i]);
       if VContour.IsPointOnBorder(APoint, ADist) then begin
         Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
+
+function TGeometryProjectedPolygonWithHoles.CheckRectIntersection(
+  const ARect: TDoubleRect
+): TRectWithPolygonIntersection;
+var
+  i: Integer;
+  VContour: IGeometryProjectedContour;
+  VResult: TRectWithPolygonIntersection;
+begin
+  Result := FOuterBorder.CheckRectIntersection(ARect);
+  if Result = rwpRectInPolygon then begin
+    for i := 0 to FHoleList.Count - 1 do begin
+      VContour := IGeometryProjectedContour(FHoleList.Items[i]);
+      VResult := VContour.CheckRectIntersection(ARect);
+      if VResult = rwpRectInPolygon then begin
+        Result := rwpNoIntersect;
+        Break;
+      end else if VResult <> rwpNoIntersect then begin
+        Result := rwpIntersectPartial;
         Break;
       end;
     end;

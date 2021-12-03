@@ -81,6 +81,7 @@ type
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
+    function CheckRectIntersection(const ARect: TDoubleRect): TRectWithPolygonIntersection;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
