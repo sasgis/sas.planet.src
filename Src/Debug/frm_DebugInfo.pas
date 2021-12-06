@@ -193,6 +193,7 @@ var
   VItem: IInternalPerformanceCounterStaticData;
 begin
   sgrdDebugInfo.RowCount := 2;
+  sgrdDebugInfo.FixedRows := 1;
   VList := FDebugInfoSubSystem.GetStaticDataList;
   FPrevStateList.Clear;
   if Assigned(VList) then begin
