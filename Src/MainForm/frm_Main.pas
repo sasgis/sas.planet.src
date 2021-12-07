@@ -591,6 +591,7 @@ type
     TBXSeparatorItem24: TTBXSeparatorItem;
     TBXSeparatorItem25: TTBXSeparatorItem;
     tbxUndoRouteCalc: TTBXItem;
+    NMarkEditPlacemark: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -839,6 +840,7 @@ type
     procedure tbxYandexWeatherClick(Sender: TObject);
     procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
     procedure tbxUndoRouteCalcClick(Sender: TObject);
+    procedure NMarkEditPlacemarkClick(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -4641,6 +4643,26 @@ begin
   end;
 end;
 
+procedure TfrmMain.NMarkEditPlacemarkClick(Sender: TObject);
+var
+  VMark: IVectorDataItem;
+  VMarkNew: IVectorDataItem;
+  VVisible: Boolean;
+  VResult: IVectorDataItem;
+begin
+  VMark := FSelectedMark;
+  if VMark <> nil then begin
+    VVisible := FMarkDBGUI.MarksDb.MarkDb.GetMarkVisible(VMark);
+    VMarkNew := FMarkDBGUI.EditMarkModal(VMark, False, VVisible);
+      if VMarkNew <> nil then begin
+        VResult := FMarkDBGUI.MarksDb.MarkDb.UpdateMark(VMark, VMarkNew);
+        if VResult <> nil then begin
+          FMarkDBGUI.MarksDb.MarkDb.SetMarkVisible(VResult, VVisible);
+        end;
+      end;
+  end;
+end;
+
 procedure TfrmMain.NMarkExportClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
@@ -6206,6 +6228,7 @@ var
 begin
   VMark := FSelectedMark;
   NMarkEdit.Visible := VMark <> nil;
+  NMarkEditPlacemark.Visible := NMarkEdit.Visible;
   tbitmFitMarkToScreen.Visible :=
     Assigned(VMark) and
     (Supports(VMark.Geometry, IGeometryLonLatLine) or
