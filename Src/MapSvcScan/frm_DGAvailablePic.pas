@@ -421,8 +421,9 @@ var
 begin
   try
    Result := FALSE;
+   VRequest := FAvailPicsSrc.GetRequest(FInetConfig);
+   if VRequest <> nil then
    try
-     VRequest := FAvailPicsSrc.GetRequest(FInetConfig);
      VCancelNotifier := TNotifierOperationFake.Create;
      VResult := FDownloaderHttp.DoRequest(
        VRequest,
