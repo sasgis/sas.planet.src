@@ -87,7 +87,7 @@ constructor TMapSvcScanConfig.Create(const AMapSvcScanPath: IPathConfig);
 begin
   inherited Create;
   FMapSvcScanPath := AMapSvcScanPath;
-  FUseStorage := TRUE;
+  FUseStorage := False;
   FShowOnlyNew := FALSE;
   FMakeOnlyNew := TRUE;
   FOldAfterDays := 1;
