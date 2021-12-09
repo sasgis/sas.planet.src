@@ -592,6 +592,7 @@ type
     TBXSeparatorItem25: TTBXSeparatorItem;
     tbxUndoRouteCalc: TTBXItem;
     actMarksEditSnapToMarkers: TAction;
+    actMarksEditDeleteGeometryPoint: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -645,7 +646,6 @@ type
       AX, AY: Integer;
       Layer: TCustomLayer
     );
-    procedure TBEditPathDelClick(Sender: TObject);
     procedure TBEditPathLabelClick(Sender: TObject);
     procedure TBEditPathSaveClick(Sender: TObject);
     procedure TBEditPathClose(Sender: TObject);
@@ -840,6 +840,7 @@ type
     procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
     procedure tbxUndoRouteCalcClick(Sender: TObject);
     procedure actMarksEditSnapToMarkersExecute(Sender: TObject);
+    procedure actMarksEditDeleteGeometryPointExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -5493,13 +5494,6 @@ begin
   PFile.Save(POleStr(UnicodeString(PathLink)), False);
 end;
 
-procedure TfrmMain.TBEditPathDelClick(Sender: TObject);
-begin
-  if FLineOnMapEdit <> nil then begin
-    FLineOnMapEdit.DeleteActivePoint;
-  end;
-end;
-
 procedure TfrmMain.TBEditPathSplitClick(Sender: TObject);
 begin
   if FLineOnMapEdit <> nil then begin
@@ -7151,6 +7145,13 @@ begin
     FState.State := ao_edit_poly;
   end else begin
     FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actMarksEditDeleteGeometryPointExecute(Sender: TObject);
+begin
+  if FLineOnMapEdit <> nil then begin
+    FLineOnMapEdit.DeleteActivePoint;
   end;
 end;
 

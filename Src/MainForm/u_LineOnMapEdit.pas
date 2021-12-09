@@ -268,8 +268,7 @@ begin
   Assert(not PointIsEmpty(APoint));
   CS.BeginWrite;
   try
-    Assert(FSelectedPointIndex >= 0);
-    Assert((FPoints.Count = 0) or (FSelectedPointIndex < FPoints.Count));
+    Assert((FPoints.Count = 0) or ((FSelectedPointIndex < FPoints.Count) and (FSelectedPointIndex >= 0)));
     if (FPoints.Count = 0) then begin
       FPoints.Add(APoint);
       FSelectedPointIndex := 0;

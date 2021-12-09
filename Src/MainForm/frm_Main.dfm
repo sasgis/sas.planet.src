@@ -1073,11 +1073,8 @@ object frmMain: TfrmMain
       TabOrder = 3
       OnClose = TBEditPathClose
       object TBEditPathDel: TTBXItem
-        Hint = 'Delete Point'
-        ImageIndex = 36
+        Action = actMarksEditDeleteGeometryPoint
         Images = MenusImageList
-        ShortCut = 8
-        OnClick = TBEditPathDelClick
       end
       object TBEditPathSplit: TTBXItem
         Hint = 'Split Line'
@@ -4326,6 +4323,14 @@ object frmMain: TfrmMain
       Hint = 'Snap to Existing Markers'
       ImageIndex = 41
       OnExecute = actMarksEditSnapToMarkersExecute
+    end
+    object actMarksEditDeleteGeometryPoint: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Delete Point'
+      Hint = 'Delete Point'
+      ImageIndex = 36
+      ShortCut = 8
+      OnExecute = actMarksEditDeleteGeometryPointExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu
