@@ -1116,11 +1116,8 @@ object frmMain: TfrmMain
         end
       end
       object TBEditMagnetDraw: TTBXItem
-        AutoCheck = True
-        Hint = 'Snap to Existing Markers'
-        ImageIndex = 41
+        Action = actMarksEditSnapToMarkers
         Images = MenusImageList
-        OnClick = TBEditMagnetDrawClick
       end
       object tbitmFitEditToScreen: TTBXItem
         Hint = 'Fit to screen'
@@ -4322,6 +4319,13 @@ object frmMain: TfrmMain
       Caption = 'Moon Calculator'
       ImageIndex = 75
       OnExecute = actViewMoonCalcExecute
+    end
+    object actMarksEditSnapToMarkers: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Snap to Markers'
+      Hint = 'Snap to Existing Markers'
+      ImageIndex = 41
+      OnExecute = actMarksEditSnapToMarkersExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

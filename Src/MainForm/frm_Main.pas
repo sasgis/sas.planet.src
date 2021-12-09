@@ -591,6 +591,7 @@ type
     TBXSeparatorItem24: TTBXSeparatorItem;
     TBXSeparatorItem25: TTBXSeparatorItem;
     tbxUndoRouteCalc: TTBXItem;
+    actMarksEditSnapToMarkers: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -707,7 +708,6 @@ type
       FromLink: Boolean
     );
     procedure TBSearchWindowClose(Sender: TObject);
-    procedure TBEditMagnetDrawClick(Sender: TObject);
     procedure TBEditSelectPolylineRadiusChange(Sender: TObject);
     procedure osmorg1Click(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
@@ -839,6 +839,7 @@ type
     procedure tbxYandexWeatherClick(Sender: TObject);
     procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
     procedure tbxUndoRouteCalcClick(Sender: TObject);
+    procedure actMarksEditSnapToMarkersExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -3180,6 +3181,7 @@ begin
   actConfigGpsFollowPosition.Checked := FConfig.GPSBehaviour.MapMove;
   actConfigGpsFollowPositionAtCenter.Checked := FConfig.GPSBehaviour.MapMoveCentered;
   actConfigMarksNamesVisible.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
+  actMarksEditSnapToMarkers.Checked := FConfig.MainConfig.MagnetDraw;
 
   actConfigMarksHide.Checked := not (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
 
@@ -5684,11 +5686,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBEditMagnetDrawClick(Sender: TObject);
-begin
-  FConfig.MainConfig.MagnetDraw := TBEditMagnetDraw.Checked;
-end;
-
 procedure TfrmMain.TBEditPathClose(Sender: TObject);
 begin
   FState.State := ao_movemap;
@@ -7155,6 +7152,11 @@ begin
   end else begin
     FState.State := ao_movemap;
   end;
+end;
+
+procedure TfrmMain.actMarksEditSnapToMarkersExecute(Sender: TObject);
+begin
+  FConfig.MainConfig.MagnetDraw := not FConfig.MainConfig.MagnetDraw;
 end;
 
 procedure TfrmMain.actMoveMapExecute(Sender: TObject);
