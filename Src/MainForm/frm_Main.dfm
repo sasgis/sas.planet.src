@@ -3374,15 +3374,15 @@ object frmMain: TfrmMain
     OnPopup = MainPopupMenuPopup
     Left = 208
     Top = 168
-    object tbitmProperties: TTBXItem
-      Caption = 'Properties'
+    object tbitmMarkEditProperties: TTBXItem
+      Caption = 'Edit Properties'
       ImageIndex = 31
-      OnClick = tbitmPropertiesClick
+      OnClick = tbitmMarkEditPropertiesClick
     end
-    object NMarkEdit: TTBXItem
-      Caption = 'Edit'
+    object tbitmMarkEditPosition: TTBXItem
+      Caption = 'Edit Position'
       ImageIndex = 31
-      OnClick = NMarkEditClick
+      OnClick = tbitmMarkEditPositionClick
     end
     object NMarkDel: TTBXItem
       Caption = 'Delete'

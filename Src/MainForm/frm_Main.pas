@@ -278,7 +278,7 @@ type
     MenusImageList: TTBXImageList;
     ScalesImageList: TTBXImageList;
     MainPopupMenu: TTBXPopupMenu;
-    NMarkEdit: TTBXItem;
+    tbitmMarkEditPosition: TTBXItem;
     NMarkDel: TTBXItem;
     NMarkOper: TTBXItem;
     NMarkNav: TTBXItem;
@@ -397,7 +397,7 @@ type
     tbpmiClearVersion: TTBXItem;
     terraserver1: TTBXItem;
     tbitmNavigationArrow: TTBXItem;
-    tbitmProperties: TTBXItem;
+    tbitmMarkEditProperties: TTBXItem;
     tbitmFitMarkToScreen: TTBXItem;
     tbitmEditLastSelection: TTBXItem;
     tbitmHideThisMark: TTBXItem;
@@ -619,7 +619,7 @@ type
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
     procedure mapDblClick(Sender: TObject);
-    procedure NMarkEditClick(Sender: TObject);
+    procedure tbitmMarkEditPositionClick(Sender: TObject);
     procedure NMarkDelClick(Sender: TObject);
     procedure NMarkOperClick(Sender: TObject);
     procedure livecom1Click(Sender: TObject);
@@ -733,7 +733,7 @@ type
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCopySearchResultCoordinatesClick(Sender: TObject);
-    procedure tbitmPropertiesClick(Sender: TObject);
+    procedure tbitmMarkEditPropertiesClick(Sender: TObject);
     procedure tbitmFitMarkToScreenClick(Sender: TObject);
     procedure tbitmHideThisMarkClick(Sender: TObject);
     procedure tbitmSaveMarkAsNewClick(Sender: TObject);
@@ -4613,7 +4613,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.NMarkEditClick(Sender: TObject);
+procedure TfrmMain.tbitmMarkEditPositionClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VPoint: IGeometryLonLatPoint;
@@ -5911,7 +5911,7 @@ begin
   TBXSensorsBar.Visible := TTBXItem(Sender).Checked;
 end;
 
-procedure TfrmMain.tbitmPropertiesClick(Sender: TObject);
+procedure TfrmMain.tbitmMarkEditPropertiesClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VMarkModifed: IVectorDataItem;
@@ -6196,7 +6196,7 @@ var
   VInternalDomainOptions: IInternalDomainOptions;
 begin
   VMark := FSelectedMark;
-  NMarkEdit.Visible := VMark <> nil;
+  tbitmMarkEditPosition.Visible := VMark <> nil;
   tbitmFitMarkToScreen.Visible :=
     Assigned(VMark) and
     (Supports(VMark.Geometry, IGeometryLonLatLine) or
@@ -6215,7 +6215,7 @@ begin
     (Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatPolygon)) or
     (FSelectedWiki <> nil);
 
-  tbitmProperties.Visible := VMark <> nil;
+  tbitmMarkEditProperties.Visible := VMark <> nil;
   NMarkExport.Visible := VMark <> nil;
   NMarkDel.Visible := VMark <> nil;
   tbsprtMainPopUp0.Visible := VMark <> nil;
