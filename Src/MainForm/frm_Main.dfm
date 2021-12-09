@@ -1082,34 +1082,32 @@ object frmMain: TfrmMain
         Images = MenusImageList
         OnClick = TBEditPathSplitClick
       end
-      object TBEditPathLabelVisible: TTBSubmenuItem
-        AutoCheck = True
-        Checked = True
+      object tbxEditPathLabelVisible: TTBSubmenuItem
+        Action = actEditPathLabelVisible
         DropdownCombo = True
-        Hint = 'Show/Hide Captions'
-        ImageIndex = 37
         Images = MenusImageList
-        OnClick = TBEditPathLabelClick
-        object tbxShowDistIncrement: TTBXItem
-          AutoCheck = True
-          Caption = 'Show the distance increment'
-          Checked = True
-          Hint = 'Show the distance increment'
-          OnClick = tbxShowDistIncrementClick
+        object tbxEditPathShowDistIncrement: TTBXItem
+          Action = actEditPathShowDistIncrement
         end
-        object tbxShowIntermediateDist: TTBXItem
-          AutoCheck = True
-          Caption = 'Show intermediate distances'
-          Checked = True
-          Hint = 'Show intermediate distances'
-          OnClick = tbxShowIntermediateDistClick
+        object tbxEditPathShowIntermediateDist: TTBXItem
+          Action = actEditPathShowIntermediateDist
         end
-        object tbxShowAzimuth: TTBXItem
-          AutoCheck = True
-          Caption = 'Show azimuth'
-          Checked = True
-          Hint = 'Show azimuth'
-          OnClick = tbxShowAzimuthClick
+        object tbxEditPathShowAzimuth: TTBXItem
+          Action = actEditPathShowAzimuth
+        end
+      end
+      object tbxCalcLineLabelVisible: TTBSubmenuItem
+        Action = actCalcLineLabelVisible
+        DropdownCombo = True
+        Images = MenusImageList
+        object tbxCalcLineShowDistIncrement: TTBXItem
+          Action = actCalcLineShowDistIncrement
+        end
+        object tbxCalcLineShowIntermediateDist: TTBXItem
+          Action = actCalcLineShowIntermediateDist
+        end
+        object tbxCalcLineShowAzimuth: TTBXItem
+          Action = actCalcLineShowAzimuth
         end
       end
       object TBEditMagnetDraw: TTBXItem
@@ -4331,6 +4329,56 @@ object frmMain: TfrmMain
       ImageIndex = 36
       ShortCut = 8
       OnExecute = actMarksEditDeleteGeometryPointExecute
+    end
+    object actCalcLineLabelVisible: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show/Hide Captions for Distance Calculation'
+      Hint = 'Show/Hide Captions for Distance Calculation'
+      ImageIndex = 37
+      OnExecute = actCalcLineLabelVisibleExecute
+    end
+    object actCalcLineShowAzimuth: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show azimuth for Distance Calculation'
+      Hint = 'Show azimuth for Distance Calculation'
+      OnExecute = actCalcLineShowAzimuthExecute
+    end
+    object actCalcLineShowDistIncrement: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show the distance increment for Distance Calculation'
+      Hint = 'Show the distance increment for Distance Calculation'
+      OnExecute = actCalcLineShowDistIncrementExecute
+    end
+    object actCalcLineShowIntermediateDist: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show intermediate distances for Distance Calculation'
+      Hint = 'Show intermediate distances for Distance Calculation'
+      OnExecute = actCalcLineShowIntermediateDistExecute
+    end
+    object actEditPathLabelVisible: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show/Hide Captions for Path Edit'
+      Hint = 'Show/Hide Captions for Path Edit'
+      ImageIndex = 37
+      OnExecute = actEditPathLabelVisibleExecute
+    end
+    object actEditPathShowAzimuth: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show azimuth for Path Edit'
+      Hint = 'Show azimuth for Path Edit'
+      OnExecute = actEditPathShowAzimuthExecute
+    end
+    object actEditPathShowDistIncrement: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show the distance increment for Path Edit'
+      Hint = 'Show the distance increment for Path Edit'
+      OnExecute = actEditPathShowDistIncrementExecute
+    end
+    object actEditPathShowIntermediateDist: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show intermediate distances for Edit Path'
+      Hint = 'Show intermediate distances for Edit Path'
+      OnExecute = actEditPathShowIntermediateDistExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

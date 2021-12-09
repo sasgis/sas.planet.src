@@ -428,10 +428,10 @@ type
     btnHideAll: TTBXItem;
     HideSeparator: TTBSeparatorItem;
     tbitmFillingMapAsMain: TTBXItem;
-    TBEditPathLabelVisible: TTBSubmenuItem;
-    tbxShowIntermediateDist: TTBXItem;
-    tbxShowDistIncrement: TTBXItem;
-    tbxShowAzimuth: TTBXItem;
+    tbxEditPathLabelVisible: TTBSubmenuItem;
+    tbxEditPathShowIntermediateDist: TTBXItem;
+    tbxEditPathShowDistIncrement: TTBXItem;
+    tbxEditPathShowAzimuth: TTBXItem;
     tbitmPointProject: TTBXItem;
     TBXNextVer: TTBXItem;
     TBXPrevVer: TTBXItem;
@@ -593,6 +593,18 @@ type
     tbxUndoRouteCalc: TTBXItem;
     actMarksEditSnapToMarkers: TAction;
     actMarksEditDeleteGeometryPoint: TAction;
+    tbxCalcLineLabelVisible: TTBSubmenuItem;
+    tbxCalcLineShowDistIncrement: TTBXItem;
+    tbxCalcLineShowIntermediateDist: TTBXItem;
+    tbxCalcLineShowAzimuth: TTBXItem;
+    actCalcLineLabelVisible: TAction;
+    actCalcLineShowAzimuth: TAction;
+    actCalcLineShowDistIncrement: TAction;
+    actCalcLineShowIntermediateDist: TAction;
+    actEditPathLabelVisible: TAction;
+    actEditPathShowAzimuth: TAction;
+    actEditPathShowDistIncrement: TAction;
+    actEditPathShowIntermediateDist: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -646,7 +658,6 @@ type
       AX, AY: Integer;
       Layer: TCustomLayer
     );
-    procedure TBEditPathLabelClick(Sender: TObject);
     procedure TBEditPathSaveClick(Sender: TObject);
     procedure TBEditPathClose(Sender: TObject);
     procedure NSRTM3Click(Sender: TObject);
@@ -751,9 +762,6 @@ type
     procedure RosreestrClick(Sender: TObject);
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
-    procedure tbxShowIntermediateDistClick(Sender: TObject);
-    procedure tbxShowDistIncrementClick(Sender: TObject);
-    procedure tbxShowAzimuthClick(Sender: TObject);
     procedure TBEditPathSplitClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
@@ -841,6 +849,14 @@ type
     procedure tbxUndoRouteCalcClick(Sender: TObject);
     procedure actMarksEditSnapToMarkersExecute(Sender: TObject);
     procedure actMarksEditDeleteGeometryPointExecute(Sender: TObject);
+    procedure actCalcLineLabelVisibleExecute(Sender: TObject);
+    procedure actCalcLineShowAzimuthExecute(Sender: TObject);
+    procedure actCalcLineShowDistIncrementExecute(Sender: TObject);
+    procedure actCalcLineShowIntermediateDistExecute(Sender: TObject);
+    procedure actEditPathLabelVisibleExecute(Sender: TObject);
+    procedure actEditPathShowAzimuthExecute(Sender: TObject);
+    procedure actEditPathShowDistIncrementExecute(Sender: TObject);
+    procedure actEditPathShowIntermediateDistExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -1008,6 +1024,7 @@ type
     procedure OnLineOnMapEditChange;
     procedure OnPathProvidesChange;
     procedure OnNavToMarkChange;
+    procedure OnMarkEditConfigsChange;
     procedure DoMessageEvent(
       var Msg: TMsg;
       var Handled: Boolean
@@ -1247,6 +1264,7 @@ var
   VLogger: TTileErrorLogProviedrStuped;
   VMouseState: TMouseState;
   VLineOnMapEditChangeListener: IListener;
+  VMarkEditConfigsListener: IListener;
   VBitmapStatic: IBitmap32Static;
   VFormStateFileName: string;
   VIniFile: TMemIniFile;
@@ -1561,6 +1579,16 @@ begin
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnToolbarsLockChange),
     FConfig.ToolbarsLock.GetChangeNotifier
+  );
+
+  VMarkEditConfigsListener := TNotifyNoMmgEventListener.Create(Self.OnMarkEditConfigsChange);
+  FLinksList.Add(
+    VMarkEditConfigsListener,
+    FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.GetChangeNotifier
+  );
+  FLinksList.Add(
+    VMarkEditConfigsListener,
+    FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.GetChangeNotifier
   );
 
   FLineOnMapByOperation[ao_movemap] := nil;
@@ -2126,6 +2154,7 @@ begin
     ProcessPosChangeMessage;
     OnPathProvidesChange;
     OnNavToMarkChange;
+    OnMarkEditConfigsChange;
 
     PaintZSlider(FViewPortState.View.GetStatic.Projection.Zoom);
     Application.OnMessage := DoMessageEvent;
@@ -2809,7 +2838,6 @@ end;
 procedure TfrmMain.OnStateChange;
 var
   VNewState: TStateEnum;
-  VConfig: IPointCaptionsLayerConfig;
   VIsMarkEdit: Boolean;
   VIsRoutingVisible: Boolean;
 begin
@@ -2860,30 +2888,17 @@ begin
     (VNewState = ao_select_poly) or
     (VNewState = ao_select_line);
 
-  TBEditPathLabelVisible.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
-  tbxShowIntermediateDist.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
-  tbxShowDistIncrement.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
-  tbxShowAzimuth.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
+  tbxEditPathLabelVisible.Visible := (VNewState = ao_edit_line);
+  tbxEditPathShowIntermediateDist.Visible := (VNewState = ao_edit_line);
+  tbxEditPathShowDistIncrement.Visible := (VNewState = ao_edit_line);
+  tbxEditPathShowAzimuth.Visible := (VNewState = ao_edit_line);
+
+  tbxCalcLineLabelVisible.Visible := (VNewState = ao_calc_line);
+  tbxCalcLineShowIntermediateDist.Visible := (VNewState = ao_calc_line);
+  tbxCalcLineShowDistIncrement.Visible := (VNewState = ao_calc_line);
+  tbxCalcLineShowAzimuth.Visible := (VNewState = ao_calc_line);
+
   TBEditPathSplit.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
-  if (VNewState = ao_calc_line) or (VNewState = ao_edit_line) then begin
-    case VNewState of
-      ao_calc_line: begin
-        VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
-      end;
-      ao_edit_line: begin
-        VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
-      end;
-    end;
-    VConfig.LockRead;
-    try
-      tbxShowIntermediateDist.Checked := VConfig.ShowIntermediateDist;
-      tbxShowDistIncrement.Checked := VConfig.ShowDistIncrement;
-      tbxShowAzimuth.Checked := VConfig.ShowAzimuth;
-      TBEditPathLabelVisible.Checked := VConfig.Visible;
-    finally
-      VConfig.UnlockRead;
-    end;
-  end;
 
   VIsRoutingVisible :=
     (VNewState = ao_edit_line) and
@@ -2896,13 +2911,6 @@ begin
   TBXSeparatorItem24.Visible := VIsRoutingVisible;
   TBXSeparatorItem25.Visible := VIsRoutingVisible;
   FRouteUndoPath := nil;
-
-  TBEditMagnetDraw.Visible :=
-    (VNewState = ao_edit_line) or
-    (VNewState = ao_edit_poly) or
-    (VNewState = ao_select_poly) or
-    (VNewState = ao_select_line);
-  TBEditMagnetDraw.Checked := FConfig.MainConfig.MagnetDraw;
 
   TBEditSelectPolylineRadius.Visible :=
     (VNewState = ao_select_line) or
@@ -3218,6 +3226,32 @@ begin
   CreateMapUILayerSubMenu;
 
   OnMainMapChange;
+end;
+
+procedure TfrmMain.OnMarkEditConfigsChange;
+var
+  VConfig: IPointCaptionsLayerConfig;
+begin
+  VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
+  VConfig.LockRead;
+  try
+    actCalcLineShowIntermediateDist.Checked := VConfig.ShowIntermediateDist;
+    actCalcLineShowDistIncrement.Checked := VConfig.ShowDistIncrement;
+    actCalcLineShowAzimuth.Checked := VConfig.ShowAzimuth;
+    actCalcLineLabelVisible.Checked := VConfig.Visible;
+  finally
+    VConfig.UnlockRead;
+  end;
+  VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
+  VConfig.LockRead;
+  try
+    actEditPathShowIntermediateDist.Checked := VConfig.ShowIntermediateDist;
+    actEditPathShowDistIncrement.Checked := VConfig.ShowDistIncrement;
+    actEditPathShowAzimuth.Checked := VConfig.ShowAzimuth;
+    actEditPathLabelVisible.Checked := VConfig.Visible;
+  finally
+    VConfig.UnlockRead;
+  end;
 end;
 
 procedure TfrmMain.OnToolbarsLockChange;
@@ -5501,71 +5535,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBEditPathLabelClick(Sender: TObject);
-var
-  VConfig: IPointCaptionsLayerConfig;
-begin
-  case FState.State of
-    ao_calc_line: begin
-      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
-    end;
-    ao_edit_line: begin
-      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
-    end;
-  end;
-  VConfig.LockWrite;
-  try
-    VConfig.Visible := (Sender as TTBSubmenuItem).Checked;
-  finally
-    VConfig.UnlockWrite;
-  end;
-end;
-
-procedure TfrmMain.tbxShowIntermediateDistClick(Sender: TObject);
-var
-  VConfig: IPointCaptionsLayerConfig;
-begin
-  case FState.State of
-    ao_calc_line: begin
-      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
-    end;
-    ao_edit_line: begin
-      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
-    end;
-  end;
-  VConfig.ShowIntermediateDist := (Sender as TTBXItem).Checked;
-end;
-
-procedure TfrmMain.tbxShowDistIncrementClick(Sender: TObject);
-var
-  VConfig: IPointCaptionsLayerConfig;
-begin
-  case FState.State of
-    ao_calc_line: begin
-      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
-    end;
-    ao_edit_line: begin
-      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
-    end;
-  end;
-  VConfig.ShowDistIncrement := (Sender as TTBXItem).Checked;
-end;
-
-procedure TfrmMain.tbxShowAzimuthClick(Sender: TObject);
-var
-  VConfig: IPointCaptionsLayerConfig;
-begin
-  case FState.State of
-    ao_calc_line: begin
-      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
-    end;
-    ao_edit_line: begin
-      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
-    end;
-  end;
-  VConfig.ShowAzimuth := (Sender as TTBXItem).Checked;
-end;
-
 procedure TfrmMain.TBEditPathSaveClick(Sender: TObject);
 var
   VResult: boolean;
@@ -6973,6 +6942,54 @@ begin
   end else begin
     FState.State := ao_movemap;
   end;
+end;
+
+procedure TfrmMain.actEditPathLabelVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.Visible :=
+    not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.Visible;
+end;
+
+procedure TfrmMain.actEditPathShowAzimuthExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowAzimuth :=
+    not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowAzimuth;
+end;
+
+procedure TfrmMain.actEditPathShowDistIncrementExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowDistIncrement :=
+    not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowDistIncrement;
+end;
+
+procedure TfrmMain.actEditPathShowIntermediateDistExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowIntermediateDist :=
+    not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowIntermediateDist;
+end;
+
+procedure TfrmMain.actCalcLineLabelVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.Visible :=
+    not FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.Visible;
+end;
+
+procedure TfrmMain.actCalcLineShowAzimuthExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowAzimuth :=
+    not FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowAzimuth;
+end;
+
+procedure TfrmMain.actCalcLineShowDistIncrementExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowDistIncrement :=
+    not FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowDistIncrement;
+end;
+
+procedure TfrmMain.actCalcLineShowIntermediateDistExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowIntermediateDist :=
+    not FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowIntermediateDist;
 end;
 
 procedure TfrmMain.actCircleCalculationExecute(Sender: TObject);
