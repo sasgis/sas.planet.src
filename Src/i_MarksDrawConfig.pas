@@ -34,6 +34,9 @@ type
     function GetHash: THashValue;
     property Hash: THashValue read GetHash;
 
+    function GetFontName: string;
+    property FontName: string read GetFontName;
+
     function GetShowPointCaption: Boolean;
     property ShowPointCaption: Boolean read GetShowPointCaption;
 
@@ -43,6 +46,10 @@ type
 
   ICaptionDrawConfig = interface(IConfigDataElement)
     ['{60BDB515-27FF-41D5-87DC-151E21DD0C3D}']
+    function GetFontName: string;
+    procedure SetFontName(const AValue: string);
+    property FontName: string read GetFontName write SetFontName;
+
     function GetShowPointCaption: Boolean;
     procedure SetShowPointCaption(AValue: Boolean);
     property ShowPointCaption: Boolean read GetShowPointCaption write SetShowPointCaption;

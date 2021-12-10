@@ -34,6 +34,7 @@ uses
 type
   TCaptionDrawConfig = class(TConfigDataElementWithStaticBase, ICaptionDrawConfig)
   private
+    FFontName: string;
     FShowPointCaption: Boolean;
     FUseSolidCaptionBackground: Boolean;
   protected
@@ -42,6 +43,10 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
+    { ICaptionDrawConfig }
+    function GetFontName: string;
+    procedure SetFontName(const AValue: string);
+
     function GetShowPointCaption: Boolean;
     procedure SetShowPointCaption(AValue: Boolean);
 
@@ -184,6 +189,7 @@ constructor TCaptionDrawConfig.Create;
 begin
   inherited Create;
 
+  FFontName := 'Tahoma';
   FShowPointCaption := True;
   FUseSolidCaptionBackground := False;
 end;
@@ -194,6 +200,7 @@ var
 begin
   VStatic :=
     TCaptionDrawConfigStatic.Create(
+      FFontName,
       FShowPointCaption,
       FUseSolidCaptionBackground
     );
@@ -201,10 +208,12 @@ begin
 end;
 
 procedure TCaptionDrawConfig.DoReadConfig(
-  const AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
+    FFontName := AConfigData.ReadString('FontName', FFontName);
     FShowPointCaption := AConfigData.ReadBool('ShowPointCaption', FShowPointCaption);
     FUseSolidCaptionBackground := AConfigData.ReadBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
     SetChanged;
@@ -212,9 +221,11 @@ begin
 end;
 
 procedure TCaptionDrawConfig.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
+  AConfigData.WriteString('FontName', FFontName);
   AConfigData.WriteBool('ShowPointCaption', FShowPointCaption);
   AConfigData.WriteBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
 end;
@@ -222,6 +233,16 @@ end;
 function TCaptionDrawConfig.GetStatic: ICaptionDrawConfigStatic;
 begin
   Result := ICaptionDrawConfigStatic(GetStaticInternal);
+end;
+
+function TCaptionDrawConfig.GetFontName: string;
+begin
+  LockRead;
+  try
+    Result := FFontName;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TCaptionDrawConfig.GetShowPointCaption: Boolean;
@@ -241,6 +262,19 @@ begin
     Result := FUseSolidCaptionBackground;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TCaptionDrawConfig.SetFontName(const AValue: string);
+begin
+  LockWrite;
+  try
+    if FFontName <> AValue then begin
+      FFontName := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

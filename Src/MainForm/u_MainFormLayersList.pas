@@ -600,7 +600,8 @@ begin
       AHashFunction,
       ABitmap32StaticFactory,
       Max(Max(VVectorOversizeRect.Left, VVectorOversizeRect.Right), Max(VVectorOversizeRect.Top, VVectorOversizeRect.Bottom)),
-      1
+      1,
+      ALayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.FontName
     );
 
   VMarkerProviderForVectorItem :=

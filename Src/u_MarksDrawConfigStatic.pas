@@ -32,16 +32,23 @@ uses
 type
   TCaptionDrawConfigStatic = class(TBaseInterfacedObject, ICaptionDrawConfigStatic)
   private
+    FFontName: string;
     FShowPointCaption: Boolean;
     FUseSolidCaptionBackground: Boolean;
+
+    FHash: THashValue;
+    function CalcHash: THashValue;
   private
+    { ICaptionDrawConfigStatic }
     function GetHash: THashValue;
+    function GetFontName: string;
     function GetShowPointCaption: Boolean;
     function GetUseSolidCaptionBackground: Boolean;
   public
     constructor Create(
-      AShowPointCaption: Boolean;
-      AUseSolidCaptionBackground: Boolean
+      const AFontName: string;
+      const AShowPointCaption: Boolean;
+      const AUseSolidCaptionBackground: Boolean
     );
   end;
 
@@ -57,6 +64,9 @@ type
   end;
 
 implementation
+
+uses
+  libcrc32;
 
 { TMarksDrawConfigStatic }
 
@@ -76,16 +86,21 @@ end;
 { TCaptionDrawConfigStatic }
 
 constructor TCaptionDrawConfigStatic.Create(
-  AShowPointCaption,
-  AUseSolidCaptionBackground: Boolean
+  const AFontName: string;
+  const AShowPointCaption: Boolean;
+  const AUseSolidCaptionBackground: Boolean
 );
 begin
   inherited Create;
+
+  FFontName := AFontName;
   FShowPointCaption := AShowPointCaption;
   FUseSolidCaptionBackground := AUseSolidCaptionBackground;
+
+  FHash := CalcHash;
 end;
 
-function TCaptionDrawConfigStatic.GetHash: THashValue;
+function TCaptionDrawConfigStatic.CalcHash: THashValue;
 var
   VHash: THashValue;
 begin
@@ -94,11 +109,26 @@ begin
     VHash := not VHash;
   end;
   Result := VHash;
+
   VHash := $f3786a4b25827c1;
   if not FUseSolidCaptionBackground then begin
     VHash := not VHash;
   end;
   Result := Result xor VHash;
+
+  if FFontName <> '' then begin
+    Result := Result + crc32(0, Pointer(FFontName), Length(FFontName) * SizeOf(Char));
+  end;
+end;
+
+function TCaptionDrawConfigStatic.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
+function TCaptionDrawConfigStatic.GetFontName: string;
+begin
+  Result := FFontName;
 end;
 
 function TCaptionDrawConfigStatic.GetShowPointCaption: Boolean;

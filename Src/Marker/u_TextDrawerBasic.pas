@@ -74,7 +74,8 @@ type
       const AHashFunction: IHashFunction;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AMaxSize: Integer;
-      const AALevel: Integer
+      const AALevel: Integer;
+      const AFontName: string
     );
     destructor Destroy; override;
   end;
@@ -107,7 +108,8 @@ constructor TTextDrawerBasic.Create(
   const AHashFunction: IHashFunction;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AMaxSize: Integer;
-  const AALevel: Integer
+  const AALevel: Integer;
+  const AFontName: string
 );
 begin
   Assert(Assigned(AHashFunction));
@@ -132,7 +134,7 @@ begin
   FSync := GSync.SyncVariable.Make(Self.ClassName);
 
   FBitmapWithText := TBitmap32.Create;
-  FBitmapWithText.Font.Name := 'Tahoma';
+  FBitmapWithText.Font.Name := AFontName;
   FBitmapWithText.Font.Style := [];
   FBitmapWithText.DrawMode := dmBlend;
   FBitmapWithText.CombineMode := cmMerge;

@@ -557,7 +557,8 @@ begin
           FHashFunction,
           FBitmapFactory,
           512,
-          1
+          1,
+          FMarksDrawConfig.CaptionDrawConfig.FontName
         );
       VIconProvider :=
         TMarkerProviderByAppearancePointIcon.Create(
