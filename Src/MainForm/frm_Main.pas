@@ -607,6 +607,7 @@ type
     actEditPathShowIntermediateDist: TAction;
     actSelectByGeometryFinish: TAction;
     actLineEditSplitTogle: TAction;
+    actLineEditFitToScreen: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -752,7 +753,6 @@ type
     procedure tbitmSaveMarkLineAsSeparateSegmentsClick(Sender: TObject);
     procedure tbitmCopySearchResultDescriptionClick(Sender: TObject);
     procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
-    procedure tbitmFitEditToScreenClick(Sender: TObject);
     procedure NMarkPlayClick(Sender: TObject);
     procedure tbitmMarkInfoClick(Sender: TObject);
     procedure tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
@@ -859,6 +859,7 @@ type
     procedure actEditPathShowIntermediateDistExecute(Sender: TObject);
     procedure actSelectByGeometryFinishExecute(Sender: TObject);
     procedure actLineEditSplitTogleExecute(Sender: TObject);
+    procedure actLineEditFitToScreenExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -4207,24 +4208,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmFitEditToScreenClick(Sender: TObject);
-var
-  VLLRect: TDoubleRect;
-  VPathEdit: IPathOnMapEdit;
-  VPolyEdit: IPolygonOnMapEdit;
-  VCircleEdit: ICircleOnMapEdit;
-begin
-  if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleEdit) then begin
-    VPolyEdit := VCircleEdit.GetPolygonOnMapEdit;
-    VLLRect := VPolyEdit.Polygon.Geometry.Bounds.Rect;
-  end else if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-    VLLRect := VPathEdit.Path.Geometry.Bounds.Rect;
-  end else if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolyEdit) then begin
-    VLLRect := VPolyEdit.Polygon.Geometry.Bounds.Rect;
-  end;
-  FMapGoto.FitRectToScreen(VLLRect);
-end;
-
 procedure TfrmMain.tbitmFitMarkToScreenClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
@@ -7056,6 +7039,24 @@ begin
     );
   end;
   FfrmMarkPictureConfig.ShowModal;
+end;
+
+procedure TfrmMain.actLineEditFitToScreenExecute(Sender: TObject);
+var
+  VLLRect: TDoubleRect;
+  VPathEdit: IPathOnMapEdit;
+  VPolyEdit: IPolygonOnMapEdit;
+  VCircleEdit: ICircleOnMapEdit;
+begin
+  if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleEdit) then begin
+    VPolyEdit := VCircleEdit.GetPolygonOnMapEdit;
+    VLLRect := VPolyEdit.Polygon.Geometry.Bounds.Rect;
+  end else if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+    VLLRect := VPathEdit.Path.Geometry.Bounds.Rect;
+  end else if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolyEdit) then begin
+    VLLRect := VPolyEdit.Polygon.Geometry.Bounds.Rect;
+  end;
+  FMapGoto.FitRectToScreen(VLLRect);
 end;
 
 procedure TfrmMain.actLineEditSplitTogleExecute(Sender: TObject);

@@ -1113,10 +1113,8 @@ object frmMain: TfrmMain
         Images = MenusImageList
       end
       object tbitmFitEditToScreen: TTBXItem
-        Hint = 'Fit to screen'
-        ImageIndex = 43
+        Action = actLineEditFitToScreen
         Images = MenusImageList
-        OnClick = tbitmFitEditToScreenClick
       end
       object TBEditSelectPolylineRadiusCap1: TTBXLabelItem
         Caption = 'Radius'
@@ -4389,6 +4387,13 @@ object frmMain: TfrmMain
       Hint = 'Split Line'
       ImageIndex = 63
       OnExecute = actLineEditSplitTogleExecute
+    end
+    object actLineEditFitToScreen: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Fit to screen'
+      Hint = 'Fit to screen'
+      ImageIndex = 43
+      OnExecute = actLineEditFitToScreenExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu
