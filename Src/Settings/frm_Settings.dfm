@@ -1481,13 +1481,110 @@ object frmSettings: TfrmSettings
             end
           end
           object chkShowLogo: TCheckBox
-            Left = 3
-            Top = 337
-            Width = 314
+            AlignWithMargins = True
+            Left = 6
+            Top = 417
+            Width = 308
             Height = 17
             Align = alTop
             Caption = 'Show Logo on startup'
             TabOrder = 9
+            ExplicitTop = 423
+            ExplicitWidth = 314
+          end
+          object pnlMarksCaption: TPanel
+            Left = 3
+            Top = 334
+            Width = 314
+            Height = 80
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 10
+            object grpMarksCaption: TGroupBox
+              Left = 0
+              Top = 0
+              Width = 314
+              Height = 80
+              Align = alClient
+              Caption = 'Placemark Caption'
+              TabOrder = 0
+              ExplicitHeight = 74
+              object chkMarkCaptionSolidBg: TCheckBox
+                AlignWithMargins = True
+                Left = 5
+                Top = 39
+                Width = 304
+                Height = 17
+                Margins.Bottom = 0
+                Align = alTop
+                Caption = 'Solid background color'
+                TabOrder = 0
+                ExplicitLeft = 7
+                ExplicitTop = 46
+              end
+              object pnlMarkCaptionFont: TPanel
+                Left = 2
+                Top = 15
+                Width = 310
+                Height = 21
+                Align = alTop
+                BevelOuter = bvNone
+                TabOrder = 1
+                ExplicitTop = 38
+                object lblMarksCaptionFontName: TLabel
+                  AlignWithMargins = True
+                  Left = 3
+                  Top = 3
+                  Width = 26
+                  Height = 18
+                  Align = alLeft
+                  Caption = 'Font:'
+                  ExplicitLeft = 22
+                  ExplicitTop = 14
+                  ExplicitHeight = 57
+                end
+                object btnMarkCaptionFont: TSpeedButton
+                  AlignWithMargins = True
+                  Left = 286
+                  Top = 0
+                  Width = 21
+                  Height = 21
+                  Margins.Top = 0
+                  Margins.Bottom = 0
+                  Align = alRight
+                  Caption = '...'
+                  OnClick = btnMarkCaptionFontClick
+                  ExplicitLeft = 290
+                end
+                object edtMarksCaptionFontName: TEdit
+                  Left = 32
+                  Top = 0
+                  Width = 251
+                  Height = 21
+                  Align = alClient
+                  TabOrder = 0
+                  ExplicitLeft = 88
+                  ExplicitTop = 3
+                  ExplicitWidth = 190
+                  ExplicitHeight = 22
+                end
+              end
+              object chkMarksCaptionVisible: TCheckBox
+                AlignWithMargins = True
+                Left = 5
+                Top = 56
+                Width = 304
+                Height = 17
+                Margins.Top = 0
+                Margins.Bottom = 0
+                Align = alTop
+                Caption = 'Placemark names'
+                TabOrder = 2
+                ExplicitLeft = 176
+                ExplicitTop = 64
+                ExplicitWidth = 97
+              end
+            end
           end
         end
       end
@@ -2069,5 +2166,13 @@ object frmSettings: TfrmSettings
       TabOrder = 0
       OnClick = btnApplyClick
     end
+  end
+  object dlgFont: TFontDialog
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Top = 512
   end
 end

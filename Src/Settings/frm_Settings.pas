@@ -56,7 +56,7 @@ uses
   fr_GPSConfig,
   fr_PathSelect,
   fr_CacheTypeList,
-  fr_ShortCutList;
+  fr_ShortCutList, Buttons;
 
 type
   TfrmSettings = class(TFormWitghLanguageManager)
@@ -252,6 +252,15 @@ type
     tsSearch: TTabSheet;
     pnlGoogleApiKey: TPanel;
     pnlYandexApiKey: TPanel;
+    pnlMarksCaption: TPanel;
+    edtMarksCaptionFontName: TEdit;
+    btnMarkCaptionFont: TSpeedButton;
+    chkMarkCaptionSolidBg: TCheckBox;
+    grpMarksCaption: TGroupBox;
+    lblMarksCaptionFontName: TLabel;
+    pnlMarkCaptionFont: TPanel;
+    dlgFont: TFontDialog;
+    chkMarksCaptionVisible: TCheckBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -268,6 +277,7 @@ type
     procedure BtnDefClick(Sender: TObject);
     procedure rbProxyClick(Sender: TObject);
     procedure cbbNetworkEngineChange(Sender: TObject);
+    procedure btnMarkCaptionFontClick(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -345,6 +355,7 @@ uses
   t_CommonTypes,
   t_CoordRepresentation,
   i_WinInetConfig,
+  i_MarksDrawConfig,
   u_ListenerNotifierLinksList,
   u_StrFunc,
   u_GlobalState,
@@ -576,6 +587,13 @@ begin
   CBinvertcolor.Checked := False;
 end;
 
+procedure TfrmSettings.btnMarkCaptionFontClick(Sender: TObject);
+begin
+  if dlgFont.Execute then begin
+    edtMarksCaptionFontName.Text := dlgFont.Font.Name;
+  end;
+end;
+
 procedure TfrmSettings.SetProxy;
 var
   VInfo: TInternetProxyInfo;
@@ -646,6 +664,7 @@ var
   VInetConfig: IInetConfig;
   VNeedReboot: Boolean;
   VConnsPerServer: TConnsPerServerRec;
+  VMarksCaptionDrawConfig: ICaptionDrawConfig;
 begin
   VNeedReboot := False;
 
@@ -829,6 +848,19 @@ begin
     FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockWrite;
   end;
 
+  VMarksCaptionDrawConfig := FMainFormConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig;
+  VMarksCaptionDrawConfig.LockWrite;
+  try
+    if VMarksCaptionDrawConfig.FontName <> edtMarksCaptionFontName.Text then begin
+      VNeedReboot := True;
+      VMarksCaptionDrawConfig.FontName := edtMarksCaptionFontName.Text;
+    end;
+    VMarksCaptionDrawConfig.ShowPointCaption := chkMarksCaptionVisible.Checked;
+    VMarksCaptionDrawConfig.UseSolidCaptionBackground := chkMarkCaptionSolidBg.Checked;
+  finally
+    VMarksCaptionDrawConfig.UnlockWrite;
+  end;
+
   GState.Config.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 
   FMainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
@@ -904,6 +936,7 @@ var
   VInetConfig: IInetConfig;
   i: Integer;
   VConnsPerServer: TConnsPerServerRec;
+  VMarksCaptionDrawConfig: ICaptionDrawConfig;
 begin
   FLinksList.ActivateLinks;
 
@@ -1112,6 +1145,16 @@ begin
   TilesOverScreenEdit.Value := FMainFormConfig.DownloadUIConfig.TilesOut;
   CBMinimizeToTray.Checked := GState.Config.GlobalAppConfig.IsShowIconInTray;
   ChkShowLogo.Checked := GState.Config.StartUpLogoConfig.IsShowLogo;
+
+  VMarksCaptionDrawConfig := FMainFormConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig;
+  VMarksCaptionDrawConfig.LockRead;
+  try
+    edtMarksCaptionFontName.Text := VMarksCaptionDrawConfig.FontName;
+    chkMarksCaptionVisible.Checked := VMarksCaptionDrawConfig.ShowPointCaption;
+    chkMarkCaptionSolidBg.Checked := VMarksCaptionDrawConfig.UseSolidCaptionBackground;
+  finally
+    VMarksCaptionDrawConfig.UnlockRead;
+  end;
 
   rbProxyClick(Self);
 end;
