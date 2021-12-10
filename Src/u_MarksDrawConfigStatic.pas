@@ -104,20 +104,21 @@ function TCaptionDrawConfigStatic.CalcHash: THashValue;
 var
   VHash: THashValue;
 begin
-  VHash := $162e192b2957163d;
+  VHash := $01;
   if not FShowPointCaption then begin
-    VHash := not VHash;
+    VHash := $02;
   end;
   Result := VHash;
 
-  VHash := $f3786a4b25827c1;
+  VHash := $04;
   if not FUseSolidCaptionBackground then begin
-    VHash := not VHash;
+    VHash := $08;
   end;
-  Result := Result xor VHash;
+  Result := Result or VHash;
 
   if FFontName <> '' then begin
-    Result := Result + crc32(0, Pointer(FFontName), Length(FFontName) * SizeOf(Char));
+    Result := (Result shl 32) +
+      crc32(0, Pointer(FFontName), Length(FFontName) * SizeOf(Char));
   end;
 end;
 
