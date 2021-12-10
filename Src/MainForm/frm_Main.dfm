@@ -1160,16 +1160,11 @@ object frmMain: TfrmMain
         Options = [tboImageAboveCaption, tboNoRotation, tboSameWidth]
       end
       object tbitmSaveMark: TTBXSubmenuItem
+        Action = actMarkSave
         DropdownCombo = True
-        Hint = 'Save'
-        ImageIndex = 25
         Images = MenusImageList
-        OnClick = TBEditPathSaveClick
         object tbitmSaveMarkAsNew: TTBXItem
-          Caption = 'Save as...'
-          Hint = 'Save as...'
-          ImageIndex = 25
-          OnClick = tbitmSaveMarkAsNewClick
+          Action = actMarkSaveAsNew
         end
       end
       object tbxtmSaveMarkAsSeparateSegment: TTBXItem
@@ -4394,6 +4389,20 @@ object frmMain: TfrmMain
       Hint = 'Fit to screen'
       ImageIndex = 43
       OnExecute = actLineEditFitToScreenExecute
+    end
+    object actMarkSave: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Save'
+      Hint = 'Save'
+      ImageIndex = 25
+      OnExecute = actMarkSaveExecute
+    end
+    object actMarkSaveAsNew: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Save as...'
+      Hint = 'Save as...'
+      ImageIndex = 25
+      OnExecute = actMarkSaveAsNewExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

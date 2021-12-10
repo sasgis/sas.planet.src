@@ -608,6 +608,8 @@ type
     actSelectByGeometryFinish: TAction;
     actLineEditSplitTogle: TAction;
     actLineEditFitToScreen: TAction;
+    actMarkSave: TAction;
+    actMarkSaveAsNew: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -661,7 +663,6 @@ type
       AX, AY: Integer;
       Layer: TCustomLayer
     );
-    procedure TBEditPathSaveClick(Sender: TObject);
     procedure TBEditPathClose(Sender: TObject);
     procedure NSRTM3Click(Sender: TObject);
     procedure NGTOPO30Click(Sender: TObject);
@@ -749,7 +750,6 @@ type
     procedure tbitmMarkEditPropertiesClick(Sender: TObject);
     procedure tbitmFitMarkToScreenClick(Sender: TObject);
     procedure tbitmHideThisMarkClick(Sender: TObject);
-    procedure tbitmSaveMarkAsNewClick(Sender: TObject);
     procedure tbitmSaveMarkLineAsSeparateSegmentsClick(Sender: TObject);
     procedure tbitmCopySearchResultDescriptionClick(Sender: TObject);
     procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
@@ -860,6 +860,8 @@ type
     procedure actSelectByGeometryFinishExecute(Sender: TObject);
     procedure actLineEditSplitTogleExecute(Sender: TObject);
     procedure actLineEditFitToScreenExecute(Sender: TObject);
+    procedure actMarkSaveAsNewExecute(Sender: TObject);
+    procedure actMarkSaveExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -2873,11 +2875,11 @@ begin
     ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil));
 
   if VIsMarkEdit then begin
+    tbitmSaveMark.Action :=  actMarkSave;
     tbitmSaveMark.Hint := _('Save (Enter)');
-    tbitmSaveMark.OnClick := Self.TBEditPathSaveClick;
   end else begin
+    tbitmSaveMark.Action := actMarkSaveAsNew;
     tbitmSaveMark.Hint := _('Save as... (Enter)');
-    tbitmSaveMark.OnClick := Self.tbitmSaveMarkAsNewClick;
   end;
   tbitmSaveMark.DropdownCombo := VIsMarkEdit;
   tbitmSaveMarkAsNew.Visible := VIsMarkEdit;
@@ -3538,7 +3540,7 @@ begin
             VLineOnMapEdit := FLineOnMapEdit;
             if VLineOnMapEdit <> nil then begin
               if VLineOnMapEdit.IsReady then begin
-                tbitmSaveMark.OnClick(Self);
+                tbitmSaveMark.Action.Execute;
                 Handled := True;
               end;
             end;
@@ -3549,7 +3551,7 @@ begin
             VLineOnMapEdit := FLineOnMapEdit;
             if VLineOnMapEdit <> nil then begin
               if VLineOnMapEdit.IsReady then begin
-                tbitmSaveMark.OnClick(Self);
+                tbitmSaveMark.Action.Execute;
                 Handled := True;
               end;
             end;
@@ -5513,60 +5515,6 @@ begin
   PFile.Save(POleStr(UnicodeString(PathLink)), False);
 end;
 
-procedure TfrmMain.TBEditPathSaveClick(Sender: TObject);
-var
-  VResult: boolean;
-  VPathEdit: IPathOnMapEdit;
-  VPolygonEdit: IPolygonOnMapEdit;
-begin
-  VResult := False;
-  case FState.State of
-    ao_edit_poly: begin
-      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
-        VResult := FMarkDBGUI.UpdateMark(FEditMarkPoly, VPolygonEdit.Polygon.Geometry);
-      end;
-    end;
-    ao_edit_line: begin
-      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        VResult := FMarkDBGUI.UpdateMark(FEditMarkLine, VPathEdit.Path.Geometry);
-      end;
-    end;
-  end;
-  if VResult then begin
-    FState.State := ao_movemap;
-  end;
-end;
-
-procedure TfrmMain.tbitmSaveMarkAsNewClick(Sender: TObject);
-var
-  VResult: boolean;
-  VPathEdit: IPathOnMapEdit;
-  VPolygonEdit: IPolygonOnMapEdit;
-  VCircleEdit: ICircleOnMapEdit;
-begin
-  VResult := False;
-  case FState.State of
-    ao_edit_poly: begin
-      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry, True);
-      end;
-    end;
-    ao_edit_line, ao_calc_line: begin
-      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, True, FRouteComment);
-      end;
-    end;
-    ao_calc_circle: begin
-      if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(nil, VCircleEdit.GetPolygonOnMapEdit.Polygon.Geometry, True);
-      end;
-    end;
-  end;
-  if VResult then begin
-    FState.State := ao_movemap;
-  end;
-end;
-
 procedure TfrmMain.tbitmSaveMarkLineAsSeparateSegmentsClick(Sender: TObject);
 var
   VResult: boolean;
@@ -7155,6 +7103,60 @@ procedure TfrmMain.actQuitExecute(Sender: TObject);
 begin
   TrayIcon.Visible := False;
   Close;
+end;
+
+procedure TfrmMain.actMarkSaveAsNewExecute(Sender: TObject);
+var
+  VResult: boolean;
+  VPathEdit: IPathOnMapEdit;
+  VPolygonEdit: IPolygonOnMapEdit;
+  VCircleEdit: ICircleOnMapEdit;
+begin
+  VResult := False;
+  case FState.State of
+    ao_edit_poly: begin
+      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry, True);
+      end;
+    end;
+    ao_edit_line, ao_calc_line: begin
+      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, True, FRouteComment);
+      end;
+    end;
+    ao_calc_circle: begin
+      if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleEdit) then begin
+        VResult := FMarkDBGUI.SaveMarkModal(nil, VCircleEdit.GetPolygonOnMapEdit.Polygon.Geometry, True);
+      end;
+    end;
+  end;
+  if VResult then begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actMarkSaveExecute(Sender: TObject);
+var
+  VResult: boolean;
+  VPathEdit: IPathOnMapEdit;
+  VPolygonEdit: IPolygonOnMapEdit;
+begin
+  VResult := False;
+  case FState.State of
+    ao_edit_poly: begin
+      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
+        VResult := FMarkDBGUI.UpdateMark(FEditMarkPoly, VPolygonEdit.Polygon.Geometry);
+      end;
+    end;
+    ao_edit_line: begin
+      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+        VResult := FMarkDBGUI.UpdateMark(FEditMarkLine, VPathEdit.Path.Geometry);
+      end;
+    end;
+  end;
+  if VResult then begin
+    FState.State := ao_movemap;
+  end;
 end;
 
 procedure TfrmMain.actSelectByCoordinatesExecute(Sender: TObject);
