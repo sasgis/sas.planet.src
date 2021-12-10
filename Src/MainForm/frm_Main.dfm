@@ -1143,11 +1143,8 @@ object frmMain: TfrmMain
         RadioItem = True
       end
       object tbxUndoRouteCalc: TTBXItem
-        Hint = 'Undo Route Calculation'
-        ImageIndex = 77
+        Action = actEditPathRouteCalcUndo
         Images = MenusImageList
-        ShortCut = 16392
-        OnClick = tbxUndoRouteCalcClick
       end
       object TBXSeparatorItem24: TTBXSeparatorItem
       end
@@ -4407,6 +4404,14 @@ object frmMain: TfrmMain
       Hint = 'Save as separate placemarks...'
       ImageIndex = 64
       OnExecute = actMarkSaveAsSeparateSegmentsExecute
+    end
+    object actEditPathRouteCalcUndo: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Undo Route Calculation'
+      Hint = 'Undo Route Calculation'
+      ImageIndex = 77
+      ShortCut = 16392
+      OnExecute = actEditPathRouteCalcUndoExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

@@ -611,6 +611,7 @@ type
     actMarkSave: TAction;
     actMarkSaveAsNew: TAction;
     actMarkSaveAsSeparateSegments: TAction;
+    actEditPathRouteCalcUndo: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -846,7 +847,6 @@ type
     procedure actViewMoonCalcExecute(Sender: TObject);
     procedure tbxYandexWeatherClick(Sender: TObject);
     procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
-    procedure tbxUndoRouteCalcClick(Sender: TObject);
     procedure actMarksEditSnapToMarkersExecute(Sender: TObject);
     procedure actMarksEditDeleteGeometryPointExecute(Sender: TObject);
     procedure actCalcLineLabelVisibleExecute(Sender: TObject);
@@ -863,6 +863,7 @@ type
     procedure actMarkSaveAsNewExecute(Sender: TObject);
     procedure actMarkSaveExecute(Sender: TObject);
     procedure actMarkSaveAsSeparateSegmentsExecute(Sender: TObject);
+    procedure actEditPathRouteCalcUndoExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -2912,8 +2913,8 @@ begin
     (FPathProvidersTreeStatic.SubItemCount > 0);
   TBEditPathMarsh.Visible := VIsRoutingVisible;
   tbxExtendRoute.Visible := VIsRoutingVisible;
-  tbxUndoRouteCalc.Visible := VIsRoutingVisible;
-  tbxUndoRouteCalc.Enabled := False;
+  actEditPathRouteCalcUndo.Visible := VIsRoutingVisible;
+  actEditPathRouteCalcUndo.Enabled := False;
   TBXSeparatorItem24.Visible := VIsRoutingVisible;
   TBXSeparatorItem25.Visible := VIsRoutingVisible;
   FRouteUndoPath := nil;
@@ -3463,7 +3464,7 @@ begin
       end;
       VK_BACK + scCtrl: begin
         if FLineOnMapEdit <> nil then begin
-          tbxUndoRouteCalcClick(nil);
+          actEditPathRouteCalcUndo.Execute;
           Handled := True;
         end;
       end;
@@ -6194,7 +6195,7 @@ begin
       end;
     end;
   end;
-  tbxUndoRouteCalc.Enabled := FRouteUndoPath <> nil;
+  actEditPathRouteCalcUndo.Enabled := FRouteUndoPath <> nil;
 end;
 
 procedure TfrmMain.tbxExtendRouteSelect(Sender: TObject);
@@ -6389,21 +6390,7 @@ begin
     FRouteComment := '';
   end;
 
-  tbxUndoRouteCalc.Enabled := FRouteUndoPath <> nil;
-end;
-
-procedure TfrmMain.tbxUndoRouteCalcClick(Sender: TObject);
-var
-  VPathOnMapEdit: IPathOnMapEdit;
-begin
-  if
-    Assigned(FRouteUndoPath) and
-    Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then
-  begin
-    VPathOnMapEdit.SetPath(FRouteUndoPath.Path);
-    FRouteUndoPath := nil;
-    tbxUndoRouteCalc.Enabled := False;
-  end;
+  actEditPathRouteCalcUndo.Enabled := FRouteUndoPath <> nil;
 end;
 
 procedure TfrmMain.ZSliderMouseMove(
@@ -6813,6 +6800,20 @@ procedure TfrmMain.actEditPathLabelVisibleExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.Visible :=
     not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.Visible;
+end;
+
+procedure TfrmMain.actEditPathRouteCalcUndoExecute(Sender: TObject);
+var
+  VPathOnMapEdit: IPathOnMapEdit;
+begin
+  if
+    Assigned(FRouteUndoPath) and
+    Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then
+  begin
+    VPathOnMapEdit.SetPath(FRouteUndoPath.Path);
+    FRouteUndoPath := nil;
+    actEditPathRouteCalcUndo.Enabled := False;
+  end;
 end;
 
 procedure TfrmMain.actEditPathShowAzimuthExecute(Sender: TObject);
