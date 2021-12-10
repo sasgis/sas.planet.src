@@ -610,6 +610,7 @@ type
     actLineEditFitToScreen: TAction;
     actMarkSave: TAction;
     actMarkSaveAsNew: TAction;
+    actMarkSaveAsSeparateSegments: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -750,7 +751,6 @@ type
     procedure tbitmMarkEditPropertiesClick(Sender: TObject);
     procedure tbitmFitMarkToScreenClick(Sender: TObject);
     procedure tbitmHideThisMarkClick(Sender: TObject);
-    procedure tbitmSaveMarkLineAsSeparateSegmentsClick(Sender: TObject);
     procedure tbitmCopySearchResultDescriptionClick(Sender: TObject);
     procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
     procedure NMarkPlayClick(Sender: TObject);
@@ -862,6 +862,7 @@ type
     procedure actLineEditFitToScreenExecute(Sender: TObject);
     procedure actMarkSaveAsNewExecute(Sender: TObject);
     procedure actMarkSaveExecute(Sender: TObject);
+    procedure actMarkSaveAsSeparateSegmentsExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -5515,34 +5516,6 @@ begin
   PFile.Save(POleStr(UnicodeString(PathLink)), False);
 end;
 
-procedure TfrmMain.tbitmSaveMarkLineAsSeparateSegmentsClick(Sender: TObject);
-var
-  VResult: boolean;
-  VPathEdit: IPathOnMapEdit;
-  VPolygonEdit: IPolygonOnMapEdit;
-begin
-  VResult := False;
-  case FState.State of
-    ao_edit_line: begin
-      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        if Supports(VPathEdit.Path.Geometry, IGeometryLonLatMultiLine) then begin
-          VResult := FMarkDBGUI.SaveMarkUngroupModal(FEditMarkLine, VPathEdit.Path.Geometry);
-        end;
-      end;
-    end;
-    ao_edit_poly: begin
-      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
-        if Supports(VPolygonEdit.Polygon.Geometry, IGeometryLonLatMultiPolygon) then begin
-          VResult := FMarkDBGUI.SaveMarkUngroupModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry);
-        end;
-      end;
-    end;
-  end;
-  if VResult then begin
-    FState.State := ao_movemap;
-  end;
-end;
-
 procedure TfrmMain.tbitmSelectVersionByMarkClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
@@ -7127,6 +7100,34 @@ begin
     ao_calc_circle: begin
       if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleEdit) then begin
         VResult := FMarkDBGUI.SaveMarkModal(nil, VCircleEdit.GetPolygonOnMapEdit.Polygon.Geometry, True);
+      end;
+    end;
+  end;
+  if VResult then begin
+    FState.State := ao_movemap;
+  end;
+end;
+
+procedure TfrmMain.actMarkSaveAsSeparateSegmentsExecute(Sender: TObject);
+var
+  VResult: boolean;
+  VPathEdit: IPathOnMapEdit;
+  VPolygonEdit: IPolygonOnMapEdit;
+begin
+  VResult := False;
+  case FState.State of
+    ao_edit_line: begin
+      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+        if Supports(VPathEdit.Path.Geometry, IGeometryLonLatMultiLine) then begin
+          VResult := FMarkDBGUI.SaveMarkUngroupModal(FEditMarkLine, VPathEdit.Path.Geometry);
+        end;
+      end;
+    end;
+    ao_edit_poly: begin
+      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
+        if Supports(VPolygonEdit.Polygon.Geometry, IGeometryLonLatMultiPolygon) then begin
+          VResult := FMarkDBGUI.SaveMarkUngroupModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry);
+        end;
       end;
     end;
   end;

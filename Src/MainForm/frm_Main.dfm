@@ -1168,15 +1168,12 @@ object frmMain: TfrmMain
         end
       end
       object tbxtmSaveMarkAsSeparateSegment: TTBXItem
-        Caption = 'Save as separate placemarks...'
-        Hint = 'Save as separate placemarks...'
-        ImageIndex = 64
+        Action = actMarkSaveAsSeparateSegments
         Images = MenusImageList
-        OnClick = tbitmSaveMarkLineAsSeparateSegmentsClick
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 160
+        Top = 186
         Width = 61
         Height = 22
         MaxValue = 100000
@@ -4403,6 +4400,13 @@ object frmMain: TfrmMain
       Hint = 'Save as...'
       ImageIndex = 25
       OnExecute = actMarkSaveAsNewExecute
+    end
+    object actMarkSaveAsSeparateSegments: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Save as separate placemarks...'
+      Hint = 'Save as separate placemarks...'
+      ImageIndex = 64
+      OnExecute = actMarkSaveAsSeparateSegmentsExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu
