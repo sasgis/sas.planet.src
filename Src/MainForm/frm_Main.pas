@@ -605,6 +605,8 @@ type
     actEditPathShowAzimuth: TAction;
     actEditPathShowDistIncrement: TAction;
     actEditPathShowIntermediateDist: TAction;
+    actSelectByGeometryFinish: TAction;
+    actLineEditSplitTogle: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -669,7 +671,6 @@ type
       Font: TFont;
       StateFlags: Integer
     );
-    procedure TBEditPathOkClick(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
     procedure tbtpltCachedTilesMapCellClick(
       Sender: TTBXCustomToolPalette;
@@ -762,7 +763,6 @@ type
     procedure RosreestrClick(Sender: TObject);
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
-    procedure TBEditPathSplitClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
@@ -857,6 +857,8 @@ type
     procedure actEditPathShowAzimuthExecute(Sender: TObject);
     procedure actEditPathShowDistIncrementExecute(Sender: TObject);
     procedure actEditPathShowIntermediateDistExecute(Sender: TObject);
+    procedure actSelectByGeometryFinishExecute(Sender: TObject);
+    procedure actLineEditSplitTogleExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -2884,7 +2886,7 @@ begin
     ((VNewState = ao_edit_line) and (FEditMarkLine <> nil) and Supports(FEditMarkLine.Geometry, IGeometryLonLatMultiLine)) or
     ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil) and Supports(FEditMarkPoly.Geometry, IGeometryLonLatMultiPolygon));
 
-  TBEditPathOk.Visible :=
+  actSelectByGeometryFinish.Visible :=
     (VNewState = ao_select_poly) or
     (VNewState = ao_select_line);
 
@@ -2898,7 +2900,7 @@ begin
   tbxCalcLineShowDistIncrement.Visible := (VNewState = ao_calc_line);
   tbxCalcLineShowAzimuth.Visible := (VNewState = ao_calc_line);
 
-  TBEditPathSplit.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
+  actLineEditSplitTogle.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
 
   VIsRoutingVisible :=
     (VNewState = ao_edit_line) and
@@ -2940,7 +2942,7 @@ begin
   end;
 
   if Assigned(FLineOnMapEdit) then begin
-    TBEditPathSplit.Checked := FLineOnMapEdit.IsNearSplit;
+    actLineEditSplitTogle.Checked := FLineOnMapEdit.IsNearSplit;
   end;
 
   case VNewState of
@@ -3171,7 +3173,7 @@ begin
     TBEditPath.Visible := VSaveAviable;
     tbxtmSaveMarkAsSeparateSegment.Enabled := VIsMultiItem;
     if Assigned(FLineOnMapEdit) then begin
-      TBEditPathSplit.Checked := FLineOnMapEdit.IsNearSplit;
+      actLineEditSplitTogle.Checked := FLineOnMapEdit.IsNearSplit;
     end;
   end;
 end;
@@ -3555,7 +3557,7 @@ begin
             VLineOnMapEdit := FLineOnMapEdit;
             if VLineOnMapEdit <> nil then begin
               if VLineOnMapEdit.IsReady then begin
-                TBEditPathOkClick(Self);
+                actSelectByGeometryFinish.Execute;
                 Handled := True;
               end;
             end;
@@ -5528,13 +5530,6 @@ begin
   PFile.Save(POleStr(UnicodeString(PathLink)), False);
 end;
 
-procedure TfrmMain.TBEditPathSplitClick(Sender: TObject);
-begin
-  if FLineOnMapEdit <> nil then begin
-    FLineOnMapEdit.TogleSplit;
-  end;
-end;
-
 procedure TfrmMain.TBEditPathSaveClick(Sender: TObject);
 var
   VResult: boolean;
@@ -5743,40 +5738,6 @@ begin
   VRequest := FUrlProviderNokia.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
   if Assigned(VRequest) then begin
     CopyDownloadRequestToClipboard(Handle, VRequest);
-  end;
-end;
-
-procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
-var
-  VPoly: IGeometryLonLatPolygon;
-  VPath: IGeometryLonLatLine;
-  VLineOnMapEdit: ILineOnMapEdit;
-  VFilter: ILonLatPointFilter;
-begin
-  VLineOnMapEdit := FLineOnMapEdit;
-  if VLineOnMapEdit <> nil then begin
-    case FState.State of
-      ao_select_poly: begin
-        VPoly := (VLineOnMapEdit as IPolygonOnMapEdit).Polygon.Geometry;
-        FState.State := ao_movemap;
-        FRegionProcess.ProcessPolygon(VPoly);
-      end;
-      ao_select_line: begin
-        VPath := (VLineOnMapEdit as IPathOnMapEdit).Path.Geometry;
-        VFilter :=
-          TLonLatPointFilterLine2Poly.Create(
-            FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
-            FViewPortState.View.GetStatic.Projection
-          );
-        VPoly :=
-          GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
-            VPath,
-            VFilter
-          );
-        FState.State := ao_movemap;
-        FRegionProcess.ProcessPolygon(VPoly);
-      end;
-    end;
   end;
 end;
 
@@ -7097,6 +7058,13 @@ begin
   FfrmMarkPictureConfig.ShowModal;
 end;
 
+procedure TfrmMain.actLineEditSplitTogleExecute(Sender: TObject);
+begin
+  if FLineOnMapEdit <> nil then begin
+    FLineOnMapEdit.TogleSplit;
+  end;
+end;
+
 procedure TfrmMain.actMakeLinkOnDesktopExecute(Sender: TObject);
 var
   VLonLat: TDoublePoint;
@@ -7224,6 +7192,40 @@ begin
     end;
   finally
     VSelLonLat.Free;
+  end;
+end;
+
+procedure TfrmMain.actSelectByGeometryFinishExecute(Sender: TObject);
+var
+  VPoly: IGeometryLonLatPolygon;
+  VPath: IGeometryLonLatLine;
+  VLineOnMapEdit: ILineOnMapEdit;
+  VFilter: ILonLatPointFilter;
+begin
+  VLineOnMapEdit := FLineOnMapEdit;
+  if VLineOnMapEdit <> nil then begin
+    case FState.State of
+      ao_select_poly: begin
+        VPoly := (VLineOnMapEdit as IPolygonOnMapEdit).Polygon.Geometry;
+        FState.State := ao_movemap;
+        FRegionProcess.ProcessPolygon(VPoly);
+      end;
+      ao_select_line: begin
+        VPath := (VLineOnMapEdit as IPathOnMapEdit).Path.Geometry;
+        VFilter :=
+          TLonLatPointFilterLine2Poly.Create(
+            FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
+            FViewPortState.View.GetStatic.Projection
+          );
+        VPoly :=
+          GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+            VPath,
+            VFilter
+          );
+        FState.State := ao_movemap;
+        FRegionProcess.ProcessPolygon(VPoly);
+      end;
+    end;
   end;
 end;
 

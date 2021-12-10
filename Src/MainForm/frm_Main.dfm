@@ -1077,10 +1077,8 @@ object frmMain: TfrmMain
         Images = MenusImageList
       end
       object TBEditPathSplit: TTBXItem
-        Hint = 'Split Line'
-        ImageIndex = 63
+        Action = actLineEditSplitTogle
         Images = MenusImageList
-        OnClick = TBEditPathSplitClick
       end
       object tbxEditPathLabelVisible: TTBSubmenuItem
         Action = actEditPathLabelVisible
@@ -1156,14 +1154,12 @@ object frmMain: TfrmMain
       object TBXSeparatorItem24: TTBXSeparatorItem
       end
       object TBEditPathOk: TTBXItem
+        Action = actSelectByGeometryFinish
         FontSettings.Bold = tsTrue
         FontSettings.Color = clNavy
         FontSettings.Name = 'Arial'
-        Hint = 'Manage Selection'
-        ImageIndex = 38
         Images = MenusImageList
         Options = [tboImageAboveCaption, tboNoRotation, tboSameWidth]
-        OnClick = TBEditPathOkClick
       end
       object tbitmSaveMark: TTBXSubmenuItem
         DropdownCombo = True
@@ -4379,6 +4375,20 @@ object frmMain: TfrmMain
       Caption = 'Show intermediate distances for Edit Path'
       Hint = 'Show intermediate distances for Edit Path'
       OnExecute = actEditPathShowIntermediateDistExecute
+    end
+    object actSelectByGeometryFinish: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Finish selection'
+      Hint = 'Finish selection'
+      ImageIndex = 38
+      OnExecute = actSelectByGeometryFinishExecute
+    end
+    object actLineEditSplitTogle: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Split Line'
+      Hint = 'Split Line'
+      ImageIndex = 63
+      OnExecute = actLineEditSplitTogleExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu
