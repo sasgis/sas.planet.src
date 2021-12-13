@@ -819,12 +819,13 @@ object frmSettings: TfrmSettings
             TabOrder = 6
             object CBShowmapname: TCheckBox
               Left = 3
-              Top = 37
+              Top = 20
               Width = 310
               Height = 17
               Align = alTop
               Caption = 'Show map name on toolbar'
-              TabOrder = 2
+              TabOrder = 1
+              ExplicitTop = 37
             end
             object ChBoxFirstLat: TCheckBox
               Left = 3
@@ -837,30 +838,35 @@ object frmSettings: TfrmSettings
             end
             object CBlock_toolbars: TCheckBox
               Left = 3
-              Top = 54
+              Top = 37
               Width = 310
               Height = 17
               Align = alTop
               Caption = 'Lock toolbars'
-              TabOrder = 3
+              TabOrder = 2
+              ExplicitTop = 54
             end
-            object CBShowHintOnMarks: TCheckBox
+            object CBMinimizeToTray: TCheckBox
               Left = 3
-              Top = 20
+              Top = 54
               Width = 310
               Height = 17
               Align = alTop
-              Caption = 'Show hints when hovering over placemarks'
-              TabOrder = 1
+              Caption = 'Minimize to tray'
+              TabOrder = 3
+              ExplicitTop = 71
             end
-            object CBMinimizeToTray: TCheckBox
+            object chkShowLogo: TCheckBox
               Left = 3
               Top = 71
               Width = 310
               Height = 17
               Align = alTop
-              Caption = 'Minimize to tray'
+              Caption = 'Show Logo on startup'
               TabOrder = 4
+              ExplicitLeft = 6
+              ExplicitTop = 420
+              ExplicitWidth = 308
             end
           end
           object flwpnlTileBorder: TFlowPanel
@@ -1480,26 +1486,14 @@ object frmSettings: TfrmSettings
                 '')
             end
           end
-          object chkShowLogo: TCheckBox
-            AlignWithMargins = True
-            Left = 6
-            Top = 417
-            Width = 308
-            Height = 17
-            Align = alTop
-            Caption = 'Show Logo on startup'
-            TabOrder = 9
-            ExplicitTop = 423
-            ExplicitWidth = 314
-          end
           object pnlMarksCaption: TPanel
             Left = 3
-            Top = 334
+            Top = 337
             Width = 314
             Height = 80
             Align = alTop
             BevelOuter = bvNone
-            TabOrder = 10
+            TabOrder = 9
             object grpMarksCaption: TGroupBox
               Left = 0
               Top = 0
@@ -1508,7 +1502,6 @@ object frmSettings: TfrmSettings
               Align = alClient
               Caption = 'Placemark names'
               TabOrder = 0
-              ExplicitHeight = 74
               object chkMarkCaptionSolidBg: TCheckBox
                 AlignWithMargins = True
                 Left = 5
@@ -1519,8 +1512,6 @@ object frmSettings: TfrmSettings
                 Align = alTop
                 Caption = 'Solid background color'
                 TabOrder = 0
-                ExplicitLeft = 7
-                ExplicitTop = 46
               end
               object pnlMarkCaptionFont: TPanel
                 Left = 2
@@ -1530,18 +1521,15 @@ object frmSettings: TfrmSettings
                 Align = alTop
                 BevelOuter = bvNone
                 TabOrder = 1
-                ExplicitTop = 38
                 object lblMarksCaptionFontName: TLabel
                   AlignWithMargins = True
                   Left = 3
                   Top = 3
-                  Width = 26
-                  Height = 18
+                  Width = 22
+                  Height = 15
                   Align = alLeft
-                  ExplicitLeft = 22
-                  ExplicitTop = 14
-                  ExplicitHeight = 57
                   Caption = 'Font'
+                  ExplicitHeight = 13
                 end
                 object btnMarkCaptionFont: TSpeedButton
                   AlignWithMargins = True
@@ -1557,16 +1545,12 @@ object frmSettings: TfrmSettings
                   ExplicitLeft = 290
                 end
                 object edtMarksCaptionFontName: TEdit
-                  Left = 32
+                  Left = 28
                   Top = 0
-                  Width = 251
+                  Width = 255
                   Height = 21
                   Align = alClient
                   TabOrder = 0
-                  ExplicitLeft = 88
-                  ExplicitTop = 3
-                  ExplicitWidth = 190
-                  ExplicitHeight = 22
                 end
               end
               object chkMarksCaptionVisible: TCheckBox
@@ -1580,11 +1564,20 @@ object frmSettings: TfrmSettings
                 Align = alTop
                 Caption = 'Show placemark names'
                 TabOrder = 2
-                ExplicitLeft = 176
-                ExplicitTop = 64
-                ExplicitWidth = 97
               end
             end
+          end
+          object CBShowHintOnMarks: TCheckBox
+            AlignWithMargins = True
+            Left = 6
+            Top = 420
+            Width = 308
+            Height = 17
+            Align = alTop
+            Caption = 'Show hints when hovering over placemarks'
+            TabOrder = 10
+            ExplicitTop = 460
+            ExplicitWidth = 314
           end
         end
       end
