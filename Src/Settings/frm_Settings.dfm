@@ -990,7 +990,7 @@ object frmSettings: TfrmSettings
                 Top = 0
                 Width = 21
                 Height = 20
-                Hint = 'Reset to default'
+                Hint = 'Reset postprocessing settings to defaults'
                 Align = alRight
                 Caption = '<>'
                 TabOrder = 0
