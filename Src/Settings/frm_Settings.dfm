@@ -850,7 +850,7 @@ object frmSettings: TfrmSettings
               Width = 310
               Height = 17
               Align = alTop
-              Caption = 'Show tooltips'
+              Caption = 'Show hints when hovering over placemarks'
               TabOrder = 1
             end
             object CBMinimizeToTray: TCheckBox
@@ -1506,7 +1506,7 @@ object frmSettings: TfrmSettings
               Width = 314
               Height = 80
               Align = alClient
-              Caption = 'Placemark Caption'
+              Caption = 'Placemark names'
               TabOrder = 0
               ExplicitHeight = 74
               object chkMarkCaptionSolidBg: TCheckBox
@@ -1538,10 +1538,10 @@ object frmSettings: TfrmSettings
                   Width = 26
                   Height = 18
                   Align = alLeft
-                  Caption = 'Font:'
                   ExplicitLeft = 22
                   ExplicitTop = 14
                   ExplicitHeight = 57
+                  Caption = 'Font'
                 end
                 object btnMarkCaptionFont: TSpeedButton
                   AlignWithMargins = True
@@ -1578,7 +1578,7 @@ object frmSettings: TfrmSettings
                 Margins.Top = 0
                 Margins.Bottom = 0
                 Align = alTop
-                Caption = 'Placemark names'
+                Caption = 'Show placemark names'
                 TabOrder = 2
                 ExplicitLeft = 176
                 ExplicitTop = 64

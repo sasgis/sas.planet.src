@@ -4114,7 +4114,7 @@ object frmMain: TfrmMain
     end
     object actConfigMarksNamesVisible: TAction
       Category = 'Config'
-      Caption = 'Placemark Names'
+      Caption = 'Show Placemark Names'
       OnExecute = actConfigMarksNamesVisibleExecute
     end
     object actShowPointProject: TAction
