@@ -328,6 +328,9 @@ type
     );
     function StrToProxyAddress(const AStr: string): string;
     function GetProxyTypeValue: TProxyServerType;
+
+    procedure OnTrackBarMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -361,6 +364,13 @@ uses
   u_GlobalState,
   u_CoordRepresentation,
   u_ResStrings;
+
+type
+  TTrackBarExt = class(TTrackBar);
+
+const
+  CTrBarGammaTagId = 1;
+  CTrBarContrastTagId = 2;
 
 {$R *.dfm}
 
@@ -562,6 +572,13 @@ begin
       ALanguageManager,
       gettext_NoOp('Yandex')
     );
+
+  // View tab
+  TrBarGamma.Tag := CTrBarGammaTagId;
+  TTrackBarExt(TrBarGamma).OnMouseUp := Self.OnTrackBarMouseUp;
+
+  TrBarContrast.Tag := CTrBarContrastTagId;
+  TTrackBarExt(TrBarContrast).OnMouseUp := Self.OnTrackBarMouseUp;
 
   PageControl1.ActivePageIndex := 0; // Maps
 end;
@@ -1209,6 +1226,28 @@ begin
   ABox.Items.Clear;
   for i := 0 to AList.Count - 1 do begin
     ABox.Items.Add(AList.Captions[i]);
+  end;
+end;
+
+procedure TfrmSettings.OnTrackBarMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  VTrBar: TTrackBar;
+begin
+  if Button <> mbRight then begin
+    Exit;
+  end;  
+  // Reset values by right mouse click
+  VTrBar := Sender as TTrackBar;
+  if VTrBar <> nil then begin
+    case VTrBar.Tag of
+      CTrBarGammaTagId    : VTrBar.Position := 50; // Gamma
+      CTrBarContrastTagId : VTrBar.Position := 0;  // Contrast
+    else
+      Assert(False);
+    end;
+  end else begin
+    Assert(False);
   end;
 end;
 

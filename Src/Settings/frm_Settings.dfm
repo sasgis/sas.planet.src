@@ -932,13 +932,12 @@ object frmSettings: TfrmSettings
               Top = 36
               Width = 310
               Height = 25
+              Hint = 'You can reset value by right mouse click'
               Align = alTop
               Max = 100
               Min = 1
-              ParentShowHint = False
               Frequency = 5
               Position = 1
-              ShowHint = False
               TabOrder = 1
               ThumbLength = 15
               TickMarks = tmTopLeft
@@ -949,6 +948,7 @@ object frmSettings: TfrmSettings
               Top = 74
               Width = 310
               Height = 25
+              Hint = 'You can reset value by right mouse click'
               Align = alTop
               Max = 100
               Min = -100
