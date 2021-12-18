@@ -4360,9 +4360,9 @@ object frmMain: TfrmMain
       OnExecute = actEditPathShowIntermediateDistExecute
     end
     object actSelectByGeometryFinish: TAction
-      Category = 'Marks\Edit'
-      Caption = 'Finish selection'
-      Hint = 'Finish selection'
+      Category = 'Marks\Edit Last Selection'
+      Caption = 'Apply'
+      Hint = 'Apply'
       ImageIndex = 38
       OnExecute = actSelectByGeometryFinishExecute
     end
