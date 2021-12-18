@@ -2865,12 +2865,6 @@ begin
   actMarksAddPolygon.Checked := VNewState = ao_edit_poly;
   TBEditPath.Visible := False;
 
-  tbitmSaveMark.Visible :=
-    (VNewState = ao_calc_line) or
-    (VNewState = ao_calc_circle) or
-    (VNewState = ao_edit_line) or
-    (VNewState = ao_edit_poly);
-
   VIsMarkEdit :=
     ((VNewState = ao_edit_point) and (FEditMarkPoint <> nil)) or
     ((VNewState = ao_edit_line) and (FEditMarkLine <> nil)) or
@@ -2885,6 +2879,12 @@ begin
   end;
   tbitmSaveMark.DropdownCombo := VIsMarkEdit;
   tbitmSaveMarkAsNew.Visible := VIsMarkEdit;
+
+  tbitmSaveMark.Visible :=
+    (VNewState = ao_calc_line) or
+    (VNewState = ao_calc_circle) or
+    (VNewState = ao_edit_line) or
+    (VNewState = ao_edit_poly);
 
   tbxtmSaveMarkAsSeparateSegment.Visible := VIsMarkEdit;
   tbxtmSaveMarkAsSeparateSegment.Enabled :=
