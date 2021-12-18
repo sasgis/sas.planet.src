@@ -420,7 +420,6 @@ type
     NGShScale5000: TTBXItem;
     NGShScale2500: TTBXItem;
     Rosreestr: TTBXItem;
-    TBXMakeRosreestrPolygon: TTBXItem;
     tbpmiShowOtherVersions: TTBXItem;
     tbxsbmProjection: TTBXSubmenuItem;
     tbxSep1: TTBXSeparatorItem;
@@ -762,7 +761,6 @@ type
     procedure tbitmMakeVersionByMarkClick(Sender: TObject);
     procedure tbitmSelectVersionByMarkClick(Sender: TObject);
     procedure RosreestrClick(Sender: TObject);
-    procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
@@ -1116,7 +1114,6 @@ type
     ): IVectorItemSubset;
 
     procedure ProcessOpenFiles(const AFiles: IStringListStatic);
-    procedure MakeRosreestrPolygon(const APoint: TPoint);
 
     procedure OnInternalErrorNotify(const AMsg: IInterface);
     procedure SwitchSunCalc(const ACalcType: TSunCalcDataProviderType);
@@ -1196,7 +1193,6 @@ uses
   i_FavoriteMapSetItemStatic,
   u_FavoriteMapSetHotKeyList,
   u_FavoriteMapSetHelper,
-  u_ImportFromArcGIS,
   u_StickToGrids,
   u_GeoFunc,
   u_GeoToStrFunc,
@@ -1279,11 +1275,6 @@ begin
   inherited;
 
   GR32_Gamma.SetGamma(1);
-
-  // Disable popup menu item "Make Polygon by RosReestr (F8+MLeft)" due it
-  // stop working: http://www.sasgis.org/mantis/view.php?id=2641
-  TBXMakeRosreestrPolygon.Enabled := False;
-  TBXMakeRosreestrPolygon.Visible := False;
 
   FStartedNormal := False;
   movepoint := False;
@@ -5211,10 +5202,6 @@ begin
         SafeCreateDGAvailablePic(Point(X, Y));
         Exit;
       end;
-      if HiWord(GetKeyState(VK_F8)) <> 0 then begin
-        MakeRosreestrPolygon(Point(X, Y));
-        Exit;
-      end;
     end;
     if (FState.State = ao_edit_point) then begin
       VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
@@ -5811,60 +5798,6 @@ begin
     IInterface(tbxpmnSearchResult.Tag)._Release;
     tbxpmnSearchResult.Tag := 0;
   end;
-end;
-
-procedure TfrmMain.MakeRosreestrPolygon(const APoint: TPoint);
-var
-  VLocalConverter: ILocalCoordConverter;
-  VProjection: IProjection;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat: TDoublePoint;
-  VMapRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
-  VMarksList: IVectorItemSubset;
-  VImportConfig: IImportConfig;
-begin
-  VLocalConverter := FViewPortState.View.GetStatic;
-  VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(APoint);
-  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
-  VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  VMapRect := VLocalConverter.GetRectInMapPixelFloat;
-  VProjection.ValidatePixelRectFloat(VMapRect);
-  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
-  VImportConfig := FMarkDBGUI.EditModalImportConfig;
-  if (nil = VImportConfig) then begin
-    Exit;
-  end;
-  if (nil = VImportConfig.PolyParams) then begin
-    Exit;
-  end;
-
-  VMarksList := ImportFromArcGIS(
-    GState.Config.InetConfig,
-    GState.DownloaderFactory,
-    GState.ProjectionSetFactory,
-    GState.VectorGeometryLonLatFactory,
-    GState.VectorDataItemMainInfoFactory,
-    GState.VectorDataFactory,
-    GState.VectorItemSubsetBuilderFactory,
-    VLonLatRect,
-    VLonLat,
-    VProjection.Zoom, // TODO: Replace Zoom to smth
-    VLocalConverter.GetLocalRectSize
-  );
-  // import all marks
-  if Assigned(VMarksList) then begin
-    FMarkDBGUI.MarksDb.ImportItemsTree(
-      TVectorItemTree.Create('', VMarksList, nil),
-      VImportConfig
-    );
-  end;
-end;
-
-procedure TfrmMain.TBXMakeRosreestrPolygonClick(Sender: TObject);
-begin
-  MakeRosreestrPolygon(FMouseState.GetLastDownPos(mbRight));
 end;
 
 procedure TfrmMain.tbiEditSrchAcceptText(

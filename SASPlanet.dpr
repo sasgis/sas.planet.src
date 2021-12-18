@@ -1473,7 +1473,6 @@ uses
   u_HashInterfaceCache2Q in 'Src\u_HashInterfaceCache2Q.pas',
   u_HtmlDoc in 'Src\u_HtmlDoc.pas',
   u_HtmlToHintTextConverterStuped in 'Src\u_HtmlToHintTextConverterStuped.pas',
-  u_ImportFromArcGIS in 'Src\u_ImportFromArcGIS.pas',
   u_InterfaceQueue in 'Src\u_InterfaceQueue.pas',
   u_LanguageListStatic in 'Src\u_LanguageListStatic.pas',
   u_ListenerNotifierLinksList in 'Src\u_ListenerNotifierLinksList.pas',

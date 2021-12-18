@@ -3531,10 +3531,6 @@ object frmMain: TfrmMain
         Images = MenusImageList
         OnClick = DigitalGlobe1Click
       end
-      object TBXMakeRosreestrPolygon: TTBXItem
-        Caption = 'Make Polygon by RosReestr (F8+MLeft)'
-        OnClick = TBXMakeRosreestrPolygonClick
-      end
       object tbsprtAdditionalOperations0: TTBXSeparatorItem
       end
       object tbxWeatherUnderground: TTBXItem
