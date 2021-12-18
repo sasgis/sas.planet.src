@@ -4314,53 +4314,53 @@ object frmMain: TfrmMain
       OnExecute = actMarksEditDeleteGeometryPointExecute
     end
     object actCalcLineLabelVisible: TAction
-      Category = 'Marks\Edit'
-      Caption = 'Show/Hide Captions for Distance Calculation'
-      Hint = 'Show/Hide Captions for Distance Calculation'
+      Category = 'Marks\Distance Calculation'
+      Caption = 'Show/Hide Captions'
+      Hint = 'Show/Hide Captions'
       ImageIndex = 37
       OnExecute = actCalcLineLabelVisibleExecute
     end
     object actCalcLineShowAzimuth: TAction
-      Category = 'Marks\Edit'
-      Caption = 'Show azimuth for Distance Calculation'
-      Hint = 'Show azimuth for Distance Calculation'
+      Category = 'Marks\Distance Calculation'
+      Caption = 'Show azimuth'
+      Hint = 'Show azimuth'
       OnExecute = actCalcLineShowAzimuthExecute
     end
     object actCalcLineShowDistIncrement: TAction
-      Category = 'Marks\Edit'
-      Caption = 'Show the distance increment for Distance Calculation'
-      Hint = 'Show the distance increment for Distance Calculation'
+      Category = 'Marks\Distance Calculation'
+      Caption = 'Show the distance increment'
+      Hint = 'Show the distance increment'
       OnExecute = actCalcLineShowDistIncrementExecute
     end
     object actCalcLineShowIntermediateDist: TAction
-      Category = 'Marks\Edit'
-      Caption = 'Show intermediate distances for Distance Calculation'
-      Hint = 'Show intermediate distances for Distance Calculation'
+      Category = 'Marks\Distance Calculation'
+      Caption = 'Show intermediate distances'
+      Hint = 'Show intermediate distances'
       OnExecute = actCalcLineShowIntermediateDistExecute
     end
     object actEditPathLabelVisible: TAction
       Category = 'Marks\Edit'
-      Caption = 'Show/Hide Captions for Path Edit'
-      Hint = 'Show/Hide Captions for Path Edit'
+      Caption = 'Show/Hide Captions'
+      Hint = 'Show/Hide Captions'
       ImageIndex = 37
       OnExecute = actEditPathLabelVisibleExecute
     end
     object actEditPathShowAzimuth: TAction
       Category = 'Marks\Edit'
-      Caption = 'Show azimuth for Path Edit'
-      Hint = 'Show azimuth for Path Edit'
+      Caption = 'Show azimuth'
+      Hint = 'Show azimuth'
       OnExecute = actEditPathShowAzimuthExecute
     end
     object actEditPathShowDistIncrement: TAction
       Category = 'Marks\Edit'
-      Caption = 'Show the distance increment for Path Edit'
-      Hint = 'Show the distance increment for Path Edit'
+      Caption = 'Show the distance increment'
+      Hint = 'Show the distance increment'
       OnExecute = actEditPathShowDistIncrementExecute
     end
     object actEditPathShowIntermediateDist: TAction
       Category = 'Marks\Edit'
-      Caption = 'Show intermediate distances for Edit Path'
-      Hint = 'Show intermediate distances for Edit Path'
+      Caption = 'Show intermediate distances'
+      Hint = 'Show intermediate distances'
       OnExecute = actEditPathShowIntermediateDistExecute
     end
     object actSelectByGeometryFinish: TAction
