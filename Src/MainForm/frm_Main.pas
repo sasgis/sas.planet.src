@@ -1276,6 +1276,11 @@ begin
 
   GR32_Gamma.SetGamma(1);
 
+  // Disable unmaintainable function "Search for available pictures"
+  // http://www.sasgis.org/mantis/view.php?id=3803
+  DigitalGlobe1.Visible := False;
+  tbsprtAdditionalOperations1.Visible := False;
+
   FStartedNormal := False;
   movepoint := False;
   FMapZoomAnimtion := False;
