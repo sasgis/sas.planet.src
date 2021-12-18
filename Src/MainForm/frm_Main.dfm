@@ -1150,11 +1150,7 @@ object frmMain: TfrmMain
       end
       object TBEditPathOk: TTBXItem
         Action = actSelectByGeometryFinish
-        FontSettings.Bold = tsTrue
-        FontSettings.Color = clNavy
-        FontSettings.Name = 'Arial'
         Images = MenusImageList
-        Options = [tboImageAboveCaption, tboNoRotation, tboSameWidth]
       end
       object tbitmSaveMark: TTBXSubmenuItem
         Action = actMarkSave
