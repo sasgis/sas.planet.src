@@ -4953,7 +4953,7 @@ begin
     (ssRight in Shift) and (ssLeft in Shift) or
     (HiWord(GetKeyState(VK_DELETE)) <> 0) or
     (HiWord(GetKeyState(VK_INSERT)) <> 0) or
-    (HiWord(GetKeyState(VK_F6)) <> 0) or
+//    (HiWord(GetKeyState(VK_F6)) <> 0) or
     (HiWord(GetKeyState(VK_F8)) <> 0)
   then begin
     exit;
@@ -5203,10 +5203,10 @@ begin
           Exit;
         end;
       end;
-      if HiWord(GetKeyState(VK_F6)) <> 0 then begin
-        SafeCreateDGAvailablePic(Point(X, Y));
-        Exit;
-      end;
+//      if HiWord(GetKeyState(VK_F6)) <> 0 then begin
+//        SafeCreateDGAvailablePic(Point(X, Y));
+//        Exit;
+//      end;
     end;
     if (FState.State = ao_edit_point) then begin
       VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
