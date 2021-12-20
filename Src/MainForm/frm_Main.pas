@@ -4952,9 +4952,9 @@ begin
     (Button = mbMiddle) or
     (ssRight in Shift) and (ssLeft in Shift) or
     (HiWord(GetKeyState(VK_DELETE)) <> 0) or
-    (HiWord(GetKeyState(VK_INSERT)) <> 0) or
+    (HiWord(GetKeyState(VK_INSERT)) <> 0)
 //    (HiWord(GetKeyState(VK_F6)) <> 0) or
-    (HiWord(GetKeyState(VK_F8)) <> 0)
+//    (HiWord(GetKeyState(VK_F8)) <> 0)
   then begin
     exit;
   end;
