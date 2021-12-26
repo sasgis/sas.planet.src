@@ -296,7 +296,7 @@ type
     FfrMarksIconsPathSelect: TfrPathSelect;
     FfrMarksDbPathSelect: TfrPathSelect;
     FfrMediaDataPathSelect: TfrPathSelect;
-    FfrMapSvcScanPathSelect: TfrPathSelect;
+//    FfrMapSvcScanPathSelect: TfrPathSelect;
     FfrBaseCachePathSelect: TfrPathSelect;
 
     FfrNewCachePath: TfrPathSelect;
@@ -480,12 +480,17 @@ begin
       gettext_NoOp('Path to MediaData'),
       GState.Config.MediaDataPath
     );
-  FfrMapSvcScanPathSelect :=
-    TfrPathSelect.Create(
-      ALanguageManager,
-      gettext_NoOp('Path to map scan DB'),
-      GState.Config.MapSvcScanConfig.Path
-    );
+
+  // http://www.sasgis.org/mantis/view.php?id=3803
+  pnlMapSvcScan.Visible := False;
+
+//  FfrMapSvcScanPathSelect :=
+//    TfrPathSelect.Create(
+//      ALanguageManager,
+//      gettext_NoOp('Path to map scan DB'),
+//      GState.Config.MapSvcScanConfig.Path
+//    );
+
   FfrBaseCachePathSelect :=
     TfrPathSelect.Create(
       ALanguageManager,
@@ -846,7 +851,7 @@ begin
   FfrMarksIconsPathSelect.ApplyChanges;
   FfrMarksDbPathSelect.ApplyChanges;
   FfrMediaDataPathSelect.ApplyChanges;
-  FfrMapSvcScanPathSelect.ApplyChanges;
+//  FfrMapSvcScanPathSelect.ApplyChanges;
   FfrBaseCachePathSelect.ApplyChanges;
 
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
@@ -926,7 +931,7 @@ begin
   FreeAndNil(FfrMarksIconsPathSelect);
   FreeAndNil(FfrMarksDbPathSelect);
   FreeAndNil(FfrMediaDataPathSelect);
-  FreeAndNil(FfrMapSvcScanPathSelect);
+//  FreeAndNil(FfrMapSvcScanPathSelect);
   FreeAndNil(FfrBaseCachePathSelect);
 
   FreeAndNil(FfrNewCachePath);
@@ -973,7 +978,7 @@ begin
   FfrMarksIconsPathSelect.Show(pnlMarksIconsPath);
   FfrMarksDbPathSelect.Show(pnlMarksDbPath);
   FfrMediaDataPathSelect.Show(pnlMediaDataPath);
-  FfrMapSvcScanPathSelect.Show(pnlMapSvcScan);
+//  FfrMapSvcScanPathSelect.Show(pnlMapSvcScan);
   FfrBaseCachePathSelect.Show(pnlBaseCahcePath);
 
   FfrNewCachePath.Show(pnlNewCpath);
