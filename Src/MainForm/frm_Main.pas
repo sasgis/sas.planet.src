@@ -6101,6 +6101,7 @@ var
   VEntity: IPathDetalizeProviderTreeEntity;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
+  VErrorMessage: string;
   VInterface: IInterface;
   VPathOnMapEdit: IPathOnMapEdit;
   VOperationNotifier: INotifierOperation;
@@ -6117,7 +6118,8 @@ begin
             VOperationNotifier,
             VOperationNotifier.CurrentOperation,
             VPathOnMapEdit.Path.Geometry,
-            FRouteComment
+            FRouteComment,
+            VErrorMessage
           );
         VIsError := (VRoute = nil);
       except
@@ -6125,11 +6127,15 @@ begin
           MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOk], 0);
         end;
       end;
+
       if not VIsError then begin
         MakeBackupOfPathOnMapEdit(VPathOnMapEdit, True);
         VPathOnMapEdit.SetPath(VRoute);
       end else begin
         FRouteComment := '';
+        if VErrorMessage <> '' then begin
+          MessageDlg(VErrorMessage, mtError, [mbOk], 0);
+        end;
       end;
     end;
   end;
@@ -6273,6 +6279,7 @@ var
   VResult: ILonLatPathWithSelected;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
+  VErrorMessage: string;
   VPathOnMapEdit: IPathOnMapEdit;
   VOperationNotifier: INotifierOperation;
 begin
@@ -6311,7 +6318,8 @@ begin
         VOperationNotifier,
         VOperationNotifier.CurrentOperation,
         VLonLatLine,
-        FRouteComment
+        FRouteComment,
+        VErrorMessage
       );
     VIsError := (VRoute = nil);
   except
@@ -6326,6 +6334,9 @@ begin
     VPathOnMapEdit.SetPath(VResult);
   end else begin
     FRouteComment := '';
+    if VErrorMessage <> '' then begin
+      MessageDlg(VErrorMessage, mtError, [mbOk], 0);
+    end;
   end;
 
   actEditPathRouteCalcUndo.Enabled := FRouteUndoPath <> nil;

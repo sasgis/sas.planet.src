@@ -47,7 +47,8 @@ type
       const AOperationID: Integer;
       const ASource: IGeometryLonLatSingleLine;
       const APointsAggregator: IDoublePointsAggregator;
-      const ABuilder: IGeometryLonLatLineBuilder
+      const ABuilder: IGeometryLonLatLineBuilder;
+      out AErrorMessage: string
     ): Boolean; virtual; abstract;
     procedure OnBeforeGetRoute; virtual;
     procedure OnAfterGetRoute; virtual;
@@ -57,7 +58,8 @@ type
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ASource: IGeometryLonLatLine;
-      out AComment: string
+      out AComment: string;
+      out AErrorMessage: string
     ): IGeometryLonLatLine;
   public
     constructor Create(
@@ -95,7 +97,8 @@ function TPathDetalizeProviderBase.GetRoute(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const ASource: IGeometryLonLatLine;
-  out AComment: string
+  out AComment: string;
+  out AErrorMessage: string
 ): IGeometryLonLatLine;
 var
   I: Integer;
@@ -107,6 +110,7 @@ var
 begin
   Result := nil;
   AComment := '';
+  AErrorMessage := '';
 
   OnBeforeGetRoute;
   try
@@ -121,7 +125,8 @@ begin
           AOperationID,
           VSingleLine,
           VPointsAggregator,
-          VBuilder
+          VBuilder,
+          AErrorMessage
         );
     end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
       for I := 0 to VMultiLine.Count - 1 do begin
@@ -131,7 +136,8 @@ begin
             AOperationID,
             VMultiLine.Item[I],
             VPointsAggregator,
-            VBuilder
+            VBuilder,
+            AErrorMessage
           )
         then begin
           VIsLineProcessed := True;

@@ -35,7 +35,8 @@ type
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ASource: IGeometryLonLatLine;
-      out AComment: string
+      out AComment: string;
+      out AErrorMessage: string
     ): IGeometryLonLatLine;
   end;
 

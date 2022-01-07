@@ -45,6 +45,7 @@ type
 
   TPathDetalizeProviderOsmScout = class(TPathDetalizeProviderBase)
   private
+    FOpt: Pointer;
     FCtx: Pointer;
     FProfile: TRouteProfile;
     FOsmScoutRouteContext: IOsmScoutRouteContext;
@@ -60,7 +61,8 @@ type
       const AOperationID: Integer;
       const ASource: IGeometryLonLatSingleLine;
       const APointsAggregator: IDoublePointsAggregator;
-      const ABuilder: IGeometryLonLatLineBuilder
+      const ABuilder: IGeometryLonLatLineBuilder;
+      out AErrorMessage: string
     ): Boolean; override;
     procedure OnBeforeGetRoute; override;
     procedure OnAfterGetRoute; override;
@@ -90,11 +92,16 @@ uses
   u_BaseInterfacedObject;
 
 resourcestring
-  rsNoDataInDatabase = 'There is no data in database for this location!';
+  rsNoDataStart = 'There is no data in database for start location!';
+  rsNoDataTarget = 'There is no data in database for target location!';
+
+  rsNoDataRoute = 'The route cannot be built for the given profile.' + #13#10 +
+                  'Not enough data in the database!';
 
 type
   TOsmScoutRouteContext = class(TBaseInterfacedObject, IOsmScoutRouteContext)
   private
+    FOpt: Pointer;
     FCtx: Pointer;
     FLock: TCriticalSection;
     FDatabasePath: AnsiString;
@@ -144,6 +151,7 @@ constructor TPathDetalizeProviderOsmScout.Create(
 begin
   inherited Create('', nil, nil, AVectorGeometryLonLatFactory);
 
+  FOpt := nil;
   FCtx := nil;
   FProfile := AProfile;
   FOsmScoutRouteContext := AOsmScoutRouteContext;
@@ -169,21 +177,23 @@ function TPathDetalizeProviderOsmScout.ProcessSingleLine(
   const AOperationID: Integer;
   const ASource: IGeometryLonLatSingleLine;
   const APointsAggregator: IDoublePointsAggregator;
-  const ABuilder: IGeometryLonLatLineBuilder
+  const ABuilder: IGeometryLonLatLineBuilder;
+  out AErrorMessage: string
 ): Boolean;
 var
   I: Integer;
   VCount: uint32_t;
   VRoutePoint: ppoint_t;
-  VCalcResult: TRouteCalcResult;
+  VResult: TRouterResult;
   VPoints: PDoublePointArray;
 begin
   Assert(FCtx <> nil);
+  Result := False;
   VPoints := ASource.Points;
 
   for I := 1 to ASource.Count - 1 do begin
 
-    VCalcResult :=
+    VResult :=
       router.calc(
         FCtx,
         FProfile,
@@ -193,25 +203,40 @@ begin
         VRoutePoint
       );
 
-    case VCalcResult of
-      CALC_RESULT_OK: begin
+    case VResult of
+      ROUTER_RESULT_OK: begin
         APointsAggregator.AddPoints(PDoublePointArray(VRoutePoint), VCount);
       end;
-      CALC_RESULT_NODATA: begin
-        raise EPathDetalizeProviderOsmScout.Create(rsNoDataInDatabase);
+
+      ROUTER_RESULT_NODATA_START: begin
+        AErrorMessage := rsNoDataStart;
+        Exit;
       end;
-      CALC_RESULT_ERROR: begin
+
+      ROUTER_RESULT_NODATA_TARGET: begin
+        AErrorMessage := rsNoDataTarget;
+        Exit;
+      end;
+
+      ROUTER_RESULT_NODATA_ROUTE: begin
+        AErrorMessage := rsNoDataRoute;
+        Exit;
+      end;
+
+      ROUTER_RESULT_ERROR: begin
         RiseLibOsmScoutError(FCtx, 'calc');
       end;
     else
       raise EPathDetalizeProviderOsmScout.CreateFmt(
-        '"router_calc" returns unexpected value: %d', [Integer(VCalcResult)]
+        'Function "router_calc" returns unexpected result: %d', [Integer(VResult)]
       );
     end;
   end;
+
   if APointsAggregator.Count > 0 then begin
     ABuilder.AddLine(APointsAggregator.MakeStaticAndClear);
   end;
+
   Result := True;
 end;
 
@@ -233,6 +258,7 @@ begin
 
   FDatabasePath := StringToAnsiSafe(IncludeTrailingPathDelimiter(ADatabasePath));
 
+  FOpt := nil;
   FCtx := nil;
   FIsInitialized := False;
   FLock := TCriticalSection.Create;
@@ -274,14 +300,20 @@ begin
     router.del(FCtx);
     FCtx := nil;
   end;
+  if FOpt <> nil then begin
+    router.opt_del(FOpt);
+    FOpt := nil;
+  end;
 end;
 
 function TOsmScoutRouteContext.Acquire: Pointer;
 var
   I: Integer;
+  VDataBasesCount: Integer;
   VDataBases: array of AnsiString;
   VDataBasesArr: array of PAnsiChar;
   VSearchRec: TSearchRec;
+  VResult: TRouterResult;
 begin
   FLock.Acquire;
   try
@@ -289,7 +321,7 @@ begin
       FIsInitialized := True;
 
       // collect db names (folder == db)
-      I := 0;
+      VDataBasesCount := 0;
       if FindFirst(string(FDatabasePath) + '*.*', faAnyFile, VSearchRec) = 0 then
       try
         repeat
@@ -303,41 +335,51 @@ begin
             Continue;
           end;
 
-          SetLength(VDataBases, I+1);
-          SetLength(VDataBasesArr, I+1);
+          SetLength(VDataBases, VDataBasesCount + 1);
+          VDataBases[VDataBasesCount] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
 
-          VDataBases[I] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
-          VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
-
-          Inc(I);
+          Inc(VDataBasesCount);
         until FindNext(VSearchRec) <> 0;
       finally
         FindClose(VSearchRec);
       end;
 
-      if I = 0 then begin
+      if VDataBasesCount = 0 then begin
         // db is a root folder
         SetLength(VDataBases, 1);
-        VDataBases[I] := FDatabasePath;
-        Inc(I);
+        VDataBases[0] := FDatabasePath;
+        Inc(VDataBasesCount);
+      end;
+
+      SetLength(VDataBasesArr, VDataBasesCount);
+      for I := 0 to VDataBasesCount - 1 do begin
+        VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
       end;
 
       // open
-      if I = 1 then begin
-        if not router.new(FCtx, PAnsiChar(VDataBases[0])) then begin
-          try
-            RiseLibOsmScoutError(FCtx, 'new');
-          finally
-            DeleteCtx;
-          end;
+      VResult := router.opt_new(FOpt);
+      if VResult <> ROUTER_RESULT_OK then begin
+        try
+          RiseLibOsmScoutError(nil, 'opt_new');
+        finally
+          DeleteCtx;
         end;
-      end else begin
-        if not router.new_multi(FCtx, @VDataBasesArr[0], I) then begin
-          try
-            RiseLibOsmScoutError(FCtx, 'new_multi');
-          finally
-            DeleteCtx;
-          end;
+      end;
+
+      VResult := router.opt_set_dbpath(FOpt, @VDataBasesArr[0], VDataBasesCount);
+      if VResult <> ROUTER_RESULT_OK then begin
+        try
+          RiseLibOsmScoutError(nil, 'opt_set_dbpath');
+        finally
+          DeleteCtx;
+        end;
+      end;
+
+      if router.new(FCtx, FOpt) <> ROUTER_RESULT_OK then begin
+        try
+          RiseLibOsmScoutError(FCtx, 'new');
+        finally
+          DeleteCtx;
         end;
       end;
     end;

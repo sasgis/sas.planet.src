@@ -57,7 +57,8 @@ type
       const AOperationID: Integer;
       const ALonLatLine: IGeometryLonLatSingleLine;
       const APointsAggregator: IDoublePointsAggregator;
-      const ABuilder: IGeometryLonLatLineBuilder
+      const ABuilder: IGeometryLonLatLineBuilder;
+      out AErrorMessage: string
     ): Boolean; override;
   end;
 
@@ -174,7 +175,8 @@ function TPathDetalizeProviderOSRM.ProcessSingleLine(
   const AOperationID: Integer;
   const ALonLatLine: IGeometryLonLatSingleLine;
   const APointsAggregator: IDoublePointsAggregator;
-  const ABuilder: IGeometryLonLatLineBuilder
+  const ABuilder: IGeometryLonLatLineBuilder;
+  out AErrorMessage: string
 ): Boolean;
 var
   VRequest: IDownloadRequest;
