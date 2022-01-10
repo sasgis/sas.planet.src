@@ -105,7 +105,8 @@ type
     FCtx: Pointer;
     FLock: TCriticalSection;
     FDatabasePath: AnsiString;
-    FIsInitialized: Boolean;
+    FIsCtxInitialized: Boolean;
+    FIsOptInitialized: Boolean;
 
     FNotifier: INotifierTime;
     FListener: IListenerTimeWithUsedFlag;
@@ -115,6 +116,8 @@ type
 
     procedure ClearCtx; inline;
     procedure DeleteCtx; inline;
+
+    procedure DeleteOpt; inline;
   private
     { IOsmScoutRouteContext }
     function Acquire: Pointer;
@@ -260,7 +263,10 @@ begin
 
   FOpt := nil;
   FCtx := nil;
-  FIsInitialized := False;
+
+  FIsOptInitialized := False;
+  FIsCtxInitialized := False;
+
   FLock := TCriticalSection.Create;
 
   VTimeOut := APathDetalizeConfig.GarbageCollectionTimeOut;
@@ -282,6 +288,8 @@ begin
   end;
 
   DeleteCtx;
+  DeleteOpt;
+
   FreeAndNil(FLock);
 
   inherited Destroy;
@@ -300,6 +308,10 @@ begin
     router.del(FCtx);
     FCtx := nil;
   end;
+end;
+
+procedure TOsmScoutRouteContext.DeleteOpt;
+begin
   if FOpt <> nil then begin
     router.opt_del(FOpt);
     FOpt := nil;
@@ -307,85 +319,91 @@ begin
 end;
 
 function TOsmScoutRouteContext.Acquire: Pointer;
-var
-  I: Integer;
-  VDataBasesCount: Integer;
-  VDataBases: array of AnsiString;
-  VDataBasesArr: array of PAnsiChar;
-  VSearchRec: TSearchRec;
-  VResult: TRouterResult;
+
+  procedure OptInitialize;
+  var
+    I: Integer;
+    VDataBasesCount: Integer;
+    VDataBases: array of AnsiString;
+    VDataBasesArr: array of PAnsiChar;
+    VSearchRec: TSearchRec;
+    VResult: TRouterResult;
+  begin
+    // collect subfolders names
+    VDataBasesCount := 0;
+    if FindFirst(string(FDatabasePath) + '*.*', faAnyFile, VSearchRec) = 0 then
+    try
+      repeat
+        if (VSearchRec.Attr and faDirectory) = 0 then begin
+          // not a folder, ignore it
+          Continue;
+        end;
+
+        if Pos('.', VSearchRec.Name) = 1 then begin
+          // ignore folders beginnig with dot (include "." and "..")
+          Continue;
+        end;
+
+        SetLength(VDataBases, VDataBasesCount + 1);
+        VDataBases[VDataBasesCount] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
+
+        Inc(VDataBasesCount);
+      until FindNext(VSearchRec) <> 0;
+    finally
+      FindClose(VSearchRec);
+    end;
+
+    if VDataBasesCount = 0 then begin
+      // no subfolders found, use root folder as a database
+      SetLength(VDataBases, 1);
+      VDataBases[0] := FDatabasePath;
+      Inc(VDataBasesCount);
+    end;
+
+    SetLength(VDataBasesArr, VDataBasesCount);
+    for I := 0 to VDataBasesCount - 1 do begin
+      VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
+    end;
+
+    // initilize options
+    VResult := router.opt_new(FOpt);
+    if VResult <> ROUTER_RESULT_OK then begin
+      try
+        RiseLibOsmScoutError(nil, 'opt_new');
+      finally
+        DeleteOpt;
+      end;
+    end;
+
+    VResult := router.opt_set_dbpath(FOpt, @VDataBasesArr[0], VDataBasesCount);
+    if VResult <> ROUTER_RESULT_OK then begin
+      try
+        RiseLibOsmScoutError(nil, 'opt_set_dbpath');
+      finally
+        DeleteOpt;
+      end;
+    end;
+
+    FIsOptInitialized := True;
+  end;
+
 begin
   FLock.Acquire;
   try
-    if not FIsInitialized then begin
-      FIsInitialized := True;
+    if not FIsOptInitialized then begin
+      OptInitialize;
+    end;
 
-      // collect db names (folder == db)
-      VDataBasesCount := 0;
-      if FindFirst(string(FDatabasePath) + '*.*', faAnyFile, VSearchRec) = 0 then
-      try
-        repeat
-          if (VSearchRec.Attr and faDirectory) = 0 then begin
-            // ignore all except folders
-            Continue;
-          end;
-
-          if Pos('.', VSearchRec.Name) = 1 then begin
-            // ignore folders beginnig with dot (include "." and "..")
-            Continue;
-          end;
-
-          SetLength(VDataBases, VDataBasesCount + 1);
-          VDataBases[VDataBasesCount] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
-
-          Inc(VDataBasesCount);
-        until FindNext(VSearchRec) <> 0;
-      finally
-        FindClose(VSearchRec);
-      end;
-
-      if VDataBasesCount = 0 then begin
-        // db is a root folder
-        SetLength(VDataBases, 1);
-        VDataBases[0] := FDatabasePath;
-        Inc(VDataBasesCount);
-      end;
-
-      SetLength(VDataBasesArr, VDataBasesCount);
-      for I := 0 to VDataBasesCount - 1 do begin
-        VDataBasesArr[I] := PAnsiChar(VDataBases[I]);
-      end;
-
-      // open
-      VResult := router.opt_new(FOpt);
-      if VResult <> ROUTER_RESULT_OK then begin
-        try
-          RiseLibOsmScoutError(nil, 'opt_new');
-        finally
-          DeleteCtx;
-        end;
-      end;
-
-      VResult := router.opt_set_dbpath(FOpt, @VDataBasesArr[0], VDataBasesCount);
-      if VResult <> ROUTER_RESULT_OK then begin
-        try
-          RiseLibOsmScoutError(nil, 'opt_set_dbpath');
-        finally
-          DeleteCtx;
-        end;
-      end;
-
-      if router.new(FCtx, FOpt) <> ROUTER_RESULT_OK then begin
+    if not FIsCtxInitialized then begin
+      if router.new(FCtx, FOpt) = ROUTER_RESULT_OK then begin
+        FIsCtxInitialized := True;
+      end else begin
         try
           RiseLibOsmScoutError(FCtx, 'new');
         finally
           DeleteCtx;
         end;
       end;
-    end;
-
-    if FCtx = nil then begin
-      raise EPathDetalizeProviderOsmScout.Create('Context is not assigned!');
     end;
 
     Result := FCtx;
@@ -416,7 +434,7 @@ begin
     ClearCtx;
     if FDeleteCtxByTimeOut then begin
       DeleteCtx;
-      FIsInitialized := False;
+      FIsCtxInitialized := False;
     end else begin
       FListener.UpdateUseTime;
       FDeleteCtxByTimeOut := True;
