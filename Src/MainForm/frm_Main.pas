@@ -5011,6 +5011,8 @@ begin
               (HiWord(GetKeyState(VK_CONTROL)) <> 0) then
             begin
               ExtendRoute;
+              movepoint := False;
+              Exit;
             end;
           end;
         end;
