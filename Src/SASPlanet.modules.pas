@@ -28,8 +28,11 @@ interface
 {$I SASPlanet.inc}
 
 uses
-  {$IFDEF USE_FAST_MM}
+  {$IFDEF USE_FAST_MM_4}
   FastMM4,
+  {$ENDIF}
+  {$IFDEF USE_FAST_MM_5}
+  FastMM5,
   {$ENDIF}
   {$IFDEF USE_FAST_MOVE}
   FastMove,
@@ -48,7 +51,7 @@ uses
 
 implementation
 
-{$IF DEFINED(RELEASE) and DEFINED(USE_FAST_MM)}
+{$IF DEFINED(RELEASE) and DEFINED(USE_FAST_MM_4)}
   {$IF CompilerVersion >= 32}
     {$I FastMM4Options.inc}
     {$IFDEF DetectMMOperationsAfterUninstall}
