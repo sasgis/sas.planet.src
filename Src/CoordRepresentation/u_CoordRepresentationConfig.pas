@@ -83,6 +83,9 @@ type
 
 implementation
 
+uses
+  u_CoordRepresentation;
+
 { TCoordRepresentationConfigConfig }
 
 constructor TCoordRepresentationConfig.Create;
@@ -115,7 +118,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FIsLatitudeFirst := AConfigData.ReadBool('FirstLat', FIsLatitudeFirst);
-    FDegrShowFormat := TDegrShowFormat(AConfigData.ReadInteger('DegrisShowFormat', Integer(FDegrShowFormat)));
+    FDegrShowFormat := IdToDegrShowFormat(AConfigData.ReadInteger('DegrisShowFormat', DegrShowFormatToId(FDegrShowFormat)));
     FCoordSysType := TCoordSysType(AConfigData.ReadInteger('CoordSysType', Integer(FCoordSysType)));
     FCoordSysInfoType := TCoordSysInfoType(AConfigData.ReadInteger('CoordSysInfoType', Integer(FCoordSysInfoType)));
     SetChanged;
@@ -128,7 +131,7 @@ procedure TCoordRepresentationConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteBool('FirstLat', FIsLatitudeFirst);
-  AConfigData.WriteInteger('DegrisShowFormat', Integer(FDegrShowFormat));
+  AConfigData.WriteInteger('DegrisShowFormat', DegrShowFormatToId(FDegrShowFormat));
   AConfigData.WriteInteger('CoordSysType', Integer(FCoordSysType));
   AConfigData.WriteInteger('CoordSysInfoType', Integer(FCoordSysInfoType));
 end;

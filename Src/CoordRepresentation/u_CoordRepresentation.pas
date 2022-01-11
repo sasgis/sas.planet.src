@@ -32,6 +32,9 @@ type
 
 function GetDegrShowFormatCaption: TDegrShowFormatCaption;
 
+function DegrShowFormatToId(const AValue: TDegrShowFormat): Integer;
+function IdToDegrShowFormat(const AValue: Integer): TDegrShowFormat;
+
 implementation
 
 function GetDegrShowFormatCaption: TDegrShowFormatCaption;
@@ -44,6 +47,30 @@ begin
   Result[dshSignDegrMin]    := _('-- deg.min. (-12°12.1234'')');
   Result[dshSignDegr]       := _('-- deg. (-12.12345678°)');
   Result[dshSignDegr2]      := _('-- deg. (-12.12345678)');
+end;
+
+const
+  CDegrShowFormatId: array[TDegrShowFormat] of Integer = (
+    0, 1, 2, 21, 3, 4, 5, 6
+  );
+
+function DegrShowFormatToId(const AValue: TDegrShowFormat): Integer;
+begin
+  Result := CDegrShowFormatId[AValue];
+end;
+
+function IdToDegrShowFormat(const AValue: Integer): TDegrShowFormat;
+var
+  I: TDegrShowFormat;
+begin
+  for I := Low(TDegrShowFormat) to High(TDegrShowFormat) do begin
+    if CDegrShowFormatId[I] = AValue then begin
+      Result := I;
+      Exit;
+    end;
+  end;
+
+  Result := Low(TDegrShowFormat);
 end;
 
 end.
