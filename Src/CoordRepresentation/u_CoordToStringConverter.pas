@@ -118,6 +118,7 @@ var
   VDegr: Double;
   VInt: Int64;
   VValue: Int64;
+  VCurr, VEnd: PChar;
 begin
   Result := '';
   VDegr := Abs(ADegr);
@@ -171,17 +172,31 @@ begin
       end;
     end;
 
-    dshCharDegr, dshSignDegr: begin
-      Result := FloatToStr('0.00000000', VDegr) + '°';
+    dshCharDegr, dshCharDegr2, dshSignDegr, dshSignDegr2: begin
+      Result := FloatToStr('0.00000000', VDegr);
+
       if ACutZero then begin
-        // 12.3450000° -> 12.345°
-        while Copy(Result, Length(Result) - 1, 2) = '0°' do begin
-          Result := ReplaceStr(Result, '0°', '°');
+        VEnd := Pointer(Result);
+        Inc(VEnd, Length(Result) - 1);
+        VCurr := VEnd;
+
+        // 12.3450000 -> 12.345
+        while VCurr^ = '0' do begin
+          Dec(VCurr);
         end;
-        // 12.° -> 12°
-        if Copy(Result, Length(Result) - 1, 2) = '.°' then begin
-          Result := ReplaceStr(Result, '.°', '°');
+
+        // 12. -> 12
+        if VCurr^ = '.' then begin
+          Dec(VCurr);
         end;
+
+        if VCurr <> VEnd then begin
+          SetLength(Result, Length(Result) - (VEnd - VCurr));
+        end;
+      end;
+
+      if FDegrShowFormat in [dshCharDegr, dshSignDegr] then begin
+        Result := Result + '°';
       end;
     end;
   else
@@ -194,7 +209,7 @@ end;
 function TCoordToStringConverter.GetLatitudeMarker(const ADegr: Double): string;
 begin
   case FDegrShowFormat of
-    dshCharDegrMinSec, dshCharDegrMin, dshCharDegr: begin
+    dshCharDegrMinSec, dshCharDegrMin, dshCharDegr, dshCharDegr2: begin
       if ADegr > 0 then begin
         Result := FNorthMarker;
       end else if ADegr < 0 then begin
@@ -203,7 +218,7 @@ begin
         Result := '';
       end;
     end;
-    dshSignDegrMinSec, dshSignDegrMin, dshSignDegr: begin
+    dshSignDegrMinSec, dshSignDegrMin, dshSignDegr, dshSignDegr2: begin
       if ADegr >= 0 then begin
         Result := '';
       end else begin
@@ -216,7 +231,7 @@ end;
 function TCoordToStringConverter.GetLongitudeMarker(const ADegr: Double): string;
 begin
   case FDegrShowFormat of
-    dshCharDegrMinSec, dshCharDegrMin, dshCharDegr: begin
+    dshCharDegrMinSec, dshCharDegrMin, dshCharDegr, dshCharDegr2: begin
       if ADegr > 0 then begin
         Result := FEastMarker;
       end else if ADegr < 0 then begin
@@ -225,7 +240,7 @@ begin
         Result := '';
       end;
     end;
-    dshSignDegrMinSec, dshSignDegrMin, dshSignDegr: begin
+    dshSignDegrMinSec, dshSignDegrMin, dshSignDegr, dshSignDegr2: begin
       if ADegr >= 0 then begin
         Result := '';
       end else begin

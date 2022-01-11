@@ -25,12 +25,14 @@ interface
 
 type
   TDegrShowFormat = (
-    dshCharDegrMinSec = 0,
-    dshCharDegrMin = 1,
-    dshCharDegr = 2,
-    dshSignDegrMinSec = 3,
-    dshSignDegrMin = 4,
-    dshSignDegr = 5
+    dshCharDegrMinSec,
+    dshCharDegrMin,
+    dshCharDegr,
+    dshCharDegr2,
+    dshSignDegrMinSec,
+    dshSignDegrMin,
+    dshSignDegr,
+    dshSignDegr2
   );
 
   TCoordSysType = (

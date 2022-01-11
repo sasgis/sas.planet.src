@@ -36,12 +36,14 @@ implementation
 
 function GetDegrShowFormatCaption: TDegrShowFormatCaption;
 begin
-  Result[TDegrShowFormat(0)] := _('WS deg.min.sec. (W12°12''12.1234")');
-  Result[TDegrShowFormat(1)] := _('WS deg.min. (W12°12.123456'')');
-  Result[TDegrShowFormat(2)] := _('WS deg. (W12.12345678°)');
-  Result[TDegrShowFormat(3)] := _('-- deg.min.sec. (-12°12''12.1234")');
-  Result[TDegrShowFormat(4)] := _('-- deg.min. (-12°12.1234'')');
-  Result[TDegrShowFormat(5)] := _('-- deg. (-12.12345678°)');
+  Result[dshCharDegrMinSec] := _('WS deg.min.sec. (W12°12''12.1234")');
+  Result[dshCharDegrMin]    := _('WS deg.min. (W12°12.123456'')');
+  Result[dshCharDegr]       := _('WS deg. (W12.12345678°)');
+  Result[dshCharDegr2]      := _('WS deg. (W12.12345678)');
+  Result[dshSignDegrMinSec] := _('-- deg.min.sec. (-12°12''12.1234")');
+  Result[dshSignDegrMin]    := _('-- deg.min. (-12°12.1234'')');
+  Result[dshSignDegr]       := _('-- deg. (-12.12345678°)');
+  Result[dshSignDegr2]      := _('-- deg. (-12.12345678)');
 end;
 
 end.

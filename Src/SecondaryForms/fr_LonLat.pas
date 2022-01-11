@@ -339,6 +339,7 @@ begin
         ShowMessage(SAS_ERR_CoordinatesInput);
       end;
     end;
+
     1: begin
       try
         XYPoint.X := strtoint(edtX.Text);
@@ -356,6 +357,7 @@ begin
         VLonLat := VProjection.PixelPosFloat2LonLat(XYPoint);
       end;
     end;
+
     2: begin
       try
         VTile.X := strtoint(edtX.Text);
@@ -385,6 +387,8 @@ begin
         VLonLat := VProjection.TilePosFloat2LonLat(XYPoint);
       end;
     end;
+  else
+    Assert(False);
   end;
   if Result then begin
     FCoordinates := VLonLat;
