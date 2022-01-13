@@ -51,7 +51,7 @@ end;
 
 const
   CDegrShowFormatId: array[TDegrShowFormat] of Integer = (
-    0, 1, 2, 21, 3, 4, 5, 6
+    0, 1, 2, 21, 3, 4, 5, 51
   );
 
 function DegrShowFormatToId(const AValue: TDegrShowFormat): Integer;
