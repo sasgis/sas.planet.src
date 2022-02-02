@@ -208,7 +208,7 @@ begin
 
     case VResult of
       ROUTER_RESULT_OK: begin
-        APointsAggregator.AddPoints(PDoublePointArray(VRoutePoint), VCount);
+        APointsAggregator.AddPoints(PDoublePointArray(VRoutePoint), nil, VCount);
       end;
 
       ROUTER_RESULT_NODATA_START: begin

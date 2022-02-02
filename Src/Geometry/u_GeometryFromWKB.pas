@@ -129,7 +129,8 @@ begin
   end;
   GetMem(VBuffer, VCount * SizeOf(TDoublePoint));
   AStream.ReadBuffer(VBuffer[0], VCount * SizeOf(TDoublePoint));
-  Result := TDoublePoints.CreateWithOwn(VBuffer, VCount);
+  // TODO: Use Meta
+  Result := TDoublePoints.CreateWithOwn(VBuffer, nil, VCount);
 end;
 
 function TGeometryFromWKB.LoadMultiLine(
@@ -274,7 +275,7 @@ begin
   end;
   GetMem(VBuffer, VCount * SizeOf(TDoublePoint));
   AStream.ReadBuffer(VBuffer[0], VCount * SizeOf(TDoublePoint));
-  Result := TDoublePoints.CreateWithOwn(VBuffer, VCount);
+  Result := TDoublePoints.CreateWithOwn(VBuffer, nil, VCount);
 end;
 
 function TGeometryFromWKB.Parse(

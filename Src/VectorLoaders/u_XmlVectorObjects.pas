@@ -195,6 +195,7 @@ end;
 
 procedure TXmlVectorObjects.AddTrackPoint(const APoint: TDoublePoint);
 begin
+  // TODO: Use Meta
   FDoublePointsAggregator.Add(APoint);
 end;
 
@@ -803,7 +804,7 @@ begin
         VPoint.X := VData.lon1;
         VPoint.Y := VData.lat0;
         // add to array
-        FDoublePointsAggregator.Add(VPoint);
+        FDoublePointsAggregator.Add(VPoint, nil); // TODO: Use Meta
         Inc(Result);
       end;
     end;

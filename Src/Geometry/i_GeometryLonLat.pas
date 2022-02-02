@@ -77,6 +77,9 @@ type
 
     function GetPoints: PDoublePointArray;
     property Points: PDoublePointArray read GetPoints;
+
+    function GetMeta: PDoublePointsMeta;
+    property Meta: PDoublePointsMeta read GetMeta;
   end;
 
   IGeometryLonLatMultiLine = interface(IGeometryLonLatLine)

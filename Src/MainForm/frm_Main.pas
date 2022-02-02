@@ -6233,15 +6233,16 @@ procedure TfrmMain.ExtendRoute;
     VAggregator := TDoublePointsAggregator.Create(APath.Count);
 
     if VCountBefore > 0 then begin
-      VAggregator.AddPoints(@VPoints[0], VCountBefore);
+      // TODO: Use Meta
+      VAggregator.AddPoints(@VPoints[0], nil, VCountBefore);
     end;
 
     if Supports(ARoute, IGeometryLonLatSingleLine, VSingle) then begin
-      VAggregator.AddPoints(VSingle.Points, VSingle.Count);
+      VAggregator.AddPoints(VSingle.Points, nil, VSingle.Count);
     end else if Supports(ARoute, IGeometryLonLatMultiLine, VMulti) then begin
       for I := 0 to VMulti.Count - 1 do begin
         VSingle := VMulti.Item[I];
-        VAggregator.AddPoints(VSingle.Points, VSingle.Count);
+        VAggregator.AddPoints(VSingle.Points, nil, VSingle.Count);
         VAggregator.Add(CEmptyDoublePoint);
       end;
     end else begin
@@ -6249,7 +6250,8 @@ procedure TfrmMain.ExtendRoute;
     end;
 
     if VCountAfter > 0 then begin
-      VAggregator.AddPoints(@VPoints[APath.GetSelectedPointIndex], VCountAfter);
+      // TODO: Use Meta
+      VAggregator.AddPoints(@VPoints[APath.GetSelectedPointIndex], nil, VCountAfter);
       VSelectedPoint := VAggregator.Points[(VAggregator.Count - 1) - (VCountAfter - 1)];
     end else begin
       if VAggregator.Count > 0 then begin

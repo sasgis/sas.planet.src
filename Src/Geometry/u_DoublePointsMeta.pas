@@ -19,60 +19,69 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit t_GeoTypes;
+unit u_DoublePointsMeta;
 
 interface
 
 uses
-  Types;
+  t_GeoTypes;
 
-type
-  TPointRounding = (prClosest, prToTopLeft, prToBottomRight);
-  TRectRounding = (rrClosest, rrOutside, rrInside, rrToTopLeft);
-  TRectWithPolygonIntersection = (rwpNoIntersect, rwpIntersectPartial, rwpRectInPolygon, rwpPolygonInRect);
+function CopyMeta(
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer;
+  const AStartIndex: Integer = 0
+): PDoublePointsMeta;
 
-  PDoublePoint = ^TDoublePoint;
-
-  TDoublePoint = packed record
-    X, Y: Double;
-  end;
-
-  TDoubleRect = packed record
-    case Integer of
-      0: (Left, Top: Double;
-        Right, Bottom: Double);
-      1: (TopLeft, BottomRight: TDoublePoint);
-  end;
-
-  PPointArray = ^TPointArray;
-  TPointArray = array [0..0] of TPoint;
-  PArrayOfPoint = ^TArrayOfPoint;
-  TArrayOfPoint = array of TPoint;
-
-  PDoublePointArray = ^TDoublePointArray;
-  TDoublePointArray = array [0..0] of TDoublePoint;
-
-  TArrayOfDouble = array [0..0] of Double;
-  PArrayOfDouble = ^TArrayOfDouble;
-
-  TArrayOfDateTime = array [0..0] of TDateTime;
-  PArrayOfDateTime = ^TArrayOfDateTime;
-
-  TDoublePointsMeta = packed record
-    Elevation: PArrayOfDouble;
-    TimeStamp: PArrayOfDateTime;
-  end;
-  PDoublePointsMeta = ^TDoublePointsMeta;
-
-  TDoublePointsMetaItem = record
-    IsElevationOk: Boolean;
-    IsTimeStampOk: Boolean;
-
-    Elevation: Double;
-    TimeStamp: TDateTime;
-  end;
-  PDoublePointsMetaItem = ^TDoublePointsMetaItem;
+function CreateMeta: PDoublePointsMeta;
+procedure FreeAndNilMeta(var AMeta: PDoublePointsMeta);
 
 implementation
+
+function CreateMeta: PDoublePointsMeta;
+begin
+  GetMem(Result, SizeOf(TDoublePointsMeta));
+
+  Result.Elevation := nil;
+  Result.TimeStamp := nil;
+end;
+
+procedure FreeAndNilMeta(var AMeta: PDoublePointsMeta);
+begin
+  if AMeta = nil then begin
+    Exit;
+  end;
+
+  FreeMem(AMeta.Elevation);
+  FreeMem(AMeta.TimeStamp);
+
+  FreeMem(AMeta);
+  AMeta := nil;
+end;
+
+function CopyMeta(
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer;
+  const AStartIndex: Integer
+): PDoublePointsMeta;
+var
+  VSize: Integer;
+begin
+  Assert(AMeta <> nil);
+  Assert(ACount > 0);
+
+  Result := CreateMeta;
+
+  if AMeta.Elevation <> nil then begin
+    VSize := ACount * SizeOf(AMeta.Elevation[0]);
+    GetMem(Result.Elevation, VSize);
+    Move(AMeta.Elevation[AStartIndex], Result.Elevation[0], VSize);
+  end;
+
+  if AMeta.TimeStamp <> nil then begin
+    VSize := ACount * SizeOf(AMeta.TimeStamp[0]);
+    GetMem(Result.TimeStamp, VSize);
+    Move(AMeta.TimeStamp[AStartIndex], Result.TimeStamp[0], VSize);
+  end;
+end;
 
 end.

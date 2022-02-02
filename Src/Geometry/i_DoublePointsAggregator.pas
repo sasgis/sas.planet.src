@@ -30,25 +30,34 @@ uses
 type
   IDoublePointsAggregator = interface
     ['{2B653087-1769-4C76-A880-17A2E27BD282}']
-    procedure Add(const APoint: TDoublePoint);
+    procedure Add(
+      const APoint: TDoublePoint;
+      const AMetaItem: PDoublePointsMetaItem = nil
+    );
     procedure AddPoints(
       const APoints: PDoublePointArray;
+      const AMeta: PDoublePointsMeta;
       const ACount: Integer
     );
+
     procedure Insert(
       const AIndex: Integer;
-      const APoint: TDoublePoint
+      const APoint: TDoublePoint;
+      const AMetaItem: PDoublePointsMetaItem = nil
     );
     procedure InsertPoints(
       const AIndex: Integer;
       const APoints: PDoublePointArray;
+      const AMeta: PDoublePointsMeta;
       const ACount: Integer
     );
+
     procedure Delete(const AIndex: Integer);
     procedure DeletePoints(
       const AIndex: Integer;
       const ACount: Integer
     );
+
     procedure Clear;
 
     function GetCount: Integer;
@@ -56,6 +65,9 @@ type
 
     function GetPoints: PDoublePointArray;
     property Points: PDoublePointArray read GetPoints;
+
+    function GetMeta: PDoublePointsMeta;
+    property Meta: PDoublePointsMeta read GetMeta;
 
     function MakeStaticAndClear: IDoublePoints;
     function MakeStaticCopy: IDoublePoints;

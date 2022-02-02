@@ -63,6 +63,7 @@ type
     function GetHash: THashValue;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
+    function GetMeta: PDoublePointsMeta;
   public
     constructor Create(
       AClosed: Boolean;
@@ -201,6 +202,11 @@ end;
 function TGeometryLonLatBase.GetPoints: PDoublePointArray;
 begin
   Result := FPoints.Points;
+end;
+
+function TGeometryLonLatBase.GetMeta: PDoublePointsMeta;
+begin
+  Result := FPoints.Meta;
 end;
 
 { TGeometryLonLatMultiPoint }

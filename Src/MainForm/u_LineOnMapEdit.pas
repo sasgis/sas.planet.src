@@ -624,12 +624,12 @@ var
 begin
   FPoints.Clear;
   if Supports(AValue, IGeometryLonLatSingleLine, VLine) then begin
-    FPoints.AddPoints(VLine.Points, VLine.Count);
+    FPoints.AddPoints(VLine.Points, VLine.Meta, VLine.Count);
     FPoints.Add(CEmptyDoublePoint);
   end else if Supports(AValue, IGeometryLonLatMultiLine, VMultiLine) then begin
     for i := 0 to VMultiLine.Count - 1 do begin
       VLine := VMultiLine.Item[i];
-      FPoints.AddPoints(VLine.Points, VLine.Count);
+      FPoints.AddPoints(VLine.Points, VLine.Meta, VLine.Count);
       FPoints.Add(CEmptyDoublePoint);
     end;
   end;
@@ -662,7 +662,8 @@ begin
     VPoint := APoints[i];
     if PointIsEmpty(VPoint) then begin
       if VLineLen > 0 then begin
-        VPoints := TDoublePoints.Create(VStart, VLineLen);
+        // TODO: Use Meta
+        VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
         FBuilder.AddLine(VLineBounds, VPoints);
         VLineLen := 0;
       end;
@@ -678,7 +679,8 @@ begin
     end;
   end;
   if VLineLen > 0 then begin
-    VPoints := TDoublePoints.Create(VStart, VLineLen);
+    // TODO: Use Meta
+    VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
     FBuilder.AddLine(VLineBounds, VPoints);
   end;
   Result := FBuilder.MakeStaticAndClear;
@@ -773,7 +775,7 @@ end;
 
 procedure TPolygonOnMapEdit._AddContour(const AValue: IGeometryLonLatContour);
 begin
-  FPoints.AddPoints(AValue.Points, AValue.Count);
+  FPoints.AddPoints(AValue.Points, nil, AValue.Count);
   FPoints.Add(CEmptyDoublePoint);
 end;
 
@@ -848,7 +850,7 @@ begin
       Inc(VLineLen);
     end else begin
       if VLineLen > 0 then begin
-        VPoints := TDoublePoints.Create(VStart, VLineLen);
+        VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
         if VIsOuter then begin
           FBuilder.AddOuter(VLineBounds, VPoints);
         end else begin
@@ -860,7 +862,7 @@ begin
     end;
   end;
   if VLineLen > 0 then begin
-    VPoints := TDoublePoints.Create(VStart, VLineLen);
+    VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
     if VIsOuter then begin
       FBuilder.AddOuter(VLineBounds, VPoints);
     end else begin

@@ -610,7 +610,7 @@ begin
         TGeometryLonLatSinglePolygon.Create(
           FReadyOuterContour.Bounds,
           FReadyOuterContour.Hash,
-          TDoublePoints.Create(FReadyOuterContour.Points, FReadyOuterContour.Count)
+          TDoublePoints.Create(FReadyOuterContour.Points, nil, FReadyOuterContour.Count)
         );
     end else begin
       Result :=
@@ -880,7 +880,8 @@ begin
     VPoint := APoints[i];
     if PointIsEmpty(VPoint) then begin
       if VLineLen > 0 then begin
-        VPoints := TDoublePoints.Create(VStart, VLineLen);
+        // TODO: Use Meta
+        VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
         VBuilder.AddLine(VLineBounds, VPoints);
         VLineLen := 0;
       end;
@@ -896,7 +897,8 @@ begin
     end;
   end;
   if VLineLen > 0 then begin
-    VPoints := TDoublePoints.Create(VStart, VLineLen);
+    // TODO: Use Meta
+    VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
     VBuilder.AddLine(VLineBounds, VPoints);
   end;
   Result := VBuilder.MakeStaticAndClear;
@@ -957,7 +959,7 @@ begin
       VBounds := LonLatMBRByPoints(APoints, ACount);
       VHash := FHashFunction.CalcHashByBuffer(APoints, ACount * SizeOf(TDoublePoint));
       VRect := TLonLatRect.Create(VBounds);
-      VPoints := TDoublePoints.Create(APoints, ACount);
+      VPoints := TDoublePoints.Create(APoints, nil, ACount);
       Result := TGeometryLonLatMultiPoint.Create(VRect, VHash, VPoints);
     end;
   end;
@@ -995,7 +997,7 @@ begin
     VPoint := APoints[i];
     if PointIsEmpty(VPoint) then begin
       if VLineLen > 0 then begin
-        VPoints := TDoublePoints.Create(VStart, VLineLen);
+        VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
         VBuilder.AddOuter(VLineBounds, VPoints);
         VLineLen := 0;
       end;
@@ -1011,7 +1013,7 @@ begin
     end;
   end;
   if VLineLen > 0 then begin
-    VPoints := TDoublePoints.Create(VStart, VLineLen);
+    VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
     VBuilder.AddOuter(VLineBounds, VPoints);
   end;
   Result := VBuilder.MakeStaticAndClear;
@@ -1096,7 +1098,7 @@ begin
   VPointsArray[2] := ARect.BottomRight;
   VPointsArray[3].X := ARect.Left;
   VPointsArray[3].Y := ARect.Bottom;
-  VPoints := TDoublePoints.Create(@VPointsArray[0], 4);
+  VPoints := TDoublePoints.Create(@VPointsArray[0], nil, 4);
   Result := CreateLonLatPolygonInternal(ARect, VPoints);
 end;
 

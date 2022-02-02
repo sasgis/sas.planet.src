@@ -33,16 +33,21 @@ type
   private
     FCount: Integer;
     FPoints: PDoublePointArray;
+    FMeta: PDoublePointsMeta;
   private
+    { IDoublePoints }
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
+    function GetMeta: PDoublePointsMeta;
   public
     constructor CreateWithOwn(
       const APoints: PDoublePointArray;
+      const AMeta: PDoublePointsMeta;
       const ACount: Integer
     );
     constructor Create(
       const APoints: PDoublePointArray;
+      const AMeta: PDoublePointsMeta;
       const ACount: Integer
     );
     destructor Destroy; override;
@@ -50,10 +55,14 @@ type
 
 implementation
 
+uses
+  u_DoublePointsMeta;
+
 { TDoublePoints }
 
 constructor TDoublePoints.Create(
   const APoints: PDoublePointArray;
+  const AMeta: PDoublePointsMeta;
   const ACount: Integer
 );
 var
@@ -61,18 +70,25 @@ var
 begin
   Assert(Assigned(APoints));
   Assert(ACount > 0);
+
   FCount := ACount;
+  FPoints := nil;
+  FMeta := nil;
+
   if FCount > 0 then begin
     VSize := FCount * SizeOf(TDoublePoint);
     GetMem(FPoints, VSize);
     Move(APoints[0], FPoints[0], VSize);
-  end else begin
-    FPoints := nil;
+
+    if AMeta <> nil then begin
+      FMeta := CopyMeta(AMeta, FCount);
+    end;
   end;
 end;
 
 constructor TDoublePoints.CreateWithOwn(
   const APoints: PDoublePointArray;
+  const AMeta: PDoublePointsMeta;
   const ACount: Integer
 );
 begin
@@ -81,15 +97,18 @@ begin
   FCount := ACount;
   if FCount > 0 then begin
     FPoints := APoints;
+    FMeta := AMeta;
   end else begin
     FPoints := nil;
+    FMeta := nil;
   end;
 end;
 
 destructor TDoublePoints.Destroy;
 begin
   FreeMem(FPoints);
-  inherited;
+  FreeAndNilMeta(FMeta);
+  inherited Destroy;
 end;
 
 function TDoublePoints.GetCount: Integer;
@@ -100,6 +119,11 @@ end;
 function TDoublePoints.GetPoints: PDoublePointArray;
 begin
   Result := FPoints;
+end;
+
+function TDoublePoints.GetMeta: PDoublePointsMeta;
+begin
+  Result := FMeta;
 end;
 
 end.

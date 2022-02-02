@@ -215,7 +215,7 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
       VPointsArray[I].X := APath[I].X / FIntToDoubleCoeff;
       VPointsArray[I].Y := APath[I].Y / FIntToDoubleCoeff;
     end;
-    Result := TDoublePoints.CreateWithOwn(VPointsArray, VCount);
+    Result := TDoublePoints.CreateWithOwn(VPointsArray, nil, VCount);
   end;
 
   procedure _ProcessNode(const ANode: TPolyNode);

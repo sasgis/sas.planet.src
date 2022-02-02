@@ -318,6 +318,8 @@ uses
   i_ProjectedCalc in 'Src\Geometry\i_ProjectedCalc.pas',
   u_DoublePoints in 'Src\Geometry\u_DoublePoints.pas',
   u_DoublePointsAggregator in 'Src\Geometry\u_DoublePointsAggregator.pas',
+  u_DoublePointsMeta in 'Src\Geometry\u_DoublePointsMeta.pas',
+  u_DoublePointsMetaAggregator in 'Src\Geometry\u_DoublePointsMetaAggregator.pas',
   u_EnumDoublePointByLineSet in 'Src\Geometry\u_EnumDoublePointByLineSet.pas',
   u_EnumDoublePointBySingleLine in 'Src\Geometry\u_EnumDoublePointBySingleLine.pas',
   u_EnumDoublePointClipInternal in 'Src\Geometry\u_EnumDoublePointClipInternal.pas',

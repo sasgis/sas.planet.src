@@ -553,7 +553,7 @@ begin
     VPointsArray[I].X := APath[I].X / FIntToDoubleCoeff;
     VPointsArray[I].Y := APath[I].Y / FIntToDoubleCoeff;
   end;
-  Result := TDoublePoints.CreateWithOwn(VPointsArray, VCount);
+  Result := TDoublePoints.CreateWithOwn(VPointsArray, nil, VCount);
 end;
 
 function TMergePolygonsProcessor.GetCurTime: Int64;
