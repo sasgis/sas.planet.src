@@ -114,8 +114,8 @@ type
     function Color32toKMLColor(Color32: TColor32): AnsiString; inline;
     procedure PrepareExportToFile(const AFileName: string);
     procedure SaveToFile;
-    function GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString; inline;
-    function PointToKml(const APoint: TDoublePoint): AnsiString; inline;
+    function GetKmlCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString; inline;
+    function PointToKml(const APoint: TDoublePoint; const AElevation: Double = 0): AnsiString; inline;
   public
     constructor Create(
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -375,7 +375,7 @@ begin
   currNode := inNode.AddChild('LineString');
   currNode.ChildNodes['extrude'].Text := '1';
   if AGeometry.Count > 1 then begin
-    VCoordinates := GetKMLCoordinates(AGeometry.GetEnum);
+    VCoordinates := GetKmlCoordinates(AGeometry.GetEnum);
   end else begin
     VCoordinates := PointToKml(AGeometry.Points[0]);
     VCoordinates := VCoordinates + VCoordinates;
@@ -436,7 +436,7 @@ begin
   end;
   currNode := currNode.AddChild('LinearRing');
   if AGeometry.Count > 2 then begin
-    VCoordinates := GetKMLCoordinates(AGeometry.GetEnum);
+    VCoordinates := GetKmlCoordinates(AGeometry.GetEnum);
   end else if AGeometry.Count > 1 then begin
     VFirst := Addr(AGeometry.Points[0]);
     VSecond := VFirst;
@@ -718,24 +718,43 @@ begin
   end;
 end;
 
-function TExportMarks2KML.GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString;
+function TExportMarks2KML.GetKmlCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString;
 var
   VPoint: TDoublePoint;
+  VMeta: TDoublePointsMetaItem;
+  VElevation: Double;
 begin
   Result := '';
-  while APointEnum.Next(VPoint) do begin
-    Result := Result + PointToKml(VPoint);
+  while APointEnum.Next(VPoint, VMeta) do begin
+    if VMeta.IsElevationOk then begin
+      VElevation := VMeta.Elevation;
+    end else begin
+      VElevation := 0;
+    end;
+    // ToDo: Use StringBuilder
+    Result := Result + PointToKml(VPoint, VElevation);
   end;
 end;
 
-function TExportMarks2KML.PointToKml(const APoint: TDoublePoint): AnsiString;
+function TExportMarks2KML.PointToKml(const APoint: TDoublePoint; const AElevation: Double): AnsiString;
+var
+  VElevation: AnsiString;
 begin
+  if AElevation <> 0 then begin
+    VElevation := RoundExAnsi(AElevation, 1);
+  end else begin
+    VElevation := '0';
+  end;
   if FConfig.UseCoordFormatting then begin
     Result :=
       RoundExAnsi(APoint.X, FConfig.CoordPrecision) + ',' +
-      RoundExAnsi(APoint.Y, FConfig.CoordPrecision) + ',0 ';
+      RoundExAnsi(APoint.Y, FConfig.CoordPrecision) + ',' +
+      VElevation + ' ';
   end else begin
-    Result := R2AnsiStrPoint(APoint.X) + ',' + R2AnsiStrPoint(APoint.Y) + ',0 ';
+    Result :=
+      R2AnsiStrPoint(APoint.X) + ',' +
+      R2AnsiStrPoint(APoint.Y) + ',' +
+      VElevation + ' ';
   end;
 end;
 

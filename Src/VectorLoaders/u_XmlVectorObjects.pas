@@ -781,6 +781,7 @@ var
   VCoordLine: string;
   VData: TCoordLineData;
   VPoint: TDoublePoint;
+  VMeta: TDoublePointsMetaItem;
 begin
   Result := 0;
   VPosPrev := 0;
@@ -803,8 +804,19 @@ begin
       if parse_kml_coordinate(VCoordLine, @VData, FFormatPtr^) then begin
         VPoint.X := VData.lon1;
         VPoint.Y := VData.lat0;
+
+        VMeta.IsElevationOk := VData.ele_ok;
+        VMeta.IsTimeStampOk := VData.dt_ok;
+
+        if VMeta.IsElevationOk then begin
+          VMeta.Elevation := VData.ele;
+        end;
+        if VMeta.IsTimeStampOk then begin
+          VMeta.TimeStamp := VData.dt;
+        end;
+
         // add to array
-        FDoublePointsAggregator.Add(VPoint, nil); // TODO: Use Meta
+        FDoublePointsAggregator.Add(VPoint, @VMeta);
         Inc(Result);
       end;
     end;
