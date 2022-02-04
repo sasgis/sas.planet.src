@@ -27,14 +27,15 @@ uses
   t_GeoTypes,
   i_DoublePointFilter,
   i_EnumDoublePoint,
+  u_EnumDoublePointAbstract,
   u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointClipByRect = class(TBaseInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointClipByRect = class(TEnumDoublePointAbstract)
   private
     FEnum: IEnumDoublePoint;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       AClosed: Boolean;

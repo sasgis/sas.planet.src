@@ -320,6 +320,7 @@ uses
   u_DoublePointsAggregator in 'Src\Geometry\u_DoublePointsAggregator.pas',
   u_DoublePointsMeta in 'Src\Geometry\u_DoublePointsMeta.pas',
   u_DoublePointsMetaAggregator in 'Src\Geometry\u_DoublePointsMetaAggregator.pas',
+  u_EnumDoublePointAbstract in 'Src\Geometry\u_EnumDoublePointAbstract.pas',
   u_EnumDoublePointByLineSet in 'Src\Geometry\u_EnumDoublePointByLineSet.pas',
   u_EnumDoublePointBySingleLine in 'Src\Geometry\u_EnumDoublePointBySingleLine.pas',
   u_EnumDoublePointClipInternal in 'Src\Geometry\u_EnumDoublePointClipInternal.pas',

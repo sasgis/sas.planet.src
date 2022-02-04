@@ -26,18 +26,18 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  u_BaseInterfacedObject;
+  u_EnumDoublePointAbstract;
 
 type
-  TEnumDoublePointBySingleLineBase = class(TBaseInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointBySingleLineBase = class(TEnumDoublePointAbstract)
   private
     FSourceLine: IInterface;
     FClosed: Boolean;
     FPoints: PDoublePointArray;
     FCount: Integer;
     FIndex: Integer;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       const ADataOwner: IInterface;

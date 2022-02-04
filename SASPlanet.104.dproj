@@ -201,7 +201,7 @@
             <Deployment Version="3">
                 <DeployFile LocalName=".bin\SASPlanet.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>SASPlanet_Rio.exe</RemoteName>
+                        <RemoteName>SASPlanet_104.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1499,6 +1499,8 @@
         <DCCReference Include="Src\Geometry\i_ProjectedCalc.pas"/>
         <DCCReference Include="Src\Geometry\u_DoublePoints.pas"/>
         <DCCReference Include="Src\Geometry\u_DoublePointsAggregator.pas"/>
+        <DCCReference Include="Src\Geometry\u_DoublePointsMeta.pas"/>
+        <DCCReference Include="Src\Geometry\u_DoublePointsMetaAggregator.pas"/>
         <DCCReference Include="Src\Geometry\u_EnumDoublePointByLineSet.pas"/>
         <DCCReference Include="Src\Geometry\u_EnumDoublePointBySingleLine.pas"/>
         <DCCReference Include="Src\Geometry\u_EnumDoublePointClipInternal.pas"/>
@@ -2858,7 +2860,6 @@
         <DCCReference Include="Src\u_HashInterfaceCache2Q.pas"/>
         <DCCReference Include="Src\u_HtmlDoc.pas"/>
         <DCCReference Include="Src\u_HtmlToHintTextConverterStuped.pas"/>
-        <DCCReference Include="Src\u_ImportFromArcGIS.pas"/>
         <DCCReference Include="Src\u_InterfaceQueue.pas"/>
         <DCCReference Include="Src\u_LanguageListStatic.pas"/>
         <DCCReference Include="Src\u_ListenerNotifierLinksList.pas"/>
@@ -2909,8 +2910,7 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\Geometry\u_DoublePointsMetaAggregator.pas"/>
-        <DCCReference Include="Src\Geometry\u_DoublePointsMeta.pas"/>
+        <DCCReference Include="Src\Geometry\u_EnumDoublePointAbstract.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

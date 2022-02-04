@@ -35,6 +35,8 @@ function CopyMeta(
 function CreateMeta: PDoublePointsMeta;
 procedure FreeAndNilMeta(var AMeta: PDoublePointsMeta);
 
+procedure ResetMetaItem(var AItem: TDoublePointsMetaItem); inline;
+
 implementation
 
 function CreateMeta: PDoublePointsMeta;
@@ -81,6 +83,14 @@ begin
     VSize := ACount * SizeOf(AMeta.TimeStamp[0]);
     GetMem(Result.TimeStamp, VSize);
     Move(AMeta.TimeStamp[AStartIndex], Result.TimeStamp[0], VSize);
+  end;
+end;
+
+procedure ResetMetaItem(var AItem: TDoublePointsMetaItem);
+begin
+  with AItem do begin
+    IsElevationOk := False;
+    IsTimeStampOk := False;
   end;
 end;
 

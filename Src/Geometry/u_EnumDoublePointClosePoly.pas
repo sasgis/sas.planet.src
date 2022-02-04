@@ -27,10 +27,11 @@ uses
   t_GeoTypes,
   i_DoublePointFilter,
   i_EnumDoublePoint,
+  u_EnumDoublePointAbstract,
   u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointClosePoly = class(TBaseInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointClosePoly = class(TEnumDoublePointAbstract)
   private
     FSourceEnum: IEnumDoublePoint;
     FFirstPoint: TDoublePoint;
@@ -38,8 +39,8 @@ type
     FPointsInPolyCount: Integer;
     FFinished: Boolean;
     FNeedAddBreak: Boolean;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       const ASourceEnum: IEnumDoublePoint

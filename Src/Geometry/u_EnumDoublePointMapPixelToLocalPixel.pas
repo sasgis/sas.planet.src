@@ -28,16 +28,17 @@ uses
   i_LocalCoordConverter,
   i_DoublePointFilter,
   i_EnumDoublePoint,
+  u_EnumDoublePointAbstract,
   u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointMapPixelToLocalPixel = class(TBaseInterfacedObject, IEnumLocalPoint)
+  TEnumDoublePointMapPixelToLocalPixel = class(TEnumDoublePointAbstract, IEnumLocalPoint)
   private
     FSourceEnum: IEnumProjectedPoint;
     FLocalConverter: ILocalCoordConverter;
     FFinished: Boolean;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       const ALocalConverter: ILocalCoordConverter;
@@ -45,13 +46,13 @@ type
     );
   end;
 
-  TEnumDoublePointMapPixelToLocalPixelSimple = class(TBaseInterfacedObject, IEnumLocalPoint)
+  TEnumDoublePointMapPixelToLocalPixelSimple = class(TEnumDoublePointAbstract, IEnumLocalPoint)
   private
     FSourceEnum: IEnumProjectedPoint;
     FTopLeft: TDoublePoint;
     FFinished: Boolean;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       const ATopLeft: TDoublePoint;

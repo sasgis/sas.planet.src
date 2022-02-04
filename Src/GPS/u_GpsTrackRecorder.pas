@@ -95,6 +95,7 @@ uses
   Classes,
   i_EnumDoublePoint,
   u_GeoFunc,
+  u_EnumDoublePointAbstract,
   u_BaseInterfacedObject;
 
 { TTrackPoitnsBlock }
@@ -412,11 +413,11 @@ end;
 { TEnumDoublePointsByEnumGPSTrackPoint }
 
 type
-  TEnumTrackPointsByEnumGPSTrackPoint = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
+  TEnumTrackPointsByEnumGPSTrackPoint = class(TEnumDoublePointAbstract, IEnumLonLatPoint)
   private
     FSource: IEnumGPSTrackPoint;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       const ASource: IEnumGPSTrackPoint

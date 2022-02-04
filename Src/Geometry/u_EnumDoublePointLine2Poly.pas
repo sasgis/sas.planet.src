@@ -29,10 +29,11 @@ uses
   i_DoublePointFilter,
   i_Projection,
   i_DoublePointsAggregator,
+  u_EnumDoublePointAbstract,
   u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointLine2Poly = class(TBaseInterfacedObject, IEnumLonLatPoint)
+  TEnumDoublePointLine2Poly = class(TEnumDoublePointAbstract, IEnumLonLatPoint)
   private
     FSourceEnum: IEnumLonLatPoint;
     FRadius: Double;
@@ -47,8 +48,8 @@ type
     FPrevPoint: TDoublePoint;
     FPrevVectorAngle: Double;
     FPrevRadius: Double;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       const ASourceEnum: IEnumLonLatPoint;

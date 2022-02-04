@@ -29,7 +29,14 @@ uses
 type
   IEnumDoublePoint = interface
     ['{A821C4B3-DB65-4B93-94A2-19ADC919EDCC}']
-    function Next(out APoint: TDoublePoint): Boolean;
+    function Next(
+      out APoint: TDoublePoint
+    ): Boolean; overload;
+
+    function Next(
+      out APoint: TDoublePoint;
+      out AMeta: TDoublePointsMetaItem
+    ): Boolean; overload;
   end;
 
   IEnumLonLatPoint = interface(IEnumDoublePoint)

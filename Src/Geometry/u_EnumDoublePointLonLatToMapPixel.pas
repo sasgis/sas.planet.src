@@ -29,17 +29,18 @@ uses
   i_Projection,
   i_DoublePointFilter,
   i_EnumDoublePoint,
+  u_EnumDoublePointAbstract,
   u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointLonLatToMapPixel = class(TBaseInterfacedObject, IEnumProjectedPoint)
+  TEnumDoublePointLonLatToMapPixel = class(TEnumDoublePointAbstract, IEnumProjectedPoint)
   private
     FSourceEnum: IEnumLonLatPoint;
     FProjection: IProjection;
     FProjectionType: IProjectionType;
     FFinished: Boolean;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       const AProjection: IProjection;

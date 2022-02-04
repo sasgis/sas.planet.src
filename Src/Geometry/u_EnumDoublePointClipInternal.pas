@@ -26,10 +26,10 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  u_BaseInterfacedObject;
+  u_EnumDoublePointAbstract;
 
 type
-  TEnumDoublePointClipByLineAbstract = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint, IEnumLocalPoint)
+  TEnumDoublePointClipByLineAbstract = class(TEnumDoublePointAbstract, IEnumProjectedPoint, IEnumLocalPoint)
   private
     FSourceEnum: IEnumDoublePoint;
     FFinished: Boolean;
@@ -37,8 +37,8 @@ type
     FPrevPointCode: Byte;
     FPreparedPoint: TDoublePoint;
     FPreparedPointExists: Boolean;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   protected
     function GetPointCode(const APoint: TDoublePoint): Byte; virtual; abstract;
     function GetIntersectPoint(const APrevPoint, ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;

@@ -19,85 +19,47 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_EnumDoublePointsByArray;
+unit u_EnumDoublePointAbstract;
 
 interface
 
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  i_DoublePointsAggregator,
-  u_EnumDoublePointAbstract;
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointsByArray = class(TEnumDoublePointAbstract)
-  private
-    FPoints: PDoublePointArray;
-    FCount: Integer;
-    FIndex: Integer;
-    FPointsAggregator: IDoublePointsAggregator;
+  TEnumDoublePointAbstract = class(TBaseInterfacedObject, IEnumDoublePoint)
   protected
-    function Next(out APoint: TDoublePoint): Boolean; override;
-  public
-    constructor Create(
-      const APoints: PDoublePointArray;
-      const ACount: Integer
-    ); overload;
-    constructor Create(
-      const APointsAggregator: IDoublePointsAggregator
-    ); overload;
-    destructor Destroy; override;
-  end;
+    { IEnumDoublePoint }
+    function Next(
+      out APoint: TDoublePoint
+    ): Boolean; overload; virtual; abstract;
 
-  TEnumLonLatPointsByArray = class(TEnumDoublePointsByArray, IEnumLonLatPoint)
+    function Next(
+      out APoint: TDoublePoint;
+      out AMeta: TDoublePointsMetaItem
+    ): Boolean; overload; virtual;
   end;
 
 implementation
 
 uses
-  u_GeoFunc;
+  u_DoublePointsMeta;
 
-{ TEnumDoublePointsByArray }
+{ TEnumDoublePointAbstract }
 
-constructor TEnumDoublePointsByArray.Create(
-  const APoints: PDoublePointArray;
-  const ACount: Integer
-);
+function TEnumDoublePointAbstract.Next(
+  out APoint: TDoublePoint;
+  out AMeta: TDoublePointsMetaItem
+): Boolean;
 begin
-  inherited Create;
-  FPointsAggregator := nil;
-  FPoints := APoints;
-  FCount := ACount;
-  FIndex := 0;
-end;
+  Assert(False, 'Not implemented!');
 
-constructor TEnumDoublePointsByArray.Create(
-  const APointsAggregator: IDoublePointsAggregator
-);
-begin
-  Assert(Assigned(APointsAggregator));
-  inherited Create;
-  FPointsAggregator := APointsAggregator;
-  FPoints := FPointsAggregator.Points;
-  FCount := FPointsAggregator.Count;
-  FIndex := 0;
-end;
+  Result := Next(APoint);
 
-destructor TEnumDoublePointsByArray.Destroy;
-begin
-  FPointsAggregator := nil;
-  inherited;
-end;
-
-function TEnumDoublePointsByArray.Next(out APoint: TDoublePoint): Boolean;
-begin
-  if FIndex < FCount then begin
-    APoint := FPoints[FIndex];
-    Inc(FIndex);
-    Result := True;
-  end else begin
-    APoint := CEmptyDoublePoint;
-    Result := False;
+  if Result then begin
+    ResetMetaItem(AMeta);
   end;
 end;
 

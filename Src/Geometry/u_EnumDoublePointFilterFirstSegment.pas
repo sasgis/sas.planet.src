@@ -27,16 +27,17 @@ uses
   t_GeoTypes,
   i_DoublePointFilter,
   i_EnumDoublePoint,
+  u_EnumDoublePointAbstract,
   u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointFilterFirstSegment = class(TBaseInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointFilterFirstSegment = class(TEnumDoublePointAbstract)
   private
     FSourceEnum: IEnumDoublePoint;
     FStarted: Boolean;
     FFinished: Boolean;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   public
     constructor Create(
       const ASourceEnum: IEnumDoublePoint

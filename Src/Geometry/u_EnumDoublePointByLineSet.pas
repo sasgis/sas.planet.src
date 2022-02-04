@@ -27,10 +27,10 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_GeometryLonLat,
-  u_BaseInterfacedObject;
+  u_EnumDoublePointAbstract;
 
 type
-  TEnumDoublePointByLineSetBase = class(TBaseInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointByLineSetBase = class(TEnumDoublePointAbstract)
   private
     FSourceLineSet: IInterface;
     FClosed: Boolean;
@@ -42,8 +42,8 @@ type
     FPreparedPointExists: Boolean;
     FPreparedPoint: TDoublePoint;
     function GetNextEnum: IEnumDoublePoint; virtual; abstract;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
+  protected
+    function Next(out APoint: TDoublePoint): Boolean; override;
   private
     constructor CreateInternal(
       const ALineSet: IInterface;
