@@ -59,7 +59,7 @@ begin
   Result := Next(APoint);
 
   if Result then begin
-    ResetMetaItem(AMeta);
+    ResetMetaItem(@AMeta);
   end;
 end;
 

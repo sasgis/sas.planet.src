@@ -222,7 +222,8 @@ end;
 
 function TGeometryLonLatMultiPoint.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, False, FPoints.Points, FCount);
+  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, False,
+    FPoints.Points, nil, FCount);
 end;
 
 function TGeometryLonLatMultiPoint.GetGoToPoint: TDoublePoint;
@@ -303,7 +304,8 @@ end;
 
 function TGeometryLonLatSingleLine.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, False, FPoints.Points, FCount);
+  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, False,
+    FPoints.Points, FPoints.Meta, FCount);
 end;
 
 function TGeometryLonLatSingleLine.GetGoToPoint: TDoublePoint;
@@ -375,7 +377,8 @@ end;
 
 function TGeometryLonLatContour.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, True, FPoints.Points, FCount);
+  Result := TEnumDoublePointBySingleLonLatLine.Create(FPoints, True,
+    FPoints.Points, nil, FCount);
 end;
 
 function TGeometryLonLatContour.GetGoToPoint: TDoublePoint;

@@ -26,6 +26,7 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
+  u_DoublePointsMeta,
   u_EnumDoublePointAbstract;
 
 type
@@ -34,16 +35,30 @@ type
     FSourceLine: IInterface;
     FClosed: Boolean;
     FPoints: PDoublePointArray;
+    FMeta: PDoublePointsMeta;
     FCount: Integer;
     FIndex: Integer;
+
+    function DoNext(
+      out APoint: TDoublePoint;
+      const AMeta: PDoublePointsMetaItem
+    ): Boolean; inline;
   protected
-    function Next(out APoint: TDoublePoint): Boolean; override;
+    function Next(
+      out APoint: TDoublePoint
+    ): Boolean; override;
+
+    function Next(
+      out APoint: TDoublePoint;
+      out AMeta: TDoublePointsMetaItem
+    ): Boolean; override;
   public
     constructor Create(
       const ADataOwner: IInterface;
-      AClosed: Boolean;
+      const AClosed: Boolean;
       const APoints: PDoublePointArray;
-      ACount: Integer
+      const AMeta: PDoublePointsMeta;
+      const ACount: Integer
     );
   end;
 
@@ -51,9 +66,23 @@ type
   end;
 
   TEnumDoublePointBySingleProjectedLine = class(TEnumDoublePointBySingleLineBase, IEnumProjectedPoint)
+  public
+    constructor Create(
+      const ADataOwner: IInterface;
+      const AClosed: Boolean;
+      const APoints: PDoublePointArray;
+      const ACount: Integer
+    );
   end;
 
   TEnumLocalPointBySingleLocalLine = class(TEnumDoublePointBySingleLineBase, IEnumLocalPoint)
+  public
+    constructor Create(
+      const ADataOwner: IInterface;
+      const AClosed: Boolean;
+      const APoints: PDoublePointArray;
+      const ACount: Integer
+    );
   end;
 
 implementation
@@ -65,43 +94,100 @@ uses
 
 constructor TEnumDoublePointBySingleLineBase.Create(
   const ADataOwner: IInterface;
-  AClosed: Boolean;
+  const AClosed: Boolean;
   const APoints: PDoublePointArray;
-  ACount: Integer
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer
 );
 begin
+  Assert(ACount > 0, 'No points');
+
   inherited Create;
+
   FSourceLine := ADataOwner;
   FClosed := AClosed;
   FPoints := APoints;
+  FMeta := AMeta;
   FCount := ACount;
   FIndex := 0;
-  Assert(FCount > 0, 'No points');
 end;
 
 function TEnumDoublePointBySingleLineBase.Next(out APoint: TDoublePoint): Boolean;
 begin
+  Result := DoNext(APoint, nil);
+end;
+
+function TEnumDoublePointBySingleLineBase.Next(
+  out APoint: TDoublePoint;
+  out AMeta: TDoublePointsMetaItem
+): Boolean;
+begin
+  Result := DoNext(APoint, @AMeta);
+end;
+
+function TEnumDoublePointBySingleLineBase.DoNext(
+  out APoint: TDoublePoint;
+  const AMeta: PDoublePointsMetaItem
+): Boolean;
+begin
   if FIndex < FCount then begin
     APoint := FPoints[FIndex];
+    if AMeta <> nil then begin
+      SetMetaItem(FMeta, FIndex, AMeta);
+    end;
     Inc(FIndex);
     Result := True;
   end else begin
-    if (FIndex = FCount) then begin
+    if FIndex = FCount then begin
       if FClosed and (FCount > 1) then begin
         APoint := FPoints[0];
+        if AMeta <> nil then begin
+          SetMetaItem(FMeta, 0, AMeta);
+        end;
         Result := True;
       end else begin
         APoint := CEmptyDoublePoint;
+        if AMeta <> nil then begin
+          ResetMetaItem(AMeta);
+        end;
         Result := False;
       end;
       FPoints := nil;
+      FMeta := nil;
       FSourceLine := nil;
       Inc(FIndex);
     end else begin
       APoint := CEmptyDoublePoint;
+      if AMeta <> nil then begin
+        ResetMetaItem(AMeta);
+      end;
       Result := False;
     end;
   end;
+end;
+
+{ TEnumDoublePointBySingleProjectedLine }
+
+constructor TEnumDoublePointBySingleProjectedLine.Create(
+  const ADataOwner: IInterface;
+  const AClosed: Boolean;
+  const APoints: PDoublePointArray;
+  const ACount: Integer
+);
+begin
+  inherited Create(ADataOwner, AClosed, APoints, nil, ACount);
+end;
+
+{ TEnumLocalPointBySingleLocalLine }
+
+constructor TEnumLocalPointBySingleLocalLine.Create(
+  const ADataOwner: IInterface;
+  const AClosed: Boolean;
+  const APoints: PDoublePointArray;
+  const ACount: Integer
+);
+begin
+  inherited Create(ADataOwner, AClosed, APoints, nil, ACount);
 end;
 
 end.

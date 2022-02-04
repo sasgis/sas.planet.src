@@ -35,7 +35,13 @@ function CopyMeta(
 function CreateMeta: PDoublePointsMeta;
 procedure FreeAndNilMeta(var AMeta: PDoublePointsMeta);
 
-procedure ResetMetaItem(var AItem: TDoublePointsMetaItem); inline;
+procedure ResetMetaItem(const AItem: PDoublePointsMetaItem); inline;
+
+procedure SetMetaItem(
+  const AMeta: PDoublePointsMeta;
+  const APointIndex: Integer;
+  const AItem: PDoublePointsMetaItem
+);
 
 implementation
 
@@ -86,11 +92,32 @@ begin
   end;
 end;
 
-procedure ResetMetaItem(var AItem: TDoublePointsMetaItem);
+procedure ResetMetaItem(const AItem: PDoublePointsMetaItem);
 begin
-  with AItem do begin
+  with AItem^ do begin
     IsElevationOk := False;
     IsTimeStampOk := False;
+  end;
+end;
+
+procedure SetMetaItem(
+  const AMeta: PDoublePointsMeta;
+  const APointIndex: Integer;
+  const AItem: PDoublePointsMetaItem
+);
+begin
+  if AMeta <> nil then begin
+    AItem.IsElevationOk := AMeta.Elevation <> nil;
+    if AItem.IsElevationOk then begin
+      AItem.Elevation := AMeta.Elevation[APointIndex];
+    end;
+
+    AItem.IsTimeStampOk := AMeta.TimeStamp <> nil;
+    if AItem.IsTimeStampOk then begin
+      AItem.TimeStamp := AMeta.TimeStamp[APointIndex];
+    end;
+  end else begin
+    ResetMetaItem(AItem);
   end;
 end;
 
