@@ -128,7 +128,7 @@ var
   VState: TReadWriteStateInternal;
   VStateInternal: IReadWriteStateInternal;
   VGeometryReader: IGeometryFromStream;
-  VGeometryWriter: IGeometryToStream;
+  VGeometryPointsWriter: IGeometryPointsToStream;
   VImplConfig: IMarkSystemImplConfigORM;
 begin
   inherited Create;
@@ -171,7 +171,7 @@ begin
     );
 
   VGeometryReader := TGeometryFromWKB.Create(AVectorGeometryLonLatFactory);
-  VGeometryWriter := TGeometryToWKB.Create;
+  VGeometryPointsWriter := TGeometryToWKB.Create;
 
   VMarkDb :=
     TMarkDbImplORM.Create(
@@ -181,7 +181,8 @@ begin
       FClientProvider,
       FFactoryDbInternal,
       VGeometryReader,
-      VGeometryWriter,
+      VGeometryPointsWriter,
+      nil, // ToDo: Use Meta
       AVectorItemSubsetBuilderFactory
     );
 

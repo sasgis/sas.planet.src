@@ -25,6 +25,7 @@ interface
 
 uses
   Classes,
+  i_DoublePointsMeta,
   i_GeometryLonLat,
   i_GeometryFromStream,
   i_GeometryLonLatFactory,
@@ -45,7 +46,8 @@ type
     ): IGeometryLonLatPolygon;
   private
     function Parse(
-      const AStream: TStream
+      const AStream: TStream;
+      const APointsMeta: IDoublePointsMeta
     ): IGeometryLonLat;
   public
     constructor Create(
@@ -220,7 +222,8 @@ begin
     for I := 0 to ACount - 1 do begin
       VDoublePoint := SMLPointToDoublePointEx(VSmlPoint^, VXIsValid, VYIsValid);
       if VXIsValid and VYIsValid then begin
-        VTemp.Add(VDoublePoint);
+        // ToDo: Use Meta
+        VTemp.Add(VDoublePoint, nil);
       end else begin
         if VTemp.Count > 0 then begin
           VBuilder.AddLine(VTemp.MakeStaticAndClear);
@@ -285,11 +288,15 @@ begin
   end;
 end;
 
-function TGeometryFromStreamSML.Parse(const AStream: TStream): IGeometryLonLat;
+function TGeometryFromStreamSML.Parse(
+  const AStream: TStream;
+  const APointsMeta: IDoublePointsMeta
+): IGeometryLonLat;
 var
   VCount: Integer;
   VPoint: TDoublePoint;
 begin
+  // ToDo: Use Meta
   Assert(Assigned(AStream));
   Assert(AStream.Position = 0);
   Result := nil;

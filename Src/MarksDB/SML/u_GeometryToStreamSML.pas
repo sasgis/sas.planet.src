@@ -31,7 +31,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TGeometryToStreamSML = class(TBaseInterfacedObject, IGeometryToStream)
+  TGeometryToStreamSML = class(TBaseInterfacedObject, IGeometryPointsToStream)
   private
     procedure SavePoint(
       const AGeometry: IGeometryLonLatPoint;

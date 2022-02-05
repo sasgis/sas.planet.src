@@ -106,6 +106,7 @@ uses
   u_FileSystemFunc,
   u_GeometryToStreamSML,
   u_GeometryFromStreamSML,
+  u_GeometryMetaToStreamJson,
   u_MarkDbSml,
   u_MarkCategoryDBSml;
 
@@ -136,7 +137,8 @@ var
   VMarkFileName: string;
   VMarkStream: TStream;
   VGeometryReader: IGeometryFromStream;
-  VGeometryWriter: IGeometryToStream;
+  VGeometryPointsWriter: IGeometryPointsToStream;
+  VGeometryMetaWriter: IGeometryMetaToStream;
   VFreeDiskSpace: Int64;
   VBackUpRequaredDiskSize: Int64;
   VUseUnicodeSchema: Boolean;
@@ -213,7 +215,9 @@ begin
     );
 
   VGeometryReader := TGeometryFromStreamSML.Create(AVectorGeometryLonLatFactory);
-  VGeometryWriter := TGeometryToStreamSML.Create;
+  VGeometryPointsWriter := TGeometryToStreamSML.Create;
+  VGeometryMetaWriter := TGeometryMetaToStreamJson.Create;
+
   VMarkDb :=
     TMarkDbSml.Create(
       FDbId,
@@ -221,7 +225,8 @@ begin
       VMarkStream,
       AVectorItemSubsetBuilderFactory,
       VGeometryReader,
-      VGeometryWriter,
+      VGeometryPointsWriter,
+      VGeometryMetaWriter,
       FFactoryDbInternal,
       ALoadDbCounter,
       ASaveDbCounter,

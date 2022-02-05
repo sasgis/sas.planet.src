@@ -19,29 +19,21 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_GeometryFromStream;
+unit i_DoublePointsMeta;
 
 interface
 
 uses
-  Classes,
-  i_DoublePointsMeta,
-  i_GeometryLonLat;
+  t_GeoTypes;
 
 type
-  IGeometryFromStream = interface
-    ['{BAA3E867-B9F1-4F32-B7A2-747A7170ED8A}']
-    function Parse(
-      const AStream: TStream;
-      const APointsMeta: IDoublePointsMeta = nil
-    ): IGeometryLonLat;
-  end;
+  IDoublePointsMeta = interface
+    ['{64E452D4-0752-4002-AE3C-10655E4C7F9A}']
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
 
-  IGeometryMetaFromStream = interface
-    ['{4FBC0A14-04CA-4CB1-93DA-C5157A59D862}']
-    function Parse(
-      const AStream: TStream
-    ): IDoublePointsMeta;
+    function GetMeta: PDoublePointsMeta;
+    property Meta: PDoublePointsMeta read GetMeta;
   end;
 
 implementation

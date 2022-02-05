@@ -43,6 +43,7 @@ uses
   i_NotifierOperation,
   i_VectorDataItemSimple,
   i_MarkId,
+  i_DoublePointsMeta,
   i_VectorItemSubset,
   i_MarkCategoryList,
   i_MarkDbSmlInternal,
@@ -59,7 +60,10 @@ type
     FStream: TStream;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FGeometryReader: IGeometryFromStream;
-    FGeometryWriter: IGeometryToStream;
+
+    FGeometryPointsWriter: IGeometryPointsToStream;
+    FGeometryMetaWriter: IGeometryMetaToStream;
+
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
@@ -78,13 +82,24 @@ type
     procedure WriteCurrentMark(const AMark: IVectorDataItem);
 
     procedure InitEmptyDS;
+
     procedure GeomertryToBlob(
       const AGeometry: IGeometryLonLat;
       ABlobField: TField
     );
-    function GeomertryFromBlob(
+    procedure GeomertryMetaToBlob(
+      const AGeometry: IGeometryLonLat;
       ABlobField: TField
+    );
+
+    function GeometryFromBlob(
+      ABlobField: TField;
+      const AMeta: IDoublePointsMeta
     ): IGeometryLonLat;
+    function GeometryMetaFromBlob(
+      ABlobField: TField
+    ): IDoublePointsMeta;
+
     function GetCategoryID(const ACategory: ICategory): Integer;
     function GetFilterTextByCategory(const ACategory: ICategory): string;
     function _UpdateMark(
@@ -185,7 +200,8 @@ type
       const ADataStream: TStream;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AGeometryReader: IGeometryFromStream;
-      const AGeometryWriter: IGeometryToStream;
+      const AGeometryPointsWriter: IGeometryPointsToStream;
+      const AGeometryMetaWriter: IGeometryMetaToStream;
       const AFactoryDbInternal: IMarkFactorySmlInternal;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
@@ -215,7 +231,8 @@ constructor TMarkDbSml.Create(
   const ADataStream: TStream;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AGeometryReader: IGeometryFromStream;
-  const AGeometryWriter: IGeometryToStream;
+  const AGeometryPointsWriter: IGeometryPointsToStream;
+  const AGeometryMetaWriter: IGeometryMetaToStream;
   const AFactoryDbInternal: IMarkFactorySmlInternal;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
@@ -225,13 +242,17 @@ constructor TMarkDbSml.Create(
 );
 begin
   Assert(Assigned(AGeometryReader));
-  Assert(Assigned(AGeometryWriter));
+  Assert(Assigned(AGeometryPointsWriter));
+  Assert(Assigned(AGeometryMetaWriter));
   inherited Create;
   FDbId := ADbId;
   FStream := ADataStream;
   FStateInternal := AStateInternal;
   FGeometryReader := AGeometryReader;
-  FGeometryWriter := AGeometryWriter;
+
+  FGeometryPointsWriter := AGeometryPointsWriter;
+  FGeometryMetaWriter := AGeometryMetaWriter;
+
   FFactoryDbInternal := AFactoryDbInternal;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
@@ -563,7 +584,10 @@ begin
   end;
 end;
 
-function TMarkDbSml.GeomertryFromBlob(ABlobField: TField): IGeometryLonLat;
+function TMarkDbSml.GeometryFromBlob(
+  ABlobField: TField;
+  const AMeta: IDoublePointsMeta
+): IGeometryLonLat;
 var
   VField: TBlobfield;
   VStream: TStream;
@@ -572,7 +596,22 @@ begin
   VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
   try
-    Result := FGeometryReader.Parse(VStream);
+    Result := FGeometryReader.Parse(VStream, AMeta);
+  finally
+    VStream.Free;
+  end;
+end;
+
+function TMarkDbSml.GeometryMetaFromBlob(ABlobField: TField): IDoublePointsMeta;
+var
+  VField: TBlobfield;
+  VStream: TStream;
+begin
+  Assert(ABlobField is TBlobfield);
+  VField := TBlobfield(ABlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
+  try
+    Result := nil; // ToDo: Use Meta
   finally
     VStream.Free;
   end;
@@ -590,7 +629,25 @@ begin
   VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
-    FGeometryWriter.Save(AGeometry, VStream);
+    FGeometryPointsWriter.Save(AGeometry, VStream);
+  finally
+    VStream.Free;
+  end;
+end;
+
+procedure TMarkDbSml.GeomertryMetaToBlob(
+  const AGeometry: IGeometryLonLat;
+  ABlobField: TField
+);
+var
+  VField: TBlobfield;
+  VStream: TStream;
+begin
+  Assert(ABlobField is TBlobfield);
+  VField := TBlobfield(ABlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
+  try
+    FGeometryMetaWriter.Save(AGeometry, VStream);
   finally
     VStream.Free;
   end;
@@ -609,8 +666,11 @@ var
   VScale1: Integer;
   VScale2: Integer;
   VGeometry: IGeometryLonLat;
+  VGeometryMeta: IDoublePointsMeta;
 begin
-  VGeometry := GeomertryFromBlob(FCdsMarks.FieldByName('LonLatArr'));
+  VGeometryMeta := GeometryMetaFromBlob(FCdsMarks.FieldByName('meta'));
+  VGeometry := GeometryFromBlob(FCdsMarks.FieldByName('LonLatArr'), VGeometryMeta);
+
   AId := FCdsMarks.fieldbyname('id').AsInteger;
   VName := FCdsMarks.FieldByName('name').AsString;
   VVisible := FCdsMarks.FieldByName('Visible').AsBoolean;
@@ -720,6 +780,7 @@ begin
   end else if Supports(AMark.Geometry, IGeometryLonLatLine) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
     GeomertryToBlob(AMark.Geometry, FCdsMarks.FieldByName('LonLatArr'));
+    GeomertryMetaToBlob(AMark.Geometry, FCdsMarks.FieldByName('meta'));
     VLineColor := 0;
     VLineWidth := 0;
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
@@ -1125,6 +1186,7 @@ begin
     '                   <FIELD attrname="visible" fieldtype="boolean"/>' +
     '                   <FIELD attrname="picname" fieldtype="' + VStringType + '" WIDTH="' + VStringWidth + '"/>' +
     '                   <FIELD attrname="categoryid" fieldtype="i4"/>' +
+    '                   <FIELD attrname="meta" fieldtype="bin.hex" SUBTYPE="Binary"/>' +
     '           </FIELDS>' +
     '           <PARAMS AUTOINCVALUE="1"/>' +
     '   </METADATA>' +
@@ -1397,6 +1459,7 @@ procedure TMarkDbSml.Initialize(
   procedure UpgradeXmlSchema;
   var
     I: Integer;
+    VTmp: TClientDataSet;
     VPicNameFieldDef: TFieldDef;
   begin
     // upgrade "picname" field size
@@ -1413,6 +1476,36 @@ procedure TMarkDbSml.Initialize(
           );
         FNeedSaveFlag.SetFlag;
       end;
+    end;
+
+    // add "meta" blob field
+    I := FCdsMarks.FieldDefs.IndexOf('meta');
+    if I < 0 then begin
+      VTmp := TClientDataSet.Create(nil);
+      try
+        VTmp.Data := FCdsMarks.Data; // copy data
+
+        FCdsMarks.Close;
+        FCdsMarks.FieldDefs := VTmp.FieldDefs;
+        FCdsMarks.FieldDefs.Add('meta', ftBlob); // add new field
+        FCdsMarks.CreateDataSet; // erases all data in dataset
+
+        // copy data back
+        VTmp.First;
+        while not VTmp.Eof do begin
+          FCdsMarks.Append;
+          for I := 1 to VTmp.FieldCount - 1 do begin
+            FCdsMarks.Fields[I] := VTmp.Fields[I];
+          end;
+          FCdsMarks.FieldByName('meta').Clear;
+          FCdsMarks.Post;
+          VTmp.Next;
+        end;
+      finally
+        VTmp.Free;
+      end;
+
+      FNeedSaveFlag.SetFlag;
     end;
   end;
 

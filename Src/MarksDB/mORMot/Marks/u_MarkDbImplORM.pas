@@ -198,7 +198,8 @@ type
       const AClientProvider: IMarkSystemImplORMClientProvider;
       const AFactoryDbInternal: IMarkFactoryDbInternalORM;
       const AGeometryReader: IGeometryFromStream;
-      const AGeometryWriter: IGeometryToStream;
+      const AGeometryPointsWriter: IGeometryPointsToStream;
+      const AGeometryMetaWriter: IGeometryMetaToStream;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
     );
     destructor Destroy; override;
@@ -221,7 +222,8 @@ constructor TMarkDbImplORM.Create(
   const AClientProvider: IMarkSystemImplORMClientProvider;
   const AFactoryDbInternal: IMarkFactoryDbInternalORM;
   const AGeometryReader: IGeometryFromStream;
-  const AGeometryWriter: IGeometryToStream;
+  const AGeometryPointsWriter: IGeometryPointsToStream;
+  const AGeometryMetaWriter: IGeometryMetaToStream;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
 );
 var
@@ -230,7 +232,9 @@ begin
   Assert(ADbId <> 0);
   Assert(Assigned(AClientProvider));
   Assert(Assigned(AGeometryReader));
-  Assert(Assigned(AGeometryWriter));
+  Assert(Assigned(AGeometryPointsWriter));
+  // ToDo: Use Meta
+  //Assert(Assigned(AGeometryMetaWriter));
 
   inherited Create;
 
@@ -246,7 +250,8 @@ begin
     TMarkDbImplORMHelper.Create(
       VIsReadOnly,
       ACacheSizeMb,
-      AGeometryWriter,
+      AGeometryPointsWriter,
+      AGeometryMetaWriter,
       AGeometryReader,
       AClientProvider
     );

@@ -61,7 +61,7 @@ type
     FClient: TSQLRestClientDB;
     FCache: TSQLMarkDbCache;
     FIsReadOnly: Boolean;
-    FGeometryWriter: IGeometryToStream;
+    FGeometryWriter: IGeometryPointsToStream;
     FGeometryReader: IGeometryFromStream;
     FClientType: TMarkSystemImplORMClientType;
     FClientProvider: IMarkSystemImplORMClientProvider;
@@ -173,7 +173,8 @@ type
     constructor Create(
       const AIsReadOnly: Boolean;
       const ACacheSizeMb: Cardinal;
-      const AGeometryWriter: IGeometryToStream;
+      const AGeometryPointsWriter: IGeometryPointsToStream;
+      const AGeometryMetaWriter: IGeometryMetaToStream;
       const AGeometryReader: IGeometryFromStream;
       const AClientProvider: IMarkSystemImplORMClientProvider
     );
@@ -200,22 +201,25 @@ const
 constructor TMarkDbImplORMHelper.Create(
   const AIsReadOnly: Boolean;
   const ACacheSizeMb: Cardinal;
-  const AGeometryWriter: IGeometryToStream;
+  const AGeometryPointsWriter: IGeometryPointsToStream;
+  const AGeometryMetaWriter: IGeometryMetaToStream;
   const AGeometryReader: IGeometryFromStream;
   const AClientProvider: IMarkSystemImplORMClientProvider
 );
 begin
-  Assert(AGeometryWriter <> nil);
-  Assert(AGeometryReader <> nil);
   inherited Create;
+
   FIsReadOnly := AIsReadOnly;
   if ACacheSizeMb > 0 then begin
     FCache.Init(ACacheSizeMb*1024*1024);
   end else begin
     FCache.Init(1024*1024*1024); // 1 Gb
   end;
-  FGeometryWriter := AGeometryWriter;
+
+  // ToDo: Use Meta
+  FGeometryWriter := AGeometryPointsWriter;
   FGeometryReader := AGeometryReader;
+
   FClientProvider := AClientProvider;
   FUserID := FClientProvider.UserID;
   FClient := FClientProvider.RestClient;

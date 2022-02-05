@@ -28,8 +28,16 @@ uses
   i_GeometryLonLat;
 
 type
-  IGeometryToStream = interface
+  IGeometryPointsToStream = interface
     ['{BAA3E867-B9F1-4F32-B7A2-747A7170ED8A}']
+    procedure Save(
+      const AGeometry: IGeometryLonLat;
+      const AStream: TStream
+    );
+  end;
+
+  IGeometryMetaToStream = interface
+    ['{F6997D3C-2D0C-40FC-86D4-762C4D4B99C4}']
     procedure Save(
       const AGeometry: IGeometryLonLat;
       const AStream: TStream

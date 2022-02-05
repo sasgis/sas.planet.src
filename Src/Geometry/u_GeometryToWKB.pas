@@ -30,7 +30,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TGeometryToWKB = class(TBaseInterfacedObject, IGeometryToStream)
+  TGeometryToWKB = class(TBaseInterfacedObject, IGeometryPointsToStream)
   private
     procedure SavePoint(
       const AGeometry: IGeometryLonLatPoint;

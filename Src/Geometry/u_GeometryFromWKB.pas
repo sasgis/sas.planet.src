@@ -26,6 +26,7 @@ interface
 uses
   Classes,
   i_DoublePoints,
+  i_DoublePointsMeta,
   i_GeometryLonLat,
   i_GeometryFromStream,
   i_GeometryLonLatFactory,
@@ -70,7 +71,8 @@ type
     ): IGeometryLonLatPolygon;
   private
     function Parse(
-      const AStream: TStream
+      const AStream: TStream;
+      const APointsMeta: IDoublePointsMeta
     ): IGeometryLonLat;
   public
     constructor Create(
@@ -279,13 +281,15 @@ begin
 end;
 
 function TGeometryFromWKB.Parse(
-  const AStream: TStream
+  const AStream: TStream;
+  const APointsMeta: IDoublePointsMeta
 ): IGeometryLonLat;
 var
   VWKBType: Cardinal;
   VWKBOrder: Byte;
   VOrder: Boolean;
 begin
+  // ToDo: Use Meta
   AStream.ReadBuffer(VWKBOrder, SizeOf(VWKBOrder));
   VOrder := VWKBOrder = 1;
   Assert(VOrder, 'Поддерживается тольк порядок Little Endian');
