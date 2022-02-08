@@ -68,6 +68,12 @@ type
       const ACount: Integer
     );
 
+    procedure Update(
+      const AIndex: Integer;
+      const APoint: TDoublePoint;
+      const AMetaItem: PDoublePointsMetaItem
+    );
+
     procedure Clear;
 
     function GetCount: Integer;
@@ -226,6 +232,17 @@ begin
     FMetaAggregator.DeleteItems(AIndex, ACount);
     Dec(FCount, ACount);
   end;
+end;
+
+procedure TDoublePointsAggregator.Update(
+  const AIndex: Integer;
+  const APoint: TDoublePoint;
+  const AMetaItem: PDoublePointsMetaItem
+);
+begin
+  Assert((AIndex >= 0) and (AIndex < FCount));
+  FPoints[AIndex] := APoint;
+  FMetaAggregator.UpdateItem(AIndex, AMetaItem);
 end;
 
 procedure TDoublePointsAggregator.Clear;

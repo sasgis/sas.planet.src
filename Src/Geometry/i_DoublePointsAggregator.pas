@@ -58,6 +58,12 @@ type
       const ACount: Integer
     );
 
+    procedure Update(
+      const AIndex: Integer;
+      const APoint: TDoublePoint;
+      const AMetaItem: PDoublePointsMetaItem = nil
+    );
+
     procedure Clear;
 
     function GetCount: Integer;

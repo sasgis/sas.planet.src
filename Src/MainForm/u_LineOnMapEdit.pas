@@ -351,7 +351,7 @@ begin
           Assert(not PointIsEmpty(VCurrPoint));
           if not PointIsEmpty(VCurrPoint) then begin
             if not DoublePointsEqual(APoint, VCurrPoint) then begin
-              FPoints.Points[FSelectedPointIndex] := APoint;
+              FPoints.Update(FSelectedPointIndex, APoint, nil);
               _UpdateLineObject;
             end;
           end;

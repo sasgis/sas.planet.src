@@ -81,6 +81,11 @@ type
       const ACount: Integer
     );
 
+    procedure UpdateItem(
+      const AIndex: Integer;
+      const AItem: PDoublePointsMetaItem
+    );
+
     function GetMeta: PDoublePointsMeta;
     property Meta: PDoublePointsMeta read GetMeta;
 
@@ -319,6 +324,32 @@ begin
 
   if Length(FMeta.TimeStamp) > 0 then begin
     MoveLeftArrayOfDouble(@FMeta.TimeStamp[0]);
+  end;
+end;
+
+procedure TDoublePointsMetaAggregator.UpdateItem(
+  const AIndex: Integer;
+  const AItem: PDoublePointsMetaItem
+);
+var
+  VIsElevationOk: Boolean;
+  VIsTimeStampOk: Boolean;
+begin
+  VIsElevationOk := (AItem <> nil) and AItem.IsElevationOk;
+  VIsTimeStampOk := (AItem <> nil) and AItem.IsTimeStampOk;
+
+  if VIsElevationOk then begin
+    FMeta.Elevation[AIndex] := AItem.Elevation;
+  end else
+  if Length(FMeta.Elevation) > 0 then begin
+    FMeta.Elevation[AIndex] := 0;
+  end;
+
+  if VIsTimeStampOk then begin
+    FMeta.TimeStamp[AIndex] := AItem.TimeStamp;
+  end else
+  if Length(FMeta.TimeStamp) > 0 then begin
+    FMeta.TimeStamp[AIndex] := 0;
   end;
 end;
 
