@@ -36,15 +36,19 @@ type
   TGeometryFromStreamSML = class(TBaseInterfacedObject, IGeometryFromStream)
   private
     FFactory: IGeometryLonLatFactory;
+
     function ParseLine(
       const AStream: TStream;
+      const APointsMeta: IDoublePointsMeta;
       const ACount: Integer
     ): IGeometryLonLatLine;
+
     function ParsePolygon(
       const AStream: TStream;
       const ACount: Integer
     ): IGeometryLonLatPolygon;
   private
+    { IGeometryFromStream }
     function Parse(
       const AStream: TStream;
       const APointsMeta: IDoublePointsMeta
@@ -204,6 +208,7 @@ end;
 
 function TGeometryFromStreamSML.ParseLine(
   const AStream: TStream;
+  const APointsMeta: IDoublePointsMeta;
   const ACount: Integer
 ): IGeometryLonLatLine;
 var
@@ -214,7 +219,28 @@ var
   VTemp: IDoublePointsAggregator;
   VXIsValid: Boolean;
   VYIsValid: Boolean;
+  VUseMeta: Boolean;
+  VElevation: PArrayOfDouble;
+  VTimeStamp: PArrayOfDateTime;
+  VMetaItem: TDoublePointsMetaItem;
+  VMetaItemPtr: PDoublePointsMetaItem;
 begin
+  VUseMeta := False;
+  if (APointsMeta <> nil) and (APointsMeta.Meta <> nil) then begin
+    VUseMeta := APointsMeta.Count = ACount;
+    Assert(VUseMeta);
+  end;
+
+  if VUseMeta then begin
+    VElevation := APointsMeta.Meta.Elevation;
+    VTimeStamp := APointsMeta.Meta.TimeStamp;
+    VMetaItemPtr := @VMetaItem;
+  end else begin
+    VElevation := nil;
+    VTimeStamp := nil;
+    VMetaItemPtr := nil;
+  end;
+
   if AStream is TCustomMemoryStream then begin
     VBuilder := FFactory.MakeLineBuilder;
     VTemp := TDoublePointsAggregator.Create;
@@ -222,8 +248,17 @@ begin
     for I := 0 to ACount - 1 do begin
       VDoublePoint := SMLPointToDoublePointEx(VSmlPoint^, VXIsValid, VYIsValid);
       if VXIsValid and VYIsValid then begin
-        // ToDo: Use Meta
-        VTemp.Add(VDoublePoint, nil);
+        if VUseMeta then begin
+          VMetaItem.IsElevationOk := VElevation <> nil;
+          if VElevation <> nil then begin
+            VMetaItem.Elevation := VElevation[I];
+          end;
+          VMetaItem.IsTimeStampOk := VTimeStamp <> nil;
+          if VTimeStamp <> nil then begin
+            VMetaItem.TimeStamp := VTimeStamp[I];
+          end;
+        end;
+        VTemp.Add(VDoublePoint, VMetaItemPtr);
       end else begin
         if VTemp.Count > 0 then begin
           VBuilder.AddLine(VTemp.MakeStaticAndClear);
@@ -296,7 +331,6 @@ var
   VCount: Integer;
   VPoint: TDoublePoint;
 begin
-  // ToDo: Use Meta
   Assert(Assigned(AStream));
   Assert(AStream.Position = 0);
   Result := nil;
@@ -311,7 +345,7 @@ begin
       if IsPolygonInStream(AStream, VCount) then begin
         Result := ParsePolygon(AStream, VCount);
       end else begin
-        Result := ParseLine(AStream, VCount);
+        Result := ParseLine(AStream, APointsMeta, VCount);
       end;
     end;
   end;

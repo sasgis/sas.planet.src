@@ -53,32 +53,8 @@ uses
   SysUtils,
   superobject,
   EDBase64,
-  t_GeoTypes;
-
-(*
-
-  {
-      "v" : integer,                     // file struct version
-      "g" : [                            // array of geometries
-          {
-              "m" : [                    // array of metadata
-                  {
-                      "i" : integer,     // internal id
-                      "n" : string,      // gpx tag name
-                      "c" : integer,     // points count
-                      "d" : string       // points meta (base64)
-                  }
-                  ...
-              ]
-          }
-          ...
-      ]
-  }
-
-*)
-
-const
-  CJsonMetaMagic: array [0..3] of AnsiChar = ('J', 'S', 'O', 'N');
+  t_GeoTypes,
+  u_GeometryMetaJson;
 
 { TGeometryMetaToStreamJson }
 
@@ -118,14 +94,9 @@ begin
   end;
 end;
 
-function ElevationToString(const AElevation: PArrayOfDouble; const ACount: Integer): string;
+function ArrayOfDoubleToString(const AArr: Pointer; const ACount: Integer): string; inline;
 begin
-  Result := Base64Encode(PAnsiChar(AElevation), ACount * SizeOf(AElevation[0]));
-end;
-
-function TimeStampToString(const ATimeStamp: PArrayOfDateTime; const ACount: Integer): string;
-begin
-  Result := Base64Encode(PAnsiChar(ATimeStamp), ACount * SizeOf(ATimeStamp[0]));
+  Result := Base64Encode(AArr, ACount * SizeOf(Double));
 end;
 
 procedure TGeometryMetaToStreamJson.SaveLines(
@@ -144,6 +115,7 @@ begin
 
   VJson := SO; // root object
   VJson.I['v'] := 1; // version
+  VJson.I['t'] := Integer(jgLine); // geometry type
   VJson.O['g'] := SA([]); // array of geometries
 
   for I := 0 to Length(ALines) - 1 do begin
@@ -155,13 +127,14 @@ begin
     if VLine.Meta <> nil then begin
       VIsMetaEmpty := False;
 
+      VGeoItem.I['c'] := VLine.Count; // points count
+
       if VLine.Meta.Elevation <> nil then begin
         VMetaItem := SO; // meta item object
 
-        VMetaItem.I['i'] := 1;
-        VMetaItem.S['n'] := 'ele';
-        VMetaItem.I['c'] := VLine.Count;
-        VMetaItem.S['d'] := ElevationToString(VLine.Meta.Elevation, VLine.Count);
+        VMetaItem.I['t'] := Integer(jdDouble);
+        VMetaItem.S['n'] := CJsonMetaKnownGpxTags[jtEle];
+        VMetaItem.S['d'] := ArrayOfDoubleToString(VLine.Meta.Elevation, VLine.Count);
 
         VGeoItem.A['m'].Add(VMetaItem);
       end;
@@ -169,10 +142,9 @@ begin
       if VLine.Meta.TimeStamp <> nil then begin
         VMetaItem := SO; // meta item object
 
-        VMetaItem.I['i'] := 2;
-        VMetaItem.S['n'] := 'timestamp';
-        VMetaItem.I['c'] := VLine.Count;
-        VMetaItem.S['d'] := TimeStampToString(VLine.Meta.TimeStamp, VLine.Count);
+        VMetaItem.I['t'] := Integer(jdDouble);
+        VMetaItem.S['n'] := CJsonMetaKnownGpxTags[jtTime];
+        VMetaItem.S['d'] := ArrayOfDoubleToString(VLine.Meta.TimeStamp, VLine.Count);
 
         VGeoItem.A['m'].Add(VMetaItem);
       end;
@@ -183,7 +155,7 @@ begin
 
   if not VIsMetaEmpty then begin
     AStream.WriteBuffer(CJsonMetaMagic[0], Length(CJsonMetaMagic));
-    VJson.SaveTo(AStream);
+    VJson.SaveTo(AStream); // writes data to stream as AnsiString
   end;
 end;
 

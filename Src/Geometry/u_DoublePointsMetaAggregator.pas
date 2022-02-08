@@ -47,8 +47,8 @@ type
 
     procedure Grow(
       const ACount: Integer;
-      const AIsElevationRequired: Boolean;
-      const AIsTimeStampRequired: Boolean
+      const AIsElevationOk: Boolean;
+      const AIsTimeStampOk: Boolean
     );
 
     procedure MoveRight(
@@ -148,48 +148,45 @@ begin
   Result := FMetaPtr;
 end;
 
-procedure TDoublePointsMetaAggregator.MoveRight(const AIndex, ACount: Integer;
-  const AIsElevationOk, AIsTimeStampOk: Boolean);
-begin
-  if AIsElevationOk then begin
-    Move(
-      FMeta.Elevation[AIndex],
-      FMeta.Elevation[AIndex + ACount],
-      (FPointsCountPtr^ - AIndex) * SizeOf(FMeta.Elevation[0])
-    );
+procedure TDoublePointsMetaAggregator.MoveRight(
+  const AIndex, ACount: Integer;
+  const AIsElevationOk, AIsTimeStampOk: Boolean
+);
+
+  procedure MoveRightArrayOfDouble(A: PArrayOfDouble; const AIsOk: Boolean);
+  begin
+    Move(A[AIndex], A[AIndex + ACount], (FPointsCountPtr^ - AIndex) * SizeOf(A[0]));
+    if not AIsOk then begin
+      FillChar(A[AIndex], ACount * SizeOf(Double), 0);
+    end;
   end;
 
-  if AIsTimeStampOk then begin
-    Move(
-      FMeta.TimeStamp[AIndex],
-      FMeta.TimeStamp[AIndex + ACount],
-      (FPointsCountPtr^ - AIndex) * SizeOf(FMeta.TimeStamp[0])
-    );
+begin
+  if AIsElevationOk or (Length(FMeta.Elevation) > 0) then begin
+    MoveRightArrayOfDouble(@FMeta.Elevation[0], AIsElevationOk);
+  end;
+
+  if AIsTimeStampOk or (Length(FMeta.TimeStamp) > 0) then begin
+    MoveRightArrayOfDouble(@FMeta.TimeStamp[0], AIsTimeStampOk);
   end;
 end;
 
 procedure TDoublePointsMetaAggregator.Grow(
   const ACount: Integer;
-  const AIsElevationRequired: Boolean;
-  const AIsTimeStampRequired: Boolean
+  const AIsElevationOk: Boolean;
+  const AIsTimeStampOk: Boolean
 );
 var
   VNewCapacity: Integer;
 begin
-  if not AIsElevationRequired and
-     not AIsTimeStampRequired then
-  begin
-    Exit;
-  end;
-
   VNewCapacity := FPointsCapacityPtr^;
 
   if FCapacityInternal < FPointsCountPtr^ + ACount then begin
-    if AIsElevationRequired or (Length(FMeta.Elevation) > 0) then begin
+    if AIsElevationOk or (Length(FMeta.Elevation) > 0) then begin
       SetLength(FMeta.Elevation, VNewCapacity);
     end;
 
-    if AIsTimeStampRequired or (Length(FMeta.TimeStamp) > 0) then begin
+    if AIsTimeStampOk or (Length(FMeta.TimeStamp) > 0) then begin
       SetLength(FMeta.TimeStamp, VNewCapacity);
     end;
 
@@ -200,19 +197,27 @@ end;
 procedure TDoublePointsMetaAggregator.AddItem(
   const AItem: PDoublePointsMetaItem
 );
+var
+  VIsElevationOk: Boolean;
+  VIsTimeStampOk: Boolean;
 begin
-  if AItem = nil then begin
-    Exit;
-  end;
+  VIsElevationOk := (AItem <> nil) and AItem.IsElevationOk;
+  VIsTimeStampOk := (AItem <> nil) and AItem.IsTimeStampOk;
 
-  Grow(1, AItem.IsElevationOk, AItem.IsTimeStampOk);
+  Grow(1, VIsElevationOk, VIsTimeStampOk);
 
-  if AItem.IsElevationOk then begin
+  if VIsElevationOk then begin
     FMeta.Elevation[FPointsCountPtr^] := AItem.Elevation;
+  end else
+  if Length(FMeta.Elevation) > 0 then begin
+    FMeta.Elevation[FPointsCountPtr^] := 0;
   end;
 
-  if AItem.IsTimeStampOk then begin
+  if VIsTimeStampOk then begin
     FMeta.TimeStamp[FPointsCountPtr^] := AItem.TimeStamp;
+  end else
+  if Length(FMeta.TimeStamp) > 0 then begin
+    FMeta.TimeStamp[FPointsCountPtr^] := 0;
   end;
 end;
 
@@ -220,25 +225,33 @@ procedure TDoublePointsMetaAggregator.AddItems(
   const AItems: PDoublePointsMeta;
   const ACount: Integer
 );
+
+  procedure FillZeroArrayOfDouble(A: PArrayOfDouble);
+  begin
+    FillChar(A[FPointsCountPtr^], ACount * SizeOf(Double), 0);
+  end;
+
 var
   VIsElevationOk: Boolean;
   VIsTimeStampOk: Boolean;
 begin
-  if AItems = nil then begin
-    Exit;
-  end;
-
-  VIsElevationOk := AItems.Elevation <> nil;
-  VIsTimeStampOk := AItems.TimeStamp <> nil;
+  VIsElevationOk := (AItems <> nil) and (AItems.Elevation <> nil);
+  VIsTimeStampOk := (AItems <> nil) and (AItems.TimeStamp <> nil);
 
   Grow(ACount, VIsElevationOk, VIsTimeStampOk);
 
   if VIsElevationOk then begin
     Move(AItems.Elevation[0], FMeta.Elevation[FPointsCountPtr^], ACount * SizeOf(FMeta.Elevation[0]));
+  end else
+  if Length(FMeta.Elevation) > 0 then begin
+    FillZeroArrayOfDouble(@FMeta.Elevation[0]);
   end;
 
   if VIsTimeStampOk then begin
     Move(AItems.TimeStamp[0], FMeta.TimeStamp[FPointsCountPtr^], ACount * SizeOf(FMeta.TimeStamp[0]));
+  end else
+  if Length(FMeta.TimeStamp) > 0 then begin
+    FillZeroArrayOfDouble(@FMeta.TimeStamp[0]);
   end;
 end;
 
@@ -246,19 +259,21 @@ procedure TDoublePointsMetaAggregator.InsertItem(
   const AIndex: Integer;
   const AItem: PDoublePointsMetaItem
 );
+var
+  VIsElevationOk: Boolean;
+  VIsTimeStampOk: Boolean;
 begin
-  if AItem = nil then begin
-    Exit;
-  end;
+  VIsElevationOk := (AItem <> nil) and AItem.IsElevationOk;
+  VIsTimeStampOk := (AItem <> nil) and AItem.IsTimeStampOk;
 
-  Grow(1, AItem.IsElevationOk, AItem.IsTimeStampOk);
-  MoveRight(AIndex, 1, AItem.IsElevationOk, AItem.IsTimeStampOk);
+  Grow(1, VIsElevationOk, VIsTimeStampOk);
+  MoveRight(AIndex, 1, VIsElevationOk, VIsTimeStampOk);
 
-  if AItem.IsElevationOk then begin
+  if VIsElevationOk then begin
     FMeta.Elevation[AIndex] := AItem.Elevation;
   end;
 
-  if AItem.IsTimeStampOk then begin
+  if VIsTimeStampOk then begin
     FMeta.TimeStamp[AIndex] := AItem.TimeStamp;
   end;
 end;
@@ -272,12 +287,8 @@ var
   VIsElevationOk: Boolean;
   VIsTimeStampOk: Boolean;
 begin
-  if AItems = nil then begin
-    Exit;
-  end;
-
-  VIsElevationOk := AItems.Elevation <> nil;
-  VIsTimeStampOk := AItems.TimeStamp <> nil;
+  VIsElevationOk := (AItems <> nil) and (AItems.Elevation <> nil);
+  VIsTimeStampOk := (AItems <> nil) and (AItems.TimeStamp <> nil);
 
   Grow(ACount, VIsElevationOk, VIsTimeStampOk);
   MoveRight(AIndex, ACount, VIsElevationOk, VIsTimeStampOk);
@@ -295,21 +306,19 @@ procedure TDoublePointsMetaAggregator.DeleteItems(
   const AIndex: Integer;
   const ACount: Integer
 );
+
+  procedure MoveLeftArrayOfDouble(A: PArrayOfDouble);
+  begin
+    Move(A[AIndex + ACount], A[AIndex], (FPointsCountPtr^ - AIndex - ACount) * SizeOf(Double));
+  end;
+
 begin
   if Length(FMeta.Elevation) > 0 then begin
-    Move(
-      FMeta.Elevation[AIndex + ACount],
-      FMeta.Elevation[AIndex],
-      (FPointsCountPtr^ - AIndex - ACount) * SizeOf(FMeta.Elevation[0])
-    );
+    MoveLeftArrayOfDouble(@FMeta.Elevation[0]);
   end;
 
   if Length(FMeta.TimeStamp) > 0 then begin
-    Move(
-      FMeta.TimeStamp[AIndex + ACount],
-      FMeta.TimeStamp[AIndex],
-      (FPointsCountPtr^ - AIndex - ACount) * SizeOf(FMeta.TimeStamp[0])
-    );
+    MoveLeftArrayOfDouble(@FMeta.TimeStamp[0]);
   end;
 end;
 

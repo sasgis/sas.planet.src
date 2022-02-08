@@ -1486,6 +1486,7 @@
         <DCCReference Include="Src\Geometry\i_DoublePointFilter.pas"/>
         <DCCReference Include="Src\Geometry\i_DoublePoints.pas"/>
         <DCCReference Include="Src\Geometry\i_DoublePointsAggregator.pas"/>
+        <DCCReference Include="Src\Geometry\i_DoublePointsMeta.pas"/>
         <DCCReference Include="Src\Geometry\i_EnumDoublePoint.pas"/>
         <DCCReference Include="Src\Geometry\i_GeometryFromStream.pas"/>
         <DCCReference Include="Src\Geometry\i_GeometryLonLat.pas"/>
@@ -1501,6 +1502,8 @@
         <DCCReference Include="Src\Geometry\u_DoublePointsAggregator.pas"/>
         <DCCReference Include="Src\Geometry\u_DoublePointsMeta.pas"/>
         <DCCReference Include="Src\Geometry\u_DoublePointsMetaAggregator.pas"/>
+        <DCCReference Include="Src\Geometry\u_DoublePointsMetaBuilder.pas"/>
+        <DCCReference Include="Src\Geometry\u_DoublePointsMetaFunc.pas"/>
         <DCCReference Include="Src\Geometry\u_EnumDoublePointAbstract.pas"/>
         <DCCReference Include="Src\Geometry\u_EnumDoublePointByLineSet.pas"/>
         <DCCReference Include="Src\Geometry\u_EnumDoublePointBySingleLine.pas"/>
@@ -1518,6 +1521,9 @@
         <DCCReference Include="Src\Geometry\u_GeometryLonLat.pas"/>
         <DCCReference Include="Src\Geometry\u_GeometryLonLatFactory.pas"/>
         <DCCReference Include="Src\Geometry\u_GeometryLonLatMulti.pas"/>
+        <DCCReference Include="Src\Geometry\u_GeometryMetaFromStreamJson.pas"/>
+        <DCCReference Include="Src\Geometry\u_GeometryMetaJson.pas"/>
+        <DCCReference Include="Src\Geometry\u_GeometryMetaToStreamJson.pas"/>
         <DCCReference Include="Src\Geometry\u_GeometryProjected.pas"/>
         <DCCReference Include="Src\Geometry\u_GeometryProjectedFactory.pas"/>
         <DCCReference Include="Src\Geometry\u_GeometryProjectedMulti.pas"/>
@@ -2911,8 +2917,6 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\Geometry\u_GeometryMetaToStreamJson.pas"/>
-        <DCCReference Include="Src\Geometry\i_DoublePointsMeta.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

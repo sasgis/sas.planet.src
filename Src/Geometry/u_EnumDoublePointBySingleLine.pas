@@ -26,7 +26,7 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  u_DoublePointsMeta,
+  u_DoublePointsMetaFunc,
   u_EnumDoublePointAbstract;
 
 type

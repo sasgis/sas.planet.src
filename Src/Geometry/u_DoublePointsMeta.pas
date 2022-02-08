@@ -24,101 +24,74 @@ unit u_DoublePointsMeta;
 interface
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  i_DoublePointsMeta,
+  u_BaseInterfacedObject;
 
-function CopyMeta(
-  const AMeta: PDoublePointsMeta;
-  const ACount: Integer;
-  const AStartIndex: Integer = 0
-): PDoublePointsMeta;
-
-function CreateMeta: PDoublePointsMeta;
-procedure FreeAndNilMeta(var AMeta: PDoublePointsMeta);
-
-procedure ResetMetaItem(const AItem: PDoublePointsMetaItem); inline;
-
-procedure SetMetaItem(
-  const AMeta: PDoublePointsMeta;
-  const APointIndex: Integer;
-  const AItem: PDoublePointsMetaItem
-);
+type
+  TDoublePointsMetaImpl = class(TBaseInterfacedObject, IDoublePointsMeta)
+  private
+    FMeta: PDoublePointsMeta;
+    FCount: Integer;
+  private
+    { IDoublePointsMeta }
+    function GetCount: Integer;
+    function GetMeta: PDoublePointsMeta;
+  public
+    constructor Create(
+      const AMeta: PDoublePointsMeta;
+      const ACount: Integer
+    );
+    constructor CreateWithOwn(
+      const AMeta: PDoublePointsMeta;
+      const ACount: Integer
+    );
+    destructor Destroy; override;
+  end;
 
 implementation
 
-function CreateMeta: PDoublePointsMeta;
-begin
-  GetMem(Result, SizeOf(TDoublePointsMeta));
+uses
+  u_DoublePointsMetaFunc;
 
-  Result.Elevation := nil;
-  Result.TimeStamp := nil;
-end;
+{ TDoublePointsMetaImpl }
 
-procedure FreeAndNilMeta(var AMeta: PDoublePointsMeta);
-begin
-  if AMeta = nil then begin
-    Exit;
-  end;
-
-  FreeMem(AMeta.Elevation);
-  FreeMem(AMeta.TimeStamp);
-
-  FreeMem(AMeta);
-  AMeta := nil;
-end;
-
-function CopyMeta(
+constructor TDoublePointsMetaImpl.Create(
   const AMeta: PDoublePointsMeta;
-  const ACount: Integer;
-  const AStartIndex: Integer
-): PDoublePointsMeta;
-var
-  VSize: Integer;
-begin
-  Assert(AMeta <> nil);
-  Assert(ACount > 0);
-
-  Result := CreateMeta;
-
-  if AMeta.Elevation <> nil then begin
-    VSize := ACount * SizeOf(AMeta.Elevation[0]);
-    GetMem(Result.Elevation, VSize);
-    Move(AMeta.Elevation[AStartIndex], Result.Elevation[0], VSize);
-  end;
-
-  if AMeta.TimeStamp <> nil then begin
-    VSize := ACount * SizeOf(AMeta.TimeStamp[0]);
-    GetMem(Result.TimeStamp, VSize);
-    Move(AMeta.TimeStamp[AStartIndex], Result.TimeStamp[0], VSize);
-  end;
-end;
-
-procedure ResetMetaItem(const AItem: PDoublePointsMetaItem);
-begin
-  with AItem^ do begin
-    IsElevationOk := False;
-    IsTimeStampOk := False;
-  end;
-end;
-
-procedure SetMetaItem(
-  const AMeta: PDoublePointsMeta;
-  const APointIndex: Integer;
-  const AItem: PDoublePointsMetaItem
+  const ACount: Integer
 );
 begin
-  if AMeta <> nil then begin
-    AItem.IsElevationOk := AMeta.Elevation <> nil;
-    if AItem.IsElevationOk then begin
-      AItem.Elevation := AMeta.Elevation[APointIndex];
-    end;
+  inherited Create;
 
-    AItem.IsTimeStampOk := AMeta.TimeStamp <> nil;
-    if AItem.IsTimeStampOk then begin
-      AItem.TimeStamp := AMeta.TimeStamp[APointIndex];
-    end;
-  end else begin
-    ResetMetaItem(AItem);
-  end;
+  FMeta := CopyMeta(AMeta, ACount);
+  FCount := ACount;
+end;
+
+constructor TDoublePointsMetaImpl.CreateWithOwn(
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer
+);
+begin
+  inherited Create;
+
+  FMeta := AMeta;
+  FCount := ACount;
+end;
+
+destructor TDoublePointsMetaImpl.Destroy;
+begin
+  FreeAndNilMeta(FMeta);
+  inherited Destroy;
+end;
+
+function TDoublePointsMetaImpl.GetCount: Integer;
+begin
+  Result := FCount;
+end;
+
+function TDoublePointsMetaImpl.GetMeta: PDoublePointsMeta;
+begin
+  Result := FMeta;
 end;
 
 end.

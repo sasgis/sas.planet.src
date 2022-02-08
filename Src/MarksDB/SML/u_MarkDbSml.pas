@@ -59,7 +59,9 @@ type
     FStateInternal: IReadWriteStateInternal;
     FStream: TStream;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+
     FGeometryReader: IGeometryFromStream;
+    FGeometryMetaReader: IGeometryMetaFromStream;
 
     FGeometryPointsWriter: IGeometryPointsToStream;
     FGeometryMetaWriter: IGeometryMetaToStream;
@@ -200,6 +202,7 @@ type
       const ADataStream: TStream;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AGeometryReader: IGeometryFromStream;
+      const AGeometryMetaReader: IGeometryMetaFromStream;
       const AGeometryPointsWriter: IGeometryPointsToStream;
       const AGeometryMetaWriter: IGeometryMetaToStream;
       const AFactoryDbInternal: IMarkFactorySmlInternal;
@@ -223,6 +226,7 @@ uses
   u_IDInterfaceList,
   u_InterfaceListSimple,
   u_GeoFunc,
+  u_GeometryMetaFromStreamJson,
   u_SimpleFlagWithInterlock;
 
 constructor TMarkDbSml.Create(
@@ -231,6 +235,7 @@ constructor TMarkDbSml.Create(
   const ADataStream: TStream;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AGeometryReader: IGeometryFromStream;
+  const AGeometryMetaReader: IGeometryMetaFromStream;
   const AGeometryPointsWriter: IGeometryPointsToStream;
   const AGeometryMetaWriter: IGeometryMetaToStream;
   const AFactoryDbInternal: IMarkFactorySmlInternal;
@@ -242,13 +247,17 @@ constructor TMarkDbSml.Create(
 );
 begin
   Assert(Assigned(AGeometryReader));
+  Assert(Assigned(AGeometryMetaReader));
   Assert(Assigned(AGeometryPointsWriter));
   Assert(Assigned(AGeometryMetaWriter));
+
   inherited Create;
   FDbId := ADbId;
   FStream := ADataStream;
   FStateInternal := AStateInternal;
+
   FGeometryReader := AGeometryReader;
+  FGeometryMetaReader := AGeometryMetaReader;
 
   FGeometryPointsWriter := AGeometryPointsWriter;
   FGeometryMetaWriter := AGeometryMetaWriter;
@@ -611,7 +620,7 @@ begin
   VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
   try
-    Result := nil; // ToDo: Use Meta
+    Result := FGeometryMetaReader.Parse(VStream);
   finally
     VStream.Free;
   end;

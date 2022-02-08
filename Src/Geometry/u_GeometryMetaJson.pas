@@ -19,48 +19,60 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_EnumDoublePointAbstract;
+unit u_GeometryMetaJson;
 
 interface
 
-uses
-  t_GeoTypes,
-  i_EnumDoublePoint,
-  u_BaseInterfacedObject;
-
 type
-  TEnumDoublePointAbstract = class(TBaseInterfacedObject, IEnumDoublePoint)
-  protected
-    { IEnumDoublePoint }
-    function Next(
-      out APoint: TDoublePoint
-    ): Boolean; overload; virtual; abstract;
+  TJsonMetaGeometryTypeId = (
+    jgPoint,
+    jgLine,
+    jgPoly
+  );
 
-    function Next(
-      out APoint: TDoublePoint;
-      out AMeta: TDoublePointsMetaItem
-    ): Boolean; overload; virtual;
-  end;
+  TJsonMetaDataTypeId = (
+    jdInteger,
+    jdDouble
+  );
+
+  TJsonMetaKnownGpxTagsId = (
+    jtEle,
+    jtTime
+  );
+
+const
+  CJsonMetaKnownGpxTags: array [TJsonMetaKnownGpxTagsId] of string = (
+    'ele',
+    'time'
+  );
+
+  CJsonMetaMagic: array [0..3] of AnsiChar = (
+    'J', 'S', 'O', 'N'
+  );
 
 implementation
 
-uses
-  u_DoublePointsMetaFunc;
+(*
 
-{ TEnumDoublePointAbstract }
+  {
+      "v" : integer,                     // file struct version
+      't' : integer,                     // geometry type id (point/line/poly)
+      "g" : [                            // array of geometries
+          {
+              "c" : integer,             // points count
+              "m" : [                    // array of metadata
+                  {
+                      "t" : integer,     // data type id (integer/double)
+                      "n" : string,      // gpx tag name
+                      "d" : string       // points meta (base64)
+                  }
+                  ...
+              ]
+          }
+          ...
+      ]
+  }
 
-function TEnumDoublePointAbstract.Next(
-  out APoint: TDoublePoint;
-  out AMeta: TDoublePointsMetaItem
-): Boolean;
-begin
-  Assert(False, 'Not implemented!');
-
-  Result := Next(APoint);
-
-  if Result then begin
-    ResetMetaItem(@AMeta);
-  end;
-end;
+*)
 
 end.

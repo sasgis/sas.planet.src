@@ -19,111 +19,94 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_DoublePoints;
+unit u_DoublePointsMetaBuilder;
 
 interface
 
 uses
   t_GeoTypes,
-  i_DoublePoints,
-  u_BaseInterfacedObject;
+  i_DoublePointsMeta;
 
 type
-  TDoublePoints = class(TBaseInterfacedObject, IDoublePoints)
+  TDoublePointsMetaBuilder = class
   private
+    FEle: array of Double;
+    FTime: array of TDateTime;
     FCount: Integer;
-    FPoints: PDoublePointArray;
-    FMeta: PDoublePointsMeta;
-  private
-    { IDoublePoints }
-    function GetCount: Integer;
-    function GetPoints: PDoublePointArray;
-    function GetMeta: PDoublePointsMeta;
   public
-    constructor CreateWithOwn(
-      const APoints: PDoublePointArray;
-      const AMeta: PDoublePointsMeta;
-      const ACount: Integer
-    );
-    constructor Create(
-      const APoints: PDoublePointArray;
-      const AMeta: PDoublePointsMeta;
-      const ACount: Integer
-    );
-    destructor Destroy; override;
+    procedure Add(const AMeta: PDoublePointsMeta; const ACount: Integer);
+
+    procedure AddSeparationPoint; inline;
+    procedure AddEmptyPoints(const ACount: Integer); inline;
+
+    function Build: IDoublePointsMeta;
   end;
 
 implementation
 
 uses
-  u_DoublePointsMetaFunc;
+  u_DoublePointsMeta;
 
-{ TDoublePoints }
+{ TDoublePointsMetaBuilder }
 
-constructor TDoublePoints.Create(
-  const APoints: PDoublePointArray;
+procedure TDoublePointsMetaBuilder.Add(
   const AMeta: PDoublePointsMeta;
   const ACount: Integer
 );
 var
-  VSize: Integer;
+  I: Integer;
 begin
-  Assert(Assigned(APoints));
-  Assert(ACount > 0);
+  Assert(AMeta <> nil);
 
-  FCount := ACount;
-  FPoints := nil;
-  FMeta := nil;
+  I := FCount;
 
-  if FCount > 0 then begin
-    VSize := FCount * SizeOf(TDoublePoint);
-    GetMem(FPoints, VSize);
-    Move(APoints[0], FPoints[0], VSize);
-
-    if AMeta <> nil then begin
-      FMeta := CopyMeta(AMeta, FCount);
-    end;
+  if AMeta.Elevation <> nil then begin
+    SetLength(FEle, I + ACount);
+    Move(AMeta.Elevation[0], FEle[I], ACount * SizeOf(FEle[0]));
   end;
+
+  if AMeta.TimeStamp <> nil then begin
+    SetLength(FTime, I + ACount);
+    Move(AMeta.TimeStamp[0], FTime[I], ACount * SizeOf(FTime[0]));
+  end;
+
+  Inc(FCount, ACount);
 end;
 
-constructor TDoublePoints.CreateWithOwn(
-  const APoints: PDoublePointArray;
-  const AMeta: PDoublePointsMeta;
-  const ACount: Integer
-);
+procedure TDoublePointsMetaBuilder.AddSeparationPoint;
 begin
-  Assert(Assigned(APoints));
-  Assert(ACount > 0);
-  FCount := ACount;
-  if FCount > 0 then begin
-    FPoints := APoints;
-    FMeta := AMeta;
+  Inc(FCount);
+end;
+
+procedure TDoublePointsMetaBuilder.AddEmptyPoints(const ACount: Integer);
+begin
+  Inc(FCount, ACount);
+end;
+
+function TDoublePointsMetaBuilder.Build: IDoublePointsMeta;
+var
+  VMeta: TDoublePointsMeta;
+begin
+  if FCount = 0 then begin
+    Result := nil;
+    Exit;
+  end;
+
+  if Length(FEle) > 0 then begin
+    SetLength(FEle, FCount);
+    VMeta.Elevation := @Fele[0];
   end else begin
-    FPoints := nil;
-    FMeta := nil;
+    VMeta.Elevation := nil;
   end;
-end;
 
-destructor TDoublePoints.Destroy;
-begin
-  FreeMem(FPoints);
-  FreeAndNilMeta(FMeta);
-  inherited Destroy;
-end;
+  if Length(FTime) > 0 then begin
+    SetLength(FTime, FCount);
+    VMeta.TimeStamp := @FTime[0];
+  end else begin
+    VMeta.TimeStamp := nil;
+  end;
 
-function TDoublePoints.GetCount: Integer;
-begin
-  Result := FCount;
-end;
-
-function TDoublePoints.GetPoints: PDoublePointArray;
-begin
-  Result := FPoints;
-end;
-
-function TDoublePoints.GetMeta: PDoublePointsMeta;
-begin
-  Result := FMeta;
+  Result := TDoublePointsMetaImpl.Create(@VMeta, FCount);
 end;
 
 end.

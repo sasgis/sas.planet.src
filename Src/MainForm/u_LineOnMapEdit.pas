@@ -68,7 +68,8 @@ type
     FLineWithSelected: ILonLatPathWithSelected;
     function _MakeLine(
       const APoints: PDoublePointArray;
-      ACount: Integer
+      const AMeta: PDoublePointsMeta;
+      const ACount: Integer
     ): IGeometryLonLatLine;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
@@ -142,6 +143,7 @@ uses
   i_EnumDoublePoint,
   i_DoublePoints,
   u_DoublePoints,
+  u_DoublePointsMetaFunc,
   u_DoublePointsAggregator,
   u_GeoFunc,
   u_GeometryFunc,
@@ -646,30 +648,41 @@ end;
 
 function TPathOnMapEdit._MakeLine(
   const APoints: PDoublePointArray;
-  ACount: Integer
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer
 ): IGeometryLonLatLine;
 var
-  i: Integer;
+  I: Integer;
   VStart: PDoublePointArray;
+  VStartMeta: TDoublePointsMeta;
+  VStartMetaPtr: PDoublePointsMeta;
   VLineLen: Integer;
   VPoint: TDoublePoint;
   VPoints: IDoublePoints;
   VLineBounds: TDoubleRect;
 begin
   VStart := APoints;
+  if AMeta <> nil then begin
+    VStartMeta := AMeta^;
+    VStartMetaPtr := @VStartMeta;
+  end else begin
+    VStartMetaPtr := nil;
+  end;
   VLineLen := 0;
-  for i := 0 to ACount - 1 do begin
-    VPoint := APoints[i];
+  for I := 0 to ACount - 1 do begin
+    VPoint := APoints[I];
     if PointIsEmpty(VPoint) then begin
       if VLineLen > 0 then begin
-        // TODO: Use Meta
-        VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
+        VPoints := TDoublePoints.Create(VStart, VStartMetaPtr, VLineLen);
         FBuilder.AddLine(VLineBounds, VPoints);
         VLineLen := 0;
       end;
     end else begin
       if VLineLen = 0 then begin
-        VStart := @APoints[i];
+        VStart := @APoints[I];
+        if VStartMetaPtr <> nil then begin
+          SliceMeta(VStartMetaPtr, AMeta, I);
+        end;
         VLineBounds.TopLeft := VPoint;
         VLineBounds.BottomRight := VPoint;
       end else begin
@@ -679,8 +692,7 @@ begin
     end;
   end;
   if VLineLen > 0 then begin
-    // TODO: Use Meta
-    VPoints := TDoublePoints.Create(VStart, nil, VLineLen);
+    VPoints := TDoublePoints.Create(VStart, VStartMetaPtr, VLineLen);
     FBuilder.AddLine(VLineBounds, VPoints);
   end;
   Result := FBuilder.MakeStaticAndClear;
@@ -688,7 +700,7 @@ end;
 
 procedure TPathOnMapEdit._UpdateLineObject;
 begin
-  FLine := _MakeLine(FPoints.Points, FPoints.Count);
+  FLine := _MakeLine(FPoints.Points, FPoints.Meta, FPoints.Count);
   _UpdateLineWithSelected;
 end;
 
