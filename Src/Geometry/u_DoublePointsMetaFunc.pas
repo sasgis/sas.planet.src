@@ -106,12 +106,19 @@ procedure SliceMeta(
 begin
   Assert(ASlice <> nil);
 
-  if AMeta <> nil then begin
+  ASlice.Elevation := nil;
+  ASlice.TimeStamp := nil;
+
+  if AMeta = nil then begin
+    Exit;
+  end;
+
+  if AMeta.Elevation <> nil then begin
     ASlice.Elevation := @AMeta.Elevation[AStartIndex];
+  end;
+
+  if AMeta.TimeStamp <> nil then begin
     ASlice.TimeStamp := @AMeta.TimeStamp[AStartIndex];
-  end else begin
-    ASlice.Elevation := nil;
-    ASlice.TimeStamp := nil;
   end;
 end;
 
