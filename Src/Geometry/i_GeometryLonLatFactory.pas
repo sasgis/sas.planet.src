@@ -88,6 +88,7 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
+
     function CreateLonLatMultiPoint(
       const APoints: PDoublePointArray;
       ACount: Integer
@@ -98,12 +99,15 @@ type
 
     function CreateLonLatLine(
       const APoints: PDoublePointArray;
-      ACount: Integer
+      const AMeta: PDoublePointsMeta;
+      const ACount: Integer
     ): IGeometryLonLatLine;
+
     function CreateLonLatPolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatPolygon;
+
     function CreateLonLatLineByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil

@@ -1248,6 +1248,7 @@ uses
   u_PlayerPlugin,
   u_FillingMapPolygon,
   u_SunCalcProvider,
+  u_DoublePointsMetaFunc,
   u_DoublePointsAggregator,
   u_ConfigDataWriteProviderByIniFile,
   u_CmdLineArgProcessor,
@@ -6202,6 +6203,7 @@ procedure TfrmMain.ExtendRoute;
     if J < 0 then begin
       Result := GState.VectorGeometryLonLatFactory.CreateLonLatLine(
         @VPoints[0],
+        nil,
         Length(VPoints)
       );
     end else begin
@@ -6218,6 +6220,8 @@ procedure TfrmMain.ExtendRoute;
     VCountBefore: Integer;
     VCountAfter: Integer;
     VPoints: PDoublePointArray;
+    VMeta: PDoublePointsMeta;
+    VMetaSlice: TDoublePointsMeta;
     VAggregator: IDoublePointsAggregator;
     VSingle: IGeometryLonLatSingleLine;
     VMulti: IGeometryLonLatMultiLine;
@@ -6229,12 +6233,12 @@ procedure TfrmMain.ExtendRoute;
     VCountAfter := APath.Count - VCountBefore;
 
     VPoints := APath.Points;
+    VMeta := APath.Meta;
 
     VAggregator := TDoublePointsAggregator.Create(APath.Count);
 
     if VCountBefore > 0 then begin
-      // TODO: Use Meta
-      VAggregator.AddPoints(@VPoints[0], nil, VCountBefore);
+      VAggregator.AddPoints(@VPoints[0], VMeta, VCountBefore);
     end;
 
     if Supports(ARoute, IGeometryLonLatSingleLine, VSingle) then begin
@@ -6250,8 +6254,8 @@ procedure TfrmMain.ExtendRoute;
     end;
 
     if VCountAfter > 0 then begin
-      // TODO: Use Meta
-      VAggregator.AddPoints(@VPoints[APath.GetSelectedPointIndex], nil, VCountAfter);
+      SliceMeta(@VMetaSlice, VMeta, APath.GetSelectedPointIndex);
+      VAggregator.AddPoints(@VPoints[APath.GetSelectedPointIndex], @VMetaSlice, VCountAfter);
       VSelectedPoint := VAggregator.Points[(VAggregator.Count - 1) - (VCountAfter - 1)];
     end else begin
       if VAggregator.Count > 0 then begin
@@ -6263,6 +6267,7 @@ procedure TfrmMain.ExtendRoute;
 
     VLonLatLine := GState.VectorGeometryLonLatFactory.CreateLonLatLine(
       VAggregator.Points,
+      VAggregator.Meta,
       VAggregator.Count
     );
 

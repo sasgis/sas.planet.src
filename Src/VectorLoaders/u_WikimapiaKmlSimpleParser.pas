@@ -148,7 +148,7 @@ begin
           VAppearance := AContext.PolygonParams.Appearance;
         end;
       end else begin
-        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatLine(APointsAggregator.Points, VPointCount);
+        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatLine(APointsAggregator.Points, APointsAggregator.Meta, VPointCount);
         if Assigned(AContext.LineParams) then begin
           VAppearance := AContext.LineParams.Appearance;
         end;

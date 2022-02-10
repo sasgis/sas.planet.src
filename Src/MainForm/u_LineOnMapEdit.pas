@@ -159,6 +159,7 @@ type
     function GetSelectedPointIndex: Integer;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
+    function GetMeta: PDoublePointsMeta;
   public
     constructor Create(
       const APoints: IDoublePoints;
@@ -1024,6 +1025,11 @@ end;
 function TLonLatLineWithSelectedBase.GetPoints: PDoublePointArray;
 begin
   Result := FPoints.Points;
+end;
+
+function TLonLatLineWithSelectedBase.GetMeta: PDoublePointsMeta;
+begin
+  Result := FPoints.Meta;
 end;
 
 function TLonLatLineWithSelectedBase.GetSelectedPointIndex: Integer;
