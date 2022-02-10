@@ -110,7 +110,7 @@ begin
         VDataHolder[1] := '';
 
         for J := 0 to VMetaArray.Length - 1 do begin
-          VMetaItem := VMetaArray.O[I];
+          VMetaItem := VMetaArray.O[J];
 
           VTagName := LowerCase(VMetaItem.S['n']);
           VTagDataType := TJsonMetaDataTypeId(VMetaItem.I['t']);
