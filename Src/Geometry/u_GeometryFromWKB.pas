@@ -40,18 +40,31 @@ type
       const AStream: TStream;
       const AOrder: Boolean
     ): IGeometryLonLatPoint;
+
     function LoadLine(
       const AStream: TStream;
-      const AOrder: Boolean
+      const AOrder: Boolean;
+      const AMeta: IDoublePointsMeta
     ): IGeometryLonLatLine;
+
     function LoadSingleLine(
       const AStream: TStream;
-      const AOrder: Boolean
+      const AOrder: Boolean;
+      const AMeta: IDoublePointsMeta;
+      const AMetaStartIndex: Integer
     ): IDoublePoints;
+
+    function LoadMultiLine(
+      const AStream: TStream;
+      const AOrder: Boolean;
+      const AMeta: IDoublePointsMeta
+    ): IGeometryLonLatLine;
+
     function LoadSinglePolygon(
       const AStream: TStream;
       const AOrder: Boolean
     ): IDoublePoints;
+
     procedure LoadPolygons(
       const ABuilder: IGeometryLonLatPolygonBuilder;
       const AStream: TStream;
@@ -61,10 +74,7 @@ type
       const AStream: TStream;
       const AOrder: Boolean
     ): IGeometryLonLatPolygon;
-    function LoadMultiLine(
-      const AStream: TStream;
-      const AOrder: Boolean
-    ): IGeometryLonLatLine;
+
     function LoadMultiPolygon(
       const AStream: TStream;
       const AOrder: Boolean
@@ -72,7 +82,7 @@ type
   private
     function Parse(
       const AStream: TStream;
-      const APointsMeta: IDoublePointsMeta
+      const AMeta: IDoublePointsMeta
     ): IGeometryLonLat;
   public
     constructor Create(
@@ -85,7 +95,8 @@ implementation
 uses
   SysUtils,
   t_GeoTypes,
-  u_DoublePoints;
+  u_DoublePoints,
+  u_DoublePointsMetaFunc;
 
 { TGeometryFromWKB }
 
@@ -104,24 +115,28 @@ const
 
 function TGeometryFromWKB.LoadLine(
   const AStream: TStream;
-  const AOrder: Boolean
+  const AOrder: Boolean;
+  const AMeta: IDoublePointsMeta
 ): IGeometryLonLatLine;
 var
   VBuilder: IGeometryLonLatLineBuilder;
 begin
   Result := nil;
   VBuilder := FFactory.MakeLineBuilder;
-  VBuilder.AddLine(LoadSingleLine(AStream, AOrder));
+  VBuilder.AddLine(LoadSingleLine(AStream, AOrder, AMeta, 0));
   Result := VBuilder.MakeStaticAndClear;
 end;
 
 function TGeometryFromWKB.LoadSingleLine(
   const AStream: TStream;
-  const AOrder: Boolean
+  const AOrder: Boolean;
+  const AMeta: IDoublePointsMeta;
+  const AMetaStartIndex: Integer
 ): IDoublePoints;
 var
   VCount: Cardinal;
   VBuffer: PDoublePointArray;
+  VMeta: PDoublePointsMeta;
 begin
   Result := nil;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
@@ -129,15 +144,26 @@ begin
   if VCount >= MaxInt / 2 / SizeOf(Double) then begin
     Abort;
   end;
+
   GetMem(VBuffer, VCount * SizeOf(TDoublePoint));
   AStream.ReadBuffer(VBuffer[0], VCount * SizeOf(TDoublePoint));
-  // TODO: Use Meta
-  Result := TDoublePoints.CreateWithOwn(VBuffer, nil, VCount);
+
+  VMeta := nil;
+  if (AMeta <> nil) and (AMeta.Count > 0) then begin
+    if AMeta.Count >= AMetaStartIndex + Integer(VCount) then begin
+      VMeta := CopyMeta(AMeta.Meta, VCount, AMetaStartIndex);
+    end else begin
+      Assert(False);
+    end;
+  end;
+
+  Result := TDoublePoints.CreateWithOwn(VBuffer, VMeta, VCount);
 end;
 
 function TGeometryFromWKB.LoadMultiLine(
   const AStream: TStream;
-  const AOrder: Boolean
+  const AOrder: Boolean;
+  const AMeta: IDoublePointsMeta
 ): IGeometryLonLatLine;
 var
   VBuilder: IGeometryLonLatLineBuilder;
@@ -147,7 +173,10 @@ var
   VWKBOrder: Byte;
   VOrder: Boolean;
   VLine: IDoublePoints;
+  VMetaStartIndex: Integer;
 begin
+  VMetaStartIndex := 0;
+
   VBuilder := FFactory.MakeLineBuilder;
   AStream.ReadBuffer(VCount, SizeOf(VCount));
 
@@ -166,9 +195,12 @@ begin
     if VWKBType <> wkbGeometryTypeLine then begin
       Abort;
     end;
-    VLine := LoadSingleLine(AStream, VOrder);
+    VLine := LoadSingleLine(AStream, VOrder, AMeta, VMetaStartIndex);
     if Assigned(VLine) then begin
       VBuilder.AddLine(VLine);
+
+      Inc(VMetaStartIndex, VLine.Count);
+      Inc(VMetaStartIndex); // skip separation point
     end;
   end;
   Result := VBuilder.MakeStaticAndClear;
@@ -282,14 +314,13 @@ end;
 
 function TGeometryFromWKB.Parse(
   const AStream: TStream;
-  const APointsMeta: IDoublePointsMeta
+  const AMeta: IDoublePointsMeta
 ): IGeometryLonLat;
 var
   VWKBType: Cardinal;
   VWKBOrder: Byte;
   VOrder: Boolean;
 begin
-  // ToDo: Use Meta
   AStream.ReadBuffer(VWKBOrder, SizeOf(VWKBOrder));
   VOrder := VWKBOrder = 1;
   Assert(VOrder, 'Поддерживается тольк порядок Little Endian');
@@ -302,13 +333,13 @@ begin
       Result := LoadPoint(AStream, VOrder);
     end;
     wkbGeometryTypeLine: begin
-      Result := LoadLine(AStream, VOrder);
+      Result := LoadLine(AStream, VOrder, AMeta);
     end;
     wkbGeometryTypePolygon: begin
       Result := LoadPolygon(AStream, VOrder);
     end;
     wkbGeometryTypeMultiLine: begin
-      Result := LoadMultiLine(AStream, VOrder);
+      Result := LoadMultiLine(AStream, VOrder, AMeta);
     end;
     wkbGeometryTypeMultiPolygon: begin
       Result := LoadMultiPolygon(AStream, VOrder);
