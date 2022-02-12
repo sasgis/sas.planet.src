@@ -54,6 +54,15 @@ type
   end;
 
 type
+  TPointWhen = class
+  private
+    FFront: Integer;
+    FWhen: array of TDateTime;
+  public
+    procedure PushBack(const AValue: TDateTime);
+    function PopFront(out Avalue: TDateTime): Boolean;
+  end;
+
   TVectorItemTreeImporterXML = class(TBaseInterfacedObject, IVectorItemTreeImporter, IVectorItemTreeImporterXMLInternal)
   private
     FSkipFolders: Boolean;
@@ -64,6 +73,7 @@ type
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FFormat: TFormatSettings;
+    FKmlGxWhen: TPointWhen;
   private
     procedure Internal_ParseXML_UserProc(
       const AXmlVectorObjects: IXmlVectorObjects;
@@ -527,8 +537,14 @@ begin
               if (kml_latitude in fAvail_params) and (kml_longitude in fAvail_params) then begin
                 VWptPoint.X := fValues.longitude;
                 VWptPoint.Y := fValues.latitude;
-                // ToDo: Use Meta
-                AXmlVectorObjects.AddTrackPoint(VWptPoint, nil);
+                ResetMetaItem(@VWptMeta);
+                if kml_altitude in fAvail_params then begin
+                  VWptMeta.IsElevationOk := True;
+                  VWptMeta.Elevation := fValues.altitude;
+                end;
+                Assert(FKmlGxWhen <> nil);
+                VWptMeta.IsTimeStampOk := FKmlGxWhen.PopFront(VWptMeta.TimeStamp);
+                AXmlVectorObjects.AddTrackPoint(VWptPoint, @VWptMeta);
               end;
             end;
           end;
@@ -539,9 +555,11 @@ begin
         case pPX_State^.tag_disposition of
           xtd_Open: begin
             AXmlVectorObjects.OpenMultiTrack;
+            FKmlGxWhen := TPointWhen.Create;
           end;
           xtd_Close: begin
             AXmlVectorObjects.CloseMultiTrack;
+            FreeAndNil(FKmlGxWhen);
           end;
         end;
       end;
@@ -551,10 +569,24 @@ begin
           xtd_Open: begin
             // open new track segment or open single track
             AXmlVectorObjects.OpenTrackSegment;
+            FKmlGxWhen := TPointWhen.Create;
           end;
           xtd_Close: begin
             // close track segment or close single track
             AXmlVectorObjects.CloseTrackSegment;
+            FreeAndNil(FKmlGxWhen);
+          end;
+        end;
+      end;
+      kml_WhenTag: begin // "when" subtag under gx:track
+        case pPX_State^.tag_disposition of
+          xtd_ReadAttributes: begin
+            with pPX_Result^.kml_data do begin
+              if kml_when in fAvail_params then begin
+                Assert(FKmlGxWhen <> nil);
+                FKmlGxWhen.PushBack(fValues.when);
+              end;
+            end;
           end;
         end;
       end;
@@ -785,6 +817,26 @@ begin
     Result := LoadFromStream(VContext, VMemStream);
   finally
     VMemStream.Free;
+  end;
+end;
+
+{ TPointWhen }
+
+procedure TPointWhen.PushBack(const AValue: TDateTime);
+var
+  I: Integer;
+begin
+  I := Length(FWhen);
+  SetLength(FWhen, I+1);
+  FWhen[I] := AValue;
+end;
+
+function TPointWhen.PopFront(out AValue: TDateTime): Boolean;
+begin
+  Result := FFront < Length(FWhen);
+  if Result then begin
+    AValue := FWhen[FFront];
+    Inc(FFront);
   end;
 end;
 

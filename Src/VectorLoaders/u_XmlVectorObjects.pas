@@ -163,6 +163,7 @@ uses
   u_GeoFunc,
   u_VectorItemTree,
   u_InterfaceListSimple,
+  u_DoublePointsMetaFunc,
   u_DoublePointsAggregator;
 
 function GetMarkGeometryType(const AGeometry: IGeometryLonLat): TMarkType;
@@ -809,6 +810,8 @@ begin
       if parse_kml_coordinate(VCoordLine, @VData, FFormatPtr^) then begin
         VPoint.X := VData.lon1;
         VPoint.Y := VData.lat0;
+
+        ResetMetaItem(@VMeta);
 
         VMeta.IsElevationOk := VData.ele_ok;
         VMeta.IsTimeStampOk := VData.dt_ok;
