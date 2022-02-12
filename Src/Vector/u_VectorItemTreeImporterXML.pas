@@ -133,6 +133,7 @@ uses
   StrUtils,
   i_AppearanceHelper,
   u_AppearanceHelper,
+  u_DoublePointsMetaFunc,
   u_XmlVectorObjects;
 
 procedure rTVSAGPS_ParseXML_UserProc(
@@ -152,7 +153,8 @@ end;
 
 function GetPointForGPX(
   const AWptData: Tvsagps_GPX_wpt_data;
-  out AWptPoint: TDoublePoint
+  out AWptPoint: TDoublePoint;
+  const AWptMeta: PDoublePointsMetaItem = nil
 ): Boolean;
 begin
   with AWptData.fPos do begin
@@ -160,6 +162,17 @@ begin
     if Result then begin
       AWptPoint.X := PositionLon;
       AWptPoint.Y := PositionLat;
+    end;
+  end;
+  if Result and (AWptMeta <> nil) then begin
+    ResetMetaItem(AWptMeta);
+    if wpt_ele in AWptData.fAvail_wpt_params then begin
+      AWptMeta.IsElevationOk := True;
+      AWptMeta.Elevation := AWptData.fPos.Altitude;
+    end;
+    if wpt_time in AWptData.fAvail_wpt_params then begin
+      AWptMeta.IsTimeStampOk := True;
+      AWptMeta.TimeStamp := AWptData.fPos.UTCDate + AWptData.fPos.UTCTime;
     end;
   end;
 end;
@@ -412,6 +425,7 @@ const
   cFilesFolderName = 'files/';
 var
   VWptPoint: TDoublePoint;
+  VWptMeta: TDoublePointsMetaItem;
   VIconName: string;
 begin
   // if aborted
@@ -513,7 +527,8 @@ begin
               if (kml_latitude in fAvail_params) and (kml_longitude in fAvail_params) then begin
                 VWptPoint.X := fValues.longitude;
                 VWptPoint.Y := fValues.latitude;
-                AXmlVectorObjects.AddTrackPoint(VWptPoint);
+                // ToDo: Use Meta
+                AXmlVectorObjects.AddTrackPoint(VWptPoint, nil);
               end;
             end;
           end;
@@ -671,14 +686,12 @@ begin
         end;
       end;
       gpx_trkpt: begin
-        // single track point - lon/lat as attributes
+        // single track point - lon/lat as attributes, ele and time as subtags
         case pPX_State^.tag_disposition of
-          xtd_ReadAttributes: begin
-            // add point to array and skip other params
-            pPX_State^.skip_current := True;
-            if GetPointForGPX(pPX_Result^.gpx_data.wpt_data, VWptPoint) then begin
+          xtd_Close: begin
+            if GetPointForGPX(pPX_Result^.gpx_data.wpt_data, VWptPoint, @VWptMeta) then begin
               // add to array of points
-              AXmlVectorObjects.AddTrackPoint(VWptPoint);
+              AXmlVectorObjects.AddTrackPoint(VWptPoint, @VWptMeta);
             end;
           end;
         end;
@@ -714,14 +727,12 @@ begin
         end;
       end;
       gpx_rtept: begin
-        // single route point - lon/lat as attributes
+        // single route point - lon/lat as attributes, ele and time as subtags
         case pPX_State^.tag_disposition of
-          xtd_ReadAttributes: begin
-            // add point to array and skip other params
-            pPX_State^.skip_current := True;
-            if GetPointForGPX(pPX_Result^.gpx_data.wpt_data, VWptPoint) then begin
+          xtd_Close: begin
+            if GetPointForGPX(pPX_Result^.gpx_data.wpt_data, VWptPoint, @VWptMeta) then begin
               // add to array of points
-              AXmlVectorObjects.AddTrackPoint(VWptPoint);
+              AXmlVectorObjects.AddTrackPoint(VWptPoint, @VWptMeta);
             end;
           end;
         end;

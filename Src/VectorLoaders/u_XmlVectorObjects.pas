@@ -120,7 +120,10 @@ type
     procedure CloseGPXPoint(const APoint: TDoublePoint);
     procedure CloseKmlPolygon;
 
-    procedure AddTrackPoint(const APoint: TDoublePoint);
+    procedure AddTrackPoint(
+      const APoint: TDoublePoint;
+      const AMeta: PDoublePointsMetaItem
+    );
 
     procedure OpenFolder;
     procedure CloseFolder(const AName: string);
@@ -193,10 +196,12 @@ end;
 
 { TXmlVectorObjects }
 
-procedure TXmlVectorObjects.AddTrackPoint(const APoint: TDoublePoint);
+procedure TXmlVectorObjects.AddTrackPoint(
+  const APoint: TDoublePoint;
+  const AMeta: PDoublePointsMetaItem
+);
 begin
-  // TODO: Use Meta
-  FDoublePointsAggregator.Add(APoint);
+  FDoublePointsAggregator.Add(APoint, AMeta);
 end;
 
 procedure TXmlVectorObjects.CloseGPXPoint(const APoint: TDoublePoint);

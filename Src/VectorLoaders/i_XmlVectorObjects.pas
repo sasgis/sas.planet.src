@@ -74,7 +74,10 @@ type
     procedure CloseKmlPolygon;
 
     // add single track point to array
-    procedure AddTrackPoint(const APoint: TDoublePoint);
+    procedure AddTrackPoint(
+      const APoint: TDoublePoint;
+      const AMeta: PDoublePointsMetaItem
+    );
 
     procedure OpenFolder;
     procedure CloseFolder(const AName: string);
