@@ -160,6 +160,7 @@ uses
   Math,
   SysUtils,
   u_GeoFunc,
+  u_DoublePointsMetaFunc,
   u_EnumDoublePointBySingleLine;
 
 { TGeometryLonLatBase }
@@ -337,7 +338,9 @@ begin
       Exit;
     end;
 
-    Result := CompareMem(FPoints.Points, ALine.Points, FCount * SizeOf(TDoublePoint));
+    Result :=
+      CompareMem(FPoints.Points, ALine.Points, FCount * SizeOf(TDoublePoint)) and
+      IsSameMeta(FPoints.Meta, ALine.Meta, FCount);
   end;
 end;
 

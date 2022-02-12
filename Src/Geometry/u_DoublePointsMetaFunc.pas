@@ -24,7 +24,9 @@ unit u_DoublePointsMetaFunc;
 interface
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  t_Hash,
+  i_HashFunction;
 
 function CopyMeta(
   const AMeta: PDoublePointsMeta;
@@ -37,6 +39,18 @@ procedure SliceMeta(
   const AMeta: PDoublePointsMeta;
   const AStartIndex: Integer
 );
+
+procedure UpdateHashByMeta(
+  var AHash: THashValue;
+  const AHashFunc: IHashFunction;
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer
+);
+
+function IsSameMeta(
+  const A, B: PDoublePointsMeta;
+  const ACount: Integer
+): Boolean;
 
 function CreateMeta: PDoublePointsMeta;
 procedure FreeAndNilMeta(var AMeta: PDoublePointsMeta);
@@ -120,6 +134,25 @@ begin
   if AMeta.TimeStamp <> nil then begin
     ASlice.TimeStamp := @AMeta.TimeStamp[AStartIndex];
   end;
+end;
+
+procedure UpdateHashByMeta(
+  var AHash: THashValue;
+  const AHashFunc: IHashFunction;
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer
+);
+begin
+  // ToDo:
+end;
+
+function IsSameMeta(
+  const A, B: PDoublePointsMeta;
+  const ACount: Integer
+): Boolean;
+begin
+  Result := False;
+  // ToDo:
 end;
 
 procedure ResetMetaItem(const AItem: PDoublePointsMetaItem);

@@ -198,7 +198,10 @@ var
 begin
   Assert(Assigned(APoints));
   VRect := MakeLonLatRectByRect(ABounds);
+
   VHash := FHashFunction.CalcHashByBuffer(APoints.Points, APoints.Count * SizeOf(TDoublePoint));
+  UpdateHashByMeta(VHash, FHashFunction, APoints.Meta, APoints.Count);
+
   VLine := TGeometryLonLatSingleLine.Create(VRect, VHash, APoints);
 
   if not Assigned(FLine) then begin
