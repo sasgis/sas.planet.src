@@ -163,6 +163,15 @@ type
     property mDesc: RawUTF8 read FDesc write FDesc; // описание мекти в AnsiLowerCase
   end;
 
+  TSQLMarkMeta = class(TSQLRecord)
+  public
+    FMark: TID;
+    FMeta: TSQLRawBlob;
+  published
+    property mMark: TID read FMark write FMark;
+    property mMeta: TSQLRawBlob read FMeta write FMeta;
+  end;
+
 function CreateModelSQLite3: TSQLModel;
 function CreateModelDBMS: TSQLModel;
 function CreateModelMongoDB: TSQLModel;
@@ -182,7 +191,8 @@ begin
         TSQLMarkView,
         TSQLMarkAppearance,
         TSQLMarkFTS,
-        TSQLMarkRTree
+        TSQLMarkRTree,
+        TSQLMarkMeta
       ]
     );
 end;
@@ -199,7 +209,8 @@ begin
         TSQLMarkDBMS,
         TSQLMarkView,
         TSQLMarkAppearance,
-        TSQLMarkFTS
+        TSQLMarkFTS,
+        TSQLMarkMeta
       ]
     );
 end;
@@ -216,7 +227,8 @@ begin
         TSQLMarkMongoDB,
         TSQLMarkView,
         TSQLMarkAppearance,
-        TSQLMarkFTS
+        TSQLMarkFTS,
+        TSQLMarkMeta
       ]
     );
 end;

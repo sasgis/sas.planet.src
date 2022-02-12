@@ -99,6 +99,8 @@ uses
   i_MarkSystemImplConfigORM,
   u_GeometryToWKB,
   u_GeometryFromWKB,
+  u_GeometryMetaToStreamJson,
+  u_GeometryMetaFromStreamJson,
   u_ReadWriteStateInternal,
   u_MarkDbImplORM,
   u_MarkSystemORMLog,
@@ -128,7 +130,9 @@ var
   VState: TReadWriteStateInternal;
   VStateInternal: IReadWriteStateInternal;
   VGeometryReader: IGeometryFromStream;
+  VGeometryMetaReader: IGeometryMetaFromStream;
   VGeometryPointsWriter: IGeometryPointsToStream;
+  VGeometryMetaWriter: IGeometryMetaToStream;
   VImplConfig: IMarkSystemImplConfigORM;
 begin
   inherited Create;
@@ -171,7 +175,10 @@ begin
     );
 
   VGeometryReader := TGeometryFromWKB.Create(AVectorGeometryLonLatFactory);
+  VGeometryMetaReader := TGeometryMetaFromStreamJson.Create;
+
   VGeometryPointsWriter := TGeometryToWKB.Create;
+  VGeometryMetaWriter := TGeometryMetaToStreaMJson.Create;
 
   VMarkDb :=
     TMarkDbImplORM.Create(
@@ -181,8 +188,9 @@ begin
       FClientProvider,
       FFactoryDbInternal,
       VGeometryReader,
+      VGeometryMetaReader,
       VGeometryPointsWriter,
-      nil, // ToDo: Use Meta
+      VGeometryMetaWriter,
       AVectorItemSubsetBuilderFactory
     );
 

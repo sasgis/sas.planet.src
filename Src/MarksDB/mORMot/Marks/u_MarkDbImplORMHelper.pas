@@ -43,6 +43,7 @@ uses
   i_GeometryLonLat,
   i_GeometryToStream,
   i_GeometryFromStream,
+  i_DoublePointsMeta,
   i_MarkSystemImplORMClientProvider,
   u_MarkSystemORMModel,
   u_MarkDbImplORMCache;
@@ -61,15 +62,19 @@ type
     FClient: TSQLRestClientDB;
     FCache: TSQLMarkDbCache;
     FIsReadOnly: Boolean;
-    FGeometryWriter: IGeometryPointsToStream;
     FGeometryReader: IGeometryFromStream;
+    FGeometryMetaReader: IGeometryMetaFromStream;
+    FGeometryPointsWriter: IGeometryPointsToStream;
+    FGeometryMetaWriter: IGeometryMetaToStream;
     FClientType: TMarkSystemImplORMClientType;
     FClientProvider: IMarkSystemImplORMClientProvider;
     FSQLMarkClass: TSQLMarkClass;
     FSQLMarkName: RawUTF8;
   private
-    function _GeomertryFromBlob(const ABlob: TSQLRawBlob): IGeometryLonLat;
-    function _GeomertryToBlob(const AGeometry: IGeometryLonLat): TSQLRawBlob;
+    function _GeomertryFromBlob(const ABlob: TSQLRawBlob; const AMeta: IDoublePointsMeta): IGeometryLonLat;
+    function _GeomertryMetaFromBlob(const ABlob: TSQLRawBlob): IDoublePointsMeta;
+    function _GeomertryPointsToBlob(const AGeometry: IGeometryLonLat): TSQLRawBlob;
+    function _GeomertryMetaToBlob(const AGeometry: IGeometryLonLat): TSQLRawBlob;
     function _AddMarkImage(const APicName: string): TID;
     procedure _ReadMarkImage(var AMarkRec: TSQLMarkRec);
     function _AddMarkAppearance(
@@ -173,9 +178,10 @@ type
     constructor Create(
       const AIsReadOnly: Boolean;
       const ACacheSizeMb: Cardinal;
+      const AGeometryReader: IGeometryFromStream;
+      const AGeometryMetaReader: IGeometryMetaFromStream;
       const AGeometryPointsWriter: IGeometryPointsToStream;
       const AGeometryMetaWriter: IGeometryMetaToStream;
-      const AGeometryReader: IGeometryFromStream;
       const AClientProvider: IMarkSystemImplORMClientProvider
     );
     destructor Destroy; override;
@@ -201,9 +207,10 @@ const
 constructor TMarkDbImplORMHelper.Create(
   const AIsReadOnly: Boolean;
   const ACacheSizeMb: Cardinal;
+  const AGeometryReader: IGeometryFromStream;
+  const AGeometryMetaReader: IGeometryMetaFromStream;
   const AGeometryPointsWriter: IGeometryPointsToStream;
   const AGeometryMetaWriter: IGeometryMetaToStream;
-  const AGeometryReader: IGeometryFromStream;
   const AClientProvider: IMarkSystemImplORMClientProvider
 );
 begin
@@ -216,9 +223,10 @@ begin
     FCache.Init(1024*1024*1024); // 1 Gb
   end;
 
-  // ToDo: Use Meta
-  FGeometryWriter := AGeometryPointsWriter;
   FGeometryReader := AGeometryReader;
+  FGeometryMetaReader := AGeometryMetaReader;
+  FGeometryPointsWriter := AGeometryPointsWriter;
+  FGeometryMetaWriter := AGeometryMetaWriter;
 
   FClientProvider := AClientProvider;
   FUserID := FClientProvider.UserID;
@@ -236,7 +244,8 @@ begin
 end;
 
 function TMarkDbImplORMHelper._GeomertryFromBlob(
-  const ABlob: TSQLRawBlob
+  const ABlob: TSQLRawBlob;
+  const AMeta: IDoublePointsMeta
 ): IGeometryLonLat;
 var
   VStream: TRawByteStringStream;
@@ -244,13 +253,31 @@ begin
   Assert(ABlob <> '');
   VStream := TRawByteStringStream.Create(ABlob);
   try
-    Result := FGeometryReader.Parse(VStream);
+    Result := FGeometryReader.Parse(VStream, AMeta);
   finally
     VStream.Free;
   end;
 end;
 
-function TMarkDbImplORMHelper._GeomertryToBlob(
+function TMarkDbImplORMHelper._GeomertryMetaFromBlob(
+  const ABlob: TSQLRawBlob
+): IDoublePointsMeta;
+var
+  VStream: TRawByteStringStream;
+begin
+  Result := nil;
+  if ABlob = '' then begin
+    Exit;
+  end;
+  VStream := TRawByteStringStream.Create(ABlob);
+  try
+    Result := FGeometryMetaReader.Parse(VStream);
+  finally
+    VStream.Free;
+  end;
+end;
+
+function TMarkDbImplORMHelper._GeomertryPointsToBlob(
   const AGeometry: IGeometryLonLat
 ): TSQLRawBlob;
 var
@@ -259,7 +286,23 @@ begin
   Assert(AGeometry <> nil);
   VStream := TRawByteStringStream.Create;
   try
-    FGeometryWriter.Save(AGeometry, VStream);
+    FGeometryPointsWriter.Save(AGeometry, VStream);
+    Result := VStream.DataString;
+  finally
+    VStream.Free;
+  end;
+end;
+
+function TMarkDbImplORMHelper._GeomertryMetaToBlob(
+  const AGeometry: IGeometryLonLat
+): TSQLRawBlob;
+var
+  VStream: TRawByteStringStream;
+begin
+  Assert(AGeometry <> nil);
+  VStream := TRawByteStringStream.Create;
+  try
+    FGeometryMetaWriter.Save(AGeometry, VStream);
     Result := VStream.DataString;
   finally
     VStream.Free;
@@ -418,6 +461,9 @@ begin
     // delete name and desc
     CheckDeleteResult( FClient.Delete(TSQLMarkFTS, AMarkID) );
 
+    // delete meta if exists
+    CheckDeleteResult( FClient.Delete(TSQLMarkMeta, FormatUTF8('mMark=?', [], [AMarkID])) );
+
     // delete mark
     CheckDeleteResult( FClient.Delete(FSQLMarkClass, AMarkID) );
 
@@ -445,8 +491,10 @@ function TMarkDbImplORMHelper.InsertMarkSQL(var AMarkRec: TSQLMarkRec): Boolean;
 var
   VRect: TDoubleRect;
   VIntRect: TRect;
-  VGeometryBlob: TSQLRawBlob;
+  VGeometryPointsBlob: TSQLRawBlob;
+  VGeometryMetaBlob: TSQLRawBlob;
   VSQLMark: TSQLMark;
+  VSQLMarkMeta: TSQLMarkMeta;
   VSQLMarkDBMS: TSQLMarkDBMS;
   VSQLMarkView: TSQLMarkView;
   VSQLMarkFTS: TSQLMarkFTS;
@@ -462,7 +510,8 @@ begin
   AMarkRec.FMarkId := 0;
 
   VRect := AMarkRec.FGeometry.Bounds.Rect;
-  VGeometryBlob := _GeomertryToBlob(AMarkRec.FGeometry);
+  VGeometryPointsBlob := _GeomertryPointsToBlob(AMarkRec.FGeometry);
+  VGeometryMetaBlob := _GeomertryMetaToBlob(AMarkRec.FGeometry);
   CalcGeometrySize(VRect, AMarkRec.FGeoLonSize, AMarkRec.FGeoLatSize);
 
   StartTransaction(FClient, VTransaction, FSQLMarkClass);
@@ -504,11 +553,15 @@ begin
       // add mark to db
       CheckID( FClient.Add(VSQLMark, True) );
       AMarkRec.FMarkId := VSQLMark.ID;
-      // add geometry blob to db
-      CheckUpdateResult( FClient.UpdateBlob(FSQLMarkClass, AMarkRec.FMarkId, 'mGeoWKB', VGeometryBlob) );
+      // add geometry points blob to db
+      CheckUpdateResult( FClient.UpdateBlob(FSQLMarkClass, AMarkRec.FMarkId, 'mGeoWKB', VGeometryPointsBlob) );
       // add to cache
       FCache.FMarkCache.AddOrUpdate(AMarkRec);
-      FCache.FMarkGeometryCache.AddOrUpdate(AMarkRec.FMarkId, Length(VGeometryBlob), AMarkRec.FGeometry);
+      FCache.FMarkGeometryCache.AddOrUpdate(
+        AMarkRec.FMarkId,
+        Length(VGeometryPointsBlob) + Length(VGeometryMetaBlob),
+        AMarkRec.FGeometry
+      );
       FCache.FMarkIdIndex.AddOrUpdate(AMarkRec);
       FCache.FMarkIdByCategoryIndex.Add(AMarkRec.FCategoryId, AMarkRec.FMarkId);
     finally
@@ -560,6 +613,19 @@ begin
     // add view to cache
     FCache.FMarkViewCache.AddOrUpdate(AMarkRec);
 
+    // add geometry meta blob to db
+    if Length(VGeometryMetaBlob) > 0 then begin
+      VSQLMarkMeta := TSQLMarkMeta.Create;
+      try
+        VSQLMarkMeta.FMark := AMarkRec.FMarkId;
+        VSQLMarkMeta.FMeta := VGeometryMetaBlob;
+        // add
+        CheckID( FClient.Add(VSQLMarkMeta, True) );
+      finally
+        VSQLMarkMeta.Free;
+      end;
+    end;
+
     CommitTransaction(FClient, VTransaction);
   except
     RollBackTransaction(FClient, VTransaction);
@@ -576,8 +642,10 @@ function TMarkDbImplORMHelper.UpdateMarkSQL(
 var
   VRect: TDoubleRect;
   VIntRect: TRect;
-  VGeometryBlob: TSQLRawBlob;
+  VGeometryPointsBlob: TSQLRawBlob;
+  VGeometryMetaBlob: TSQLRawBlob;
   VSQLMark: TSQLMark;
+  VSQLMarkMeta: TSQLMarkMeta;
   VSQLMarkDBMS: TSQLMarkDBMS;
   VSQLMarkFTS: TSQLMarkFTS;
   VSQLMarkRTree: TSQLMarkRTree;
@@ -621,7 +689,8 @@ begin
 
   if VUpdateGeo then begin
     VRect := ANewMarkRec.FGeometry.Bounds.Rect;
-    VGeometryBlob := _GeomertryToBlob(ANewMarkRec.FGeometry);
+    VGeometryPointsBlob := _GeomertryPointsToBlob(ANewMarkRec.FGeometry);
+    VGeometryMetaBlob := _GeomertryMetaToBlob(ANewMarkRec.FGeometry);
     CalcGeometrySize(VRect, ANewMarkRec.FGeoLonSize, ANewMarkRec.FGeoLatSize);
   end;
 
@@ -710,11 +779,13 @@ begin
       if VUpdateGeo then begin
         // update geometry blob
         CheckUpdateResult(
-          FClient.UpdateBlob(FSQLMarkClass, VSQLMark.ID, 'mGeoWKB', VGeometryBlob)
+          FClient.UpdateBlob(FSQLMarkClass, VSQLMark.ID, 'mGeoWKB', VGeometryPointsBlob)
         );
         // update cache
         FCache.FMarkGeometryCache.AddOrUpdate(
-          ANewMarkRec.FMarkId, Length(VGeometryBlob), ANewMarkRec.FGeometry
+          ANewMarkRec.FMarkId,
+          Length(VGeometryPointsBlob) + Length(VGeometryMetaBlob),
+          ANewMarkRec.FGeometry
         );
         Result := True;
       end;
@@ -767,6 +838,15 @@ begin
       end;
     end;
 
+    if VUpdateGeo then begin
+      VSQLMarkMeta := TSQLMarkMeta.Create;
+      try
+        // ToDo: Use Meta
+      finally
+        VSQLMarkMeta.Free;
+      end;
+    end;
+
     CommitTransaction(FClient, VTransaction);
   except
     RollBackTransaction(FClient, VTransaction);
@@ -786,7 +866,8 @@ var
   VFieldsCSV: RawUTF8;
   VSQLMark: TSQLMark;
   VSQLMarkView: TSQLMarkView;
-  VSQLBlobData: TSQLRawBlob;
+  VPointsBlobData: TSQLRawBlob;
+  VMetaBlobData: TSQLRawBlob;
   VIndexItem: PSQLMarkIdIndexRec;
   VCacheItem: PSQLMarkRow;
   VViewItem: PSQLMarkViewRow;
@@ -882,10 +963,13 @@ begin
     AMarkRec.FGeometry := VGeometry;
   end else begin
     // read from db
-    CheckRetrieveResult( FClient.RetrieveBlob(FSQLMarkClass, VMarkID, 'mGeoWKB', VSQLBlobData) );
-    AMarkRec.FGeometry := _GeomertryFromBlob(VSQLBlobData);
+
+    // ToDo: Use Meta
+
+    CheckRetrieveResult( FClient.RetrieveBlob(FSQLMarkClass, VMarkID, 'mGeoWKB', VPointsBlobData) );
+    AMarkRec.FGeometry := _GeomertryFromBlob(VPointsBlobData, nil);
     // add to cache
-    FCache.FMarkGeometryCache.AddOrUpdate(VMarkID, Length(VSQLBlobData), AMarkRec.FGeometry);
+    FCache.FMarkGeometryCache.AddOrUpdate(VMarkID, Length(VPointsBlobData), AMarkRec.FGeometry);
   end;
 
   // read view
@@ -1093,7 +1177,7 @@ begin
     K := 0;
     VCurrCategory := 0;
     if not VByCategory then begin
-      // Enshure that result is sorted by Category
+      // Ensure that result is sorted by Category
       // (MongoDB 3.2 issue: http://www.sasgis.org/mantis/view.php?id=2970)
       VList.SortFields(3, True, nil, sftID);
     end;
@@ -1224,7 +1308,8 @@ begin
       J := I + 1;
       VArray[I].MarkId := VList.GetAsInt64(J, 0);
       VBlob := VList.GetBlob(J, 1);
-      VArray[I].Geometry := _GeomertryFromBlob(VBlob);
+      // ToDo: Use Meta
+      VArray[I].Geometry := _GeomertryFromBlob(VBlob, nil);
       VArray[I].Size := Length(VBlob);
     end;
     FCache.FMarkGeometryCache.AddPrepared(ACategoryID, VArray);
