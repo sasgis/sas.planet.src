@@ -2795,6 +2795,7 @@
         <DCCReference Include="Src\Vector\u_ExportMarks2KML.pas"/>
         <DCCReference Include="Src\Vector\u_ExportMarks2KMLConfig.pas"/>
         <DCCReference Include="Src\Vector\u_ExportMarks2TCX.pas"/>
+        <DCCReference Include="Src\Vector\u_GpxFakeTimeGenerator.pas"/>
         <DCCReference Include="Src\Vector\u_ImportConfig.pas"/>
         <DCCReference Include="Src\Vector\u_JpegWithExifImportConfig.pas"/>
         <DCCReference Include="Src\Vector\u_VectorDataFactoryForMap.pas"/>

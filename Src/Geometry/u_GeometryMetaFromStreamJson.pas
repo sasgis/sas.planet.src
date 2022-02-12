@@ -129,7 +129,7 @@ begin
           if VTagName = CJsonMetaKnownGpxTags[jtTime] then begin
             if VTagDataType = jdDouble then begin
               VDataHolder[1] := Base64Decode(AnsiString(VMetaItem.S['d']));
-              if Length(VDataHolder[1]) = VPointsCount * SizeOf(TDateTime) then begin
+              if Length(VDataHolder[1]) <> VPointsCount * SizeOf(TDateTime) then begin
                 VDataHolder[1] := '';
                 Assert(False);
               end;
