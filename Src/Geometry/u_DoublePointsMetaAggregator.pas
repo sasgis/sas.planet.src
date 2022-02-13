@@ -43,8 +43,6 @@ type
     FPointsCountPtr: PInteger;
     FPointsCapacityPtr: PInteger;
 
-    FCapacityInternal: Integer;
-
     procedure Grow(
       const ACount: Integer;
       const AIsElevationOk: Boolean;
@@ -113,8 +111,6 @@ begin
   FPointsCountPtr := ACount;
   FPointsCapacityPtr := ACapacity;
 
-  FCapacityInternal := 0;
-
   FMetaPtr := nil;
 end;
 
@@ -182,20 +178,22 @@ procedure TDoublePointsMetaAggregator.Grow(
   const AIsTimeStampOk: Boolean
 );
 var
+  VNewLen: Integer;
   VNewCapacity: Integer;
 begin
+  VNewLen := FPointsCountPtr^ + ACount;
   VNewCapacity := FPointsCapacityPtr^;
 
-  if FCapacityInternal < FPointsCountPtr^ + ACount then begin
-    if AIsElevationOk or (Length(FMeta.Elevation) > 0) then begin
+  if AIsElevationOk or (Length(FMeta.Elevation) > 0) then begin
+    if Length(FMeta.Elevation) < VNewLen then begin
       SetLength(FMeta.Elevation, VNewCapacity);
     end;
+  end;
 
-    if AIsTimeStampOk or (Length(FMeta.TimeStamp) > 0) then begin
+  if AIsTimeStampOk or (Length(FMeta.TimeStamp) > 0) then begin
+    if Length(FMeta.TimeStamp) < VNewLen then begin
       SetLength(FMeta.TimeStamp, VNewCapacity);
     end;
-
-    FCapacityInternal := VNewCapacity;
   end;
 end;
 
