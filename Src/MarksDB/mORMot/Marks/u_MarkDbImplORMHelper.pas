@@ -462,7 +462,7 @@ begin
     CheckDeleteResult( FClient.Delete(TSQLMarkFTS, AMarkID) );
 
     // delete meta if exists
-    CheckDeleteResult( FClient.Delete(TSQLMarkMeta, FormatUTF8('mMark=?', [], [AMarkID])) );
+    FClient.Delete(TSQLMarkMeta, FormatUTF8('mMark=?', [], [AMarkID]));
 
     // delete mark
     CheckDeleteResult( FClient.Delete(FSQLMarkClass, AMarkID) );
@@ -621,6 +621,7 @@ begin
         VSQLMarkMeta.FMeta := VGeometryMetaBlob;
         // add
         CheckID( FClient.Add(VSQLMarkMeta, True) );
+        CheckUpdateResult( FClient.UpdateBlob(TSQLMarkMeta, VSQLMarkMeta.ID, 'mMeta', VGeometryMetaBlob) );
       finally
         VSQLMarkMeta.Free;
       end;
@@ -838,10 +839,27 @@ begin
       end;
     end;
 
+    // update geometry meta blob
     if VUpdateGeo then begin
-      VSQLMarkMeta := TSQLMarkMeta.Create;
+      VSQLMarkMeta := TSQLMarkMeta.Create(FClient, 'mMark=?', [ANewMarkRec.FMarkId]);
       try
-        // ToDo: Use Meta
+        if Length(VGeometryMetaBlob) = 0 then begin
+          if VSQLMarkMeta.ID > 0 then begin
+            CheckDeleteResult( FClient.Delete(TSQLMarkMeta, VSQLMarkMeta.ID) );
+            Result := True;
+          end;
+        end else begin
+          if VSQLMarkMeta.ID = 0 then begin
+            // add new
+            VSQLMarkMeta.FMark := ANewMarkRec.FMarkId;
+            VSQLMarkMeta.FMeta := VGeometryMetaBlob;
+            CheckID( FClient.Add(VSQLMarkMeta, True) );
+          end;
+          CheckUpdateResult(
+            FClient.UpdateBlob(TSQLMarkMeta, VSQLMarkMeta.ID, 'mMeta', VGeometryMetaBlob)
+          );
+          Result := True;
+        end;
       finally
         VSQLMarkMeta.Free;
       end;
@@ -865,6 +883,7 @@ var
   VSQLWhere: RawUTF8;
   VFieldsCSV: RawUTF8;
   VSQLMark: TSQLMark;
+  VSQLMarkMeta: TSQLMarkMeta;
   VSQLMarkView: TSQLMarkView;
   VPointsBlobData: TSQLRawBlob;
   VMetaBlobData: TSQLRawBlob;
@@ -872,6 +891,7 @@ var
   VCacheItem: PSQLMarkRow;
   VViewItem: PSQLMarkViewRow;
   VGeometry: IGeometryLonLat;
+  VMeta: IDoublePointsMeta;
 begin
   Assert( (AMarkID > 0) or (AMarkName <> '') );
 
@@ -964,10 +984,21 @@ begin
   end else begin
     // read from db
 
-    // ToDo: Use Meta
+    VMeta := nil;
+    VSQLMarkMeta := TSQLMarkMeta.Create(FClient, 'mMark=?', [VMarkID]);
+    try
+      if VSQLMarkMeta.ID > 0 then begin
+        if FClient.RetrieveBlob(TSQLMarkMeta, VSQLMarkMeta.ID, 'mMeta', VMetaBlobData) then begin
+          VMeta := _GeomertryMetaFromBlob(VMetaBlobData);
+        end;
+      end;
+    finally
+      VSQLMarkMeta.Free;
+    end;
 
     CheckRetrieveResult( FClient.RetrieveBlob(FSQLMarkClass, VMarkID, 'mGeoWKB', VPointsBlobData) );
-    AMarkRec.FGeometry := _GeomertryFromBlob(VPointsBlobData, nil);
+    AMarkRec.FGeometry := _GeomertryFromBlob(VPointsBlobData, VMeta);
+
     // add to cache
     FCache.FMarkGeometryCache.AddOrUpdate(VMarkID, Length(VPointsBlobData), AMarkRec.FGeometry);
   end;
@@ -1276,12 +1307,25 @@ begin
 end;
 
 procedure TMarkDbImplORMHelper._FillPrepareMarkGeometryCache(const ACategoryID: TID);
+type
+  TMarkMetaRec = packed record
+    Id: TID;
+    Blob: TSQLRawBlob;
+  end;
+  TMarkMetaRecDynArray = array of TMarkMetaRec;
 var
   I, J: Integer;
   VCount: Integer;
   VList: TSQLTableJSON;
+  VListMeta: TSQLTableJSON;
   VArray: TSQLMarkGeometryRecDynArray;
   VBlob: TSQLRawBlob;
+  VIndex: Integer;
+  VMetaArr: TMarkMetaRecDynArray;
+  VMetaDynArr: TDynArray;
+  VMetaArrCount: Integer;
+  VMeta: IDoublePointsMeta;
+  VMetaBlobSize: Integer;
 begin
   if ACategoryID > 0 then begin
     if FCache.FMarkGeometryCache.IsCategoryPrepared(ACategoryID) then begin
@@ -1291,6 +1335,13 @@ begin
       [FSQLMarkClass],
       FormatUTF8('SELECT RowID,mGeoWKB FROM % WHERE mCategory=?', [FSQLMarkName], [ACategoryID])
     );
+    VListMeta := FClient.ExecuteList(
+      [TSQLMarkMeta, FSQLMarkClass],
+      FormatUTF8(
+        'SELECT A.mMark,A.mMeta FROM MarkMeta A WHERE A.mMark IN (SELECT B.RowID FROM % B WHERE B.mCategory=?)',
+        [FSQLMarkName], [ACategoryID]
+      )
+    );
   end else begin
     if FCache.FMarkGeometryCache.IsPrepared then begin
       Exit;
@@ -1299,7 +1350,29 @@ begin
       [FSQLMarkClass],
       RawUTF8('SELECT RowID,mGeoWKB FROM ') + FSQLMarkName
     );
+    VListMeta := FClient.ExecuteList(
+      [TSQLMarkMeta],
+      RawUTF8('SELECT mMark,mMeta FROM MarkMeta')
+    );
   end;
+
+  VMetaArr := nil;
+  if Assigned(VListMeta) then
+  try
+    VMetaArrCount := VListMeta.RowCount;
+    SetLength(VMetaArr, VMetaArrCount);
+    for I := 0 to VMetaArrCount - 1 do begin
+      J := I + 1;
+      VMetaArr[I].Id := VListMeta.GetAsInt64(J, 0);
+      VMetaArr[I].Blob := VListMeta.GetBlob(J, 1);
+    end;
+    VMetaDynArr.InitSpecific(TypeInfo(TMarkMetaRecDynArray), VMetaArr, djInt64, @VMetaArrCount);
+    VMetaDynArr.Count := Length(VMetaArr);
+    VMetaDynArr.Sort;
+  finally
+    VListMeta.Free;
+  end;
+
   if Assigned(VList) then
   try
     VCount := VList.RowCount;
@@ -1308,9 +1381,18 @@ begin
       J := I + 1;
       VArray[I].MarkId := VList.GetAsInt64(J, 0);
       VBlob := VList.GetBlob(J, 1);
-      // ToDo: Use Meta
-      VArray[I].Geometry := _GeomertryFromBlob(VBlob, nil);
-      VArray[I].Size := Length(VBlob);
+
+      VMeta := nil;
+      VMetaBlobSize := 0;
+      if (Length(VMetaArr) > 0) and VMetaDynArr.FastLocateSorted(VArray[I].MarkId, VIndex) then begin
+        VMeta := _GeomertryMetaFromBlob(VMetaArr[VIndex].Blob);
+        if VMeta <> nil then begin
+          VMetaBlobSize := Length(VMetaArr[VIndex].Blob);
+        end;
+      end;
+      
+      VArray[I].Geometry := _GeomertryFromBlob(VBlob, VMeta);
+      VArray[I].Size := Length(VBlob) + VMetaBlobSize;
     end;
     FCache.FMarkGeometryCache.AddPrepared(ACategoryID, VArray);
   finally
