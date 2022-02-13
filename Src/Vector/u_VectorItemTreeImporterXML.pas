@@ -529,6 +529,18 @@ begin
       end;
 
       // gx:
+      kml_when_gx: begin
+        // <when> subtag under <gx:Track>
+        case pPX_State^.tag_disposition of
+          xtd_ReadAttributes: begin
+            with pPX_Result^.kml_data do begin
+              if (FKmlGxWhen <> nil) and (kml_when in fAvail_params) then begin
+                FKmlGxWhen.PushBack(fValues.when);
+              end;
+            end;
+          end;
+        end;
+      end;
       kml_gx_coord: begin
         // точка (мульти)трека
         case pPX_State^.tag_disposition of
@@ -575,18 +587,6 @@ begin
             // close track segment or close single track
             AXmlVectorObjects.CloseTrackSegment;
             FreeAndNil(FKmlGxWhen);
-          end;
-        end;
-      end;
-      kml_WhenTag: begin // "when" subtag under gx:track
-        case pPX_State^.tag_disposition of
-          xtd_ReadAttributes: begin
-            with pPX_Result^.kml_data do begin
-              if kml_when in fAvail_params then begin
-                Assert(FKmlGxWhen <> nil);
-                FKmlGxWhen.PushBack(fValues.when);
-              end;
-            end;
           end;
         end;
       end;
