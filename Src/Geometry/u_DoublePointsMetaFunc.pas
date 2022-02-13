@@ -65,6 +65,9 @@ procedure SetMetaItem(
 
 implementation
 
+uses
+  SysUtils;
+
 function CreateMeta: PDoublePointsMeta;
 begin
   GetMem(Result, SizeOf(TDoublePointsMeta));
@@ -143,7 +146,15 @@ procedure UpdateHashByMeta(
   const ACount: Integer
 );
 begin
-  // ToDo:
+  if AMeta = nil then begin
+    Exit;
+  end;
+  if AMeta.Elevation <> nil then begin
+    AHashFunc.UpdateHashByBuffer(AHash, AMeta.Elevation, ACount * SizeOf(AMeta.Elevation[0]));
+  end;
+  if AMeta.TimeStamp <> nil then begin
+    AHashFunc.UpdateHashByBuffer(AHash, AMeta.TimeStamp, ACount * SizeOf(AMeta.TimeStamp[0]));
+  end;
 end;
 
 function IsSameMeta(
@@ -151,8 +162,38 @@ function IsSameMeta(
   const ACount: Integer
 ): Boolean;
 begin
-  Result := False;
-  // ToDo:
+  if (A = nil) and (B = nil) then begin
+    Result := True;
+    Exit;
+  end else
+  if (A <> nil) and (B <> nil) then begin
+    // ok
+  end else begin
+    Result := False;
+    Exit;
+  end;
+
+  if (A.Elevation <> nil) and (B.Elevation <> nil) then begin
+    Result := CompareMem(A.Elevation, B.Elevation, ACount * SizeOf(A.Elevation[0]));
+  end else
+  if (A.Elevation = nil) and (B.Elevation = nil) then begin
+    Result := True;
+  end else begin
+    Result := False;
+  end;
+
+  if not Result then begin
+    Exit;
+  end;
+
+  if (A.TimeStamp <> nil) and (B.TimeStamp <> nil) then begin
+    Result := CompareMem(A.TimeStamp, B.TimeStamp, ACount * SizeOf(A.TimeStamp[0]));
+  end else
+  if (A.TimeStamp = nil) and (B.TimeStamp = nil) then begin
+    Result := True;
+  end else begin
+    Result := False;
+  end;
 end;
 
 procedure ResetMetaItem(const AItem: PDoublePointsMetaItem);
