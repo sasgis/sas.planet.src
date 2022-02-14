@@ -916,7 +916,7 @@ procedure TExportMarks2GPX.AddMark(
         VPointNode.Attributes['lon'] := R2AnsiStrPoint(VPoint.X);
 
         if VMeta.IsElevationOk then begin
-          VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 1);
+          VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 2);
         end;
 
         if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
@@ -981,7 +981,7 @@ procedure TExportMarks2GPX.AddMark(
         VPointNode.Attributes['lon'] := R2AnsiStrPoint(VPoint.X);
 
         if VMeta.IsElevationOk then begin
-          VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 1);
+          VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 2);
         end;
 
         if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
@@ -1077,7 +1077,7 @@ procedure TExportMarks2GPX.AddMark(
           VPointNode.Attributes['lat'] := R2AnsiStrPoint(VPoint.Y);
           VPointNode.Attributes['lon'] := R2AnsiStrPoint(VPoint.X);
           if VMeta.IsElevationOk then begin
-            VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 1);
+            VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 2);
           end;
           if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
             VDateTime := VMeta.TimeStamp;

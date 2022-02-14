@@ -741,7 +741,7 @@ var
   VElevation: AnsiString;
 begin
   if AElevation <> 0 then begin
-    VElevation := RoundExAnsi(AElevation, 1);
+    VElevation := RoundExAnsi(AElevation, 2);
   end else begin
     VElevation := '0';
   end;
