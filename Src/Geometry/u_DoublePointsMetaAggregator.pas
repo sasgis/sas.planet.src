@@ -31,16 +31,15 @@ type
   /// with TDoublePointsAggregator!
   TDoublePointsMetaAggregator = class
   private
+    FMeta: TDoublePointsMeta;
+
     FElevation: array of Double;
     FTimeStamp: array of TDateTime;
-
-    FMetaPtr: PDoublePointsMeta;
 
     FPointsCountPtr: PInteger;
     FPointsCapacityPtr: PInteger;
 
     procedure Grow(
-      const ACount: Integer;
       const AIsElevationOk: Boolean;
       const AIsTimeStampOk: Boolean
     );
@@ -87,7 +86,6 @@ type
       const ACount: PInteger;
       const ACapacity: PInteger
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -106,43 +104,14 @@ begin
 
   FPointsCountPtr := ACount;
   FPointsCapacityPtr := ACapacity;
-
-  FMetaPtr := nil;
-end;
-
-destructor TDoublePointsMetaAggregator.Destroy;
-begin
-  if FMetaPtr <> nil then begin
-    Dispose(FMetaPtr);
-    FMetaPtr := nil;
-  end;
-
-  inherited Destroy;
 end;
 
 function TDoublePointsMetaAggregator.GetMeta: PDoublePointsMeta;
-
-  procedure _LazyAlloc;
-  begin
-    if FMetaPtr = nil then begin
-      New(FMetaPtr);
-      FMetaPtr.Elevation := nil;
-      FMetaPtr.TimeStamp := nil;
-    end;
-  end;
-
 begin
-  if Length(FElevation) > 0 then begin
-    _LazyAlloc;
-    FMetaPtr.Elevation := @FElevation[0];
-  end;
+  FMeta.Elevation := @FElevation[0];
+  FMeta.TimeStamp := @FTimeStamp[0];
 
-  if Length(FTimeStamp) > 0 then begin
-    _LazyAlloc;
-    FMetaPtr.TimeStamp := @FTimeStamp[0];
-  end;
-
-  Result := FMetaPtr;
+  Result := @FMeta;
 end;
 
 procedure TDoublePointsMetaAggregator.MoveRight(
@@ -169,25 +138,22 @@ begin
 end;
 
 procedure TDoublePointsMetaAggregator.Grow(
-  const ACount: Integer;
   const AIsElevationOk: Boolean;
   const AIsTimeStampOk: Boolean
 );
 var
-  VNewLen: Integer;
   VNewCapacity: Integer;
 begin
-  VNewLen := FPointsCountPtr^ + ACount;
   VNewCapacity := FPointsCapacityPtr^;
 
   if AIsElevationOk or (Length(FElevation) > 0) then begin
-    if Length(FElevation) < VNewLen then begin
+    if Length(FElevation) < VNewCapacity then begin
       SetLength(FElevation, VNewCapacity);
     end;
   end;
 
   if AIsTimeStampOk or (Length(FTimeStamp) > 0) then begin
-    if Length(FTimeStamp) < VNewLen then begin
+    if Length(FTimeStamp) < VNewCapacity then begin
       SetLength(FTimeStamp, VNewCapacity);
     end;
   end;
@@ -203,7 +169,7 @@ begin
   VIsElevationOk := (AItem <> nil) and AItem.IsElevationOk;
   VIsTimeStampOk := (AItem <> nil) and AItem.IsTimeStampOk;
 
-  Grow(1, VIsElevationOk, VIsTimeStampOk);
+  Grow(VIsElevationOk, VIsTimeStampOk);
 
   if VIsElevationOk then begin
     FElevation[FPointsCountPtr^] := AItem.Elevation;
@@ -237,7 +203,7 @@ begin
   VIsElevationOk := (AItems <> nil) and (AItems.Elevation <> nil);
   VIsTimeStampOk := (AItems <> nil) and (AItems.TimeStamp <> nil);
 
-  Grow(ACount, VIsElevationOk, VIsTimeStampOk);
+  Grow(VIsElevationOk, VIsTimeStampOk);
 
   if VIsElevationOk then begin
     Move(AItems.Elevation[0], FElevation[FPointsCountPtr^], ACount * SizeOf(FElevation[0]));
@@ -265,7 +231,7 @@ begin
   VIsElevationOk := (AItem <> nil) and AItem.IsElevationOk;
   VIsTimeStampOk := (AItem <> nil) and AItem.IsTimeStampOk;
 
-  Grow(1, VIsElevationOk, VIsTimeStampOk);
+  Grow(VIsElevationOk, VIsTimeStampOk);
   MoveRight(AIndex, 1, VIsElevationOk, VIsTimeStampOk);
 
   if VIsElevationOk then begin
@@ -289,7 +255,7 @@ begin
   VIsElevationOk := (AItems <> nil) and (AItems.Elevation <> nil);
   VIsTimeStampOk := (AItems <> nil) and (AItems.TimeStamp <> nil);
 
-  Grow(ACount, VIsElevationOk, VIsTimeStampOk);
+  Grow(VIsElevationOk, VIsTimeStampOk);
   MoveRight(AIndex, ACount, VIsElevationOk, VIsTimeStampOk);
 
   if VIsElevationOk then begin
@@ -331,6 +297,8 @@ var
 begin
   VIsElevationOk := (AItem <> nil) and AItem.IsElevationOk;
   VIsTimeStampOk := (AItem <> nil) and AItem.IsTimeStampOk;
+
+  Grow(VIsElevationOk, VIsTimeStampOk);
 
   if VIsElevationOk then begin
     FElevation[AIndex] := AItem.Elevation;
