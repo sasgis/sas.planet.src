@@ -168,7 +168,7 @@ type
     FMark: TID;
     FMeta: TSQLRawBlob;
   published
-    property mMark: TID read FMark write FMark;
+    property mMark: TID read FMark write FMark stored AS_UNIQUE;
     property mMeta: TSQLRawBlob read FMeta write FMeta;
   end;
 
