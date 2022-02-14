@@ -175,7 +175,7 @@ var
   VDelta: TDateTime;
   VPrev: TDateTime;
   VNext: TDateTime;
-  VPrevIndex: Integer;
+  VCurrIndex: Integer;
   VNextIndex: Integer;
 begin
   SetLength(FTimes, APointsCount);
@@ -199,7 +199,7 @@ begin
     // find the next valid time
     VNext := 0;
     VNextIndex := 0;
-    VPrevIndex := I;
+    VCurrIndex := I;
 
     if I > 0 then begin
       VPrev := FTimes[I-1];
@@ -207,7 +207,7 @@ begin
       VPrev := 0;
     end;
 
-    for J := VPrevIndex + 1 to Length(FTimes) - 1 do begin
+    for J := VCurrIndex + 1 to Length(FTimes) - 1 do begin
       if FTimes[J] <> 0 then begin
         VNext := FTimes[J];
         VNextIndex := J;
@@ -218,17 +218,17 @@ begin
     // fill in the gaps
     if VNext = 0 then begin
       // at the end
-      Assert(VPrevIndex > 0);
-      for J := VPrevIndex to Length(FTimes) - 1 do begin
+      Assert(VCurrIndex > 0);
+      for J := VCurrIndex to Length(FTimes) - 1 do begin
         FTimes[J] := FTimes[J-1] + FDelta;
       end;
       Exit;
     end else begin
-      if VPrevIndex > 0 then begin
+      if VCurrIndex > 0 then begin
         // in the middle
-        VCount := VNextIndex - VPrevIndex;
+        VCount := VNextIndex - VCurrIndex + 1;
         VDelta := (VNext - VPrev) / VCount;
-        for J := VPrevIndex to VNextIndex - 1 do begin
+        for J := VCurrIndex to VNextIndex - 1 do begin
           FTimes[J] := FTimes[J-1] + VDelta;
         end;
         Inc(I, VCount);
