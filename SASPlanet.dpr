@@ -397,6 +397,8 @@ uses
   u_LogForTaskThread in 'Src\Logger\u_LogForTaskThread.pas',
   u_TileErrorInfo in 'Src\Logger\u_TileErrorInfo.pas',
   u_TileErrorLogProviedrStuped in 'Src\Logger\u_TileErrorLogProviedrStuped.pas',
+  i_ElevationProfilePresenter in 'Src\MainForm\ElevationProfile\i_ElevationProfilePresenter.pas',
+  u_ElevationProfilePresenterOnPanel in 'Src\MainForm\ElevationProfile\u_ElevationProfilePresenterOnPanel.pas',
   fr_FavoriteMapSetManager in 'Src\MainForm\FavoriteMapSet\fr_FavoriteMapSetManager.pas' {frFavoriteMapSetManager: TFrame},
   frm_FavoriteMapSetEditor in 'Src\MainForm\FavoriteMapSet\frm_FavoriteMapSetEditor.pas' {frmFavoriteMapSetEditor},
   frm_FavoriteMapSetManager in 'Src\MainForm\FavoriteMapSet\frm_FavoriteMapSetManager.pas' {frmFavoriteMapSetManager},

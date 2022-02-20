@@ -1578,6 +1578,8 @@
         <DCCReference Include="Src\Logger\u_LogForTaskThread.pas"/>
         <DCCReference Include="Src\Logger\u_TileErrorInfo.pas"/>
         <DCCReference Include="Src\Logger\u_TileErrorLogProviedrStuped.pas"/>
+        <DCCReference Include="Src\MainForm\ElevationProfile\i_ElevationProfilePresenter.pas"/>
+        <DCCReference Include="Src\MainForm\ElevationProfile\u_ElevationProfilePresenterOnPanel.pas"/>
         <DCCReference Include="Src\MainForm\FavoriteMapSet\fr_FavoriteMapSetManager.pas">
             <Form>frFavoriteMapSetManager</Form>
             <FormType>dfm</FormType>

@@ -347,6 +347,11 @@ object frmMain: TfrmMain
             Control = tbMergePolygons
             Images = MenusImageList
           end
+          object tbxElevationProfileShow: TTBXVisibilityToggleItem
+            Caption = 'Elevation Profile'
+            Control = tbElevationProfile
+            Images = MenusImageList
+          end
           object TBXVisibilityToggleItem3: TTBXVisibilityToggleItem
             Caption = 'Time Interval'
             Control = FillDates
@@ -939,11 +944,22 @@ object frmMain: TfrmMain
   end
   object TBDockBottom: TTBXDock
     Left = 0
-    Top = 630
+    Top = 607
     Width = 842
-    Height = 9
+    Height = 32
     PopupMenu = TBXPopupPanels
     Position = dpBottom
+    object tbElevationProfile: TTBXDockablePanel
+      Left = 0
+      Top = 0
+      DockableTo = [dpBottom]
+      DockedHeight = 28
+      DockMode = dmCannotFloatOrChangeDocks
+      ShowCaptionWhenDocked = False
+      SupportedDocks = [dkStandardDock, dkMultiDock]
+      TabOrder = 0
+      Visible = False
+    end
   end
   object TBDockLeft: TTBXDock
     Left = 0
@@ -3399,6 +3415,10 @@ object frmMain: TfrmMain
       Caption = 'Add to Merge Polygons (Ctrl+MLeft)'
       ImageIndex = 62
       OnClick = tbxtmAddToMergePolygonsClick
+    end
+    object tbxitmElevationProfile: TTBXItem
+      Caption = 'Show Elevation Profile'
+      OnClick = tbxitmElevationProfileClick
     end
     object tbxFillingMap: TTBXSubmenuItem
       Caption = 'Cached Tiles Map'

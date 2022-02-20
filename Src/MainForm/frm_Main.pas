@@ -79,6 +79,7 @@ uses
   i_ViewPortState,
   i_StickToGrid,
   i_SensorList,
+  i_ElevationProfilePresenter,
   i_SearchResultPresenter,
   i_MergePolygonsResult,
   i_MergePolygonsPresenter,
@@ -611,6 +612,9 @@ type
     actMarkSaveAsNew: TAction;
     actMarkSaveAsSeparateSegments: TAction;
     actEditPathRouteCalcUndo: TAction;
+    tbElevationProfile: TTBXDockablePanel;
+    tbxElevationProfileShow: TTBXVisibilityToggleItem;
+    tbxitmElevationProfile: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -764,6 +768,7 @@ type
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
+    procedure tbxitmElevationProfileClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
     procedure actSelectByRectExecute(Sender: TObject);
     procedure actSelectByPolygonExecute(Sender: TObject);
@@ -913,6 +918,9 @@ type
 
     FMergePolygonsPresenter: IMergePolygonsPresenter;
     FMergePolygonsResult: IMergePolygonsResult;
+
+    FElevationProfilePresenter: IElevationProfilePresenter;
+
     FMapMoving: Boolean;
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
@@ -997,6 +1005,7 @@ type
 
     procedure InitSearchers;
     procedure InitMergepolygons;
+    procedure InitElevationProfile;
     procedure InitLayers;
     procedure InitGridsMenus;
     procedure InitMouseCursors;
@@ -1230,6 +1239,7 @@ uses
   u_SearchResultPresenterOnPanel,
   u_MergePolygonsResult,
   u_MergePolygonsPresenterOnPanel,
+  u_ElevationProfilePresenterOnPanel,
   u_ListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_ListenerByEvent,
@@ -1295,7 +1305,6 @@ begin
   FMouseState := VMouseState;
   FFillingMapPolygon := TFillingMapPolygon.Create;
   FMergePolygonsResult := TMergePolygonsResult.Create;
-
 
   FConfig := TMainFormConfig.Create(GState.BaseConfigPath, GState.MapType.DefaultMainMapGUID);
   FConfig.ReadConfig(GState.MainConfigProvider);
@@ -2074,6 +2083,7 @@ begin
 
     InitSearchers;
     InitMergePolygons;
+    InitElevationProfile;
     CreateLangMenu;
 
     FfrmGoTo :=
@@ -2420,6 +2430,16 @@ begin
       FMarkDBGUI
     );
   mmoMergePolyHint.Text := _('Press Ctrl and click on polygon to add one...');
+end;
+
+procedure TfrmMain.InitElevationProfile;
+begin
+  FElevationProfilePresenter :=
+    TElevationProfilePresenterOnPanel.Create(
+      tbElevationProfile,
+      GState.Config.LanguageManager,
+      GState.VectorGeometryLonLatFactory
+    );
 end;
 
 procedure TfrmMain.CreateProjectionActions;
@@ -5736,6 +5756,27 @@ begin
   end;
 end;
 
+procedure TfrmMain.tbxitmElevationProfileClick(Sender: TObject);
+var
+  I: Integer;
+  VMouseDownPos: TPoint;
+  VLine: IGeometryLonLatLine;
+  VVectorItems: IVectorItemSubset;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VMouseDownPos := FMouseState.GetLastDownPos(mbRight);
+  VVectorItems := FindItems(VLocalConverter, VMouseDownPos);
+  if VVectorItems <> nil then begin
+    for I := 0 to VVectorItems.Count - 1 do begin
+      if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatLine, VLine) then begin
+        FElevationProfilePresenter.ShowProfile(VLine);
+        Break;
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmMain.NSensorsClick(Sender: TObject);
 begin
   TBXSensorsBar.Visible := TTBXItem(Sender).Checked;
@@ -5986,6 +6027,9 @@ begin
   tbxtmAddToMergePolygons.Visible :=
     (Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatPolygon)) or
     (FSelectedWiki <> nil);
+
+  tbxitmElevationProfile.Visible :=
+    Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatLine);
 
   tbxFillingMap.Visible :=
     (Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatPolygon)) or
