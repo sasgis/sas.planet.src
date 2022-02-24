@@ -2437,8 +2437,9 @@ begin
   FElevationProfilePresenter :=
     TElevationProfilePresenterOnPanel.Create(
       tbElevationProfile,
+      tbxElevationProfileShow,
       GState.Config.LanguageManager,
-      GState.VectorGeometryLonLatFactory
+      GState.GPSDatum
     );
 end;
 
