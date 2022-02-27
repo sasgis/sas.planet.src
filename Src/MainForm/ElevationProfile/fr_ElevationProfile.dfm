@@ -43,61 +43,108 @@ object frElevationProfile: TfrElevationProfile
     Top = 17
     Width = 667
     Height = 260
-    BackWall.Pen.Color = clSilver
-    BackWall.Pen.Style = psDash
-    BottomWall.Visible = False
     Foot.Visible = False
-    LeftWall.Visible = False
-    Legend.CurrentPage = False
     Legend.Visible = False
-    MarginBottom = 1
-    MarginLeft = 0
-    MarginRight = 1
-    MarginTop = 1
-    ScrollMouseButton = mbLeft
+    MarginUnits = muPixels
     SubFoot.Visible = False
     SubTitle.Visible = False
-    Title.Text.Strings = (
-      'TChart')
     Title.Visible = False
+    OnScroll = chtProfileScroll
+    OnZoom = chtProfileZoom
     BottomAxis.Axis.Visible = False
-    BottomAxis.Grid.Style = psDash
-    Frame.Color = clSilver
-    Frame.Style = psDash
+    BottomAxis.MinorTicks.Visible = False
+    BottomAxis.Ticks.Visible = False
+    BottomAxis.TicksInner.Visible = False
+    BottomAxis.Title.Visible = False
+    DepthAxis.Axis.Visible = False
+    DepthAxis.Grid.Visible = False
+    DepthTopAxis.Axis.Visible = False
+    DepthTopAxis.Grid.Visible = False
+    LeftAxis.Axis.Width = 1
     LeftAxis.Axis.Visible = False
-    LeftAxis.Grid.Style = psDash
-    LeftAxis.LabelsFormat.Frame.Visible = False
-    LeftAxis.LabelsFormat.Margins.Left = 0
-    LeftAxis.LabelsFormat.Margins.Top = 0
-    LeftAxis.LabelsFormat.Margins.Right = 0
-    LeftAxis.LabelsFormat.Margins.Bottom = 0
+    LeftAxis.LabelsAlign = alOpposite
+    LeftAxis.MaximumOffset = 5
+    LeftAxis.MinimumOffset = -5
+    LeftAxis.MinorTicks.Visible = False
+    LeftAxis.Ticks.Visible = False
+    LeftAxis.TicksInner.Visible = False
     LeftAxis.Title.Visible = False
-    Pages.ScaleLastPage = False
     Panning.InsideBounds = True
-    Panning.MouseWheel = pmwNone
     RightAxis.Axis.Visible = False
+    RightAxis.MinorTicks.Visible = False
+    RightAxis.Ticks.Visible = False
+    RightAxis.TicksInner.Visible = False
+    RightAxis.Title.Visible = False
     Shadow.Visible = False
-    TopAxis.Automatic = False
-    TopAxis.AutomaticMaximum = False
-    TopAxis.AutomaticMinimum = False
-    TopAxis.Visible = False
+    TopAxis.Axis.Width = 1
+    TopAxis.Axis.Visible = False
+    TopAxis.Grid.Visible = False
+    TopAxis.Grid.ZZero = True
+    TopAxis.MinorTicks.Visible = False
+    TopAxis.Ticks.Visible = False
+    TopAxis.TicksInner.Visible = False
     View3D = False
     View3DOptions.Orthogonal = False
-    Zoom.MouseButton = mbRight
-    Zoom.MouseWheel = pmwNormal
+    View3DWalls = False
+    OnAfterDraw = chtProfileAfterDraw
     Align = alClient
     BevelOuter = bvNone
+    ParentColor = True
     TabOrder = 1
+    OnContextPopup = chtProfileContextPopup
+    OnMouseDown = chtProfileMouseDown
+    OnResize = chtProfileResize
     DefaultCanvas = 'TGDIPlusCanvas'
     PrintMargins = (
       15
-      31
+      30
       15
-      31)
+      30)
     ColorPaletteIndex = 13
+    object pnlPointInfo: TPanel
+      Left = 48
+      Top = 48
+      Width = 57
+      Height = 25
+      BevelOuter = bvNone
+      Color = clInfoBk
+      ParentBackground = False
+      TabOrder = 0
+      Visible = False
+      object lblPointInfo: TLabel
+        AlignWithMargins = True
+        Left = 5
+        Top = 5
+        Width = 47
+        Height = 14
+        Margins.Left = 5
+        Margins.Top = 5
+        Margins.Right = 5
+        Margins.Bottom = 5
+        Align = alTop
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        ExplicitWidth = 4
+      end
+    end
+    object pnlPointLine: TPanel
+      Left = 48
+      Top = 88
+      Width = 1
+      Height = 25
+      BevelOuter = bvNone
+      Color = clRed
+      ParentBackground = False
+      TabOrder = 1
+      Visible = False
+    end
   end
   object pmMain: TPopupMenu
-    Left = 464
+    Left = 448
     Top = 65
     object mniShowSpeed: TMenuItem
       AutoCheck = True
@@ -116,5 +163,13 @@ object frElevationProfile: TfrElevationProfile
       Caption = 'Reset Zoom'
       OnClick = mniResetZoomClick
     end
+  end
+  object TeeGDIPlus1: TTeeGDIPlus
+    Active = True
+    Antialias = False
+    AntiAliasText = gpfNormal
+    TeePanel = chtProfile
+    Left = 512
+    Top = 64
   end
 end
