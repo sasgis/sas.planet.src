@@ -23,7 +23,7 @@ object frmMain: TfrmMain
     Left = 413
     Top = 59
     Width = 265
-    Height = 571
+    Height = 544
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -96,7 +96,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 269
+      Left = 261
       Top = 25
       Caption = 'Sources'
       DockPos = 224
@@ -132,7 +132,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 445
+      Left = 437
       Top = 25
       Caption = 'Placemarks'
       DockPos = 363
@@ -143,7 +143,7 @@ object frmMain: TfrmMain
       TabOrder = 6
     end
     object GPSToolbar: TTBXToolbar
-      Left = 661
+      Left = 653
       Top = 25
       Caption = 'GPS'
       DockPos = 504
@@ -837,7 +837,7 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 452
+      Left = 486
       Top = 0
       Caption = 'Search'
       DockPos = 413
@@ -900,8 +900,8 @@ object frmMain: TfrmMain
         Top = 0
         Width = 81
         Height = 21
-        Date = 40830.496065717590000000
-        Time = 40830.496065717590000000
+        Date = 40830.000000000000000000
+        Time = 0.496065717590681700
         TabOrder = 0
         OnChange = DateTimePicker1Change
       end
@@ -910,14 +910,14 @@ object frmMain: TfrmMain
         Top = 21
         Width = 81
         Height = 21
-        Date = 40830.496065717590000000
-        Time = 40830.496065717590000000
+        Date = 40830.000000000000000000
+        Time = 0.496065717590681700
         TabOrder = 1
         OnChange = DateTimePicker2Change
       end
     end
     object TBXFavoriteToolbar: TTBXToolbar
-      Left = 396
+      Left = 388
       Top = 25
       Caption = 'Sources'
       DockPos = 224
@@ -944,19 +944,25 @@ object frmMain: TfrmMain
   end
   object TBDockBottom: TTBXDock
     Left = 0
-    Top = 607
+    Top = 603
     Width = 842
-    Height = 32
+    Height = 36
     PopupMenu = TBXPopupPanels
     Position = dpBottom
     object tbElevationProfile: TTBXDockablePanel
       Left = 0
       Top = 0
+      Align = alClient
       DockableTo = [dpBottom]
-      DockedHeight = 28
+      DockedHeight = 32
       DockMode = dmCannotFloatOrChangeDocks
+      ParentShowHint = False
+      ShowCaption = False
       ShowCaptionWhenDocked = False
+      ShowHint = False
       SupportedDocks = [dkStandardDock, dkMultiDock]
+      SmoothDrag = False
+      SmoothDockedResize = False
       TabOrder = 0
       Visible = False
     end
@@ -965,7 +971,7 @@ object frmMain: TfrmMain
     Left = 0
     Top = 59
     Width = 413
-    Height = 571
+    Height = 544
     PopupMenu = TBXPopupPanels
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
@@ -1056,7 +1062,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 170
-        Height = 551
+        Height = 517
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
@@ -1071,7 +1077,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 9
           Width = 170
-          Height = 542
+          Height = 508
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
           VertScrollBar.Tracking = True
@@ -1209,7 +1215,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 170
-        Height = 551
+        Height = 517
         Align = alClient
         BorderStyle = bsNone
         ReadOnly = True
@@ -1221,16 +1227,18 @@ object frmMain: TfrmMain
     Left = 678
     Top = 59
     Width = 164
-    Height = 571
+    Height = 544
     PopupMenu = TBXPopupPanels
     Position = dpRight
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
       Caption = 'Sensors'
-      ClientAreaHeight = 561
+      ClientAreaHeight = 534
       ClientAreaWidth = 160
       DockPos = -6
+      MinClientHeight = 35
+      MinClientWidth = 35
       PopupMenu = TBXPopupMenuSensors
       Stretch = True
       TabOrder = 0
@@ -1240,7 +1248,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 160
-        Height = 561
+        Height = 534
         Align = alClient
         AutoScroll = False
         AutoSize = True
