@@ -456,6 +456,7 @@ end;
 
 procedure TfrElevationProfile.ShowPointInfo;
 var
+  VLeft, VTop: Integer;
   VSpeed, VElev, VDist: string;
 begin
   if not FPointInfo.IsValid then begin
@@ -485,8 +486,19 @@ begin
   pnlPointInfo.Width := lblPointInfo.Width + 10;
   pnlPointInfo.Height := lblPointInfo.Height + 10;
 
-  pnlPointInfo.Left := FPointInfo.MouseX + 15;
-  pnlPointInfo.Top := FPointInfo.MouseY + 15;
+
+  VLeft := FPointInfo.MouseX + 15;
+  if VLeft + pnlPointInfo.Width >= chtProfile.ChartRect.Right then begin
+    VLeft := FPointInfo.MouseX - 15 - pnlPointInfo.Width;
+  end;
+
+  VTop := FPointInfo.MouseY + 15;
+  if VTop + pnlPointInfo.Height >= chtProfile.ChartRect.Bottom then begin
+    VTop := FPointInfo.MouseY - 15 - pnlPointInfo.Height;
+  end;
+
+  pnlPointInfo.Left := VLeft;
+  pnlPointInfo.Top := VTop;
 
   pnlPointInfo.Visible := True;
 
@@ -800,7 +812,7 @@ end;
 procedure TfrElevationProfile.chtProfileMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if Button = mbLeft then begin
+  if (Button = mbLeft) and PtInRect(chtProfile.ChartRect, Point(X, Y)) then begin
     UpdatePointInfo(X, Y);
     ShowPointInfo;
   end;
