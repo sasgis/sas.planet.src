@@ -23,6 +23,14 @@ unit fr_ElevationProfile;
 
 interface
 
+{$IF CompilerVersion > 19.0}
+  {$DEFINE HAS_TEE_GDI_PLUS}
+{$IFEND}
+
+{$IF CompilerVersion > 23.0}
+  {$DEFINE HAS_TEE_DRAW_STYLE}
+{$IFEND}
+
 uses
   Types,
   SysUtils,
@@ -34,7 +42,9 @@ uses
   ExtCtrls,
   StdCtrls,
   TBXDkPanels,
+  {$IFDEF HAS_TEE_GDI_PLUS}
   TeeGDIPlus,
+  {$ENDIF}
   TeEngine,
   TeeProcs,
   Chart,
@@ -88,7 +98,6 @@ type
     N1: TMenuItem;
     mniResetZoom: TMenuItem;
     chtProfile: TChart;
-    TeeGDIPlus1: TTeeGDIPlus;
     pnlPointInfo: TPanel;
     lblPointInfo: TLabel;
     pnlPointLine: TPanel;
@@ -234,7 +243,9 @@ procedure TfrElevationProfile.SetupChart;
     with Result do begin
       AreaLinesPen.Visible := False;
       DrawArea := True;
+      {$IFDEF HAS_TEE_DRAW_STYLE}
       DrawStyle := dsAll;
+      {$ENDIF}
       LinePen.Visible := False;
       Pointer.Visible := False;
       Transparency := CSeriesTransparency;
@@ -264,6 +275,15 @@ procedure TfrElevationProfile.SetupChart;
   end;
 
 begin
+  {$IFDEF HAS_TEE_GDI_PLUS}
+  with TTeeGDIPlus.Create(chtProfile) do begin
+    Active := True;
+    Antialias := False;
+    AntiAliasText := gpfNormal;
+    TeePanel := chtProfile;
+  end;
+  {$ENDIF}
+
   FAxisValuesFormatDef := chtProfile.BottomAxis.AxisValuesFormat;
 
   _SetupAxis(chtProfile.LeftAxis, CElevationSeriesColor, SAS_UNITS_m);

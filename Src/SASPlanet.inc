@@ -5,7 +5,7 @@
     {$DEFINE USE_FAST_MM_5}
   {$ELSE}
     {$DEFINE USE_FAST_MM_4}
-  {$ENDIF}
+  {$IFEND}
   
   {$IFNDEF WIN64} 
     {$DEFINE USE_FAST_MOVE}

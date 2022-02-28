@@ -173,12 +173,4 @@ object frElevationProfile: TfrElevationProfile
       OnClick = mniResetZoomClick
     end
   end
-  object TeeGDIPlus1: TTeeGDIPlus
-    Active = True
-    Antialias = False
-    AntiAliasText = gpfNormal
-    TeePanel = chtProfile
-    Left = 512
-    Top = 64
-  end
 end

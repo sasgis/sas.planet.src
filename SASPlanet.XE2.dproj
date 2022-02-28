@@ -43,8 +43,9 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<Manifest_File>None</Manifest_File>
 			<VerInfo_Locale>1033</VerInfo_Locale>
-			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
+			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;VclTee;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -468,6 +469,7 @@
 			<DCCReference Include="Src\Geometry\i_DoublePointFilter.pas"/>
 			<DCCReference Include="Src\Geometry\i_DoublePoints.pas"/>
 			<DCCReference Include="Src\Geometry\i_DoublePointsAggregator.pas"/>
+			<DCCReference Include="Src\Geometry\i_DoublePointsMeta.pas"/>
 			<DCCReference Include="Src\Geometry\i_EnumDoublePoint.pas"/>
 			<DCCReference Include="Src\Geometry\i_GeometryFromStream.pas"/>
 			<DCCReference Include="Src\Geometry\i_GeometryLonLat.pas"/>
@@ -481,6 +483,11 @@
 			<DCCReference Include="Src\Geometry\i_ProjectedCalc.pas"/>
 			<DCCReference Include="Src\Geometry\u_DoublePoints.pas"/>
 			<DCCReference Include="Src\Geometry\u_DoublePointsAggregator.pas"/>
+			<DCCReference Include="Src\Geometry\u_DoublePointsMeta.pas"/>
+			<DCCReference Include="Src\Geometry\u_DoublePointsMetaAggregator.pas"/>
+			<DCCReference Include="Src\Geometry\u_DoublePointsMetaBuilder.pas"/>
+			<DCCReference Include="Src\Geometry\u_DoublePointsMetaFunc.pas"/>
+			<DCCReference Include="Src\Geometry\u_EnumDoublePointAbstract.pas"/>
 			<DCCReference Include="Src\Geometry\u_EnumDoublePointByLineSet.pas"/>
 			<DCCReference Include="Src\Geometry\u_EnumDoublePointBySingleLine.pas"/>
 			<DCCReference Include="Src\Geometry\u_EnumDoublePointClipInternal.pas"/>
@@ -497,6 +504,9 @@
 			<DCCReference Include="Src\Geometry\u_GeometryLonLat.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryLonLatFactory.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryLonLatMulti.pas"/>
+			<DCCReference Include="Src\Geometry\u_GeometryMetaFromStreamJson.pas"/>
+			<DCCReference Include="Src\Geometry\u_GeometryMetaJson.pas"/>
+			<DCCReference Include="Src\Geometry\u_GeometryMetaToStreamJson.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryProjected.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryProjectedFactory.pas"/>
 			<DCCReference Include="Src\Geometry\u_GeometryProjectedMulti.pas"/>
@@ -551,6 +561,12 @@
 			<DCCReference Include="Src\Logger\u_LogForTaskThread.pas"/>
 			<DCCReference Include="Src\Logger\u_TileErrorInfo.pas"/>
 			<DCCReference Include="Src\Logger\u_TileErrorLogProviedrStuped.pas"/>
+			<DCCReference Include="Src\MainForm\ElevationProfile\fr_ElevationProfile.pas">
+				<Form>frElevationProfile</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Src\MainForm\ElevationProfile\i_ElevationProfilePresenter.pas"/>
+			<DCCReference Include="Src\MainForm\ElevationProfile\u_ElevationProfilePresenterOnPanel.pas"/>
 			<DCCReference Include="Src\MainForm\FavoriteMapSet\fr_FavoriteMapSetManager.pas">
 				<Form>frFavoriteMapSetManager</Form>
 				<FormType>dfm</FormType>
@@ -1766,6 +1782,7 @@
 			<DCCReference Include="Src\Vector\u_ExportMarks2KML.pas"/>
 			<DCCReference Include="Src\Vector\u_ExportMarks2KMLConfig.pas"/>
 			<DCCReference Include="Src\Vector\u_ExportMarks2TCX.pas"/>
+			<DCCReference Include="Src\Vector\u_GpxFakeTimeGenerator.pas"/>
 			<DCCReference Include="Src\Vector\u_ImportConfig.pas"/>
 			<DCCReference Include="Src\Vector\u_JpegWithExifImportConfig.pas"/>
 			<DCCReference Include="Src\Vector\u_VectorDataFactoryForMap.pas"/>
@@ -1838,7 +1855,6 @@
 			<DCCReference Include="Src\u_HashInterfaceCache2Q.pas"/>
 			<DCCReference Include="Src\u_HtmlDoc.pas"/>
 			<DCCReference Include="Src\u_HtmlToHintTextConverterStuped.pas"/>
-			<DCCReference Include="Src\u_ImportFromArcGIS.pas"/>
 			<DCCReference Include="Src\u_InterfaceQueue.pas"/>
 			<DCCReference Include="Src\u_LanguageListStatic.pas"/>
 			<DCCReference Include="Src\u_ListenerNotifierLinksList.pas"/>
