@@ -45,12 +45,12 @@ type
     ['{33FDD537-B089-4ED6-8AB4-720E47B3C8B8}']
     procedure GotoLonLat(
       const ALonLat: TDoublePoint;
-      const AshowMarker: Boolean
+      const AShowMarker: Boolean
     );
     procedure GotoPos(
       const ALonLat: TDoublePoint;
       const AProjection: IProjection;
-      const AshowMarker: Boolean
+      const AShowMarker: Boolean
     );
     procedure FitRectToScreen(
       const ALonLatRect: TDoubleRect
@@ -58,6 +58,8 @@ type
     procedure ShowMarker(
       const ALonLat: TDoublePoint
     );
+    procedure HideMarker;
+
     function GetLastGotoPos: IGotoPosStatic;
     property LastGotoPos: IGotoPosStatic read GetLastGotoPos;
 

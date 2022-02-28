@@ -48,8 +48,11 @@ object frElevationProfile: TfrElevationProfile
     MarginUnits = muPixels
     SubFoot.Visible = False
     SubTitle.Visible = False
+    Title.Text.Strings = (
+      'TChart')
     Title.Visible = False
     OnScroll = chtProfileScroll
+    OnUndoZoom = chtProfileUndoZoom
     OnZoom = chtProfileZoom
     BottomAxis.Axis.Visible = False
     BottomAxis.MinorTicks.Visible = False
@@ -115,20 +118,18 @@ object frElevationProfile: TfrElevationProfile
         AlignWithMargins = True
         Left = 5
         Top = 5
-        Width = 47
+        Width = 4
         Height = 14
         Margins.Left = 5
         Margins.Top = 5
         Margins.Right = 5
         Margins.Bottom = 5
-        Align = alTop
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        ExplicitWidth = 4
       end
     end
     object pnlPointLine: TPanel
@@ -157,6 +158,14 @@ object frElevationProfile: TfrElevationProfile
       OnClick = mniShowElevationClick
     end
     object N1: TMenuItem
+      Caption = '-'
+    end
+    object mniMoveToPoint: TMenuItem
+      AutoCheck = True
+      Caption = 'Move to Point'
+      OnClick = mniMoveToPointClick
+    end
+    object N2: TMenuItem
       Caption = '-'
     end
     object mniResetZoom: TMenuItem

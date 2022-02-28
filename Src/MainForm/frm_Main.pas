@@ -2439,7 +2439,8 @@ begin
       tbElevationProfile,
       tbxElevationProfileShow,
       GState.Config.LanguageManager,
-      GState.GPSDatum
+      GState.GPSDatum,
+      FMapGoto
     );
 end;
 

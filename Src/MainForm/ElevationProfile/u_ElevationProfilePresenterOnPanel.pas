@@ -31,6 +31,7 @@ uses
   i_GeometryLonLat,
   i_ElevationProfilePresenter,
   i_LanguageManager,
+  i_MapViewGoto,
   u_BaseInterfacedObject,
   fr_ElevationProfile;
 
@@ -41,6 +42,7 @@ type
     FVisibilityToggleItem: TTBCustomItem;
     FLanguageManager: ILanguageManager;
     FDatum: IDatum;
+    FMapGoTo: IMapViewGoto;
 
     FfrElevationProfile: TfrElevationProfile;
 
@@ -53,7 +55,8 @@ type
       const ADrawParent: TWinControl;
       const AVisibilityToggleItem: TTBCustomItem;
       const ALanguageManager: ILanguageManager;
-      const ADatum: IDatum
+      const ADatum: IDatum;
+      const AMapGoTo: IMapViewGoto
     );
     destructor Destroy; override;
   end;
@@ -66,7 +69,8 @@ constructor TElevationProfilePresenterOnPanel.Create(
   const ADrawParent: TWinControl;
   const AVisibilityToggleItem: TTBCustomItem;
   const ALanguageManager: ILanguageManager;
-  const ADatum: IDatum
+  const ADatum: IDatum;
+  const AMapGoTo: IMapViewGoto
 );
 begin
   inherited Create;
@@ -75,6 +79,7 @@ begin
   FVisibilityToggleItem := AVisibilityToggleItem;
   FLanguageManager := ALanguageManager;
   FDatum := ADatum;
+  FMapGoTo := AMapGoTo;
 
   FfrElevationProfile := nil;
 
@@ -106,7 +111,8 @@ begin
       FDrawParent,
       Self.HideParent,
       FLanguageManager,
-      FDatum
+      FDatum,
+      FMapGoTo
     );
   end;
 

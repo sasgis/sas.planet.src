@@ -39,13 +39,15 @@ uses
   TeeProcs,
   Chart,
   Series,
+  t_GeoTypes,
   i_Datum,
   i_GeometryLonLat,
   i_LanguageManager,
+  i_MapViewGoto,
   u_CommonFormAndFrameParents;
 
 type
-  TProfileStatisticsRec = record
+  TProfileInfoRec = record
     Dist: Double;
     Seconds: Int64;
 
@@ -60,14 +62,18 @@ type
     PointsCount: Integer;
   end;
 
-  TProfileMouseClickInfo = record
+  TProfilePointInfoRec = record
     IsValid: Boolean;
-
-    X, Y: Integer;
 
     Elev: Double;
     Dist: Double;
     Speed: Double;
+
+    MouseX: Integer;
+    MouseY: Integer;
+
+    LonLat: TDoublePoint;
+    IsLonLatValid: Boolean;
   end;
 
   TOnCloseEvent = procedure() of object;
@@ -86,6 +92,8 @@ type
     pnlPointInfo: TPanel;
     lblPointInfo: TLabel;
     pnlPointLine: TPanel;
+    mniMoveToPoint: TMenuItem;
+    N2: TMenuItem;
     procedure btnCloseClick(Sender: TObject);
     procedure mniShowSpeedClick(Sender: TObject);
     procedure mniResetZoomClick(Sender: TObject);
@@ -98,18 +106,23 @@ type
     procedure chtProfileScroll(Sender: TObject);
     procedure chtProfileContextPopup(Sender: TObject; MousePos: TPoint;
       var Handled: Boolean);
+    procedure mniMoveToPointClick(Sender: TObject);
+    procedure chtProfileUndoZoom(Sender: TObject);
   private
     FDatum: IDatum;
+    FMapGoTo: IMapViewGoto;
     FOnClose: TOnCloseEvent;
 
     FShowSpeed: Boolean;
     FShowElevation: Boolean;
+    FMoveToPoint: Boolean;
 
     FLine: array of IGeometryLonLatSingleLine;
     FDist: array of Double;
     FIsDistInMeters: Boolean;
 
-    FPointInfo: TProfileMouseClickInfo;
+    FInfo: TProfileInfoRec;
+    FPointInfo: TProfilePointInfoRec;
 
     FElevationSeries: TAreaSeries;
     FSpeedSeries: TAreaSeries;
@@ -120,16 +133,20 @@ type
 
     procedure AddSingleLineSeries(
       const ALine: IGeometryLonLatSingleLine;
-      var AStat: TProfileStatisticsRec
+      var FInfo: TProfileInfoRec
     );
-    procedure ShowStat(const AStat: TProfileStatisticsRec);
 
     function ToKmPerHour(const AMetersPerSec: Double): Double; inline;
     function ToKmPerHourStr(const AMetersPerSec: Double): string; inline;
 
     procedure BeginUpdateSeries;
     procedure EndUpdateSeries;
+
+    procedure ShowInfo;
+
+    procedure UpdatePointInfo(const AMouseX, AMouseY: Integer);
     procedure ShowPointInfo;
+    procedure HidePointInfo;
   public
     procedure ShowProfile(
       const ALine: IGeometryLonLatLine
@@ -140,7 +157,8 @@ type
       const AParent: TWinControl;
       const AOnClose: TOnCloseEvent;
       const ALanguageManager: ILanguageManager;
-      const ADatum: IDatum
+      const ADatum: IDatum;
+      const AMapGoTo: IMapViewGoto
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -150,12 +168,11 @@ implementation
 uses
   DateUtils,
   gnugettext,
-  t_GeoTypes,
   i_EnumDoublePoint,
   u_ResStrings;
 
 resourcestring
-  rsElevationProfileDistFmt = 'Distance: %s %s';
+  rsElevationProfileDistFmt = 'Distance: %.2f %s';
   rsElevationProfileElevFmt = 'Elevation: %d, %d, %d %s';
   rsElevationProfileSpeedFmt = 'Speed: %s, %s, %s %s';
   rsElevationProfileTimeFmt = 'Time: %s';
@@ -166,18 +183,6 @@ const
 
   CSeriesTransparency = 75;
 
-  CEmptyStatRec: TProfileStatisticsRec = (
-    Dist        : 0;
-    Seconds     : 0;
-    ElevMin     : MaxInt;
-    ElevAvr     : 0;
-    ElevMax     : -MaxInt;
-    SpeedMin    : MaxInt;
-    SpeedAvr    : 0;
-    SpeedMax    : -MaxInt;
-    PointsCount : 0;
-  );
-
 {$R *.dfm}
 
 { TfrElevationProfile }
@@ -186,25 +191,30 @@ constructor TfrElevationProfile.Create(
   const AParent: TWinControl;
   const AOnClose: TOnCloseEvent;
   const ALanguageManager: ILanguageManager;
-  const ADatum: IDatum
+  const ADatum: IDatum;
+  const AMapGoTo: IMapViewGoto
 );
 begin
   inherited Create(ALanguageManager);
 
   FOnClose := AOnClose;
   FDatum := ADatum;
+  FMapGoTo := AMapGoTo;
 
   Self.Parent := AParent;
 
   FShowSpeed := False;
   FShowElevation := True;
+  FMoveToPoint := True;
 
   mniShowSpeed.Checked := FShowSpeed;
   mniShowElevation.Checked := FShowElevation;
-
-  FPointInfo.IsValid := False;
+  mniMoveToPoint.Checked := FMoveToPoint;
 
   SetupChart;
+
+  HidePointInfo;
+  FillChar(FInfo, SizeOf(TProfileInforec), 0);
 end;
 
 destructor TfrElevationProfile.Destroy;
@@ -277,28 +287,11 @@ end;
 procedure TfrElevationProfile.btnCloseClick(Sender: TObject);
 begin
   FOnClose();
+  HidePointInfo;
   Clear;
 end;
 
-procedure TfrElevationProfile.chtProfileContextPopup(Sender: TObject;
-  MousePos: TPoint; var Handled: Boolean);
-begin
-  // Disable popup menu inside chart rect
-  if PtInRect(chtProfile.ChartRect, MousePos) then begin
-    Handled := True;
-  end;
-end;
-
-procedure TfrElevationProfile.chtProfileAfterDraw(Sender: TObject);
-begin
-  if not FPointInfo.IsValid then begin
-    pnlPointInfo.Visible := False;
-    pnlPointLine.Visible := False;
-  end;
-end;
-
-procedure TfrElevationProfile.chtProfileMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
 
   function FindNearestDist(
     const AValue: Double;
@@ -350,6 +343,7 @@ procedure TfrElevationProfile.chtProfileMouseDown(Sender: TObject;
   ): Double;
   begin
     if ALeft <> ARight then begin
+      // Linear interpolation
       Result := AValues[ALeft] + (AValues[ARight] - AValues[ALeft]) *
         (ADistValue - FDist[ALeft]) / (FDist[ARight] - FDist[ALeft]);
     end else begin
@@ -357,37 +351,98 @@ procedure TfrElevationProfile.chtProfileMouseDown(Sender: TObject;
     end;
   end;
 
+  function FindPointLonLat(
+    const ADistValue: Double;
+    const ALeft, ARight: Integer;
+    out APoint: TDoublePoint
+  ): Boolean;
+  var
+    I: Integer;
+    VLeft, VRight: Integer;
+    VLeftIndex, VRightIndex: Integer;
+    VLeftPoint, VRightPoint: TDoublePoint;
+    VInitialBearing, VFinalBearing: Double;
+  begin
+    VLeft := ALeft;
+    VLeftIndex := 0;
+    for I := 0 to Length(FLine) - 1 do begin
+      if VLeft >= FLine[I].Count then begin
+        Dec(VLeft, FLine[I].Count);
+        Inc(VLeftIndex);
+      end else begin
+        Break;
+      end;
+    end;
+
+    VRight := ARight;
+    VRightIndex := 0;
+    for I := 0 to Length(FLine) - 1 do begin
+      if VRight >= FLine[I].Count then begin
+        Dec(VRight, FLine[I].Count);
+        Inc(VRightIndex);
+      end else begin
+        Break;
+      end;
+    end;
+
+    if VLeftIndex <> VRightIndex then begin
+      Result := False;
+      Exit;
+    end;
+
+    if VLeft = VRight then begin
+      APoint := FLine[VLeftIndex].Points[VLeft];
+      Result := True;
+      Exit;
+    end;
+
+    VLeftPoint := FLine[VLeftIndex].Points[VLeft];
+    VRightPoint := FLine[VRightIndex].Points[VRight];
+
+    // find initial bearing
+    FDatum.CalcDist(VLeftPoint, VRightPoint, VInitialBearing, VFinalBearing);
+
+    // find target point
+    APoint := FDatum.CalcFinishPosition(
+      VLeftPoint,
+      VInitialBearing,
+      ADistValue - FDist[ALeft]
+    );
+    Result := True;
+  end;
+
 var
   VLeft, VRight: Integer;
   VCursorDist, VCursorElev: Double;
 begin
-  if Button <> mbLeft then begin
-    Exit;
-  end;
-
   FElevationSeries.GetCursorValues(VCursorDist, VCursorElev);
   FPointInfo.IsValid := FindNearestDist(VCursorDist, VLeft, VRight);
 
   if not FPointInfo.IsValid then begin
+    HidePointInfo;
     Exit;
   end;
 
-  FPointInfo.X := X;
-  FPointInfo.Y := Y;
+  FPointInfo.MouseX := AMouseX;
+  FPointInfo.MouseY := AMouseY;
 
   FPointInfo.Elev := InterpolateValue(FElevationSeries.YValues, VCursorDist, VLeft, VRight);
   FPointInfo.Speed := InterpolateValue(FSpeedSeries.YValues, VCursorDist, VLeft, VRight);
 
   FPointInfo.Dist := VCursorDist;
 
-  ShowPointInfo;
+  FPointInfo.IsLonLatValid := FindPointLonLat(VCursorDist, VLeft, VRight, FPointInfo.LonLat);
 end;
 
 procedure TfrElevationProfile.ShowPointInfo;
 var
   VSpeed, VElev, VDist: string;
 begin
-  // prepare
+  if not FPointInfo.IsValid then begin
+    HidePointInfo;
+    Exit;
+  end;
+
   VSpeed := '';
   VElev := '';
 
@@ -399,43 +454,49 @@ begin
   end;
 
   if FIsDistInMeters then begin
-    VDist := Format(_('Distance: %d m'), [Round(FPointInfo.Dist)]);
+    VDist := Format(_('Distance: %.2f m'), [FPointInfo.Dist]);
   end else begin
     VDist := Format(_('Distance: %.2f km'), [FPointInfo.Dist]);
   end;
 
-  // caption
+  // hint
   lblPointInfo.Caption := VSpeed + VElev + VDist;
 
   pnlPointInfo.Width := lblPointInfo.Width + 10;
   pnlPointInfo.Height := lblPointInfo.Height + 10;
 
-  pnlPointInfo.Left := FPointInfo.X + 10;
-  pnlPointInfo.Top := FPointInfo.Y;
+  pnlPointInfo.Left := FPointInfo.MouseX + 15;
+  pnlPointInfo.Top := FPointInfo.MouseY + 15;
 
   pnlPointInfo.Visible := True;
 
   // line
   pnlPointLine.Height := chtProfile.ChartRect.Bottom - chtProfile.ChartRect.Top;
 
-  pnlPointLine.Left := FPointInfo.X;
+  pnlPointLine.Left := FPointInfo.MouseX;
   pnlPointLine.Top := chtProfile.ChartRect.Top;
 
   pnlPointLine.Visible := True;
+
+  // point
+  if FPointInfo.IsLonLatValid then begin
+    if FMoveToPoint then begin
+      FMapGoTo.GotoLonLat(FPointInfo.LonLat, True);
+    end else begin
+      FMapGoTo.ShowMarker(FPointInfo.LonLat);
+    end;
+  end else begin
+    FMapGoTo.HideMarker;
+  end;
 end;
 
-procedure TfrElevationProfile.chtProfileResize(Sender: TObject);
+procedure TfrElevationProfile.HidePointInfo;
 begin
-  FPointInfo.IsValid := False;
-end;
+  FMapGoTo.HideMarker;
 
-procedure TfrElevationProfile.chtProfileScroll(Sender: TObject);
-begin
-  FPointInfo.IsValid := False;
-end;
+  pnlPointInfo.Visible := False;
+  pnlPointLine.Visible := False;
 
-procedure TfrElevationProfile.chtProfileZoom(Sender: TObject);
-begin
   FPointInfo.IsValid := False;
 end;
 
@@ -444,16 +505,30 @@ procedure TfrElevationProfile.ShowProfile(
 );
 const
   CMaxDistInMeters = 9999;
+
+  CEmptyInfoRec: TProfileInfoRec = (
+    Dist        : 0;
+    Seconds     : 0;
+    ElevMin     : MaxInt;
+    ElevAvr     : 0;
+    ElevMax     : -MaxInt;
+    SpeedMin    : MaxInt;
+    SpeedAvr    : 0;
+    SpeedMax    : -MaxInt;
+    PointsCount : 0;
+  );
 var
   I: Integer;
   VCount: Integer;
-  VStat: TProfileStatisticsRec;
   VLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
 begin
-  FPointInfo.IsValid := False;
+  // reset zoom
+  chtProfile.UndoZoom;
 
-  VStat := CEmptyStatRec;
+  HidePointInfo;
+
+  FInfo := CEmptyInfoRec;
 
   if Supports(ALine, IGeometryLonLatSingleLine, VLine) then begin
     SetLength(FLine, 1);
@@ -480,10 +555,10 @@ begin
     FElevationSeries.Clear;
 
     for I := 0 to Length(FLine) - 1 do begin
-      AddSingleLineSeries(FLine[I], VStat);
+      AddSingleLineSeries(FLine[I], FInfo);
     end;
 
-    FIsDistInMeters := VStat.Dist <= CMaxDistInMeters;
+    FIsDistInMeters := FInfo.Dist <= CMaxDistInMeters;
 
     if not FIsDistInMeters then begin
       for I := 0 to Length(FDist) - 1 do begin
@@ -497,9 +572,10 @@ begin
     end;
 
     FElevationSeries.Visible := FShowElevation;
-    FSpeedSeries.Visible := FShowSpeed and (VStat.Seconds > 0);
+    FSpeedSeries.Visible := FShowSpeed and (FInfo.Seconds > 0);
+    mniShowSpeed.Enabled := FInfo.Seconds > 0;
 
-    if FElevationSeries.Visible then begin
+    if not FElevationSeries.Visible then begin
       if chtProfile.MarginLeft < 8 then begin
         chtProfile.MarginLeft := 8;
       end;
@@ -509,26 +585,28 @@ begin
       FElevationSeries.MinYValue * 0.99,
       FElevationSeries.MaxYValue * 1.01
     );
+    chtProfile.Axes.Right.SetMinMax(
+      FSpeedSeries.MinYValue * 0.99,
+      FSpeedSeries.MaxYValue * 1.01
+    );
   finally
     EndUpdateSeries;
   end;
 
-  if VStat.PointsCount > 0 then begin
+  if FInfo.PointsCount > 0 then begin
     // calc average values
-    VStat.ElevAvr := VStat.ElevAvr / VStat.PointsCount;
-    VStat.SpeedAvr := VStat.SpeedAvr / VStat.PointsCount;
+    FInfo.ElevAvr := FInfo.ElevAvr / FInfo.PointsCount;
+    FInfo.SpeedAvr := FInfo.SpeedAvr / FInfo.PointsCount;
+  end else begin
+    FillChar(FInfo, SizeOf(TProfileInforec), 0);
   end;
 
-  // show statistics
-  ShowStat(VStat);
-
-  // reset zoom
-  chtProfile.UndoZoom;
+  ShowInfo;
 end;
 
 procedure TfrElevationProfile.AddSingleLineSeries(
   const ALine: IGeometryLonLatSingleLine;
-  var AStat: TProfileStatisticsRec
+  var FInfo: TProfileInfoRec
 );
 var
   VEnum: IEnumLonLatPoint;
@@ -541,7 +619,10 @@ var
   VSeconds: Int64;
   VPrevTimeIndex: Integer;
   VPrevTimeValue: TDateTime;
+  VIsPrevOk: Boolean;
 begin
+  VIsPrevOk := False;
+
   VPrevTimeIndex := -1;
   VPrevTimeValue := 0;
 
@@ -550,10 +631,10 @@ begin
   while VEnum.Next(VPoint, VMeta) do begin
 
     // Elevation
-    if AStat.PointsCount > 0 then begin
-      AStat.Dist := AStat.Dist + FDatum.CalcDist(VPrevPoint, VPoint);
+    if VIsPrevOk then begin
+      FInfo.Dist := FInfo.Dist + FDatum.CalcDist(VPrevPoint, VPoint);
     end;
-    FDist[AStat.PointsCount] := AStat.Dist;
+    FDist[FInfo.PointsCount] := FInfo.Dist;
 
     if VMeta.IsElevationOk then begin
       VElev := VMeta.Elevation;
@@ -561,16 +642,16 @@ begin
       VElev := 0;
     end;
 
-    if VElev < AStat.ElevMin then begin
-      AStat.ElevMin := VElev;
+    if VElev < FInfo.ElevMin then begin
+      FInfo.ElevMin := VElev;
     end;
-    if VElev > AStat.ElevMax then begin
-      AStat.ElevMax := VElev;
+    if VElev > FInfo.ElevMax then begin
+      FInfo.ElevMax := VElev;
     end;
 
-    AStat.ElevAvr := AStat.ElevAvr + VElev; // accumulate only
+    FInfo.ElevAvr := FInfo.ElevAvr + VElev; // accumulate only
 
-    FElevationSeries.AddXY(AStat.Dist, VElev);
+    FElevationSeries.AddXY(FInfo.Dist, VElev);
 
     // Speed
     VSpeed := 0;
@@ -578,62 +659,73 @@ begin
 
     if VMeta.IsTimeStampOk then begin
       if VPrevTimeIndex >= 0 then begin
-        VDist := FDist[AStat.PointsCount] - FDist[VPrevTimeIndex];
+        VDist := FDist[FInfo.PointsCount] - FDist[VPrevTimeIndex];
         VSeconds := SecondsBetween(VMeta.TimeStamp, VPrevTimeValue);
         if VSeconds > 0 then begin
           VSpeed := VDist / VSeconds; // meters per second
         end;
       end;
-      VPrevTimeIndex := AStat.PointsCount;
+      VPrevTimeIndex := FInfo.PointsCount;
       VPrevTimeValue := VMeta.TimeStamp;
     end;
 
-    if VSpeed < AStat.SpeedMin then begin
-      AStat.SpeedMin := VSpeed;
+    if VSpeed < FInfo.SpeedMin then begin
+      FInfo.SpeedMin := VSpeed;
     end;
-    if VSpeed > AStat.SpeedMax then begin
-      AStat.SpeedMax := VSpeed;
+    if VSpeed > FInfo.SpeedMax then begin
+      FInfo.SpeedMax := VSpeed;
     end;
 
-    AStat.SpeedAvr := AStat.SpeedAvr + VSpeed; // accumulate only
-    Inc(AStat.Seconds, VSeconds);
+    FInfo.SpeedAvr := FInfo.SpeedAvr + VSpeed; // accumulate only
+    Inc(FInfo.Seconds, VSeconds);
 
-    FSpeedSeries.AddXY(AStat.Dist, ToKmPerHour(VSpeed));
+    FSpeedSeries.AddXY(FInfo.Dist, ToKmPerHour(VSpeed));
 
     // prepare next step
-    Inc(AStat.PointsCount);
+    Inc(FInfo.PointsCount);
     VPrevPoint := VPoint;
+    VIsPrevOk := True;
   end;
 end;
 
-procedure TfrElevationProfile.ShowStat(const AStat: TProfileStatisticsRec);
+procedure TfrElevationProfile.ShowInfo;
 const
-  CSep = ',  ';
+  CSep = ' | ';
 var
-  VDistVal: string;
+  VInfo: string;
+  VDistVal: Double;
   VDistUnit: string;
 begin
-  if AStat.Dist > 1000 then begin
-    VDistVal := Format('%.2f', [AStat.Dist / 1000]);
+  // dist
+  if FInfo.Dist > 1000 then begin
+    VDistVal := FInfo.Dist / 1000;
     VDistUnit := SAS_UNITS_km;
   end else begin
-    VDistVal := IntToStr(Round(AStat.Dist));
+    VDistVal := FInfo.Dist;
     VDistUnit := SAS_UNITS_m;
   end;
 
-  lblInfo.Caption :=
-    Format(rsElevationProfileDistFmt, [VDistVal, VDistUnit]) + ',  ' +
-    Format(rsElevationProfileElevFmt, [Round(AStat.ElevMin), Round(AStat.ElevAvr), Round(AStat.ElevMax), SAS_UNITS_m]);
+  VInfo := Format(rsElevationProfileDistFmt, [VDistVal, VDistUnit]);
 
-  if AStat.Seconds > 0 then begin
-    lblInfo.Caption := lblInfo.Caption + CSep +
-      Format(rsElevationProfileSpeedFmt, [ToKmPerHourStr(AStat.SpeedMin),
-        ToKmPerHourStr(AStat.SpeedAvr), ToKmPerHourStr(AStat.SpeedMax), SAS_UNITS_kmperh]
-      ) + CSep +
-      Format(
-        rsElevationProfileTimeFmt, [FormatDateTime('hh:nn:ss', AStat.Seconds / SecsPerDay)]
+  // elev
+  if FShowElevation then begin
+    VInfo := VInfo + CSep +
+      Format(rsElevationProfileElevFmt, [Round(FInfo.ElevMin),
+        Round(FInfo.ElevAvr), Round(FInfo.ElevMax), SAS_UNITS_m]
       );
   end;
+
+  // speed
+  if FShowSpeed and (FInfo.Seconds > 0) then begin
+    VInfo := VInfo + CSep +
+      Format(rsElevationProfileSpeedFmt, [ToKmPerHourStr(FInfo.SpeedMin),
+        ToKmPerHourStr(FInfo.SpeedAvr), ToKmPerHourStr(FInfo.SpeedMax), SAS_UNITS_kmperh]
+      ) + CSep +
+      Format(rsElevationProfileTimeFmt, [FormatDateTime('hh:nn:ss', FInfo.Seconds / SecsPerDay)]);
+  end;
+
+  // show
+  lblInfo.Caption := VInfo;
 end;
 
 function TfrElevationProfile.ToKmPerHour(const AMetersPerSec: Double): Double;
@@ -667,18 +759,76 @@ begin
   chtProfile.Repaint;
 end;
 
+// Chart events
+
+procedure TfrElevationProfile.chtProfileContextPopup(Sender: TObject;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+  if PtInRect(chtProfile.ChartRect, MousePos) then begin
+    // Disable popup menu inside chart rect
+    Handled := True;
+  end;
+end;
+
+procedure TfrElevationProfile.chtProfileAfterDraw(Sender: TObject);
+begin
+  if not FPointInfo.IsValid then begin
+    HidePointInfo;
+  end;
+end;
+
+procedure TfrElevationProfile.chtProfileMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = mbLeft then begin
+    UpdatePointInfo(X, Y);
+    ShowPointInfo;
+  end;
+end;
+
+procedure TfrElevationProfile.chtProfileResize(Sender: TObject);
+begin
+  FPointInfo.IsValid := False;
+end;
+
+procedure TfrElevationProfile.chtProfileScroll(Sender: TObject);
+begin
+  FPointInfo.IsValid := False;
+end;
+
+procedure TfrElevationProfile.chtProfileUndoZoom(Sender: TObject);
+begin
+  FPointInfo.IsValid := False;
+end;
+
+procedure TfrElevationProfile.chtProfileZoom(Sender: TObject);
+begin
+  FPointInfo.IsValid := False;
+end;
+
 // PopupMenu Actions
 
 procedure TfrElevationProfile.mniShowSpeedClick(Sender: TObject);
 begin
   FShowSpeed := mniShowSpeed.Checked;
   FSpeedSeries.Visible := FShowSpeed;
+
+  ShowInfo;
+  ShowPointInfo;
 end;
 
 procedure TfrElevationProfile.mniShowElevationClick(Sender: TObject);
 begin
   FShowElevation := mniShowElevation.Checked;
   FElevationSeries.Visible := FShowElevation;
+
+  ShowInfo;
+  ShowPointInfo;
+end;
+
+procedure TfrElevationProfile.mniMoveToPointClick(Sender: TObject);
+begin
+  FMoveToPoint := mniMoveToPoint.Checked;
 end;
 
 procedure TfrElevationProfile.mniResetZoomClick(Sender: TObject);

@@ -59,14 +59,15 @@ type
     FLastGotoPos: IGotoPosStatic;
     FChangeNotifier: INotifierInternal;
   private
+    { IMapViewGoto }
     procedure GotoLonLat(
       const ALonLat: TDoublePoint;
-      const AshowMarker: Boolean
+      const AShowMarker: Boolean
     );
     procedure GotoPos(
       const ALonLat: TDoublePoint;
       const AProjection: IProjection;
-      const AshowMarker: Boolean
+      const AShowMarker: Boolean
     );
     procedure FitRectToScreen(
       const ALonLatRect: TDoubleRect
@@ -74,6 +75,8 @@ type
     procedure ShowMarker(
       const ALonLat: TDoublePoint
     );
+    procedure HideMarker;
+
     function GetLastGotoPos: IGotoPosStatic;
     function GetChangeNotifier: INotifier;
   public
@@ -176,12 +179,12 @@ end;
 
 procedure TMapViewGoto.GotoLonLat(
   const ALonLat: TDoublePoint;
-  const AshowMarker: Boolean
+  const AShowMarker: Boolean
 );
 begin
   FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.View.GetStatic.Projection, Now);
   FViewPortState.ChangeLonLat(ALonLat);
-  if AShowmarker then begin
+  if AShowMarker then begin
     FChangeNotifier.Notify(nil);
   end;
 end;
@@ -189,14 +192,20 @@ end;
 procedure TMapViewGoto.GotoPos(
   const ALonLat: TDoublePoint;
   const AProjection: IProjection;
-  const AshowMarker: Boolean
+  const AShowMarker: Boolean
 );
 begin
   FLastGotoPos := TGotoPosStatic.Create(ALonLat, AProjection, Now);
   FViewPortState.ChangeLonLatAndZoom(AProjection.Zoom, ALonLat);
-  if AShowmarker then begin
+  if AShowMarker then begin
     FChangeNotifier.Notify(nil);
   end;
+end;
+
+procedure TMapViewGoto.HideMarker;
+begin
+  FLastGotoPos := nil;
+  FChangeNotifier.Notify(nil);
 end;
 
 { TGotoPosStatic }
