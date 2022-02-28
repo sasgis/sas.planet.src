@@ -42,9 +42,9 @@ uses
   ExtCtrls,
   StdCtrls,
   TBXDkPanels,
-  {$IFDEF HAS_TEE_GDI_PLUS}
+  {.$IFDEF HAS_TEE_GDI_PLUS}
   TeeGDIPlus,
-  {$ENDIF}
+  {.$ENDIF}
   TeEngine,
   TeeProcs,
   Chart,
