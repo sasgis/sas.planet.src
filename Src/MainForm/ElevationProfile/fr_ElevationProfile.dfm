@@ -160,10 +160,10 @@ object frElevationProfile: TfrElevationProfile
     object N1: TMenuItem
       Caption = '-'
     end
-    object mniMoveToPoint: TMenuItem
+    object mniCenterMap: TMenuItem
       AutoCheck = True
-      Caption = 'Move to Point'
-      OnClick = mniMoveToPointClick
+      Caption = 'Center Map'
+      OnClick = mniCenterMapClick
     end
     object N2: TMenuItem
       Caption = '-'

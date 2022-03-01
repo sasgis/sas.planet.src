@@ -95,18 +95,19 @@ type
     pmMain: TPopupMenu;
     mniShowSpeed: TMenuItem;
     mniShowElevation: TMenuItem;
-    N1: TMenuItem;
+    mniCenterMap: TMenuItem;
     mniResetZoom: TMenuItem;
+    N1: TMenuItem;
+    N2: TMenuItem;
     chtProfile: TChart;
     pnlPointInfo: TPanel;
     lblPointInfo: TLabel;
     pnlPointLine: TPanel;
-    mniMoveToPoint: TMenuItem;
-    N2: TMenuItem;
     procedure btnCloseClick(Sender: TObject);
     procedure mniShowSpeedClick(Sender: TObject);
     procedure mniResetZoomClick(Sender: TObject);
     procedure mniShowElevationClick(Sender: TObject);
+    procedure mniCenterMapClick(Sender: TObject);
     procedure chtProfileAfterDraw(Sender: TObject);
     procedure chtProfileMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -115,7 +116,7 @@ type
     procedure chtProfileScroll(Sender: TObject);
     procedure chtProfileContextPopup(Sender: TObject; MousePos: TPoint;
       var Handled: Boolean);
-    procedure mniMoveToPointClick(Sender: TObject);
+
     procedure chtProfileUndoZoom(Sender: TObject);
   private
     FDatum: IDatum;
@@ -124,7 +125,7 @@ type
 
     FShowSpeed: Boolean;
     FShowElevation: Boolean;
-    FMoveToPoint: Boolean;
+    FCenterMap: Boolean;
 
     FLine: array of IGeometryLonLatSingleLine;
     FDist: array of Double;
@@ -213,11 +214,11 @@ begin
 
   FShowSpeed := False;
   FShowElevation := True;
-  FMoveToPoint := True;
+  FCenterMap := True;
 
   mniShowSpeed.Checked := FShowSpeed;
   mniShowElevation.Checked := FShowElevation;
-  mniMoveToPoint.Checked := FMoveToPoint;
+  mniCenterMap.Checked := FCenterMap;
 
   SetupChart;
 
@@ -400,9 +401,9 @@ begin
   ShowPointInfo;
 end;
 
-procedure TfrElevationProfile.mniMoveToPointClick(Sender: TObject);
+procedure TfrElevationProfile.mniCenterMapClick(Sender: TObject);
 begin
-  FMoveToPoint := mniMoveToPoint.Checked;
+  FCenterMap := mniCenterMap.Checked;
 end;
 
 procedure TfrElevationProfile.mniResetZoomClick(Sender: TObject);
@@ -711,7 +712,7 @@ begin
 
   // point
   if FPointInfo.IsLonLatValid then begin
-    if FMoveToPoint then begin
+    if FCenterMap then begin
       FMapGoTo.GotoLonLat(FPointInfo.LonLat, True);
     end else begin
       FMapGoTo.ShowMarker(FPointInfo.LonLat);
