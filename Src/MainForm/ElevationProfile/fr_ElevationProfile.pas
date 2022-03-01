@@ -57,18 +57,17 @@ uses
   u_CommonFormAndFrameParents;
 
 type
+  TProfileMinMaxAvgRec = record
+    Min: Double;
+    Max: Double;
+    Avg: Double;
+  end;
+
   TProfileInfoRec = record
     Dist: Double;
     Seconds: Int64;
-
-    ElevMin: Double;
-    ElevAvr: Double;
-    ElevMax: Double;
-
-    SpeedMin: Double;
-    SpeedAvr: Double;
-    SpeedMax: Double;
-
+    Elev: TProfileMinMaxAvgRec;
+    Speed: TProfileMinMaxAvgRec;
     PointsCount: Integer;
   end;
 
@@ -103,6 +102,7 @@ type
     pnlPointInfo: TPanel;
     lblPointInfo: TLabel;
     pnlPointLine: TPanel;
+    mniFilterData: TMenuItem;
     procedure btnCloseClick(Sender: TObject);
     procedure mniShowSpeedClick(Sender: TObject);
     procedure mniResetZoomClick(Sender: TObject);
@@ -118,6 +118,7 @@ type
       var Handled: Boolean);
 
     procedure chtProfileUndoZoom(Sender: TObject);
+    procedure mniFilterDataClick(Sender: TObject);
   private
     FDatum: IDatum;
     FMapGoTo: IMapViewGoto;
@@ -125,6 +126,7 @@ type
 
     FShowSpeed: Boolean;
     FShowElevation: Boolean;
+    FFilterData: Boolean;
     FCenterMap: Boolean;
 
     FLine: array of IGeometryLonLatSingleLine;
@@ -142,10 +144,7 @@ type
     procedure SetupChart;
 
     procedure ShowSeries;
-    procedure FillSeriesWithLineData(
-      const ALine: IGeometryLonLatSingleLine;
-      var AInfo: TProfileInfoRec
-    );
+    procedure FillSeriesWithLineData(const ALine: IGeometryLonLatSingleLine);
     procedure BeginUpdateSeries;
     procedure EndUpdateSeries;
 
@@ -155,8 +154,8 @@ type
     procedure HidePointInfo;
     procedure UpdatePointInfo(const AMouseX, AMouseY: Integer);
 
-    class function ToKmPerHour(const AMetersPerSec: Double): Double; static; inline;
-    class function ToKmPerHourStr(const AMetersPerSec: Double): string; static; inline;
+    class procedure InitInfo(out AInfo: TProfileInfoRec); static;
+    class procedure ResetInfo(out AInfo: TProfileInfoRec); static; inline;
   public
     procedure ShowProfile(
       const ALine: IGeometryLonLatLine
@@ -183,14 +182,18 @@ uses
 
 resourcestring
   rsElevationProfileDistFmt = 'Distance: %.2f %s';
-  rsElevationProfileElevFmt = 'Elevation: %d, %d, %d %s';
-  rsElevationProfileSpeedFmt = 'Speed: %s, %s, %s %s';
+  rsElevationProfileElevFmt = 'Elevation: %d, %d, %d m';
+  rsElevationProfileSpeedFmt = 'Speed: %.2f, %.2f, %.2f km/h';
   rsElevationProfileTimeFmt = 'Time: %s';
 
 const
   CElevationSeriesColor = clRed;
   CSpeedSeriesColor = clBlue;
   CSeriesTransparency = 75;
+
+const
+  CFilterElevWindow = 3;
+  CFilterSpeedWindow = 5;
 
 {$R *.dfm}
 
@@ -214,16 +217,18 @@ begin
 
   FShowSpeed := False;
   FShowElevation := True;
+  FFilterData := False;
   FCenterMap := True;
 
   mniShowSpeed.Checked := FShowSpeed;
   mniShowElevation.Checked := FShowElevation;
+  mniFilterData.Checked := FFilterData;
   mniCenterMap.Checked := FCenterMap;
 
   SetupChart;
 
   HidePointInfo;
-  FillChar(FInfo, SizeOf(TProfileInfoRec), 0);
+  ResetInfo(FInfo);
 end;
 
 destructor TfrElevationProfile.Destroy;
@@ -406,6 +411,15 @@ begin
   FCenterMap := mniCenterMap.Checked;
 end;
 
+procedure TfrElevationProfile.mniFilterDataClick(Sender: TObject);
+begin
+  FFilterData := mniFilterData.Checked;
+
+  ShowSeries;
+  ShowInfo;
+  ShowPointInfo;
+end;
+
 procedure TfrElevationProfile.mniResetZoomClick(Sender: TObject);
 begin
   chtProfile.UndoZoom;
@@ -415,17 +429,6 @@ end;
 
 procedure TfrElevationProfile.ShowSeries;
 const
-  CEmptyInfoRec: TProfileInfoRec = (
-    Dist        : 0;
-    Seconds     : 0;
-    ElevMin     : MaxInt;
-    ElevAvr     : 0;
-    ElevMax     : -MaxInt;
-    SpeedMin    : MaxInt;
-    SpeedAvr    : 0;
-    SpeedMax    : -MaxInt;
-    PointsCount : 0;
-  );
   CMaxDistInMeters = 9999;
 var
   I: Integer;
@@ -434,7 +437,7 @@ begin
   // reset zoom
   chtProfile.UndoZoom;
 
-  FInfo := CEmptyInfoRec;
+  InitInfo(FInfo);
 
   VCount := 0;
   for I := 0 to Length(FLine) - 1 do begin
@@ -448,7 +451,7 @@ begin
     FElevationSeries.Clear;
 
     for I := 0 to Length(FLine) - 1 do begin
-      FillSeriesWithLineData(FLine[I], FInfo);
+      FillSeriesWithLineData(FLine[I]);
     end;
 
     FIsDistInMeters := FInfo.Dist <= CMaxDistInMeters;
@@ -488,17 +491,80 @@ begin
 
   if FInfo.PointsCount > 0 then begin
     // calc average values
-    FInfo.ElevAvr := FInfo.ElevAvr / FInfo.PointsCount;
-    FInfo.SpeedAvr := FInfo.SpeedAvr / FInfo.PointsCount;
+    FInfo.Elev.Avg := FInfo.Elev.Avg / FInfo.PointsCount;
+    FInfo.Speed.Avg := FInfo.Speed.Avg / FInfo.PointsCount;
   end else begin
-    FillChar(FInfo, SizeOf(TProfileInforec), 0);
+    ResetInfo(FInfo);
   end;
 end;
 
 procedure TfrElevationProfile.FillSeriesWithLineData(
-  const ALine: IGeometryLonLatSingleLine;
-  var AInfo: TProfileInfoRec
+  const ALine: IGeometryLonLatSingleLine
 );
+
+  procedure Filter(
+    const AValues: TChartValueList;
+    const AStartIndex: Integer;
+    const AWindow: Integer
+  );
+  var
+    I: Integer;
+    VCount: Integer;
+    VHalf: Integer;
+    VAcc: Double;
+    VTmp: array of Double;
+  begin
+    VCount := AValues.Count - AStartIndex;
+
+    if (VCount < AWindow) or (AWindow < 2) then begin
+      Exit;
+    end;
+
+    SetLength(VTmp, VCount);
+
+    VAcc := 0;
+    VHalf := AWindow div 2;
+
+    for I := 0 to AWindow - 1 do begin
+      VAcc := VAcc + AValues[AStartIndex + I];
+    end;
+    for I := 0 to VHalf do begin
+      VTmp[I] := VAcc / AWindow;
+    end;
+    for I := VHalf + 1 to VCount - 1 - VHalf do begin
+      VAcc := VAcc + AValues[I + VHalf] - AValues[I - (VHalf + 1)];
+      VTmp[I] := VAcc / AWindow;
+    end;
+    for I := VCount - VHalf to VCount - 1 do begin
+      VTmp[I] := VAcc / AWindow;
+    end;
+
+    for I := 0 to VCount - 1 do begin
+      AValues[AStartIndex + I] := VTmp[I];
+    end;
+  end;
+
+  procedure CalcMinMaxAvg(
+    const AValues: TChartValueList;
+    const AStartIndex: Integer;
+    var ARec: TProfileMinMaxAvgRec
+  );
+  var
+    I: Integer;
+    VCurr: Double;
+  begin
+    for I := AStartIndex to AValues.Count - 1 do begin
+      VCurr := AValues[I];
+      if VCurr < ARec.Min then begin
+        ARec.Min := VCurr;
+      end;
+      if VCurr > ARec.Max then begin
+        ARec.Max := VCurr;
+      end;
+      ARec.Avg := ARec.Avg + VCurr; // accumulate only
+    end;
+  end;
+
 var
   VEnum: IEnumLonLatPoint;
   VPoint: TDoublePoint;
@@ -511,72 +577,69 @@ var
   VPrevTimeIndex: Integer;
   VPrevTimeValue: TDateTime;
   VIsPrevOk: Boolean;
+  VStartIndex: Integer;
 begin
   VIsPrevOk := False;
 
   VPrevTimeIndex := -1;
   VPrevTimeValue := 0;
 
+  VStartIndex := FInfo.PointsCount;
+
   VEnum := ALine.GetEnum;
 
   while VEnum.Next(VPoint, VMeta) do begin
 
-    // Elevation
+    // distance
     if VIsPrevOk then begin
-      AInfo.Dist := AInfo.Dist + FDatum.CalcDist(VPrevPoint, VPoint);
+      FInfo.Dist := FInfo.Dist + FDatum.CalcDist(VPrevPoint, VPoint);
     end;
-    FDist[AInfo.PointsCount] := AInfo.Dist;
+    FDist[FInfo.PointsCount] := FInfo.Dist;
 
+    // elevation
     if VMeta.IsElevationOk then begin
       VElev := VMeta.Elevation;
     end else begin
       VElev := 0;
     end;
 
-    if VElev < AInfo.ElevMin then begin
-      AInfo.ElevMin := VElev;
-    end;
-    if VElev > AInfo.ElevMax then begin
-      AInfo.ElevMax := VElev;
-    end;
-
-    AInfo.ElevAvr := AInfo.ElevAvr + VElev; // accumulate only
-
-    FElevationSeries.AddXY(AInfo.Dist, VElev);
-
-    // Speed
+    // speed
     VSpeed := 0;
     VSeconds := 0;
 
     if VMeta.IsTimeStampOk then begin
       if VPrevTimeIndex >= 0 then begin
-        VDist := FDist[AInfo.PointsCount] - FDist[VPrevTimeIndex];
+        VDist := FDist[FInfo.PointsCount] - FDist[VPrevTimeIndex];
         VSeconds := SecondsBetween(VMeta.TimeStamp, VPrevTimeValue);
         if VSeconds > 0 then begin
-          VSpeed := VDist / VSeconds; // meters per second
+          VSpeed := (VDist / VSeconds) / 1000 * 3600; // km/h
         end;
       end;
-      VPrevTimeIndex := AInfo.PointsCount;
+      VPrevTimeIndex := FInfo.PointsCount;
       VPrevTimeValue := VMeta.TimeStamp;
     end;
 
-    if VSpeed < AInfo.SpeedMin then begin
-      AInfo.SpeedMin := VSpeed;
-    end;
-    if VSpeed > AInfo.SpeedMax then begin
-      AInfo.SpeedMax := VSpeed;
-    end;
+    // time
+    Inc(FInfo.Seconds, VSeconds);
 
-    AInfo.SpeedAvr := AInfo.SpeedAvr + VSpeed; // accumulate only
-    Inc(AInfo.Seconds, VSeconds);
+    // add values
+    FElevationSeries.AddXY(FInfo.Dist, VElev);
+    FSpeedSeries.AddXY(FInfo.Dist, VSpeed);
 
-    FSpeedSeries.AddXY(AInfo.Dist, ToKmPerHour(VSpeed));
+    Inc(FInfo.PointsCount);
 
-    // prepare next step
-    Inc(AInfo.PointsCount);
+    // prepare to the next step
     VPrevPoint := VPoint;
     VIsPrevOk := True;
   end;
+
+  if FFilterData then begin
+    Filter(FElevationSeries.YValues, VStartIndex, CFilterElevWindow);
+    Filter(FSpeedSeries.YValues, VStartIndex, CFilterSpeedWindow);
+  end;
+
+  CalcMinMaxAvg(FElevationSeries.YValues, VStartIndex, FInfo.Elev);
+  CalcMinMaxAvg(FSpeedSeries.YValues, VStartIndex, FInfo.Speed);
 end;
 
 procedure TfrElevationProfile.BeginUpdateSeries;
@@ -610,7 +673,7 @@ var
   VDistVal: Double;
   VDistUnit: string;
 begin
-  // dist
+  // distance
   if FInfo.Dist > 1000 then begin
     VDistVal := FInfo.Dist / 1000;
     VDistUnit := SAS_UNITS_km;
@@ -621,20 +684,18 @@ begin
 
   VInfo := Format(rsElevationProfileDistFmt, [VDistVal, VDistUnit]);
 
-  // elev
+  // elevation
   if FShowElevation then begin
     VInfo := VInfo + CSep +
-      Format(rsElevationProfileElevFmt, [Round(FInfo.ElevMin),
-        Round(FInfo.ElevAvr), Round(FInfo.ElevMax), SAS_UNITS_m]
+      Format(rsElevationProfileElevFmt, [Round(FInfo.Elev.Min),
+        Round(FInfo.Elev.Avg), Round(FInfo.Elev.Max)]
       );
   end;
 
-  // speed
+  // speed and time
   if FShowSpeed and (FInfo.Seconds > 0) then begin
     VInfo := VInfo + CSep +
-      Format(rsElevationProfileSpeedFmt, [ToKmPerHourStr(FInfo.SpeedMin),
-        ToKmPerHourStr(FInfo.SpeedAvr), ToKmPerHourStr(FInfo.SpeedMax), SAS_UNITS_kmperh]
-      ) + CSep +
+      Format(rsElevationProfileSpeedFmt, [FInfo.Speed.Min, FInfo.Speed.Avg, FInfo.Speed.Max]) + CSep +
       Format(rsElevationProfileTimeFmt, [FormatDateTime('hh:nn:ss', FInfo.Seconds / SecsPerDay)]);
   end;
 
@@ -874,14 +935,20 @@ end;
 
 // Utility functions
 
-class function TfrElevationProfile.ToKmPerHour(const AMetersPerSec: Double): Double;
+class procedure TfrElevationProfile.InitInfo(out AInfo: TProfileInfoRec);
+const
+  CEmptyMinMaxAvgRec: TProfileMinMaxAvgRec = (
+    Min: MaxInt; Max: -MaxInt; Avg: 0;
+  );
 begin
-  Result := AMetersPerSec / 1000 * 3600;
+  ResetInfo(AInfo);
+  AInfo.Elev := CEmptyMinMaxAvgRec;
+  AInfo.Speed := CEmptyMinMaxAvgRec;
 end;
 
-class function TfrElevationProfile.ToKmPerHourStr(const AMetersPerSec: Double): string;
+class procedure TfrElevationProfile.ResetInfo(out AInfo: TProfileInfoRec);
 begin
-  Result := Format('%.2f', [ToKmPerHour(AMetersPerSec)]);
+  FillChar(AInfo, SizeOf(TProfileInfoRec), 0);
 end;
 
 end.

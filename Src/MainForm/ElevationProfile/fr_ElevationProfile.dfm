@@ -160,6 +160,11 @@ object frElevationProfile: TfrElevationProfile
     object N1: TMenuItem
       Caption = '-'
     end
+    object mniFilterData: TMenuItem
+      AutoCheck = True
+      Caption = 'Filter Data'
+      OnClick = mniFilterDataClick
+    end
     object mniCenterMap: TMenuItem
       AutoCheck = True
       Caption = 'Center Map'
