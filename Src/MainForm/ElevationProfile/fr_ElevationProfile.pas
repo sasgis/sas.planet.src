@@ -66,8 +66,13 @@ type
   TProfileInfoRec = record
     Dist: Double;
     Seconds: Int64;
+
     Elev: TProfileMinMaxAvgRec;
+    ElevAscent: Double;
+    ElevDescent: Double;
+
     Speed: TProfileMinMaxAvgRec;
+
     PointsCount: Integer;
   end;
 
@@ -183,6 +188,8 @@ uses
 resourcestring
   rsElevationProfileDistFmt = 'Distance: %.2f %s';
   rsElevationProfileElevFmt = 'Elevation: %d, %d, %d m';
+  rsElevationProfileElevAscentFmt = 'Ascent: %d m';
+  rsElevationProfileElevDescentFmt = 'Descent: %d m';
   rsElevationProfileSpeedFmt = 'Speed: %.2f, %.2f, %.2f km/h';
   rsElevationProfileTimeFmt = 'Time: %s';
 
@@ -565,6 +572,31 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
     end;
   end;
 
+  procedure CalcElevAscentDescent(
+    const AValues: TChartValueList;
+    const AStartIndex: Integer
+  );
+  var
+    I: Integer;
+    VCurr: Double;
+    VPrev: Double;
+  begin
+    if AValues.Count < 2 then begin
+      Exit;
+    end;
+    VPrev := AValues[0];
+    for I := AStartIndex + 1 to AValues.Count - 1 do begin
+      VCurr := AValues[I];
+      if VCurr > VPrev then begin
+        FInfo.ElevAscent := FInfo.ElevAscent + (VCurr - VPrev);
+      end else
+      if VCurr < VPrev then begin
+        FInfo.ElevDescent := FInfo.ElevDescent + (VPrev - VCurr);
+      end;
+      VPrev := VCurr;
+    end;
+  end;
+
 var
   VEnum: IEnumLonLatPoint;
   VPoint: TDoublePoint;
@@ -640,6 +672,8 @@ begin
 
   CalcMinMaxAvg(FElevationSeries.YValues, VStartIndex, FInfo.Elev);
   CalcMinMaxAvg(FSpeedSeries.YValues, VStartIndex, FInfo.Speed);
+
+  CalcElevAscentDescent(FElevationSeries.YValues, VStartIndex);
 end;
 
 procedure TfrElevationProfile.BeginUpdateSeries;
@@ -689,7 +723,9 @@ begin
     VInfo := VInfo + CSep +
       Format(rsElevationProfileElevFmt, [Round(FInfo.Elev.Min),
         Round(FInfo.Elev.Avg), Round(FInfo.Elev.Max)]
-      );
+      ) + CSep +
+      Format(rsElevationProfileElevAscentFmt, [Round(FInfo.ElevAscent)]) + CSep +
+      Format(rsElevationProfileElevDescentFmt, [Round(FInfo.ElevDescent)]);
   end;
 
   // speed and time
