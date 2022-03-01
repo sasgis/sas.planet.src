@@ -145,6 +145,7 @@ type
     FSpeedSeries: TAreaSeries;
 
     FAxisValuesFormatDef: string;
+    FFormatSettings: TFormatSettings;
   private
     procedure SetupChart;
 
@@ -236,6 +237,8 @@ begin
 
   HidePointInfo;
   ResetInfo(FInfo);
+
+  FFormatSettings.DecimalSeparator := '.';
 end;
 
 destructor TfrElevationProfile.Destroy;
@@ -716,13 +719,13 @@ begin
     VDistUnit := SAS_UNITS_m;
   end;
 
-  VInfo := Format(rsElevationProfileDistFmt, [VDistVal, VDistUnit]);
+  VInfo := Format(rsElevationProfileDistFmt, [VDistVal, VDistUnit], FFormatSettings);
 
   // elevation
   if FShowElevation then begin
     VInfo := VInfo + CSep +
       Format(rsElevationProfileElevFmt, [Round(FInfo.Elev.Min),
-        Round(FInfo.Elev.Avg), Round(FInfo.Elev.Max)]
+        Round(FInfo.Elev.Avg), Round(FInfo.Elev.Max)], FFormatSettings
       ) + CSep +
       Format(rsElevationProfileElevAscentFmt, [Round(FInfo.ElevAscent)]) + CSep +
       Format(rsElevationProfileElevDescentFmt, [Round(FInfo.ElevDescent)]);
@@ -731,7 +734,7 @@ begin
   // speed and time
   if FShowSpeed and (FInfo.Seconds > 0) then begin
     VInfo := VInfo + CSep +
-      Format(rsElevationProfileSpeedFmt, [FInfo.Speed.Min, FInfo.Speed.Avg, FInfo.Speed.Max]) + CSep +
+      Format(rsElevationProfileSpeedFmt, [FInfo.Speed.Min, FInfo.Speed.Avg, FInfo.Speed.Max], FFormatSettings) + CSep +
       Format(rsElevationProfileTimeFmt, [FormatDateTime('hh:nn:ss', FInfo.Seconds / SecsPerDay)]);
   end;
 
@@ -762,16 +765,16 @@ begin
   VElev := '';
 
   if FSpeedSeries.Visible then begin
-    VSpeed := Format(_('Speed: %.2f km/h') + #13#10, [FPointInfo.Speed]);
+    VSpeed := Format(_('Speed: %.2f km/h') + #13#10, [FPointInfo.Speed], FFormatSettings);
   end;
   if FElevationSeries.Visible then begin
-    VElev := Format(_('Elevation: %.2f m') + #13#10, [FPointInfo.Elev]);
+    VElev := Format(_('Elevation: %.2f m') + #13#10, [FPointInfo.Elev], FFormatSettings);
   end;
 
   if FIsDistInMeters then begin
-    VDist := Format(_('Distance: %.2f m'), [FPointInfo.Dist]);
+    VDist := Format(_('Distance: %.2f m'), [FPointInfo.Dist], FFormatSettings);
   end else begin
-    VDist := Format(_('Distance: %.2f km'), [FPointInfo.Dist]);
+    VDist := Format(_('Distance: %.2f km'), [FPointInfo.Dist], FFormatSettings);
   end;
 
   // hint
