@@ -415,8 +415,6 @@ end;
 
 procedure TfrElevationProfile.ShowSeries;
 const
-  CMaxDistInMeters = 9999;
-
   CEmptyInfoRec: TProfileInfoRec = (
     Dist        : 0;
     Seconds     : 0;
@@ -428,11 +426,10 @@ const
     SpeedMax    : -MaxInt;
     PointsCount : 0;
   );
+  CMaxDistInMeters = 9999;
 var
   I: Integer;
   VCount: Integer;
-  VLine: IGeometryLonLatSingleLine;
-  VMultiLine: IGeometryLonLatMultiLine;
 begin
   // reset zoom
   chtProfile.UndoZoom;
