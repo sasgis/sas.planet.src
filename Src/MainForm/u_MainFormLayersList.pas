@@ -142,6 +142,7 @@ type
       const ASelectLinePath: IPathOnMapEdit;
       const ASelectionRect: ISelectionRect;
       const AMapGoto: IMapViewGoto;
+      const AGpsTrackGoTo: IMapViewGoto;
       const ANavToPoint: INavigationToPoint;
       const APointOnMapEdit: IPointOnMapEdit;
       const ATileErrorLogProvider: ITileErrorLogProviedrStuped;
@@ -231,6 +232,7 @@ uses
   u_MapLayerCalcCircleCaptions,
   u_MapLayerSelectionByRect,
   u_MapLayerGotoMarker,
+  u_MapLayerGpsTrackGoToMarker,
   u_MapLayerNavToMark,
   u_MapLayerTileErrorInfo,
   u_MapLayerPointOnMapEdit,
@@ -301,6 +303,7 @@ constructor TMainFormLayersList.Create(
   const ASelectLinePath: IPathOnMapEdit;
   const ASelectionRect: ISelectionRect;
   const AMapGoto: IMapViewGoto;
+  const AGpsTrackGoTo: IMapViewGoto;
   const ANavToPoint: INavigationToPoint;
   const APointOnMapEdit: IPointOnMapEdit;
   const ATileErrorLogProvider: ITileErrorLogProviedrStuped;
@@ -1449,6 +1452,35 @@ begin
       VMarkerChangeable,
       AMapGoto,
       ALayersConfig.GotoLayerConfig
+    );
+  VLayersList.Add(VLayer);
+
+  // Gps Track Goto marker visualisation layer
+  VBitmap :=
+    ReadBitmapByFileRef(
+      AResourceProvider,
+      'ARROW.png',
+      AContentTypeManager,
+      nil
+    );
+  VMarkerChangeable := nil;
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(12, 24))
+      );
+  end;
+  VDebugName := 'GpsTrackGoToMarker';
+  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VLayer :=
+    TMapLayerGpsTrackGoToMarker.Create(
+      VPerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      AParentMap,
+      AViewPortState.View,
+      VMarkerChangeable,
+      AGpsTrackGoTo
     );
   VLayersList.Add(VLayer);
 

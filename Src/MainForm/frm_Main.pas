@@ -985,6 +985,7 @@ type
     FMapTypeEditor: IMapTypeConfigModalEdit;
 
     FMapGoto: IMapViewGoto;
+    FGpsTrackGoTo: IMapViewGoto;
 
     FArgProcessor: ICmdLineArgProcessor;
     FFillingMapPolygon: IFillingMapPolygon;
@@ -1352,6 +1353,8 @@ begin
   LoadMapIconsList;
 
   FMapGoto := TMapViewGoto.Create(FActiveProjectionSet, FViewPortState);
+  FGpsTrackGoTo := TMapViewGoto.Create(FActiveProjectionSet, FViewPortState);
+
   FMarkDBGUI :=
     TMarkDbGUIHelper.Create(
       Self,
@@ -2287,6 +2290,7 @@ begin
       FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
       FSelectionRect,
       FMapGoto,
+      FGpsTrackGoTo,
       FConfig.NavToPoint,
       FPointOnMapEdit,
       FTileErrorLogProvider,
@@ -2440,7 +2444,7 @@ begin
       tbxElevationProfileShow,
       GState.Config.LanguageManager,
       GState.GPSDatum,
-      FMapGoto
+      FGpsTrackGoTo
     );
 end;
 
