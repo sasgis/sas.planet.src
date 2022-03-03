@@ -562,7 +562,7 @@ uses
   i_GotoLayerConfig in 'Src\MapLayers\WindowLayers\GoTo\i_GotoLayerConfig.pas',
   u_GotoLayerConfig in 'Src\MapLayers\WindowLayers\GoTo\u_GotoLayerConfig.pas',
   u_MapLayerGotoMarker in 'Src\MapLayers\WindowLayers\GoTo\u_MapLayerGotoMarker.pas',
-  u_MapLayerGpsTrackGoToMarker in 'Src\MapLayers\WindowLayers\GpsTrackToolsMarker\u_MapLayerGpsTrackGoToMarker.pas',
+  u_MapLayerGpsTrackGoToMarker in 'Src\MapLayers\WindowLayers\GpsTrackGoToMarker\u_MapLayerGpsTrackGoToMarker.pas',
   i_MergePolygonsResultLayerConfig in 'Src\MapLayers\WindowLayers\MergePolygons\i_MergePolygonsResultLayerConfig.pas',
   u_MergePolygonsResultLayerConfig in 'Src\MapLayers\WindowLayers\MergePolygons\u_MergePolygonsResultLayerConfig.pas',
   i_MapLayerNavToPointMarkerConfig in 'Src\MapLayers\WindowLayers\NavToMark\i_MapLayerNavToPointMarkerConfig.pas',
