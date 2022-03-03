@@ -107,7 +107,10 @@ procedure TMapLayerGpsTrackGoToMarker.OnGoToChange;
 begin
   ViewUpdateLock;
   try
-    Visible := FMapViewGoTo.LastGotoPos <> nil;
+    Visible :=
+      (FMapViewGoTo.LastGotoPos <> nil) and
+      not PointIsEmpty(FMapViewGoTo.LastGotoPos.LonLat);
+
     SetNeedFullRepaintLayer;
   finally
     ViewUpdateUnlock;

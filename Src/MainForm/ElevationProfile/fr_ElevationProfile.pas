@@ -900,6 +900,7 @@ procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
     VLeftIndex, VRightIndex: Integer;
     VLeftPoint, VRightPoint: TDoublePoint;
     VInitialBearing, VFinalBearing: Double;
+    VDist: Double;
   begin
     VLeft := ALeft;
     VLeftIndex := 0;
@@ -940,12 +941,14 @@ procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
     // find initial bearing
     FDatum.CalcDist(VLeftPoint, VRightPoint, VInitialBearing, VFinalBearing);
 
+    VDist := ADistValue - FDist[ALeft];
+    if not FIsDistInMeters then begin
+      VDist := VDist * 1000;
+    end;
+
     // find target point
-    APoint := FDatum.CalcFinishPosition(
-      VLeftPoint,
-      VInitialBearing,
-      ADistValue - FDist[ALeft]
-    );
+    APoint := FDatum.CalcFinishPosition(VLeftPoint, VInitialBearing, VDist);
+
     Result := True;
   end;
 

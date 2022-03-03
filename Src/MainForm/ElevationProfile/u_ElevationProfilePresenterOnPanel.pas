@@ -119,6 +119,10 @@ begin
   FfrElevationProfile.ShowProfile(ALine);
   FfrElevationProfile.Visible := True;
 
+  if FDrawParent.Height < 200 then begin
+    FDrawParent.Height := 200;
+  end;
+
   FDrawParent.Visible := True;
   FVisibilityToggleItem.Enabled := True;
 end;
