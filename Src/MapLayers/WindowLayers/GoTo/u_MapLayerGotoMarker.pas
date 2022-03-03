@@ -206,7 +206,6 @@ var
   VProjectionType: IProjectionType;
 begin
   inherited;
-  VLocalConverter := FLocalConverter.GetStatic;
 
   VGotoPos := FMapGoto.LastGotoPos;
 
@@ -216,6 +215,7 @@ begin
 
   VGotoLonLat := VGotoPos.LonLat;
   if Visible and not PointIsEmpty(VGotoLonLat) then begin
+    VLocalConverter := FLocalConverter.GetStatic;
     VProjectionType := VLocalConverter.Projection.ProjectionType;
     VProjectionType.ValidateLonLatPos(VGotoLonLat);
     VMarker := FMarkerChangeable.GetStatic;
