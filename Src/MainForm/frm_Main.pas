@@ -1132,6 +1132,7 @@ type
     procedure DestroyWnd; override;
   public
     procedure RefreshTranslation; override;
+    function IsShortCut(var AMsg: TWMKey): Boolean; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -7619,6 +7620,16 @@ begin
     VLocalConverter.Projection.Zoom - 1,
     VFreezePos
   );
+end;
+
+function TfrmMain.IsShortCut(var AMsg: TWMKey): Boolean;
+begin
+  // Work around to avoid main form stealing shortcuts from active, non-modal forms
+  if (Screen.ActiveForm <> nil) and (Screen.ActiveForm <> Self) then begin
+    Result := Screen.ActiveForm.IsShortCut(AMsg);
+  end else begin
+    Result := inherited;
+  end;
 end;
 
 end.
