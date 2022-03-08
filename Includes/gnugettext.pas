@@ -3277,9 +3277,10 @@ var
   offset:integer;
   rd,p:Integer;
 begin
+  Result := 0;
+
   if signature='' then
   begin
-    Result := 0;
     Exit;
   end;
 
@@ -3305,7 +3306,6 @@ begin
     a:=b;
     offset:=offset+bufsize;
   end;
-  Result:=0;
 end;
 
 procedure TFileLocator.Analyze;

@@ -153,6 +153,7 @@ end;
 function TBuildInfo.GetCompilerInfo: string;
 begin
   {$DEFINE UNKNOWNVERFORBUILDINFO}
+
   {$IFDEF VER185} Result := 'CodeGear'    + #153 +' Delphi' + #174 + ' 2007'; {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER220} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE';   {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER230} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE2';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
@@ -160,6 +161,8 @@ begin
   {$IFDEF VER320} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.2 Tokyo';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER330} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.3 Rio';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
   {$IFDEF VER340} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.4 Sydney';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
+  {$IFDEF VER350} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 11.0'; {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
+
   {$IFDEF UNKNOWNVERFORBUILDINFO}
     {$MESSAGE ERROR 'Define your compiler version above!'}
   {$ENDIF}
