@@ -65,6 +65,14 @@ type
     Avg: Double;
   end;
 
+  TProfileSlopeRec = record
+    Gain: Double;
+    Loss: Double;
+
+    GainPoints: Integer;
+    LossPoints: Integer;
+  end;
+
   TProfileInfoRec = record
     Dist: Double;
     Seconds: Int64;
@@ -72,6 +80,9 @@ type
     Elev: TProfileMinMaxAvgRec;
     ElevAscent: Double;
     ElevDescent: Double;
+
+    MaxSlope: TProfileSlopeRec;
+    AvgSlope: TProfileSlopeRec;
 
     Speed: TProfileMinMaxAvgRec;
 
@@ -84,6 +95,7 @@ type
     Elev: Double;
     Dist: Double;
     Speed: Double;
+    Slope: Double;
 
     MouseX: Integer;
     MouseY: Integer;
@@ -200,6 +212,8 @@ resourcestring
   rsElevationProfileElevFmt = 'Elevation: %d, %d, %d m';
   rsElevationProfileElevAscentFmt = 'Ascent: %d m';
   rsElevationProfileElevDescentFmt = 'Descent: %d m';
+  rsElevationProfileElevMaxSlopeFmt = 'Max Slope: %.1f%%, %.1f%%';
+  rsElevationProfileElevAvgSlopeFmt = 'Avg Slope: %.1f%%, %.1f%%';
   rsElevationProfileSpeedFmt = 'Speed: %.2f, %.2f, %.2f km/h';
   rsElevationProfileTimeFmt = 'Time: %s';
 
@@ -549,6 +563,13 @@ begin
     // calc average values
     FInfo.Elev.Avg := FInfo.Elev.Avg / FInfo.PointsCount;
     FInfo.Speed.Avg := FInfo.Speed.Avg / FInfo.PointsCount;
+
+    if FInfo.AvgSlope.GainPoints > 0 then begin
+      FInfo.AvgSlope.Gain := FInfo.AvgSlope.Gain / FInfo.AvgSlope.GainPoints;
+    end;
+    if FInfo.AvgSlope.LossPoints > 0 then begin
+      FInfo.AvgSlope.Loss := FInfo.AvgSlope.Loss / FInfo.AvgSlope.LossPoints;
+    end;
   end else begin
     ResetInfo(FInfo);
   end;
@@ -646,6 +667,52 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
     end;
   end;
 
+  procedure CalcSlope(
+    const AValues: TChartValueList;
+    const AStartIndex: Integer
+  );
+  var
+    I: Integer;
+    VCurr: Double;
+    VPrev: Double;
+    VDist: Double;
+    VSlope: Double;
+  begin
+    if AValues.Count < 2 then begin
+      Exit;
+    end;
+    VPrev := AValues[0];
+    for I := AStartIndex + 1 to AValues.Count - 1 do begin
+      VCurr := AValues[I];
+      VDist := FDist[I] - FDist[I-1];
+      if VDist > 0 then begin
+        VSlope := 100 * (VCurr - VPrev) / VDist;
+        if VCurr > VPrev then begin
+          // Max Gain
+          if VSlope > FInfo.MaxSlope.Gain then begin
+            FInfo.MaxSlope.Gain := VSlope;
+          end;
+          // Avg Gain
+          FInfo.AvgSlope.Gain := FInfo.AvgSlope.Gain + VSlope; // accumulate only
+          Inc(FInfo.AvgSlope.GainPoints);
+        end else
+        if VCurr < VPrev then begin
+          // Max Loss
+          if VSlope < FInfo.MaxSlope.Loss then begin
+            FInfo.MaxSlope.Loss := VSlope;
+          end;
+          // Avg Loss
+          FInfo.AvgSlope.Loss := FInfo.AvgSlope.Loss + VSlope; // accumulate only
+          Inc(FInfo.AvgSlope.LossPoints);
+        end else begin
+          Inc(FInfo.AvgSlope.GainPoints);
+          Inc(FInfo.AvgSlope.LossPoints);
+        end;
+      end;
+      VPrev := VCurr;
+    end;
+  end;
+
 var
   VEnum: IEnumLonLatPoint;
   VPoint: TDoublePoint;
@@ -723,6 +790,7 @@ begin
   CalcMinMaxAvg(FSpeedSeries.YValues, VStartIndex, FInfo.Speed);
 
   CalcElevAscentDescent(FElevationSeries.YValues, VStartIndex);
+  CalcSlope(FElevationSeries.YValues, VStartIndex);
 end;
 
 procedure TfrElevationProfile.BeginUpdateSeries;
@@ -774,7 +842,9 @@ begin
         Round(FInfo.Elev.Avg), Round(FInfo.Elev.Max)], FFormatSettings
       ) + CSep +
       Format(rsElevationProfileElevAscentFmt, [Round(FInfo.ElevAscent)]) + CSep +
-      Format(rsElevationProfileElevDescentFmt, [Round(FInfo.ElevDescent)]);
+      Format(rsElevationProfileElevDescentFmt, [Round(FInfo.ElevDescent)]) + CSep +
+      Format(rsElevationProfileElevMaxSlopeFmt, [FInfo.MaxSlope.Gain, FInfo.MaxSlope.Loss], FFormatSettings) + CSep +
+      Format(rsElevationProfileElevAvgSlopeFmt, [FInfo.AvgSlope.Gain, FInfo.AvgSlope.Loss], FFormatSettings);
   end;
 
   // speed and time
@@ -800,7 +870,7 @@ end;
 procedure TfrElevationProfile.ShowPointInfo;
 var
   VLeft, VTop: Integer;
-  VSpeed, VElev, VDist: string;
+  VSpeed, VElev, VDist, VSlope: string;
 begin
   if not FPointInfo.IsValid then begin
     HidePointInfo;
@@ -809,12 +879,14 @@ begin
 
   VSpeed := '';
   VElev := '';
+  VSlope := '';
 
   if FSpeedSeries.Visible then begin
     VSpeed := Format(_('Speed: %.2f km/h') + #13#10, [FPointInfo.Speed], FFormatSettings);
   end;
   if FElevationSeries.Visible then begin
     VElev := Format(_('Elevation: %.2f m') + #13#10, [FPointInfo.Elev], FFormatSettings);
+    VSlope := Format(_('Slope: %.1f%%') + #13#10, [FPointInfo.Slope], FFormatSettings);
   end;
 
   if FIsDistInMeters then begin
@@ -824,7 +896,7 @@ begin
   end;
 
   // hint
-  lblPointInfo.Caption := VSpeed + VElev + VDist;
+  lblPointInfo.Caption := VSpeed + VElev + VSlope + VDist;
 
   pnlPointInfo.Width := lblPointInfo.Width + 10;
   pnlPointInfo.Height := lblPointInfo.Height + 10;
@@ -1000,7 +1072,7 @@ procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
 
 var
   VLeft, VRight: Integer;
-  VCursorDist, VCursorElev: Double;
+  VDist, VCursorDist, VCursorElev: Double;
 begin
   FElevationSeries.GetCursorValues(VCursorDist, VCursorElev);
   FPointInfo.IsValid := FindNearestDist(VCursorDist, VLeft, VRight);
@@ -1019,6 +1091,17 @@ begin
   FPointInfo.Dist := VCursorDist;
 
   FPointInfo.IsLonLatValid := FindPointLonLat(VCursorDist, VLeft, VRight, FPointInfo.LonLat);
+
+  // slope
+  if VLeft <> VRight then begin
+    VDist := FElevationSeries.XValues[VRight] - FElevationSeries.XValues[VLeft];
+    if not FIsDistInMeters then begin
+      VDist := VDist * 1000;
+    end;
+    FPointInfo.Slope := 100 * (FElevationSeries.YValues[VRight] - FElevationSeries.YValues[VLeft]) / VDist;
+  end else begin
+    FPointInfo.Slope := 0;
+  end;
 end;
 
 // Utility functions
