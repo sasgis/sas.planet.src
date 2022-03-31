@@ -29,6 +29,7 @@ uses
   TB2Item,
   i_Datum,
   i_GeometryLonLat,
+  i_ElevationProfileConfig,
   i_ElevationProfilePresenter,
   i_LanguageManager,
   i_MapViewGoto,
@@ -40,6 +41,7 @@ type
   private
     FDrawParent: TWinControl;
     FVisibilityToggleItem: TTBCustomItem;
+    FConfig: IElevationProfileConfig;
     FLanguageManager: ILanguageManager;
     FDatum: IDatum;
     FMapGoTo: IMapViewGoto;
@@ -54,6 +56,7 @@ type
     constructor Create(
       const ADrawParent: TWinControl;
       const AVisibilityToggleItem: TTBCustomItem;
+      const AConfig: IElevationProfileConfig;
       const ALanguageManager: ILanguageManager;
       const ADatum: IDatum;
       const AMapGoTo: IMapViewGoto
@@ -68,6 +71,7 @@ implementation
 constructor TElevationProfilePresenterOnPanel.Create(
   const ADrawParent: TWinControl;
   const AVisibilityToggleItem: TTBCustomItem;
+  const AConfig: IElevationProfileConfig;
   const ALanguageManager: ILanguageManager;
   const ADatum: IDatum;
   const AMapGoTo: IMapViewGoto
@@ -77,6 +81,7 @@ begin
 
   FDrawParent := ADrawParent;
   FVisibilityToggleItem := AVisibilityToggleItem;
+  FConfig := AConfig;
   FLanguageManager := ALanguageManager;
   FDatum := ADatum;
   FMapGoTo := AMapGoTo;
@@ -110,6 +115,7 @@ begin
     FfrElevationProfile := TfrElevationProfile.Create(
       FDrawParent,
       Self.HideParent,
+      FConfig,
       FLanguageManager,
       FDatum,
       FMapGoTo

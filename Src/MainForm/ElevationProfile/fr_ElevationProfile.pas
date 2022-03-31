@@ -54,6 +54,8 @@ uses
   i_GeometryLonLat,
   i_LanguageManager,
   i_MapViewGoto,
+  i_Listener,
+  i_ElevationProfileConfig,
   u_CommonFormAndFrameParents;
 
 type
@@ -108,6 +110,8 @@ type
     lblPointInfo: TLabel;
     pnlPointLine: TPanel;
     mniFilterData: TMenuItem;
+    mniKeepAspectRatio: TMenuItem;
+    mniZoomWithMouseWheel: TMenuItem;
     procedure btnCloseClick(Sender: TObject);
     procedure mniShowSpeedClick(Sender: TObject);
     procedure mniResetZoomClick(Sender: TObject);
@@ -124,15 +128,16 @@ type
 
     procedure chtProfileUndoZoom(Sender: TObject);
     procedure mniFilterDataClick(Sender: TObject);
+    procedure mniKeepAspectRatioClick(Sender: TObject);
+    procedure mniZoomWithMouseWheelClick(Sender: TObject);
   private
     FDatum: IDatum;
     FMapGoTo: IMapViewGoto;
     FOnClose: TOnCloseEvent;
 
-    FShowSpeed: Boolean;
-    FShowElevation: Boolean;
-    FFilterData: Boolean;
-    FCenterMap: Boolean;
+    FConfig: IElevationProfileConfig;
+    FConfigStatic: IElevationProfileConfigStatic;
+    FConfigChangeListener: IListener;
 
     FLine: array of IGeometryLonLatSingleLine;
     FDist: array of Double;
@@ -160,6 +165,8 @@ type
     procedure HidePointInfo;
     procedure UpdatePointInfo(const AMouseX, AMouseY: Integer);
 
+    procedure OnConfigChange;
+
     class procedure InitInfo(out AInfo: TProfileInfoRec); static;
     class procedure ResetInfo(out AInfo: TProfileInfoRec); static; inline;
   public
@@ -171,6 +178,7 @@ type
     constructor Create(
       const AParent: TWinControl;
       const AOnClose: TOnCloseEvent;
+      const AConfig: IElevationProfileConfig;
       const ALanguageManager: ILanguageManager;
       const ADatum: IDatum;
       const AMapGoTo: IMapViewGoto
@@ -184,6 +192,7 @@ uses
   DateUtils,
   gnugettext,
   i_EnumDoublePoint,
+  u_ListenerByEvent,
   u_ResStrings;
 
 resourcestring
@@ -210,28 +219,22 @@ const
 constructor TfrElevationProfile.Create(
   const AParent: TWinControl;
   const AOnClose: TOnCloseEvent;
+  const AConfig: IElevationProfileConfig;
   const ALanguageManager: ILanguageManager;
   const ADatum: IDatum;
   const AMapGoTo: IMapViewGoto
 );
 begin
+  Assert(AConfig <> nil);
+
   inherited Create(ALanguageManager);
 
   FOnClose := AOnClose;
+  FConfig := AConfig;
   FDatum := ADatum;
   FMapGoTo := AMapGoTo;
 
   Self.Parent := AParent;
-
-  FShowSpeed := False;
-  FShowElevation := True;
-  FFilterData := False;
-  FCenterMap := True;
-
-  mniShowSpeed.Checked := FShowSpeed;
-  mniShowElevation.Checked := FShowElevation;
-  mniFilterData.Checked := FFilterData;
-  mniCenterMap.Checked := FCenterMap;
 
   SetupChart;
 
@@ -239,11 +242,46 @@ begin
   ResetInfo(FInfo);
 
   FFormatSettings.DecimalSeparator := '.';
+
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FConfig.ChangeNotifier.Add(FConfigChangeListener);
+  OnConfigChange;
 end;
 
 destructor TfrElevationProfile.Destroy;
 begin
+  if FConfigChangeListener <> nil then begin
+    FConfig.ChangeNotifier.Remove(FConfigChangeListener);
+    FConfigChangeListener := nil;
+  end;
+
   inherited Destroy;
+end;
+
+procedure TfrElevationProfile.OnConfigChange;
+begin
+  FConfigStatic := FConfig.GetStatic;
+
+  mniShowSpeed.Checked := FConfigStatic.ShowSpeed;
+  mniShowElevation.Checked := FConfigStatic.ShowElevation;
+  mniFilterData.Checked := FConfigStatic.UseDataFiltering;
+  mniCenterMap.Checked := FConfigStatic.CenterMap;
+
+  mniZoomWithMouseWheel.Checked := FConfigStatic.ZoomWithMouseWheel;
+  mniKeepAspectRatio.Checked := FConfigStatic.KeepAspectRatio;
+
+  chtProfile.Zoom.KeepAspectRatio := FConfigStatic.KeepAspectRatio;
+
+  if FConfigStatic.ZoomWithMouseWheel then begin
+    chtProfile.Panning.MouseWheel := pmwNone;
+    chtProfile.Zoom.MouseWheel := pmwNormal;
+  end else begin
+    chtProfile.Panning.MouseWheel := pmwNormal;
+    chtProfile.Zoom.MouseWheel := pmwNone;
+  end;
+
+  FElevationSeries.Visible := FConfigStatic.ShowElevation;
+  FSpeedSeries.Visible := FConfigStatic.ShowSpeed;
 end;
 
 procedure TfrElevationProfile.SetupChart;
@@ -400,17 +438,20 @@ end;
 
 procedure TfrElevationProfile.mniShowSpeedClick(Sender: TObject);
 begin
-  FShowSpeed := mniShowSpeed.Checked;
-  FSpeedSeries.Visible := FShowSpeed;
+  FConfig.ShowSpeed := mniShowSpeed.Checked;
 
   ShowInfo;
   ShowPointInfo;
 end;
 
+procedure TfrElevationProfile.mniZoomWithMouseWheelClick(Sender: TObject);
+begin
+  FConfig.ZoomWithMouseWheel := mniZoomWithMouseWheel.Checked;
+end;
+
 procedure TfrElevationProfile.mniShowElevationClick(Sender: TObject);
 begin
-  FShowElevation := mniShowElevation.Checked;
-  FElevationSeries.Visible := FShowElevation;
+  FConfig.ShowElevation := mniShowElevation.Checked;
 
   ShowInfo;
   ShowPointInfo;
@@ -418,16 +459,21 @@ end;
 
 procedure TfrElevationProfile.mniCenterMapClick(Sender: TObject);
 begin
-  FCenterMap := mniCenterMap.Checked;
+  FConfig.CenterMap := mniCenterMap.Checked;
 end;
 
 procedure TfrElevationProfile.mniFilterDataClick(Sender: TObject);
 begin
-  FFilterData := mniFilterData.Checked;
+  FConfig.UseDataFiltering := mniFilterData.Checked;
 
   ShowSeries;
   ShowInfo;
   ShowPointInfo;
+end;
+
+procedure TfrElevationProfile.mniKeepAspectRatioClick(Sender: TObject);
+begin
+  FConfig.KeepAspectRatio := mniKeepAspectRatio.Checked;
 end;
 
 procedure TfrElevationProfile.mniResetZoomClick(Sender: TObject);
@@ -477,8 +523,8 @@ begin
       chtProfile.BottomAxis.AxisValuesFormat := FAxisValuesFormatDef + ' ' + SAS_UNITS_m;
     end;
 
-    FElevationSeries.Visible := FShowElevation;
-    FSpeedSeries.Visible := FShowSpeed and (FInfo.Seconds > 0);
+    FElevationSeries.Visible := FConfigStatic.ShowElevation;
+    FSpeedSeries.Visible := FConfigStatic.ShowSpeed and (FInfo.Seconds > 0);
     mniShowSpeed.Enabled := FInfo.Seconds > 0;
 
     if not FElevationSeries.Visible then begin
@@ -668,7 +714,7 @@ begin
     VIsPrevOk := True;
   end;
 
-  if FFilterData then begin
+  if FConfigStatic.UseDataFiltering then begin
     Filter(FElevationSeries.YValues, VStartIndex, CFilterElevWindow);
     Filter(FSpeedSeries.YValues, VStartIndex, CFilterSpeedWindow);
   end;
@@ -722,7 +768,7 @@ begin
   VInfo := Format(rsElevationProfileDistFmt, [VDistVal, VDistUnit], FFormatSettings);
 
   // elevation
-  if FShowElevation then begin
+  if FConfigStatic.ShowElevation then begin
     VInfo := VInfo + CSep +
       Format(rsElevationProfileElevFmt, [Round(FInfo.Elev.Min),
         Round(FInfo.Elev.Avg), Round(FInfo.Elev.Max)], FFormatSettings
@@ -732,7 +778,7 @@ begin
   end;
 
   // speed and time
-  if FShowSpeed and (FInfo.Seconds > 0) then begin
+  if FConfigStatic.ShowSpeed and (FInfo.Seconds > 0) then begin
     VInfo := VInfo + CSep +
       Format(rsElevationProfileSpeedFmt, [FInfo.Speed.Min, FInfo.Speed.Avg, FInfo.Speed.Max], FFormatSettings) + CSep +
       Format(rsElevationProfileTimeFmt, [FormatDateTime('hh:nn:ss', FInfo.Seconds / SecsPerDay)]);
@@ -809,7 +855,7 @@ begin
 
   // point
   if FPointInfo.IsLonLatValid then begin
-    if FCenterMap then begin
+    if FConfigStatic.CenterMap then begin
       FMapGoTo.GotoLonLat(FPointInfo.LonLat, True);
     end else begin
       FMapGoTo.ShowMarker(FPointInfo.LonLat);

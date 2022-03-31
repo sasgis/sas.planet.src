@@ -51,6 +51,7 @@ uses
   i_MapSvcScanConfig,
   i_ExportToIMGConfig,
   i_ExportMarks2KMLConfig,
+  i_ElevationProfileConfig,
   i_InternalDomainUrlHandlerConfig,
   i_ConfigDataElement;
 
@@ -197,6 +198,9 @@ type
 
     function GetExportToIMGConfig: IExportToIMGConfig;
     property ExportToIMGConfig: IExportToIMGConfig read GetExportToIMGConfig;
+
+    function GetElevationProfileConfig: IElevationProfileConfig;
+    property ElevationProfileConfig: IElevationProfileConfig read GetElevationProfileConfig;
   end;
 
 implementation

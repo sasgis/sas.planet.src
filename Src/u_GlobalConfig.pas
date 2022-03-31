@@ -53,6 +53,7 @@ uses
   i_MapSvcScanConfig,
   i_ExportToIMGConfig,
   i_ExportMarks2KMLConfig,
+  i_ElevationProfileConfig,
   i_InternalDomainUrlHandlerConfig,
   u_ConfigDataElementComplexBase;
 
@@ -107,6 +108,7 @@ type
     FZmpConfig: IZmpConfig;
     FMapSvcScanConfig: IMapSvcScanConfig;
     FExportToIMGConfig: IExportToIMGConfig;
+    FElevationProfileConfig: IElevationProfileConfig;
   private
     function GetBaseConfigPath: IPathConfig;
     function GetBaseCachePath: IPathConfig;
@@ -155,6 +157,7 @@ type
     function GetZmpConfig: IZmpConfig;
     function GetMapSvcScanConfig: IMapSvcScanConfig;
     function GetExportToIMGConfig: IExportToIMGConfig;
+    function GetElevationProfileConfig: IElevationProfileConfig;
   public
     constructor Create(
       const AInternalDebugConfig: IInternalDebugConfig;
@@ -200,7 +203,8 @@ uses
   u_PathConfig,
   u_InternalDomainUrlHandlerConfig,
   u_ExportMarks2KMLConfig,
-  u_ExportToIMGConfig;
+  u_ExportToIMGConfig,
+  u_ElevationProfileConfig;
 
 { TGlobalConfig }
 
@@ -355,6 +359,9 @@ begin
 
   FGeoCoderConfig := TGeoCoderConfig.Create(FUserDataPath);
   Add(FGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GeoCoder'), False, False, False, False);
+
+  FElevationProfileConfig := TElevationProfileConfig.Create;
+  Add(FElevationProfileConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ElevationProfile'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCachePath: IPathConfig;
@@ -385,6 +392,11 @@ end;
 function TGlobalConfig.GetDownloaderThreadConfig: IThreadConfig;
 begin
   Result := FDownloaderThreadConfig;
+end;
+
+function TGlobalConfig.GetElevationProfileConfig: IElevationProfileConfig;
+begin
+  Result := FElevationProfileConfig;
 end;
 
 function TGlobalConfig.GetExportMarks2KMLConfig: IExportMarks2KMLConfig;

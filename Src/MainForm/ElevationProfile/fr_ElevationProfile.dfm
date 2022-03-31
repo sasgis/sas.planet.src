@@ -49,7 +49,7 @@ object frElevationProfile: TfrElevationProfile
     SubFoot.Visible = False
     SubTitle.Visible = False
     Title.Text.Strings = (
-      'TChart')
+      ' ')
     Title.Visible = False
     OnScroll = chtProfileScroll
     OnUndoZoom = chtProfileUndoZoom
@@ -172,6 +172,16 @@ object frElevationProfile: TfrElevationProfile
     end
     object N2: TMenuItem
       Caption = '-'
+    end
+    object mniZoomWithMouseWheel: TMenuItem
+      AutoCheck = True
+      Caption = 'Zoom with Mouse Wheel'
+      OnClick = mniZoomWithMouseWheelClick
+    end
+    object mniKeepAspectRatio: TMenuItem
+      AutoCheck = True
+      Caption = 'Keep Aspect Ratio'
+      OnClick = mniKeepAspectRatioClick
     end
     object mniResetZoom: TMenuItem
       Caption = 'Reset Zoom'

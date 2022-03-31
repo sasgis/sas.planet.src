@@ -2443,6 +2443,7 @@ begin
     TElevationProfilePresenterOnPanel.Create(
       tbElevationProfile,
       tbxElevationProfileShow,
+      GState.Config.ElevationProfileConfig,
       GState.Config.LanguageManager,
       GState.GPSDatum,
       FGpsTrackGoTo
