@@ -654,7 +654,7 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
     if AValues.Count < 2 then begin
       Exit;
     end;
-    VPrev := AValues[0];
+    VPrev := AValues[AStartIndex];
     for I := AStartIndex + 1 to AValues.Count - 1 do begin
       VCurr := AValues[I];
       if VCurr > VPrev then begin
@@ -681,7 +681,7 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
     if AValues.Count < 2 then begin
       Exit;
     end;
-    VPrev := AValues[0];
+    VPrev := AValues[AStartIndex];
     for I := AStartIndex + 1 to AValues.Count - 1 do begin
       VCurr := AValues[I];
       VDist := FDist[I] - FDist[I-1];
