@@ -183,6 +183,10 @@ object frElevationProfile: TfrElevationProfile
       Caption = 'Keep Aspect Ratio'
       OnClick = mniKeepAspectRatioClick
     end
+    object mniScaleElevToDist: TMenuItem
+      Caption = 'Scale Elevation to Distance as 1:1'
+      OnClick = mniScaleElevToDistClick
+    end
     object mniResetZoom: TMenuItem
       Caption = 'Reset Zoom'
       OnClick = mniResetZoomClick

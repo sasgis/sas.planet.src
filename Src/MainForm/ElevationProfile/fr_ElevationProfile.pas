@@ -23,6 +23,10 @@ unit fr_ElevationProfile;
 
 interface
 
+{$IFDEF DEBUG}
+  {.$DEFINE SHOW_ELEV_TO_DIST_SCALE_INFO}
+{$ENDIF}
+
 {$IF CompilerVersion > 19.0}
   {$DEFINE HAS_TEE_GDI_PLUS}
 {$IFEND}
@@ -124,6 +128,7 @@ type
     mniFilterData: TMenuItem;
     mniKeepAspectRatio: TMenuItem;
     mniZoomWithMouseWheel: TMenuItem;
+    mniScaleElevToDist: TMenuItem;
     procedure btnCloseClick(Sender: TObject);
     procedure mniShowSpeedClick(Sender: TObject);
     procedure mniResetZoomClick(Sender: TObject);
@@ -142,6 +147,7 @@ type
     procedure mniFilterDataClick(Sender: TObject);
     procedure mniKeepAspectRatioClick(Sender: TObject);
     procedure mniZoomWithMouseWheelClick(Sender: TObject);
+    procedure mniScaleElevToDistClick(Sender: TObject);
   private
     FDatum: IDatum;
     FMapGoTo: IMapViewGoto;
@@ -168,6 +174,8 @@ type
 
     procedure ShowSeries;
     procedure FillSeriesWithLineData(const ALine: IGeometryLonLatSingleLine);
+    procedure ResetAxesMinMax;
+    procedure ScaleElevToDistAsOneToOne;
     procedure BeginUpdateSeries;
     procedure EndUpdateSeries;
 
@@ -463,6 +471,11 @@ begin
   FConfig.ZoomWithMouseWheel := mniZoomWithMouseWheel.Checked;
 end;
 
+procedure TfrElevationProfile.mniScaleElevToDistClick(Sender: TObject);
+begin
+  ScaleElevToDistAsOneToOne;
+end;
+
 procedure TfrElevationProfile.mniShowElevationClick(Sender: TObject);
 begin
   FConfig.ShowElevation := mniShowElevation.Checked;
@@ -493,6 +506,7 @@ end;
 procedure TfrElevationProfile.mniResetZoomClick(Sender: TObject);
 begin
   chtProfile.UndoZoom;
+  ResetAxesMinMax;
 end;
 
 // Chart series
@@ -537,6 +551,8 @@ begin
       chtProfile.BottomAxis.AxisValuesFormat := FAxisValuesFormatDef + ' ' + SAS_UNITS_m;
     end;
 
+    ResetAxesMinMax;
+
     FElevationSeries.Visible := FConfigStatic.ShowElevation;
     FSpeedSeries.Visible := FConfigStatic.ShowSpeed and (FInfo.Seconds > 0);
     mniShowSpeed.Enabled := FInfo.Seconds > 0;
@@ -546,15 +562,6 @@ begin
         chtProfile.MarginLeft := 8;
       end;
     end;
-
-    chtProfile.Axes.Left.SetMinMax(
-      FElevationSeries.MinYValue * 0.99,
-      FElevationSeries.MaxYValue * 1.01
-    );
-    chtProfile.Axes.Right.SetMinMax(
-      FSpeedSeries.MinYValue * 0.99,
-      FSpeedSeries.MaxYValue * 1.01
-    );
   finally
     EndUpdateSeries;
   end;
@@ -573,6 +580,27 @@ begin
   end else begin
     ResetInfo(FInfo);
   end;
+end;
+
+procedure TfrElevationProfile.ResetAxesMinMax;
+const
+  CMin = 0.99;
+  CMax = 1.01;
+begin
+  chtProfile.Axes.Bottom.SetMinMax(
+    FElevationSeries.MinXValue,
+    FElevationSeries.MaxXValue
+  );
+
+  chtProfile.Axes.Left.SetMinMax(
+    FElevationSeries.MinYValue * CMin,
+    FElevationSeries.MaxYValue * CMax
+  );
+
+  chtProfile.Axes.Right.SetMinMax(
+    FSpeedSeries.MinYValue * CMin,
+    FSpeedSeries.MaxYValue * CMax
+  );
 end;
 
 procedure TfrElevationProfile.FillSeriesWithLineData(
@@ -793,6 +821,44 @@ begin
   CalcSlope(FElevationSeries.YValues, VStartIndex);
 end;
 
+procedure TfrElevationProfile.ScaleElevToDistAsOneToOne;
+var
+  I: Integer;
+  VElevSize, VDistSize: Integer;
+  VElevScale, VDistScale: Double;
+begin
+  // it takes at least two iterations to make an accurate 1:1 scaling
+  for I := 0 to 1 do begin
+
+    chtProfile.UndoZoom;
+
+    with chtProfile.Axes.Left do begin
+      VElevSize := IAxisSize;
+      VElevScale := CalcPosPoint(IStartPos) - CalcPosPoint(IStartPos + 1);
+    end;
+
+    with chtProfile.Axes.Bottom do begin
+      VDistSize := IAxisSize;
+      VDistScale := CalcPosPoint(IStartPos + 1) - CalcPosPoint(IStartPos);
+    end;
+
+    if not FIsDistInMeters then begin
+      VDistScale := VDistScale * 1000;
+    end;
+
+    if VDistScale > VElevScale then begin
+      chtProfile.Axes.Left.SetMinMax(0, VDistScale * VElevSize);
+    end else begin
+      if not FIsDistInMeters then begin
+        VElevScale := VElevScale / 1000;
+      end;
+      chtProfile.Axes.Bottom.SetMinMax(0, VElevScale * VDistSize);
+    end;
+
+    Application.ProcessMessages;
+  end;
+end;
+
 procedure TfrElevationProfile.BeginUpdateSeries;
 var
   I: Integer;
@@ -870,33 +936,51 @@ end;
 procedure TfrElevationProfile.ShowPointInfo;
 var
   VLeft, VTop: Integer;
-  VSpeed, VElev, VDist, VSlope: string;
+  VHint: string;
+  {$IFDEF SHOW_ELEV_TO_DIST_SCALE_INFO}
+  E, D: Double;
+  {$ENDIF}
 begin
   if not FPointInfo.IsValid then begin
     HidePointInfo;
     Exit;
   end;
 
-  VSpeed := '';
-  VElev := '';
-  VSlope := '';
+  VHint := '';
 
   if FSpeedSeries.Visible then begin
-    VSpeed := Format(_('Speed: %.2f km/h') + #13#10, [FPointInfo.Speed], FFormatSettings);
+    VHint := VHint + Format(_('Speed: %.2f km/h') + #13#10, [FPointInfo.Speed], FFormatSettings);
   end;
+
   if FElevationSeries.Visible then begin
-    VElev := Format(_('Elevation: %.2f m') + #13#10, [FPointInfo.Elev], FFormatSettings);
-    VSlope := Format(_('Slope: %.1f%%') + #13#10, [FPointInfo.Slope], FFormatSettings);
+    VHint := VHint + Format(_('Elevation: %.2f m') + #13#10, [FPointInfo.Elev], FFormatSettings);
+    VHint := VHint + Format(_('Slope: %.1f%%') + #13#10, [FPointInfo.Slope], FFormatSettings);
   end;
 
   if FIsDistInMeters then begin
-    VDist := Format(_('Distance: %.2f m'), [FPointInfo.Dist], FFormatSettings);
+    VHint := VHint + Format(_('Distance: %.2f m'), [FPointInfo.Dist], FFormatSettings);
   end else begin
-    VDist := Format(_('Distance: %.2f km'), [FPointInfo.Dist], FFormatSettings);
+    VHint := VHint + Format(_('Distance: %.2f km'), [FPointInfo.Dist], FFormatSettings);
   end;
 
+  // elevation to distance scale
+  {$IFDEF SHOW_ELEV_TO_DIST_SCALE_INFO}
+  with chtProfile.Axes.Left do begin
+    E := CalcPosPoint(IStartPos) - CalcPosPoint(IStartPos + 1);
+  end;
+  with chtProfile.Axes.Bottom do begin
+    D := CalcPosPoint(IStartPos + 1) - CalcPosPoint(IStartPos);
+  end;
+  if not FIsDistInMeters then begin
+    D := D * 1000;
+  end;
+  if E > 0 then begin
+    VHint := VHint + #13#10 + Format('Scale: 1:%f', [D/E], FFormatSettings);
+  end;
+  {$ENDIF}
+
   // hint
-  lblPointInfo.Caption := VSpeed + VElev + VSlope + VDist;
+  lblPointInfo.Caption := VHint;
 
   pnlPointInfo.Width := lblPointInfo.Width + 10;
   pnlPointInfo.Height := lblPointInfo.Height + 10;
