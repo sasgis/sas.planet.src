@@ -193,6 +193,7 @@ type
     procedure ShowProfile(
       const ALine: IGeometryLonLatLine
     );
+    procedure SetFocusOnChart;
     procedure Clear;
   public
     constructor Create(
@@ -398,6 +399,13 @@ begin
   ShowSeries;
 
   ShowInfo;
+end;
+
+procedure TfrElevationProfile.SetFocusOnChart;
+begin
+  if Visible then begin
+    chtProfile.SetFocus;
+  end;
 end;
 
 procedure TfrElevationProfile.Clear;

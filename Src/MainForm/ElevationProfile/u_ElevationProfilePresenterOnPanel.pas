@@ -122,15 +122,17 @@ begin
     );
   end;
 
-  FfrElevationProfile.ShowProfile(ALine);
-  FfrElevationProfile.Visible := True;
-
   if FDrawParent.Height < 200 then begin
     FDrawParent.Height := 200;
   end;
 
+  FfrElevationProfile.ShowProfile(ALine);
+  FfrElevationProfile.Visible := True;
+
   FDrawParent.Visible := True;
   FVisibilityToggleItem.Enabled := True;
+
+  FfrElevationProfile.SetFocusOnChart;
 end;
 
 end.
