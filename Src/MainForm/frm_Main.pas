@@ -2138,6 +2138,7 @@ begin
         GState.MarkSystemConfig,
         GState.Config.ExportMarks2KmlConfig,
         FMapGoto,
+        FElevationProfilePresenter,
         FFormRegionProcess
       );
     FfrmMarksExplorer.PopupParent := Self;

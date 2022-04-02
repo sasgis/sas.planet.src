@@ -631,6 +631,10 @@ object frmMarksExplorer: TfrmMarksExplorer
       ImageIndex = 57
       OnClick = tbxtmUngroupClick
     end
+    object tbxShowElevProfile: TTBXItem
+      Caption = 'Show Elevation Profile'
+      OnClick = tbxShowElevProfileClick
+    end
   end
   object TBXImageList1: TTBXImageList
     Left = 56

@@ -66,6 +66,7 @@ uses
   i_MarkSystemImplFactory,
   i_MergePolygonsPresenter,
   i_ExportMarks2KMLConfig,
+  i_ElevationProfilePresenter,
   u_MarkDbGUIHelper,
   u_MarksExplorerHelper,
   u_CommonFormAndFrameParents;
@@ -145,6 +146,7 @@ type
     tbitmCut: TTBXItem;
     tbitmCopyAsText: TTBXItem;
     TBXSeparatorItem5: TTBXSeparatorItem;
+    tbxShowElevProfile: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -232,6 +234,7 @@ type
     procedure tbitmPasteClick(Sender: TObject);
     procedure tbitmCopyAsTextClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
+    procedure tbxShowElevProfileClick(Sender: TObject);
   private
     type
       TCopyPasteAction = (cpNone, cpCopy, cpCut);
@@ -265,6 +268,8 @@ type
     FCopyPasteAction: TCopyPasteAction;
     FCopyPasteBuffer: IInterfaceListStatic;
 
+    FElevationProfilePresenter: IElevationProfilePresenter;
+
     procedure PrepareCopyPasteBuffer(const AAction: TCopyPasteAction);
     procedure ResetCopyPasteBuffer;
 
@@ -289,7 +294,7 @@ type
     procedure ToggleVisible;
   public
     constructor Create(
-      AUseAsIndepentWindow: Boolean;
+      const AUseAsIndepentWindow: Boolean;
       const ALanguageManager: ILanguageManager;
       const AGeometryLonLatFactory: IGeometryLonLatFactory;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -297,11 +302,12 @@ type
       const AMarksExplorerConfig: IMarksExplorerConfig;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMergePolygonsPresenter: IMergePolygonsPresenter;
-      AMarkDBGUI: TMarkDbGUIHelper;
+      const AMarkDBGUI: TMarkDbGUIHelper;
       const AMarkSystemFactoryList: IMarkSystemImplFactoryListStatic;
       const AMarkSystemConfig: IMarkSystemConfigListChangeable;
       const AExportMarks2KMLConfig: IExportMarks2KMLConfig;
       const AMapGoto: IMapViewGoto;
+      const AElevationProfilePresenter: IElevationProfilePresenter;
       const ARegionProcess: IRegionProcess
     ); reintroduce;
     destructor Destroy; override;
@@ -330,7 +336,7 @@ uses
 {$R *.dfm}
 
 constructor TfrmMarksExplorer.Create(
-  AUseAsIndepentWindow: Boolean;
+  const AUseAsIndepentWindow: Boolean;
   const ALanguageManager: ILanguageManager;
   const AGeometryLonLatFactory: IGeometryLonLatFactory;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -338,15 +344,17 @@ constructor TfrmMarksExplorer.Create(
   const AMarksExplorerConfig: IMarksExplorerConfig;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMergePolygonsPresenter: IMergePolygonsPresenter;
-  AMarkDBGUI: TMarkDbGUIHelper;
+  const AMarkDBGUI: TMarkDbGUIHelper;
   const AMarkSystemFactoryList: IMarkSystemImplFactoryListStatic;
   const AMarkSystemConfig: IMarkSystemConfigListChangeable;
   const AExportMarks2KMLConfig: IExportMarks2KMLConfig;
   const AMapGoto: IMapViewGoto;
+  const AElevationProfilePresenter: IElevationProfilePresenter;
   const ARegionProcess: IRegionProcess
 );
 begin
   inherited Create(ALanguageManager);
+
   FUseAsIndepentWindow := AUseAsIndepentWindow;
   FMergePolygonsPresenter := AMergePolygonsPresenter;
   FMarkDBGUI := AMarkDBGUI;
@@ -359,6 +367,8 @@ begin
   FViewPortState := AViewPortState;
   FNavToPoint := ANavToPoint;
   FRegionProcess := ARegionProcess;
+  FElevationProfilePresenter := AElevationProfilePresenter;
+
   MarksListBox.MultiSelect := true;
   FMarkSystemConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarkSystemConfigChange);
   FCategoryDBListener := TNotifyNoMmgEventListener.Create(Self.OnCategoryDbChanged);
@@ -1459,9 +1469,12 @@ var
   VLine: IGeometryLonLatMultiLine;
   VPolygon: IGeometryLonLatMultiPolygon;
   VUngroupVisible: Boolean;
+  VElevationProfileVisible: Boolean;
   VSelection: IInterfaceListStatic;
 begin
   VUngroupVisible := False;
+  VElevationProfileVisible := False;
+
   VSelection := GetSelectedMarksIdList;
   if Assigned(VSelection) and (VSelection.Count = 1) then begin
     VMark := GetSelectedMarkFull;
@@ -1471,9 +1484,26 @@ begin
       end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
         VUngroupVisible := (VLine.Count > 1);
       end;
+      VElevationProfileVisible := Supports(VMark.Geometry, IGeometryLonLatLine);
     end;
   end;
+
   tbxtmUngroup.Visible := VUngroupVisible;
+  tbxShowElevProfile.Visible := VElevationProfileVisible;
+end;
+
+procedure TfrmMarksExplorer.tbxShowElevProfileClick(Sender: TObject);
+var
+  VMark: IVectorDataItem;
+  VLine: IGeometryLonLatLine;
+begin
+  VMark := GetSelectedMarkFull;
+  if Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
+    FMapGoto.FitRectToScreen(VLine.Bounds.Rect);
+    FElevationProfilePresenter.ShowProfile(VLine);
+  end else begin
+    Assert(False);
+  end;
 end;
 
 procedure TfrmMarksExplorer.tbxtmUngroupClick(Sender: TObject);
