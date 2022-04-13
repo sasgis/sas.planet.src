@@ -182,7 +182,7 @@ begin
   try
     if not FPrepared then begin
       _DoPrepareCount;
-      if FPartsCount = 1 then begin
+      if (FPartsCount = 1) or (FTilesTotal < 2) then begin
         SetLength(FStartPoints, 1);
         SetLength(FTilesCount, 1);
         VTilesRect :=
@@ -192,6 +192,7 @@ begin
           );
         FStartPoints[0] := VTilesRect.TopLeft;
         FTilesCount[0] := FTilesTotal;
+        FPartsCount := 1;
       end else begin
         SplitProjectedPolygon(
           FProjection,
