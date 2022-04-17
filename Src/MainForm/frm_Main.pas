@@ -7630,7 +7630,7 @@ begin
   if (Screen.ActiveForm <> nil) and (Screen.ActiveForm <> Self) then begin
     Result := Screen.ActiveForm.IsShortCut(AMsg);
   end else begin
-    Result := inherited;
+    Result := inherited IsShortCut(AMsg);
   end;
 end;
 

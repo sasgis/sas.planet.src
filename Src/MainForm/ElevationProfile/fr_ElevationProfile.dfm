@@ -89,6 +89,8 @@ object frElevationProfile: TfrElevationProfile
     View3D = False
     View3DOptions.Orthogonal = False
     View3DWalls = False
+    Zoom.Pen.Color = clSilver
+    Zoom.Pen.Width = 3
     OnAfterDraw = chtProfileAfterDraw
     Align = alClient
     BevelOuter = bvNone

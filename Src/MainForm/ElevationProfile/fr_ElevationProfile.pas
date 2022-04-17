@@ -33,6 +33,7 @@ interface
 
 {$IF CompilerVersion > 23.0}
   {$DEFINE HAS_TEE_DRAW_STYLE}
+  {$DEFINE HAS_TEE_ZOOM_OPT}
 {$IFEND}
 
 uses
@@ -290,6 +291,7 @@ begin
   mniFilterData.Checked := FConfigStatic.UseDataFiltering;
   mniCenterMap.Checked := FConfigStatic.CenterMap;
 
+  {$IFDEF HAS_TEE_ZOOM_OPT}
   mniZoomWithMouseWheel.Checked := FConfigStatic.ZoomWithMouseWheel;
   mniKeepAspectRatio.Checked := FConfigStatic.KeepAspectRatio;
 
@@ -302,6 +304,10 @@ begin
     chtProfile.Panning.MouseWheel := pmwNormal;
     chtProfile.Zoom.MouseWheel := pmwNone;
   end;
+  {$ELSE}
+  mniZoomWithMouseWheel.Visible := False;
+  mniKeepAspectRatio.Visible := False;
+  {$ENDIF}
 
   FElevationSeries.Visible := FConfigStatic.ShowElevation;
   FSpeedSeries.Visible := FConfigStatic.ShowSpeed;
