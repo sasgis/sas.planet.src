@@ -920,17 +920,23 @@ var
   VIterator: ITileIterator;
   VFoundNextPart: Boolean;
 begin
+  SetLength(AStartPoints, 0);
+  SetLength(ATilesCount, 0);
+
+  if (ASplitCount <= 0) or (ATilesCountInPolygon <= 0) then begin
+    Assert(False);
+    Exit;
+  end;
+
   VSplitCount := ASplitCount;
   repeat
     VPartTilesCount := ATilesCountInPolygon div VSplitCount;
     if VPartTilesCount = 0 then begin
       Dec(VSplitCount);
     end;
-  until VPartTilesCount > 0;
+  until (VPartTilesCount > 0) or (VSplitCount <= 0);
 
   if VSplitCount <= 0 then begin
-    SetLength(AStartPoints, 0);
-    SetLength(ATilesCount, 0);
     Exit;
   end;
 
