@@ -19,18 +19,34 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_ElevationProfilePresenter;
+unit i_ElevationMetaWriterProgress;
 
 interface
 
-uses
-  i_VectorDataItemSimple;
-
 type
-  IElevationProfilePresenter = interface
-    ['{5FD21B61-D27A-446C-A136-8DB16DC07E90}']
+  TElevationMetaWriterProgressStatus = (
+    emwIdle,
+    emwBusy,
+    emwDone,
+    emwCanceled
+  );
 
-    procedure ShowProfile(const AItem: IVectorDataItem);
+  TElevationMetaWriterProgressInfo = record
+    TotalCount: Integer;
+    ReadyCount: Integer;
+  end;
+
+  IElevationMetaWriterProgress = interface
+    ['{603F97E1-7932-4F8F-9D23-27278F5AB67B}']
+    procedure Reset;
+
+    function GetInfo: TElevationMetaWriterProgressInfo;
+    procedure SetInfo(const AValue: TElevationMetaWriterProgressInfo);
+    property Info: TElevationMetaWriterProgressInfo read GetInfo write SetInfo;
+
+    function GetStatus: TElevationMetaWriterProgressStatus;
+    procedure SetStatus(const AValue: TElevationMetaWriterProgressStatus);
+    property Status: TElevationMetaWriterProgressStatus read GetStatus write SetStatus;
   end;
 
 implementation

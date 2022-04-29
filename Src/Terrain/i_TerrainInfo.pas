@@ -29,6 +29,11 @@ uses
 type
   ITerrainInfo = interface
     ['{971AA9F8-74CF-459B-8E1C-18D5D5C89A69}']
+    function GetElevationInfo(
+      const APoint: TDoublePoint;
+      const AZoom: Byte
+    ): Double;
+
     function GetElevationInfoStr(
       const APoint: TDoublePoint;
       const AZoom: Byte

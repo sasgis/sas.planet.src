@@ -65,6 +65,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;VclTee;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <DCC_PEOSVersion>5.0</DCC_PEOSVersion>
+        <DCC_PESubSysVersion>5.0</DCC_PESubSysVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
@@ -1612,6 +1614,8 @@
         <DCCReference Include="Src\Logger\u_LogForTaskThread.pas"/>
         <DCCReference Include="Src\Logger\u_TileErrorInfo.pas"/>
         <DCCReference Include="Src\Logger\u_TileErrorLogProviedrStuped.pas"/>
+        <DCCReference Include="Src\MainForm\ElevationMetaWriter\i_ElevationMetaWriter.pas"/>
+        <DCCReference Include="Src\MainForm\ElevationMetaWriter\u_ElevationMetaWriter.pas"/>
         <DCCReference Include="Src\MainForm\ElevationProfile\fr_ElevationProfile.pas">
             <Form>frElevationProfile</Form>
             <FormType>dfm</FormType>
@@ -2962,6 +2966,12 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
+        <DCCReference Include="Src\MainForm\ElevationMetaWriter\frm_ElevationMetaWriterProgress.pas">
+            <Form>frmElevationMetaWriterProgress</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Src\MainForm\ElevationMetaWriter\i_ElevationMetaWriterProgress.pas"/>
+        <DCCReference Include="Src\MainForm\ElevationMetaWriter\u_ElevationMetaWriterProgress.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

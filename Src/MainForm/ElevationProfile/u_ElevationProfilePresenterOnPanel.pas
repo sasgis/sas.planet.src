@@ -29,10 +29,12 @@ uses
   TB2Item,
   i_Datum,
   i_GeometryLonLat,
+  i_ElevationMetaWriter,
   i_ElevationProfileConfig,
   i_ElevationProfilePresenter,
   i_LanguageManager,
   i_MapViewGoto,
+  i_VectorDataItemSimple,
   u_BaseInterfacedObject,
   fr_ElevationProfile;
 
@@ -47,11 +49,19 @@ type
     FMapGoTo: IMapViewGoto;
 
     FfrElevationProfile: TfrElevationProfile;
+    FElevationMetaWriter: IElevationMetaWriter;
+
+    procedure ShowProfileInternal(
+      const AItem: IVectorDataItem;
+      const ALines: TArrayOfGeometryLonLatSingleLine
+    );
+
+    procedure OnElevationMetaWrite(const AItem: IVectorDataItem);
 
     procedure HideParent;
   private
     { IElevationProfilePresenter }
-    procedure ShowProfile(const ALine: IGeometryLonLatLine);
+    procedure ShowProfile(const AItem: IVectorDataItem);
   public
     constructor Create(
       const ADrawParent: TWinControl;
@@ -59,12 +69,17 @@ type
       const AConfig: IElevationProfileConfig;
       const ALanguageManager: ILanguageManager;
       const ADatum: IDatum;
-      const AMapGoTo: IMapViewGoto
+      const AMapGoTo: IMapViewGoto;
+      const AElevationMetaWriter: IElevationMetaWriter
     );
     destructor Destroy; override;
   end;
 
 implementation
+
+uses
+  t_GeoTypes,
+  u_GeometryFunc;
 
 { TElevationProfilePresenterOnPanel }
 
@@ -74,7 +89,8 @@ constructor TElevationProfilePresenterOnPanel.Create(
   const AConfig: IElevationProfileConfig;
   const ALanguageManager: ILanguageManager;
   const ADatum: IDatum;
-  const AMapGoTo: IMapViewGoto
+  const AMapGoTo: IMapViewGoto;
+  const AElevationMetaWriter: IElevationMetaWriter
 );
 begin
   inherited Create;
@@ -85,6 +101,7 @@ begin
   FLanguageManager := ALanguageManager;
   FDatum := ADatum;
   FMapGoTo := AMapGoTo;
+  FElevationMetaWriter := AElevationMetaWriter;
 
   FfrElevationProfile := nil;
 
@@ -108,9 +125,31 @@ begin
 end;
 
 procedure TElevationProfilePresenterOnPanel.ShowProfile(
-  const ALine: IGeometryLonLatLine
+  const AItem: IVectorDataItem
 );
+
+  function IsElevationMetaPresent(
+    const ALines: TArrayOfGeometryLonLatSingleLine
+  ): Boolean;
+  var
+    I: Integer;
+    VMeta: PDoublePointsMeta;
+  begin
+    Result := False;
+    for I := 0 to Length(ALines) - 1 do begin
+      VMeta := ALines[I].Meta;
+      if (VMeta <> nil) and (VMeta.Elevation <> nil) then begin
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+
+var
+  VLines: TArrayOfGeometryLonLatSingleLine;
 begin
+  Assert(Supports(AItem.Geometry, IGeometryLonLatLine));
+
   if FfrElevationProfile = nil then begin
     FfrElevationProfile := TfrElevationProfile.Create(
       FDrawParent,
@@ -122,17 +161,42 @@ begin
     );
   end;
 
+  VLines := GeometryLonLatLineToArray(AItem.Geometry as IGeometryLonLatLine);
+
+  if IsElevationMetaPresent(VLines) then begin
+    ShowProfileInternal(AItem, VLines);
+  end else begin
+    FElevationMetaWriter.ProcessItemAsync(
+      AItem,
+      Self.OnElevationMetaWrite
+    );
+  end;
+end;
+
+procedure TElevationProfilePresenterOnPanel.ShowProfileInternal(
+  const AItem: IVectorDataItem;
+  const ALines: TArrayOfGeometryLonLatSingleLine
+);
+begin
   if FDrawParent.Height < 200 then begin
     FDrawParent.Height := 200;
   end;
 
-  FfrElevationProfile.ShowProfile(ALine);
+  FfrElevationProfile.ShowProfile(ALines);
   FfrElevationProfile.Visible := True;
 
   FDrawParent.Visible := True;
   FVisibilityToggleItem.Enabled := True;
 
   FfrElevationProfile.SetFocusOnChart;
+end;
+
+procedure TElevationProfilePresenterOnPanel.OnElevationMetaWrite(const AItem: IVectorDataItem);
+var
+  VLines: TArrayOfGeometryLonLatSingleLine;
+begin
+  VLines := GeometryLonLatLineToArray(AItem.Geometry as IGeometryLonLatLine);
+  ShowProfileInternal(AItem, VLines);
 end;
 
 end.

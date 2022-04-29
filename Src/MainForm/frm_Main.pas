@@ -79,6 +79,7 @@ uses
   i_ViewPortState,
   i_StickToGrid,
   i_SensorList,
+  i_ElevationMetaWriter,
   i_ElevationProfilePresenter,
   i_SearchResultPresenter,
   i_MergePolygonsResult,
@@ -919,6 +920,7 @@ type
     FMergePolygonsPresenter: IMergePolygonsPresenter;
     FMergePolygonsResult: IMergePolygonsResult;
 
+    FElevationMetaWriter: IElevationMetaWriter;
     FElevationProfilePresenter: IElevationProfilePresenter;
 
     FMapMoving: Boolean;
@@ -1241,6 +1243,7 @@ uses
   u_SearchResultPresenterOnPanel,
   u_MergePolygonsResult,
   u_MergePolygonsPresenterOnPanel,
+  u_ElevationMetaWriter,
   u_ElevationProfilePresenterOnPanel,
   u_ListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
@@ -2440,6 +2443,16 @@ end;
 
 procedure TfrmMain.InitElevationProfile;
 begin
+  FElevationMetaWriter :=
+    TElevationMetaWriter.Create(
+      GState.Config.LanguageManager,
+      GState.AppClosingNotifier,
+      GState.Config.TerrainConfig,
+      GState.TerrainProviderList,
+      GState.VectorDataFactory,
+      GState.VectorGeometryLonLatFactory
+    );
+
   FElevationProfilePresenter :=
     TElevationProfilePresenterOnPanel.Create(
       tbElevationProfile,
@@ -2447,7 +2460,8 @@ begin
       GState.Config.ElevationProfileConfig,
       GState.Config.LanguageManager,
       GState.GPSDatum,
-      FGpsTrackGoTo
+      FGpsTrackGoTo,
+      FElevationMetaWriter
     );
 end;
 
@@ -5769,7 +5783,6 @@ procedure TfrmMain.tbxitmElevationProfileClick(Sender: TObject);
 var
   I: Integer;
   VMouseDownPos: TPoint;
-  VLine: IGeometryLonLatLine;
   VVectorItems: IVectorItemSubset;
   VLocalConverter: ILocalCoordConverter;
 begin
@@ -5778,8 +5791,8 @@ begin
   VVectorItems := FindItems(VLocalConverter, VMouseDownPos);
   if VVectorItems <> nil then begin
     for I := 0 to VVectorItems.Count - 1 do begin
-      if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatLine, VLine) then begin
-        FElevationProfilePresenter.ShowProfile(VLine);
+      if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatLine) then begin
+        FElevationProfilePresenter.ShowProfile(VVectorItems.Items[I]);
         Break;
       end;
     end;

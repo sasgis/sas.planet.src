@@ -62,7 +62,6 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-
   IGeometryLonLatLine = interface(IGeometryLonLat)
     ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
   end;
@@ -133,6 +132,10 @@ type
     function GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
     property Item[AIndex: Integer]: IGeometryLonLatSinglePolygon read GetItem;
   end;
+
+type
+  TArrayOfGeometryLonLatSingleLine = array of IGeometryLonLatSingleLine;
+  TArrayOfGeometryLonLatSinglePolygon = array of IGeometryLonLatSinglePolygon;
 
 implementation
 

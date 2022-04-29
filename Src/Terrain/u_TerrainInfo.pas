@@ -42,24 +42,27 @@ type
     FTerrainProviderList: ITerrainProviderList;
     FLastPoint: TDoublePoint;
     FLastZoom: Byte;
-    FLastElevation: Integer;
+    FLastElevation: Double;
     FProviderStateListner: IListener;
     FConfigSync: TCriticalSection;
+    procedure OnProviderStateChange;
+  private
+    { ITerrainInfo }
     function GetElevationInfo(
       const APoint: TDoublePoint;
       const AZoom: Byte
-    ): Integer;
-    procedure OnProviderStateChange;
+    ): Double;
+
+    function GetElevationInfoStr(
+      const APoint: TDoublePoint;
+      const AZoom: Byte
+    ): string;
   public
     constructor Create(
       const ATerrainConfig: ITerrainConfig;
       const ATerrainProviderList: ITerrainProviderList
     );
     destructor Destroy; override;
-    function GetElevationInfoStr(
-      const APoint: TDoublePoint;
-      const AZoom: Byte
-    ): string;
   end;
 
 implementation
@@ -238,7 +241,7 @@ end;
 function TTerrainInfo.GetElevationInfo(
   const APoint: TDoublePoint;
   const AZoom: Byte
-): Integer;
+): Double;
 var
   VGUID: TGUID;
   VTmp: Cardinal;
@@ -256,14 +259,14 @@ begin
       Exit;
     end;
 
-    Result := Round(FPrimaryTerrainProvider.GetPointElevation(APoint, AZoom));
+    Result := FPrimaryTerrainProvider.GetPointElevation(APoint, AZoom);
     if (Result = cUndefinedElevationValue) and FTerrainConfig.TrySecondaryElevationProviders then begin
       VEnum := FTerrainProviderList.GetGUIDEnum;
       while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
         VItem := FTerrainProviderList.Get(VGUID);
         if VItem <> nil then begin
           VProvider := VItem.Provider;
-          Result := Round(VProvider.GetPointElevation(APoint, AZoom));
+          Result := VProvider.GetPointElevation(APoint, AZoom);
           if Result <> cUndefinedElevationValue then begin
             FTerrainConfig.LastActualProviderWithElevationData := VItem.GUID;
             Break;
@@ -291,7 +294,7 @@ function TTerrainInfo.GetElevationInfoStr(
   const AZoom: Byte
 ): string;
 begin
-  Result := IntToStr(GetElevationInfo(APoint, AZoom)) + ' ' + SAS_UNITS_m;
+  Result := IntToStr(Round(GetElevationInfo(APoint, AZoom))) + ' ' + SAS_UNITS_m;
 end;
 
 end.

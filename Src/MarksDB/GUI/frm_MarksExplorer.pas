@@ -1495,12 +1495,11 @@ end;
 procedure TfrmMarksExplorer.tbxShowElevProfileClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
-  VLine: IGeometryLonLatLine;
 begin
   VMark := GetSelectedMarkFull;
-  if Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
-    FMapGoto.FitRectToScreen(VLine.Bounds.Rect);
-    FElevationProfilePresenter.ShowProfile(VLine);
+  if Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatLine) then begin
+    FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
+    FElevationProfilePresenter.ShowProfile(VMark);
   end else begin
     Assert(False);
   end;

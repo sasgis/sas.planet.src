@@ -158,7 +158,7 @@ type
     FConfigStatic: IElevationProfileConfigStatic;
     FConfigChangeListener: IListener;
 
-    FLine: array of IGeometryLonLatSingleLine;
+    FLines: TArrayOfGeometryLonLatSingleLine;
     FDist: array of Double;
     FIsDistInMeters: Boolean;
 
@@ -192,7 +192,7 @@ type
     class procedure ResetInfo(out AInfo: TProfileInfoRec); static; inline;
   public
     procedure ShowProfile(
-      const ALine: IGeometryLonLatLine
+      const ALines: TArrayOfGeometryLonLatSingleLine
     );
     procedure SetFocusOnChart;
     procedure Clear;
@@ -380,30 +380,13 @@ end;
 // Public API
 
 procedure TfrElevationProfile.ShowProfile(
-  const ALine: IGeometryLonLatLine
+  const ALines: TArrayOfGeometryLonLatSingleLine
 );
-var
-  I: Integer;
-  VLine: IGeometryLonLatSingleLine;
-  VMultiLine: IGeometryLonLatMultiLine;
 begin
+  FLines := ALines;
+
   HidePointInfo;
-
-  if Supports(ALine, IGeometryLonLatSingleLine, VLine) then begin
-    SetLength(FLine, 1);
-    FLine[0] := VLine;
-  end else
-  if Supports(ALine, IGeometryLonLatMultiLine, VMultiLine) then begin
-    SetLength(FLine, VMultiLine.Count);
-    for I := 0 to VMultiLine.Count - 1 do begin
-      FLine[I] := VMultiLine.Item[I];
-    end;
-  end else begin
-    raise Exception.Create('Unexpected IGeometryLonLatLine type!');
-  end;
-
   ShowSeries;
-
   ShowInfo;
 end;
 
@@ -416,7 +399,7 @@ end;
 
 procedure TfrElevationProfile.Clear;
 begin
-  FLine := nil;
+  FLines := nil;
   FDist := nil;
 
   FSpeedSeries.Clear;
@@ -538,8 +521,8 @@ begin
   InitInfo(FInfo);
 
   VCount := 0;
-  for I := 0 to Length(FLine) - 1 do begin
-    Inc(VCount, FLine[I].Count);
+  for I := 0 to Length(FLines) - 1 do begin
+    Inc(VCount, FLines[I].Count);
   end;
   SetLength(FDist, VCount);
 
@@ -548,8 +531,8 @@ begin
     FSpeedSeries.Clear;
     FElevationSeries.Clear;
 
-    for I := 0 to Length(FLine) - 1 do begin
-      FillSeriesWithLineData(FLine[I]);
+    for I := 0 to Length(FLines) - 1 do begin
+      FillSeriesWithLineData(FLines[I]);
     end;
 
     FIsDistInMeters := FInfo.Dist <= CMaxDistInMeters;
@@ -1120,9 +1103,9 @@ procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
   begin
     VLeft := ALeft;
     VLeftIndex := 0;
-    for I := 0 to Length(FLine) - 1 do begin
-      if VLeft >= FLine[I].Count then begin
-        Dec(VLeft, FLine[I].Count);
+    for I := 0 to Length(FLines) - 1 do begin
+      if VLeft >= FLines[I].Count then begin
+        Dec(VLeft, FLines[I].Count);
         Inc(VLeftIndex);
       end else begin
         Break;
@@ -1131,9 +1114,9 @@ procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
 
     VRight := ARight;
     VRightIndex := 0;
-    for I := 0 to Length(FLine) - 1 do begin
-      if VRight >= FLine[I].Count then begin
-        Dec(VRight, FLine[I].Count);
+    for I := 0 to Length(FLines) - 1 do begin
+      if VRight >= FLines[I].Count then begin
+        Dec(VRight, FLines[I].Count);
         Inc(VRightIndex);
       end else begin
         Break;
@@ -1146,13 +1129,13 @@ procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
     end;
 
     if VLeft = VRight then begin
-      APoint := FLine[VLeftIndex].Points[VLeft];
+      APoint := FLines[VLeftIndex].Points[VLeft];
       Result := True;
       Exit;
     end;
 
-    VLeftPoint := FLine[VLeftIndex].Points[VLeft];
-    VRightPoint := FLine[VRightIndex].Points[VRight];
+    VLeftPoint := FLines[VLeftIndex].Points[VLeft];
+    VRightPoint := FLines[VRightIndex].Points[VRight];
 
     // find initial bearing
     FDatum.CalcDist(VLeftPoint, VRightPoint, VInitialBearing, VFinalBearing);

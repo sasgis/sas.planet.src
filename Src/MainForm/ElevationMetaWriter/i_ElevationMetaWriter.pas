@@ -19,7 +19,7 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_ElevationProfilePresenter;
+unit i_ElevationMetaWriter;
 
 interface
 
@@ -27,10 +27,15 @@ uses
   i_VectorDataItemSimple;
 
 type
-  IElevationProfilePresenter = interface
-    ['{5FD21B61-D27A-446C-A136-8DB16DC07E90}']
+  TElevationMetaWriterResult = procedure(const AItem: IVectorDataItem) of object;
 
-    procedure ShowProfile(const AItem: IVectorDataItem);
+  IElevationMetaWriter = interface
+    ['{62C42A6C-9ABC-40A5-945B-DB2FF5E6339C}']
+
+    procedure ProcessItemAsync(
+      const AItem: IVectorDataItem;
+      const AOnResult: TElevationMetaWriterResult
+    );
   end;
 
 implementation
