@@ -46,6 +46,7 @@ type
 
     FDoAbortExport: Boolean;
     FTileProcessErrorMsg: string;
+    FTileProcessErrorFmt: string;
     procedure ShowErrorSync;
   protected
     procedure ProcessRegion; override;
@@ -90,13 +91,6 @@ uses
   i_BitmapTileSaveLoad,
   u_ResStrings;
 
-resourcestring
-  rsTileProcessErrorFmt =
-    '[JNX] Tile processing error!' + #13#10 +
-    'Tile: X = %d, Y = %d, Z = %d' + #13#10 +
-    'Error: "%s: %s"' + #13#10 + #13#10 +
-    'Do you want to continue?';
-
 constructor TExportTaskToJnx.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ATileIteratorFactory: ITileIteratorFactory;
@@ -124,6 +118,8 @@ begin
   FZorder := AZorder;
   FProductID := AProductID;
   FBitmapPostProcessing := ABitmapPostProcessing;
+
+  FTileProcessErrorFmt := '[JNX] ' + SAS_ERR_TileProcessError;
 end;
 
 procedure TExportTaskToJnx.ProcessRegion;
@@ -229,13 +225,14 @@ begin
                   except
                     on E: Exception do begin
                       FTileProcessErrorMsg := Format(
-                        rsTileProcessErrorFmt,
+                        FTileProcessErrorFmt,
                         [VTile.X, VTile.Y, VZoom + 1, E.ClassName, E.Message]
                       );
                       TThread.Synchronize(nil, Self.ShowErrorSync);
                       if FDoAbortExport then begin
                         Exit;
                       end;
+                      VData := nil;
                     end;
                   end;
                 end;

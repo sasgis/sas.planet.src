@@ -126,6 +126,12 @@ ResourceString
   SAS_ERR_ContentTypeMismatch = 'Cache converter aborted with error: Content-Type mismatch!' + #13#10 +
     'Source: %s' + #13#10 + 'Destination: %s';
 
+  SAS_ERR_TileProcessError =
+    'Tile processing error!' + #13#10 +
+    'Tile: X = %d, Y = %d, Z = %d' + #13#10 +
+    'Error: "%s: %s"' + #13#10 + #13#10 +
+    'Do you want to continue?';
+
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';
   SAS_STR_load = 'Downloaded';

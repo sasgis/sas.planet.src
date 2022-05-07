@@ -82,6 +82,11 @@ type
 
     FFormatSettings: TFormatSettings;
 
+    FDoAbortExport: Boolean;
+    FTileProcessErrorMsg: string;
+    FTileProcessErrorFmt: string;
+    procedure ShowErrorSync;
+
     // IListener
     procedure Notification(const AMsg: IInterface);
 
@@ -109,6 +114,11 @@ uses
   Types,
   ShLwApi,
   Math,
+  Dialogs,
+  UITypes,
+  {$IF CompilerVersion < 20}
+  Controls, // for mrYes
+  {$IFEND}
   ALString,
   libcrc32,
   gnugettext,
@@ -155,6 +165,8 @@ begin
   FStrCannotStartGMT := _('Could not start GMapTool: %s.');
   FStrIMGBuildError := _('Could not build IMG file.');
   FStrPhase3 := _('Cleaning up. ');
+
+  FTileProcessErrorFmt := '[IMG] ' + SAS_ERR_TileProcessError;
 
   // Use '.' as a floating point independently of the user's locale preferences.
   {$IF CompilerVersion < 23}
@@ -653,13 +665,26 @@ begin
 
             if Assigned(FBitmapPostProcessing) or not ALSameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
               if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
-                VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
-                if Assigned(FBitmapPostProcessing) then begin
-                  VBitmapTile := FBitmapPostProcessing.Process(VBitmapTile);
-                end;
-
-                if Assigned(VBitmapTile) then begin
-                  VData := VSaver.Save(VBitmapTile);
+                try
+                  VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
+                  if Assigned(FBitmapPostProcessing) then begin
+                    VBitmapTile := FBitmapPostProcessing.Process(VBitmapTile);
+                  end;
+                  if Assigned(VBitmapTile) then begin
+                    VData := VSaver.Save(VBitmapTile);
+                  end;
+                except
+                  on E: Exception do begin
+                    FTileProcessErrorMsg := Format(
+                      FTileProcessErrorFmt,
+                      [VTile.X, VTile.Y, VZoom + 1, E.ClassName, E.Message]
+                    );
+                    TThread.Synchronize(nil, Self.ShowErrorSync);
+                    if FDoAbortExport then begin
+                      Exit;
+                    end;
+                    VData := nil;
+                  end;
                 end;
               end;
             end else begin
@@ -801,6 +826,12 @@ begin
     // Deleting the files from temp folder.
     ClearTempFolder;
   end;
+end;
+
+procedure TExportTaskToIMG.ShowErrorSync;
+begin
+  FDoAbortExport :=
+    MessageDlg(FTileProcessErrorMsg, mtError, [mbYes, mbNo], 0) <> mrYes;
 end;
 
 end.
