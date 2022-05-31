@@ -1013,7 +1013,7 @@ type
     procedure InitGridsMenus;
     procedure InitMouseCursors;
     procedure InitUrlProviders;
-    procedure LoadParams;
+    procedure ProcessCmdLineArgs;
     procedure LoadPosition;
     procedure LoadMapIconsList;
     procedure CreateMapUIMapsList;
@@ -2077,8 +2077,6 @@ begin
     DateTimePicker1.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay;
     DateTimePicker2.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay;
 
-    LoadParams;
-
     FPathProvidersTree := GState.PathDetalizeTree;
     FPathProvidersMenuBuilder := TMenuGeneratorByStaticTreeSimple.Create(Self.TBEditPathMarshClick);
     FPathProvidersConfigMenuBuilder := TMenuGeneratorByStaticTreeSimple.Create(Self.tbxExtendRouteSelect);
@@ -2188,9 +2186,12 @@ begin
 
     CreateProjectionMenu;
 
-{$IF (CompilerVersion >= 23)} // XE2 and UP
+    {$IF (CompilerVersion >= 23)} // XE2 and UP
     Self.Touch.InteractiveGestures := Self.Touch.InteractiveGestures + [igZoom];
-{$IFEND}
+    {$IFEND}
+
+    ProcessCmdLineArgs;
+
     FStartedNormal := True;
   finally
     map.SetFocus;
@@ -5976,7 +5977,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.LoadParams;
+procedure TfrmMain.ProcessCmdLineArgs;
 var
   VResult: Integer;
   VErrorMsg: string;
