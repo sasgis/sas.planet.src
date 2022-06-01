@@ -1186,6 +1186,7 @@ uses
   u_LanguageManager in 'Src\System\u_LanguageManager.pas',
   u_LanguagesEx in 'Src\System\u_LanguagesEx.pas',
   u_SystemTimeProvider in 'Src\System\u_SystemTimeProvider.pas',
+  u_WindowsMessageCopyDataSender in 'Src\System\u_WindowsMessageCopyDataSender.pas',
   u_ExternalTerrainAPI in 'Src\Terrain\External\u_ExternalTerrainAPI.pas',
   u_ExternalTerrainsProvider in 'Src\Terrain\External\u_ExternalTerrainsProvider.pas',
   i_GoogleEarthTerrainTileStorage in 'Src\Terrain\GoogleEarth\i_GoogleEarthTerrainTileStorage.pas',
@@ -1573,14 +1574,26 @@ const
 
 var
   VApp: TApplication;
+  VAppEnum: IAppEnum;
 begin
+  VAppEnum := TAppEnum.Create;
+
+  if (ParamCount > 0) and (VAppEnum.Count > 1) then begin
+    if TWindowsMessageCopyDataSender.SendCmdLineArgs then begin
+      Exit;
+    end;
+  end;
+
   SetCurrentThreadName('ApplicationMainThread');
+
   if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
     TBaseInterfacedObjectDebug.InitCounters;
   end;
-  VApp := Application;
-  GState := TGlobalState.Create;
+
+  GState := TGlobalState.Create(VAppEnum);
   try
+    VApp := Application;
+
     VApp.Initialize;
     VApp.MainFormOnTaskBar := True;
     VApp.Title := GState.ApplicationCaption;
@@ -1593,6 +1606,7 @@ begin
       GState.MainConfigProvider,
       GState.Config.StartUpLogoConfig
     );
+
     try
       GState.LoadConfig;
     except
@@ -1601,8 +1615,10 @@ begin
         Exit;
       end;
     end;
+
     VApp.HelpFile := '';
     VApp.CreateForm(TfrmMain, frmMain);
+
     GState.StartExceptionTracking;
     try
       VApp.Run;

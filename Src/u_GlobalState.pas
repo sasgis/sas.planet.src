@@ -298,7 +298,7 @@ type
     property FavoriteMapSetConfig: IFavoriteMapSetConfig read FFavoriteMapSetConfig;
     property InternalDomainUrlHandler: IInternalDomainUrlHandler read FInternalDomainUrlHandler;
 
-    constructor Create;
+    constructor Create(const AAppEnum: IAppEnum = nil);
     destructor Destroy; override;
     procedure LoadConfig;
     procedure SaveMainParams;
@@ -439,7 +439,7 @@ uses
 
 { TGlobalState }
 
-constructor TGlobalState.Create;
+constructor TGlobalState.Create(const AAppEnum: IAppEnum);
 var
   VViewCnonfig: IConfigDataProvider;
   VKmlLoader: IVectorDataLoader;
@@ -459,8 +459,12 @@ var
 begin
   inherited Create;
 
+  FAppEnum := AAppEnum;
+  if not Assigned(FAppEnum) then begin
+    FAppEnum := TAppEnum.Create;
+  end;
+
   FTimer := MakeTimerByQueryPerformanceCounter;
-  FAppEnum := TAppEnum.Create;
 
   if ModuleIsLib then begin
     // run as DLL or PACKAGE
