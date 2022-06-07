@@ -1267,6 +1267,7 @@ uses
   u_DoublePointsAggregator,
   u_ConfigDataWriteProviderByIniFile,
   u_CmdLineArgProcessor,
+  u_CmdLineArgProcessorAsync,
   u_CmdLineArgProcessorHelpers,
   frm_LonLatRectEdit;
 
@@ -5978,22 +5979,13 @@ begin
 end;
 
 procedure TfrmMain.ProcessCmdLineArgs;
-var
-  VResult: Integer;
-  VErrorMsg: string;
 begin
-  try
-    VResult := FArgProcessor.Process(FFormRegionProcess);
-    if VResult <> cCmdLineArgProcessorOk then begin
-      VErrorMsg :=
-        FArgProcessor.GetErrorFromCode(VResult) + #13#10 + #13#10 +
-        FArgProcessor.GetArguments;
-      MessageDlg(VErrorMsg, mtError, [mbOK], 0);
-    end;
-  except
-    on E: Exception do
-      MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOK], 0);
-  end;
+  TCmdLineArgProcessorAsync.Create(
+    GState.MarksDb,
+    GState.AppClosingNotifier,
+    FArgProcessor,
+    FFormRegionProcess
+  );
 end;
 
 procedure TfrmMain.LoadPosition;

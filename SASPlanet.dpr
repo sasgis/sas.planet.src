@@ -146,6 +146,7 @@ uses
   i_CmdLineArgProcessor in 'Src\CmdLineArgProcessor\i_CmdLineArgProcessor.pas',
   u_CmdLineArgProcessor in 'Src\CmdLineArgProcessor\u_CmdLineArgProcessor.pas',
   u_CmdLineArgProcessorAPI in 'Src\CmdLineArgProcessor\u_CmdLineArgProcessorAPI.pas',
+  u_CmdLineArgProcessorAsync in 'Src\CmdLineArgProcessor\u_CmdLineArgProcessorAsync.pas',
   u_CmdLineArgProcessorHelpers in 'Src\CmdLineArgProcessor\u_CmdLineArgProcessorHelpers.pas',
   i_ConfigDataElement in 'Src\ConfigData\i_ConfigDataElement.pas',
   i_ConfigDataProvider in 'Src\ConfigData\i_ConfigDataProvider.pas',

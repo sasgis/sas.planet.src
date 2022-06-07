@@ -1361,6 +1361,7 @@
         <DCCReference Include="Src\CmdLineArgProcessor\i_CmdLineArgProcessor.pas"/>
         <DCCReference Include="Src\CmdLineArgProcessor\u_CmdLineArgProcessor.pas"/>
         <DCCReference Include="Src\CmdLineArgProcessor\u_CmdLineArgProcessorAPI.pas"/>
+        <DCCReference Include="Src\CmdLineArgProcessor\u_CmdLineArgProcessorAsync.pas"/>
         <DCCReference Include="Src\CmdLineArgProcessor\u_CmdLineArgProcessorHelpers.pas"/>
         <DCCReference Include="Src\ConfigData\i_ConfigDataElement.pas"/>
         <DCCReference Include="Src\ConfigData\i_ConfigDataProvider.pas"/>
