@@ -296,6 +296,8 @@ procedure TVectorItemTreeImporterXML.Internal_CloseMark(
           if TryStyleUrlToStyleId(VStyleUrl, VStyleId) then begin
             Result := FKmlStyleList.TryGetStyle(VStyleId, AKmlStyle);
           end;
+        end else begin
+          Result := FKmlStyleList.TryGetStyle(VStyleId, AKmlStyle);
         end;
       end;
     end;
