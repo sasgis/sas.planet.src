@@ -270,7 +270,6 @@ var
   VDstSize: TPoint;
   VCounterContext: TInternalPerformanceCounterContext;
   VMapPixelRect: TDoubleRect;
-  VClipedDstRect: TRect;
   VRelativeRect: TDoubleRect;
 begin
   inherited;
@@ -311,9 +310,6 @@ begin
                 rrClosest
               );
           end;
-
-          Types.IntersectRect(VClipedDstRect, VDstRect, ABuffer.ClipRect);
-
           if not ABuffer.MeasuringMode then begin
             VDstSize := Types.Point(VDstRect.Right - VDstRect.Left, VDstRect.Bottom - VDstRect.Top);
             if (VDstSize.X = VBitmap.Size.X) and (VDstSize.Y = VBitmap.Size.Y) then begin
