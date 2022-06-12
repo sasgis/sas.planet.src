@@ -1445,6 +1445,7 @@ uses
   u_VectorItemTreeImporterList in 'Src\Vector\u_VectorItemTreeImporterList.pas',
   u_VectorItemTreeImporterListSimple in 'Src\Vector\u_VectorItemTreeImporterListSimple.pas',
   u_VectorItemTreeImporterXML in 'Src\Vector\u_VectorItemTreeImporterXML.pas',
+  u_VectorItemTreeImporterXmlHelpers in 'Src\Vector\u_VectorItemTreeImporterXmlHelpers.pas',
   u_VectorItemTreeMarksDb in 'Src\Vector\u_VectorItemTreeMarksDb.pas',
   i_GlobalAppConfig in 'Src\i_GlobalAppConfig.pas',
   i_GlobalConfig in 'Src\i_GlobalConfig.pas',

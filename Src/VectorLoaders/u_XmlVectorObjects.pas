@@ -549,7 +549,7 @@ begin
 
         // others
         for i := Low(i) to High(i) do begin
-          if (not (i in [kml_name, kml_description])) then begin
+          if (not (i in [kml_name, kml_description, kml_styleUrl])) then begin
             if (i in fAvail_strs) then begin
               VParamName := c_KML_str[i];
               VParamValue := SafeSetStringP(fParamsStrs[i]);
