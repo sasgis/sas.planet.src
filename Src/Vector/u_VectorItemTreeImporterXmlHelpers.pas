@@ -28,6 +28,8 @@ uses
   vsagps_public_kml;
 
 type
+  TKmlPointWhen = TQueue<TDateTime>;
+
   TKmlStyleItem = class
   private
     FAvailParams: Tvsagps_KML_params;
