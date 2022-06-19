@@ -93,7 +93,8 @@ type
     FWikiLayer: IFindVectorItems;
     FLayerMapMarks: IFindVectorItems;
     FLayerSearchResults: IFindVectorItems;
-
+  private
+    { IMainFormLayersList }
     function GetWikiLayer: IFindVectorItems;
     function GetMarksLayer: IFindVectorItems;
     function GetSearchResultsLayer: IFindVectorItems;
@@ -363,8 +364,8 @@ begin
     );
 
   VLayersList := TInterfaceListSimple.Create;
-
   VMatrixList := TInterfaceListSimple.Create;
+
   // Main bitmap layer
   VDebugName := 'MainBitmapMaps';
   VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
@@ -377,7 +378,6 @@ begin
       ABitmap32StaticFactory,
       ATileErrorLogger
     );
-
   VSourceChangeNotifier :=
     TSourceDataUpdateInRectByMapsSet.Create(
       AMainMapState.ActiveBitmapMapsSet

@@ -129,7 +129,7 @@ uses
   u_BitmapFunc,
   u_BackgroundTask;
 
-{ TBitmapTileMatrixChangeableByVectorMatrix }
+{ TBitmapTileMatrixChangeableComposite }
 
 constructor TBitmapTileMatrixChangeableComposite.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -280,20 +280,22 @@ function TBitmapTileMatrixChangeableComposite.PrepareBitmap(
   var ASourceHash: THashValue
 ): Boolean;
 var
-  VCounterContext: TInternalPerformanceCounterContext;
-  i: Integer;
+  I: Integer;
   VSourceItem: IBitmap32Static;
   VBitmapGR32: TBitmap32ByStaticBitmap;
   VTileCount: Integer;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
   Result := True;
+
   AResult := nil;
   ASourceHash := 0;
+
   VCounterContext := FHashCheckCounter.StartOperation;
   try
     VTileCount := 0;
-    for i := 0 to ASourceMatrixList.Count - 1 do begin
-      VSourceItem := IBitmapTileMatrix(ASourceMatrixList.Items[i]).GetElementByTile(ATile);
+    for I := 0 to ASourceMatrixList.Count - 1 do begin
+      VSourceItem := IBitmapTileMatrix(ASourceMatrixList.Items[I]).GetElementByTile(ATile);
       if Assigned(VSourceItem) then begin
         if VTileCount = 0 then begin
           AResult := VSourceItem;
@@ -307,6 +309,7 @@ begin
   finally
     FHashCheckCounter.FinishOperation(VCounterContext);
   end;
+
   if AExistedSourceHash = ASourceHash then begin
     Result := False;
     Exit;
@@ -324,8 +327,8 @@ begin
     VBitmapGR32 := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       VTileCount := 0;
-      for i := 0 to ASourceMatrixList.Count - 1 do begin
-        VSourceItem := IBitmapTileMatrix(ASourceMatrixList.Items[i]).GetElementByTile(ATile);
+      for I := 0 to ASourceMatrixList.Count - 1 do begin
+        VSourceItem := IBitmapTileMatrix(ASourceMatrixList.Items[I]).GetElementByTile(ATile);
         if Assigned(VSourceItem) then begin
           if VTileCount = 0 then begin
             AssignStaticToBitmap32(VBitmapGR32, VSourceItem);
@@ -354,6 +357,7 @@ procedure TBitmapTileMatrixChangeableComposite.OnPrepareTileMatrix(
   const ACancelNotifier: INotifierOperation
 );
 var
+  I: Integer;
   VTileRect: ITileRect;
   VTileIterator: ITileIterator;
   VTile: TPoint;
@@ -364,13 +368,13 @@ var
   VTileRectChanged: Boolean;
   VSourceMatrix: IBitmapTileMatrix;
   VSourceMatrixList: IInterfaceListSimple;
-  i: Integer;
   VAllSourceReady: Boolean;
 begin
   VTileRect := FTileRect.GetStatic;
   if Assigned(VTileRect) then begin
     VProjection := VTileRect.Projection;
     VTileRectChanged := not VTileRect.IsEqual(FPreparedBitmapMatrix.TileRect);
+
     if VTileRectChanged then begin
       VCounterContext := FMatrixChangeRectCounter.StartOperation;
       try
@@ -384,13 +388,14 @@ begin
         Exit;
       end;
     end;
+
     VCounterContext := FSourceDataGetCounter.StartOperation;
     try
       VAllSourceReady := True;
       VSourceMatrixList := TInterfaceListSimple.Create;
       VSourceMatrixList.Capacity := FSourceTileMatrixList.Count;
-      for i := 0 to FSourceTileMatrixList.Count - 1 do begin
-        VSourceMatrix := IBitmapTileMatrixChangeable(FSourceTileMatrixList.Items[i]).GetStatic;
+      for I := 0 to FSourceTileMatrixList.Count - 1 do begin
+        VSourceMatrix := IBitmapTileMatrixChangeable(FSourceTileMatrixList.Items[I]).GetStatic;
         if Assigned(VSourceMatrix) then begin
           if VProjection.IsSame(VSourceMatrix.TileRect.Projection) then begin
             VSourceMatrixList.Add(VSourceMatrix);
@@ -421,9 +426,11 @@ begin
         end;
         VTileIterator.Reset;
       end;
+
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
+
       while VTileIterator.Next(VTile) do begin
         if PrepareBitmap(VTile, VSourceMatrixList, FPreparedHashMatrix.Tiles[VTile], VBitmap, VSourceHash) then begin
           FPreparedBitmapMatrix.Tiles[VTile] := VBitmap;

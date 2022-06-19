@@ -185,12 +185,12 @@ procedure THashTileMatrixBuilder.SetRect(
   const AValue: THashValue
 );
 var
-  VTileRect: TRect;
+  VTile: TPoint;
+  VNewRect: TRect;
+  VOldRect: TRect;
   VIntersectRect: TRect;
   VOldItems: THashValueArray;
-  VOldRect: TRect;
   VIterator: TTileIteratorByRectRecord;
-  VTile: TPoint;
 begin
   if not Assigned(ATileRect) then begin
     SetRectWithReset(ATileRect, AValue);
@@ -205,15 +205,13 @@ begin
           if not IntersectRect(VIntersectRect, ATileRect.Rect, FTileRect.Rect) then begin
             SetRectWithReset(ATileRect, AValue);
           end else begin
-            VOldItems := FItems;
-            FItems := nil;
-            VTileRect := ATileRect.Rect;
+            VNewRect := ATileRect.Rect;
             VOldRect := FTileRect.Rect;
+            VOldItems := Copy(FItems);
             SetRectWithReset(ATileRect, AValue);
             VIterator.Init(VIntersectRect);
             while VIterator.Next(VTile) do begin
-              FItems[IndexByPos(VTileRect, VTile)] :=
-                VOldItems[IndexByPos(VOldRect, VTile)];
+              FItems[IndexByPos(VNewRect, VTile)] := VOldItems[IndexByPos(VOldRect, VTile)];
             end;
           end;
         end;

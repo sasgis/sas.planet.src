@@ -302,8 +302,7 @@ begin
           SetRectWithReset(ATileRect);
           VIterator.Init(VIntersectRect);
           while VIterator.Next(VTile) do begin
-            FItems.Items[IndexByPos(VTileRect, VTile)] :=
-              VOldItems.Items[IndexByPos(VOldRect, VTile)];
+            FItems.Items[IndexByPos(VTileRect, VTile)] := VOldItems.Items[IndexByPos(VOldRect, VTile)];
           end;
         end;
       end;

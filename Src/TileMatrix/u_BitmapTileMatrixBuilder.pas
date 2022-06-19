@@ -216,6 +216,7 @@ begin
   VProjectionNew := ATileRect.Projection;
   VTileRect := ATileRect.Rect;
   Assert(VProjectionNew.CheckTileRect(VTileRect));
+
   if Assigned(FTileRect) then begin
     VProjectionOld := FTileRect.Projection;
     if not VProjectionOld.IsSame(VProjectionNew) then begin
@@ -293,8 +294,7 @@ begin
           SetRectWithReset(ATileRect);
           VIterator.Init(VIntersectRect);
           while VIterator.Next(VTile) do begin
-            FItems.Items[IndexByPos(VTileRect, VTile)] :=
-              VOldItems.Items[IndexByPos(VOldRect, VTile)];
+            FItems.Items[IndexByPos(VTileRect, VTile)] := VOldItems.Items[IndexByPos(VOldRect, VTile)];
           end;
         end;
       end;

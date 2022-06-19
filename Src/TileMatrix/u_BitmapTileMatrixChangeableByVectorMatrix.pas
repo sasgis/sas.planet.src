@@ -273,6 +273,7 @@ begin
       VTileRect := VSourceMatrix.TileRect;
       VTileRectChanged := not VTileRect.IsEqual(FPreparedBitmapMatrix.TileRect);
       VIsNeedFullRedraw := FIsNeedFullUpdate.CheckFlagAndReset;
+
       if VTileRectChanged then begin
         VCounterContext := FMatrixChangeRectCounter.StartOperation;
         try

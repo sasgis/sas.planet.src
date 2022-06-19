@@ -53,7 +53,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FTileRect: ITileRectChangeable;
     FLayerProvider: IBitmapLayerProviderChangeable;
-    FSourcUpdateNotyfier: IObjectWithListener;
+    FSourceUpdateNotyfier: IObjectWithListener;
     FDebugName: string;
 
     FDrawTask: IBackgroundTask;
@@ -162,9 +162,8 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRect := ATileRect;
   FLayerProvider := ALayerProvider;
-  FSourcUpdateNotyfier := ASourcUpdateNotyfier;
+  FSourceUpdateNotyfier := ASourcUpdateNotyfier;
   FDebugName := VDebugName;
-
 
   FSourceHashMatrixCS := GSync.SyncVariable.Make(FDebugName + '\SourceUpdates');
 
@@ -174,7 +173,7 @@ begin
   FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
   FUpdateResultCounter := APerfList.CreateAndAddNewCounter('UpdateResult');
   FMatrixChangeRectCounter := APerfList.CreateAndAddNewCounter('MatrixChangeRect');
-  if Assigned(FSourcUpdateNotyfier) then begin
+  if Assigned(FSourceUpdateNotyfier) then begin
     FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
   end;
 
@@ -220,9 +219,9 @@ begin
     FLayerProvider.ChangeNotifier.Remove(FLayerProviderListener);
     FLayerProviderListener := nil;
   end;
-  if Assigned(FSourcUpdateNotyfier) then begin
-    FSourcUpdateNotyfier.RemoveListener;
-    FSourcUpdateNotyfier := nil;
+  if Assigned(FSourceUpdateNotyfier) then begin
+    FSourceUpdateNotyfier.RemoveListener;
+    FSourceUpdateNotyfier := nil;
   end;
   if Assigned(FAppStartedNotifier) and Assigned(FAppStartedListener) then begin
     FAppStartedNotifier.Remove(FAppStartedListener);
@@ -298,8 +297,8 @@ begin
   VProvider := FLayerProvider.GetStatic;
   if not Assigned(VProvider) then begin
     if FVisible then begin
-      if Assigned(FSourcUpdateNotyfier) then begin
-        FSourcUpdateNotyfier.RemoveListener;
+      if Assigned(FSourceUpdateNotyfier) then begin
+        FSourceUpdateNotyfier.RemoveListener;
       end;
       FSourceHashMatrixCS.BeginWrite;
       try
@@ -327,13 +326,15 @@ begin
       finally
         FSourceHashMatrixCS.EndWrite
       end;
+
       if not FVisible then begin
         FVisible := True;
       end;
+
       if VTileRectChanged then begin
         FTileRectPrev := VTileRect;
-        if Assigned(FSourcUpdateNotyfier) then begin
-          FSourcUpdateNotyfier.SetListener(FRectUpdateListener, VTileRect);
+        if Assigned(FSourceUpdateNotyfier) then begin
+          FSourceUpdateNotyfier.SetListener(FRectUpdateListener, VTileRect);
         end;
         VCounterContext := FMatrixChangeRectCounter.StartOperation;
         try
@@ -344,9 +345,11 @@ begin
         end;
         DoUpdateResultAndNotify;
       end;
+
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
+
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
         VSourceHash := FSourceHashMatrix.Tiles[VTile];
@@ -366,8 +369,8 @@ begin
         end;
       end;
     end else begin
-      if Assigned(FSourcUpdateNotyfier) then begin
-        FSourcUpdateNotyfier.RemoveListener;
+      if Assigned(FSourceUpdateNotyfier) then begin
+        FSourceUpdateNotyfier.RemoveListener;
       end;
     end;
   end;

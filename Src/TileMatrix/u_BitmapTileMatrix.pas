@@ -39,6 +39,8 @@ type
     FTileRect: ITileRect;
     FTileCount: TPoint;
     FItems: IInterfaceListStatic;
+
+    function CalcItemIndex(const X, Y: Integer): Integer; inline;
   private
     function GetHash: THashValue;
     function GetTileRect: ITileRect;
@@ -97,25 +99,24 @@ begin
   Result := FHash;
 end;
 
+function TBitmapTileMatrix.CalcItemIndex(const X, Y: Integer): Integer;
+begin
+  if (X >= 0) and (X < FTileCount.X) and (Y >= 0) and (Y < FTileCount.Y) then begin
+    Result := Y * FTileCount.X + X;
+  end else begin
+    Result := -1;
+  end;
+end;
+
 function TBitmapTileMatrix.GetItem(AX, AY: Integer): IBitmap32Static;
 var
   VIndex: Integer;
-  VX, VY: Integer;
 begin
-  Result := nil;
-  VX := AX;
-  if VX >= FTileCount.X then begin
-    VX := -1;
-  end;
-
-  VY := AY;
-  if VY >= FTileCount.Y then begin
-    VY := -1;
-  end;
-
-  if (VX >= 0) and (VY >= 0) then begin
-    VIndex := VY * FTileCount.X + VX;
+  VIndex := CalcItemIndex(AX, AY);
+  if VIndex >= 0 then begin
     Result := IBitmap32Static(FItems[VIndex]);
+  end else begin
+    Result := nil;
   end;
 end;
 
