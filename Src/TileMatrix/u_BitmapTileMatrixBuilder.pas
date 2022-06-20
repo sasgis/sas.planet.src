@@ -220,6 +220,16 @@ begin
   if Assigned(FTileRect) then begin
     VProjectionOld := FTileRect.Projection;
     if not VProjectionOld.IsSame(VProjectionNew) then begin
+      {$REGION 'HotFix'}
+      // Do the same thing as THashTileMatrixBuilder does
+      SetRectWithReset(ATileRect);
+      Exit;
+      {$ENDREGION}
+
+      {$REGION 'FixMe-Or-Remove'}
+      // The below code cause a bug: http://www.sasgis.org/mantis/view.php?id=3800
+      // Updating FItems here, makes invalid linked HashTileMatrix
+
       if VProjectionNew.ProjectionType.IsSame(VProjectionOld.ProjectionType) then begin
         VOldRect := FTileRect.Rect;
         VRelativeRect := VProjectionOld.TileRect2RelativeRect(VOldRect);
@@ -284,6 +294,7 @@ begin
           end;
         end;
       end;
+      {$ENDREGION}
     end else begin
       if not FTileRect.IsEqual(ATileRect) then begin
         if not IntersectRect(VIntersectRect, ATileRect.Rect, FTileRect.Rect) then begin
