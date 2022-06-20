@@ -198,6 +198,8 @@ begin
 end;
 
 procedure TTiledMapLayer.OnTimer;
+const
+  CFakeHashValue: THashValue = MaxInt;
 var
   VLocalConverter: ILocalCoordConverter;
   VTileMatrix: IBitmapTileMatrix;
@@ -230,7 +232,7 @@ begin
               if Assigned(VBitmap) then begin
                 VReadyId := VBitmap.Hash;
               end else begin
-                VReadyId := 0;
+                VReadyId := CFakeHashValue;
               end;
               if VReadyId <> VShownId then begin
                 VMapRect :=
