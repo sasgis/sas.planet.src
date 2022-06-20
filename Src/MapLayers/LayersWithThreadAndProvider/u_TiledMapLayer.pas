@@ -235,8 +235,7 @@ begin
                 VReadyId := CFakeHashValue;
               end;
               if VReadyId <> VShownId then begin
-                VMapRect :=
-                  VLocalConverter.Projection.TilePos2PixelRect(VTile);
+                VMapRect := VLocalConverter.Projection.TilePos2PixelRect(VTile);
                 VDstRect := VLocalConverter.MapRect2LocalRect(VMapRect, rrClosest);
                 FShownIdMatrix.Tiles[VTile] := VReadyId;
                 FLayer.Changed(VDstRect);
