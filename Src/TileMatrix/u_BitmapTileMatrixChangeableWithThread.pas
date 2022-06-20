@@ -352,7 +352,7 @@ begin
 
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileRect);
       while VTileIterator.Next(VTile) do begin
-        VSourceHash := FSourceHashMatrix.Tiles[VTile];
+        VSourceHash := VSourceHashMatrix.GetElementByTile(VTile);
         if FPreparedHashMatrix.Tiles[VTile] <> VSourceHash then begin
           VCounterContext := FOneTilePrepareCounter.StartOperation;
           try
