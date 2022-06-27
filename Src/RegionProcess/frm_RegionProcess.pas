@@ -341,7 +341,6 @@ uses
   u_ExportProviderTar,
   u_ExportProviderJNX,
   u_ExportProviderIMG,
-  //u_ExportProviderOgf2,
   u_ExportProviderCE,
   u_BitmapMapCombinerBMP,
   u_BitmapMapCombinerJPG,
@@ -1179,18 +1178,6 @@ begin
       ABitmapPostProcessing
     );
   VList.Add(VExportProvider);
-
-//  VExportProvider :=
-//    TExportProviderOgf2.Create(
-//      AProgressFactory,
-//      ALanguageManager,
-//      AMapSelectFrameBuilder,
-//      AVectorGeometryProjectedFactory,
-//      ABitmap32StaticFactory,
-//      ABitmapTileSaveLoadFactory,
-//      AProjectionSetFactory
-//    );
-//  VList.Add(VExportProvider);
 
   VExportProvider :=
     TExportProviderCE.Create(

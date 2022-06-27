@@ -2402,12 +2402,6 @@
         <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportProviderMBTiles.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_ExportTaskToMBTiles.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\MBTiles\u_StorageExportToMBTiles.pas"/>
-        <DCCReference Include="Src\RegionProcess\Export\OGF2\fr_ExportToOgf2.pas">
-            <Form>frExportToOgf2</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Src\RegionProcess\Export\OGF2\u_ExportProviderOgf2.pas"/>
-        <DCCReference Include="Src\RegionProcess\Export\OGF2\u_ExportTaskToOgf2.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\OruxMaps\fr_ExportOruxMapsSQLite.pas">
             <Form>frExportOruxMapsSQLite</Form>
             <DesignClass>TFrame</DesignClass>
