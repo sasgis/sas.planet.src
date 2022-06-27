@@ -333,7 +333,6 @@ uses
   u_ExportProviderRMapsSQLite,
   u_ExportProviderOruxMapsSQLite,
   u_ExportProviderKml,
-  //u_ExportProviderIPhone,
   u_ExportProviderAUX,
   u_ExportProviderZip,
   u_ExportProviderTar,
@@ -1059,35 +1058,6 @@ var
   VList: IInterfaceListSimple;
 begin
   VList := TInterfaceListSimple.Create;
-
-// Exports to iPhone, Yandex.Mobile and Ogf2 are dead:
-// http://www.sasgis.org/mantis/view.php?id=3803
-
-//  VExportProvider :=
-//    TExportProviderIPhone.Create(
-//      AProgressFactory,
-//      ALanguageManager,
-//      AMapSelectFrameBuilder,
-//      AProjectionSetFactory,
-//      FTileIteratorFactory,
-//      ABitmap32StaticFactory,
-//      ABitmapTileSaveLoadFactory,
-//      True
-//    );
-//  VList.Add(VExportProvider);
-//
-//  VExportProvider :=
-//    TExportProviderIPhone.Create(
-//      AProgressFactory,
-//      ALanguageManager,
-//      AMapSelectFrameBuilder,
-//      AProjectionSetFactory,
-//      FTileIteratorFactory,
-//      ABitmap32StaticFactory,
-//      ABitmapTileSaveLoadFactory,
-//      False
-//    );
-//  VList.Add(VExportProvider);
 
   VExportProvider :=
     TExportProviderKml.Create(

@@ -201,8 +201,6 @@ ResourceString
   SAS_STR_ExportOsmAndSQLiteExportCaption = 'OsmAnd (SQLite3)';
   SAS_STR_ExportLocusSQLiteExportCaption = 'Locus (SQLite3)';
   SAS_STR_ExportOruxMapsSQLiteExportCaption = 'OruxMaps (SQLite3)';
-  SAS_STR_ExportIPhone128Caption = 'iPhone (version 2.2 and above, 128x128)';
-  SAS_STR_ExportIPhone64Caption = 'iPhone (version prior to 2.2, 64x64)';
   SAS_STR_ExportAUXGeoServerCaption = 'AUX for LizardTech GeoExpress Server';
   SAS_STR_ExportZipPackCaption = 'Compressing to ZIP';
   SAS_STR_ExportTarPackCaption = 'Compressing to TAR';
