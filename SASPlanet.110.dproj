@@ -2428,18 +2428,6 @@
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ExportProviderCE.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\SAS4Android\u_ExportTaskToCE.pas"/>
-        <DCCReference Include="Src\RegionProcess\Export\YandexMobile\fr_ExportYaMobileV3.pas">
-            <Form>frExportYaMobileV3</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Src\RegionProcess\Export\YandexMobile\fr_ExportYaMobileV4.pas">
-            <Form>frExportYaMobileV4</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV3.pas"/>
-        <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV4.pas"/>
-        <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportTaskToYaMobileV3.pas"/>
-        <DCCReference Include="Src\RegionProcess\Export\YandexMobile\u_ExportTaskToYaMobileV4.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\u_ExportTaskAbstract.pas"/>
         <DCCReference Include="Src\RegionProcess\GenPrev\fr_TilesGenPrev.pas">
             <Form>frTilesGenPrev</Form>

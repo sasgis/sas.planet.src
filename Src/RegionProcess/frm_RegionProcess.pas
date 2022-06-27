@@ -332,8 +332,6 @@ uses
   u_ExportProviderMBTiles,
   u_ExportProviderRMapsSQLite,
   u_ExportProviderOruxMapsSQLite,
-  //u_ExportProviderYaMobileV3,
-  //u_ExportProviderYaMobileV4,
   u_ExportProviderKml,
   //u_ExportProviderIPhone,
   u_ExportProviderAUX,
@@ -1099,30 +1097,6 @@ begin
       FTileIteratorFactory
     );
   VList.Add(VExportProvider);
-
-//  VExportProvider :=
-//    TExportProviderYaMobileV3.Create(
-//      AProgressFactory,
-//      ALanguageManager,
-//      AMapSelectFrameBuilder,
-//      FTileIteratorFactory,
-//      ABitmap32StaticFactory,
-//      ABitmapTileSaveLoadFactory,
-//      AProjectionSetFactory
-//    );
-//  VList.Add(VExportProvider);
-//
-//  VExportProvider :=
-//    TExportProviderYaMobileV4.Create(
-//      AProgressFactory,
-//      ALanguageManager,
-//      AMapSelectFrameBuilder,
-//      FTileIteratorFactory,
-//      ABitmap32StaticFactory,
-//      ABitmapTileSaveLoadFactory,
-//      AProjectionSetFactory
-//    );
-//  VList.Add(VExportProvider);
 
   VExportProvider :=
     TExportProviderAUX.Create(
