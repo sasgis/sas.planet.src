@@ -72,7 +72,6 @@ uses
   i_MapTypeConfigModalEdit,
   i_MapTypeHotKeyListStatic,
   i_VectorDataItemSimple,
-  i_MapSvcScanStorage,
   i_MainFormConfig,
   i_MainMapsState,
   i_ProjectionSetChangeable,
@@ -127,7 +126,6 @@ uses
   frm_Settings,
   frm_MapLayersOptions,
   frm_RegionProcess,
-  frm_DGAvailablePic,
   frm_MarksExplorer,
   frm_CacheManager,
   frm_GoTo,
@@ -306,8 +304,6 @@ type
     tbitmAdditionalOperations: TTBXSubmenuItem;
     NGTOPO30: TTBXItem;
     NSRTM3: TTBXItem;
-    tbsprtAdditionalOperations1: TTBXSeparatorItem;
-    DigitalGlobe1: TTBXItem;
     tbsprtAdditionalOperations0: TTBXSeparatorItem;
     tbsprtMainPopUp4: TTBXSeparatorItem;
     tbitmDownloadMainMapTile: TTBXItem;
@@ -647,7 +643,6 @@ type
     procedure NMarkOperClick(Sender: TObject);
     procedure livecom1Click(Sender: TObject);
     procedure tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
-    procedure DigitalGlobe1Click(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure mapMouseDown(
       Sender: TObject;
@@ -967,8 +962,6 @@ type
     FFormRegionProcess: TfrmRegionProcess;
     FRegionProcess: IRegionProcess;
     FfrmGoTo: TfrmGoTo;
-    FMapSvcScanStorage: IMapSvcScanStorage;
-    FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
     FfrmMapLayersOptions: TfrmMapLayersOptions;
     FfrmCacheManager: TfrmCacheManager;
@@ -1083,8 +1076,6 @@ type
     procedure OnFillingMapChange;
     procedure OnShowSearchResults(Sender: TObject);
     procedure OnShowMergePolygons(Sender: TObject);
-
-    procedure SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
 
     procedure PaintZSlider(zoom: integer);
 
@@ -1210,7 +1201,6 @@ uses
   u_GeoFunc,
   u_GeoToStrFunc,
   u_HtmlDoc,
-  u_MapSvcScanStorage,
   u_StringListStatic,
   u_ResStrings,
   u_SensorViewListGeneratorStuped,
@@ -1293,16 +1283,10 @@ begin
 
   GR32_Gamma.SetGamma(1);
 
-  // Disable unmaintainable function "Search for available pictures"
-  // http://www.sasgis.org/mantis/view.php?id=3803
-  DigitalGlobe1.Visible := False;
-  tbsprtAdditionalOperations1.Visible := False;
-
   FStartedNormal := False;
   movepoint := False;
   FMapZoomAnimtion := False;
   FMapMoving := False;
-  FfrmDGAvailablePic := nil;
   FTimer := GState.Timer;
   FLinksList := TListenerNotifierLinksList.Create;
   FState := TMainFormState.Create;
@@ -1338,7 +1322,6 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig.LayersConfig,
       FConfig.LayersConfig.FillingMapLayerConfig.SourceMap
     );
-  FMapSvcScanStorage := TMapSvcScanStorage.Create(GState.Config.MapSvcScanConfig);
   FActiveProjectionSet :=
     TProjectionSetChangeableByConfig.Create(
       GState.ProjectionSetFactory,
@@ -2746,7 +2729,6 @@ destructor TfrmMain.Destroy;
 begin
   FSearchToolbarContainer.Free;
   FSearchPresenter := nil;
-  FreeAndNil(FfrmDGAvailablePic);
   FPlacemarkPlayerPlugin := nil;
   FLineOnMapEdit := nil;
   FWinPosition := nil;
@@ -3796,7 +3778,6 @@ var
   VNewIndex: Integer;
   VStartingNewIndex: Integer;
   VAllowListOfTileVersions: Boolean;
-  VDateTime: string;
 begin
   // remove all versions
   for I := (tbpmiVersions.Count - 1) downto 0 do begin
@@ -3841,14 +3822,6 @@ begin
         VMenuItem := TTBXItemSelectMapVersion.Create(tbpmiVersions);
         VMenuItem.MapVersion := VVersionInfo;
         VMenuItem.Caption := VVersionInfo.Caption;
-
-        if GState.Config.MapSvcScanConfig.UseStorage then begin // get date from sqlite.scandate
-          VDateTime := FMapSvcScanStorage.GetScanDate(VMenuItem.Caption);
-          if VDateTime <> '' then begin
-            VMenuItem.Caption := VMenuItem.Caption + ' (' + VDateTime + ')';
-          end;
-        end;
-
         VMenuItem.Checked := ((Length(VCurrentVersion) > 0) and (VCurrentVersion = VVersionInfo.StoreString));
         VMenuItem.OnClick := DoSelectSpecialVersion;
         VMenuItem.Tag := NativeInt(VVersionInfo);
@@ -4827,11 +4800,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.DigitalGlobe1Click(Sender: TObject);
-begin
-  SafeCreateDGAvailablePic(FMouseState.GetLastDownPos(mbRight));
-end;
-
 procedure TfrmMain.mapMouseLeave(Sender: TObject);
 begin
   if (FHintWindow <> nil) then begin
@@ -4999,7 +4967,6 @@ begin
     (ssRight in Shift) and (ssLeft in Shift) or
     (HiWord(GetKeyState(VK_DELETE)) <> 0) or
     (HiWord(GetKeyState(VK_INSERT)) <> 0)
-//    (HiWord(GetKeyState(VK_F6)) <> 0) or
 //    (HiWord(GetKeyState(VK_F8)) <> 0)
   then begin
     exit;
@@ -5251,10 +5218,6 @@ begin
           Exit;
         end;
       end;
-//      if HiWord(GetKeyState(VK_F6)) <> 0 then begin
-//        SafeCreateDGAvailablePic(Point(X, Y));
-//        Exit;
-//      end;
     end;
     if (FState.State = ao_edit_point) then begin
       VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
@@ -5701,25 +5664,6 @@ begin
     VUrl := CZmpInfoInternalURL + GUIDToString(VMapType.Zmp.GUID) + VUrl;
     GState.InternalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
   end;
-end;
-
-procedure TfrmMain.SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
-begin
-  // create
-  if (nil = FfrmDGAvailablePic) then begin
-    FfrmDGAvailablePic := tfrmDGAvailablePic.Create(
-      FMarkDBGUI,
-      GState.Config.MapSvcScanConfig,
-      GState.Config.LanguageManager,
-      GState.ProjectionSetFactory,
-      GState.VectorGeometryLonLatFactory,
-      GState.VectorItemSubsetBuilderFactory,
-      GState.Config.InetConfig,
-      GState.DownloaderFactory,
-      FMapSvcScanStorage);
-  end;
-  // link to position
-  FfrmDGAvailablePic.ShowInfo(AVisualPoint, FViewPortState.View.GetStatic);
 end;
 
 procedure TfrmMain.SaveConfig(Sender: TObject);

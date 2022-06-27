@@ -50,7 +50,6 @@ uses
   i_WindowPositionConfig,
   i_GlobalConfig,
   i_InternalDebugConfig,
-  i_MapSvcScanConfig,
   i_ExportToIMGConfig,
   i_ExportMarks2KMLConfig,
   i_ElevationProfileConfig,
@@ -106,7 +105,6 @@ type
     FTerrainConfig: ITerrainConfig;
     FPathDetalizeConfig: IPathDetalizeConfig;
     FZmpConfig: IZmpConfig;
-    FMapSvcScanConfig: IMapSvcScanConfig;
     FExportToIMGConfig: IExportToIMGConfig;
     FElevationProfileConfig: IElevationProfileConfig;
   private
@@ -155,7 +153,6 @@ type
     function GetTerrainConfig: ITerrainConfig;
     function GetPathDetalizeConfig: IPathDetalizeConfig;
     function GetZmpConfig: IZmpConfig;
-    function GetMapSvcScanConfig: IMapSvcScanConfig;
     function GetExportToIMGConfig: IExportToIMGConfig;
     function GetElevationProfileConfig: IElevationProfileConfig;
   public
@@ -192,7 +189,6 @@ uses
   u_TerrainConfig,
   u_PathDetalizeConfig,
   u_ZmpConfig,
-  u_MapSvcScanConfig,
   u_StartUpLogoConfig,
   u_BitmapPostProcessingConfig,
   u_MarkFactoryConfig,
@@ -335,9 +331,6 @@ begin
 
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   Add(FBitmapPostProcessingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('COLOR_LEVELS'), False, False, False, False);
-
-  FMapSvcScanConfig := TMapSvcScanConfig.Create(FMapSvcScanPath);
-  Add(FMapSvcScanConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MapSvcScan'), False, False, False, False);
 
   FMarksFactoryConfig := TMarkFactoryConfig.Create(AAppearanceOfMarkFactory, FLanguageManager);
   Add(FMarksFactoryConfig, TConfigSaveLoadStrategyBasicUseProvider.Create, False, False, False, False);
@@ -482,11 +475,6 @@ end;
 function TGlobalConfig.GetMapsPath: IPathConfig;
 begin
   Result := FMapsPath;
-end;
-
-function TGlobalConfig.GetMapSvcScanConfig: IMapSvcScanConfig;
-begin
-  Result := FMapSvcScanConfig;
 end;
 
 function TGlobalConfig.GetMarkPictureConfig: IMarkPictureConfig;

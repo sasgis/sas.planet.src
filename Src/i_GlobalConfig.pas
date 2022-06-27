@@ -48,7 +48,6 @@ uses
   i_WindowPositionConfig,
   i_TerrainConfig,
   i_ZmpConfig,
-  i_MapSvcScanConfig,
   i_ExportToIMGConfig,
   i_ExportMarks2KMLConfig,
   i_ElevationProfileConfig,
@@ -192,9 +191,6 @@ type
 
     function GetZmpConfig: IZmpConfig;
     property ZmpConfig: IZmpConfig read GetZmpConfig;
-
-    function GetMapSvcScanConfig: IMapSvcScanConfig;
-    property MapSvcScanConfig: IMapSvcScanConfig read GetMapSvcScanConfig;
 
     function GetExportToIMGConfig: IExportToIMGConfig;
     property ExportToIMGConfig: IExportToIMGConfig read GetExportToIMGConfig;

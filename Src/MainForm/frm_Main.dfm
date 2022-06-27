@@ -3551,14 +3551,6 @@ object frmMain: TfrmMain
         Caption = 'Current Altitude by SRTM3 (~90 m accuracy)'
         OnClick = NSRTM3Click
       end
-      object tbsprtAdditionalOperations1: TTBXSeparatorItem
-      end
-      object DigitalGlobe1: TTBXItem
-        Caption = 'Images available (F6+MLeft)'
-        ImageIndex = 11
-        Images = MenusImageList
-        OnClick = DigitalGlobe1Click
-      end
       object tbsprtAdditionalOperations0: TTBXSeparatorItem
       end
       object tbxWeatherUnderground: TTBXItem

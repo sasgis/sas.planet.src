@@ -1888,25 +1888,6 @@
         <DCCReference Include="Src\MapLayers\u_PointsSetLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_UseTilePrevZoomConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_VectorItemDrawConfig.pas"/>
-        <DCCReference Include="Src\MapSvcScan\frm_DGAvailablePic.pas">
-            <Form>frmDGAvailablePic</Form>
-        </DCCReference>
-        <DCCReference Include="Src\MapSvcScan\i_MapSvcScanConfig.pas"/>
-        <DCCReference Include="Src\MapSvcScan\i_MapSvcScanStorage.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsAbstract.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsBing.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsDD.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsDG.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsDG2.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsESRI.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsGeoFuse.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsKosmosnimki.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsNMC.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsRosCosmos.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_AvailPicsTerra.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_MapSvcScanConfig.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_MapSvcScanStorage.pas"/>
-        <DCCReference Include="Src\MapSvcScan\u_XmlLoaderByVSAGPS.pas"/>
         <DCCReference Include="Src\MapType\frm_MapTypeEdit.pas">
             <Form>frmMapTypeEdit</Form>
         </DCCReference>
