@@ -87,6 +87,12 @@ type
     ['{C51C4998-89C4-440C-9605-A57F85BB7491}']
   end;
 
+  IDownloadResultBadContentLength = interface(IDownloadResultError)
+    ['{130434A1-74CF-475C-AE80-C89E6ABCCDC5}']
+    function GetRawResponseHeader: AnsiString;
+    property RawResponseHeader: AnsiString read GetRawResponseHeader;
+  end;
+
   IDownloadResultBadContentType = interface(IDownloadResultError)
     ['{A8C2F27E-D1DA-43CA-8F34-4156F906D50B}']
     function GetContentType: AnsiString;

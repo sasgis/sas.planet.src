@@ -165,6 +165,24 @@ type
     );
   end;
 
+  TDownloadResultBadContentLength = class(TDownloadResultError, IDownloadResultBadContentLEngth, IDownloadResultWithServerRespond)
+  private
+    FStatusCode: Cardinal;
+    FRawResponseHeader: AnsiString;
+  protected
+    function GetIsServerExists: Boolean; override;
+    function GetStatusCode: Cardinal;
+    function GetRawResponseHeader: AnsiString;
+  public
+    constructor Create(
+      const ARequest: IDownloadRequest;
+      const AStatusCode: Cardinal;
+      const ARawResponseHeader: AnsiString;
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const
+    );
+  end;
+
   TDownloadResultBadContentType = class(TDownloadResultError, IDownloadResultBadContentType, IDownloadResultWithServerRespond)
   private
     FStatusCode: Cardinal;
@@ -420,6 +438,36 @@ begin
 end;
 
 function TDownloadResultBanned.GetStatusCode: Cardinal;
+begin
+  Result := FStatusCode;
+end;
+
+{ TDownloadResultBadContentLength }
+
+constructor TDownloadResultBadContentLength.Create(
+  const ARequest: IDownloadRequest;
+  const AStatusCode: Cardinal;
+  const ARawResponseHeader: AnsiString;
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const
+);
+begin
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
+  FStatusCode := AStatusCode;
+  FRawResponseHeader := ARawResponseHeader;
+end;
+
+function TDownloadResultBadContentLength.GetIsServerExists: Boolean;
+begin
+  Result := True;
+end;
+
+function TDownloadResultBadContentLength.GetRawResponseHeader: AnsiString;
+begin
+  Result := FRawResponseHeader;
+end;
+
+function TDownloadResultBadContentLength.GetStatusCode: Cardinal;
 begin
   Result := FStatusCode;
 end;

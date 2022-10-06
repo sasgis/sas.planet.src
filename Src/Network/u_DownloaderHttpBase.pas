@@ -163,6 +163,8 @@ var
   VStatusCode: Cardinal;
   VResponseBody: IBinaryData;
   VRawHeaderText: RawByteString;
+  VContentLen: Int64;
+  VContentLenStr: string;
   VContentType: RawByteString;
   VContentEncoding: RawByteString;
   VDetectedContentType: RawByteString;
@@ -173,6 +175,16 @@ begin
 
   if IsOkStatus(VStatusCode) then begin
     VRawHeaderText := ARawHeaderText;
+
+    VContentLenStr := string(GetHeaderValueUp(VRawHeaderText, 'CONTENT-LENGTH'));
+    if VContentLenStr <> '' then begin
+      VContentLen := StrToInt(VContentLenStr);
+      if VContentLen <> AResponseBody.Size then begin
+        Result := FResultFactory.BuildBadContentLength(ARequest, AResponseBody.Size,
+          VContentLen, AStatusCode, ARawHeaderText);
+        Exit;
+      end;
+    end;
 
     if ATryDecodeContent then begin
       VContentEncoding := GetHeaderValueUp(VRawHeaderText, 'CONTENT-ENCODING');

@@ -78,6 +78,14 @@ type
       const AReasonTextArgs: array of const
     ): IDownloadResultError;
 
+    function BuildBadContentLength(
+      const ARequest: IDownloadRequest;
+      const AActualContentLength: Int64;
+      const AExpectedContentLength: Int64;
+      const AStatusCode: DWORD;
+      const ARawResponseHeader: AnsiString
+    ): IDownloadResultBadContentLength;
+
     function BuildBadContentType(
       const ARequest: IDownloadRequest;
       const AContentType: AnsiString;

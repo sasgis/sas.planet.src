@@ -80,6 +80,14 @@ type
       const AReasonTextArgs: array of const
     ): IDownloadResultError;
 
+    function BuildBadContentLength(
+      const ARequest: IDownloadRequest;
+      const AActualContentLength: Int64;
+      const AExpectedContentLength: Int64;
+      const AStatusCode: DWORD;
+      const ARawResponseHeader: AnsiString
+    ): IDownloadResultBadContentLength;
+
     function BuildBadContentType(
       const ARequest: IDownloadRequest;
       const AContentType: AnsiString;
@@ -139,6 +147,24 @@ uses
   u_DownloadResult;
 
 { TDownloadResultFactory }
+
+function TDownloadResultFactory.BuildBadContentLength(
+  const ARequest: IDownloadRequest;
+  const AActualContentLength: Int64;
+  const AExpectedContentLength: Int64;
+  const AStatusCode: DWORD;
+  const ARawResponseHeader: AnsiString
+): IDownloadResultBadContentLength;
+begin
+  Result :=
+    TDownloadResultBadContentLength.Create(
+      ARequest,
+      AStatusCode,
+      ARawResponseHeader,
+      gettext_noop('Unexpected content length: %d bytes (expecting: %d bytes)'),
+      [AActualContentLength, AExpectedContentLength]
+    );
+end;
 
 function TDownloadResultFactory.BuildBadContentType(
   const ARequest: IDownloadRequest;
