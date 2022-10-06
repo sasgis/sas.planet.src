@@ -78,7 +78,6 @@ type
 implementation
 
 uses
-  UrlMon,
   SysUtils,
   {$IFNDEF UNICODE}
   Compatibility,
@@ -88,38 +87,10 @@ uses
   u_AsyncRequestHelperThread,
   u_BinaryData,
   u_ContentDecoder,
+  u_ContentDetecter,
   u_HttpStatusChecker,
   u_StrFunc,
   u_NetworkStrFunc;
-
-function DetectContentType(const AData: Pointer; const ASize: Int64): RawByteString;
-const
-  // IE9. Returns image/png and image/jpeg instead of image/x-png and image/pjpeg
-  FMFD_RETURNUPDATEDIMGMIMES = $20;
-var
-  VResult: HRESULT;
-  VContentType: PWideChar;
-begin
-  Assert(AData <> nil);
-  Assert(ASize > 0);
-
-  Result := '';
-
-  VResult := UrlMon.FindMimeFromData(nil, nil, AData, ASize, nil,
-    FMFD_RETURNUPDATEDIMGMIMES, VContentType, 0);
-
-  if VResult = S_OK then begin
-    Result := LowerCaseA(AnsiString(VContentType));
-
-    // fix detected mime types for IE versions prior IE 9
-    if Result = 'image/x-png' then begin
-      Result := 'image/png';
-    end else
-    if Result = 'image/pjpeg' then begin
-      Result := 'image/jpeg';
-    end;
-  end;
-end;
 
 { TDownloaderHttpBase }
 
@@ -203,7 +174,7 @@ begin
 
     VContentType := GetHeaderValueUp(VRawHeaderText, 'CONTENT-TYPE');
     if ATryDetectContentType and (AResponseBody.Size > 0) then begin
-      VDetectedContentType := DetectContentType(AResponseBody.Memory, AResponseBody.Size);
+      VDetectedContentType := TryDetectContentType(AResponseBody.Memory, AResponseBody.Size, VContentType);
       if (VDetectedContentType <> '') and (VDetectedContentType <> LowerCaseA(VContentType)) then begin
         if not ReplaceHeaderValueUp(VRawHeaderText, 'CONTENT-TYPE', VDetectedContentType) then begin
           AddHeaderValue(VRawHeaderText, 'Content-Type', VDetectedContentType);

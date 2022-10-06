@@ -897,6 +897,7 @@ uses
   u_AntiBanStuped in 'Src\Network\u_AntiBanStuped.pas',
   u_AsyncRequestHelperThread in 'Src\Network\u_AsyncRequestHelperThread.pas',
   u_ContentDecoder in 'Src\Network\u_ContentDecoder.pas',
+  u_ContentDetecter in 'Src\Network\u_ContentDetecter.pas',
   u_CurlHttpClient in 'Src\Network\u_CurlHttpClient.pas',
   u_CurlProxyResolver in 'Src\Network\u_CurlProxyResolver.pas',
   u_DownloadCheckerStuped in 'Src\Network\u_DownloadCheckerStuped.pas',
