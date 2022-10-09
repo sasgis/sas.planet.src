@@ -124,6 +124,13 @@ begin
     Result := 0;
     Exit;
   end;
+
+  if IdemPChar(AData, 'HTTP/') then begin
+    // collect the headers of only the last response
+    // https://curl.se/libcurl/c/CURLOPT_HEADERFUNCTION.html
+    VSelf.FResp.Headers := '';
+  end;
+
   VHeader := @VSelf.FResp.Headers;
   VHeaderLen := Length(VHeader^);
   Result := ASize * ANmemb;
