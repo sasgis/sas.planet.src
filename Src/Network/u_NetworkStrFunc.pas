@@ -23,12 +23,21 @@ unit u_NetworkStrFunc;
 
 interface
 
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+
 {$IFNDEF UNICODE}
 type
   RawByteString = AnsiString;
 {$ENDIF}
 
-function IdemPChar(const AStr, ASubStr: PAnsiChar): Boolean;
+// https://github.com/synopse/mORMot2/blob/master/src/core/mormot.core.unicode.pas
+// returns TRUE if the beginning of p^ is the same as up^
+// - ignore case - up^ must be already Upper
+// - chars are compared as 7-bit Ansi only (no accentuated characters)
+// - if p is nil, will return FALSE
+// - if up is nil, will return TRUE
+function IdemPChar(p, up: PAnsiChar): Boolean; inline;
 
 procedure GetNextLine(var P: PAnsiChar; var AResult: RawByteString);
 
@@ -40,55 +49,50 @@ procedure AddHeaderValue(var AHeaders: RawByteString; const AName, AValue: RawBy
 function GetResponseCode(const AHeaders: RawByteString): Cardinal;
 function URLEncode(const S: AnsiString): AnsiString;
 
+type
+  TNormTable = packed array[AnsiChar] of AnsiChar;
+  PNormTable = ^TNormTable;
+
+var
+  GNormToUpperAnsi7: TNormTable;
+  GNormToUpperAnsi7Ptr: PNormTable;
+
 implementation
 
 uses
   SysUtils;
 
+function IdemPChar(p, up: PAnsiChar): Boolean;
 type
   {$IF CompilerVersion <= 18.5}
   NativeUInt = Cardinal;
   {$IFEND}
-  TNormToUpper = array [Byte] of Byte;
-
+  PtrUInt = NativeUInt;
 var
-  GNormToUpper: TNormToUpper;
-
-function IdemPChar(const AStr, ASubStr: PAnsiChar): Boolean;
-// if the beginning of AStr is same as ASubStr (ignore case - ASubStr must be already Upper)
-type
-  PByteArray = ^TByteArray;
-  TByteArray = array[0..MaxInt-1] of Byte;
-var
-  u: Byte;
-  p: PByteArray;
-  up: PByte;
+  {$IFDEF CPUX86}
+  table: TNormTable absolute GNormToUpperAnsi7;
+  {$ELSE}
+  table: PNormTable absolute GNormToUpperAnsi7Ptr; // faster on x86_64
+  {$ENDIF CPUX86}
 begin
   Result := False;
-
-  p := Pointer(AStr);
-  up := Pointer(ASubStr);
 
   if p = nil then begin
     Exit;
   end;
 
-  if up = nil then begin
-    Result := True;
-    Exit;
+  if up <> nil then begin
+    Dec(PtrUInt(p), PtrUInt(up));
+    repeat
+      if up^ = #0 then begin
+        Break;
+      end;
+      if table[up[PtrUInt(p)]] <> up^ then begin
+        Exit;
+      end;
+      Inc(up);
+    until False;
   end;
-
-  Dec(NativeUInt(p), NativeUInt(up));
-  repeat
-    u := up^;
-    if u = 0 then begin
-      Break;
-    end;
-    if GNormToUpper[p[NativeUInt(up)]] <> u then begin
-      Exit;
-    end;
-    Inc(up);
-  until False;
 
   Result := True;
 end;
@@ -311,16 +315,14 @@ end;
 
 function URLEncode(const S: AnsiString): AnsiString;
 
-  function DigitToHex(Digit: Integer): AnsiChar;
+  function DigitToHex(const ADigit: Integer): AnsiChar;
   begin
-    case Digit of
-      0..9:
-      begin
-        Result := AnsiChar(Digit + Ord('0'));
+    case ADigit of
+      0..9: begin
+        Result := AnsiChar(ADigit + Ord('0'));
       end;
-      10..15:
-      begin
-        Result := AnsiChar(Digit - 10 + Ord('A'));
+      10..15: begin
+        Result := AnsiChar(ADigit - 10 + Ord('A'));
       end;
     else
       Result := '0';
@@ -328,37 +330,43 @@ function URLEncode(const S: AnsiString): AnsiString;
   end;
 
 var
-  i, idx, len: Integer;
+  I, J: Integer;
+  VLen: Integer;
 begin
-  len := 0;
-  for i := 1 to Length(S) do begin
-    if ((S[i] >= '0') and (S[i] <= '9')) or
-      ((S[i] >= 'A') and (S[i] <= 'Z')) or
-      ((S[i] >= 'a') and (S[i] <= 'z')) or (S[i] = ' ') or
-      (S[i] = '_') or (S[i] = '*') or (S[i] = '-') or (S[i] = '.') then
+  VLen := 0;
+  for I := 1 to Length(S) do begin
+    if ((S[I] >= '0') and (S[I] <= '9')) or
+      ((S[I] >= 'A') and (S[I] <= 'Z')) or
+      ((S[I] >= 'a') and (S[I] <= 'z')) or (S[I] = ' ') or
+      (S[I] = '_') or (S[I] = '*') or (S[I] = '-') or (S[I] = '.') then
     begin
-      len := len + 1;
+      VLen := VLen + 1;
     end else begin
-      len := len + 3;
+      VLen := VLen + 3;
     end;
   end;
-  SetLength(Result, len);
-  idx := 1;
-  for i := 1 to Length(S) do begin
-    if S[i] = ' ' then begin
-      Result[idx] := '+';
-      idx := idx + 1;
-    end else if ((S[i] >= '0') and (S[i] <= '9')) or
-      ((S[i] >= 'A') and (S[i] <= 'Z')) or
-      ((S[i] >= 'a') and (S[i] <= 'z')) or
-      (S[i] = '_') or (S[i] = '*') or (S[i] = '-') or (S[i] = '.') then begin
-      Result[idx] := S[i];
-      idx := idx + 1;
+  SetLength(Result, VLen);
+  J := 1;
+  for I := 1 to Length(S) do begin
+    if S[I] = ' ' then begin
+      Result[J] := '+';
+      Inc(J);
+    end else
+    if ((S[I] >= '0') and (S[I] <= '9')) or
+       ((S[I] >= 'A') and (S[I] <= 'Z')) or
+       ((S[I] >= 'a') and (S[I] <= 'z')) or
+       (S[I] = '_') or
+       (S[I] = '*') or
+       (S[I] = '-') or
+       (S[I] = '.')
+    then begin
+      Result[J] := S[I];
+      Inc(J);
     end else begin
-      Result[idx] := '%';
-      Result[idx + 1] := DigitToHex(Ord(S[i]) div 16);
-      Result[idx + 2] := DigitToHex(Ord(S[i]) mod 16);
-      idx := idx + 3;
+      Result[J] := '%';
+      Result[J + 1] := DigitToHex(Ord(S[I]) div 16);
+      Result[J + 2] := DigitToHex(Ord(S[I]) mod 16);
+      Inc(J, 3);
     end;
   end;
 end;
@@ -367,12 +375,14 @@ procedure Initialize;
 var
   I: Integer;
 begin
-  for I := 0 to High(GNormToUpper) do begin
-    GNormToUpper[I] := I;
+  // initialize internal lookup table
+  for I := 0 to 255 do begin
+    GNormToUpperAnsi7[AnsiChar(I)] := AnsiChar(I);
   end;
   for I := ord('a') to ord('z') do begin
-    Dec(GNormToUpper[I], 32);
+    Dec(GNormToUpperAnsi7[AnsiChar(I)], 32);
   end;
+  GNormToUpperAnsi7Ptr := @GNormToUpperAnsi7;
 end;
 
 initialization
