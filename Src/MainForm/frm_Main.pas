@@ -612,6 +612,8 @@ type
     tbElevationProfile: TTBXDockablePanel;
     tbxElevationProfileShow: TTBXVisibilityToggleItem;
     tbxitmElevationProfile: TTBXItem;
+    actViewBordersVisible: TAction;
+    tbxMainWindowBordersVisible: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -863,6 +865,7 @@ type
     procedure actMarkSaveExecute(Sender: TObject);
     procedure actMarkSaveAsSeparateSegmentsExecute(Sender: TObject);
     procedure actEditPathRouteCalcUndoExecute(Sender: TObject);
+    procedure actViewBordersVisibleExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -3333,19 +3336,33 @@ end;
 procedure TfrmMain.OnWinPositionChange;
 var
   VIsFullScreen: Boolean;
+  VIsBordersVisible: Boolean;
   VIsMaximized: Boolean;
   VIsMinimized: Boolean;
   VRect: TRect;
+  VIsDockVisible: Boolean;
 begin
   FWinPosition.LockRead;
   try
     VIsFullScreen := FWinPosition.GetIsFullScreen;
+    VIsBordersVisible := FWinPosition.GetIsBordersVisible;
     VIsMaximized := FWinPosition.GetIsMaximized;
     VIsMinimized := FWinPosition.IsMinimized;
     VRect := FWinPosition.GetBoundsRect;
   finally
     FWinPosition.UnlockRead;
   end;
+
+  if VIsBordersVisible then begin
+    if BorderStyle <> bsSizeable then begin
+      BorderStyle := bsSizeable;
+    end;
+  end else begin
+    if BorderStyle <> bsNone then begin
+      BorderStyle := bsNone;
+    end;
+  end;
+
   if VIsMinimized then begin
     if (not TrayIcon.Visible) and GState.Config.GlobalAppConfig.IsShowIconInTray then begin
       TrayIcon.Visible := True;
@@ -3359,15 +3376,21 @@ begin
       TrayIcon.Visible := False;
     end;
     actViewFullScreen.Checked := VIsFullScreen;
-    TBExit.Visible := VIsFullScreen;
+    actViewBordersVisible.Checked := not VIsBordersVisible;
+
+    VIsDockVisible := not VIsFullScreen and VIsBordersVisible;
+
+    TBExit.Visible := not VIsDockVisible;
+
     TBDock.Parent := Self;
     TBDockLeft.Parent := Self;
     TBDockBottom.Parent := Self;
     TBDockRight.Parent := Self;
-    TBDock.Visible := not (VIsFullScreen);
-    TBDockLeft.Visible := not (VIsFullScreen);
-    TBDockBottom.Visible := not (VIsFullScreen);
-    TBDockRight.Visible := not (VIsFullScreen);
+    TBDock.Visible := VIsDockVisible;
+    TBDockLeft.Visible := VIsDockVisible;
+    TBDockBottom.Visible := VIsDockVisible;
+    TBDockRight.Visible := VIsDockVisible;
+
     if VIsFullScreen then begin
       Self.WindowState := wsMaximized;
       SetBounds(
@@ -5395,7 +5418,7 @@ begin
     end;
   end;
 
-  if FWinPosition.GetIsFullScreen then begin
+  if FWinPosition.GetIsFullScreen or not FWinPosition.GetIsBordersVisible then begin
     if VMousePos.y < 10 then begin
       TBDock.Parent := map;
       TBDock.Visible := True;
@@ -7331,6 +7354,11 @@ end;
 procedure TfrmMain.actShowUpddateCheckerExecute(Sender: TObject);
 begin
   FfrmUpdateChecker.Show;
+end;
+
+procedure TfrmMain.actViewBordersVisibleExecute(Sender: TObject);
+begin
+  FWinPosition.ToggleBordersVisible;
 end;
 
 procedure TfrmMain.actViewFillingMapFilterModeExecute(Sender: TObject);
