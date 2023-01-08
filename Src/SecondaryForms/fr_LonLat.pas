@@ -39,6 +39,7 @@ uses
   TBXDkPanels,
   TB2Item,
   t_GeoTypes,
+  i_Listener,
   i_LanguageManager,
   i_ProjectionSetChangeable,
   i_CoordFromStringParser,
@@ -93,6 +94,7 @@ type
     FCoordFromStringParser: ICoordFromStringParser;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FCoordRepresentationConfig: ICoordRepresentationConfig;
+    FCoordRepresentationConfigListener: IListener;
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
@@ -100,6 +102,7 @@ type
     function IsProjected: Boolean; inline;
     procedure BuildCoordFormatMenu;
     procedure OnCoordFormatClick(Sender: TObject);
+    procedure OnCoordRepresentationConfigChange;
   protected
     procedure RefreshTranslation; override;
   public
@@ -112,6 +115,8 @@ type
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
+    destructor Destroy; override;
+
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
     property Enabled: Boolean write SetEnabled;
     function Validate: Boolean;
@@ -130,6 +135,7 @@ uses
   i_Projection,
   i_ProjectionSet,
   i_LocalCoordConverter,
+  u_ListenerByEvent,
   u_ClipboardFunc,
   u_CoordRepresentation,
   u_GeoFunc,
@@ -159,11 +165,30 @@ begin
   FCoordToStringConverter := ACoordToStringConverter;
   FCoordRepresentationConfig := ACoordRepresentationConfig;
   FTileSelectStyle := ATileSelectStyle;
+
+  if FCoordRepresentationConfig <> nil then begin
+    FCoordRepresentationConfigListener :=
+      TNotifyNoMmgEventListener.Create(
+        Self.OnCoordRepresentationConfigChange
+      );
+    FCoordRepresentationConfig.ChangeNotifier.Add(FCoordRepresentationConfigListener);
+  end;
+
   cbbZone.Clear;
   for I := 1 to 60 do begin
     cbbZone.AddItem(IntToStr(I), nil);
   end;
+
   BuildCoordFormatMenu;
+  OnCoordRepresentationConfigChange;
+end;
+
+destructor TfrLonLat.Destroy;
+begin
+  if FCoordRepresentationConfig <> nil then begin
+    FCoordRepresentationConfig.ChangeNotifier.Remove(FCoordRepresentationConfigListener);
+  end;
+  inherited Destroy;
 end;
 
 procedure TfrLonLat.cbbCoordTypeSelect(Sender: TObject);
@@ -474,6 +499,16 @@ begin
   end;
 end;
 
+function TagToDegrShowFormat(const ATag: Integer): TDegrShowFormat; inline;
+begin
+  Result := TDegrShowFormat(ATag - 100);
+end;
+
+function DegrShowFormatToTag(const AFormat: TDegrShowFormat): Integer; inline;
+begin
+  Result := 100 + Integer(AFormat);
+end;
+
 procedure TfrLonLat.BuildCoordFormatMenu;
 var
   I: TDegrShowFormat;
@@ -485,9 +520,23 @@ begin
   for I := Low(TDegrShowFormat) to High(TDegrShowFormat) do begin
     VItem := TTBXCustomItem.Create(tbxpmnCoordFormat);
     VItem.Caption := VCaption[I];
-    VItem.Tag := 100 + Integer(I);
+    VItem.GroupIndex := 1;
+    VItem.Tag := DegrShowFormatToTag(I);
     VItem.OnClick := Self.OnCoordFormatClick;
     tbxpmnCoordFormat.Items.Add(VItem);
+  end;
+end;
+
+procedure TfrLonLat.OnCoordRepresentationConfigChange;
+var
+  I: Integer;
+  VItem: TTBCustomItem;
+  VFormat: TDegrShowFormat;
+begin
+  VFormat := FCoordRepresentationConfig.DegrShowFormat;
+  for I := 0 to tbxpmnCoordFormat.Items.Count - 1 do begin
+    VItem := tbxpmnCoordFormat.Items[I];
+    VItem.Checked := TagToDegrShowFormat(VItem.Tag) = VFormat;
   end;
 end;
 
@@ -496,7 +545,7 @@ var
   VItem: TTBXCustomItem;
 begin
   VItem := Sender as TTBXCustomItem;
-  FCoordRepresentationConfig.DegrShowFormat := TDegrShowFormat(VItem.Tag - 100);
+  FCoordRepresentationConfig.DegrShowFormat := TagToDegrShowFormat(VItem.Tag);
   SetLonLat(FCoordinates);
 end;
 
