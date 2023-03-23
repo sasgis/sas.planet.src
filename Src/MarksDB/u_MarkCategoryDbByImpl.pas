@@ -31,6 +31,7 @@ uses
   i_MarkCategoryTree,
   i_MarkCategoryFactory,
   i_MarkCategoryDB,
+  i_MarkCategoryDBImpl,
   i_MarkSystemImplChangeable,
   u_BaseInterfacedObject;
 
@@ -46,10 +47,16 @@ type
     FErrorNotifierInternal: INotifierInternal;
     FImplChangeListener: IListener;
     FDbImplChangeListener: IListener;
+
+    procedure ForceCreateSubCategories(
+      const AImpl: IMarkCategoryDBImpl;
+      const ANewCategory: IMarkCategory
+    );
   private
     procedure OnImplChange;
     procedure OnDBImplChange;
   private
+    { IMarkCategoryDB }
     function GetFirstCategoryByName(const AName: string): IMarkCategory;
     function GetCategoryByNameCount(const AName: string): Integer;
     function GetCategoryWithSubCategories(const ACategory: IMarkCategory): IMarkCategoryList;
@@ -433,8 +440,41 @@ begin
   end;
 end;
 
-function TMarkCategoryDbByImpl.UpdateCategory(const AOldCategory,
-  ANewCategory: IMarkCategory
+procedure TMarkCategoryDbByImpl.ForceCreateSubCategories(
+  const AImpl: IMarkCategoryDBImpl;
+  const ANewCategory: IMarkCategory
+);
+var
+  I: Integer;
+  VCount: Integer;
+  VSubCategory: string;
+  VSubCategories: TArray<string>;
+  VNewSubCategory: IMarkCategory;
+begin
+  if ANewCategory = nil then begin
+    Exit;
+  end;
+
+  VSubCategories := SplitString(ANewCategory.Name, '\');
+  VCount := Length(VSubCategories);
+
+  if VCount <= 1 then begin
+    Exit;
+  end;
+
+  VSubCategory := VSubCategories[0];
+  for I := 0 to VCount - 2 do begin
+    if AImpl.GetFirstCategoryByName(VSubCategory) = nil then begin
+      VNewSubCategory := FMarkCategoryFactory.CreateNew(VSubCategory);
+      AImpl.UpdateCategory(nil, VNewSubCategory);
+    end;
+    VSubCategory := VSubCategory + '\' + VSubCategories[I+1];
+  end;
+end;
+
+function TMarkCategoryDbByImpl.UpdateCategory(
+  const AOldCategory: IMarkCategory;
+  const ANewCategory: IMarkCategory
 ): IMarkCategory;
 var
   VImpl: IMarkSystemImpl;
@@ -443,6 +483,7 @@ begin
   try
     VImpl := FMarkSystemImpl.GetStatic;
     if VImpl <> nil then begin
+      ForceCreateSubCategories(VImpl.CategoryDB, ANewCategory);
       Result := VImpl.CategoryDB.UpdateCategory(AOldCategory, ANewCategory);
     end;
   except
@@ -454,15 +495,22 @@ begin
 end;
 
 function TMarkCategoryDbByImpl.UpdateCategoryList(
-  const AOldCategory, ANewCategory: IMarkCategoryList
+  const AOldCategory: IMarkCategoryList;
+  const ANewCategory: IMarkCategoryList
 ): IMarkCategoryList;
 var
+  I: Integer;
   VImpl: IMarkSystemImpl;
 begin
   Result := nil;
   try
     VImpl := FMarkSystemImpl.GetStatic;
     if VImpl <> nil then begin
+      if ANewCategory <> nil then begin
+        for I := 0 to ANewCategory.Count - 1 do begin
+          ForceCreateSubCategories(VImpl.CategoryDB, ANewCategory[I]);
+        end;
+      end;
       Result := VImpl.CategoryDB.UpdateCategoryList(AOldCategory, ANewCategory);
     end;
   except
