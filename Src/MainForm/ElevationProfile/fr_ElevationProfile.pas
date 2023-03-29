@@ -110,6 +110,7 @@ type
   end;
 
   TOnCloseEvent = procedure() of object;
+  TOnRefreshEvent = procedure() of object;
 
   TfrElevationProfile = class(TFrame)
     pnlTop: TPanel;
@@ -130,6 +131,10 @@ type
     mniKeepAspectRatio: TMenuItem;
     mniZoomWithMouseWheel: TMenuItem;
     mniScaleElevToDist: TMenuItem;
+    mniElevationSource: TMenuItem;
+    mniTrackData: TMenuItem;
+    mniDEMData: TMenuItem;
+    mniN3: TMenuItem;
     procedure btnCloseClick(Sender: TObject);
     procedure mniShowSpeedClick(Sender: TObject);
     procedure mniResetZoomClick(Sender: TObject);
@@ -149,10 +154,13 @@ type
     procedure mniKeepAspectRatioClick(Sender: TObject);
     procedure mniZoomWithMouseWheelClick(Sender: TObject);
     procedure mniScaleElevToDistClick(Sender: TObject);
+    procedure mniTrackDataClick(Sender: TObject);
+    procedure mniDEMDataClick(Sender: TObject);
   private
     FDatum: IDatum;
     FMapGoTo: IMapViewGoto;
     FOnClose: TOnCloseEvent;
+    FOnRefresh: TOnRefreshEvent;
 
     FConfig: IElevationProfileConfig;
     FConfigStatic: IElevationProfileConfigStatic;
@@ -200,6 +208,7 @@ type
     constructor Create(
       const AParent: TWinControl;
       const AOnClose: TOnCloseEvent;
+      const AOnRefresh: TOnRefreshEvent;
       const AConfig: IElevationProfileConfig;
       const ALanguageManager: ILanguageManager;
       const ADatum: IDatum;
@@ -243,6 +252,7 @@ const
 constructor TfrElevationProfile.Create(
   const AParent: TWinControl;
   const AOnClose: TOnCloseEvent;
+  const AOnRefresh: TOnRefreshEvent;
   const AConfig: IElevationProfileConfig;
   const ALanguageManager: ILanguageManager;
   const ADatum: IDatum;
@@ -254,6 +264,7 @@ begin
   inherited Create(ALanguageManager);
 
   FOnClose := AOnClose;
+  FOnRefresh := AOnRefresh;
   FConfig := AConfig;
   FDatum := ADatum;
   FMapGoTo := AMapGoTo;
@@ -288,6 +299,8 @@ begin
 
   mniShowSpeed.Checked := FConfigStatic.ShowSpeed;
   mniShowElevation.Checked := FConfigStatic.ShowElevation;
+  mniTrackData.Checked := FConfigStatic.ElevationSource = esTrackMetadata;
+  mniDEMData.Checked := FConfigStatic.ElevationSource = esDEM;
   mniFilterData.Checked := FConfigStatic.UseDataFiltering;
   mniCenterMap.Checked := FConfigStatic.CenterMap;
 
@@ -461,6 +474,18 @@ begin
 
   ShowInfo;
   ShowPointInfo;
+end;
+
+procedure TfrElevationProfile.mniTrackDataClick(Sender: TObject);
+begin
+  FConfig.ElevationSource := esTrackMetadata;
+  FOnRefresh;
+end;
+
+procedure TfrElevationProfile.mniDEMDataClick(Sender: TObject);
+begin
+  FConfig.ElevationSource := esDEM;
+  FOnRefresh;
 end;
 
 procedure TfrElevationProfile.mniZoomWithMouseWheelClick(Sender: TObject);

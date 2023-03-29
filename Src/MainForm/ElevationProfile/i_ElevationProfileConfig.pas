@@ -27,8 +27,17 @@ uses
   i_ConfigDataElement;
 
 type
+  TElevationSource = (
+    esTrackMetadata,
+    esDEM,
+    esBoth
+  );
+
   IElevationProfileConfigStatic = interface
     ['{BFE69AB6-3549-4B80-9C8D-A130C0A38862}']
+    function GetElevationSource: TElevationSource;
+    property ElevationSource: TElevationSource read GetElevationSource;
+
     function GetShowElevation: Boolean;
     property ShowElevation: Boolean read GetShowElevation;
 
@@ -50,6 +59,10 @@ type
 
   IElevationProfileConfig = interface(IConfigDataElement)
   ['{F8E46007-F1AF-4650-887B-589FC05BB146}']
+    function GetElevationSource: TElevationSource;
+    procedure SetElevationSource(const AValue: TElevationSource);
+    property ElevationSource: TElevationSource read GetElevationSource write SetElevationSource;
+
     function GetShowElevation: Boolean;
     procedure SetShowElevation(const AValue: Boolean);
     property ShowElevation: Boolean read GetShowElevation write SetShowElevation;

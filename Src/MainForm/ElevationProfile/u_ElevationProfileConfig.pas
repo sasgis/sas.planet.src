@@ -32,6 +32,7 @@ uses
 type
   TElevationProfileConfig = class(TConfigDataElementBase, IElevationProfileConfig)
   private
+    FElevationSource: TElevationSource;
     FShowElevation: Boolean;
     FShowSpeed: Boolean;
     FKeepAspectRatio: Boolean;
@@ -40,6 +41,9 @@ type
     FCenterMap: Boolean;
   private
     { IElevationProfileConfig }
+    function GetElevationSource: TElevationSource;
+    procedure SetElevationSource(const AValue: TElevationSource);
+
     function GetShowElevation: Boolean;
     procedure SetShowElevation(const AValue: Boolean);
 
@@ -75,6 +79,7 @@ uses
 type
   TElevationProfileConfigStatic = class(TBaseInterfacedObject, IElevationProfileConfigStatic)
   private
+    FElevationSource: TElevationSource;
     FShowElevation: Boolean;
     FShowSpeed: Boolean;
     FKeepAspectRatio: Boolean;
@@ -83,6 +88,7 @@ type
     FCenterMap: Boolean;
   private
     { IElevationProfileConfigStatic }
+    function GetElevationSource: TElevationSource;
     function GetShowElevation: Boolean;
     function GetShowSpeed: Boolean;
     function GetKeepAspectRatio: Boolean;
@@ -91,6 +97,7 @@ type
     function GetCenterMap: Boolean;
   public
     constructor Create(
+      const AElevationSource: TElevationSource;
       const AShowElevation: Boolean;
       const AShowSpeed: Boolean;
       const AKeepAspectRatio: Boolean;
@@ -106,6 +113,7 @@ constructor TElevationProfileConfig.Create;
 begin
   inherited Create;
 
+  FElevationSource := esTrackMetadata;
   FShowElevation := True;
   FShowSpeed := False;
   FKeepAspectRatio := False;
@@ -124,6 +132,7 @@ begin
 
   LockWrite;
   try
+    FElevationSource := TElevationSource(AConfigData.ReadInteger('ElevationSource', Integer(esTrackMetadata)));
     FShowElevation := AConfigData.ReadBool('ShowElevation', FShowElevation);
     FShowSpeed := AConfigData.ReadBool('ShowSpeed', FShowSpeed);
     FKeepAspectRatio := AConfigData.ReadBool('KeepAspectRatio', FKeepAspectRatio);
@@ -143,6 +152,7 @@ begin
 
   LockRead;
   try
+    AConfigData.WriteInteger('ElevationSource', Integer(FElevationSource));
     AConfigData.WriteBool('ShowElevation', FShowElevation);
     AConfigData.WriteBool('ShowSpeed', FShowSpeed);
     AConfigData.WriteBool('KeepAspectRatio', FKeepAspectRatio);
@@ -159,6 +169,16 @@ begin
   LockRead;
   try
     Result := FCenterMap;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TElevationProfileConfig.GetElevationSource: TElevationSource;
+begin
+  LockRead;
+  try
+    Result := FElevationSource;
   finally
     UnlockRead;
   end;
@@ -220,6 +240,19 @@ begin
   try
     if FCenterMap <> AValue then begin
       FCenterMap := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TElevationProfileConfig.SetElevationSource(const AValue: TElevationSource);
+begin
+  LockWrite;
+  try
+    if FElevationSource <> AValue then begin
+      FElevationSource := AValue;
       SetChanged;
     end;
   finally
@@ -297,6 +330,7 @@ begin
   LockRead;
   try
     Result := TElevationProfileConfigStatic.Create(
+      FElevationSource,
       FShowElevation,
       FShowSpeed,
       FKeepAspectRatio,
@@ -311,11 +345,15 @@ end;
 
 { TElevationProfileConfigStatic }
 
-constructor TElevationProfileConfigStatic.Create(const AShowElevation, AShowSpeed, AKeepAspectRatio,
-  AZoomWithMouseWheel, AUseDataFiltering, ACenterMap: Boolean);
+constructor TElevationProfileConfigStatic.Create(
+  const AElevationSource: TElevationSource;
+  const AShowElevation, AShowSpeed, AKeepAspectRatio,
+  AZoomWithMouseWheel, AUseDataFiltering, ACenterMap: Boolean
+);
 begin
   inherited Create;
 
+  FElevationSource := AElevationSource;
   FShowElevation := AShowElevation;
   FShowSpeed := AShowSpeed;
   FKeepAspectRatio := AKeepAspectRatio;
@@ -327,6 +365,11 @@ end;
 function TElevationProfileConfigStatic.GetCenterMap: Boolean;
 begin
   Result := FCenterMap;
+end;
+
+function TElevationProfileConfigStatic.GetElevationSource: TElevationSource;
+begin
+  Result := FElevationSource;
 end;
 
 function TElevationProfileConfigStatic.GetKeepAspectRatio: Boolean;

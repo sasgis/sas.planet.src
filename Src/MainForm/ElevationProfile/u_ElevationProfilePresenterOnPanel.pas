@@ -41,6 +41,8 @@ uses
 type
   TElevationProfilePresenterOnPanel = class(TBaseInterfacedObject, IElevationProfilePresenter)
   private
+    FItemCached: IVectorDataItem;
+
     FDrawParent: TWinControl;
     FVisibilityToggleItem: TTBCustomItem;
     FConfig: IElevationProfileConfig;
@@ -59,6 +61,7 @@ type
     procedure OnElevationMetaWrite(const AItem: IVectorDataItem);
 
     procedure HideParent;
+    procedure RefreshParent;
   private
     { IElevationProfilePresenter }
     procedure ShowProfile(const AItem: IVectorDataItem);
@@ -116,6 +119,8 @@ end;
 
 procedure TElevationProfilePresenterOnPanel.HideParent;
 begin
+  FItemCached := nil;
+
   FDrawParent.Visible := False;
   FVisibilityToggleItem.Enabled := False;
 
@@ -124,36 +129,26 @@ begin
   end;
 end;
 
+procedure TElevationProfilePresenterOnPanel.RefreshParent;
+begin
+  ShowProfile(FItemCached);
+end;
+
 procedure TElevationProfilePresenterOnPanel.ShowProfile(
   const AItem: IVectorDataItem
 );
-
-  function IsElevationMetaPresent(
-    const ALines: TArrayOfGeometryLonLatSingleLine
-  ): Boolean;
-  var
-    I: Integer;
-    VMeta: PDoublePointsMeta;
-  begin
-    Result := False;
-    for I := 0 to Length(ALines) - 1 do begin
-      VMeta := ALines[I].Meta;
-      if (VMeta <> nil) and (VMeta.Elevation <> nil) then begin
-        Result := True;
-        Exit;
-      end;
-    end;
-  end;
-
 var
   VLines: TArrayOfGeometryLonLatSingleLine;
 begin
   Assert(Supports(AItem.Geometry, IGeometryLonLatLine));
 
+  FItemCached := AItem;
+
   if FfrElevationProfile = nil then begin
     FfrElevationProfile := TfrElevationProfile.Create(
       FDrawParent,
       Self.HideParent,
+      Self.RefreshParent,
       FConfig,
       FLanguageManager,
       FDatum,
@@ -163,13 +158,21 @@ begin
 
   VLines := GeometryLonLatLineToArray(AItem.Geometry as IGeometryLonLatLine);
 
-  if IsElevationMetaPresent(VLines) then begin
-    ShowProfileInternal(AItem, VLines);
-  end else begin
-    FElevationMetaWriter.ProcessItemAsync(
-      AItem,
-      Self.OnElevationMetaWrite
-    );
+  case FConfig.ElevationSource of
+    esTrackMetadata: begin
+      ShowProfileInternal(AItem, VLines);
+    end;
+    esDEM: begin
+      FElevationMetaWriter.ProcessItemAsync(
+        AItem,
+        Self.OnElevationMetaWrite
+      );
+    end;
+    esBoth: begin
+      Assert(False, 'ToDo');
+    end;
+  else
+    Assert(False);
   end;
 end;
 
