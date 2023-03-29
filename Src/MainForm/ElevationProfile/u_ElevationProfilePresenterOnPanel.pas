@@ -178,14 +178,14 @@ procedure TElevationProfilePresenterOnPanel.ShowProfileInternal(
   const ALines: TArrayOfGeometryLonLatSingleLine
 );
 begin
-  if FDrawParent.Height < 200 then begin
-    FDrawParent.Height := 200;
-  end;
-
   FfrElevationProfile.ShowProfile(ALines);
   FfrElevationProfile.Visible := True;
 
   FDrawParent.Visible := True;
+  if FDrawParent.Height < 200 then begin
+    FDrawParent.Height := 200;
+  end;
+
   FVisibilityToggleItem.Enabled := True;
 
   FfrElevationProfile.SetFocusOnChart;
