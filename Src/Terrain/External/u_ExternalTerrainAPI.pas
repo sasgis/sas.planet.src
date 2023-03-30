@@ -23,6 +23,8 @@ unit u_ExternalTerrainAPI;
 
 interface
 
+{.$DEFINE DUMP_TIFF_TAGS}
+
 uses
   Windows;
 
@@ -43,62 +45,21 @@ function FindElevationInPlain(
   out AElevationData: TElevationValue
 ): Boolean;
 
-procedure SwapInWord(const AWordPtr: PWord);
-procedure SwapInDWord(const ADWordPtr: PDWord);
-
-procedure CalcOffsetsInBounds(
-  const ASasLon, ASasLat: Double;
-  const ABounds: TRect;
-  const ALinesCount, ASamplesCount: LongInt;
-  out AStripIndex, AColumnIndex: LongInt
-);
-
-//-----------------------------------------------------------
-
-type
-  // Native NT API (for simplicity and performance)
-  NTSTATUS = LongInt;
-  PVOID = Pointer;
-
-  LARGE_INTEGER = Int64;
-  PLARGE_INTEGER = ^LARGE_INTEGER;
-
-  IO_STATUS_BLOCK=record
-    Status: DWORD;
-    Information: ULONG;
-  end;
-  PIO_STATUS_BLOCK=^IO_STATUS_BLOCK;
-
-  PIO_APC_ROUTINE = procedure(
-    ApcContext: PVOID;
-    IoStatusBlock: PIO_STATUS_BLOCK;
-    Reserved: ULONG); stdcall;
-
-  function NtReadFile(
-    FileHandle: THandle; { IN }
-    EventHandle: THandle; { IN OPTIONAL }
-    UserApcRoutine: PIO_APC_ROUTINE; { IN OPTIONAL }
-    UserApcContext: PVOID; { IN OPTIONAL}
-    IoStatusBlock: PIO_STATUS_BLOCK; { OUT }
-    Buffer: PVOID; { OUT }
-    Length: ULONG; { IN }
-    ByteOffset: PLARGE_INTEGER; { IN OPTIONAL }
-    FileLockKey: PULONG { IN OPTIONAL }
-  ): NTSTATUS; stdcall; external 'ntdll.dll';
-
-const
-  STATUS_SUCCESS = $00000000;
-  //STATUS_BUFFER_TOO_SMALL = $C0000023;
-
-// read any buffer at any pos
-function NtReadFromFile(
+function FindElevationInTiff(
   const AFile: THandle;
-  const ABuf: Pointer;
-  const ALen: LongWord;
-  const AOffset: LARGE_INTEGER
+  const AStripIndex, AColumnIndex: LongInt;
+  const ALinesCount, ASamplesCount: LongInt;
+  out AElevationData: TElevationValue
 ): Boolean;
 
-//-----------------------------------------------------------
+procedure SwapInWord(const AWordPtr: PWord); inline;
+procedure SwapInDWord(const ADWordPtr: PDWord); inline;
+
+implementation
+
+uses
+  SysUtils,
+  NTFiles;
 
 type
   TTiffHeader = packed record
@@ -141,56 +102,24 @@ type
   end;
   PIFD_NN = ^TIFD_NN;
 
-function FindElevationInTiff(
-  const AFile: THandle;
-  const AStripIndex, AColumnIndex: LongInt;
-  const ALinesCount, ASamplesCount: LongInt;
-  out AElevationData: TElevationValue
-): Boolean;
-
-
-implementation
-
-{.$DEFINE DUMP_TIFF_TAGS}
-
-uses
-  SysUtils;
-
 procedure SwapInWord(const AWordPtr: PWord);
-var w: Word;
+var
+  w: Word;
 begin
-  w := ((AWordPtr^ and $00ff) shl 8)
-       OR
+  w := ((AWordPtr^ and $00ff) shl 8) or
        ((AWordPtr^ and $ff00) shr 8);
   AWordPtr^ := w;
 end;
 
 procedure SwapInDWord(const ADWordPtr: PDWord);
-var d: DWord;
+var
+  d: DWord;
 begin
-  d := ((ADWordPtr^ and $000000ff) shl 24)
-       OR
-       ((ADWordPtr^ and $0000ff00) shl 8)
-       OR
-       ((ADWordPtr^ and $00ff0000) shr 8)
-       OR
+  d := ((ADWordPtr^ and $000000ff) shl 24) or
+       ((ADWordPtr^ and $0000ff00) shl 8) or
+       ((ADWordPtr^ and $00ff0000) shr 8) or
        ((ADWordPtr^ and $ff000000) shr 24);
   ADWordPtr^ := d;
-end;
-
-function NtReadFromFile(
-  const AFile: THandle;
-  const ABuf: Pointer;
-  const ALen: LongWord;
-  const AOffset: LARGE_INTEGER
-): Boolean;
-var
-  VStatus: NTSTATUS;
-  VRead_IOSB: IO_STATUS_BLOCK;
-begin
-  VStatus := NtReadFile(AFile, 0, nil, nil, @VRead_IOSB, ABuf, ALen, @AOffset, nil);
-  // check status and how many bytes actually read
-  Result := (STATUS_SUCCESS=VStatus) and (ALen = VRead_IOSB.Information);
 end;
 
 function FindElevationInPlain(
@@ -200,7 +129,7 @@ function FindElevationInPlain(
   out AElevationData: TElevationValue
 ): Boolean;
 var
-  VOffset: LARGE_INTEGER;
+  VOffset: Int64;
 begin
   AElevationData.TypeId := evtSmallInt;
   // The data are stored in row major order
@@ -223,14 +152,13 @@ end;
 
 function CheckTiffHeader(const ATiffHeader: TTiffHeader): Boolean;
 begin
-  Result := ((ATiffHeader.ByteOrder=c_TIFF_II) and (ATiffHeader.type_=c_42_II))
-            OR
+  Result := ((ATiffHeader.ByteOrder=c_TIFF_II) and (ATiffHeader.type_=c_42_II)) or
             ((ATiffHeader.ByteOrder=c_TIFF_MM) and (ATiffHeader.type_=c_42_MM));
 end;
 
 function GetTiffDWORD(const AByteOrder: Word; const ASource: DWORD): DWORD;
 begin
-  if (AByteOrder=c_TIFF_MM) then begin
+  if AByteOrder = c_TIFF_MM then begin
     // revert
     Result := ASource;
     SwapInDWord(@Result);
@@ -242,7 +170,7 @@ end;
 
 function GetTiffWORD(const AByteOrder: Word; const ASource: WORD): WORD;
 begin
-  if (AByteOrder=c_TIFF_MM) then begin
+  if AByteOrder = c_TIFF_MM then begin
     // revert
     Result := ASource;
     SwapInWord(@Result);
@@ -279,7 +207,7 @@ var
   VTiffHeader: TTiffHeader;
   VSampleSize, VSampleFormat: SHORT;
   VStripsPerImage: DWORD;
-  VOffset: LARGE_INTEGER;
+  VOffset: Int64;
   VNumberOfIFDs: Word;
   VCurrentTag, VStripOffsetsTag: TIFD_12;
   VImageWidth, VImageLength: DWORD;

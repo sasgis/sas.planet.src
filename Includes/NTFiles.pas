@@ -3,7 +3,8 @@ unit NTFiles;
 interface
 
 uses
-  Windows;
+  Windows,
+  NativeNTAPI;
 
 const
   INVALID_FILE_ATTRIBUTES = -1;
@@ -70,10 +71,17 @@ function ReadExistingFileInFolderW(
   out AContent: AnsiString
 ): Boolean;
 
+// read any buffer at any pos
+function NtReadFromFile(
+  const AFile: THandle;
+  const ABuf: Pointer;
+  const ALen: LongWord;
+  const AOffset: LARGE_INTEGER
+): Boolean;
+
 implementation
 
 uses
-  NativeNTAPI,
   SysUtils;
 
 procedure _CheckLastError(
@@ -365,6 +373,21 @@ begin
   finally
     NtClose(VFileHandle);
   end;
+end;
+
+function NtReadFromFile(
+  const AFile: THandle;
+  const ABuf: Pointer;
+  const ALen: LongWord;
+  const AOffset: LARGE_INTEGER
+): Boolean;
+var
+  VStatus: NTSTATUS;
+  VRead_IOSB: IO_STATUS_BLOCK;
+begin
+  VStatus := NtReadFile(AFile, 0, nil, nil, @VRead_IOSB, ABuf, ALen, @AOffset, nil);
+  // check status and how many bytes actually read
+  Result := (STATUS_SUCCESS=VStatus) and (ALen = VRead_IOSB.Information);
 end;
 
 end.
