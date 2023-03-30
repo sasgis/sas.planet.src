@@ -67,6 +67,9 @@ type
       out ALinesCount: Integer;
       out ASamplesCount: Integer
     );
+    function IsVoidValue(
+      const AElevationData: TElevationValue
+    ): Boolean; inline;
   private
     procedure InternalClose;
   private
@@ -210,6 +213,20 @@ begin
   end;
 end;
 
+function TTerrainProviderByExternal.IsVoidValue(
+  const AElevationData: TElevationValue
+): Boolean;
+begin
+  case AElevationData.TypeId of
+    evtSmallInt: Result := FVoidValue = AElevationData.ValueSmall;
+    evtLongInt: Result := FVoidValue = AElevationData.ValueLong;
+    evtSingle: Result := FVoidValue = Round(AElevationData.ValueSingle);
+  else
+    Result := False;
+    Assert(False);
+  end;
+end;
+
 function TTerrainProviderByExternal.GetPointElevation(
   const ALonLat: TDoublePoint;
   const AZoom: Byte
@@ -220,7 +237,7 @@ var
   VCustomRowCount: Integer;
   VFilenameForPoint: String;
   VDone: Boolean;
-  VElevationData: SmallInt; // signed 16bit
+  VElevationData: TElevationValue;
   VLinesCount, VSamplesCount: Integer;
 begin
   Result := cUndefinedElevationValue;
@@ -301,16 +318,25 @@ begin
 
   // check byte inversion
   if VDone and (FByteOrder <> 0) then begin
-    SwapInWord(@VElevationData);
+    case VElevationData.TypeId of
+      evtSmallInt: SwapInWord(@VElevationData.ValueSmall);
+      evtLongInt: SwapInDWord(@VElevationData.ValueLong);
+    end;
   end;
 
   // check voids and result
-  if not VDone or ((FVoidValue <> 0) and (FVoidValue = VElevationData)) then begin
+  if not VDone or ((FVoidValue <> 0) and IsVoidValue(VElevationData)) then begin
     // void or failed
     Result := cUndefinedElevationValue;
   end else begin
     // ok
-    Result := VElevationData;
+    case VElevationData.TypeId of
+      evtSmallInt: Result := VElevationData.ValueSmall;
+      evtLongInt: Result := VElevationData.ValueLong;
+      evtSingle: Result := VElevationData.ValueSingle;
+    else
+      Assert(False);
+    end;
   end;
 end;
 
