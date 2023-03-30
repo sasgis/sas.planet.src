@@ -28,11 +28,11 @@ uses
   Types,
   Classes,
   t_GeoTypes,
-  u_ExternalTerrainAPI,
   i_Notifier,
   i_ConfigDataProvider,
   i_ProjConverter,
   i_TerrainProvider,
+  u_ExternalTerrainAPI,
   u_BaseInterfacedObject;
 
 type
@@ -48,8 +48,7 @@ type
     FDefaultPath: String;
     FProjConverter: IProjConverter;
     // opened file
-    FFileHandle: THandle;
-    FFileName: String;
+    FTerrainFile: TTerrainFile;
     FBaseFolder: String;
     // options
     FAvailable: Boolean;
@@ -67,11 +66,6 @@ type
       out ALinesCount: Integer;
       out ASamplesCount: Integer
     );
-    function IsVoidValue(
-      const AElevationData: TElevationValue
-    ): Boolean; inline;
-  private
-    procedure InternalClose;
   private
     function GetFilenamePart(
       const AValue: Integer;
@@ -119,9 +113,6 @@ begin
 
   // read options
   // if failed - create object but disable it
-  FFileHandle := 0;
-  FFileName := '';
-  FBaseFolder := '';
   FAvailable := AOptions.ReadBool('Enabled', False);
 
   if (not FAvailable) then begin
@@ -176,14 +167,14 @@ begin
   end else begin
     FDynamicOptionsReader := nil;
   end;
+
+  FTerrainFile := TTerrainFile.Create(FByteOrder, FVoidValue);
 end;
 
 destructor TTerrainProviderByExternal.Destroy;
 begin
-  InternalClose;
-
+  FreeAndNil(FTerrainFile);
   FProjConverter := nil;
-
   inherited;
 end;
 
@@ -213,20 +204,6 @@ begin
   end;
 end;
 
-function TTerrainProviderByExternal.IsVoidValue(
-  const AElevationData: TElevationValue
-): Boolean;
-begin
-  case AElevationData.TypeId of
-    evtSmallInt: Result := FVoidValue = AElevationData.ValueSmall;
-    evtLongInt: Result := FVoidValue = AElevationData.ValueLong;
-    evtSingle: Result := FVoidValue = Round(AElevationData.ValueSingle);
-  else
-    Result := False;
-    Assert(False);
-  end;
-end;
-
 function TTerrainProviderByExternal.GetPointElevation(
   const ALonLat: TDoublePoint;
   const AZoom: Byte
@@ -237,7 +214,6 @@ var
   VCustomRowCount: Integer;
   VFilenameForPoint: String;
   VDone: Boolean;
-  VElevationData: TElevationValue;
   VLinesCount, VSamplesCount: Integer;
 begin
   Result := cUndefinedElevationValue;
@@ -276,81 +252,28 @@ begin
     GetFilenamePart(VFilePoint.X, 'E', 'W', FLonDigitsWidth) +
     FSuffix;
 
-  // if file not opened or opened another file - open this
-  if (FFileName <> VFilenameForPoint) or (FFileHandle = 0) then begin
-    InternalClose;
-    FFileName := VFilenameForPoint;
-    // open file
-    FFileHandle := CreateFile(PChar(FFileName), GENERIC_READ, FILE_SHARE_READ,
-      nil, OPEN_EXISTING, 0, 0);
-
-    if FFileHandle = INVALID_HANDLE_VALUE then begin
-      FFileHandle := 0;
-    end;
-  end;
-
-  if FFileHandle = 0 then begin
+  if not FTerrainFile.Open(VFilenameForPoint) then begin
+    Result := cUndefinedElevationValue;
     Exit;
   end;
 
-  // check format
-  if SameText(ExtractFileExt(FFileName), '.tif') then begin
-    // with tiff header
-    VDone := FindElevationInTiff(
-      FFileHandle,
+  VDone :=
+    FTerrainFile.FindElevation(
       VIndexInLines,
       VIndexInSamples,
       VCustomRowCount,
       VSamplesCount,
-      VElevationData
+      Result
     );
-  end else begin
-    // without header
-    VDone := FindElevationInPlain(
-      FFileHandle,
-      VIndexInLines,
-      VIndexInSamples,
-      VCustomRowCount,
-      VSamplesCount,
-      VElevationData
-    );
-  end;
 
-  // check byte inversion
-  if VDone and (FByteOrder <> 0) then begin
-    case VElevationData.TypeId of
-      evtSmallInt: SwapInWord(@VElevationData.ValueSmall);
-      evtLongInt: SwapInDWord(@VElevationData.ValueLong);
-    end;
-  end;
-
-  // check voids and result
-  if not VDone or ((FVoidValue <> 0) and IsVoidValue(VElevationData)) then begin
-    // void or failed
+  if not VDone then begin
     Result := cUndefinedElevationValue;
-  end else begin
-    // ok
-    case VElevationData.TypeId of
-      evtSmallInt: Result := VElevationData.ValueSmall;
-      evtLongInt: Result := VElevationData.ValueLong;
-      evtSingle: Result := VElevationData.ValueSingle;
-    else
-      Assert(False);
-    end;
   end;
 end;
 
 function TTerrainProviderByExternal.GetStateChangeNotifier: INotifier;
 begin
   Result := nil;
-end;
-
-procedure TTerrainProviderByExternal.InternalClose;
-begin
-  if FFileHandle <> 0 then begin
-    CloseHandle(FFileHandle);
-    FFileHandle := 0;
-  end;
 end;
 
 procedure TTerrainProviderByExternal.AlosDynamicOptionsReader(
