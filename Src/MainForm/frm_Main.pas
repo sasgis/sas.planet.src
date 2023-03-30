@@ -2446,6 +2446,7 @@ begin
       tbElevationProfile,
       tbxElevationProfileShow,
       GState.Config.ElevationProfileConfig,
+      GState.Config.TerrainConfig,
       GState.Config.LanguageManager,
       GState.GPSDatum,
       FGpsTrackGoTo,

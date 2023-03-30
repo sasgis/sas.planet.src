@@ -29,7 +29,7 @@ uses
 type
   TElevationSource = (
     esTrackMetadata,
-    esDEM,
+    esTerrainProvider,
     esBoth
   );
 

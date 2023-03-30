@@ -300,7 +300,7 @@ begin
   mniShowSpeed.Checked := FConfigStatic.ShowSpeed;
   mniShowElevation.Checked := FConfigStatic.ShowElevation;
   mniTrackData.Checked := FConfigStatic.ElevationSource = esTrackMetadata;
-  mniDEMData.Checked := FConfigStatic.ElevationSource = esDEM;
+  mniDEMData.Checked := FConfigStatic.ElevationSource = esTerrainProvider;
   mniFilterData.Checked := FConfigStatic.UseDataFiltering;
   mniCenterMap.Checked := FConfigStatic.CenterMap;
 
@@ -478,13 +478,15 @@ end;
 
 procedure TfrElevationProfile.mniTrackDataClick(Sender: TObject);
 begin
+  mniTrackData.Checked := True;
   FConfig.ElevationSource := esTrackMetadata;
   FOnRefresh;
 end;
 
 procedure TfrElevationProfile.mniDEMDataClick(Sender: TObject);
 begin
-  FConfig.ElevationSource := esDEM;
+  mniDEMData.Checked := True;
+  FConfig.ElevationSource := esTerrainProvider;
   FOnRefresh;
 end;
 

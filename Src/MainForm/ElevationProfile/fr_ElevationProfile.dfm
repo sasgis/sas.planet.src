@@ -165,14 +165,12 @@ object frElevationProfile: TfrElevationProfile
     object mniElevationSource: TMenuItem
       Caption = 'Elevation Source'
       object mniTrackData: TMenuItem
-        AutoCheck = True
         Caption = 'GPS Data'
         GroupIndex = 1
         RadioItem = True
         OnClick = mniTrackDataClick
       end
       object mniDEMData: TMenuItem
-        AutoCheck = True
         Caption = 'DEM Data'
         GroupIndex = 1
         RadioItem = True

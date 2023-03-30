@@ -35,6 +35,8 @@ uses
   i_LanguageManager,
   i_MapViewGoto,
   i_VectorDataItemSimple,
+  i_TerrainConfig,
+  i_Listener,
   u_BaseInterfacedObject,
   fr_ElevationProfile;
 
@@ -50,8 +52,14 @@ type
     FDatum: IDatum;
     FMapGoTo: IMapViewGoto;
 
+    FTerrainConfig: ITerrainConfig;
+    FTerrainConfigListener: IListener;
+
     FfrElevationProfile: TfrElevationProfile;
     FElevationMetaWriter: IElevationMetaWriter;
+
+    procedure AddTerrainConfigListener;
+    procedure RemoveTerrainConfigListener;
 
     procedure ShowProfileInternal(
       const AItem: IVectorDataItem;
@@ -70,6 +78,7 @@ type
       const ADrawParent: TWinControl;
       const AVisibilityToggleItem: TTBCustomItem;
       const AConfig: IElevationProfileConfig;
+      const ATerrainConfig: ITerrainConfig;
       const ALanguageManager: ILanguageManager;
       const ADatum: IDatum;
       const AMapGoTo: IMapViewGoto;
@@ -82,6 +91,7 @@ implementation
 
 uses
   t_GeoTypes,
+  u_ListenerByEvent,
   u_GeometryFunc;
 
 { TElevationProfilePresenterOnPanel }
@@ -90,6 +100,7 @@ constructor TElevationProfilePresenterOnPanel.Create(
   const ADrawParent: TWinControl;
   const AVisibilityToggleItem: TTBCustomItem;
   const AConfig: IElevationProfileConfig;
+  const ATerrainConfig: ITerrainConfig;
   const ALanguageManager: ILanguageManager;
   const ADatum: IDatum;
   const AMapGoTo: IMapViewGoto;
@@ -101,24 +112,45 @@ begin
   FDrawParent := ADrawParent;
   FVisibilityToggleItem := AVisibilityToggleItem;
   FConfig := AConfig;
+  FTerrainConfig := ATerrainConfig;
   FLanguageManager := ALanguageManager;
   FDatum := ADatum;
   FMapGoTo := AMapGoTo;
   FElevationMetaWriter := AElevationMetaWriter;
 
   FfrElevationProfile := nil;
+  FTerrainConfigListener := nil;
 
   HideParent;
 end;
 
 destructor TElevationProfilePresenterOnPanel.Destroy;
 begin
+  RemoveTerrainConfigListener;
   //FreeAndNil(FfrElevationProfile); // ???
   inherited Destroy;
 end;
 
+procedure TElevationProfilePresenterOnPanel.AddTerrainConfigListener;
+begin
+  if (FTerrainConfigListener = nil) and (FTerrainConfig <> nil) then begin
+    FTerrainConfigListener := TNotifyNoMmgEventListener.Create(Self.RefreshParent);
+    FTerrainConfig.ChangeNotifier.Add(FTerrainConfigListener);
+  end;
+end;
+
+procedure TElevationProfilePresenterOnPanel.RemoveTerrainConfigListener;
+begin
+  if (FTerrainConfig <> nil) and (FTerrainConfigListener <> nil) then begin
+    FTerrainConfig.ChangeNotifier.Remove(FTerrainConfigListener);
+    FTerrainConfigListener := nil;
+  end;
+end;
+
 procedure TElevationProfilePresenterOnPanel.HideParent;
 begin
+  RemoveTerrainConfigListener;
+
   FItemCached := nil;
 
   FDrawParent.Visible := False;
@@ -140,6 +172,8 @@ procedure TElevationProfilePresenterOnPanel.ShowProfile(
 var
   VLines: TArrayOfGeometryLonLatSingleLine;
 begin
+  RemoveTerrainConfigListener;
+
   Assert(Supports(AItem.Geometry, IGeometryLonLatLine));
 
   FItemCached := AItem;
@@ -162,7 +196,7 @@ begin
     esTrackMetadata: begin
       ShowProfileInternal(AItem, VLines);
     end;
-    esDEM: begin
+    esTerrainProvider: begin
       FElevationMetaWriter.ProcessItemAsync(
         AItem,
         Self.OnElevationMetaWrite
@@ -192,6 +226,8 @@ begin
   FVisibilityToggleItem.Enabled := True;
 
   FfrElevationProfile.SetFocusOnChart;
+
+  AddTerrainConfigListener;
 end;
 
 procedure TElevationProfilePresenterOnPanel.OnElevationMetaWrite(const AItem: IVectorDataItem);
