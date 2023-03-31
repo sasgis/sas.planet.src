@@ -37,10 +37,12 @@ type
     FTrySecondaryProviders: Boolean;
     FPrimaryProvider: TGUID;
     FLastActualProviderWithElevationData: TGUID;
+    FUseInterpolation: Boolean;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    { ITerrainConfig }
     function GetShowInStatusBar: Boolean;
     procedure SetShowInStatusBar(const AValue: Boolean);
 
@@ -55,6 +57,9 @@ type
 
     function GetTrySecondaryElevationProviders: Boolean;
     procedure SetTrySecondaryElevationProviders(const AValue: Boolean);
+
+    function GetUseInterpolation: Boolean;
+    procedure SetUseInterpolation(const AValue: Boolean);
   public
     constructor Create;
   end;
@@ -75,6 +80,7 @@ begin
   FAvailable := False;
   FTrySecondaryProviders := True;
   FPrimaryProvider := cTerrainProviderGoogleEarthGUID;
+  FUseInterpolation := True;
 end;
 
 procedure TTerrainConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -85,6 +91,7 @@ begin
     FTrySecondaryProviders := AConfigData.ReadBool('TrySecondaryProviders', FTrySecondaryProviders);
     FPrimaryProvider := ReadGUID(AConfigData, 'PrimaryProvider', FPrimaryProvider);
     FLastActualProviderWithElevationData := FPrimaryProvider;
+    FUseInterpolation := AConfigData.ReadBool('UseInterpolation', FUseInterpolation);
     SetChanged;
   end;
 end;
@@ -95,6 +102,7 @@ begin
   AConfigData.WriteBool('ShowInStatusBar', FShowInStatusBar);
   AConfigData.WriteBool('TrySecondaryProviders', FTrySecondaryProviders);
   AConfigData.WriteString('PrimaryProvider', GUIDToString(FPrimaryProvider));
+  AConfigData.WriteBool('UseInterpolation', FUseInterpolation);
 end;
 
 function TTerrainConfig.GetShowInStatusBar: Boolean;
@@ -142,6 +150,16 @@ begin
   LockRead;
   try
     Result := FTrySecondaryProviders;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TTerrainConfig.GetUseInterpolation: Boolean;
+begin
+  LockRead;
+  try
+    Result := FUseInterpolation;
   finally
     UnlockRead;
   end;
@@ -205,6 +223,19 @@ begin
   try
     if FTrySecondaryProviders <> AValue then begin
       FTrySecondaryProviders := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTerrainConfig.SetUseInterpolation(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FUseInterpolation <> AValue then begin
+      FUseInterpolation := AValue;
       SetChanged;
     end;
   finally

@@ -639,6 +639,7 @@ begin
 
   FTerrainProviderList :=
     TTerrainProviderListSimple.Create(
+      FGlobalConfig.TerrainConfig,
       FProjConverterFactory,
       FProjectionSetFactory,
       FGlobalConfig.TerrainDataPath,

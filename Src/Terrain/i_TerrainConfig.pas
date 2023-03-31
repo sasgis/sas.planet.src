@@ -48,6 +48,10 @@ type
     function GetTrySecondaryElevationProviders: Boolean;
     procedure SetTrySecondaryElevationProviders(const AValue: Boolean);
     property TrySecondaryElevationProviders: Boolean read GetTrySecondaryElevationProviders write SetTrySecondaryElevationProviders;
+
+    function GetUseInterpolation: Boolean;
+    procedure SetUseInterpolation(const AValue: Boolean);
+    property UseInterpolation: Boolean read GetUseInterpolation write SetUseInterpolation;
   end;
 
 implementation

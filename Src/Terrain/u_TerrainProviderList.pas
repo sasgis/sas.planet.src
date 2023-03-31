@@ -30,6 +30,7 @@ uses
   i_Notifier,
   i_InterfaceListStatic,
   i_ProjectionSetFactory,
+  i_TerrainConfig,
   i_TerrainProviderList,
   i_TerrainProviderListElement,
   i_PathConfig,
@@ -55,12 +56,14 @@ type
 
   TTerrainProviderListSimple = class(TTerrainProviderListBase)
   private
+    FConfig: ITerrainConfig;
     FProjConverterFactory: IProjConverterFactory;
     FTerrainDataPath: IPathConfig;
   private
     procedure LoadFromIni;
   public
     constructor Create(
+      const AConfig: ITerrainConfig;
       const AProjConverterFactory: IProjConverterFactory;
       const AProjectionSetFactory: IProjectionSetFactory;
       const ATerrainDataPath: IPathConfig;
@@ -93,6 +96,7 @@ uses
 { TTerrainProviderListSimple }
 
 constructor TTerrainProviderListSimple.Create(
+  const AConfig: ITerrainConfig;
   const AProjConverterFactory: IProjConverterFactory;
   const AProjectionSetFactory: IProjectionSetFactory;
   const ATerrainDataPath: IPathConfig;
@@ -103,8 +107,9 @@ var
   VItem: ITerrainProviderListElement;
 begin
   inherited Create;
-  FTerrainDataPath := ATerrainDataPath;
 
+  FConfig := AConfig;
+  FTerrainDataPath := ATerrainDataPath;
   FProjConverterFactory := AProjConverterFactory;
 
   VItem :=
@@ -159,37 +164,38 @@ begin
     if Assigned(VSections) and (0 < VSections.Count) then begin
       for i := 0 to VSections.Count - 1 do begin
         try
-      // loop through terrains
+          // loop through terrains
           VSection := VSections.Items[i];
           VSectionData := VTerrainConfig.GetSubItem(VSection);
 
-      // get guid
+          // get guid
           VGuid := ReadGUID(VSectionData, 'GUID', CGUID_Zero);
 
-      // get caption
+          // get caption
           VCaption := VSectionData.ReadString('Caption', VSection);
 
-      // get proj4 converter
+          // get proj4 converter
           VProjInitString := VSectionData.ReadAnsiString('Proj', '');
-          if (0 < Length(VProjInitString)) then begin
+          if Length(VProjInitString) > 0 then begin
             VProjConverter := FProjConverterFactory.GetByInitString(VProjInitString);
           end else begin
-        // no proj converter
+            // no proj converter
             VProjConverter := nil;
           end;
 
-      // make item
+          // make item
           VItem := TTerrainProviderListElement.Create(
             VGuid,
             VCaption,
             TTerrainProviderByExternal.Create(
+              FConfig,
               FTerrainDataPath.FullPath,
               VProjConverter,
               VSectionData
             )
           );
 
-      // append to list
+          // append to list
           Add(VItem);
         except
         end;

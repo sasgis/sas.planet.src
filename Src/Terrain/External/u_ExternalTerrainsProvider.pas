@@ -29,8 +29,10 @@ uses
   Classes,
   t_GeoTypes,
   i_Notifier,
+  i_Listener,
   i_ConfigDataProvider,
   i_ProjConverter,
+  i_TerrainConfig,
   i_TerrainProvider,
   u_ExternalTerrainAPI,
   u_BaseInterfacedObject;
@@ -49,6 +51,9 @@ type
 
     FDefaultPath: String;
     FProjConverter: IProjConverter;
+    FConfig: ITerrainConfig;
+    FConfigListener: IListener;
+
     // opened file
     FTerrainFile: TTerrainFile;
     FBaseFolder: String;
@@ -68,6 +73,7 @@ type
       out ALinesCount: Integer;
       out ASamplesCount: Integer
     );
+    procedure OnConfigChange;
   private
     function GetFilenamePart(
       const AValue: Integer;
@@ -84,6 +90,7 @@ type
     function GetStateChangeNotifier: INotifier;
   public
     constructor Create(
+      const AConfig: ITerrainConfig;
       const ADefaultPath: String;
       const AProjConverter: IProjConverter;
       const AOptions: IConfigDataProvider
@@ -98,22 +105,29 @@ uses
   StrUtils,
   SysUtils,
   c_TerrainProvider,
-  u_FileSystemFunc;
+  u_FileSystemFunc,
+  u_ListenerByEvent;
 
 { TTerrainProviderByExternal }
 
 constructor TTerrainProviderByExternal.Create(
+  const AConfig: ITerrainConfig;
   const ADefaultPath: String;
   const AProjConverter: IProjConverter;
   const AOptions: IConfigDataProvider
 );
 begin
+  Assert(AConfig <> nil);
+
   inherited Create;
 
+  FConfig := AConfig;
   FProjConverter := AProjConverter;
   FDefaultPath := IncludeTrailingPathDelimiter(ADefaultPath);
 
-  FUseInterpolation := True;
+  FUseInterpolation := FConfig.UseInterpolation;
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FConfig.ChangeNotifier.Add(FConfigListener);
 
   // read options
   // if failed - create object but disable it
@@ -177,6 +191,10 @@ end;
 
 destructor TTerrainProviderByExternal.Destroy;
 begin
+  if (FConfig <> nil) and (FConfigListener <> nil) then begin
+    FConfig.ChangeNotifier.Remove(FConfigListener);
+    FConfigListener := nil;
+  end;
   FreeAndNil(FTerrainFile);
   FProjConverter := nil;
   inherited;
@@ -292,6 +310,11 @@ end;
 function TTerrainProviderByExternal.GetStateChangeNotifier: INotifier;
 begin
   Result := nil;
+end;
+
+procedure TTerrainProviderByExternal.OnConfigChange;
+begin
+  FUseInterpolation := FConfig.UseInterpolation;
 end;
 
 procedure TTerrainProviderByExternal.AlosDynamicOptionsReader(
