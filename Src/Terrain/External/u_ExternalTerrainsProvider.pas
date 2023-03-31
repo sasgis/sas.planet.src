@@ -45,6 +45,8 @@ type
 
   TTerrainProviderByExternal = class(TBaseInterfacedObject, ITerrainProvider)
   private
+    FUseInterpolation: Boolean;
+
     FDefaultPath: String;
     FProjConverter: IProjConverter;
     // opened file
@@ -110,6 +112,8 @@ begin
 
   FProjConverter := AProjConverter;
   FDefaultPath := IncludeTrailingPathDelimiter(ADefaultPath);
+
+  FUseInterpolation := True;
 
   // read options
   // if failed - create object but disable it
@@ -209,12 +213,13 @@ function TTerrainProviderByExternal.GetPointElevation(
   const AZoom: Byte
 ): Single;
 var
-  VFilePoint: TPoint;
-  VIndexInLines, VIndexInSamples: LongInt;
-  VCustomRowCount: Integer;
-  VFilenameForPoint: String;
   VDone: Boolean;
-  VLinesCount, VSamplesCount: Integer;
+  VFilePoint: TPoint;
+  VRow, VCol: Integer;
+  VRowCount, VColCount: Integer;
+  VFilenameForPoint: string;
+  x, y, dx, dy: Single;
+  p0, p1, p2, p3: Single;
 begin
   Result := cUndefinedElevationValue;
 
@@ -224,25 +229,19 @@ begin
   end;
 
   if Assigned(FDynamicOptionsReader) then begin
-    FDynamicOptionsReader(ALonLat, VLinesCount, VSamplesCount);
+    FDynamicOptionsReader(ALonLat, VRowCount, VColCount);
   end else begin
-    VLinesCount := FLinesCount;
-    VSamplesCount := FSamplesCount;
+    VRowCount := FLinesCount;
+    VColCount := FSamplesCount;
   end;
 
   // get filename for given point
   // use common 1x1 distribution (GDEM, STRM, viewfinderpanoramas)
   // TODO: see 'file' implementation for ETOPO1 in ExternalTerrains.dll source
   // TODO: see 'a-p,50' implementation for GLOBE in ExternalTerrains.dll source
-  VCustomRowCount := VLinesCount;
 
   VFilePoint.X := Floor(ALonLat.X);
   VFilePoint.Y := Floor(ALonLat.Y);
-
-  // StripIndex
-  VIndexInLines := Round((1 - (ALonLat.Y - VFilePoint.Y)) * (VLinesCount - 1));
-  // ColumnIndex
-  VIndexInSamples := Round((ALonLat.X - VFilePoint.X) * (VSamplesCount - 1));
 
   // make filename
   VFilenameForPoint :=
@@ -253,21 +252,40 @@ begin
     FSuffix;
 
   if not FTerrainFile.Open(VFilenameForPoint) then begin
-    Result := cUndefinedElevationValue;
     Exit;
   end;
 
-  VDone :=
-    FTerrainFile.FindElevation(
-      VIndexInLines,
-      VIndexInSamples,
-      VCustomRowCount,
-      VSamplesCount,
-      Result
-    );
+  if FUseInterpolation then begin
+    X := (ALonLat.X - VFilePoint.X) * (VColCount - 1);
+    Y := (ALonLat.Y - VFilePoint.Y) * (VRowCount - 1);
 
-  if not VDone then begin
-    Result := cUndefinedElevationValue;
+    dX := X - Floor(X);
+    dY := Y - Floor(Y);
+
+    VCol := Floor((ALonLat.X - VFilePoint.X) * (VColCount - 1));
+    VRow := Floor((1 - (ALonLat.Y - VFilePoint.Y)) * (VRowCount - 1));
+
+    VDone :=
+      FTerrainFile.FindElevation(VRow, VCol, VRowCount, VColCount, p0) and
+      FTerrainFile.FindElevation(VRow, VCol + 1, VRowCount, VColCount, p1) and
+      FTerrainFile.FindElevation(VRow - 1, VCol, VRowCount, VColCount, p2) and
+      FTerrainFile.FindElevation(VRow - 1, VCol + 1, VRowCount, VColCount, p3);
+
+    // interpolate
+    if VDone then begin
+      Result :=
+        p0 * (1 - dx) * (1 - dy) +
+        p1 * dx * (1 - dy) +
+        p2 * dy * (1 - dx) +
+        p3 * dx * dy;
+    end;
+  end else begin
+    VCol := Round((ALonLat.X - VFilePoint.X) * (VColCount - 1));
+    VRow := Round((1 - (ALonLat.Y - VFilePoint.Y)) * (VRowCount - 1));
+
+    if FTerrainFile.FindElevation(VRow, VCol, VRowCount, VColCount, p0) then begin
+      Result := p0;
+    end;
   end;
 end;
 
