@@ -26,7 +26,8 @@ interface
 {.$DEFINE DUMP_TIFF_TAGS}
 
 uses
-  Windows;
+  Windows,
+  Math;
 
 type
   TElevationValueType = (evtSmallInt, evtLongInt, evtSingle);
@@ -306,15 +307,23 @@ function TTerrainFile.FindElevation(
   const ALinesCount, ASamplesCount: LongInt;
   out AElevation: Single
 ): Boolean;
+var
+  VRow, VCol: Integer;
 begin
   Result := False;
+
+  VRow := Max(0, AStripIndex);
+  VRow := Min(VRow, ALinesCount);
+
+  VCol := Max(0, AColumnIndex);
+  VCol := Min(VCol, ASamplesCount);
   
   if FIsTiff then begin
     if (ASamplesCount = FImageWidth) and (ALinesCount = FImageLength) then begin    
-      Result := FindElevationInTiff(AStripIndex, AColumnIndex, ALinesCount, ASamplesCount);
+      Result := FindElevationInTiff(VRow, VCol, ALinesCount, ASamplesCount);
     end;
   end else begin
-    Result := FindElevationInPlain(AStripIndex, AColumnIndex, ALinesCount, ASamplesCount);
+    Result := FindElevationInPlain(VRow, VCol, ALinesCount, ASamplesCount);
   end;
 
   if not Result then begin
