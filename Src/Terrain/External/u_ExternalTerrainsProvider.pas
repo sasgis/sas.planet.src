@@ -26,7 +26,6 @@ interface
 uses
   Windows,
   Types,
-  Classes,
   t_GeoTypes,
   i_Notifier,
   i_Listener,
@@ -234,7 +233,7 @@ var
   VDone: Boolean;
   VFilePoint: TPoint;
   VRow, VCol: Integer;
-  VRowCount, VColCount: Integer;
+  VRowsCount, VColsCount: Integer;
   VFilenameForPoint: string;
   x, y, dx, dy: Single;
   p0, p1, p2, p3: Single;
@@ -247,10 +246,10 @@ begin
   end;
 
   if Assigned(FDynamicOptionsReader) then begin
-    FDynamicOptionsReader(ALonLat, VRowCount, VColCount);
+    FDynamicOptionsReader(ALonLat, VRowsCount, VColsCount);
   end else begin
-    VRowCount := FLinesCount;
-    VColCount := FSamplesCount;
+    VRowsCount := FLinesCount;
+    VColsCount := FSamplesCount;
   end;
 
   // get filename for given point
@@ -269,28 +268,28 @@ begin
     GetFilenamePart(VFilePoint.X, 'E', 'W', FLonDigitsWidth) +
     FSuffix;
 
-  if not FTerrainFile.Open(VFilenameForPoint) then begin
+  if not FTerrainFile.Open(VFilenameForPoint, VRowsCount, VColsCount) then begin
     Exit;
   end;
 
+  X := (ALonLat.X - VFilePoint.X) * (VColsCount - 1);
+  Y := (ALonLat.Y - VFilePoint.Y) * (VRowsCount - 1);
+
   if FUseInterpolation then begin
-    X := (ALonLat.X - VFilePoint.X) * (VColCount - 1);
-    Y := (ALonLat.Y - VFilePoint.Y) * (VRowCount - 1);
-
-    dX := X - Floor(X);
-    dY := Y - Floor(Y);
-
-    VCol := Floor((ALonLat.X - VFilePoint.X) * (VColCount - 1));
-    VRow := Floor((1 - (ALonLat.Y - VFilePoint.Y)) * (VRowCount - 1));
+    VCol := Trunc(X);
+    VRow := Trunc(Y);
 
     VDone :=
-      FTerrainFile.FindElevation(VRow, VCol, VRowCount, VColCount, p0) and
-      FTerrainFile.FindElevation(VRow, VCol + 1, VRowCount, VColCount, p1) and
-      FTerrainFile.FindElevation(VRow - 1, VCol, VRowCount, VColCount, p2) and
-      FTerrainFile.FindElevation(VRow - 1, VCol + 1, VRowCount, VColCount, p3);
+      FTerrainFile.FindElevation(VRow, VCol, p0) and
+      FTerrainFile.FindElevation(VRow, VCol + 1, p1) and
+      FTerrainFile.FindElevation(VRow + 1, VCol, p2) and
+      FTerrainFile.FindElevation(VRow + 1, VCol + 1, p3);
 
     // interpolate
     if VDone then begin
+      dx := X - Floor(X);
+      dy := Y - Floor(Y);
+
       Result :=
         p0 * (1 - dx) * (1 - dy) +
         p1 * dx * (1 - dy) +
@@ -298,10 +297,10 @@ begin
         p3 * dx * dy;
     end;
   end else begin
-    VCol := Round((ALonLat.X - VFilePoint.X) * (VColCount - 1));
-    VRow := Round((1 - (ALonLat.Y - VFilePoint.Y)) * (VRowCount - 1));
+    VCol := Round(X);
+    VRow := Round(Y);
 
-    if FTerrainFile.FindElevation(VRow, VCol, VRowCount, VColCount, p0) then begin
+    if FTerrainFile.FindElevation(VRow, VCol, p0) then begin
       Result := p0;
     end;
   end;

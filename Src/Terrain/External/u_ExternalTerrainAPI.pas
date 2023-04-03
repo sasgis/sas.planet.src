@@ -46,6 +46,9 @@ type
     FFileName: string;
     FFileHandle: THandle;
 
+    FRowsCount: Integer;
+    FColsCount: Integer;
+
     FByteOrder: Integer;
     FVoidValue: Integer;
 
@@ -54,37 +57,36 @@ type
 
     FImageWidth: Integer;
     FImageLength: Integer;
-    
+
     FSampleFormat: Integer;
     FSampleSize: Integer;
-    
+
     FStripOffsets: Int64;
     FStripOffsetsCount: Cardinal;
     FStripOffsetsType: TStripOffsetsType;
     FStripOffsetsBuffer: Pointer;
-    
+
     FElevationData: TElevationValue;
 
     function FindElevationInPlain(
-      const AStripIndex, AColumnIndex: LongInt;
-      const ALinesCount, ASamplesCount: LongInt
+      const ARow, ACol: Integer
     ): Boolean;
 
     function FindElevationInTiff(
-      const AStripIndex, AColumnIndex: LongInt;
-      const ALinesCount, ASamplesCount: LongInt
+      const ARow, ACol: Integer
     ): Boolean;
 
     procedure InternalClose;
     function ReadTiffMetadata: Boolean;
   public
     function Open(
-      const AFileName: string      
+      const AFileName: string;
+      const ARowsCount: Integer;
+      const AColsCount: Integer
     ): Boolean;
 
     function FindElevation(
-      const AStripIndex, AColumnIndex: LongInt;
-      const ALinesCount, ASamplesCount: LongInt;
+      ARow, ACol: Integer;
       out AElevation: Single
     ): Boolean; inline;
   public
@@ -142,7 +144,7 @@ type
     offset_to_next: DWORD;
   end;
   PIFD_NN = ^TIFD_NN;
-  
+
 //-----------------------------------------------------------------------------
 
 procedure SwapInWord(const AWordPtr: PWord); inline;
@@ -216,7 +218,7 @@ begin
 
   FByteOrder := AByteOrder;
   FVoidValue := AVoidValue;
-  
+
   FFileHandle := 0;
   FFileName := '';
   FIsFileOk := False;
@@ -232,7 +234,9 @@ begin
 end;
 
 function TTerrainFile.Open(
-  const AFileName: string
+  const AFileName: string;
+  const ARowsCount: Integer;
+  const AColsCount: Integer
 ): Boolean;
 begin
   // don't try reopen same file on failue
@@ -244,7 +248,10 @@ begin
   // if file not opened or opened another file - open this
   if (FFileHandle = 0) or (FFileName <> AFileName) then begin
     InternalClose;
+
     FFileName := AFileName;
+    FRowsCount := ARowsCount;
+    FColsCount := AColsCount;
 
     // open file
     FFileHandle := CreateFile(PChar(FFileName), GENERIC_READ, FILE_SHARE_READ,
@@ -275,9 +282,9 @@ begin
 
   if FFileHandle <> 0 then begin
     CloseHandle(FFileHandle);
+    FFileHandle := 0;
   end;
 
-  FFileHandle := 0;
   FFileName := '';
   FIsFileOk := False;
 end;
@@ -296,34 +303,36 @@ begin
     evtSmallInt: Result := AVoidValue = AElevationData.ValueSmall;
     evtLongInt: Result := AVoidValue = AElevationData.ValueLong;
     evtSingle: Result := AVoidValue = Round(AElevationData.ValueSingle);
-  else    
+  else
     Result := True;
     Assert(False);
   end;
 end;
 
 function TTerrainFile.FindElevation(
-  const AStripIndex, AColumnIndex: LongInt;
-  const ALinesCount, ASamplesCount: LongInt;
+  ARow, ACol: Integer;
   out AElevation: Single
 ): Boolean;
-var
-  VRow, VCol: Integer;
 begin
-  Result := False;
+  Assert(ARow >= 0);
+  Assert(ARow < FRowsCount);
 
-  VRow := Max(0, AStripIndex);
-  VRow := Min(VRow, ALinesCount);
+  Assert(ACol >= 0);
+  Assert(ACol < FColsCount);
 
-  VCol := Max(0, AColumnIndex);
-  VCol := Min(VCol, ASamplesCount);
-  
+  //ARow := Max(0, ARow);
+  //ARow := Min(ARow, FRowsCount-1);
+
+  //ACol := Max(0, ACol);
+  //ACol := Min(ACol, FColsCount-1);
+
+  // rows stored from top to bottom
+  ARow := (FRowsCount - 1) - ARow;
+
   if FIsTiff then begin
-    if (ASamplesCount = FImageWidth) and (ALinesCount = FImageLength) then begin    
-      Result := FindElevationInTiff(VRow, VCol, ALinesCount, ASamplesCount);
-    end;
+    Result := FindElevationInTiff(ARow, ACol);
   end else begin
-    Result := FindElevationInPlain(VRow, VCol, ALinesCount, ASamplesCount);
+    Result := FindElevationInPlain(ARow, ACol);
   end;
 
   if not Result then begin
@@ -345,7 +354,7 @@ begin
   if not Result then begin
     Exit;
   end;
-  
+
   // ok
   case FElevationData.TypeId of
     evtSmallInt: AElevation := FElevationData.ValueSmall;
@@ -357,10 +366,7 @@ begin
   end;
 end;
 
-function TTerrainFile.FindElevationInPlain(
-  const AStripIndex, AColumnIndex: LongInt;
-  const ALinesCount, ASamplesCount: LongInt
-): Boolean;
+function TTerrainFile.FindElevationInPlain(const ARow, ACol: Integer): Boolean;
 var
   VOffset: Int64;
 begin
@@ -369,7 +375,7 @@ begin
   // The data are stored in row major order
   // (all the data for row 1, followed by all the data for row 2, etc.).
 
-  VOffset := AStripIndex * ASamplesCount + AColumnIndex;
+  VOffset := ARow * FColsCount + ACol;
   VOffset := VOffset * SizeOf(FElevationData.ValueSmall);
 
   Result := NtReadFromFile(
@@ -380,23 +386,18 @@ begin
   );
 end;
 
-function TTerrainFile.FindElevationInTiff(
-  const AStripIndex, AColumnIndex: LongInt;
-  const ALinesCount, ASamplesCount: LongInt
-): Boolean;
+function TTerrainFile.FindElevationInTiff(const ARow, ACol: Integer): Boolean;
 var
   VOffset: Int64;
   VOffsetsSize: Cardinal;
 begin
-  Result := False; 
+  Result := False;
 
   if FStripOffsetsCount = 1 then begin
-    VOffset := FStripOffsets + AStripIndex * ASamplesCount;
-    VOffset := VOffset + AColumnIndex;
-    VOffset := VOffset * FSampleSize;
-    Result := ReadElevationValue(FFileHandle, VOffset, FElevationData);
+    VOffset := (ARow * FColsCount + ACol) * FSampleSize;
+    Result := ReadElevationValue(FFileHandle, FStripOffsets + VOffset, FElevationData);
   end else
-  if FStripOffsetsCount = Cardinal(ALinesCount) then begin
+  if FStripOffsetsCount = Cardinal(FRowsCount) then begin
 
     // read StripOffsets into buffer
     if FStripOffsetsBuffer = nil then begin
@@ -406,7 +407,7 @@ begin
       if FStripOffsetsBuffer = nil then begin
         Exit;
       end;
-      
+
       Result := NtReadFromFile(FFileHandle, FStripOffsetsBuffer, VOffsetsSize, FStripOffsets);
       if not Result then begin
         Exit;
@@ -415,15 +416,15 @@ begin
 
     if FStripOffsetsType = sotLong then begin
       // as LONG
-      VOffset := PLongWord(INT_PTR(FStripOffsetsBuffer)+AStripIndex*SizeOf(DWORD))^;
-      VOffset := VOffset + AColumnIndex * FSampleSize;
+      VOffset := PLongWord(INT_PTR(FStripOffsetsBuffer)+ARow*SizeOf(DWORD))^;
+      VOffset := VOffset + ACol * FSampleSize;
       Result := ReadElevationValue(FFileHandle, VOffset, FElevationData);
     end else begin
       // as SHORT
-      VOffset := PWord(INT_PTR(FStripOffsetsBuffer)+AStripIndex*SizeOf(WORD))^;
-      VOffset := VOffset + AColumnIndex * FSampleSize;
+      VOffset := PWord(INT_PTR(FStripOffsetsBuffer)+ARow*SizeOf(WORD))^;
+      VOffset := VOffset + ACol * FSampleSize;
       Result := ReadElevationValue(FFileHandle, VOffset, FElevationData);
-    end;    
+    end;
   end;
 end;
 
@@ -436,7 +437,7 @@ end;
 function TTerrainFile.ReadTiffMetadata: Boolean;
 var
   I: Integer;
-  VTiffHeader: TTiffHeader;  
+  VTiffHeader: TTiffHeader;
   VOffset: Int64;
   VNumberOfIFDs: Word;
   VCurrentTag: TIFD_12;
@@ -461,8 +462,13 @@ begin
   VNumberOfIFDs := GetTiffWORD(VTiffHeader.ByteOrder, VNumberOfIFDs);
   VOffset := VOffset + SizeOf(VNumberOfIFDs);
 
+  FImageWidth := 0;
+  FImageLength := 0;
+
   FSampleSize := 2; // 16 bit
   FSampleFormat := 2; // signed
+
+  FStripOffsetsCount := 0;
 
   if VNumberOfIFDs > 0 then begin
     for I := 0 to VNumberOfIFDs - 1 do begin
@@ -521,6 +527,15 @@ begin
   end;
 
   Result := False;
+
+  if FStripOffsetsCount = 0 then begin
+    // ToDo: add tiled tiff support
+    Exit;
+  end;
+
+  if (FColsCount <> FImageWidth) or (FRowsCount <> FImageLength) then begin
+    Exit;
+  end;
     
   case FSampleFormat of
     2: begin
