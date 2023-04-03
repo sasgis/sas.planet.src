@@ -24,6 +24,7 @@ unit u_TerrainInfo;
 interface
 
 uses
+  SysUtils,
   SyncObjs,
   t_GeoTypes,
   i_Listener,
@@ -45,6 +46,8 @@ type
     FLastElevation: Double;
     FProviderStateListner: IListener;
     FConfigSync: TCriticalSection;
+    FFormatSettings: TFormatSettings;
+
     procedure OnProviderStateChange;
   private
     { ITerrainInfo }
@@ -69,7 +72,6 @@ implementation
 
 uses
   ActiveX,
-  SysUtils,
   Math,
   i_Notifier,
   i_TerrainProviderListElement,
@@ -139,6 +141,9 @@ begin
   FLastPoint := cUndefinedPointValue;
   FLastZoom := cUndefinedZoomValue;
   FLastElevation := cUndefinedElevationValue;
+
+  FFormatSettings.DecimalSeparator := '.';
+  FFormatSettings.ThousandSeparator := ' ';
 end;
 
 destructor TTerrainInfo.Destroy;
@@ -293,8 +298,14 @@ function TTerrainInfo.GetElevationInfoStr(
   const APoint: TDoublePoint;
   const AZoom: Byte
 ): string;
+var
+  VElev: Double;
+  VDigits: Integer;
 begin
-  Result := IntToStr(Round(GetElevationInfo(APoint, AZoom))) + ' ' + SAS_UNITS_m;
+  VElev := GetElevationInfo(APoint, AZoom);
+  VDigits := Integer(FTerrainConfig.ElevationDisplayFormat);
+
+  Result := FloatToStrF(VElev, ffNumber, 15, VDigits, FFormatSettings) + ' ' + SAS_UNITS_m;
 end;
 
 end.
