@@ -24,6 +24,7 @@ unit u_MarkCategoryDbByImpl;
 interface
 
 uses
+  Types,
   i_Listener,
   i_Notifier,
   i_MarkCategory,
@@ -448,7 +449,7 @@ var
   I: Integer;
   VCount: Integer;
   VSubCategory: string;
-  VSubCategories: TArray<string>;
+  VSubCategories: TStringDynArray;
   VNewSubCategory: IMarkCategory;
 begin
   if ANewCategory = nil then begin
