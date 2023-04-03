@@ -99,6 +99,9 @@ type
     chkElevTrySecondaryProviders: TCheckBox;
     lblElevPrimaryProvider: TLabel;
     cbbElevProviderList: TComboBox;
+    lblElevDisplayFormat: TLabel;
+    cbbElevDisplayFormat: TComboBox;
+    chkElevUseInterpolation: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure btnScaleLineFontClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
@@ -193,6 +196,7 @@ begin
   seStatBarTextOpacity.Value := AlphaComponent(FStatBarConfig.TextColor);
   clrbxStatBarBackgroundColor.Selected := WinColor(FStatBarConfig.BgColor);
   seStatBarBackgroundOpacity.Value := AlphaComponent(FStatBarConfig.BgColor);
+
   // Scale Line
   chkScaleLineHide.Checked := not FScaleLineConfig.Visible;
   chkShowVertScaleLine.Checked := FScaleLineConfig.Extended;
@@ -204,9 +208,12 @@ begin
   seScaleLineColorOpacity.Value := AlphaComponent(FScaleLineConfig.Color);
   clrbxScaleLineOutlineColor.Selected := WinColor(FScaleLineConfig.OutLineColor);
   seScaleLineOutlineOpacity.Value := AlphaComponent(FScaleLineConfig.OutLineColor);
+
   // Elevation Info
   chkElevShowInStatusBar.Checked := chkStatBarElevation.Checked;
   chkElevShowInStatusBar.Enabled := chkStatBarElevation.Enabled;
+  chkElevUseInterpolation.Checked := FTerrainConfig.UseInterpolation;
+  cbbElevDisplayFormat.ItemIndex := Integer(FTerrainConfig.ElevationDisplayFormat);
   chkElevTrySecondaryProviders.Checked := FTerrainConfig.TrySecondaryElevationProviders;
   cbbElevProviderList.Clear;
   VPrimaryIndex := 0;
@@ -265,6 +272,7 @@ begin
     Color32(clrbxStatBarBackgroundColor.Selected),
     seStatBarBackgroundOpacity.Value
   );
+
   // Scale Line
   FScaleLineConfig.Visible := not chkScaleLineHide.Checked;
   FScaleLineConfig.Extended := chkShowVertScaleLine.Checked;
@@ -280,7 +288,10 @@ begin
     Color32(clrbxScaleLineOutlineColor.Selected),
     seScaleLineOutlineOpacity.Value
   );
+
   // Elevation Info
+  FTerrainConfig.UseInterpolation := chkElevUseInterpolation.Checked;
+  FTerrainConfig.ElevationDisplayFormat := TElevationDisplayFormat(cbbElevDisplayFormat.ItemIndex);
   FTerrainConfig.TrySecondaryElevationProviders := chkElevTrySecondaryProviders.Checked;
   I := cbbElevProviderList.ItemIndex;
   VItem := ITerrainProviderListElement(Pointer(cbbElevProviderList.Items.Objects[I]));

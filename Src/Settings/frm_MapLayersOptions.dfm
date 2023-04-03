@@ -446,6 +446,14 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Height = 13
         Caption = 'Primary provider:'
       end
+      object lblElevDisplayFormat: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 98
+        Width = 73
+        Height = 13
+        Caption = 'Display format:'
+      end
       object chkElevShowInStatusBar: TCheckBox
         Left = 3
         Top = 9
@@ -471,6 +479,29 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 2
+      end
+      object cbbElevDisplayFormat: TComboBox
+        Left = 3
+        Top = 117
+        Width = 310
+        Height = 21
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 3
+        Text = '123 m'
+        Items.Strings = (
+          '123 m'
+          '123.1 m'
+          '123.12 m'
+          '123.123 m')
+      end
+      object chkElevUseInterpolation: TCheckBox
+        Left = 3
+        Top = 144
+        Width = 310
+        Height = 17
+        Caption = 'Use Interpolation'
+        TabOrder = 4
       end
     end
   end
