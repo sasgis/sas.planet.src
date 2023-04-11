@@ -1520,6 +1520,7 @@ uses
   u_ValueToStringConverterConfig in 'Src\u_ValueToStringConverterConfig.pas',
   u_WindowPositionConfig in 'Src\u_WindowPositionConfig.pas';
 
+{$R .\Resources\Manifest.res}
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
 {$R .\Resources\Common.res}
