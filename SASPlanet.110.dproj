@@ -1926,6 +1926,7 @@
         <DCCReference Include="Src\Network\u_AntiBanStuped.pas"/>
         <DCCReference Include="Src\Network\u_AsyncRequestHelperThread.pas"/>
         <DCCReference Include="Src\Network\u_ContentDecoder.pas"/>
+        <DCCReference Include="Src\Network\u_ContentDetecter.pas"/>
         <DCCReference Include="Src\Network\u_CurlHttpClient.pas"/>
         <DCCReference Include="Src\Network\u_CurlProxyResolver.pas"/>
         <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas"/>
@@ -2664,7 +2665,6 @@
         <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
         <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
         <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
-        <DCCReference Include="Src\Network\u_ContentDetecter.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
