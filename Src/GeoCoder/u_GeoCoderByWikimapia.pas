@@ -53,16 +53,13 @@ implementation
 
 uses
   SysUtils,
-  ALString,
   RegExpr,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   t_GeoTypes,
   i_GeoCoder,
   i_VectorDataItemSimple,
   i_Projection,
   i_BinaryData,
+  u_AnsiStr,
   u_BinaryData,
   u_DownloadRequest,
   u_InterfaceListSimple,
@@ -142,8 +139,8 @@ begin
           raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VRegExpr.Match[1], VRegExpr.Match[2]]);
         end;
 
-        VName := UTF8ToString(ALStringReplace(VRegExpr.Match[3], '&quot;', '''', [rfReplaceAll]));
-        VDesc := UTF8ToString(ALStringReplace(VRegExpr.Match[4], '&quot;', '''', [rfReplaceAll]));
+        VName := UTF8ToString(StringReplaceA(VRegExpr.Match[3], '&quot;', '''', [rfReplaceAll]));
+        VDesc := UTF8ToString(StringReplaceA(VRegExpr.Match[4], '&quot;', '''', [rfReplaceAll]));
 
         VPlace := PlacemarkFactory.Build(VPoint, Trim(VName), Trim(VDesc), '', 4);
         VList.Add(VPlace);
@@ -175,9 +172,9 @@ begin
   VSearch := URLEncode(AnsiToUtf8(ASearch));
 
   VPostData :=
-    'y=' + ALIntToStr(Round(VMapCenter.Y)) + '&' +
-    'x=' + ALIntToStr(Round(VMapCenter.X)) + '&' +
-    'z=' + ALIntToStr(VProjection.Zoom) + '&' +
+    'y=' + IntToStrA(Round(VMapCenter.Y)) + '&' +
+    'x=' + IntToStrA(Round(VMapCenter.X)) + '&' +
+    'z=' + IntToStrA(VProjection.Zoom) + '&' +
     'qu=' + VSearch + '&' +
     'jtype=simple' + '&' +
     'start=0' + '&' +

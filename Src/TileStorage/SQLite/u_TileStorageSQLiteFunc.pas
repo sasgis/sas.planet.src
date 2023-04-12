@@ -50,9 +50,9 @@ function VersionFieldIsEqual(
 implementation
 
 uses
-  ALString,
   SysUtils,
   c_TileStorageSQLite,
+  u_AnsiStr,
   u_BinaryData;
 
 function CreateTileBinaryData(
@@ -70,15 +70,15 @@ function LocalTryStrToInt64(const S: AnsiString; out Value: Int64): Boolean;
 begin
   // X701 is string
   // $123 is string
-  Result := not (S[1] in ['x','X','$']) and ALTryStrToInt64(S, Value);
+  Result := not (S[1] in ['x','X','$']) and TryStrToInt64A(S, Value);
 end;
 
 function GetDefaultDBVersion(const AVersionColMode: TVersionColMode): AnsiString; inline;
 begin
   if AVersionColMode = vcm_Int then begin
-    Result := ALIntToStr(cDefaultVersionAsIntValue);
+    Result := IntToStrA(cDefaultVersionAsIntValue);
   end else begin
-    Result := ALQuotedStr(cDefaultVersionAsStrValue);
+    Result := QuotedStrA(cDefaultVersionAsStrValue);
   end;
 end;
 
@@ -111,13 +111,13 @@ begin
       // as int - result ok
       if ATBColInfoModeV = vcm_Text then begin
         // версия в БД текстовая
-        AInfo.RequestedVersionToDB := ALQuotedStr(AInfo.RequestedVersionToDB);
+        AInfo.RequestedVersionToDB := QuotedStrA(AInfo.RequestedVersionToDB);
       end;
       AInfo.RequestedVersionIsInt := True;
       AInfo.RequestedVersionIsSet := True;
     end else begin
       // as text - quote result
-      AInfo.RequestedVersionToDB := ALQuotedStr(AInfo.RequestedVersionToDB);
+      AInfo.RequestedVersionToDB := QuotedStrA(AInfo.RequestedVersionToDB);
       AInfo.RequestedVersionIsInt := False;
       AInfo.RequestedVersionIsSet := True;
     end;

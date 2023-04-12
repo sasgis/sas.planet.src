@@ -69,7 +69,7 @@ implementation
 uses
   Types,
   SysUtils,
-  u_StrFunc,
+  u_AnsiStr,
   u_TileStorageSQLiteFetcher;
 
 { TEnumTileInfoBySQLite }

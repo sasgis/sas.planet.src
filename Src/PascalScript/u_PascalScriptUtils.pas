@@ -36,13 +36,10 @@ uses
   SysUtils,
   StrUtils,
   Classes,
-  ALString,
   DateUtils,
   MD5,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   u_GeoToStrFunc,
+  u_AnsiStr,
   u_StrFunc;
 
 procedure CompileTimeReg_Utils(const APSComp: TPSPascalCompiler);
@@ -56,7 +53,7 @@ begin
   // StrUtils
   APSComp.AddDelphiFunction('function PosEx(const SubStr, S: string; Offset: Integer): Integer');
 
-  // ALString
+  // u_AnsiStr
   APSComp.AddTypeS('TReplaceFlag', '(rfReplaceAll, rfIgnoreCase)');
   APSComp.AddTypeS('TReplaceFlags', 'set of TReplaceFlag');
   APSComp.AddDelphiFunction('function StringReplace(const S, OldPattern, NewPattern: AnsiString; Flags: TReplaceFlags): AnsiString');
@@ -87,7 +84,7 @@ end;
 
 function SubStrPos_P(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
 begin
-  Result := ALPosEx(SubStr, Str, FromPos);
+  Result := PosA(SubStr, Str, FromPos);
 end;
 
 function GetNumberAfter_P(const ASubStr, AText: string): string;
@@ -201,9 +198,6 @@ begin
   // StrUtils
   APSExec.RegisterDelphiFunction(@StrUtils.PosEx, 'PosEx', cdRegister);
 
-  // ALString
-  APSExec.RegisterDelphiFunction(@ALStringReplace, 'StringReplace', cdRegister);
-
   // MD5
   APSExec.RegisterDelphiFunction(@MD5String_P, 'MD5String', cdRegister);
 
@@ -217,6 +211,9 @@ begin
 
   APSExec.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
   APSExec.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
+
+  // u_AnsiStr
+  APSExec.RegisterDelphiFunction(@StringReplaceA, 'StringReplace', cdRegister);
 
   // internal routines
   APSExec.RegisterDelphiFunction(@SubStrPos_P, 'SubStrPos', cdRegister);

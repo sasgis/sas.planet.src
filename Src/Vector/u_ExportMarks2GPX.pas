@@ -88,14 +88,11 @@ implementation
 
 uses
   DateUtils,
-  ALString,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   t_GeoTypes,
   i_BinaryData,
   i_LonLatRect,
   i_EnumDoublePoint,
+  u_AnsiStr,
   u_GeoToStrFunc,
   u_GeoFunc,
   u_GpxFakeTimeGenerator,
@@ -1253,11 +1250,11 @@ const
     'yyyy"-"mm"-"dd"T"hh":"nn":"ss"."z"Z"'
   );
 var
-  VFormatSettings: TALFormatSettings;
+  VFormatSettings: TFormatSettingsA;
 begin
   VFormatSettings.DateSeparator := '-';
   VFormatSettings.TimeSeparator := ':';
-  Result := ALFormatDateTime(CFormat[ADetailed], ADateTime, VFormatSettings); // '2015-07-19T07:53:32Z'
+  Result := FormatDateTimeA(CFormat[ADetailed], ADateTime, VFormatSettings); // '2015-07-19T07:53:32Z'
 end;
 
 class function TExportMarks2GPX.ToXmlText(const AStr: String): AnsiString;

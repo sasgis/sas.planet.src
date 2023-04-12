@@ -91,8 +91,8 @@ type
 implementation
 
 uses
-  ALString,
   c_TileStorageSQLite,
+  u_AnsiStr,
   u_StringListStatic,
   u_TileStorageSQLiteHandler,
   u_TileStorageSQLiteErrorLogger;
@@ -174,7 +174,7 @@ function TTileStorageSQLiteHolder.GetContentTypeToDB(
   const AContentType: IContentTypeInfoBasic
 ): AnsiString;
 begin
-  if (AContentType = nil) or ALSameText(AContentType.GetContentType, FMainContentType.GetContentType) then begin
+  if (AContentType = nil) or SameTextA(AContentType.GetContentType, FMainContentType.GetContentType) then begin
     // no contenttype or main contenttype
     Result := 'NULL';
   end else begin

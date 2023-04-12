@@ -130,15 +130,14 @@ type
 implementation
 
 uses
-  ALString,
+  u_AnsiStr,
   u_ContentDecoder,
   u_StrFunc,
   u_ListenerByEvent,
   u_Synchronizer,
   u_HttpStatusChecker,
   u_SimpleFlagWithInterlock,
-  u_StreamReadOnlyByBinaryData,
-  u_BinaryDataByMemStream;
+  u_StreamReadOnlyByBinaryData;
 
 {$IFDEF VerboseHttpClient}
 procedure VerboseStatusChange(
@@ -174,12 +173,12 @@ begin
   FCS := GSync.SyncBig.Make(Self.ClassName);
 
   FHttpClient := TALWinInetHTTPClient.Create;
-  FHttpClient.OnStatusChange := Self.DoOnALStatusChange;
+  FHttpClient.OnStatus := Self.DoOnALStatusChange;
   if Assigned(FOnDownloadProgress) then begin
     FHttpClient.OnDownloadProgress := Self.DoOnALDownloadProgress;
   end;
-  FHttpClient.DisconnectOnError := True;
   FHttpClient.IgnoreSecurityErrors := True;
+  FHttpClient.AllowHttp2Protocol := True;
   FHttpClient.RequestHeader.Accept := '*/*';
 
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
@@ -374,7 +373,7 @@ begin
               FAcceptEncoding,
               FTryDetectContentType,
               ARequest,
-              ALStrToInt(FHttpResponseHeader.StatusCode),
+              StrToIntA(FHttpResponseHeader.StatusCode),
               FHttpResponseHeader.RawHeaderText,
               FHttpResponseBody
             );
@@ -569,7 +568,7 @@ begin
         VPos := Pos(':', VProxyHost);
         if VPos > 0 then begin
           FHttpClient.ProxyParams.ProxyServer := Copy(VProxyHost, 1, VPos - 1);
-          FHttpClient.ProxyParams.ProxyPort := ALStrToInt(Copy(VProxyHost, VPos + 1, Length(VProxyHost)));
+          FHttpClient.ProxyParams.ProxyPort := StrToIntA(Copy(VProxyHost, VPos + 1, Length(VProxyHost)));
         end else begin
           FHttpClient.ProxyParams.ProxyServer := VProxyHost;
           FHttpClient.ProxyParams.ProxyPort := 0;

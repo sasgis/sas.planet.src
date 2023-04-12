@@ -25,12 +25,13 @@ interface
 
 uses
   ALStringList,
+  u_AnsiStr,
   i_ContentTypeInfo;
 
 type
   TContentTypeListByKey = class
   private
-    FList: TALStringList;
+    FList: TStringListA;
   public
     constructor Create;
     destructor Destroy; override;
@@ -39,7 +40,7 @@ type
       const AType: IContentTypeInfoBasic
     );
     function Get(const AKey: AnsiString): IContentTypeInfoBasic;
-    function GetEnumerator: TALStringsEnumerator;
+    function GetEnumerator: TStringsEnumeratorA;
   end;
 
 
@@ -63,7 +64,7 @@ end;
 constructor TContentTypeListByKey.Create;
 begin
   inherited Create;
-  FList := TALStringList.Create;
+  FList := TStringListA.Create;
   FList.Sorted := True;
   FList.Duplicates := dupError;
 end;
@@ -92,7 +93,7 @@ begin
   end;
 end;
 
-function TContentTypeListByKey.GetEnumerator: TALStringsEnumerator;
+function TContentTypeListByKey.GetEnumerator: TStringsEnumeratorA;
 begin
   Result := FList.GetEnumerator;
 end;

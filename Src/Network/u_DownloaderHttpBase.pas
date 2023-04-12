@@ -89,7 +89,7 @@ uses
   u_ContentDecoder,
   u_ContentDetecter,
   u_HttpStatusChecker,
-  u_StrFunc,
+  u_AnsiStr,
   u_NetworkStrFunc;
 
 { TDownloaderHttpBase }

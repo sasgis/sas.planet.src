@@ -193,7 +193,7 @@ uses
   u_TileStorageAbilities,
   u_CacheConverterProgressInfo,
   u_Synchronizer,
-  u_StrFunc,
+  u_AnsiStr,
   u_FileSystemFunc,
   frm_ProgressCacheConvrter;
 

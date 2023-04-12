@@ -69,9 +69,9 @@ type
 implementation
 
 uses
-  ALString,
   i_InterfaceListSimple,
-  u_InterfaceListSimple;
+  u_InterfaceListSimple,
+  u_AnsiStr;
 
 { TGPSSatellitesInView }
 
@@ -111,7 +111,7 @@ begin
     // get next talker_id
 
     // check glonass after gps (the only)
-    if ALSameText(ATalkerID, nmea_ti_GPS) then begin
+    if SameTextA(ATalkerID, nmea_ti_GPS) then begin
       // check for glonass
       if (nil <> FItemsGL) and (0 < FItemsGL.Count) then begin
         // GPS
@@ -128,7 +128,7 @@ end;
 
 function TGPSSatellitesInView.GetCount(const ATalkerID: AnsiString): Byte;
 begin
-  if ALSameText(ATalkerID, nmea_ti_GLONASS) then begin
+  if SameTextA(ATalkerID, nmea_ti_GLONASS) then begin
     // glonass
     if FItemsGL <> nil then begin
       Result := FItemsGL.Count;
@@ -205,7 +205,7 @@ function TGPSSatellitesInView.GetItem(
   const AIndex: Byte
 ): IGPSSatelliteInfo;
 begin
-  if ALSameText(ATalkerID, nmea_ti_GLONASS) then begin
+  if SameTextA(ATalkerID, nmea_ti_GLONASS) then begin
     // glonass
     if FItemsGL <> nil then begin
       Result := IGPSSatelliteInfo(FItemsGL[AIndex]);

@@ -97,13 +97,13 @@ implementation
 
 uses
   StrUtils,
-  ALString,
   RegExpr,
   XMLIntf,
   XMLDoc,
   Windows,
   t_GeoTypes,
   i_VectorDataItemSimple,
+  u_AnsiStr,
   u_SystemTimeProvider,
   u_DoublePointsAggregator,
   u_InterfaceListSimple;
@@ -168,7 +168,7 @@ function TGeoCoderByGpx.ParseDateTime(
   var AstrDateTime: string
 ):Boolean;
 var
-  VFormatSettings: TALFormatSettings;
+  VFormatSettings: TFormatSettingsA;
   VStrDateTime: AnsiString;
   VStrTime: AnsiString;
   VDate: TDateTime;
@@ -197,7 +197,7 @@ begin
         VRegExpr.Match[2] + VFormatSettings.DateSeparator +
         VRegExpr.Match[3];
       VSearch := VRegExpr.Match[0];
-      VDate := ALStrToDate(VStrDateTime, VFormatSettings);
+      VDate := StrToDateA(VStrDateTime, VFormatSettings);
     end else begin
       VRegExpr.Expression := '([0-9]{4}).([01]?[0-9]).([0-3]?[0-9])';
       if VRegExpr.Exec(VSearchAnsi) then begin
@@ -206,7 +206,7 @@ begin
           VRegExpr.Match[2] + VFormatSettings.DateSeparator +
           VRegExpr.Match[1];
         VSearch := VRegExpr.Match[0];
-        VDate := ALStrToDate(VStrDateTime, VFormatSettings);
+        VDate := StrToDateA(VStrDateTime, VFormatSettings);
       end else
         VDate := 0;
     end;
@@ -227,7 +227,7 @@ begin
         VRegExpr.Match[2] + VFormatSettings.TimeSeparator +
         VRegExpr.Match[3];
       VStrDateTime := VStrDateTime + VStrTime;
-      VTime := ALStrToTime(VStrTime, VFormatSettings);
+      VTime := StrToTimeA(VStrTime, VFormatSettings);
     end else begin
       VRegExpr.Expression := '([0-2]?[0-9]).([0-5]?[0-9])'; // hh:mm
       if VRegExpr.Exec(VSearchAnsi) then begin
@@ -236,7 +236,7 @@ begin
           VRegExpr.Match[1] + VFormatSettings.TimeSeparator +
           VRegExpr.Match[2];
         VStrDateTime := VStrDateTime + VStrTime;
-        VTime := ALStrToTime(VStrTime, VFormatSettings);
+        VTime := StrToTimeA(VStrTime, VFormatSettings);
         VShortTimeSearch := true;
       end else
         VTime := 0;
@@ -250,7 +250,7 @@ begin
     if VTime <> 0 then
       VDateTime := FSystemTimeInternal.LocalTimeToUTC(VDateTime);  // make UTC time to search in files
     VFormatSettings.ShortDateFormat := 'yyyy-mm-dd"T"hh:nn:ss"Z"';
-    AstrDateTime := copy(ALDateTimeToStr(VDateTime, VFormatSettings),0,20); //cut last space from DateTimeToStr
+    AstrDateTime := copy(DateTimeToStrA(VDateTime, VFormatSettings),0,20); //cut last space from DateTimeToStr
 
     if VTime = 0 then
       AstrDateTime := copy(AstrDateTime, 0, 11); // отрезаем время совсем

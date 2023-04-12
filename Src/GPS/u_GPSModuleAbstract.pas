@@ -199,11 +199,11 @@ type
 implementation
 
 uses
-  ALString,
   vsagps_public_sats_info,
   i_InterfaceListSimple,
   u_InterfaceListSimple,
   u_Synchronizer,
+  u_AnsiStr,
   u_Notifier;
 
 type
@@ -353,7 +353,7 @@ end;
 
 function TGPSModuleAbstract.GetSatellitesListByTalkerID(const ATalkerID: AnsiString): IGPSSatelliteInfoList;
 begin
-  if ALSameText(ATalkerID, nmea_ti_GLONASS) then begin
+  if SameTextA(ATalkerID, nmea_ti_GLONASS) then begin
     Result := FSatellitesGL;
   end else begin
     Result := FSatellitesGP;
@@ -424,7 +424,7 @@ begin
   // for glonass
   _DoForSats(FSatellitesGL, nmea_ti_GLONASS);
   // Nmea23_Mode at the end of line
-  Result := Result + ALIntToHex(Ord(FSingleGPSData.DGPS.Nmea23_Mode), 2);
+  Result := Result + IntToHexA(Ord(FSingleGPSData.DGPS.Nmea23_Mode), 2);
 end;
 
 procedure TGPSModuleAbstract.UnLockGPSData(

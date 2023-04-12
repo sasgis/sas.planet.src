@@ -131,9 +131,9 @@ type
 implementation
 
 uses
-  ALString,
   ExplorerSort,
   i_BinaryData,
+  u_AnsiStr,
   u_BinaryDataByMemStream,
   u_GeoToStrFunc,
   u_MarkPictureAnchorFunc,
@@ -666,10 +666,10 @@ var
 begin
   VColor.ARGB := Color32;
   Result :=
-    AlIntToHex(VColor.A, 2) +
-    AlIntToHex(VColor.B, 2) +
-    AlIntToHex(VColor.G, 2) +
-    AlIntToHex(VColor.R, 2);
+    IntToHexA(VColor.A, 2) +
+    IntToHexA(VColor.B, 2) +
+    IntToHexA(VColor.G, 2) +
+    IntToHexA(VColor.R, 2);
 end;
 
 function TExportMarks2KML.SaveMarkIcon(

@@ -92,12 +92,9 @@ implementation
 
 uses
   DateUtils,
-  ALString,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   t_GeoTypes,
   i_EnumDoublePoint,
+  u_AnsiStr,
   u_GeoToStrFunc;
 
 { TExportMarks2TCX }
@@ -609,7 +606,7 @@ const
       VStartTime := IncSecond(FNow, -Round(VLength / DummySpeedMS));
 
       // Minimum mandatory
-      VCurrentNode.AddChild('TotalTimeSeconds').Text := ALIntToStr(SecondsBetween(FNow, VStartTime));
+      VCurrentNode.AddChild('TotalTimeSeconds').Text := IntToStrA(SecondsBetween(FNow, VStartTime));
       VCurrentNode.AddChild('DistanceMeters').Text := R2AnsiStrPoint(VLength);
       VCurrentNode.AddChild('Calories').Text := '0';
 
@@ -764,7 +761,7 @@ const
     VStartTime := IncSecond(FNow, -Round(VLength / DummySpeedMS));
 
     // Minimum mandatory
-    VCurrentNode.AddChild('TotalTimeSeconds').Text := ALIntToStr(SecondsBetween(FNow, VStartTime));
+    VCurrentNode.AddChild('TotalTimeSeconds').Text := IntToStrA(SecondsBetween(FNow, VStartTime));
     VCurrentNode.AddChild('DistanceMeters').Text := R2AnsiStrPoint(VLength);
     VCurrentNode.AddChild('Calories').Text := '0';
 
@@ -842,7 +839,7 @@ function TExportMarks2TCX.XMLDateTime(const ADateTime: TDateTime; const ADetaile
 
 var
   Format: AnsiString;
-  FormatSettings: TALFormatSettings;
+  FormatSettings: TFormatSettingsA;
 begin
   FormatSettings.DateSeparator := '-';
   FormatSettings.TimeSeparator := ':';
@@ -850,7 +847,7 @@ begin
     Format := 'yyyy"-"mm"-"dd"T"hh":"nn":"ss"."z"Z"'
   else
     Format := 'yyyy"-"mm"-"dd"T"hh":"nn":"ss"Z"';
-  Result := ALFormatDateTime(Format, LocalDateTimeToDateTime(ADateTime), FormatSettings); // '2015-07-19T07:53:32Z';
+  Result := FormatDateTimeA(Format, LocalDateTimeToDateTime(ADateTime), FormatSettings); // '2015-07-19T07:53:32Z';
 end;
 
 function TExportMarks2TCX.XMLText(const AStr: String): AnsiString;

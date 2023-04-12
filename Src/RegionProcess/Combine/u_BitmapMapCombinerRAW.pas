@@ -53,13 +53,13 @@ uses
   Classes,
   Types,
   gnugettext,
-  ALString,
   t_Bitmap32,
   t_CommonTypes,
   t_MapCombineOptions,
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_ImageLineProvider,
+  u_AnsiStr,
   u_BaseInterfacedObject,
   u_ImageLineProvider,
   u_GeoFunc;
@@ -161,16 +161,16 @@ begin
     end;
     VBgColor.ARGB := FBgColor;
     VMetaInfo := '';
-    VMetaInfo := VMetaInfo + 'Width=' + ALIntToStr(VSize.X) + #13#10;
-    VMetaInfo := VMetaInfo + 'Height=' + ALIntToStr(VSize.Y) + #13#10;
+    VMetaInfo := VMetaInfo + 'Width=' + IntToStrA(VSize.X) + #13#10;
+    VMetaInfo := VMetaInfo + 'Height=' + IntToStrA(VSize.Y) + #13#10;
     if FWithAlpha then begin
       VMetaInfo := VMetaInfo + 'Bit/pixel=32' + #13#10;
       VMetaInfo := VMetaInfo + 'ByteOrder=RGBA' + #13#10;
-      VMetaInfo := VMetaInfo + 'DefaultFill=#' + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.B, 2) + AlIntToHex(VBgColor.A, 2) + #13#10;
+      VMetaInfo := VMetaInfo + 'DefaultFill=#' + IntToHexA(VBgColor.R, 2) + IntToHexA(VBgColor.G, 2) + IntToHexA(VBgColor.B, 2) + IntToHexA(VBgColor.A, 2) + #13#10;
     end else begin
       VMetaInfo := VMetaInfo + 'Bit/pixel=24' + #13#10;
       VMetaInfo := VMetaInfo + 'ByteOrder=RGB' + #13#10;
-      VMetaInfo := VMetaInfo + 'DefaultFill=#' + AlIntToHex(VBgColor.R, 2) + AlIntToHex(VBgColor.G, 2) + AlIntToHex(VBgColor.B, 2) + #13#10;
+      VMetaInfo := VMetaInfo + 'DefaultFill=#' + IntToHexA(VBgColor.R, 2) + IntToHexA(VBgColor.G, 2) + IntToHexA(VBgColor.B, 2) + #13#10;
     end;
 
     VMetaFile := TFileStream.Create(AFileName + '.meta', fmCreate);

@@ -183,7 +183,7 @@ uses
   i_GeometryProjected,
   i_ProjectionSet,
   u_InterfaceListSimple,
-  u_StrFunc,
+  u_AnsiStr,
   u_GeoFunc,
   u_GeometryFunc,
   u_BitmapLayerProviderMapWithLayer,

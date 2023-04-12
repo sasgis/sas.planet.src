@@ -48,7 +48,7 @@ implementation
 uses
   Proj4,
   Proj4Defs,
-  ALString,
+  u_AnsiStr,
   u_ProjConverterByDll;
 
 const
@@ -113,8 +113,8 @@ var
   VArgs: AnsiString;
 begin
   VArgs := AArgs;
-  if ALSameText(Copy(AArgs, 1, Length(cEPSG)), cEPSG) then begin
-    if ALTryStrToInt(Copy(AArgs, Length(cEPSG) + 1, Length(AArgs)), VEPSG) then begin
+  if SameTextA(Copy(AArgs, 1, Length(cEPSG)), cEPSG) then begin
+    if TryStrToIntA(Copy(AArgs, Length(cEPSG) + 1, Length(AArgs)), VEPSG) then begin
       VArgs := Proj4ArgsByEpsg(VEPSG);
     end;
   end;

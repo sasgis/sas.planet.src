@@ -54,11 +54,11 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  ALString,
   t_GeoTypes,
   i_GeoCoder,
   i_VectorDataItemSimple,
   i_Projection,
+  u_AnsiStr,
   u_InterfaceListSimple,
   u_ResStrings;
 
@@ -80,7 +80,7 @@ var
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
-  VFormatSettings: TALFormatSettings;
+  VFormatSettings: TFormatSettingsA;
   VStr: AnsiString;
 begin
   sfulldesc := '';
@@ -93,40 +93,40 @@ begin
   VList := TInterfaceListSimple.Create;
   SetLength(Vstr, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
-  i := ALPosEx('<searchresults', VStr);
+  i := PosA('<searchresults', VStr);
 
-  while (ALPosEx('<place', VStr, i) > i) and (i > 0) do begin
+  while (PosA('<place', VStr, i) > i) and (i > 0) do begin
     j := i;
 
-    i := ALPosEx('osm_type=''', VStr, j);
-    j := ALPosEx('''', VStr, i + 10);
+    i := PosA('osm_type=''', VStr, j);
+    j := PosA('''', VStr, i + 10);
     osm_type := Copy(VStr, i + 10, j - (i + 10));
 
-    i := ALPosEx('osm_id=''', VStr, j);
-    j := ALPosEx('''', VStr, i + 8);
+    i := PosA('osm_id=''', VStr, j);
+    j := PosA('''', VStr, i + 8);
     osm_id := Copy(VStr, i + 8, j - (i + 8));
 
-    i := ALPosEx('lat=''', VStr, j);
-    j := ALPosEx('''', VStr, i + 5);
+    i := PosA('lat=''', VStr, j);
+    j := PosA('''', VStr, i + 5);
     slat := Copy(VStr, i + 5, j - (i + 5));
 
-    i := ALPosEx('lon=''', VStr, j);
-    j := ALPosEx('''', VStr, i + 5);
+    i := PosA('lon=''', VStr, j);
+    j := PosA('''', VStr, i + 5);
     slon := Copy(VStr, i + 5, j - (i + 5));
 
-    i := ALPosEx('display_name=''', VStr, j);
-    j := ALPosEx('''', VStr, i + 14);
+    i := PosA('display_name=''', VStr, j);
+    j := PosA('''', VStr, i + 14);
     sname := Utf8ToAnsi(Copy(VStr, i + 14, j - (i + 14)));
 
-    i := ALPosEx('class=''', VStr, j);
+    i := PosA('class=''', VStr, j);
     if i > j then begin
-      j := ALPosEx('''', VStr, i + 7);
+      j := PosA('''', VStr, i + 7);
       sdesc := Utf8ToAnsi(Copy(VStr, i + 7, j - (i + 7)));
     end;
 
-    i := ALPosEx('type=''', VStr, j);
+    i := PosA('type=''', VStr, j);
     if i > j then begin
-      j := ALPosEx('''', VStr, i + 6);
+      j := PosA('''', VStr, i + 6);
       sdesc := sdesc + '=' + Utf8ToAnsi(Copy(VStr, i + 6, j - (i + 6)));
     end;
 
@@ -150,8 +150,8 @@ begin
     //    end else sfulldesc:='';
 
     try
-      VPoint.Y := ALStrToFloat(slat, VFormatSettings);
-      VPoint.X := ALStrToFloat(slon, VFormatSettings);
+      VPoint.Y := StrToFloatA(slat, VFormatSettings);
+      VPoint.X := StrToFloatA(slon, VFormatSettings);
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;

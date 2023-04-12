@@ -126,7 +126,7 @@ type
  REChar = AnsiChar;
  {$ENDIF}
  {$IFDEF ForceAnsiStrings}
- TRegExprStrings = TALStrings;
+ TRegExprStrings = TALStringsA;
  {$ELSE}
  TRegExprStrings = TStrings;
  {$ENDIF}
@@ -3913,9 +3913,9 @@ function TRegExpr.DumpOp (op : TREOp) : RegExprString;
     BSUBEXP:      Result := 'BSUBEXP';
     BSUBEXPCI:    Result := 'BSUBEXP/CI';
     Succ (OPEN) .. TREOp (Ord (OPEN) + NSUBEXP - 1): //###0.929
-                  Result := ALFormat ('OPEN[%d]', [ord (op) - ord (OPEN)]);
+                  Result := ALFormatA ('OPEN[%d]', [ord (op) - ord (OPEN)]);
     Succ (CLOSE) .. TREOp (Ord (CLOSE) + NSUBEXP - 1): //###0.929
-                  Result := ALFormat ('CLOSE[%d]', [ord (op) - ord (CLOSE)]);
+                  Result := ALFormatA ('CLOSE[%d]', [ord (op) - ord (CLOSE)]);
     STAR:         Result := 'STAR';
     PLUS:         Result := 'PLUS';
     BRACES:       Result := 'BRACES';
@@ -3958,7 +3958,7 @@ function TRegExpr.Dump : RegExprString;
   s := programm + REOpSz;
   while op <> EEND do begin // While that wasn't END last time...
      op := s^;
-     Result := Result + ALFormat ('%2d%s', [s - programm, DumpOp (s^)]); // Where, what.
+     Result := Result + ALFormatA ('%2d%s', [s - programm, DumpOp (s^)]); // Where, what.
      next := regnext (s);
      if next = nil // Next ptr.
       then Result := Result + ' (0)'
@@ -3966,7 +3966,7 @@ function TRegExpr.Dump : RegExprString;
         if next > s //###0.948 PWideChar subtraction workaround (see comments in Tail method for details)
          then Diff := next - s
          else Diff := - (s - next);
-        Result := Result + ALFormat (' (%d) ', [(s - programm) + Diff]);
+        Result := Result + ALFormatA (' (%d) ', [(s - programm) + Diff]);
        end;
      inc (s, REOpSz + RENextOffSz);
      if (op = ANYOF) or (op = ANYOFCI) or (op = ANYBUT) or (op = ANYBUTCI)
@@ -3985,7 +3985,7 @@ function TRegExpr.Dump : RegExprString;
         end;
       end;
      if (op = BSUBEXP) or (op = BSUBEXPCI) then begin
-       Result := Result + ' \' + ALIntToStr (Ord (s^));
+       Result := Result + ' \' + ALIntToStrA (Ord (s^));
        inc (s);
       end;
      {$IFDEF UseSetOfChar} //###0.929
@@ -3993,19 +3993,19 @@ function TRegExpr.Dump : RegExprString;
        for Ch := #0 to #255 do
         if Ch in PSetOfREChar (s)^ then
          if Ch < ' '
-          then Result := Result + '#' + ALIntToStr (Ord (Ch)) //###0.936
+          then Result := Result + '#' + ALIntToStrA (Ord (Ch)) //###0.936
           else Result := Result + Ch;
        inc (s, SizeOf (TSetOfREChar));
       end;
      {$ENDIF}
      if (op = BRACES) or (op = BRACESNG) then begin //###0.941
        // show min/max argument of BRACES operator
-       Result := Result + ALFormat ('{%d,%d}', [PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
+       Result := Result + ALFormatA ('{%d,%d}', [PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
        inc (s, REBracesArgSz * 2);
       end;
      {$IFDEF ComplexBraces}
      if (op = LOOP) or (op = LOOPNG) then begin //###0.940
-       Result := Result + ALFormat (' -> (%d) {%d,%d}', [
+       Result := Result + ALFormatA (' -> (%d) {%d,%d}', [
         (s - programm - (REOpSz + RENextOffSz)) + PRENextOff (s + 2 * REBracesArgSz)^,
         PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
        inc (s, 2 * REBracesArgSz + RENextOffSz);
@@ -4028,7 +4028,7 @@ function TRegExpr.Dump : RegExprString;
    if Ch in FirstCharSet
     then begin
       if Ch < ' '
-       then Result := Result + '#' + ALIntToStr(Ord(Ch)) //###0.948
+       then Result := Result + '#' + ALIntToStrA(Ord(Ch)) //###0.948
        else Result := Result + Ch;
     end;
   {$ENDIF}

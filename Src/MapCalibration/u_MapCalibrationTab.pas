@@ -25,16 +25,17 @@ interface
 
 uses
   Types,
-  ALString,
+  SysUtils,
   t_CommonTypes,
   i_Projection,
   i_MapCalibration,
+  u_AnsiStr,
   u_BaseInterfacedObject;
 
 type
   TMapCalibrationTab = class(TBaseInterfacedObject, IMapCalibration)
   private
-    FFormatSettings: TALFormatSettings;
+    FFormatSettings: TFormatSettings;
     function PointToStr(
       const ANumber: Integer;
       const ALon, ALat: Double;
@@ -60,7 +61,6 @@ implementation
 
 uses
   Classes,
-  SysUtils,
   t_GeoTypes,
   c_CoordConverter;
 
@@ -103,9 +103,9 @@ function TMapCalibrationTab.PointToStr(
 var
   VLon, VLat: AnsiString;
 begin
-  VLon := ALFormat(cCoordFmtStr, [ALon], FFormatSettings);
-  VLat := ALFormat(cCoordFmtStr, [ALat], FFormatSettings);
-  Result := ALFormat(cPointFmtStr, [VLon, VLat, X, Y, ANumber], FFormatSettings);
+  VLon := FormatA(cCoordFmtStr, [ALon], FFormatSettings);
+  VLat := FormatA(cCoordFmtStr, [ALat], FFormatSettings);
+  Result := FormatA(cPointFmtStr, [VLon, VLat, X, Y, ANumber], FFormatSettings);
 end;
 
 function TMapCalibrationTab.GetCoordSysStr(

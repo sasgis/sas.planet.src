@@ -24,13 +24,13 @@ unit u_ContentConvertersListByKey;
 interface
 
 uses
-  ALStringList,
+  u_AnsiStr,
   i_ContentConverter;
 
 type
   TContentConvertersListByKey = class
   private
-    FList: TALStringList;
+    FList: TStringListA;
   public
     constructor Create;
     destructor Destroy; override;
@@ -61,7 +61,7 @@ end;
 constructor TContentConvertersListByKey.Create;
 begin
   inherited Create;
-  FList := TALStringList.Create;
+  FList := TStringListA.Create;
   FList.Sorted := True;
   FList.Duplicates := dupError;
 end;

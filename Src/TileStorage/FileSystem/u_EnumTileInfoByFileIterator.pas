@@ -58,7 +58,7 @@ type
 implementation
 
 uses
-  u_StrFunc,
+  u_AnsiStr,
   u_FileSystemTools;
 
 { TEnumTileInfoByFileIterator }

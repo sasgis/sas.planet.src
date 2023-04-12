@@ -25,6 +25,7 @@ interface
 
 uses
   Classes,
+  SysUtils,
   i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
@@ -51,7 +52,6 @@ type
 implementation
 
 uses
-  ALString,
   RegExpr,
   t_GeoTypes,
   i_VectorDataItemSimple,
@@ -70,12 +70,12 @@ function TGeoCoderByIp2geolocation.ParseResultToPlacemarksList(
 const
   cLocalHost_v4 = '127.0.0.1';
 var
-  VLat, VLon: AnsiString;
+  VLat, VLon: string;
   VName, VDesc, VFullDesc: string;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
-  VFormatSettings: TALFormatSettings;
+  VFormatSettings: TFormatSettings;
   VStr: AnsiString;
   VRegExpr: TRegExpr;
 begin
@@ -147,8 +147,8 @@ begin
 
     try
       VFormatSettings.DecimalSeparator := '.';
-      VPoint.X := ALStrToFloat(VLon, VFormatSettings);
-      VPoint.Y := ALStrToFloat(VLat, VFormatSettings);
+      VPoint.X := StrToFloat(VLon, VFormatSettings);
+      VPoint.Y := StrToFloat(VLat, VFormatSettings);
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLat, VLon]);
     end;

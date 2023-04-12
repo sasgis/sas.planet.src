@@ -130,9 +130,9 @@ type
 implementation
 
 uses
-  ALString,
   ALSqlite3Wrapper,
   MD5,
+  u_AnsiStr,
   u_GeoFunc;
 
 const
@@ -212,7 +212,7 @@ end;
 procedure TSQLiteStorageMBTilesBase.InsertMetaKeyVal(const AKey, AValue: string);
 begin
   FSQLite3DB.ExecSQL(
-    ALFormat(
+    FormatA(
       INSERT_METADATA_SQL,
       [ '''' + UTF8Encode(AKey) + '''', '''' + UTF8Encode(AValue) + '''']
     )
@@ -373,7 +373,7 @@ begin
   end;
 
   FSQLite3DB.ExecSQLWithBLOB(
-    ALFormat(INSERT_TILES_SQL, [AZoom, X, Y]),
+    FormatA(INSERT_TILES_SQL, [AZoom, X, Y]),
     AData.Buffer,
     AData.Size
   );
@@ -501,7 +501,7 @@ begin
 
   // insert blob into 'tiles' table
   FSQLite3DB.ExecSQLWithBLOB(
-    ALFormat(INSERT_IMAGES_SQL, [VTileID]),
+    FormatA(INSERT_IMAGES_SQL, [VTileID]),
     AData.Buffer,
     AData.Size
   );
@@ -516,7 +516,7 @@ begin
 
   // insert coordinates into 'map' table
   FSQLite3DB.ExecSQL(
-    ALFormat(INSERT_MAP_SQL, [AZoom, X, Y, VTileID])
+    FormatA(INSERT_MAP_SQL, [AZoom, X, Y, VTileID])
   );
 end;
 

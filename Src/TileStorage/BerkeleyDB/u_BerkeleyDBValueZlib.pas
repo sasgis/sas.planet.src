@@ -39,7 +39,7 @@ function ZlibDecompress(
 implementation
 
 uses
-  ALZLibEx;
+  ZLibEx;
 
 const
   cBerkeleyValueZlibMagic: Cardinal = $4C41565A; // ZVAL (Zlib VALue)

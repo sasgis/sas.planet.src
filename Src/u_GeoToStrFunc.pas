@@ -42,11 +42,11 @@ implementation
 uses
   SysUtils,
   Math,
-  ALString;
+  u_AnsiStr;
 
 var
   GFormatSettings : TFormatSettings;
-  GAnsiFormatSettings : TALFormatSettings;
+  GAnsiFormatSettings : TFormatSettingsA;
 
 function RoundEx(const chislo: Double; const Precision: Integer): string;
 begin
@@ -61,7 +61,7 @@ begin
   if IsNan(chislo) then
     Result := '-'
   else
-    Result := ALFloatToStrF(chislo, ffFixed, 18, Precision, GAnsiFormatSettings);
+    Result := FloatToStrFA(chislo, ffFixed, 18, Precision, GAnsiFormatSettings);
 end;
 
 function str2r(const AStrValue: string): Double;
@@ -76,16 +76,11 @@ begin
     if VPos > 0 then begin
       VFormatSettings.DecimalSeparator := ',';
     end else begin
-      VPos := System.pos('.', AStrValue);
+      VPos := System.Pos('.', AStrValue);
       if VPos > 0 then begin
         VFormatSettings.DecimalSeparator := '.';
       end else begin
-        VFormatSettings.DecimalSeparator :=
-          {$IF CompilerVersion >= 23} // XE2 and UP
-          FormatSettings.DecimalSeparator;
-          {$ELSE}
-          DecimalSeparator;
-          {$IFEND}
+        VFormatSettings.DecimalSeparator := FormatSettings.DecimalSeparator;
       end;
     end;
     Result := StrToFloatDef(AStrValue, 0, VFormatSettings);
@@ -109,7 +104,7 @@ end;
 
 function R2AnsiStrPoint(const r: Double): AnsiString;
 begin
-  Result := ALFloatToStr(r, GAnsiFormatSettings);
+  Result := FloatToStrA(r, GAnsiFormatSettings);
 end;
 
 function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; APrec: Integer): string;
@@ -166,4 +161,5 @@ end;
 initialization
   GFormatSettings.DecimalSeparator := '.';
   GAnsiFormatSettings.DecimalSeparator := '.';
+
 end.

@@ -55,9 +55,9 @@ uses
   SysUtils,
   libtar,
   i_BinaryData,
+  u_AnsiStr,
   u_BinaryDataByMemStream,
-  u_StreamReadOnlyByBinaryData,
-  u_StrFunc;
+  u_StreamReadOnlyByBinaryData;
 
 type
   TArchiveReaderSequentialTar = class(TBaseInterfacedObject, IArchiveReaderSequential)

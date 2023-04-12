@@ -25,6 +25,7 @@ interface
 
 uses
   Classes,
+  ALStringList,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ContentConverter,
@@ -83,10 +84,8 @@ implementation
 
 uses
   SysUtils,
-  ALString,
-  ALStringList,
   u_StringListStatic,
-  u_StrFunc;
+  u_AnsiStr;
 
 procedure TContentTypeManagerBase.AddByExt(
   const AInfo: IContentTypeInfoBasic;
@@ -143,7 +142,7 @@ end;
 function TContentTypeManagerBase.GetKnownExtList: IStringListStatic;
 var
   VList: TStringList;
-  VEnum: TALStringsEnumerator;
+  VEnum: TStringsEnumeratorA;
 begin
   VEnum := FExtList.GetEnumerator;
   try
@@ -165,16 +164,13 @@ function TContentTypeManagerBase.GetBitmapLoaderByFileName(
 ): IBitmapTileLoader;
 var
   VExt: string;
-  VExtAscii: AnsiString;
   VContentType: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
 begin
   Result := nil;
-  VExt := ExtractFileExt(AFileName);
+  VExt := LowerCase(ExtractFileExt(AFileName));
   if IsAscii(VExt) then begin
-    VExtAscii := StringToAsciiSafe(VExt);
-    VExtAscii := AlLowerCase(VExtAscii);
-    VContentType := GetInfoByExt(VExtAscii);
+    VContentType := GetInfoByExt(AnsiString(VExt));
     if Assigned(VContentType) then begin
       if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
         Result := VContentTypeBitmap.GetLoader;

@@ -81,7 +81,6 @@ uses
   {$ENDIF}
   gnugettext,
   libecwj2,
-  ALString,
   t_ECW,
   t_CommonTypes,
   t_MapCombineOptions,
@@ -95,7 +94,7 @@ uses
   u_ECWJP2Write,
   u_ImageLineProvider,
   u_GeoFunc,
-  u_StrFunc,
+  u_AnsiStr,
   u_ResStrings;
 
 type
@@ -238,7 +237,7 @@ begin
 
       VEPSG := VProjection.ProjectionType.Datum.EPSG;
       if VEPSG > 0 then begin
-        Datum := 'EPSG:' + ALIntToStr(VEPSG);
+        Datum := 'EPSG:' + IntToStrA(VEPSG);
       end else begin
         Datum := 'RAW';
       end;
@@ -250,7 +249,7 @@ begin
         Units := CELL_UNITS_DEGREES;
       end else begin
         if VEPSG > 0 then begin
-          Proj := 'EPSG:' + ALIntToStr(VEPSG);
+          Proj := 'EPSG:' + IntToStrA(VEPSG);
         end else begin
           Proj := 'RAW';
         end;
@@ -287,7 +286,7 @@ begin
         );
       if (VErrorCode > NCS_SUCCESS) and (VErrorCode <> NCS_USER_CANCELLED_COMPRESSION) then begin
         raise Exception.Create(
-          SAS_ERR_Save + ' ' + SAS_ERR_Code + ' [' + IntToStr(VErrorCode) + '] ' +
+          SAS_ERR_Save + ' ' + SAS_ERR_Code + ' [' + IntToStrA(VErrorCode) + '] ' +
           VECWWriter.ErrorCodeToString(VErrorCode)
         );
       end else begin

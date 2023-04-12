@@ -83,21 +83,21 @@ implementation
 
 uses
   SysUtils,
-  ALString;
+  u_AnsiStr;
 
 function StrToUrl(const AStr: AnsiString): AnsiString; inline;
 begin
-  Result := ALStringReplace(ALTrim(AStr), ' ', '%20', [rfReplaceAll]);
+  Result := StringReplaceA(TrimA(AStr), ' ', '%20', [rfReplaceAll]);
 end;
 
 function StrToHeader(const AStr: AnsiString): AnsiString; inline;
 begin
-  Result := ALStringReplace(AStr, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
+  Result := StringReplaceA(AStr, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
 end;
 
 function HeaderToStr(const AHeader: AnsiString): AnsiString; inline;
 begin
-  Result := ALStringReplace(AHeader, #13#10, '\r\n', [rfReplaceAll]);
+  Result := StringReplaceA(AHeader, #13#10, '\r\n', [rfReplaceAll]);
 end;
 
 { TTileDownloadRequestBuilderConfig }

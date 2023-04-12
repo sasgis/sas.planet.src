@@ -25,7 +25,7 @@ interface
 
 uses
   Types,
-  ALString,
+  SysUtils,
   t_CommonTypes,
   i_Projection,
   i_MapCalibration,
@@ -34,7 +34,7 @@ uses
 type
   TMapCalibrationOzi = class(TBaseInterfacedObject, IMapCalibration)
   private
-    FFormatSettings: TALFormatSettings;
+    FFormatSettings: TFormatSettings;
   private
     { IMapCalibration }
     function GetName: string;
@@ -54,9 +54,9 @@ implementation
 
 uses
   Classes,
-  SysUtils,
   t_GeoTypes,
-  c_CoordConverter;
+  c_CoordConverter,
+  u_AnsiStr;
 
 const
   cOziFileExt = '.map';
@@ -98,17 +98,17 @@ procedure TMapCalibrationOzi.SaveCalibrationInfo(
 
   function GetDegrees(const ACoord: Double): AnsiString;
   begin
-    Result := ALIntToStr(Trunc(Abs(ACoord)));
+    Result := IntToStrA(Trunc(Abs(ACoord)));
   end;
 
   function GetMinutes(const ACoord: Double): AnsiString;
   begin
-    Result := ALFormat('%.4f', [Frac(Abs(ACoord)) * 60], FFormatSettings);
+    Result := FormatA('%.4f', [Frac(Abs(ACoord)) * 60], FFormatSettings);
   end;
 
   function DoubleToAnsiStr(const AValue: Double): AnsiString;
   begin
-    Result := ALFormat('%.6f', [AValue], FFormatSettings);
+    Result := FormatA('%.6f', [AValue], FFormatSettings);
   end;
 
   function GetPointCalibrationStr(const APointID, X, Y: Integer; const ALon, ALat: Double): AnsiString;
@@ -129,7 +129,7 @@ procedure TMapCalibrationOzi.SaveCalibrationInfo(
       VLatStr := VLatStr + ',N';
     end;
 
-    Result := ALFormat(cCalibrationStrFormat, [APointID, X, Y, VLatStr, VLonStr], FFormatSettings);
+    Result := FormatA(cCalibrationStrFormat, [APointID, X, Y, VLatStr, VLonStr], FFormatSettings);
   end;
 
 const
@@ -190,7 +190,7 @@ begin
       GetPointCalibrationStr(9, VLocalRect.Right, VLocalRect.Bottom, VLL2.X, VLL2.Y);
 
     for I := 10 to 30 do begin
-      VText := VText + ALFormat(cCalibrationEmptyStrFormat, [I], FFormatSettings);
+      VText := VText + FormatA(cCalibrationEmptyStrFormat, [I], FFormatSettings);
     end;
 
     VText := VText +
@@ -200,17 +200,17 @@ begin
       'Moving Map Parameters = MM?    These follow if they exist' + #13#10 +
       'MM0,Yes' + #13#10 +
       'MMPNUM,4' + #13#10 +
-      'MMPXY,1,' + ALIntToStr(VLocalRect.Left) + ',' + ALIntToStr(VLocalRect.Top) + #13#10 +
-      'MMPXY,2,' + ALIntToStr(VLocalRect.Right) + ',' + ALIntToStr(VLocalRect.Top) + #13#10 +
-      'MMPXY,3,' + ALIntToStr(VLocalRect.Right) + ',' + ALIntToStr(VLocalRect.Bottom) + #13#10 +
-      'MMPXY,4,' + ALIntToStr(VLocalRect.Left) + ',' + ALIntToStr(VLocalRect.Bottom) + #13#10 +
+      'MMPXY,1,' + IntToStrA(VLocalRect.Left) + ',' + IntToStrA(VLocalRect.Top) + #13#10 +
+      'MMPXY,2,' + IntToStrA(VLocalRect.Right) + ',' + IntToStrA(VLocalRect.Top) + #13#10 +
+      'MMPXY,3,' + IntToStrA(VLocalRect.Right) + ',' + IntToStrA(VLocalRect.Bottom) + #13#10 +
+      'MMPXY,4,' + IntToStrA(VLocalRect.Left) + ',' + IntToStrA(VLocalRect.Bottom) + #13#10 +
       'MMPLL,1, ' + DoubleToAnsiStr(VLL1.X) + ', ' + DoubleToAnsiStr(VLL1.Y) + #13#10 +
       'MMPLL,2, ' + DoubleToAnsiStr(VLL2.X) + ', ' + DoubleToAnsiStr(VLL1.Y) + #13#10 +
       'MMPLL,3, ' + DoubleToAnsiStr(VLL2.X) + ', ' + DoubleToAnsiStr(VLL2.Y) + #13#10 +
       'MMPLL,4, ' + DoubleToAnsiStr(VLL1.X) + ', ' + DoubleToAnsiStr(VLL2.Y) + #13#10 +
       'MM1B,' + DoubleToAnsiStr(1 / ((AProjection.GetPixelsFloat / (2 * PI)) / (VRadius * Cos(VLL.Y * cDegreeToRadCoeff)))) + #13#10 +
       'MOP,Map Open Position,0,0' + #13#10 +
-      'IWH,Map Image Width/Height,' + ALIntToStr(VLocalRect.Right) + ',' + ALIntToStr(VLocalRect.Bottom) + #13#10;
+      'IWH,Map Image Width/Height,' + IntToStrA(VLocalRect.Right) + ',' + IntToStrA(VLocalRect.Bottom) + #13#10;
 
     VFileStream.WriteBuffer(VText[1], Length(VText));
   finally

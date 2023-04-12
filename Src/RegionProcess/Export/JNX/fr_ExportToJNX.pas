@@ -196,14 +196,11 @@ implementation
 
 uses
   IniFiles,
-  {$IFNDEF UNICODE}
-  CompatibilityIniFiles,
-  {$ENDIF}
-  ALString,
   RegExprUtils,
   gnugettext,
   i_ConfigDataProvider,
   i_PathConfig,
+  u_AnsiStr,
   u_FileSystemFunc,
   u_ConfigDataProviderByIniFile,
   u_GlobalState;
@@ -816,7 +813,7 @@ var
 begin
   try
     VMatchSubStr := RegExprGetMatchSubStr(AnsiString(EProductID.Text), '[0-9]+', 0);
-    Result := ALStrToIntDef(VMatchSubStr, 0);
+    Result := StrToIntDefA(VMatchSubStr, 0);
   except
     Result := 0;
   end;

@@ -53,12 +53,12 @@ implementation
 
 uses
   SysUtils,
-  ALString,
   RegExprUtils,
   t_GeoTypes,
   i_GeoCoder,
   i_VectorDataItemSimple,
   i_Projection,
+  u_AnsiStr,
   u_InterfaceListSimple,
   u_ResStrings,
   u_GeoToStrFunc;
@@ -503,7 +503,7 @@ var
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
-  VFormatSettings: TALFormatSettings;
+  VFormatSettings: TFormatSettingsA;
   vCurPos: integer;
   vCurChar: AnsiString;
   vBrLevel: integer;
@@ -524,7 +524,7 @@ begin
   SetLength(Vstr, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
 
-  VStr := ALStringReplace(VStr, #$0A, '', [rfReplaceAll]);
+  VStr := StringReplaceA(VStr, #$0A, '', [rfReplaceAll]);
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceListSimple.Create;
 
@@ -542,13 +542,13 @@ begin
         VDescStr := '';
         VSName := '';
         VFullDesc := '';
-        i := ALPosEx('[', VBuffer, 1);
-        j := ALPosEx(',', VBuffer, 1);
+        i := PosA('[', VBuffer, 1);
+        j := PosA(',', VBuffer, 1);
         VNavitel_ID := Copy(VBuffer, i + 1, j - (i + 1));
         j := 1;
-        i := ALPosEx('[', VBuffer, 1);
+        i := PosA('[', VBuffer, 1);
         if i>0  then begin
-          j := ALPosEx(',', VBuffer, i + 1);
+          j := PosA(',', VBuffer, i + 1);
           VRequest :=
             PrepareRequestByURL(
               'http://maps.navitel.su/webmaps/searchTwoStepInfo?id=' + (Copy(VBuffer, i + 1, j - (i + 1)))
@@ -558,10 +558,10 @@ begin
             SetLength(VDescStr, VResultOk.Data.Size);
             Move(VResultOk.Data.Buffer^, VDescStr[1], VResultOk.Data.Size);
             Vii := 1;
-            Vjj := ALPosEx(',', VDescStr, Vii + 1 );
+            Vjj := PosA(',', VDescStr, Vii + 1 );
             VLonStr := Copy(VDescStr, Vii + 1, Vjj - (Vii + 1));
             Vii := Vjj;
-            Vjj := ALPosEx(',', VDescStr, Vii + 1 );
+            Vjj := PosA(',', VDescStr, Vii + 1 );
             VLatStr := Copy(VDescStr, Vii + 1, Vjj - (Vii + 1));
             VFullDesc := '';
           end else begin
@@ -569,15 +569,15 @@ begin
           end;
         end;
         i:= j + 1;
-        j := ALPosEx(']', VBuffer, i);
+        j := PosA(']', VBuffer, i);
         VSName := Utf8ToAnsi(Copy(VBuffer, i + 3, j - (i + 4)));
-        j := ALPosEx(',', VBuffer, j + 1);
+        j := PosA(',', VBuffer, j + 1);
         i := j + 1;
-        j := ALPosEx(',', VBuffer, j + 1);
+        j := PosA(',', VBuffer, j + 1);
         VNavitel_Type := Copy(VBuffer, i + 1, j - (i + 1));
-        VSName := NavitelType(ALStrToInt(VNavitel_Type )) + VSName;
+        VSName := NavitelType(StrToIntA(VNavitel_Type )) + VSName;
         i := j + 1;
-        j := ALPosEx(',', VBuffer, i + 1);
+        j := PosA(',', VBuffer, i + 1);
         VPlace_Id := Copy(VBuffer, i + 1, j - (i + 1));
         if VPlace_Id <> 'null' then begin
           VRequest := PrepareRequestByURL('http://maps.navitel.su/webmaps/searchById?id=' + (VPlace_Id));
@@ -587,28 +587,28 @@ begin
             SetLength(VDescStr, VResultOk.Data.Size);
             Move(VResultOk.Data.Buffer^, VDescStr[1], VResultOk.Data.Size);
             VDescStr := RegExprReplaceMatchSubStr(VDescStr, '[0-9]','');
-            VDescStr := ALStringReplace(VDescStr, #$0A, '', [rfReplaceAll]);
-            VDescStr := ALStringReplace(VDescStr, #$0D, '', [rfReplaceAll]);
-            VDescStr := ALStringReplace(VDescStr, '[', '', [rfReplaceAll]);
-            VDescStr := ALStringReplace(VDescStr, ']', '', [rfReplaceAll]);
-            VDescStr := ALStringReplace(VDescStr, 'null', '', [rfReplaceAll]);
-            VDescStr := ALStringReplace(VDescStr, ', ', '', [rfReplaceAll]);
-            VDescStr := ALStringReplace(VDescStr, '""', '","', [rfReplaceAll]);
+            VDescStr := StringReplaceA(VDescStr, #$0A, '', [rfReplaceAll]);
+            VDescStr := StringReplaceA(VDescStr, #$0D, '', [rfReplaceAll]);
+            VDescStr := StringReplaceA(VDescStr, '[', '', [rfReplaceAll]);
+            VDescStr := StringReplaceA(VDescStr, ']', '', [rfReplaceAll]);
+            VDescStr := StringReplaceA(VDescStr, 'null', '', [rfReplaceAll]);
+            VDescStr := StringReplaceA(VDescStr, ', ', '', [rfReplaceAll]);
+            VDescStr := StringReplaceA(VDescStr, '""', '","', [rfReplaceAll]);
             VDesc := Utf8ToAnsi(VDescStr);
           end else begin
             Exit;
           end;
         end else begin
-           i := ALPosEx('[', VBuffer, j + 1);
+           i := PosA('[', VBuffer, j + 1);
            if i > j + 1 then begin
-             j := ALPosEx(']', VBuffer, i);
+             j := PosA(']', VBuffer, i);
              VDesc := Utf8ToAnsi(Copy(VBuffer, i + 1, j - (i + 1)));
           end;
         end;
 
         try
-          VPoint.Y := ALStrToFloat(VLatStr, VFormatSettings);
-          VPoint.X := ALStrToFloat(VLonStr, VFormatSettings);
+          VPoint.Y := StrToFloatA(VLatStr, VFormatSettings);
+          VPoint.X := StrToFloatA(VLonStr, VFormatSettings);
         except
           raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLatStr, VLonStr]);
         end;
@@ -647,7 +647,7 @@ begin
   Result := PrepareRequestByURL(
    'http://maps.navitel.su/webmaps/searchTwoStep?s=' + URLEncode(AnsiToUtf8(VSearch)) +
    '&lon=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + '&lat=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
-   '&z=' + ALIntToStr(VProjection.Zoom));
+   '&z=' + IntToStrA(VProjection.Zoom));
 end;
 
 end.

@@ -55,12 +55,12 @@ uses
   XMLIntf,
   XMLDoc,
   SysUtils,
-  ALString,
   t_GeoTypes,
   i_Projection,
   i_GeoCoder,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
+  u_AnsiStr,
   u_ResStrings,
   u_GeoToStrFunc;
 
@@ -149,7 +149,7 @@ begin
     PrepareRequestByURL(
       'http://catalog.api.2gis.ru/search?what=' + URLEncode(AnsiToUtf8(VSearch)) +
       '&point=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
-      '&radius=' + ALinttostr(VRadius) +
+      '&radius=' + IntToStrA(VRadius) +
       '&page=1&pagesize=50&key=ruihvk0699&version=1.3&sort=relevance&output=xml'
     );
 end;

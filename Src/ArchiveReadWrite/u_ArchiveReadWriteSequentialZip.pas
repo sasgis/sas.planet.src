@@ -58,7 +58,7 @@ uses
   i_BinaryData,
   u_BinaryData,
   u_StreamReadOnlyByBinaryData,
-  u_StrFunc;
+  u_AnsiStr;
 
 type
   TArchiveReaderSequentialZip = class(TBaseInterfacedObject, IArchiveReaderSequential)

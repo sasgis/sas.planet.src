@@ -72,11 +72,11 @@ uses
   SysUtils,
   StrUtils,
   DateUtils,
-  ALString,
   RegExpr,
   superobject,
   t_GeoTypes,
   i_VectorDataItemSimple,
+  u_AnsiStr,
   u_InterfaceListSimple,
   u_DownloadRequest,
   u_ResStrings;
@@ -235,18 +235,18 @@ begin
 
     if VRegExpr.Exec(VSearch) then begin
       VSearch :=
-        ALIntToStr(ALStrToInt(VRegExpr.Match[1])) + ':' +
-        ALIntToStr(ALStrToInt(VRegExpr.Match[2])) + ':' +
-        ALIntToStr(ALStrToInt(VRegExpr.Match[3]));
+        IntToStrA(StrToIntA(VRegExpr.Match[1])) + ':' +
+        IntToStrA(StrToIntA(VRegExpr.Match[2])) + ':' +
+        IntToStrA(StrToIntA(VRegExpr.Match[3]));
       I := 2;
       if VRegExpr.Match[4] <> '' then begin
-        VSearch := VSearch + ':' + ALIntToStr(ALStrToInt(VRegExpr.Match[5]));
+        VSearch := VSearch + ':' + IntToStrA(StrToIntA(VRegExpr.Match[5]));
         I := 1;
       end;
       VRequestStr := URLEncode(VSearch);
       Result :=
         TDownloadRequest.Create(
-          ALFormat(cURLFmt, [I, VRequestStr, DateTimeToUnix(UtcNow)]),
+          FormatA(cURLFmt, [I, VRequestStr, DateTimeToUnix(UtcNow)]),
           cRequestHeader,
           InetSettings.GetStatic
         );

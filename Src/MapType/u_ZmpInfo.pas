@@ -220,7 +220,6 @@ implementation
 
 uses
   Types,
-  ALString,
   GR32,
   gnugettext,
   c_ZeroGUID,
@@ -229,6 +228,7 @@ uses
   i_BitmapTileSaveLoad,
   i_Appearance,
   i_TileStorageAbilities,
+  u_AnsiStr,
   u_BinaryDataListStatic,
   u_StringByLanguageWithStaticList,
   u_TileDownloadRequestBuilderConfig,
@@ -867,7 +867,7 @@ begin
   VMemCacheTTL := AConfig.ReadInteger('MemCacheTTL', FZmpConfig.MemCacheTTL);
   VMemCacheClearStrategy := AConfig.ReadInteger('MemCacheClearStrategy', FZmpConfig.MemCacheClearStrategy);
   VMainStorageContentType := AConfig.ReadAnsiString('MainStorageContentType', '');
-  VTileFileExt := AlLowerCase(AConfig.ReadAnsiString('Ext', '.jpg'));
+  VTileFileExt := LowerCaseA(AConfig.ReadAnsiString('Ext', '.jpg'));
 
   VIsReadOnly := AConfig.ReadBool('IsReadOnly', False);
   VAllowRead := AConfig.ReadBool('AllowRead', True);

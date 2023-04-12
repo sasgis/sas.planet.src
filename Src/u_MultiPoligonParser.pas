@@ -114,7 +114,7 @@ implementation
 uses
   SysUtils,
   u_DoublePointsAggregator,
-  u_StrFunc,
+  u_AnsiStr,
   u_GeoToStrFunc;
 
 function _IsCoord(const ASym: Char): Boolean;

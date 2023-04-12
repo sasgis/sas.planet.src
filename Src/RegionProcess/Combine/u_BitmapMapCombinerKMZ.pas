@@ -65,7 +65,6 @@ uses
   Math,
   GR32,
   gnugettext,
-  ALString,
   t_GeoTypes,
   t_CommonTypes,
   t_MapCombineOptions,
@@ -76,6 +75,7 @@ uses
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_Bitmap32Static,
+  u_AnsiStr,
   u_BaseInterfacedObject,
   u_TileIteratorByRect,
   u_BinaryDataByMemStream,
@@ -264,7 +264,7 @@ begin
           VData := JPGSaver.Save(VBitmapTile);
 
           if VData <> nil then begin
-            VFileName := VKmzFileNameOnly + ALIntToStr(i) + '_' + ALIntToStr(j) + '.jpg';
+            VFileName := VKmzFileNameOnly + IntToStrA(i) + '_' + IntToStrA(j) + '.jpg';
             VNameInKmz := 'files/' + VFileName;
             VStr := VStr + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
             VStr := VStr + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);

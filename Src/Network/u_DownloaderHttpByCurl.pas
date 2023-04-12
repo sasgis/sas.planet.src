@@ -101,7 +101,7 @@ implementation
 
 uses
   gnugettext,
-  u_StrFunc,
+  u_AnsiStr,
   u_NetworkStrFunc,
   u_ListenerByEvent,
   u_Synchronizer;

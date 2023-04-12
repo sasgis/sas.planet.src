@@ -74,7 +74,7 @@ uses
   i_BinaryData,
   i_StorageState,
   u_MapVersionRequest,
-  u_StrFunc,
+  u_AnsiStr,
   u_GlobalBerkeleyDBHelper;
 
 { TEnumTileInfoByBerkeleyDB }

@@ -145,12 +145,11 @@ implementation
 
 uses
   gnugettext,
-  ALString,
   c_CoordConverter,
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_MapTypeListStatic,
-  u_StrFunc,
+  u_AnsiStr,
   u_FileSystemFunc,
   u_BitmapLayerProviderMapWithLayer;
 
@@ -163,7 +162,7 @@ var
   VContentType: AnsiString;
 begin
   VContentType := AContentTypeInfo.GetContentType;
-  Result := ALSameText(VContentType, 'image/jpg');
+  Result := SameTextA(VContentType, 'image/jpg');
 end;
 
 { TfrExportRMP }

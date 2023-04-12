@@ -27,7 +27,6 @@ uses
   Types,
   Windows,
   SysUtils,
-  ALString,
   SQLite3Handler,
   t_RMapsSQLite,
   i_BinaryData,
@@ -60,7 +59,7 @@ type
     FSQLiteAvailable: Boolean;
     FModType: TRMapsSQLiteModType;
     FIsEllipsoid: Boolean;
-    FFormatSettings: TALFormatSettings;
+    FFormatSettings: TFormatSettings;
   private
     procedure OpenSQLiteStorage;
     procedure CloseSQLiteStorage;
@@ -104,6 +103,7 @@ uses
   i_Projection,
   i_TileIterator,
   i_Bitmap32Static,
+  u_AnsiStr,
   u_ResStrings;
 
 { TExportTaskToRMapsSQLite }
@@ -263,7 +263,7 @@ end;
 
 function TExportTaskToRMapsSQLite.CoordToStr(const AValue: Double): AnsiString;
 begin
-  Result := ALFormat('%.8f', [AValue], FFormatSettings);
+  Result := FormatA('%.8f', [AValue], FFormatSettings);
 end;
 
 procedure TExportTaskToRMapsSQLite.OpenSQLiteStorage;
@@ -417,7 +417,7 @@ end;
 
 function TExportTaskToRMapsSQLite.RMapsZoomStr(const AZoom: Byte): AnsiString;
 begin
-  Result := ALIntToStr(17 - AZoom);
+  Result := IntToStrA(17 - AZoom);
 end;
 
 procedure TExportTaskToRMapsSQLite.SaveTileToSQLiteStorage(
@@ -431,8 +431,8 @@ begin
   Assert(AData <> nil);
 
   VSQLText := FInsertSQLText +
-    ALIntToStr(ATile.X) + ',' +
-    ALIntToStr(ATile.Y) + ',' +
+    IntToStrA(ATile.X) + ',' +
+    IntToStrA(ATile.Y) + ',' +
     RMapsZoomStr(AZoom) +
     ',0,?)';
 

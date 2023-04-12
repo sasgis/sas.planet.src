@@ -360,7 +360,7 @@ uses
   i_WinInetConfig,
   i_MarksDrawConfig,
   u_ListenerNotifierLinksList,
-  u_StrFunc,
+  u_AnsiStr,
   u_GlobalState,
   u_CoordRepresentation,
   u_ResStrings;

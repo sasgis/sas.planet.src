@@ -25,8 +25,6 @@ interface
 
 uses
   Classes,
-  ALString,
-  ALStringList,
   t_GeoTypes,
   i_BinaryData,
   i_VectorItemSubsetBuilder,
@@ -36,17 +34,18 @@ uses
   i_VectorItemSubset,
   i_DoublePointsAggregator,
   i_VectorDataItemSimple,
+  u_AnsiStr,
   u_BaseInterfacedObject;
 
 type
   TPLTSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
-    FFormatSettings: TALFormatSettings;
+    FFormatSettings: TFormatSettingsA;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     procedure ParseStringList(
-      AStringList: TALStringList;
+      AStringList: TStringListA;
       const ABuilder: IGeometryLonLatLineBuilder;
       const APointsAggregator: IDoublePointsAggregator
     );
@@ -113,7 +112,7 @@ function TPLTSimpleParser.LoadFromStream(
   AStream: TStream
 ): IVectorItemSubset;
 var
-  pltstr: TALStringList;
+  pltstr: TStringListA;
   trackname: string;
   VList: IVectorItemSubsetBuilder;
   VItem: IVectorDataItem;
@@ -122,7 +121,7 @@ var
   VBuilder: IGeometryLonLatLineBuilder;
 begin
   Result := nil;
-  pltstr := TALStringList.Create;
+  pltstr := TStringListA.Create;
   try
     pltstr.LoadFromStream(AStream);
     if pltstr.Count > 7 then begin
@@ -151,7 +150,7 @@ begin
 end;
 
 procedure TPLTSimpleParser.ParseStringList(
-  AStringList: TALStringList;
+  AStringList: TStringListA;
   const ABuilder: IGeometryLonLatLineBuilder;
   const APointsAggregator: IDoublePointsAggregator
 );
@@ -171,8 +170,8 @@ begin
       end;
       VValidPoint := True;
       try
-        VPoint.y := ALStrToFloat(GetWord(VStr, ',', 1), FFormatSettings);
-        VPoint.x := ALStrToFloat(GetWord(VStr, ',', 2), FFormatSettings);
+        VPoint.y := StrToFloatA(GetWord(VStr, ',', 1), FFormatSettings);
+        VPoint.x := StrToFloatA(GetWord(VStr, ',', 2), FFormatSettings);
       except
         VValidPoint := False;
       end;
@@ -202,7 +201,7 @@ begin
   N := 0;
   while (WordNmbr > N) do begin
     VPrevPos := VCurrPos + 1;
-    VCurrPos := ALPosEx(Smb, Str, VPrevPos);
+    VCurrPos := PosA(Smb, Str, VPrevPos);
     if VCurrPos = 0 then begin
       VCurrPos := Length(Str);
       Break;

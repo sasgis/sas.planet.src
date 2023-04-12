@@ -1457,6 +1457,7 @@ uses
   i_WindowPositionConfig in 'Src\i_WindowPositionConfig.pas',
   t_CommonTypes in 'Src\t_CommonTypes.pas',
   t_GeoTypes in 'Src\t_GeoTypes.pas',
+  u_AnsiStr in 'Src\u_AnsiStr.pas',
   u_BitmapFunc in 'Src\u_BitmapFunc.pas',
   u_CommonFormAndFrameParents in 'Src\u_CommonFormAndFrameParents.pas',
   u_FileSystemFunc in 'Src\u_FileSystemFunc.pas',

@@ -132,7 +132,7 @@ implementation
 uses
   u_Synchronizer,
   u_BinaryData,
-  u_StrFunc;
+  u_AnsiStr;
 
 type
   TEnumTileInfoArchive = class(TBaseInterfacedObject, IEnumTileInfo)

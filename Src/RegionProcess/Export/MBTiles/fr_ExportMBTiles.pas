@@ -159,11 +159,11 @@ implementation
 uses
   gnugettext,
   Graphics,
-  ALString,
   c_CoordConverter,
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_MapTypeListStatic,
+  u_AnsiStr,
   u_FileSystemFunc,
   u_BitmapLayerProviderMapWithLayer;
 
@@ -179,9 +179,9 @@ var
   VContentType: AnsiString;
 begin
   VContentType := AContentTypeInfo.GetContentType;
-  if ALSameText(VContentType, 'image/jpg') then begin
+  if SameTextA(VContentType, 'image/jpg') then begin
     Result := ctJPG;
-  end else if ALSameText(VContentType, 'image/png') then begin
+  end else if SameTextA(VContentType, 'image/png') then begin
     Result := ctPNG;
   end else begin
     Result := ctUnk;

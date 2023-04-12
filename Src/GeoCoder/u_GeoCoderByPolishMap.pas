@@ -25,7 +25,7 @@ interface
 
 uses
   Classes,
-  sysutils,
+  SysUtils,
   i_GeoCoder,
   i_InterfaceListSimple,
   i_NotifierOperation,
@@ -69,9 +69,9 @@ implementation
 
 uses
   StrUtils,
-  ALString,
   t_GeoTypes,
   i_VectorDataItemSimple,
+  u_AnsiStr,
   u_InterfaceListSimple,
   u_ResStrings;
 
@@ -553,7 +553,7 @@ begin
    VStream.Free;
    end;
   if I < 10 then exit; // файл слишком маленький
-  if ALPosEx('CodePage=65001', VAStr) > 0 then begin
+  if PosA('CodePage=65001', VAStr) > 0 then begin
     VStr := AnsiUpperCase(Utf8ToAnsi(VAStr))
   end else begin
     VStr := AnsiUpperCase(VAStr);

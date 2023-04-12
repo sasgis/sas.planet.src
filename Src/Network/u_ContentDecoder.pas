@@ -42,8 +42,8 @@ type
 implementation
 
 uses
-  ALZLibEx,
-  ALZlibExGZ;
+  ZLibEx,
+  ZlibExGZ;
 
 type
   TContentEncodingType = (
