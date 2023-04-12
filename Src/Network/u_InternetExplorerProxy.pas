@@ -94,7 +94,6 @@ type
     lpszProxyBypass: LPWSTR;
   end;
   TWinHttpProxyInfo = WINHTTP_PROXY_INFO;
-
   WINHTTP_CURRENT_USER_IE_PROXY_CONFIG = record
     fAutoDetect: BOOL;
     lpszAutoConfigUrl: LPWSTR;
@@ -152,7 +151,6 @@ begin
     AInfo.AutoDetect := VConfig.fAutoDetect;
     AInfo.Proxy := VConfig.lpszProxy;
     AInfo.ProxyBypass := VConfig.lpszProxyBypass;
-
     GlobalFreeStr(VConfig.lpszAutoConfigUrl);
     GlobalFreeStr(VConfig.lpszProxy);
     GlobalFreeStr(VConfig.lpszProxyBypass);
@@ -182,12 +180,10 @@ begin
 
   VHttpSession := WinHttpOpen(nil, WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
     WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-
   if VHttpSession = nil then begin
     Result := False;
     Exit;
   end;
-
   if AInfo.AutoConfigUrl <> '' then begin
     VOptions.dwFlags := WINHTTP_AUTOPROXY_CONFIG_URL;
     VOptions.lpszAutoConfigUrl := PWideChar(UnicodeString(AInfo.AutoConfigUrl));
@@ -195,31 +191,30 @@ begin
     VOptions.dwFlags := WINHTTP_AUTOPROXY_AUTO_DETECT;
     VOptions.dwAutoDetectFlags := WINHTTP_AUTO_DETECT_TYPE_DNS_A or WINHTTP_AUTO_DETECT_TYPE_DHCP;
   end;
-
   WinHttpSetTimeouts(VHttpSession, 10000, 10000, 5000, 5000);
-
   VUrl := PWideChar(UnicodeString(AUrl));
   VOptions.fAutoLogonIfChallenged := False;
-
   // Per http://msdn.microsoft.com/en-us/library/aa383153(VS.85).aspx, it is
   // necessary to first try resolving with fAutoLogonIfChallenged set to false.
   // Otherwise, we fail over to trying it with a value of true.  This way we
   // get good performance in the case where WinHTTP uses an out-of-process
   // resolver.  This is important for Vista and Win2k3
-
   Result := WinHttpGetProxyForUrl(VHttpSession, VUrl, VOptions, VProxy);
 
-  if not Result and (GetLastError() = ERROR_WINHTTP_LOGIN_FAILURE) then begin
-    VOptions.fAutoLogonIfChallenged := True;
-    Result := WinHttpGetProxyForUrl(VHttpSession, VUrl, VOptions, VProxy);
+
+  if not Result and (GetLastError() = ERROR_WINHTTP_LOGIN_FAILURE) then begin
+
+    VOptions.fAutoLogonIfChallenged := True;
+
+    Result := WinHttpGetProxyForUrl(VHttpSession, VUrl, VOptions, VProxy);
   end;
 
-  WinHttpCloseHandle(VHttpSession);
+
+  WinHttpCloseHandle(VHttpSession);
 
   if not Result then begin
     Exit;
   end;
-
   if VProxy.dwAccessType = WINHTTP_ACCESS_TYPE_NO_PROXY then begin
     AInfo.Proxy := '';
     AInfo.ProxyBypass := '';
@@ -227,7 +222,6 @@ begin
     AInfo.Proxy := VProxy.lpszProxy;
     AInfo.ProxyBypass := VProxy.lpszProxyBypass;
   end;
-
   GlobalFreeStr(VProxy.lpszProxy);
   GlobalFreeStr(VProxy.lpszProxyBypass);
 end;
