@@ -256,9 +256,6 @@ uses
   uPSRuntime,
   uPSCompiler,
   uPSDisassembly,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   Encodings,
   c_CacheTypeCodes,
   t_GeoTypes,

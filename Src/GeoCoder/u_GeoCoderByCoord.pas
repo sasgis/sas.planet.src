@@ -26,10 +26,7 @@ interface
 uses
   Types,
   Classes,
-  sysutils,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
+  SysUtils,
   t_GeoTypes,
   i_ProjectionType,
   i_ProjectionSet,

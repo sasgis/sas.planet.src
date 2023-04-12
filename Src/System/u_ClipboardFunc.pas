@@ -37,9 +37,6 @@ uses
   Windows,
   Graphics,
   GR32,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   u_BitmapFunc;
 
 procedure CopyBitmapToClipboard(

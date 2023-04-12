@@ -1143,10 +1143,6 @@ uses
   StrUtils,
   Math,
   IniFiles,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  CompatibilityIniFiles,
-  {$ENDIF}
   gnugettext,
   GR32_Gamma,
   t_CommonTypes,

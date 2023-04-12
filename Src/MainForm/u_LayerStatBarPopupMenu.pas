@@ -73,9 +73,6 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  {$IF CompilerVersion <= 18.5}
-  Compatibility,
-  {$IFEND}
   i_InterfaceListStatic,
   i_TerrainProviderListElement,
   u_InetFunc,

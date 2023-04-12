@@ -112,9 +112,6 @@ implementation
 
 uses
   SysUtils,
-  {$IF CompilerVersion <= 18.5}
-  Compatibility,
-  {$IFEND}
   i_LocalCoordConverter,
   u_Synchronizer,
   u_SearchTaskRunnerAsync,

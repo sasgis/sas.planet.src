@@ -57,9 +57,6 @@ implementation
 
 uses
   SysUtils,
-  {$IF CompilerVersion <= 18.5}
-  Compatibility,
-  {$IFEND}
   i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator;
 

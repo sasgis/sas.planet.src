@@ -60,9 +60,6 @@ uses
   SysUtils,
   StrUtils,
   Proj4SK42,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   u_GeoToStrFunc;
 
 function Edit2Digit(

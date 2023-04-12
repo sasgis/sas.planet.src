@@ -230,9 +230,6 @@ implementation
 uses
   Math,
   libcrc32,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   u_BerkeleyDBValueZlib;
 
 const

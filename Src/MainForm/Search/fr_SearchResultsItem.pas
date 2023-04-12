@@ -95,9 +95,6 @@ type
 implementation
 
 uses
-  {$IF CompilerVersion <= 18.5}
-  Compatibility,
-  {$IFEND}
   t_GeoTypes,
   i_AppearanceOfVectorItem,
   u_BitmapFunc;

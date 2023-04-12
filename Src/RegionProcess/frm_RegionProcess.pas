@@ -306,9 +306,6 @@ implementation
 
 uses
   IniFiles,
-  {$IFNDEF UNICODE}
-  CompatibilityIniFiles,
-  {$ENDIF}
   gnugettext,
   t_RMapsSQLite,
   i_InterfaceListSimple,

@@ -186,9 +186,6 @@ uses
   Math,
   Classes,
   vsagps_public_sysutils,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   t_GeoTypes,
   u_ResStrings,
   u_ListenerByEvent;

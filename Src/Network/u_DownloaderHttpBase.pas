@@ -79,9 +79,6 @@ implementation
 
 uses
   SysUtils,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   i_ContentTypeInfo,
   i_DownloadChecker,
   u_AsyncRequestHelperThread,

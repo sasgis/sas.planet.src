@@ -25,9 +25,6 @@ interface
 
 uses
   Classes,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   i_Listener,
   i_NotifierOperation;
 

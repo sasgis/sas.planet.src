@@ -24,9 +24,6 @@ unit u_MultiPoligonParser;
 interface
 
 uses
-  {$IFNDEF UNICODE}
-  Compatibility,
-  {$ENDIF}
   t_GeoTypes,
   i_GeometryLonLatFactory,
   i_DoublePointsAggregator,

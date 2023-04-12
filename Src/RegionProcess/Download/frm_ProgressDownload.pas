@@ -157,9 +157,6 @@ uses
   SysUtils,
   Graphics,
   IniFiles,
-  {$IFNDEF UNICODE}
-  CompatibilityIniFiles,
-  {$ENDIF}
   i_ConfigDataWriteProvider,
   u_ResStrings,
   u_MapTypeIconsList,

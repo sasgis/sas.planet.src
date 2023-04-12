@@ -70,10 +70,6 @@ uses
   Math,
   SysUtils,
   IniFiles,
-  {$IFNDEF UNICODE}
-  Compatibility,
-  CompatibilityIniFiles,
-  {$ENDIF}
   c_MarkPictureAnchor,
   i_StringListStatic,
   u_MarkPictureAnchorFunc,
