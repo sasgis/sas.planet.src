@@ -48,10 +48,9 @@ function SendMessageTimeoutW(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPAR
 
 function EnumWindowsProc(hWnd: HWND; lParam: LPARAM): BOOL; stdcall;
 var
-  VOutVal: DWORD;
+  VOutVal: DWORD_PTR;
   VRetVal: LRESULT;
 begin
-  VOutVal := 0;
   VRetVal := SendMessageTimeoutW(hWnd, WM_FRIEND_OR_FOE, 0, 0, SMTO_BLOCK or SMTO_ABORTIFHUNG, 200, @VOutVal);
   if (VRetVal <> 0) and (VOutVal = WM_FRIEND_OR_FOE) then begin
     PHandle(lParam)^ := hWnd; // Save SASPlanet window handle
