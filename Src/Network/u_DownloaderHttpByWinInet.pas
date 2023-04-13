@@ -132,7 +132,7 @@ implementation
 uses
   u_AnsiStr,
   u_ContentDecoder,
-  u_StrFunc,
+  u_NetworkStrFunc,
   u_ListenerByEvent,
   u_Synchronizer,
   u_HttpStatusChecker,
@@ -481,12 +481,12 @@ begin
 
   // fix automatic URL Decoding inside TALHTTPRequestHeader.SetRawHeaderText
   // for Cookies field: http://www.sasgis.org/mantis/view.php?id=3550
-  VCookie := GetHeaderValue(ARawHttpRequestHeader, 'Cookie');
+  VCookie := GetHeaderValueUp(ARawHttpRequestHeader, 'COOKIE');
   if VCookie <> '' then begin
     FHttpClient.RequestHeader.Cookies.Text := VCookie;
   end;
 
-  VUserAgent := GetHeaderValue(ARawHttpRequestHeader, 'User-Agent');
+  VUserAgent := GetHeaderValueUp(ARawHttpRequestHeader, 'USER-AGENT');
   if VUserAgent = '' then begin
     VUserAgent := AInetConfig.UserAgentString;
   end;
