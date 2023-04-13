@@ -43,12 +43,16 @@ type
 
 function EnumWindows(lpEnumFunc: TFNWndEnumProc; lParam: LPARAM): BOOL; stdcall; external  user32;
 
+function SendMessageTimeoutW(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM;
+  fuFlags, uTimeout: UINT; lpdwResult: PDWORD_PTR): LRESULT; stdcall; external user32;
+
 function EnumWindowsProc(hWnd: HWND; lParam: LPARAM): BOOL; stdcall;
 var
   VOutVal: DWORD;
   VRetVal: LRESULT;
 begin
-  VRetVal := SendMessageTimeout(hWnd, WM_FRIEND_OR_FOE, 0, 0, SMTO_BLOCK or SMTO_ABORTIFHUNG, 200, VOutVal);
+  VOutVal := 0;
+  VRetVal := SendMessageTimeoutW(hWnd, WM_FRIEND_OR_FOE, 0, 0, SMTO_BLOCK or SMTO_ABORTIFHUNG, 200, @VOutVal);
   if (VRetVal <> 0) and (VOutVal = WM_FRIEND_OR_FOE) then begin
     PHandle(lParam)^ := hWnd; // Save SASPlanet window handle
     Result := False; // Stop enumeration

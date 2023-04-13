@@ -13,6 +13,14 @@ type
 
 function EnumWindows(lpEnumFunc: TFNWndEnumProc; lParam: LPARAM): BOOL; stdcall; external  user32;
 
+type
+  {$IFNDEF UNICODE}
+  PDWORD_PTR = ^DWORD_PTR;
+  {$ENDIF}
+
+function SendMessageTimeoutW(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM;
+  fuFlags, uTimeout: UINT; lpdwResult: PDWORD_PTR): LRESULT; stdcall; external user32;
+
 var
   GWindowsCount: Int64 = 0;
 
@@ -29,14 +37,14 @@ begin
   Write(Format('[%d] Send message to 0x%s: ', [GWindowsCount, IntToHex(hWnd, 8)]));
 
   VRetVal :=
-    SendMessageTimeout(
+    SendMessageTimeoutW(
       hWnd,
       WM_IFF,
       0,
       0,
       SMTO_BLOCK or SMTO_ABORTIFHUNG,
       200,
-      VOutVal
+      @VOutVal
     );
 
   if VRetVal <> 0 then begin
