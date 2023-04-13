@@ -258,7 +258,7 @@ begin
   FProxy := cCurlDefaultProxy;
 
   if curl.Module = 0 then begin
-    LibCurlInitialize;
+    LibCurlInitialize([giAll], 'libcurl.dll');
   end else
   if not CurlIsAvailable then begin
     raise ECurl.Create('Curl library is not available');

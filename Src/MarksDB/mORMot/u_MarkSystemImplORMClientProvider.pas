@@ -480,7 +480,7 @@ end;
 {$IFNDEF USE_STATIC_SQLITE3}
 initialization
   FreeAndNil(sqlite3);
-  sqlite3 := TSQLite3LibraryDynamic.Create;
+  sqlite3 := TSQLite3LibraryDynamic.Create('sqlite3.dll');
 
 finalization
   FreeAndNil(sqlite3);
