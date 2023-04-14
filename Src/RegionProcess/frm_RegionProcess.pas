@@ -27,6 +27,7 @@ uses
   Windows,
   SysUtils,
   Forms,
+  Math,
   Classes,
   Controls,
   Dialogs,
