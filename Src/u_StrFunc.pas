@@ -27,16 +27,7 @@ function GetAfter(const SubStr, Str: AnsiString): AnsiString; inline;
 function GetBefore(const SubStr, Str: AnsiString): AnsiString; inline;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString; inline;
 
-function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString;
-function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
-function DeleteHeaderEntry(const AHeaders, AName: AnsiString): AnsiString;
-
 implementation
-
-uses
-  SysUtils,
-  RegExpr,
-  u_AnsiStr;
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 var
@@ -65,69 +56,6 @@ end;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString;
 begin
   Result := GetBefore(Before, GetAfter(After, Str));
-end;
-
-function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString;
-var
-  VRegExpr: TRegExpr;
-begin
-  if AHeaders <> '' then begin
-    VRegExpr := TRegExpr.Create;
-    try
-      VRegExpr.Expression := '(?i)' + AName + ':(\s+|)(.*?)(\r\n|$)';
-      if VRegExpr.Exec(AHeaders) then begin
-        Result := StringReplaceA(AHeaders, VRegExpr.Match[2], AValue, [rfIgnoreCase]);
-      end else begin
-        Result := AName + ': ' + AValue + #13#10 + AHeaders;
-      end;
-    finally
-      VRegExpr.Free;
-    end;
-  end else begin
-    Result := AName + ': ' + AValue + #13#10;
-  end;
-end;
-
-function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
-var
-  VRegExpr: TRegExpr;
-begin
-  if AHeaders <> '' then begin
-    VRegExpr := TRegExpr.Create;
-    try
-      VRegExpr.Expression := '(?i)' + AName + ':(\s+|)(.*?)(\r\n|$)';
-      if VRegExpr.Exec(AHeaders) then begin
-        Result := VRegExpr.Match[2];
-      end else begin
-        Result := '';
-      end;
-    finally
-      VRegExpr.Free;
-    end;
-  end else begin
-    Result := '';
-  end;
-end;
-
-function DeleteHeaderEntry(const AHeaders, AName: AnsiString): AnsiString;
-var
-  VRegExpr: TRegExpr;
-begin
-  if AHeaders <> '' then begin
-    VRegExpr := TRegExpr.Create;
-    try
-      VRegExpr.Expression := '(?i)' + AName + ':(\s+|)(.*?)(\r\n|$)';
-      if VRegExpr.Exec(AHeaders) then begin
-        Result := StringReplaceA(AHeaders, VRegExpr.Match[0], '', []);
-      end else begin
-        Result := AHeaders;
-      end;
-    finally
-      VRegExpr.Free;
-    end;
-  end else begin
-    Result := '';
-  end;
 end;
 
 end.

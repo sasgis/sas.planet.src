@@ -38,8 +38,9 @@ uses
   Classes,
   DateUtils,
   MD5,
-  u_GeoToStrFunc,
   u_AnsiStr,
+  u_GeoToStrFunc,
+  u_NetworkStrFunc,
   u_StrFunc;
 
 procedure CompileTimeReg_Utils(const APSComp: TPSPascalCompiler);
@@ -69,8 +70,10 @@ begin
   APSComp.AddDelphiFunction('function GetBefore(const SubStr, Str: AnsiString): AnsiString');
   APSComp.AddDelphiFunction('function GetBetween(const Str, After, Before: AnsiString): AnsiString');
 
+  // u_NetworkStrFunc
   APSComp.AddDelphiFunction('function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString');
   APSComp.AddDelphiFunction('function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString');
+  APSComp.AddDelphiFunction('function DeleteHeaderEntry(const AHeaders, AName: AnsiString): AnsiString');
 
   // internal routines
   APSComp.AddDelphiFunction('function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer');
@@ -80,6 +83,39 @@ begin
 
   APSComp.AddDelphiFunction('function GetUnixTime: Int64');
   APSComp.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename: string; const AData: AnsiString): Integer');
+end;
+
+function SetHeaderValue_P(const AHeaders, AName, AValue: AnsiString): AnsiString;
+var
+  VHeaders: RawByteString;
+  VNameUp: RawByteString;
+begin
+  VHeaders := AHeaders;
+  VNameUp := UpperCaseA(AName);
+  if ReplaceHeaderValueUp(VHeaders, VNameUp, AValue) then begin
+    Result := VHeaders;
+  end else begin
+    Result := AName + ': ' + AValue + #13#10 + AHeaders;
+  end;
+end;
+
+function GetHeaderValue_P(const AHeaders, AName: AnsiString): AnsiString;
+var
+  VNameUp: RawByteString;
+begin
+  VNameUp := UpperCaseA(AName);
+  Result := GetHeaderValueUp(AHeaders, VNameUp);
+end;
+
+function DeleteHeaderEntry_P(const AHeaders, AName: AnsiString): AnsiString;
+var
+  VHeaders: RawByteString;
+  VNameUp: RawByteString;
+begin
+  VHeaders := AHeaders;
+  VNameUp := UpperCaseA(AName);
+  DeleteHeaderValueUp(VHeaders, VNameUp);
+  Result := VHeaders;
 end;
 
 function SubStrPos_P(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
@@ -209,8 +245,9 @@ begin
   APSExec.RegisterDelphiFunction(@GetBefore, 'GetBefore', cdRegister);
   APSExec.RegisterDelphiFunction(@GetBetween, 'GetBetween', cdRegister);
 
-  APSExec.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
-  APSExec.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
+  APSExec.RegisterDelphiFunction(@SetHeaderValue_P, 'SetHeaderValue', cdRegister);
+  APSExec.RegisterDelphiFunction(@GetHeaderValue_P, 'GetHeaderValue', cdRegister);
+  APSExec.RegisterDelphiFunction(@DeleteHeaderEntry_P, 'DeleteHeaderEntry', cdRegister);
 
   // u_AnsiStr
   APSExec.RegisterDelphiFunction(@StringReplaceA, 'StringReplace', cdRegister);
