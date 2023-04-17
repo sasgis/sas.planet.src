@@ -24,6 +24,7 @@ unit fr_ElevationProfile;
 interface
 
 {$IFDEF DEBUG}
+  {.$DEFINE ENABLE_DIAGNOSTICS}
   {.$DEFINE SHOW_ELEV_TO_DIST_SCALE_INFO}
 {$ENDIF}
 
@@ -37,6 +38,10 @@ interface
 {$IFEND}
 
 uses
+  {$IFDEF ENABLE_DIAGNOSTICS}
+  Windows,
+  Diagnostics,
+  {$ENDIF}
   Types,
   SysUtils,
   Classes,
@@ -1244,16 +1249,19 @@ end;
 procedure TfrElevationProfile.SetLocation(const ALonLat: TDoublePoint);
 
   function FindNearestPoint(
-    const APoint: TDoublePoint;
     const APoints: PDoublePointArray;
-    const ACount: Integer
-  ): Integer;
+    const ACount: Integer;
+    out ADist: Double;
+    out ANearestPoint: TDoublePoint;
+    out ANearestIndex: Integer
+  ): Boolean;
   const
-    cDist = 0.0000001;
+    cEpsilon = 0.000001;
   var
     I: Integer;
-    VCurrPoint: TDoublePoint;
-    VPrevPoint: TDoublePoint;
+    VDist: Double;
+    VCurrPoint: PDoublePoint;
+    VPrevPoint: PDoublePoint;
     VVectorW: TDoublePoint;
     VVectorV: TDoublePoint;
     C1: Double;
@@ -1261,13 +1269,14 @@ procedure TfrElevationProfile.SetLocation(const ALonLat: TDoublePoint);
     B: Double;
     VVectorDist: TDoublePoint;
   begin
-    Result := 0;
+    Result := False;
+    ADist := NaN;
     if ACount > 1 then begin
-      VPrevPoint := APoints[0];
+      VPrevPoint := @APoints[0];
       for I := 1 to ACount - 1 do begin
-        VCurrPoint := APoints[I];
-        VVectorW.X := APoint.X - VPrevPoint.X;
-        VVectorW.Y := APoint.Y - VPrevPoint.Y;
+        VCurrPoint := @APoints[I];
+        VVectorW.X := ALonLat.X - VPrevPoint.X;
+        VVectorW.Y := ALonLat.Y - VPrevPoint.Y;
         VVectorV.X := VCurrPoint.X - VPrevPoint.X;
         VVectorV.Y := VCurrPoint.Y - VPrevPoint.Y;
         C1 := VVectorW.X * VVectorV.X + VVectorW.Y * VVectorV.Y;
@@ -1277,9 +1286,14 @@ procedure TfrElevationProfile.SetLocation(const ALonLat: TDoublePoint);
             B := C1 / C2;
             VVectorDist.X := VVectorW.X - B * VVectorV.X;
             VVectorDist.Y := VVectorW.Y - B * VVectorV.Y;
-            if (VVectorDist.X * VVectorDist.X + VVectorDist.Y * VVectorDist.Y) < cDist then begin
-              Result := I;
-              Break;
+            VDist := (VVectorDist.X * VVectorDist.X + VVectorDist.Y * VVectorDist.Y);
+            if VDist < cEpsilon then begin
+              if (not Result) or (ADist > VDist) then begin
+                Result := True;
+                ADist := VDist;
+                ANearestIndex := I - 1;
+                ANearestPoint := VPrevPoint^;
+              end;
             end;
           end;
         end;
@@ -1288,10 +1302,50 @@ procedure TfrElevationProfile.SetLocation(const ALonLat: TDoublePoint);
     end;
   end;
 
+  function FindNearestPointMulti(
+    out APoint: TDoublePoint;
+    out AIndex: Integer
+  ): Boolean;
+  var
+    I: Integer;
+    VCount: Integer;
+    VDist: Double;
+    VDistMin: Double;
+    {$IFDEF ENABLE_DIAGNOSTICS}
+    VStopWatch: TStopwatch;
+    {$ENDIF}
+  begin
+    Result := False;
+    VCount := 0;
+    VDistMin := NaN;
+    {$IFDEF ENABLE_DIAGNOSTICS}
+    VStopWatch := TStopwatch.StartNew;
+    {$ENDIF}
+    for I := 0 to Length(FLines) - 1 do begin
+      if FindNearestPoint(FLines[I].Points, FLines[I].Count, VDist, APoint, AIndex) then begin
+        if Result then begin
+          if VDist < VDistMin then begin
+            VDistMin := VDist;
+            Inc(AIndex, VCount);
+          end;
+        end else begin
+          Result := True;
+          VDistMin := VDist;
+          Inc(AIndex, VCount);
+        end;
+      end;
+      Inc(VCount, FLines[I].Count);
+    end;
+    {$IFDEF ENABLE_DIAGNOSTICS}
+    VStopWatch.Stop;
+    OutputDebugString(PChar(
+      Self.ClassName + '.FindNearestPointMulti: ' + VStopWatch.ElapsedMilliseconds.ToString + ' ms'
+    ));
+    {$ENDIF}
+  end;
+
 var
-  I: Integer;
   VXPos: Integer;
-  VCount: Integer;
   VIndex: Integer;
   VDist: Double;
   VNearestPoint: TDoublePoint;
@@ -1300,25 +1354,12 @@ begin
     Exit;
   end;
 
-  VIndex := 0;
-  VCount := 0;
-  for I := 0 to Length(FLines) - 1 do begin
-    VIndex := FindNearestPoint(ALonLat, FLines[I].Points, FLines[I].Count);
-    if VIndex > 0 then begin
-      VNearestPoint := FLines[I].Points[VIndex-1];
-      Inc(VIndex, VCount);
-      Break;
-    end else begin
-      Inc(VCount, FLines[I].Count);
-    end;
-  end;
-
-  if VIndex > 0 then begin
+  if FindNearestPointMulti(VNearestPoint, VIndex) then begin
     VDist := FDatum.CalcDist(VNearestPoint, ALonLat);
     if not FIsDistInMeters then begin
       VDist := VDist / 1000;
     end;
-    VDist := FDist[VIndex-1] + VDist;
+    VDist := FDist[VIndex] + VDist;
 
     VXPos := FElevationSeries.CalcXPosValue(VDist);
     UpdatePointInfo(VXPos, 10, @VDist);
