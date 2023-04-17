@@ -5159,6 +5159,7 @@ procedure TfrmMain.mapMouseUp(
   Layer: TCustomLayer
 );
 var
+  I: Integer;
   VMapProjection: IProjection;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
@@ -5301,11 +5302,26 @@ begin
         FSunCalcProvider.Location := VLonLat;
         Exit;
       end;
+
       VVectorItems := FindItems(VLocalConverter, Point(x, y));
       if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
         if (ssCtrl in Shift) then begin
-          FMergePolygonsPresenter.AddVectorItems(VVectorItems);
-          Exit;
+          for I := 0 to VVectorItems.Count - 1 do begin
+            if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatPolygon) then begin
+              FMergePolygonsPresenter.AddVectorItems(VVectorItems);
+              Exit;
+            end;
+          end;
+          for I := 0 to VVectorItems.Count - 1 do begin
+            if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatLine) then begin
+              VProjection := VLocalConverter.Projection;
+              VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
+              VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
+              VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
+              FElevationProfilePresenter.ShowProfile(VVectorItems.Items[I], @VLonLat);
+              Exit;
+            end;
+          end;
         end;
 
         if THtmlDoc.FromVectorItemsDescription(VVectorItems, VTitle, VDescription) then begin

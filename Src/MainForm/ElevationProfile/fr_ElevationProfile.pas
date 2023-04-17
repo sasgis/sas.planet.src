@@ -40,6 +40,7 @@ uses
   Types,
   SysUtils,
   Classes,
+  Math,
   Controls,
   Graphics,
   Forms,
@@ -107,6 +108,8 @@ type
 
     LonLat: TDoublePoint;
     IsLonLatValid: Boolean;
+
+    IsMapCenterd: Boolean;
   end;
 
   TOnCloseEvent = procedure() of object;
@@ -192,7 +195,7 @@ type
 
     procedure ShowPointInfo;
     procedure HidePointInfo;
-    procedure UpdatePointInfo(const AMouseX, AMouseY: Integer);
+    procedure UpdatePointInfo(const AMouseX, AMouseY: Integer; const ADist: PDouble = nil);
 
     procedure OnConfigChange;
 
@@ -202,6 +205,7 @@ type
     procedure ShowProfile(
       const ALines: TArrayOfGeometryLonLatSingleLine
     );
+    procedure SetLocation(const ALonLat: TDoublePoint);
     procedure SetFocusOnChart;
     procedure Clear;
   public
@@ -224,6 +228,7 @@ uses
   gnugettext,
   i_EnumDoublePoint,
   u_ListenerByEvent,
+  u_GeoFunc,
   u_ResStrings;
 
 resourcestring
@@ -1035,7 +1040,7 @@ begin
 
   // point
   if FPointInfo.IsLonLatValid then begin
-    if FConfigStatic.CenterMap then begin
+    if not FPointInfo.IsMapCenterd and FConfigStatic.CenterMap then begin
       FMapGoTo.GotoLonLat(FPointInfo.LonLat, True);
     end else begin
       FMapGoTo.ShowMarker(FPointInfo.LonLat);
@@ -1055,7 +1060,7 @@ begin
   FPointInfo.IsValid := False;
 end;
 
-procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
+procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer; const ADist: PDouble);
 
   function FindNearestDist(
     const AValue: Double;
@@ -1180,9 +1185,14 @@ procedure TfrElevationProfile.UpdatePointInfo(const AMouseX, AMouseY: Integer);
 
 var
   VLeft, VRight: Integer;
-  VDist, VCursorDist, VCursorElev: Double;
+  VDist, VCursorDist: Double;
 begin
-  FElevationSeries.GetCursorValues(VCursorDist, VCursorElev);
+  if ADist <> nil then begin
+    VCursorDist := ADist^;
+  end else begin
+    VCursorDist := FElevationSeries.XScreenToValue(AMouseX);
+  end;
+
   FPointInfo.IsValid := FindNearestDist(VCursorDist, VLeft, VRight);
 
   if not FPointInfo.IsValid then begin
@@ -1197,7 +1207,6 @@ begin
   FPointInfo.Speed := InterpolateValue(FSpeedSeries.YValues, VCursorDist, VLeft, VRight);
 
   FPointInfo.Dist := VCursorDist;
-
   FPointInfo.IsLonLatValid := FindPointLonLat(VCursorDist, VLeft, VRight, FPointInfo.LonLat);
 
   // slope
@@ -1210,6 +1219,8 @@ begin
   end else begin
     FPointInfo.Slope := 0;
   end;
+
+  FPointInfo.IsMapCenterd := ADist <> nil;
 end;
 
 // Utility functions
@@ -1228,6 +1239,91 @@ end;
 class procedure TfrElevationProfile.ResetInfo(out AInfo: TProfileInfoRec);
 begin
   FillChar(AInfo, SizeOf(TProfileInfoRec), 0);
+end;
+
+procedure TfrElevationProfile.SetLocation(const ALonLat: TDoublePoint);
+
+  function FindNearestPoint(
+    const APoint: TDoublePoint;
+    const APoints: PDoublePointArray;
+    const ACount: Integer
+  ): Integer;
+  const
+    cDist = 0.0000001;
+  var
+    I: Integer;
+    VCurrPoint: TDoublePoint;
+    VPrevPoint: TDoublePoint;
+    VVectorW: TDoublePoint;
+    VVectorV: TDoublePoint;
+    C1: Double;
+    C2: Double;
+    B: Double;
+    VVectorDist: TDoublePoint;
+  begin
+    Result := 0;
+    if ACount > 1 then begin
+      VPrevPoint := APoints[0];
+      for I := 1 to ACount - 1 do begin
+        VCurrPoint := APoints[I];
+        VVectorW.X := APoint.X - VPrevPoint.X;
+        VVectorW.Y := APoint.Y - VPrevPoint.Y;
+        VVectorV.X := VCurrPoint.X - VPrevPoint.X;
+        VVectorV.Y := VCurrPoint.Y - VPrevPoint.Y;
+        C1 := VVectorW.X * VVectorV.X + VVectorW.Y * VVectorV.Y;
+        if C1 > 0 then begin
+          C2 := VVectorV.X * VVectorV.X + VVectorV.Y * VVectorV.Y;
+          if C2 > C1 then begin
+            B := C1 / C2;
+            VVectorDist.X := VVectorW.X - B * VVectorV.X;
+            VVectorDist.Y := VVectorW.Y - B * VVectorV.Y;
+            if (VVectorDist.X * VVectorDist.X + VVectorDist.Y * VVectorDist.Y) < cDist then begin
+              Result := I;
+              Break;
+            end;
+          end;
+        end;
+        VPrevPoint := VCurrPoint;
+      end;
+    end;
+  end;
+
+var
+  I: Integer;
+  VXPos: Integer;
+  VCount: Integer;
+  VIndex: Integer;
+  VDist: Double;
+  VNearestPoint: TDoublePoint;
+begin
+  if PointIsEmpty(ALonLat) then begin
+    Exit;
+  end;
+
+  VIndex := 0;
+  VCount := 0;
+  for I := 0 to Length(FLines) - 1 do begin
+    VIndex := FindNearestPoint(ALonLat, FLines[I].Points, FLines[I].Count);
+    if VIndex > 0 then begin
+      VNearestPoint := FLines[I].Points[VIndex-1];
+      Inc(VIndex, VCount);
+      Break;
+    end else begin
+      Inc(VCount, FLines[I].Count);
+    end;
+  end;
+
+  if VIndex > 0 then begin
+    VDist := FDatum.CalcDist(VNearestPoint, ALonLat);
+    if not FIsDistInMeters then begin
+      VDist := VDist / 1000;
+    end;
+    VDist := FDist[VIndex-1] + VDist;
+
+    VXPos := FElevationSeries.CalcXPosValue(VDist);
+    UpdatePointInfo(VXPos, 10, @VDist);
+    ShowPointInfo;
+  end;
 end;
 
 end.

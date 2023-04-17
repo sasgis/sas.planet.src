@@ -24,13 +24,17 @@ unit i_ElevationProfilePresenter;
 interface
 
 uses
+  t_GeoTypes,
   i_VectorDataItemSimple;
 
 type
   IElevationProfilePresenter = interface
     ['{5FD21B61-D27A-446C-A136-8DB16DC07E90}']
 
-    procedure ShowProfile(const AItem: IVectorDataItem);
+    procedure ShowProfile(
+      const AItem: IVectorDataItem;
+      const ALonLatLocation: PDoublePoint = nil
+    );
   end;
 
 implementation

@@ -27,6 +27,7 @@ uses
   SysUtils,
   Controls,
   TB2Item,
+  t_GeoTypes,
   i_Datum,
   i_GeometryLonLat,
   i_ElevationMetaWriter,
@@ -44,6 +45,7 @@ type
   TElevationProfilePresenterOnPanel = class(TBaseInterfacedObject, IElevationProfilePresenter)
   private
     FItemCached: IVectorDataItem;
+    FLonLatLocation: TDoublePoint;
 
     FDrawParent: TWinControl;
     FVisibilityToggleItem: TTBCustomItem;
@@ -72,7 +74,10 @@ type
     procedure RefreshParent;
   private
     { IElevationProfilePresenter }
-    procedure ShowProfile(const AItem: IVectorDataItem);
+    procedure ShowProfile(
+      const AItem: IVectorDataItem;
+      const ALonLatLocation: PDoublePoint = nil
+    );
   public
     constructor Create(
       const ADrawParent: TWinControl;
@@ -90,8 +95,8 @@ type
 implementation
 
 uses
-  t_GeoTypes,
   u_ListenerByEvent,
+  u_GeoFunc,
   u_GeometryFunc;
 
 { TElevationProfilePresenterOnPanel }
@@ -152,6 +157,7 @@ begin
   RemoveTerrainConfigListener;
 
   FItemCached := nil;
+  FLonLatLocation := CEmptyDoublePoint;
 
   FDrawParent.Visible := False;
   FVisibilityToggleItem.Enabled := False;
@@ -167,14 +173,26 @@ begin
 end;
 
 procedure TElevationProfilePresenterOnPanel.ShowProfile(
-  const AItem: IVectorDataItem
+  const AItem: IVectorDataItem;
+  const ALonLatLocation: PDoublePoint
 );
 var
   VLines: TArrayOfGeometryLonLatSingleLine;
 begin
-  RemoveTerrainConfigListener;
-
   Assert(Supports(AItem.Geometry, IGeometryLonLatLine));
+
+  if ALonLatLocation <> nil then begin
+    FLonLatLocation := ALonLatLocation^;
+  end else begin
+    FLonLatLocation := CEmptyDoublePoint;
+  end;
+
+  if (FItemCached <> nil) and FItemCached.Geometry.IsSameGeometry(AItem.Geometry) then begin
+    FfrElevationProfile.SetLocation(FLonLatLocation);
+    Exit;
+  end;
+
+  RemoveTerrainConfigListener;
 
   FItemCached := AItem;
 
@@ -226,6 +244,7 @@ begin
   FVisibilityToggleItem.Enabled := True;
 
   FfrElevationProfile.SetFocusOnChart;
+  FfrElevationProfile.SetLocation(FLonLatLocation);
 
   AddTerrainConfigListener;
 end;
