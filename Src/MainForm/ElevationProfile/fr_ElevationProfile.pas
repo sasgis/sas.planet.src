@@ -28,10 +28,6 @@ interface
   {.$DEFINE SHOW_ELEV_TO_DIST_SCALE_INFO}
 {$ENDIF}
 
-{$IF CompilerVersion > 19.0}
-  {$DEFINE HAS_TEE_GDI_PLUS}
-{$IFEND}
-
 {$IF CompilerVersion > 23.0}
   {$DEFINE HAS_TEE_DRAW_STYLE}
   {$DEFINE HAS_TEE_ZOOM_OPT}
@@ -53,9 +49,7 @@ uses
   ExtCtrls,
   StdCtrls,
   TBXDkPanels,
-  {.$IFDEF HAS_TEE_GDI_PLUS}
   TeeGDIPlus,
-  {.$ENDIF}
   TeEngine,
   TeeProcs,
   Chart,
@@ -380,14 +374,12 @@ procedure TfrElevationProfile.SetupChart;
   end;
 
 begin
-  {$IFDEF HAS_TEE_GDI_PLUS}
   with TTeeGDIPlus.Create(chtProfile) do begin
     Active := True;
     Antialias := False;
     AntiAliasText := gpfNormal;
     TeePanel := chtProfile;
   end;
-  {$ENDIF}
 
   FAxisValuesFormatDef := chtProfile.BottomAxis.AxisValuesFormat;
 
