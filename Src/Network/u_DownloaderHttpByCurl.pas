@@ -404,8 +404,21 @@ begin
 
   VInetConfig := ARequest.InetConfig;
 
-  FHttpOptions.TimeOutMS := VInetConfig.TimeOut;
-  FHttpOptions.ConnectionTimeOutMS := FHttpOptions.TimeOutMS;
+  if not Assigned(FOnDownloadProgress) then begin
+    // The maximum time in milliseconds that you allow the libcurl transfer operation to take.
+
+    // Since this puts a hard limit for how long time a request is allowed to take, it has limited
+    // use in dynamic use cases with varying transfer times. You are then advised to explore
+    // CURLOPT_LOW_SPEED_LIMIT, CURLOPT_LOW_SPEED_TIME or using CURLOPT_PROGRESSFUNCTION to
+    // implement your own timeout logic.
+    // https://curl.se/libcurl/c/CURLOPT_TIMEOUT_MS.html
+
+    FHttpOptions.TimeOutMS := VInetConfig.TimeOut;
+  end else begin
+    FHttpOptions.TimeOutMS := 0;
+  end;
+
+  FHttpOptions.ConnectionTimeOutMS := VInetConfig.TimeOut;
 
   if GetHeaderValueUp(FHttpRequest.Headers, 'USER-AGENT') = '' then begin
     FHttpRequest.Headers := 'User-Agent: ' + VInetConfig.UserAgentString + #13#10 + FHttpRequest.Headers;
