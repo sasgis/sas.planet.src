@@ -23,6 +23,12 @@ unit u_ExportMarks2GPX;
 
 interface
 
+// Documentation says that only waypoints supports Categories extension
+// gpxx:WaypointExtension / gpxx:Categories / gpxx:Category
+
+{.$DEFINE ENABLE_CATEGORIES_FOR_RTE}
+{.$DEFINE ENABLE_CATEGORIES_FOR_TRK}
+
 uses
   Windows,
   SysUtils,
@@ -884,21 +890,28 @@ procedure TExportMarks2GPX.AddMark(
       // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
       // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of track.
 
-      VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-      if Supports(ALonLatLine, IAppearanceLine, VAppearanceLine) then begin
+      if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+        VExtensionsNode := VCurrentNode.AddChild('extensions');
         VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
         VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
+        {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
         AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
+        {$ENDIF}
         VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
         VExtensionNode.AddChild('gpxtrx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
+        {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
         AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
+        {$ENDIF}
       end
       else
       begin
+        {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
+        VExtensionsNode := VCurrentNode.AddChild('extensions');
         VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
         AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
         VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
         AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
+        {$ENDIF}
       end;
 
       // A Track Segment holds a list of Track Points which are logically
@@ -958,20 +971,27 @@ procedure TExportMarks2GPX.AddMark(
       // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about route.
       // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of route.
 
-      VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-      if Supports(ALonLatLine, IAppearanceLine, VAppearanceLine) then begin
+      if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+        VExtensionsNode := VCurrentNode.AddChild('extensions');
         VExtensionNode := VExtensionsNode.AddChild('gpxx:RouteExtension');
         VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
+        {$IFDEF ENABLE_CATEGORIES_FOR_RTE}
         AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
+        {$ENDIF}
         VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
         VExtensionNode.AddChild('gpxrte:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
+        {$IFDEF ENABLE_CATEGORIES_FOR_RTE}
         AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
+        {$ENDIF}
       end
       else begin
+        {$IFDEF ENABLE_CATEGORIES_FOR_RTE}
+        VExtensionsNode := VCurrentNode.AddChild('extensions');
         VExtensionNode := VExtensionsNode.AddChild('gpxx:RouteExtension');
         AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
         VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
         AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
+        {$ENDIF}
       end;
 
       VPointNum := 0;
@@ -1050,21 +1070,28 @@ procedure TExportMarks2GPX.AddMark(
     // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
     // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of track.
 
-    VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-    if Supports(ALonLatPath, IAppearanceLine, VAppearanceLine) then begin
+    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+      VExtensionsNode := VCurrentNode.AddChild('extensions');
       VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
       VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
+      {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
       AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
+      {$ENDIF}
       VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
       VExtensionNode.AddChild('gpxtrx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
+      {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
       AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
+      {$ENDIF}
     end
     else
     begin
+      {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
+      VExtensionsNode := VCurrentNode.AddChild('extensions');
       VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
       AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
       VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
       AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
+      {$ENDIF}
     end;
 
     VFakeTimeGenerator := TGpxFakeTimeGenerator.Create(FNowUtc, FGeoCalc, ALonLatPath);
