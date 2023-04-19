@@ -310,10 +310,11 @@ begin
   FGPXDoc.Version := '1.0';
   FGPXDoc.Encoding := 'UTF-8';
   FGPXNode := FGPXDoc.AddChild('gpx');
-  FGPXNode.Attributes['xmlns'] := 'http://www.topografix.com/GPX/1/1';
 
-  FGPXNode.Attributes['creator'] := ToXmlText('SAS.Planet ' + GetVersion);
   FGPXNode.Attributes['version'] := '1.1'; // You must include the version number in your GPX document.
+  FGPXNode.Attributes['creator'] := ToXmlText('SAS.Planet ' + GetVersion);
+
+  FGPXNode.Attributes['xmlns'] := 'http://www.topografix.com/GPX/1/1';
   FGPXNode.Attributes['xmlns:xsi'] := 'http://www.w3.org/2001/XMLSchema-instance';
   FGPXNode.Attributes['xmlns:wptx1'] := 'http://www.garmin.com/xmlschemas/WaypointExtension/v1';
   FGPXNode.Attributes['xmlns:gpxtrx'] := 'http://www.garmin.com/xmlschemas/GpxExtensions/v3';
@@ -330,11 +331,6 @@ begin
 
   FGPXMetaNode := FGPXNode.AddChild('metadata'); // Metadata about the file.
   // FGPXNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-
-  FGPXMetaNode.AddChild('time').Text := ToXmlDateTime(FNowUtc);
-  VLinkNode := FGPXMetaNode.AddChild('link');
-  VLinkNode.Attributes['href'] := 'http://www.sasgis.org/';
-  VLinkNode.AddChild('text').Text := 'SAS.Planet';
 
   // Set name of GPX = first line mark in tree.
   // If there is no line mark - use any mark.
@@ -365,6 +361,18 @@ begin
     VEMailNode.Attributes['domain'] := ToXmlText(Copy(VUserEMail, Pos('@', VUserEMail) + 1, MaxInt));
   end;
 
+  // FGPXMetaNode.AddChild('copyright'); // Copyright and license information governing use of the file.
+
+  // Link
+  VLinkNode := FGPXMetaNode.AddChild('link');
+  VLinkNode.Attributes['href'] := 'http://www.sasgis.org/';
+  VLinkNode.AddChild('text').Text := 'SAS.Planet';
+
+  // Timestamp
+  FGPXMetaNode.AddChild('time').Text := ToXmlDateTime(FNowUtc);
+
+  // FGPXMetaNode.AddChild('keywords'); // Keywords associated with the file. Search engines or databases can use this information to classify the data.
+
   // Determinate bounds of all marks
   FillChar(VBounds, SizeOf(VBounds), 0);
   ScanBounds(VBounds, ATree);
@@ -377,8 +385,6 @@ begin
     VBoundsNode.Attributes['minlon'] := R2AnsiStrPoint(VBounds.Left);
   end;
 
-  // FGPXMetaNode.AddChild('copyright'); // Copyright and license information governing use of the file.
-  // FGPXMetaNode.AddChild('keywords'); // Keywords associated with the file. Search engines or databases can use this information to classify the data.
   // FGPXMetaNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
 
   FFileName := AFileName;
