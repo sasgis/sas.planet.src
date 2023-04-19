@@ -1226,31 +1226,58 @@ const
     (B: 255; G: 255; R: 255; A: 0),    // gcWhite          15
     (B: 0;   G: 0;   R: 0;   A: 255)); // gcTransparent    16
 
+  function RoundColor(const AColor: Byte): Byte;
+  begin
+    case AColor of
+      0..63    : Result := 0;
+      64..191  : Result := 128;
+      192..255 : Result := 255;
+    end;
+  end;
+
 var
+  X: TGarminColor;
   VColor: TColor32Entry;
   VGarminColor: TGarminColor;
-  VMin: Integer;
-  VDiff: Integer;
-  X: TGarminColor;
 begin
-  // TODO: implement better matching alg? E.g. better human-friendly "visual" match
+  VGarminColor := gcTransparent;
+
   VColor.ARGB := AColor32;
-  if VColor.A >= 128 then
-    Result := GarminPalette[gcTransparent]
-  else begin
-    VMin := MaxInt;
-    VGarminColor := gcBlack;
-    for X := gcBlack to Pred(High(X)) do begin // ignore gcTransparent
-      VDiff := Sqr(GarminColors[VGarminColor].R - VColor.R) +
-               Sqr(GarminColors[VGarminColor].G - VColor.G) +
-               Sqr(GarminColors[VGarminColor].B - VColor.B);
-      if VDiff < VMin then begin
-        VMin := VDiff;
-        VGarminColor := X;
+  VColor.A := 0; // ignore transparency
+
+  if (VColor.B = VColor.R) and (VColor.B = VColor.G) then begin
+    // black - gray - white
+    case VColor.B of
+      0..22    : VGarminColor := gcBlack;     // -> 0
+      23..127  : VGarminColor := gcDarkGray;  // -> 64
+      128..222 : VGarminColor := gcLightGray; // -> 192
+      223..255 : VGarminColor := gcWhite;     // -> 255
+    end;
+  end else begin
+    // other colors
+    VColor.B := RoundColor(VColor.B);
+    VColor.G := RoundColor(VColor.G);
+    VColor.R := RoundColor(VColor.R);
+
+    if (VColor.B and VColor.R and VColor.G) = 128 then begin
+      // lost color information
+      VGarminColor := gcLightGray;
+    end else begin
+      for X := Low(X) to Pred(High(X)) do begin // ignore gcTransparent
+        if GarminColors[X].ARGB = VColor.ARGB then begin
+          VGarminColor := X;
+          Break;
+        end;
       end;
     end;
-    Result := GarminPalette[VGarminColor];
   end;
+
+  if VGarminColor = gcTransparent then begin
+    VGarminColor := gcBlack;
+    Assert(False, 'GPX GarminColor detection failed: 0x' + IntToHex(VColor.ARGB, 8));
+  end;
+
+  Result := GarminPalette[VGarminColor];
 end;
 
 class function TExportMarks2GPX.ToUtc(const ADateTime: TDateTime): TDateTime;
