@@ -715,12 +715,10 @@ procedure TExportMarks2GPX.AddMark(
   procedure AddPoint(
     const AMark: IVectorDataItem;
     const ALonLatPoint: IGeometryLonLatPoint);
-  var
-    VWidth: Integer;
 
-    function IsPhoto: Boolean;
+    function IsPhoto(const AWidth: Integer): Boolean;
     begin
-      Result := (VWidth > 100);
+      Result := AWidth > 100;
     end;
 
   var
@@ -733,17 +731,22 @@ procedure TExportMarks2GPX.AddMark(
     VDateTime: TDateTime;
     VType: String;
     VSym: String;
+    VHref: string;
+    VDisplayMode: string;
   begin
     VCurrentNode := FGPXNode.AddChild('wpt');
     VCurrentNode.Attributes['lat'] := R2AnsiStrPoint(ALonLatPoint.Point.Y); // The latitude of the point. Decimal degrees, WGS84 datum.
     VCurrentNode.Attributes['lon'] := R2AnsiStrPoint(ALonLatPoint.Point.X); // The longitude of the point. Decimal degrees, WGS84 datum.
-    VCurrentNode.ChildNodes['name'].Text := ToXmlText(AMark.Name); // The GPS name of the waypoint. This field will be transferred to and from the GPS. GPX does not place restrictions on the length of this field or the characters contained in it. It is up to the receiving application to validate the field before sending it to the GPS.
-    VCurrentNode.ChildNodes['fix'].Text := '2d'; // Type of GPX fix. Must be one of: 'none' No fix; '2d' position only; '3d' position and elevation; 'dgps' DGPS; 'pps' Military signal used; To represent "fix type unknown", leave out fix entirely.
+
+    // VCurrentNode.ChildNodes['ele'].Text := XMLText(''); // Elevation (in meters) of the point.
 
     // Order of extraction is important
     VDesc := ExtractDesc(AMark.Desc);
     VCmt := ExtractCmt(VDesc);
     VDateTime := ExtractTime(VDesc);
+    VType := ExtractType(VDesc);
+    VSym := ExtractSym(VDesc);
+
     if VDateTime <> 0 then begin
       // Creation/modification timestamp for element. Date and time in are in
       // Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601
@@ -751,10 +754,17 @@ procedure TExportMarks2GPX.AddMark(
       // allowed for millisecond timing in tracklogs.
       VCurrentNode.ChildNodes['time'].Text := ToXmlDateTime(ToUtc(VDateTime));
     end;
-    VType := ExtractType(VDesc);
-    VSym := ExtractSym(VDesc);
-    if (VCmt = '') and (VDesc <> '') then // Google Earth ignore "desc"? And shows "cmt" only
-    begin
+
+    // VCurrentNode.ChildNodes['magvar'].Text := XMLText(''); // Magnetic variation (in degrees) at the point
+    // VCurrentNode.ChildNodes['geoidheight'].Text := XMLText(''); // Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid. As defined in NMEA GGA message.
+
+    // The GPS name of the waypoint. This field will be transferred to and from the GPS.
+    // GPX does not place restrictions on the length of this field or the characters contained in it.
+    // It is up to the receiving application to validate the field before sending it to the GPS.
+    VCurrentNode.ChildNodes['name'].Text := ToXmlText(AMark.Name);
+
+
+    if (VCmt = '') and (VDesc <> '') then begin // Google Earth ignore "desc"? And shows "cmt" only
       VCmt := VDesc;
       VDesc := '';
     end;
@@ -763,68 +773,56 @@ procedure TExportMarks2GPX.AddMark(
     if VDesc <> '' then
       VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
 
-    // VCurrentNode.ChildNodes['ele'].Text := XMLText(''); // Elevation (in meters) of the point.
     // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data. "Garmin eTrex", "USGS quad Boston North", e.g.
-    // VCurrentNode.ChildNodes['sat'].Text := XMLText(''); // Number of satellites used to calculate the GPX fix.
-    // VCurrentNode.ChildNodes['hdop'].Text := XMLText(''); // Horizontal dilution of precision.
-    // VCurrentNode.ChildNodes['hdop'].Text := XMLText(''); // Vertical dilution of precision.
-    // VCurrentNode.ChildNodes['pdop'].Text := XMLText(''); // Position dilution of precision.
-    // VCurrentNode.ChildNodes['ageofdgpsdata'].Text := XMLText(''); // Number of seconds since last DGPS update.
-    // VCurrentNode.ChildNodes['dgpsid'].Text := XMLText(''); // ID of DGPS station used in differential correction.
-    // VCurrentNode.ChildNodes['magvar'].Text := XMLText(''); // Magnetic variation (in degrees) at the point
-    // VCurrentNode.ChildNodes['geoidheight'].Text := XMLText(''); // Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid. As defined in NMEA GGA message.
 
     if not Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
       VAppearanceIcon := nil;
     end;
     if (VAppearanceIcon <> nil) and (VAppearanceIcon.Pic <> nil) then begin
-      VWidth := VAppearanceIcon.Pic.GetMarker.Size.X;
-      if IsPhoto then
-      begin
+
+      VHref := SaveMarkIcon(VAppearanceIcon);
+
+      if IsPhoto(VAppearanceIcon.Pic.GetMarker.Size.X) then begin
         if VType = '' then
           VType := 'photo';
         if VSym = '' then
           VSym := 'Scenic Area';
-        VCurrentNode.ChildNodes['type'].Text := ToXmlText(VType); // Type (classification) of the waypoint.
-        VCurrentNode.ChildNodes['sym'].Text := ToXmlText(VSym); // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
-        VCurrentNode.ChildNodes['link'].Attributes['href'] := ToXmlText(SaveMarkIcon(VAppearanceIcon)); // Link to additional information about the waypoint.
-        VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-        VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
-        VExtensionNode.AddChild('gpxx:DisplayMode').Text := 'SymbolAndName'; // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
-        AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-        VExtensionNode := VExtensionsNode.AddChild('wptx1:WaypointExtension');
-        VExtensionNode.AddChild('wptx1:DisplayMode').Text := 'SymbolAndName'; // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
-        AddCategories(VExtensionNode.AddChild('wptx1:Categories'), 'wptx1');
-      end
-      else
-      begin
+        VDisplayMode := 'SymbolAndName';
+      end else begin
         if VType = '' then
           VType := 'user';
         if VSym = '' then
           VSym := FindSymByMark(AMark);
-        VCurrentNode.ChildNodes['type'].Text := ToXmlText(VType); // Type (classification) of the waypoint.
-        VCurrentNode.ChildNodes['sym'].Text := ToXmlText(VSym); // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
-        VCurrentNode.ChildNodes['link'].Attributes['href'] := ToXmlText(SaveMarkIcon(VAppearanceIcon)); // Link to additional information about the waypoint.
-        VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-        VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
-        VExtensionNode.AddChild('gpxx:DisplayMode').Text := 'SymbolOnly'; // Other possible values: 'SymbolAndName' 'SymbolAndDescription'
-        AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-        VExtensionNode := VExtensionsNode.AddChild('wptx1:WaypointExtension');
-        VExtensionNode.AddChild('wptx1:DisplayMode').Text := 'SymbolOnly'; // Other possible values: 'SymbolAndName' 'SymbolAndDescription'
-        AddCategories(VExtensionNode.AddChild('wptx1:Categories'), 'wptx1');
+        VDisplayMode := 'SymbolOnly';
       end
-    end
-    else begin
-      VCurrentNode.ChildNodes['type'].Text := ''; // Type (classification) of the waypoint.
-      VCurrentNode.ChildNodes['sym'].Text := ''; // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
-      VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-      VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
-      VExtensionNode.AddChild('gpxx:DisplayMode').Text := 'SymbolAndName'; // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
-      AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-      VExtensionNode := VExtensionsNode.AddChild('wptx1:WaypointExtension');
-      VExtensionNode.AddChild('wptx1:DisplayMode').Text := 'SymbolAndName'; // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
-      AddCategories(VExtensionNode.AddChild('wptx1:Categories'), 'wptx1');
+    end else begin
+      VHref := '';
+      VSym := '';
+      VType := '';
+      VDisplayMode := 'SymbolAndName';
     end;
+
+    if VHref <> '' then begin
+      VCurrentNode.ChildNodes['link'].Attributes['href'] := ToXmlText(VHref); // Link to additional information about the waypoint.
+    end;
+    VCurrentNode.ChildNodes['sym'].Text := ToXmlText(VSym); // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
+    VCurrentNode.ChildNodes['type'].Text := ToXmlText(VType); // Type (classification) of the waypoint.
+    VCurrentNode.ChildNodes['fix'].Text := '2d'; // Type of GPX fix. Must be one of: 'none' No fix; '2d' position only; '3d' position and elevation; 'dgps' DGPS; 'pps' Military signal used; To represent "fix type unknown", leave out fix entirely.
+
+    // VCurrentNode.ChildNodes['sat'].Text := XMLText(''); // Number of satellites used to calculate the GPX fix.
+    // VCurrentNode.ChildNodes['hdop'].Text := XMLText(''); // Horizontal dilution of precision.
+    // VCurrentNode.ChildNodes['vdop'].Text := XMLText(''); // Vertical dilution of precision.
+    // VCurrentNode.ChildNodes['pdop'].Text := XMLText(''); // Position dilution of precision.
+    // VCurrentNode.ChildNodes['ageofgpsdata'].Text := XMLText(''); // Number of seconds since last DGPS update.
+    // VCurrentNode.ChildNodes['dgpsid'].Text := XMLText(''); // ID of DGPS station used in differential correction.
+
+    VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
+    VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
+    VExtensionNode.AddChild('gpxx:DisplayMode').Text := ToXmlText(VDisplayMode); // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
+    AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
+    VExtensionNode := VExtensionsNode.AddChild('wptx1:WaypointExtension');
+    VExtensionNode.AddChild('wptx1:DisplayMode').Text := ToXmlText(VDisplayMode); // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
+    AddCategories(VExtensionNode.AddChild('wptx1:Categories'), 'wptx1');
   end;
 
   procedure AddLine(
