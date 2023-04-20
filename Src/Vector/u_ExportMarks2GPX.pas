@@ -23,12 +23,6 @@ unit u_ExportMarks2GPX;
 
 interface
 
-// Documentation says that only waypoints supports Categories extension
-// gpxx:WaypointExtension / gpxx:Categories / gpxx:Category
-
-{.$DEFINE ENABLE_CATEGORIES_FOR_RTE}
-{.$DEFINE ENABLE_CATEGORIES_FOR_TRK}
-
 uses
   Windows,
   SysUtils,
@@ -45,6 +39,13 @@ uses
   i_VectorItemTree;
 
 type
+  TGpxGeometryType = (
+    // do not change items order
+    ggtWayPoint,  // IGeometryLonLatPoint
+    ggtRoute,     // IGeometryLonLatSingleLine
+    ggtTrack      // IGeometryLonLatSingleLine, IGeometryLonLatMultiLine
+  );
+
   TExportMarks2GPX = class
   private
     FGPXDoc: TALXMLDocument;
@@ -56,18 +57,22 @@ type
     FNameNode: TALXMLNode;
     FDescNode: TALXMLNode;
     FTrackNumber: Integer;
+    FRouteNumber: Integer;
     FNowUtc: TDateTime;
     function AddTree(
-      const ACategory: String;
-      const ATree: IVectorItemTree
-    ): boolean;
+      const ACategory: string;
+      const ATree: IVectorItemTree;
+      const AGeometryType: TGpxGeometryType
+    ): Boolean;
     function AddMarks(
-      const ACategory: String;
-      const AMarksSubset: IVectorItemSubset
+      const ACategory: string;
+      const AMarksSubset: IVectorItemSubset;
+      const AGeometryType: TGpxGeometryType
     ): Boolean;
     procedure AddMark(
-      const ACategory: String;
-      const AMark: IVectorDataItem
+      const ACategory: string;
+      const AMark: IVectorDataItem;
+      const AGeometryType: TGpxGeometryType
     );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
 
@@ -77,9 +82,9 @@ type
     class function ToGpxColor(const AColor32: TColor32): AnsiString; static;
     class function ToUtc(const ADateTime: TDateTime): TDateTime; static;
     class function ToXmlDateTime(const ADateTime: TDateTime; const ADetailed: Boolean = False): AnsiString; static;
-    class function ToXmlText(const AStr: String): AnsiString; static;
+    class function ToXmlText(const AStr: string): AnsiString; static;
 
-    class function FindSymByName(const AName: String): AnsiString; static;
+    class function FindSymByName(const AName: string): AnsiString; static;
     class function FindSymByMark(const AMark: IVectorDataItem): AnsiString; static;
   public
     procedure ExportTreeToGPX(
@@ -410,15 +415,20 @@ procedure TExportMarks2GPX.ExportTreeToGPX(
   const ATree: IVectorItemTree;
   const AFileName: string
 );
+var
+  I: TGpxGeometryType;
 begin
   FGeoCalc := AGeoCalc;
   FBuildInfo := ABuildInfo;
   FGPXDoc := TALXMLDocument.Create;
   try
     FTrackNumber := 1;
+    FRouteNumber := 1;
 
     PrepareExportToFile(AFileName, ATree);
-    AddTree('', ATree);
+    for I := Low(I) to High(I) do begin
+      AddTree('', ATree, I);
+    end;
     SaveToFile;
   finally
     FreeAndNil(FGPXDoc);
@@ -428,7 +438,8 @@ end;
 
 function TExportMarks2GPX.AddMarks(
   const ACategory: String;
-  const AMarksSubset: IVectorItemSubset
+  const AMarksSubset: IVectorItemSubset;
+  const AGeometryType: TGpxGeometryType
 ): Boolean;
 var
   VMark: IVectorDataItem;
@@ -439,16 +450,17 @@ begin
   if Assigned(AMarksSubset) then begin
     VEnumMarks := AMarksSubset.GetEnum;
     while (VEnumMarks.Next(1, VMark, @I) = S_OK) do begin
-      AddMark(ACategory, VMark);
+      AddMark(ACategory, VMark, AGeometryType);
       Result := True;
     end;
   end;
 end;
 
 function TExportMarks2GPX.AddTree(
-  const ACategory: String;
-  const ATree: IVectorItemTree
-): boolean;
+  const ACategory: string;
+  const ATree: IVectorItemTree;
+  const AGeometryType: TGpxGeometryType
+): Boolean;
 var
   I: Integer;
   VSubTree: IVectorItemTree;
@@ -459,25 +471,26 @@ begin
 
   for I := 0 to ATree.SubTreeItemCount - 1 do begin
     VSubTree := ATree.GetSubTreeItem(I);
-    if AddTree(ACategory + '\' + VSubTree.Name, VSubTree) then
+    if AddTree(ACategory + '\' + VSubTree.Name, VSubTree, AGeometryType) then
       Result := True;
   end;
-  if AddMarks(ACategory, ATree.Items) then
+  if AddMarks(ACategory, ATree.Items, AGeometryType) then
     Result := True;
 end;
 
 procedure TExportMarks2GPX.AddMark(
-  const ACategory: String;
-  const AMark: IVectorDataItem
+  const ACategory: string;
+  const AMark: IVectorDataItem;
+  const AGeometryType: TGpxGeometryType
 );
 
-  function ExtractDesc(const ADesc: String): String;
+  function ExtractDesc(const ADesc: String): string;
 
-    procedure RemoveField(var AStr: String; const AFieldName: String);
+    procedure RemoveField(var AStr: string; const AFieldName: String);
     var
       X: Integer;
-      VPrefix: String;
-      VPre: String;
+      VPrefix: string;
+      VPre: string;
     begin
       VPrefix := AFieldName + ': ';
       X := Pos(VPrefix, AStr);
@@ -509,10 +522,10 @@ procedure TExportMarks2GPX.AddMark(
     RemoveField(Result, 'GPS Coordinates');
   end;
 
-  function ExtractCmt(var ADesc: String): String;
+  function ExtractCmt(var ADesc: String): string;
   var
     X: Integer;
-    VPre: String;
+    VPre: string;
   begin
     // Extract "cmt:" field
     X := Pos('cmt: ', ADesc);
@@ -540,8 +553,8 @@ procedure TExportMarks2GPX.AddMark(
   function ExtractTime(var ADesc: String): TDateTime;
   var
     X: Integer;
-    VPre: String;
-    VDesc: String;
+    VPre: string;
+    VDesc: string;
   begin
     Result := 0;
     if TryStrToDateTime(ADesc, Result) then
@@ -618,10 +631,10 @@ procedure TExportMarks2GPX.AddMark(
     end;
   end;
 
-  function ExtractType(var ADesc: String): String;
+  function ExtractType(var ADesc: String): string;
   var
     X: Integer;
-    VPre: String;
+    VPre: string;
   begin
     // Extract "type:" field
     X := Pos('type: ', ADesc);
@@ -646,10 +659,10 @@ procedure TExportMarks2GPX.AddMark(
       Result := '';
   end;
 
-  function ExtractSym(var ADesc: String): String;
+  function ExtractSym(var ADesc: String): string;
   var
     X: Integer;
-    VPre: String;
+    VPre: string;
   begin
     // Extract "sym:" field
     X := Pos('sym: ', ADesc);
@@ -722,14 +735,18 @@ procedure TExportMarks2GPX.AddMark(
     VAppearanceIcon: IAppearancePointIcon;
     VExtensionsNode: TALXMLNode;
     VExtensionNode: TALXMLNode;
-    VDesc: String;
-    VCmt: String;
+    VDesc: string;
+    VCmt: string;
     VDateTime: TDateTime;
-    VType: String;
-    VSym: String;
+    VType: string;
+    VSym: string;
     VHref: string;
     VDisplayMode: string;
   begin
+    if AGeometryType <> ggtWayPoint then begin
+      Exit;
+    end;
+
     VCurrentNode := FGPXNode.AddChild('wpt');
     VCurrentNode.Attributes['lat'] := R2AnsiStrPoint(ALonLatPoint.Point.Y); // The latitude of the point. Decimal degrees, WGS84 datum.
     VCurrentNode.Attributes['lon'] := R2AnsiStrPoint(ALonLatPoint.Point.X); // The longitude of the point. Decimal degrees, WGS84 datum.
@@ -812,6 +829,7 @@ procedure TExportMarks2GPX.AddMark(
     // VCurrentNode.ChildNodes['ageofgpsdata'].Text := XMLText(''); // Number of seconds since last DGPS update.
     // VCurrentNode.ChildNodes['dgpsid'].Text := XMLText(''); // ID of DGPS station used in differential correction.
 
+    // WaypointExtension
     VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
     VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
     VExtensionNode.AddChild('gpxx:DisplayMode').Text := ToXmlText(VDisplayMode); // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
@@ -827,7 +845,7 @@ procedure TExportMarks2GPX.AddMark(
 
     function IsTrack: Boolean;
     var
-      VLCDescr: String;
+      VLCDescr: string;
     begin
       VLCDescr := LowerCase(AMark.Desc);
       Result := (
@@ -847,12 +865,16 @@ procedure TExportMarks2GPX.AddMark(
     VExtensionsNode: TALXMLNode;
     VExtensionNode: TALXMLNode;
     VPointNum: Integer;
-    VDesc: String;
-    VCmt: String;
+    VDesc: string;
+    VCmt: string;
     VDateTime: TDateTime;
     VFakeTimeGenerator: IGpxFakeTimeGenerator;
   begin
     if IsTrack then begin
+      if AGeometryType <> ggtTrack then begin
+        Exit;
+      end;
+
       VCurrentNode := FGPXNode.AddChild('trk');
       VCurrentNode.ChildNodes['name'].Text := ToXmlText(AMark.Name); // GPS name of track.
 
@@ -884,28 +906,11 @@ procedure TExportMarks2GPX.AddMark(
       // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
       // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of track.
 
+      // TrackExtension
       if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
         VExtensionsNode := VCurrentNode.AddChild('extensions');
         VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
         VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-        {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
-        AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-        {$ENDIF}
-        VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
-        VExtensionNode.AddChild('gpxtrx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-        {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
-        AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
-        {$ENDIF}
-      end
-      else
-      begin
-        {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
-        VExtensionsNode := VCurrentNode.AddChild('extensions');
-        VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
-        AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-        VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
-        AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
-        {$ENDIF}
       end;
 
       // A Track Segment holds a list of Track Points which are logically
@@ -942,6 +947,10 @@ procedure TExportMarks2GPX.AddMark(
       end;
     end
     else begin
+      if AGeometryType <> ggtRoute then begin
+        Exit;
+      end;
+
       VCurrentNode := FGPXNode.AddChild('rte');
       VCurrentNode.ChildNodes['name'].Text := ToXmlText(AMark.Name); // GPS name of route.
 
@@ -958,34 +967,19 @@ procedure TExportMarks2GPX.AddMark(
       if VDesc <> '' then
         VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
 
-      VCurrentNode.ChildNodes['number'].Text := ToXmlText(IntToStr(FTrackNumber)); // GPS route number.
-      Inc(FTrackNumber);
+      VCurrentNode.ChildNodes['number'].Text := ToXmlText(IntToStr(FRouteNumber)); // GPS route number.
+      Inc(FRouteNumber);
 
       // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
       // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about route.
       // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of route.
 
+      // RouteExtention
+      VExtensionsNode := VCurrentNode.AddChild('extensions');
+      VExtensionNode := VExtensionsNode.AddChild('gpxx:RouteExtension');
+      VExtensionNode.AddChild('gpxx:IsAutoNamed').Text := 'true';
       if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
-        VExtensionsNode := VCurrentNode.AddChild('extensions');
-        VExtensionNode := VExtensionsNode.AddChild('gpxx:RouteExtension');
         VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-        {$IFDEF ENABLE_CATEGORIES_FOR_RTE}
-        AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-        {$ENDIF}
-        VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
-        VExtensionNode.AddChild('gpxrte:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-        {$IFDEF ENABLE_CATEGORIES_FOR_RTE}
-        AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
-        {$ENDIF}
-      end
-      else begin
-        {$IFDEF ENABLE_CATEGORIES_FOR_RTE}
-        VExtensionsNode := VCurrentNode.AddChild('extensions');
-        VExtensionNode := VExtensionsNode.AddChild('gpxx:RouteExtension');
-        AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-        VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
-        AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
-        {$ENDIF}
       end;
 
       VPointNum := 0;
@@ -1008,7 +1002,7 @@ procedure TExportMarks2GPX.AddMark(
         // 'name' must be present, otherwise route is not visible
         VPointNode.AddChild('name').Text := ToXmlText(AMark.Name + ' ' + IntToStr(VPointNum + 1));
 
-        VPointNode.AddChild('sym').Text := 'waypoint';
+        VPointNode.AddChild('sym').Text := 'Waypoint';
 
         Inc(VPointNum);
       end;
@@ -1029,15 +1023,21 @@ procedure TExportMarks2GPX.AddMark(
     VPointNode: TALXMLNode;
     VExtensionsNode: TALXMLNode;
     VExtensionNode: TALXMLNode;
-    VDesc: String;
-    VCmt: String;
+    VDesc: string;
+    VCmt: string;
     VDateTime: TDateTime;
     I: Integer;
     VPointNum: Integer;
     VFakeTimeGenerator: IGpxFakeTimeGenerator;
   begin
-    if ALonLatPath.Count <= 0 then
+    if AGeometryType <> ggtTrack then begin
       Exit;
+    end;
+
+    if ALonLatPath.Count <= 0 then begin
+      Exit;
+    end;
+
     if ALonLatPath.Count = 1 then begin
       VLonLatPathLine := ALonLatPath.Item[0];
       AddLine(AMark, VLonLatPathLine);
@@ -1064,28 +1064,11 @@ procedure TExportMarks2GPX.AddMark(
     // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
     // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of track.
 
+    // TrackExtension
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
       VExtensionsNode := VCurrentNode.AddChild('extensions');
       VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
       VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-      {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
-      AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-      {$ENDIF}
-      VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
-      VExtensionNode.AddChild('gpxtrx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-      {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
-      AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
-      {$ENDIF}
-    end
-    else
-    begin
-      {$IFDEF ENABLE_CATEGORIES_FOR_TRK}
-      VExtensionsNode := VCurrentNode.AddChild('extensions');
-      VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
-      AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-      VExtensionNode := VExtensionsNode.AddChild('gpxtrx:TrackExtension');
-      AddCategories(VExtensionNode.AddChild('gpxtrx:Categories'), 'gpxtrx');
-      {$ENDIF}
     end;
 
     VFakeTimeGenerator := TGpxFakeTimeGenerator.Create(FNowUtc, FGeoCalc, ALonLatPath);
@@ -1313,7 +1296,7 @@ end;
 
 class function TExportMarks2GPX.ToXmlText(const AStr: String): AnsiString;
 var
-  VStr: String;
+  VStr: string;
 begin
   VStr := AdjustLineBreaks(AStr);
 
@@ -1472,13 +1455,13 @@ const
     'Zoo');
 
 type
-  TWords = array of String;
+  TWords = array of string;
   TIndexRec = record Similarity: Double; Sym: Integer; end;
   TIndex = array of TIndexRec;
 
-  procedure SplitIntoWords(const AImageName: String; out AWords: TWords);
+  procedure SplitIntoWords(const AImageName: string; out AWords: TWords);
   var
-    ImageName: String;
+    ImageName: string;
     StartInd: Integer;
     X: Integer;
     IsCapital: Boolean;
@@ -1529,7 +1512,7 @@ type
 
   procedure BuildIndex(const AWords: TWords; out AIndex: TIndex);
 
-    function FindSimilarity(const AGarminName: String; const AWords: TWords): Double;
+    function FindSimilarity(const AGarminName: string; const AWords: TWords): Double;
     var
       GarminNames: TWords;
       X: Integer;
