@@ -280,18 +280,15 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
     VVerMajor: String;
     VVerMinor: String;
     VVerBuild: String;
-    VSrcRev: Integer;
-    VDummy: String;
   begin
-    FBuildInfo.GetBuildSrcInfo(VSrcRev, VDummy);
+    VVer := FBuildInfo.GetVersion;
     VDateTime := FBuildInfo.GetBuildDate;
     if VDateTime = 0 then
       VDateTime := FNowUtc;
-    VVer := FBuildInfo.GetVersion;
     VVerMajor := Trim(Copy(VVer, 1, 2)); if VVerMajor = '' then VVerMajor := IntToStr(YearOf(VDateTime) mod 100);
     VVerMinor := Trim(Copy(VVer, 3, 2)); if VVerMinor = '' then VVerMinor := IntToStr(MonthOf(VDateTime));
     VVerBuild := Trim(Copy(VVer, 5, 2)); if VVerBuild = '' then VVerBuild := IntToStr(DayOf(VDateTime));
-    Result := Format('%s.%s.%s.%d', [VVerMajor, VVerMinor, VVerBuild, VSrcRev]);
+    Result := 'v.' + VVerMajor + VVerMinor + VVerBuild;
   end;
 
 var
@@ -342,14 +339,14 @@ begin
   // If there is no line mark - use any mark.
   // If there is no marks - use file name.
   FNameNode := FGPXMetaNode.AddChild('name');
+
   VMark := FindFirstMark(ATree, True);
   if not Assigned(VMark) then
     VMark := FindFirstMark(ATree, False);
-  if Assigned(VMark) then
-  begin
+
+  if Assigned(VMark) then begin
     FNameNode.Text := ToXmlText(VMark.Name);
-    if VMark.Desc <> '' then
-    begin
+    if VMark.Desc <> '' then begin
       FDescNode := FGPXMetaNode.AddChild('desc');
       FDescNode.Text := ToXmlText(VMark.Desc);
     end;
@@ -360,8 +357,7 @@ begin
   // Set user name = system user name
   VAuthorNode := FGPXMetaNode.AddChild('author');
   VAuthorNode.AddChild('name').Text := ToXmlText(GetUserName);
-  if VUserEMail <> '' then
-  begin
+  if VUserEMail <> '' then begin
     VEMailNode := VAuthorNode.AddChild('email');
     VEMailNode.Attributes['id'] := ToXmlText(Copy(VUserEMail, 1, Pos('@', VUserEMail) - 1));
     VEMailNode.Attributes['domain'] := ToXmlText(Copy(VUserEMail, Pos('@', VUserEMail) + 1, MaxInt));
