@@ -988,7 +988,7 @@ procedure TExportMarks2GPX.AddMark(
       // RouteExtention
       VExtensionsNode := VCurrentNode.AddChild('extensions');
       VExtensionNode := VExtensionsNode.AddChild('gpxx:RouteExtension');
-      VExtensionNode.AddChild('gpxx:IsAutoNamed').Text := 'true';
+      VExtensionNode.AddChild('gpxx:IsAutoNamed').Text := 'false';
       if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
         VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
       end;
