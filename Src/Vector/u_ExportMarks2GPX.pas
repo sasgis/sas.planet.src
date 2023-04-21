@@ -892,16 +892,7 @@ procedure TExportMarks2GPX.AddMark(
       // Order of extraction is important
       VDesc := ExtractDesc(AMark.Desc);
       VCmt := ExtractCmt(VDesc);
-      VDateTime := ExtractTime(VDesc);
-      if VDateTime <> 0 then begin
-        // Creation/modification timestamp for element. Date and time in are in
-        // Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601
-        // specification for date/time representation. Fractional seconds are
-        // allowed for millisecond timing in tracklogs.
-        VCurrentNode.ChildNodes['time'].Text := ToXmlDateTime(ToUtc(VDateTime));
-      end;
-      if (VCmt = '') and (VDesc <> '') then // Google Earth ignore "desc"? And shows "cmt" only
-      begin
+      if (VCmt = '') and (VDesc <> '') then begin // Google Earth ignore "desc"? And shows "cmt" only
         VCmt := VDesc;
         VDesc := '';
       end;
@@ -910,11 +901,12 @@ procedure TExportMarks2GPX.AddMark(
       if VDesc <> '' then
         VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
 
+      // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
+      // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
+
       VCurrentNode.ChildNodes['number'].Text := ToXmlText(IntToStr(FTrackNumber)); // GPS track number.
       Inc(FTrackNumber);
 
-      // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
-      // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
       // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of track.
 
       // TrackExtension
@@ -968,8 +960,7 @@ procedure TExportMarks2GPX.AddMark(
       // Order of extraction is important
       VDesc := ExtractDesc(AMark.Desc);
       VCmt := ExtractCmt(VDesc);
-      if (VCmt = '') and (VDesc <> '') then // Google Earth ignore "desc"? And shows "cmt" only
-      begin
+      if (VCmt = '') and (VDesc <> '') then begin// Google Earth ignore "desc"? And shows "cmt" only
         VCmt := VDesc;
         VDesc := '';
       end;
@@ -978,11 +969,12 @@ procedure TExportMarks2GPX.AddMark(
       if VDesc <> '' then
         VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
 
+      // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
+      // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about route.
+
       VCurrentNode.ChildNodes['number'].Text := ToXmlText(IntToStr(FRouteNumber)); // GPS route number.
       Inc(FRouteNumber);
 
-      // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
-      // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about route.
       // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of route.
 
       // RouteExtention
@@ -1060,19 +1052,21 @@ procedure TExportMarks2GPX.AddMark(
 
     VDesc := AMark.Desc;
     VCmt := ExtractCmt(VDesc);
+    if (VCmt = '') and (VDesc <> '') then begin// Google Earth ignore "desc"? And shows "cmt" only
+      VCmt := VDesc;
+      VDesc := '';
+    end;
     if VCmt <> '' then
       VCurrentNode.ChildNodes['cmt'].Text := ToXmlText(VCmt); // GPS waypoint comment. Sent to GPS as comment.
-    VDateTime := ExtractTime(VDesc);
-    if VDateTime <> 0 then
-      VCurrentNode.ChildNodes['time'].Text := ToXmlDateTime(VDateTime); // Creation/modification timestamp for element. Date and time in are in Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601 specification for date/time representation. Fractional seconds are allowed for millisecond timing in tracklogs.
     if VDesc <> '' then
       VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
+
+    // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
+    // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
 
     VCurrentNode.ChildNodes['number'].Text := ToXmlText(IntToStr(FTrackNumber)); // GPS track number.
     Inc(FTrackNumber);
 
-    // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
-    // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
     // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of track.
 
     // TrackExtension
