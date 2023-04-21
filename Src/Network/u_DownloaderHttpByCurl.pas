@@ -61,6 +61,7 @@ type
 
     FProxyResolver: TCurlProxyResolver;
 
+    FAcceptEncoding: Boolean;
     FTryDetectContentType: Boolean;
     FOnDownloadProgress: TOnDownloadProgress;
 
@@ -102,6 +103,7 @@ implementation
 uses
   gnugettext,
   u_AnsiStr,
+  u_ContentDecoder,
   u_NetworkStrFunc,
   u_ListenerByEvent,
   u_Synchronizer;
@@ -146,7 +148,15 @@ begin
 
   FHttpOptions.StoreCookie := AAllowUseCookie;
   FHttpOptions.FollowLocation := AAllowRedirect;
-  FHttpOptions.AcceptEncoding := AAcceptEncoding;
+
+  // libcurl doesn't fix header values Content-Length
+  // and Content-Encoding in HTTP response when it automatically
+  // decompress received content. In other hand, we rely on the
+  // values of these headers, so we will deal with content
+  // decompression ourselves.
+  FAcceptEncoding := AAcceptEncoding;
+  FHttpOptions.AcceptEncoding := False; // disable it for libcurl
+
   FHttpOptions.IgnoreSSLCertificateErrors := True; // ToDo
 
   FillChar(FHttpProxy, SizeOf(FHttpProxy), 0);
@@ -299,7 +309,7 @@ begin
         if VResult then begin
           Result :=
             OnAfterResponse(
-              False,
+              FAcceptEncoding,
               FTryDetectContentType,
               ARequest,
               FHttpResponse.Code,
@@ -424,8 +434,9 @@ begin
     FHttpRequest.Headers := 'User-Agent: ' + VInetConfig.UserAgentString + #13#10 + FHttpRequest.Headers;
   end;
 
-  if FHttpOptions.AcceptEncoding then begin
+  if FAcceptEncoding then begin
     DeleteHeaderValueUp(FHttpRequest.Headers, 'ACCEPT-ENCODING');
+    AddHeaderValue(FHttpRequest.Headers, 'Accept-Encoding', TContentDecoder.GetDecodersStr);
   end;
 
   VProxyConfig := VInetConfig.ProxyConfigStatic;
