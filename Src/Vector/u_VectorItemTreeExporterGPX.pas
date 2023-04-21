@@ -36,6 +36,7 @@ type
   private
     FGeoCalc: IGeoCalc;
     FBuildInfo: IBuildInfo;
+    FLineIsAlwaysTrack: Boolean;
   private
     procedure ProcessExport(
       AOperationID: Integer;
@@ -44,8 +45,11 @@ type
       const ATree: IVectorItemTree
     );
   public
-    constructor Create(const AGeoCalc: IGeoCalc;
-                       const ABuildInfo: IBuildInfo);
+    constructor Create(
+      const AGeoCalc: IGeoCalc;
+      const ABuildInfo: IBuildInfo;
+      const ALineIsAlwaysTrack: Boolean
+    );
   end;
 
 implementation
@@ -57,12 +61,15 @@ uses
 
 constructor TVectorItemTreeExporterGPX.Create(
   const AGeoCalc: IGeoCalc;
-  const ABuildInfo: IBuildInfo);
+  const ABuildInfo: IBuildInfo;
+  const ALineIsAlwaysTrack: Boolean
+);
 begin
   Assert(Assigned(AGeoCalc));
   inherited Create;
   FGeoCalc := AGeoCalc;
   FBuildInfo := ABuildInfo;
+  FLineIsAlwaysTrack := ALineIsAlwaysTrack;
 end;
 
 procedure TVectorItemTreeExporterGPX.ProcessExport(
@@ -74,7 +81,7 @@ procedure TVectorItemTreeExporterGPX.ProcessExport(
 var
   VExport: TExportMarks2GPX;
 begin
-  VExport := TExportMarks2GPX.Create;
+  VExport := TExportMarks2GPX.Create(FLineIsAlwaysTrack);
   try
     VExport.ExportTreeToGPX(FGeoCalc, FBuildInfo, ATree, AFileName);
   finally

@@ -48,6 +48,8 @@ type
 
   TExportMarks2GPX = class
   private
+    FLineIsAlwaysTrack: Boolean;
+
     FGPXDoc: TALXMLDocument;
     FGeoCalc: IGeoCalc;
     FBuildInfo: IBuildInfo;
@@ -59,6 +61,7 @@ type
     FTrackNumber: Integer;
     FRouteNumber: Integer;
     FNowUtc: TDateTime;
+
     function AddTree(
       const ACategory: string;
       const ATree: IVectorItemTree;
@@ -93,6 +96,10 @@ type
       const ATree: IVectorItemTree;
       const AFileName: string
     );
+  public
+    constructor Create(
+      const ALineIsAlwaysTrack: Boolean
+    );
   end;
 
 implementation
@@ -110,6 +117,12 @@ uses
   u_StreamReadOnlyByBinaryData;
 
 { TExportMarks2GPX }
+
+constructor TExportMarks2GPX.Create(const ALineIsAlwaysTrack: Boolean);
+begin
+  inherited Create;
+  FLineIsAlwaysTrack := ALineIsAlwaysTrack;
+end;
 
 procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const ATree: IVectorItemTree);
 
@@ -845,14 +858,12 @@ procedure TExportMarks2GPX.AddMark(
 
     function IsTrack: Boolean;
     var
-      VLCDescr: string;
+      VDesc: string;
     begin
-      VLCDescr := LowerCase(AMark.Desc);
-      Result := (
-                  (ALonLatLine.Count >= 500) or
-                  (Pos('track: true', VLCDescr) > 0)
-                ) and
-                (Pos('track: false', VLCDescr) <= 0);
+      VDesc := LowerCase(AMark.Desc);
+      Result :=
+        (FLineIsAlwaysTrack or (Pos('track: true', VDesc) > 0) ) and
+        (Pos('track: false', VDesc) <= 0);
     end;
 
   var

@@ -114,12 +114,21 @@ begin
     );
   VList.Add(VItem);
 
-  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc, ABuildInfo);
+  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc, ABuildInfo, True);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       'gpx',
-      'GPS Exchange files (GPX)'
+      'GPS Exchange format (GPX track)'
+    );
+  VList.Add(VItem);
+
+  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc, ABuildInfo, False);
+  VItem :=
+    TVectorItemTreeExporterListItem.Create(
+      VExporter,
+      'gpx',
+      'GPS Exchange format (GPX route)'
     );
   VList.Add(VItem);
 
