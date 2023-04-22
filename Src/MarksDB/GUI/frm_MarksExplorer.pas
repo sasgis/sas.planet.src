@@ -147,6 +147,10 @@ type
     tbitmCopyAsText: TTBXItem;
     TBXSeparatorItem5: TTBXSeparatorItem;
     tbxShowElevProfile: TTBXItem;
+    TBXSeparatorItem6: TTBXSeparatorItem;
+    tbxSelectAllVisible: TTBXItem;
+    tbxRevertSelection: TTBXItem;
+    TBXSeparatorItem7: TTBXSeparatorItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -235,6 +239,8 @@ type
     procedure tbitmCopyAsTextClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure tbxShowElevProfileClick(Sender: TObject);
+    procedure tbxSelectAllVisibleClick(Sender: TObject);
+    procedure tbxRevertSelectionClick(Sender: TObject);
   private
     type
       TCopyPasteAction = (cpNone, cpCopy, cpCut);
@@ -371,7 +377,7 @@ begin
   FRegionProcess := ARegionProcess;
   FElevationProfilePresenter := AElevationProfilePresenter;
 
-  MarksListBox.MultiSelect := true;
+  MarksListBox.MultiSelect := True;
   FMarkSystemConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarkSystemConfigChange);
   FCategoryDBListener := TNotifyNoMmgEventListener.Create(Self.OnCategoryDbChanged);
   FMarksDBListener := TNotifyNoMmgEventListener.Create(Self.OnMarksDbChanged);
@@ -1539,6 +1545,46 @@ begin
   tbxtmAddToMergePolygons.Visible :=
     (VCount[mcPoly] > 0) or
     (VCount[mcMultiPoly] > 0);
+end;
+
+procedure TfrmMarksExplorer.tbxSelectAllVisibleClick(Sender: TObject);
+var
+  I: Integer;
+  VList: TList;
+  VNode: TTreeNode;
+begin
+  VList := TList.Create;
+  try
+    for I := 0 to MarksListBox.Items.Count - 1 do begin
+      VNode := MarksListBox.Items[I];
+      if VNode.StateIndex = 1 then begin
+        VList.Add(VNode);
+      end;
+    end;
+    MarksListBox.Select(VList);
+  finally
+    VList.Free;
+  end;
+end;
+
+procedure TfrmMarksExplorer.tbxRevertSelectionClick(Sender: TObject);
+var
+  I: Integer;
+  VList: TList;
+  VNode: TTreeNode;
+begin
+  VList := TList.Create;
+  try
+    for I := 0 to MarksListBox.Items.Count - 1 do begin
+      VNode := MarksListBox.Items[I];
+      if not VNode.Selected then begin
+        VList.Add(VNode);
+      end;
+    end;
+    MarksListBox.Select(VList);
+  finally
+    VList.Free;
+  end;
 end;
 
 procedure TfrmMarksExplorer.tbxShowElevProfileClick(Sender: TObject);

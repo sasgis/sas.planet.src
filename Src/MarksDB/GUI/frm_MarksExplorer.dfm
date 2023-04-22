@@ -610,6 +610,16 @@ object frmMarksExplorer: TfrmMarksExplorer
     end
     object TBXSeparatorItem5: TTBXSeparatorItem
     end
+    object tbxSelectAllVisible: TTBXItem
+      Caption = 'Select All Visible Placemarks'
+      OnClick = tbxSelectAllVisibleClick
+    end
+    object tbxRevertSelection: TTBXItem
+      Caption = 'Revert Selection'
+      OnClick = tbxRevertSelectionClick
+    end
+    object TBXSeparatorItem7: TTBXSeparatorItem
+    end
     object tbitmMarkInfo: TTBXItem
       Caption = 'Placemark Info'
       ImageIndex = 27
@@ -620,6 +630,8 @@ object frmMarksExplorer: TfrmMarksExplorer
       OnClick = btnSaveMarkClick
       Caption = 'Export Placemark'
       Hint = 'Export selected placemark'
+    end
+    object TBXSeparatorItem6: TTBXSeparatorItem
     end
     object tbxtmAddToMergePolygons: TTBXItem
       Caption = 'Add to Merge Polygons'
