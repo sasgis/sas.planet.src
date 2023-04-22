@@ -287,6 +287,8 @@ type
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IVectorDataItem;
     function GetSelectedMarksIdList: IInterfaceListStatic;
+    function GetSelectedMarksIdArray: TArrayOfMarkId;
+
     procedure WMGetMinMaxInfo(var Msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
@@ -646,6 +648,16 @@ begin
   end;
   if VTemp.Count > 0 then begin
     Result := VTemp.MakeStaticAndClear;
+  end;
+end;
+
+function TfrmMarksExplorer.GetSelectedMarksIdArray: TArrayOfMarkId;
+var
+  I: Integer;
+begin
+  SetLength(Result, MarksListBox.SelectionCount);
+  for I := 0 to MarksListBox.SelectionCount - 1 do begin
+    Result[I] := IMarkId(MarksListBox.Selections[I].Data);
   end;
 end;
 
@@ -1464,32 +1476,69 @@ begin
 end;
 
 procedure TfrmMarksExplorer.tbpmnMarksPopup(Sender: TObject);
+type
+  TMarksCountId = (mcTotal, mcLine, mcMultiLine, mcPoly, mcMultiPoly);
 var
+  I: Integer;
+  VMarkIdArray: TArrayOfMarkId;
+  VCount: array [TMarksCountId] of Integer;
   VMark: IVectorDataItem;
+  VGeometry: IGeometryLonLat;
   VLine: IGeometryLonLatMultiLine;
   VPolygon: IGeometryLonLatMultiPolygon;
-  VUngroupVisible: Boolean;
-  VElevationProfileVisible: Boolean;
-  VSelection: IInterfaceListStatic;
 begin
-  VUngroupVisible := False;
-  VElevationProfileVisible := False;
+  FillChar(VCount, Length(VCount) * SizeOf(VCount[mcTotal]), 0);
 
-  VSelection := GetSelectedMarksIdList;
-  if Assigned(VSelection) and (VSelection.Count = 1) then begin
-    VMark := GetSelectedMarkFull;
-    if Assigned(VMark) then begin
-      if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPolygon) then begin
-        VUngroupVisible := (VPolygon.Count > 1);
-      end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
-        VUngroupVisible := (VLine.Count > 1);
+  VMarkIdArray := GetSelectedMarksIdArray;
+
+  for I := 0 to Length(VMarkIdArray) - 1 do begin
+    if not Assigned(VMarkIdArray[I]) then begin
+      Continue;
+    end;
+
+    VMark := FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(VMarkIdArray[I]);
+    if not Assigned(VMark) then begin
+      Continue;
+    end;
+
+    Inc(VCount[mcTotal]);
+
+    VGeometry := VMark.Geometry;
+    if Supports(VGeometry, IGeometryLonLatSinglePolygon) then begin
+      Inc(VCount[mcPoly]);
+    end else
+    if Supports(VGeometry, IGeometryLonLatMultiPolygon, VPolygon) then begin
+      if VPolygon.Count = 1 then begin
+        Inc(VCount[mcPoly]);
+      end else begin
+        Inc(VCount[mcMultiPoly]);
       end;
-      VElevationProfileVisible := Supports(VMark.Geometry, IGeometryLonLatLine);
+    end else
+    if Supports(VMark.Geometry, IGeometryLonLatSingleLine) then begin
+      Inc(VCount[mcLine]);
+    end else
+    if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+      if VLine.Count = 1 then begin
+        Inc(VCount[mcLine]);
+      end else begin
+        Inc(VCount[mcMultiLine]);
+      end;
+    end else begin
+      Dec(VCount[mcTotal]);
     end;
   end;
 
-  tbxtmUngroup.Visible := VUngroupVisible;
-  tbxShowElevProfile.Visible := VElevationProfileVisible;
+  tbxtmUngroup.Visible :=
+    (VCount[mcTotal] = 1) and
+    ((VCount[mcMultiPoly] = 1) or (VCount[mcMultiLine] = 1));
+
+  tbxShowElevProfile.Visible :=
+    (VCount[mcTotal] = 1) and
+    ((VCount[mcLine] = 1) or (VCount[mcMultiLine] = 1));
+
+  tbxtmAddToMergePolygons.Visible :=
+    (VCount[mcPoly] > 0) or
+    (VCount[mcMultiPoly] > 0);
 end;
 
 procedure TfrmMarksExplorer.tbxShowElevProfileClick(Sender: TObject);

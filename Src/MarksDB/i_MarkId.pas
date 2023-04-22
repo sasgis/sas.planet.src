@@ -48,6 +48,8 @@ type
     function IsSameMark(const AMark: IVectorDataItem): Boolean;
   end;
 
+  TArrayOfMarkId = array of IMarkId;
+
 implementation
 
 end.
