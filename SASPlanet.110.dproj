@@ -1430,6 +1430,7 @@
         <DCCReference Include="Src\MainForm\i_MapTypeIconsList.pas"/>
         <DCCReference Include="Src\MainForm\i_MapViewGoto.pas"/>
         <DCCReference Include="Src\MainForm\i_MapZoomingConfig.pas"/>
+        <DCCReference Include="Src\MainForm\i_MarkOnMapEditProvider.pas"/>
         <DCCReference Include="Src\MainForm\i_MenuGeneratorByTree.pas"/>
         <DCCReference Include="Src\MainForm\i_MessageHandler.pas"/>
         <DCCReference Include="Src\MainForm\i_MouseHandler.pas"/>
@@ -1475,6 +1476,7 @@
         <DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorSimple.pas"/>
         <DCCReference Include="Src\MainForm\u_MapViewGoto.pas"/>
         <DCCReference Include="Src\MainForm\u_MapZoomingConfig.pas"/>
+        <DCCReference Include="Src\MainForm\u_MarkOnMapEditProvider.pas"/>
         <DCCReference Include="Src\MainForm\u_MarksDbMenu.pas"/>
         <DCCReference Include="Src\MainForm\u_MenuGeneratorByStaticTreeSimple.pas"/>
         <DCCReference Include="Src\MainForm\u_MouseState.pas"/>

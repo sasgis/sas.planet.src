@@ -88,6 +88,7 @@ uses
   i_RegionProcess,
   i_LineOnMapEdit,
   i_PointOnMapEdit,
+  i_MarkOnMapEditProvider,
   i_MapTypeIconsList,
   i_MessageHandler,
   i_MouseState,
@@ -949,6 +950,7 @@ type
     FPanelPositionSaveLoad: IPanelsPositionsSaveLoad;
     FStateConfigDataProvider: IConfigDataWriteProvider;
 
+    FMarkOnMapEditProvider: IMarkOnMapEditProviderInternal;
     FLineOnMapEdit: ILineOnMapEdit;
     FLineOnMapByOperation: array [TStateEnum] of ILineOnMapEdit;
     FPointOnMapEdit: IPointOnMapEdit;
@@ -1123,6 +1125,7 @@ type
 
     procedure OnInternalErrorNotify(const AMsg: IInterface);
     procedure SwitchSunCalc(const ACalcType: TSunCalcDataProviderType);
+    procedure OnEditMarkPosition(const AMark: IVectorDataItem);
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -1208,6 +1211,7 @@ uses
   u_TileRectChangeableByLocalConverter,
   u_LineOnMapEdit,
   u_PointOnMapEdit,
+  u_MarkOnMapEditProvider,
   u_MapTypeIconsList,
   u_SelectionRect,
   u_KeyMovingHandler,
@@ -1342,6 +1346,8 @@ begin
   FMapGoto := TMapViewGoto.Create(FActiveProjectionSet, FViewPortState);
   FGpsTrackGoTo := TMapViewGoto.Create(FActiveProjectionSet, FViewPortState);
 
+  FMarkOnMapEditProvider := TMarkOnMapEditProvider.Create(Self.OnEditMarkPosition);
+
   FMarkDBGUI :=
     TMarkDbGUIHelper.Create(
       Self,
@@ -1353,6 +1359,7 @@ begin
       GState.MarkPictureList,
       GState.AppearanceOfMarkFactory,
       GState.MarksDb,
+      FMarkOnMapEditProvider,
       GState.GeoCalc,
       GState.Config.InetConfig,
       GState.InternalDomainUrlHandler,
@@ -2727,6 +2734,7 @@ end;
 
 destructor TfrmMain.Destroy;
 begin
+  FMarkOnMapEditProvider.SetEnabled(False);
   FSearchToolbarContainer.Free;
   FSearchPresenter := nil;
   FPlacemarkPlayerPlugin := nil;
@@ -4672,32 +4680,38 @@ begin
 end;
 
 procedure TfrmMain.tbitmMarkEditPositionClick(Sender: TObject);
+begin
+  Self.OnEditMarkPosition(FSelectedMark);
+end;
+
+procedure TfrmMain.OnEditMarkPosition(const AMark: IVectorDataItem);
 var
-  VMark: IVectorDataItem;
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatLine;
   VPoly: IGeometryLonLatPolygon;
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
 begin
-  VMark := FSelectedMark;
-  if VMark <> nil then begin
-    if Supports(VMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
-      FEditMarkPoint := VMark;
-      FState.State := ao_edit_point;
-      FPointOnMapEdit.Point := VPoint.Point;
-    end else if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
-      FEditMarkLine := VMark;
-      FState.State := ao_edit_line;
-      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
-        VPathOnMapEdit.SetPath(VLine);
-      end;
-    end else if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
-      FEditMarkPoly := VMark;
-      FState.State := ao_edit_poly;
-      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
-        VPolygonOnMapEdit.SetPolygon(VPoly);
-      end;
+  if AMark = nil then begin
+    Exit;
+  end;
+  if Supports(AMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
+    FEditMarkPoint := AMark;
+    FState.State := ao_edit_point;
+    FPointOnMapEdit.Point := VPoint.Point;
+  end else
+  if Supports(AMark.Geometry, IGeometryLonLatLine, VLine) then begin
+    FEditMarkLine := AMark;
+    FState.State := ao_edit_line;
+    if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
+      VPathOnMapEdit.SetPath(VLine);
+    end;
+  end else
+  if Supports(AMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
+    FEditMarkPoly := AMark;
+    FState.State := ao_edit_poly;
+    if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
+      VPolygonOnMapEdit.SetPolygon(VPoly);
     end;
   end;
 end;

@@ -565,24 +565,30 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 264
     Top = 256
     object tbitmAddMark: TTBXItem
+      Caption = 'Add'
+      Hint = 'Add'
       ImageIndex = 32
       OnClick = tbitmAddMarkClick
-      Caption = 'Add Placemark'
-      Hint = 'Add'
     end
     object tbitmEditMark: TTBXItem
+      Caption = 'Edit Properties'
+      Hint = 'Edit'
       ImageIndex = 31
       ShortCut = 113
       OnClick = btnEditMarkClick
-      Caption = 'Edit Placemark'
-      Hint = 'Edit'
+    end
+    object tbitmEditMarkPosition: TTBXItem
+      Caption = 'Edit Position'
+      ImageIndex = 31
+      ShortCut = 114
+      OnClick = tbitmEditMarkPositionClick
     end
     object tbitmDeleteMark: TTBXItem
+      Caption = 'Delete'
+      Hint = 'Delete'
       ImageIndex = 30
       ShortCut = 46
       OnClick = btnDelMarkClick
-      Caption = 'Delete Placemark'
-      Hint = 'Delete'
     end
     object tbsprtMarksPopUp2: TTBXSeparatorItem
     end

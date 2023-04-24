@@ -151,6 +151,7 @@ type
     tbxSelectAllVisible: TTBXItem;
     tbxRevertSelection: TTBXItem;
     TBXSeparatorItem7: TTBXSeparatorItem;
+    tbitmEditMarkPosition: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -241,6 +242,7 @@ type
     procedure tbxShowElevProfileClick(Sender: TObject);
     procedure tbxSelectAllVisibleClick(Sender: TObject);
     procedure tbxRevertSelectionClick(Sender: TObject);
+    procedure tbitmEditMarkPositionClick(Sender: TObject);
   private
     type
       TCopyPasteAction = (cpNone, cpCopy, cpCut);
@@ -797,6 +799,17 @@ begin
         end;
       end;
     end;
+  end;
+end;
+
+procedure TfrmMarksExplorer.tbitmEditMarkPositionClick(Sender: TObject);
+var
+  VMark: IVectorDataItem;
+begin
+  VMark := GetSelectedMarkFull;
+  if Assigned(VMark) and Assigned(VMark.Geometry.Bounds) then begin
+    FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
+    FMarkDBGUI.EditMarkPosition(VMark);
   end;
 end;
 
