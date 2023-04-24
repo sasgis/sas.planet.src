@@ -168,8 +168,14 @@ begin
 end;
 
 procedure TElevationProfilePresenterOnPanel.RefreshParent;
+var
+  VItem: IVectorDataItem;
 begin
-  ShowProfile(FItemCached);
+  // initialize force redraw elevation profile
+  VItem := FItemCached;
+  FItemCached := nil;
+
+  ShowProfile(VItem);
 end;
 
 procedure TElevationProfilePresenterOnPanel.ShowProfile(
