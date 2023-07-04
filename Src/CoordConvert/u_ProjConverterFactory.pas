@@ -46,8 +46,8 @@ type
 implementation
 
 uses
-  Proj4,
-  Proj4Defs,
+  Proj4.API,
+  Proj4.Defines,
   u_AnsiStr,
   u_ProjConverterByDll;
 

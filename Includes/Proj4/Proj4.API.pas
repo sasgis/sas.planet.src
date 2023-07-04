@@ -1,8 +1,11 @@
-unit Proj4;
+unit Proj4.API;
 
 interface
 
-{.$DEFINE STATIC_PROJ4}
+{$DEFINE STATIC_PROJ4}
+
+{$DEFINE ENABLE_PROJ4_API_V4}
+{.$DEFINE ENABLE_PROJ4_API_V6}
 
 const
   proj4_dll = 'proj.dll';
@@ -11,6 +14,23 @@ const
   RAD_TO_DEG = 57.29577951308232;
 
 type
+  {$IFDEF ENABLE_PROJ4_API_V6}
+  PJ_INFO = record
+    major: Integer;         // Major release number
+    minor: Integer;         // Minor release number
+    patch: Integer;         // Patch level
+    release: PAnsiChar;     // Release info. Version + date
+    version: PAnsiChar;     // Full version number
+    searchpath: PAnsiChar;  // Paths where init and grid files are
+                            // looked for. Paths are separated by
+                            // semi-colons on Windows, and colons
+                            // on non-Windows platforms.
+    paths: PPAnsiChar;
+    path_count: NativeUInt;
+  end;
+  {$ENDIF}
+
+  {$IFDEF ENABLE_PROJ4_API_V4}
   projUV = record
     U: Double;
     V: Double;
@@ -21,8 +41,11 @@ type
   projPJ = Pointer;
 
   projCtx = Pointer;
+  {$ENDIF}
 
 {$IFNDEF STATIC_PROJ4}
+
+{$IFDEF ENABLE_PROJ4_API_V4}
 var
   pj_init_plus: function(const Args: PAnsiChar): projPJ; cdecl;
   pj_init_plus_ctx: function(ctx: projCtx; const Args: PAnsiChar): projPJ; cdecl;
@@ -34,7 +57,17 @@ var
   pj_strerrno: function(err_no: integer): PAnsiChar; cdecl;
   pj_ctx_alloc: function(): projCtx; cdecl;
   pj_ctx_free: procedure(ctx: projCtx); cdecl;
+  pj_get_release: function(): PAnsiChar; cdecl;
+{$ENDIF}
+
+{$IFDEF ENABLE_PROJ4_API_V6}
+var
+  proj_info: function(): PJ_INFO; cdecl;
+{$ENDIF}
+
 {$ELSE}
+
+  {$IFDEF ENABLE_PROJ4_API_V4}
   function pj_init_plus(const Args: PAnsiChar): projPJ; cdecl; external proj4_dll;
   function pj_init_plus_ctx(ctx: projCtx; const Args: PAnsiChar): projPJ; cdecl; external proj4_dll;
   function pj_transform(const src, dst: projPJ; point_count: LongInt;
@@ -45,22 +78,32 @@ var
   function pj_strerrno(err_no: integer): PAnsiChar; cdecl; external proj4_dll;
   function pj_ctx_alloc(): projCtx; cdecl; external proj4_dll;
   procedure pj_ctx_free(ctx: projCtx); cdecl; external proj4_dll;
+  function pj_get_release(): PAnsiChar; cdecl; external proj4_dll;
+  {$ENDIF}
+
 {$ENDIF}
 
 function init_proj4_dll(
   const ALibName: string = proj4_dll;
   const ARaiseExceptions: Boolean = True
-): Boolean;
+): Boolean; {$IFDEF STATIC_PROJ4} inline; {$ENDIF}
+
+function get_proj4_dll_version: AnsiString;
 
 implementation
 
-uses
-  Windows,
-  {$IFNDEF STATIC_PROJ4}
-  SyncObjs,
+function get_proj4_dll_version: AnsiString;
+begin
+  Result := '';
+
+  {$IFDEF ENABLE_PROJ4_API_V4}
+  Result := pj_get_release();
   {$ENDIF}
-  Math,
-  SysUtils;
+
+  {$IFDEF ENABLE_PROJ4_API_V6}
+  Result := proj_info().release;
+  {$ENDIF}
+end;
 
 {$IFDEF STATIC_PROJ4}
 
@@ -70,6 +113,11 @@ begin
 end;
 
 {$ELSE}
+
+uses
+  Windows,
+  SyncObjs,
+  SysUtils;
 
 var
   gHandle: THandle = 0;
@@ -116,6 +164,11 @@ begin
       pj_strerrno := GetProcAddr('pj_strerrno');
       pj_ctx_alloc := GetProcAddr('pj_ctx_alloc');
       pj_ctx_free := GetProcAddr('pj_ctx_free');
+      pj_get_release := GetProcAddr('pj_get_release');
+
+      {$IFDEF ENABLE_PROJ4_API_V6}
+      proj_info := GetProcAddr('proj_info');
+      {$ENDIF}
     end;
 
     gIsInitialized :=
@@ -156,6 +209,10 @@ begin
     pj_strerrno := nil;
     pj_ctx_alloc := nil;
     pj_ctx_free := nil;
+
+    {$IFDEF ENABLE_PROJ4_API_V6}
+    proj_info := nil;
+    {$ENDIF}
   finally
     gLock.Release;
   end;

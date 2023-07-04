@@ -1068,11 +1068,12 @@ object frmSettings: TfrmSettings
               ItemHeight = 13
               ItemIndex = 0
               TabOrder = 0
-              Text = 'Geographic / WGS84'
+              Text = 'WGS 84 / Geographic'
               Items.Strings = (
-                'Geographic / WGS84'
-                'Geographic / S-42 (Pulkovo 1942)'
-                'Gauss Krueger (6 degree zones) / S-42 ')
+                'WGS 84 / Geographic'
+                'Pulkovo-1942 (SK-42) / Geographic'
+                'SK-42 / Gauss-Kruger (6 degree zones)'
+                'WGS 84 / UTM (6 degree zones)')
             end
           end
           object pnlCoordSysInfoType: TPanel
@@ -1106,10 +1107,10 @@ object frmSettings: TfrmSettings
               ItemHeight = 13
               ItemIndex = 1
               TabOrder = 0
-              Text = 'Don'#39't show for Geographic / WGS84'
+              Text = 'Don'#39't show for WGS 84'
               Items.Strings = (
                 'Don'#39't show for All'
-                'Don'#39't show for Geographic / WGS84'
+                'Don'#39't show for WGS 84'
                 'Show for All')
             end
           end

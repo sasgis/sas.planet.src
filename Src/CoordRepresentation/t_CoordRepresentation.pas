@@ -38,7 +38,8 @@ type
   TCoordSysType = (
     cstWGS84 = 0,
     cstSK42 = 1,    // SK42 (Pulkovo-1942)
-    cstSK42GK = 2   // SK42 in Gauss-Kruger projection
+    cstSK42GK = 2,  // SK42 in Gauss-Kruger projection
+    cstUTM = 3
   );
 
   TCoordSysInfoType = (

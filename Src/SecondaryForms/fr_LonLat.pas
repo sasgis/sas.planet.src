@@ -130,7 +130,8 @@ uses
   Math,
   Clipbrd,
   gnugettext,
-  Proj4SK42,
+  Proj4.UTM,
+  Proj4.GaussKruger,
   t_CoordRepresentation,
   i_Projection,
   i_ProjectionSet,
@@ -198,7 +199,7 @@ end;
 
 function TfrLonLat.IsProjected: Boolean;
 begin
-  Result := FCoordRepresentationConfig.CoordSysType in [cstSK42GK];
+  Result := FCoordRepresentationConfig.CoordSysType in [cstSK42GK, cstUTM];
 end;
 
 procedure TfrLonLat.Init;
@@ -252,6 +253,7 @@ var
   CurrZoom: integer;
   VZone: Integer;
   VLocalConverter: ILocalCoordConverter;
+  VCoordType: TCoordSysType;
 begin
   Init;
 
@@ -261,7 +263,16 @@ begin
   CurrZoom := VLocalConverter.Projection.Zoom;
   cbbZoom.ItemIndex := CurrZoom;
 
-  VZone := long_to_gauss_kruger_zone(Value.X);
+  VCoordType := FCoordRepresentationConfig.CoordSysType;
+  if VCoordType = cstSK42GK then begin
+    VZone := sk42_long_to_gauss_kruger_zone(Value.X);
+  end else
+  if VCoordType = cstUTM then begin
+    VZone := wgs84_long_to_utm_zone(Value.X);
+  end else begin
+    VZone := 1;
+  end;
+
   Assert( (VZone >= 1) and (VZone <= 60) );
   cbbZone.ItemIndex := VZone - 1;
 
@@ -286,8 +297,8 @@ begin
           VLocalConverter.Projection.LonLat2PixelPosFloat(Value),
           prToTopLeft
         );
-      edtX.Text := inttostr(XYPoint.x);
-      edtY.Text := inttostr(XYPoint.y);
+      edtX.Text := IntToStr(XYPoint.X);
+      edtY.Text := IntToStr(XYPoint.Y);
     end;
     2: begin
       XYPoint :=
@@ -295,8 +306,8 @@ begin
           VLocalConverter.Projection.LonLat2TilePosFloat(Value),
           prToTopLeft
         );
-      edtX.Text := inttostr(XYPoint.x);
-      edtY.Text := inttostr(XYPoint.y);
+      edtX.Text := IntToStr(XYPoint.X);
+      edtY.Text := IntToStr(XYPoint.Y);
     end;
   end;
 end;
@@ -332,14 +343,21 @@ var
   VLonLat: TDoublePoint;
   VProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
+  VCoordType: TCoordSysType;
 begin
   VLonLat := CEmptyDoublePoint;
   Result := True;
   case cbbCoordType.ItemIndex of
     0: begin
+      VCoordType := FCoordRepresentationConfig.CoordSysType;
       if IsProjected then begin
-        X := edtProjectedY.Text; // !
-        Y := edtProjectedX.Text; // !
+        if VCoordType = cstSK42GK then begin
+          X := edtProjectedY.Text; // !
+          Y := edtProjectedX.Text; // !
+        end else begin
+          X := edtProjectedX.Text;
+          Y := edtProjectedY.Text;
+        end;
         Result :=
           FCoordFromStringParser.TryStrToCoord(
             X,
@@ -486,8 +504,8 @@ begin
         edtProjectedX.Text := S1;
         edtProjectedY.Text := S2;
       end else begin
-        edtLon.Text := S2;
         edtLat.Text := S1;
+        edtLon.Text := S2;
       end;
     end;
     1, 2: begin

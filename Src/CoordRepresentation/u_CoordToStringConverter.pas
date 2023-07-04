@@ -78,7 +78,9 @@ implementation
 uses
   Math,
   StrUtils,
-  Proj4SK42,
+  gnugettext,
+  Proj4.UTM,
+  Proj4.GaussKruger,
   u_ResStrings;
 
 { TCoordToStringConverter }
@@ -253,21 +255,42 @@ end;
 function TCoordToStringConverter.GetCoordSysInfo(
   const ALonLat: TDoublePoint
 ): string;
+const
+  CSeparator = ' :';
+  CNorthSouthId: array[False..True] of string = ('S', 'N');
+var
+  VPoint: TDoublePoint;
+  VZone: Integer;
+  VLatBand: Char;
 begin
   Result := '';
   if FCoordSysInfoType <> csitDontShow then begin
     case FCoordSysType of
       cstWGS84: begin
         if FCoordSysInfoType <> csitShowExceptWGS84 then begin
-          Result := 'GEO (WGS84)';
+          Result := 'WGS 84' + CSeparator;
         end;
       end;
+
       cstSK42: begin
-        Result := 'GEO (S-42)';
+        Result := _('SK-42') + CSeparator;
       end;
+
       cstSK42GK: begin
-        Result := Format('GK%d (S-42) ', [long_to_gauss_kruger_zone(ALonLat.X)]);
-      end
+        VPoint := ALonLat;
+        if geodetic_wgs84_to_sk42(VPoint.X, VPoint.Y) then begin
+          Result := Format(_('SK-42 / GK %d%s') + CSeparator, [
+            sk42_long_to_gauss_kruger_zone(VPoint.X),
+            CNorthSouthId[ALonLat.Y > 0]
+          ]);
+        end;
+      end;
+
+      cstUTM: begin
+        if wgs84_longlat_to_utm_zone(ALonLat.X, ALonLat.Y, VZone, VLatBand) then begin
+          Result := Format('WGS 84 / UTM %d%s' + CSeparator, [VZone, VLatBand]);
+        end;
+      end;
     else
       Assert(False, 'Unknown CoordSysType: ' + IntToStr(Integer(FCoordSysType)));
     end;
@@ -318,17 +341,25 @@ begin
   VLonLat.X := ALon;
   VLonLat.Y := ALat;
   case FCoordSysType of
-    cstWGS84: begin
+    cstWGS84: begin // WGS 84 / Geographic
       _GeodeticCoordToStr(VLonLat, ALonStr, ALatStr);
     end;
-    cstSK42: begin
+
+    cstSK42: begin // Pulkovo-1942 / Geographic
       if geodetic_wgs84_to_sk42(VLonLat.X, VLonLat.Y) then begin
         _GeodeticCoordToStr(VLonLat, ALonStr, ALatStr);
       end;
     end;
-    cstSK42GK: begin
+
+    cstSK42GK: begin // Pulkovo-1942 / Gauss-Kruger
       if geodetic_wgs84_to_gauss_kruger(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
         _ProjectedCoordToStr(VPoint, ALatStr, ALonStr); // !
+      end;
+    end;
+
+    cstUTM: begin // WGS 84 / UTM
+      if geodetic_wgs84_to_utm(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
+        _ProjectedCoordToStr(VPoint, ALonStr, ALatStr);
       end;
     end;
   end;

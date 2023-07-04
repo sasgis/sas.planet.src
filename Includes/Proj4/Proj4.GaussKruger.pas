@@ -1,8 +1,9 @@
-unit Proj4SK42;
+unit Proj4.GaussKruger;
 
 interface
 
-function long_to_gauss_kruger_zone(const ALon: Double): Integer; inline;
+function sk42_long_to_gauss_kruger_zone(const ALon: Double): Integer; inline;
+function gauss_kruger_zone_to_sk42_lon(const AZone: Integer): Double; inline;
 
 function get_sk42_gauss_kruger_init(const ALon, ALat: Double): AnsiString; overload;
 function get_sk42_gauss_kruger_init(const AZone: Integer; const AIsNorth: Boolean): AnsiString; overload;
@@ -31,10 +32,10 @@ implementation
 uses
   Math,
   SysUtils,
-  Proj4Defs,
-  Proj4Utils;
+  Proj4.Defines,
+  Proj4.Utils;
 
-function long_to_gauss_kruger_zone(const ALon: Double): Integer; inline;
+function sk42_long_to_gauss_kruger_zone(const ALon: Double): Integer; inline;
 begin
   if ALon > 0 then begin
     Result := Floor(ALon / 6) + 1;
@@ -43,12 +44,28 @@ begin
   end;
 end;
 
+function gauss_kruger_zone_to_sk42_lon(const AZone: Integer): Double; inline;
+begin
+  Result := (AZone - 1) * 6;
+  if AZone > 30 then begin
+    Result := Result - 360;
+  end;
+end;
+
 function get_sk42_gauss_kruger_init(const ALon, ALat: Double): AnsiString;
 var
   zone: Integer;
+  long_sk42, lat_sk42: Double;
 begin
-  zone := long_to_gauss_kruger_zone(ALon);
-  Result := get_sk42_gauss_kruger_init(zone, (ALat > 0));
+  Result := '';
+
+  long_sk42 := ALon;
+  lat_sk42 := ALat;
+
+  if geodetic_cs_to_cs(wgs_84, sk_42, long_sk42, lat_sk42) then begin
+    zone := sk42_long_to_gauss_kruger_zone(long_sk42);
+    Result := get_sk42_gauss_kruger_init(zone, (lat_sk42 > 0));
+  end;
 end;
 
 function get_sk42_gauss_kruger_init(const AZone: Integer; const AIsNorth: Boolean): AnsiString;

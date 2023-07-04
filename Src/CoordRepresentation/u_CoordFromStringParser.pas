@@ -59,7 +59,8 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  Proj4SK42,
+  Proj4.UTM,
+  Proj4.GaussKruger,
   u_GeoToStrFunc;
 
 function Edit2Digit(
@@ -199,6 +200,7 @@ begin
 
   case FConfig.CoordSysType of
     cstSK42GK: Result := gauss_kruger_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
+    cstUTM: Result := utm_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
   else
     Assert(False);
   end;
