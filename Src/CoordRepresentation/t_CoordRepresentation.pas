@@ -36,10 +36,10 @@ type
   );
 
   TCoordSysType = (
-    cstWGS84 = 0,
-    cstSK42 = 1,    // SK42 (Pulkovo-1942)
-    cstSK42GK = 2,  // SK42 in Gauss-Kruger projection
-    cstUTM = 3
+    cstWGS84 = 0,   // WGS 84 / Geographic
+    cstSK42 = 1,    // SK-42 (Pulkovo-1942) / Geographic
+    cstSK42GK = 2,  // SK-42 / Gauss-Kruger zones
+    cstUTM = 3      // WGS 84 / UTM zones
   );
 
   TCoordSysInfoType = (

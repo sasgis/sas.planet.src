@@ -256,44 +256,53 @@ function TCoordToStringConverter.GetCoordSysInfo(
   const ALonLat: TDoublePoint
 ): string;
 const
-  CSeparator = ' :';
   CNorthSouthId: array[False..True] of string = ('S', 'N');
 var
   VPoint: TDoublePoint;
   VZone: Integer;
   VLatBand: Char;
+  VZoneInfo: string;
 begin
   Result := '';
+  VZoneInfo := '';
+
   if FCoordSysInfoType <> csitDontShow then begin
     case FCoordSysType of
       cstWGS84: begin
         if FCoordSysInfoType <> csitShowExceptWGS84 then begin
-          Result := 'WGS 84' + CSeparator;
+          Result := 'WGS 84'; // do not localize
         end;
       end;
 
       cstSK42: begin
-        Result := _('SK-42') + CSeparator;
+        Result := _('SK-42');
       end;
 
       cstSK42GK: begin
+        Result := _('SK-42 / GK');
         VPoint := ALonLat;
         if geodetic_wgs84_to_sk42(VPoint.X, VPoint.Y) then begin
-          Result := Format(_('SK-42 / GK %d%s') + CSeparator, [
+          VZoneInfo := Format(' %d%s', [
             sk42_long_to_gauss_kruger_zone(VPoint.X),
             CNorthSouthId[ALonLat.Y > 0]
           ]);
         end;
+
       end;
 
       cstUTM: begin
+        Result := 'WGS 84 / UTM'; // do not localize
         if wgs84_longlat_to_utm_zone(ALonLat.X, ALonLat.Y, VZone, VLatBand) then begin
-          Result := Format('WGS 84 / UTM %d%s' + CSeparator, [VZone, VLatBand]);
+          VZoneInfo := Format(' %d%s', [VZone, VLatBand]);
         end;
       end;
     else
       Assert(False, 'Unknown CoordSysType: ' + IntToStr(Integer(FCoordSysType)));
     end;
+  end;
+
+  if Result <> '' then begin
+    Result := Result + VZoneInfo + ' :';
   end;
 end;
 
@@ -327,9 +336,19 @@ procedure TCoordToStringConverter.LonLatConvert(
   end;
 
   procedure _ProjectedCoordToStr(const AXY: TDoublePoint; out AX, AY: string);
+  const
+    CXAxisMarker = 'N';
+    CYAxisMarker = 'E';
   begin
     AX := FloatToStr('0.00', AXY.X);
     AY := FloatToStr('0.00', AXY.Y);
+
+    case FDegrShowFormat of
+      dshCharDegrMinSec, dshCharDegrMin, dshCharDegr, dshCharDegr2: begin
+        AX := AX + CXAxisMarker;
+        AY := AY + CYAxisMarker;
+      end;
+    end;
   end;
 
 var
