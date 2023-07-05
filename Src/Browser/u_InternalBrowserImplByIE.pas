@@ -207,20 +207,17 @@ procedure TInternalBrowserImplByIE.OnBeforeNavigate(
   var URL, Flags, TargetFrameName, PostData, Headers: OleVariant;
   var Cancel: WordBool
 );
-var
-  VUrl: string;
 begin
   if Cancel then begin
     Exit;
   end;
 
   try
-    VUrl := LowerCase(URL);
-    if VUrl = CEmptyDocument then begin
+    if SameText(URL, CEmptyDocument) then begin
       Exit;
     end;
 
-    if FInternalDomainUrlHandler.Process(VUrl) then begin
+    if FInternalDomainUrlHandler.Process(URL) then begin
       Cancel := True;
       Exit;
     end;

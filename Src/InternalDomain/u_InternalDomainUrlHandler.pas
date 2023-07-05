@@ -115,22 +115,22 @@ function TInternalDomainUrlHandler.GetCommand(
 var
   I: Integer;
 begin
-  if EndsStr(CAppCmdPostfix, AUrl) then begin
+  if EndsText(CAppCmdPostfix, AUrl) then begin
     ACmd := cmdApp;
     SetLength(AUrl, Length(AUrl) - Length(CAppCmdPostfix));
     Result := True;
   end else
-  if EndsStr(CExplorerCmdPostfix, AUrl) then begin
+  if EndsText(CExplorerCmdPostfix, AUrl) then begin
     ACmd := cmdExplorer;
     SetLength(AUrl, Length(AUrl) - Length(CExplorerCmdPostfix));
     Result := True;
   end else
-  if EndsStr(CBrowserCmdPostfix, AUrl) then begin
+  if EndsText(CBrowserCmdPostfix, AUrl) then begin
     ACmd := cmdBrowser;
     SetLength(AUrl, Length(AUrl) - Length(CBrowserCmdPostfix));
     Result := True;
   end else begin
-    I := Pos(CUserCmdPostfix, AUrl);
+    I := Pos(CUserCmdPostfix, LowerCase(AUrl));
     if I > 0 then begin
       ACmd := cmdUser;
       ACmdId := Copy(AUrl, I + Length(CUserCmdPostfix));
@@ -144,10 +144,10 @@ end;
 
 procedure TInternalDomainUrlHandler.InternalUrlToUrl(var AUrl: string);
 begin
-  if StartsStr(FMediaDataUrl, AUrl) then begin
+  if StartsText(FMediaDataUrl, AUrl) then begin
     AUrl := IncludeTrailingPathDelimiter(FMediaDataPath.FullPath) + Copy(AUrl, Length(FMediaDataUrl) + 1);
   end else
-  if StartsStr(CSASInternalURLPrefix, AUrl) then begin
+  if StartsText(CSASInternalURLPrefix, AUrl) then begin
     AUrl := Copy(AUrl, Length(CSASInternalURLPrefix) + 1);
   end;
 end;
@@ -259,8 +259,8 @@ begin
     end;
 
     cmdUser: begin
-      for I := 0 to Length(FUserApps) do begin
-        if VCmdId = FUserApps[I].ID then begin
+      for I := 0 to Length(FUserApps) - 1 do begin
+        if SameText(VCmdId, FUserApps[I].ID) then begin
           _DoOpenFile(VUrl, FUserApps[I].Path);
           Result := True;
           Break;
