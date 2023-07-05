@@ -34,6 +34,12 @@ const
   // EPSG:32701-32760 = WGS 84 / UTM Zone South
   utm_south_fmt = '+proj=utm +zone=%d +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
 
+  // EPSG:32661 = WGS 84 / UPS North
+  ups_north = '+proj=stere +lat_0=90 +lon_0=0 +k=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs +type=crs';
+
+  // EPSG:32761 = WGS 84 / UPS South
+  ups_south = '+proj=stere +lat_0=-90 +lon_0=0 +k=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs +type=crs';
+
 function Proj4ArgsByEpsg(const AEPSG: Integer): AnsiString;
 
 implementation

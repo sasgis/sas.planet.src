@@ -257,6 +257,7 @@ function TCoordToStringConverter.GetCoordSysInfo(
 ): string;
 const
   CNorthSouthId: array[False..True] of string = ('S', 'N');
+  CNorthSouthStr: array[False..True] of string = ('South', 'North');
 var
   VPoint: TDoublePoint;
   VZone: Integer;
@@ -294,6 +295,9 @@ begin
         Result := 'WGS 84 / UTM'; // do not localize
         if wgs84_longlat_to_utm_zone(ALonLat.X, ALonLat.Y, VZone, VLatBand) then begin
           VZoneInfo := Format(' %d%s', [VZone, VLatBand]);
+        end else begin
+          Result := 'WGS 84 / UPS'; // do not localize
+          VZoneInfo := ' ' + CNorthSouthStr[ALonLat.Y >= 84];
         end;
       end;
     else
@@ -335,18 +339,20 @@ procedure TCoordToStringConverter.LonLatConvert(
     ALat := GetLatitudeMarker(ALonLat.Y) + DegrToStr(ALonLat.Y, ACutZero);
   end;
 
-  procedure _ProjectedCoordToStr(const AXY: TDoublePoint; out AX, AY: string);
-  const
-    CXAxisMarker = 'N';
-    CYAxisMarker = 'E';
+  procedure _ProjectedCoordToStr(const AXY: TDoublePoint; out AX, AY: string;
+    const AXAxisMarker, AYAxisMarker: string; const ASwapXY: Boolean);
   begin
-    AX := FloatToStr('0.00', AXY.X);
-    AY := FloatToStr('0.00', AXY.Y);
-
+    if ASwapXY then begin
+      AX := FloatToStr('0.00', AXY.Y);
+      AY := FloatToStr('0.00', AXY.X);
+    end else begin
+      AX := FloatToStr('0.00', AXY.X);
+      AY := FloatToStr('0.00', AXY.Y);
+    end;
     case FDegrShowFormat of
       dshCharDegrMinSec, dshCharDegrMin, dshCharDegr, dshCharDegr2: begin
-        AX := AX + CXAxisMarker;
-        AY := AY + CYAxisMarker;
+        AX := AX + AXAxisMarker;
+        AY := AY + AYAxisMarker;
       end;
     end;
   end;
@@ -372,13 +378,21 @@ begin
 
     cstSK42GK: begin // Pulkovo-1942 / Gauss-Kruger
       if geodetic_wgs84_to_gauss_kruger(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
-        _ProjectedCoordToStr(VPoint, ALatStr, ALonStr); // !
+        _ProjectedCoordToStr(VPoint, ALatStr, ALonStr, 'N', 'E', True);
       end;
     end;
 
-    cstUTM: begin // WGS 84 / UTM
+    cstUTM: begin // WGS 84 / UTM (UPS)
       if geodetic_wgs84_to_utm(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
-        _ProjectedCoordToStr(VPoint, ALonStr, ALatStr);
+        _ProjectedCoordToStr(VPoint, ALonStr, ALatStr, 'N', 'E', False);
+      end else
+      if geodetic_wgs84_to_ups(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
+        // WGS 84 / UPS
+        if VLonLat.Y >= 84 then begin
+          _ProjectedCoordToStr(VPoint, ALonStr, ALatStr, 'S', 'S', True);
+        end else begin
+          _ProjectedCoordToStr(VPoint, ALonStr, ALatStr, 'N', 'N', True);
+        end;
       end;
     end;
   end;

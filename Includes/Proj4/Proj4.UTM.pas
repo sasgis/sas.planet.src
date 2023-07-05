@@ -16,6 +16,9 @@ function geodetic_wgs84_to_utm(const ALon, ALat: Double; out AX, AY: Double): Bo
 function utm_to_wgs84(const AX, AY: Double; const AZone: Integer; const AIsNorth: Boolean;
   out ALon, ALat: Double): Boolean;
 
+function geodetic_wgs84_to_ups(const ALon, ALat: Double; out AX, AY: Double): Boolean;
+function ups_to_wgs84(const AX, AY: Double; const AIsNorth: Boolean; out ALon, ALat: Double): Boolean;
+
 const
   CMgrsSouthLatBands = 'CDEFGHJKLM';
   CMgrsNorthLatBands = 'NPQRSTUVWXX'; // X is repeated for 80-84N
@@ -119,6 +122,34 @@ var
   VInitStr: AnsiString;
 begin
   VInitStr := AnsiString(get_utm_init(AZone, AIsNorth));
+  Result := projected_cs_to_geodetic_cs(VInitStr, wgs_84, AX, AY, ALon, ALat);
+end;
+
+function geodetic_wgs84_to_ups(const ALon, ALat: Double; out AX, AY: Double): Boolean;
+var
+  VInitStr: AnsiString;
+begin
+  if ALat >= 84 then begin
+    VInitStr := ups_north;
+  end else
+  if ALat <= 80 then begin
+    VInitStr := ups_south;
+  end else begin
+    Result := False;
+    Exit;
+  end;
+  Result := geodetic_cs_to_projected_cs(wgs_84, VInitStr, ALon, ALat, AX, AY);
+end;
+
+function ups_to_wgs84(const AX, AY: Double; const AIsNorth: Boolean; out ALon, ALat: Double): Boolean;
+var
+  VInitStr: AnsiString;
+begin
+  if AIsNorth then begin
+    VInitStr := ups_north;
+  end else begin
+    VInitStr := ups_south;
+  end;
   Result := projected_cs_to_geodetic_cs(VInitStr, wgs_84, AX, AY, ALon, ALat);
 end;
 
