@@ -191,6 +191,7 @@ begin
           VLonLatRectOfCell.Left,
           VLonLatRectOfCell.Top,
           True,
+          False,
           VListNameLon,
           VListNameLat
         )

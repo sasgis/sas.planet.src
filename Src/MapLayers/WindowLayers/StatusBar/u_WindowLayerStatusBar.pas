@@ -462,6 +462,21 @@ begin
 end;
 
 procedure TWindowLayerStatusBar.GetItemsInfo(out AItems: TStatusBarItems);
+
+  function GetLonLatInfo(const ALonLat: TDoublePoint): string;
+  var
+    VLon, VLat: string;
+    VCoordToStringConverter: ICoordToStringConverter;
+  begin
+    VCoordToStringConverter := FCoordToStringConverter.GetStatic;
+    Result := VCoordToStringConverter.GetCoordSysInfo(ALonLat);
+    if Result <> '' then begin
+      Result := Result + ' ';
+    end;
+    VCoordToStringConverter.LonLatConvert(ALonLat.X, ALonLat.Y, False, True, VLon, VLat);
+    Result := Result + VCoordToStringConverter.LonLatConvert(VLon, VLat);
+  end;
+
 const
   D2R: Double = 0.017453292519943295769236907684886;
 var
@@ -477,7 +492,6 @@ var
   VMousePos: TPoint;
   VVisualCoordConverter: ILocalCoordConverter;
   VValueConverter: IValueToStringConverter;
-  VCoordToStringConverter: ICoordToStringConverter;
 begin
   ResetItems(AItems);
 
@@ -500,12 +514,7 @@ begin
   Inc(I);
   AItems[I].Visible := FConfig.ViewLonLatInfo;
   if AItems[I].Visible then begin
-    VCoordToStringConverter := FCoordToStringConverter.GetStatic;
-    AItems[I].Text := VCoordToStringConverter.GetCoordSysInfo(VLonLat);
-    if AItems[I].Text <> '' then begin
-      AItems[I].Text := AItems[I].Text + ' ';
-    end;
-    AItems[I].Text := AItems[I].Text + VCoordToStringConverter.LonLatConvert(VLonLat);
+    AItems[I].Text := GetLonLatInfo(VLonLat);
   end;
 
   Inc(I);

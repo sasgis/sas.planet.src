@@ -38,10 +38,15 @@ type
       const ALonLat: TDoublePoint
     ): string; overload;
 
+    function LonLatConvert(
+      const ALonStr, ALatStr: string
+    ): string; overload;
+
     procedure LonLatConvert(
       const ALon: Double;
       const ALat: Double;
       const ACutZero: Boolean;
+      const AWriteAxisMarker: Boolean;
       out ALonStr: string;
       out ALatStr: string
     ); overload;

@@ -317,7 +317,9 @@ type
     FfrGoogleApiKey: TfrGeoCoderApiKey;
     FfrYandexApiKey: TfrGeoCoderApiKey;
 
+    procedure InitCoordSysTypeList;
     procedure InitCoordRepresentationList;
+
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
       ABox: TComboBox
@@ -1137,6 +1139,7 @@ begin
   InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeTileMatrixDraft);
   cbbResizeTileMatrixDraft.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.TileMatrixDraftResamplerConfig.ActiveGUID);
 
+  InitCoordSysTypeList;
   InitCoordRepresentationList;
 
   GState.Config.CoordRepresentationConfig.LockRead;
@@ -1207,6 +1210,18 @@ procedure TfrmSettings.RefreshTranslation;
 begin
   inherited;
   FormShow(Self);
+end;
+
+procedure TfrmSettings.InitCoordSysTypeList;
+var
+  I: TCoordSysType;
+  VCaption: TCoordSysTypeCaption;
+begin
+  VCaption := GetCoordSysTypeCaption;
+  cbbCoordSysType.Clear;
+  for I := Low(TCoordSysType) to High(TCoordSysType) do begin
+    cbbCoordSysType.Items.Add(VCaption[I]);
+  end;
 end;
 
 procedure TfrmSettings.InitCoordRepresentationList;

@@ -24,8 +24,15 @@ unit u_CoordRepresentation;
 interface
 
 uses
-  gnugettext,
   t_CoordRepresentation;
+
+type
+  TCoordSysTypeCaption = array [TCoordSysType] of string;
+
+function GetCoordSysTypeCaption: TCoordSysTypeCaption;
+function GetCoordSysTypeCaptionShort: TCoordSysTypeCaption;
+
+function GetUPSCoordSysTypeCaptionShort: string;
 
 type
   TDegrShowFormatCaption = array [TDegrShowFormat] of string;
@@ -36,6 +43,32 @@ function DegrShowFormatToId(const AValue: TDegrShowFormat): Integer;
 function IdToDegrShowFormat(const AValue: Integer): TDegrShowFormat;
 
 implementation
+
+uses
+  gnugettext;
+
+function GetCoordSysTypeCaption: TCoordSysTypeCaption;
+begin
+  Result[cstWGS84]  := _('WGS 84 / Geographic');
+  Result[cstUTM]    := _('WGS 84 / UTM (6 degree zones)');
+
+  Result[cstSK42]   := _('SK-42 (Pulkovo-1942) / Geographic');
+  Result[cstSK42GK] := _('SK-42 / Gauss-Kruger (6 degree zones)');
+end;
+
+function GetCoordSysTypeCaptionShort: TCoordSysTypeCaption;
+begin
+  Result[cstWGS84]  := 'WGS 84';
+  Result[cstUTM]    := 'WGS 84 / UTM';
+
+  Result[cstSK42]   := _('SK-42');
+  Result[cstSK42GK] := _('SK-42 / GK');
+end;
+
+function GetUPSCoordSysTypeCaptionShort: string;
+begin
+  Result := 'WGS 84 / UPS';
+end;
 
 function GetDegrShowFormatCaption: TDegrShowFormatCaption;
 begin

@@ -51,16 +51,24 @@ type
     function GetLatitudeMarker(const ADegr: Double): string;
     function GetLongitudeMarker(const ADegr: Double): string;
   private
+    { ICoordToStringConverter }
     function GetCoordSysInfo(
       const ALonLat: TDoublePoint
     ): string;
+
     function LonLatConvert(
       const ALonLat: TDoublePoint
     ): string; overload;
+
+    function LonLatConvert(
+      const ALonStr, ALatStr: string
+    ): string; overload; inline;
+
     procedure LonLatConvert(
       const ALon: Double;
       const ALat: Double;
       const ACutZero: Boolean;
+      const AWriteAxisMarker: Boolean;
       out ALonStr: string;
       out ALatStr: string
     ); overload;
@@ -81,6 +89,8 @@ uses
   gnugettext,
   Proj4.UTM,
   Proj4.GaussKruger,
+  u_CoordRepresentation,
+  u_StrFunc,
   u_ResStrings;
 
 { TCoordToStringConverter }
@@ -263,45 +273,43 @@ var
   VZone: Integer;
   VLatBand: Char;
   VZoneInfo: string;
+  VCaptions: TCoordSysTypeCaption;
 begin
-  Result := '';
+  if FCoordSysInfoType = csitDontShow then begin
+    Result := '';
+    Exit;
+  end;
+
   VZoneInfo := '';
 
-  if FCoordSysInfoType <> csitDontShow then begin
-    case FCoordSysType of
-      cstWGS84: begin
-        if FCoordSysInfoType <> csitShowExceptWGS84 then begin
-          Result := 'WGS 84'; // do not localize
-        end;
+  VCaptions := GetCoordSysTypeCaptionShort;
+  Result := VCaptions[FCoordSysType];
+
+  case FCoordSysType of
+    cstWGS84: begin
+      if FCoordSysInfoType = csitShowExceptWGS84 then begin
+        Result := '';
+      end;
+    end;
+
+    cstSK42GK: begin
+      VPoint := ALonLat;
+      if geodetic_wgs84_to_sk42(VPoint.X, VPoint.Y) then begin
+        VZoneInfo := Format(' %d%s', [
+          sk42_long_to_gauss_kruger_zone(VPoint.X),
+          CNorthSouthId[ALonLat.Y >= 0]
+        ]);
       end;
 
-      cstSK42: begin
-        Result := _('SK-42');
-      end;
+    end;
 
-      cstSK42GK: begin
-        Result := _('SK-42 / GK');
-        VPoint := ALonLat;
-        if geodetic_wgs84_to_sk42(VPoint.X, VPoint.Y) then begin
-          VZoneInfo := Format(' %d%s', [
-            sk42_long_to_gauss_kruger_zone(VPoint.X),
-            CNorthSouthId[ALonLat.Y > 0]
-          ]);
-        end;
-
+    cstUTM: begin
+      if wgs84_longlat_to_utm_zone(ALonLat.X, ALonLat.Y, VZone, VLatBand) then begin
+        VZoneInfo := Format(' %d%s', [VZone, CNorthSouthId[ALonLat.Y >= 0]]);
+      end else begin
+        Result := GetUPSCoordSysTypeCaptionShort;
+        VZoneInfo := ' ' + CNorthSouthStr[ALonLat.Y >= 84];
       end;
-
-      cstUTM: begin
-        Result := 'WGS 84 / UTM'; // do not localize
-        if wgs84_longlat_to_utm_zone(ALonLat.X, ALonLat.Y, VZone, VLatBand) then begin
-          VZoneInfo := Format(' %d%s', [VZone, VLatBand]);
-        end else begin
-          Result := 'WGS 84 / UPS'; // do not localize
-          VZoneInfo := ' ' + CNorthSouthStr[ALonLat.Y >= 84];
-        end;
-      end;
-    else
-      Assert(False, 'Unknown CoordSysType: ' + IntToStr(Integer(FCoordSysType)));
     end;
   end;
 
@@ -317,11 +325,18 @@ var
   VLatStr: string;
   VLonStr: string;
 begin
-  LonLatConvert(ALonLat.X, ALonLat.Y, False, VLonStr, VLatStr);
+  LonLatConvert(ALonLat.X, ALonLat.Y, False, False, VLonStr, VLatStr);
+  Result := LonLatConvert(VLonStr, VLatStr);
+end;
+
+function TCoordToStringConverter.LonLatConvert(
+  const ALonStr, ALatStr: string
+): string;
+begin
   if FIsLatitudeFirst and (FCoordSysType in [cstWGS84, cstSK42]) then begin
-    Result := VLatStr + ' ' + VLonStr;
+    Result := ALatStr + ' ' + ALonStr;
   end else begin
-    Result := VLonStr + ' ' + VLatStr;
+    Result := ALonStr + ' ' + ALatStr;
   end;
 end;
 
@@ -329,6 +344,7 @@ procedure TCoordToStringConverter.LonLatConvert(
   const ALon: Double;
   const ALat: Double;
   const ACutZero: Boolean;
+  const AWriteAxisMarker: Boolean;
   out ALonStr: string;
   out ALatStr: string
 );
@@ -342,18 +358,16 @@ procedure TCoordToStringConverter.LonLatConvert(
   procedure _ProjectedCoordToStr(const AXY: TDoublePoint; out AX, AY: string;
     const AXAxisMarker, AYAxisMarker: string; const ASwapXY: Boolean);
   begin
-    if ASwapXY then begin
-      AX := FloatToStr('0.00', AXY.Y);
-      AY := FloatToStr('0.00', AXY.X);
-    end else begin
-      AX := FloatToStr('0.00', AXY.X);
-      AY := FloatToStr('0.00', AXY.Y);
+    AX := FloatToStr('0.00', AXY.X);
+    AY := FloatToStr('0.00', AXY.Y);
+
+    if AWriteAxisMarker then begin
+      AX := AX + AXAxisMarker;
+      AY := AY + AYAxisMarker;
     end;
-    case FDegrShowFormat of
-      dshCharDegrMinSec, dshCharDegrMin, dshCharDegr, dshCharDegr2: begin
-        AX := AX + AXAxisMarker;
-        AY := AY + AYAxisMarker;
-      end;
+
+    if ASwapXY then begin
+      SwapStr(AX, AY);
     end;
   end;
 
@@ -378,13 +392,14 @@ begin
 
     cstSK42GK: begin // Pulkovo-1942 / Gauss-Kruger
       if geodetic_wgs84_to_gauss_kruger(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
-        _ProjectedCoordToStr(VPoint, ALatStr, ALonStr, 'N', 'E', True);
+        _ProjectedCoordToStr(VPoint, ALonStr, ALatStr, 'E', 'N', True);
       end;
     end;
 
-    cstUTM: begin // WGS 84 / UTM (UPS)
+    cstUTM: begin
       if geodetic_wgs84_to_utm(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
-        _ProjectedCoordToStr(VPoint, ALonStr, ALatStr, 'N', 'E', False);
+        // WGS 84 / UTM
+        _ProjectedCoordToStr(VPoint, ALonStr, ALatStr, 'E', 'N', False);
       end else
       if geodetic_wgs84_to_ups(VLonLat.X, VLonLat.Y, VPoint.X, VPoint.Y) then begin
         // WGS 84 / UPS

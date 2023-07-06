@@ -1066,14 +1066,7 @@ object frmSettings: TfrmSettings
               Align = alClient
               Style = csDropDownList
               ItemHeight = 13
-              ItemIndex = 0
               TabOrder = 0
-              Text = 'WGS 84 / Geographic'
-              Items.Strings = (
-                'WGS 84 / Geographic'
-                'Pulkovo-1942 (SK-42) / Geographic'
-                'SK-42 / Gauss-Kruger (6 degree zones)'
-                'WGS 84 / UTM (6 degree zones)')
             end
           end
           object pnlCoordSysInfoType: TPanel

@@ -35,6 +35,7 @@ type
   private
     FConfig: ICoordRepresentationConfig;
   private
+    { ICoordFromStringParser }
     function TryStrToCoord(
       const ALon: string;
       const ALat: string;
@@ -48,6 +49,10 @@ type
       const AIsNorth: Boolean;
       out ACoord: TDoublePoint
     ): Boolean; overload;
+  private
+    class function StripAxisMarker(
+      const ACoord: string
+    ): string;
   public
     constructor Create(
       const AConfig: ICoordRepresentationConfig
@@ -182,6 +187,22 @@ begin
   end;
 end;
 
+class function TCoordFromStringParser.StripAxisMarker(
+  const ACoord: string
+): string;
+begin
+  Result := ACoord;
+
+  Result := StringReplace(Result, 'S', '', []);
+  Result := StringReplace(Result, 'W', '', []);
+  Result := StringReplace(Result, 'N', '', []);
+  Result := StringReplace(Result, 'E', '', []);
+  Result := StringReplace(Result, 'Þ', '', []);
+  Result := StringReplace(Result, 'Ç', '', []);
+  Result := StringReplace(Result, 'Â', '', []);
+  Result := StringReplace(Result, 'Ñ', '', []);
+end;
+
 function TCoordFromStringParser.TryStrToCoord(
   const AX: string;
   const AY: string;
@@ -195,12 +216,21 @@ var
 begin
   Result := False;
 
-  X := str2r(AX);
-  Y := str2r(AY);
+  X := str2r( StripAxisMarker(AX) );
+  Y := str2r( StripAxisMarker(AY) );
 
   case FConfig.CoordSysType of
-    cstSK42GK: Result := gauss_kruger_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
-    cstUTM: Result := utm_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
+    cstSK42GK: begin
+      Result := gauss_kruger_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
+    end;
+
+    cstUTM: begin
+      if AZone > 0 then begin
+        Result := utm_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
+      end else begin
+        Result := ups_to_wgs84(X, Y, AIsNorth, VCoord.X, VCoord.Y);
+      end;
+    end;
   else
     Assert(False);
   end;

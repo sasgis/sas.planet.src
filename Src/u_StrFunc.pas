@@ -27,6 +27,9 @@ function GetAfter(const SubStr, Str: AnsiString): AnsiString; inline;
 function GetBefore(const SubStr, Str: AnsiString): AnsiString; inline;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString; inline;
 
+procedure SwapStr(var A, B: string); inline;
+procedure SwapStrA(var A, B: AnsiString); inline;
+
 implementation
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
@@ -56,6 +59,24 @@ end;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString;
 begin
   Result := GetBefore(Before, GetAfter(After, Str));
+end;
+
+procedure SwapStr(var A, B: string);
+var
+  P: Pointer;
+begin
+  P := Pointer(A);
+  Pointer(A) := Pointer(B);
+  Pointer(B) := P;
+end;
+
+procedure SwapStrA(var A, B: AnsiString);
+var
+  P: Pointer;
+begin
+  P := Pointer(A);
+  Pointer(A) := Pointer(B);
+  Pointer(B) := P;
 end;
 
 end.

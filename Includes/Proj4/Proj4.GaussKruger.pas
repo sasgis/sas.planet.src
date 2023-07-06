@@ -64,7 +64,7 @@ begin
 
   if geodetic_cs_to_cs(wgs_84, sk_42, long_sk42, lat_sk42) then begin
     zone := sk42_long_to_gauss_kruger_zone(long_sk42);
-    Result := get_sk42_gauss_kruger_init(zone, (lat_sk42 > 0));
+    Result := get_sk42_gauss_kruger_init(zone, (lat_sk42 >= 0));
   end;
 end;
 
