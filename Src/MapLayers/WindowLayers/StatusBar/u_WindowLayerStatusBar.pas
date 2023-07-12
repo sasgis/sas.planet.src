@@ -465,7 +465,7 @@ procedure TWindowLayerStatusBar.GetItemsInfo(out AItems: TStatusBarItems);
 
   function GetLonLatInfo(const ALonLat: TDoublePoint): string;
   var
-    VLon, VLat: string;
+    VLon, VLat, VZone: string;
     VCoordToStringConverter: ICoordToStringConverter;
   begin
     VCoordToStringConverter := FCoordToStringConverter.GetStatic;
@@ -473,8 +473,8 @@ procedure TWindowLayerStatusBar.GetItemsInfo(out AItems: TStatusBarItems);
     if Result <> '' then begin
       Result := Result + ' ';
     end;
-    VCoordToStringConverter.LonLatConvert(ALonLat.X, ALonLat.Y, False, True, VLon, VLat);
-    Result := Result + VCoordToStringConverter.LonLatConvert(VLon, VLat);
+    VCoordToStringConverter.LonLatConvert(ALonLat.X, ALonLat.Y, False, True, VLon, VLat, VZone);
+    Result := Result + VCoordToStringConverter.LonLatConvert(VLon, VLat, VZone);
   end;
 
 const

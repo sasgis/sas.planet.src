@@ -758,7 +758,7 @@ object frmSettings: TfrmSettings
               Layout = tlCenter
               ExplicitHeight = 13
             end
-            object CB_llstrType: TComboBox
+            object cbbCoordRepresentation: TComboBox
               AlignWithMargins = True
               Left = 3
               Top = 21
@@ -1067,6 +1067,7 @@ object frmSettings: TfrmSettings
               Style = csDropDownList
               ItemHeight = 13
               TabOrder = 0
+              OnChange = cbbCoordSysTypeChange
             end
           end
           object pnlCoordSysInfoType: TPanel

@@ -586,6 +586,31 @@ object frLonLat: TfrLonLat
       end
     end
   end
+  object pnlMgrs: TPanel
+    AlignWithMargins = True
+    Left = 0
+    Top = 168
+    Width = 451
+    Height = 48
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 4
+    Visible = False
+    object edtMgrs: TEdit
+      Left = 3
+      Top = 6
+      Width = 445
+      Height = 21
+      Align = alCustom
+      Alignment = taCenter
+      Anchors = [akLeft, akTop, akRight]
+      TabOrder = 0
+    end
+  end
   object tbxpmnCoordFormat: TTBXPopupMenu
     Left = 32
     Top = 232

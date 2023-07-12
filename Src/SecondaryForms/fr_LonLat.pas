@@ -84,6 +84,8 @@ type
     pnlButtons: TPanel;
     btnCoordFormat: TTBXButton;
     tbxpmnCoordFormat: TTBXPopupMenu;
+    pnlMgrs: TPanel;
+    edtMgrs: TEdit;
     procedure cbbCoordTypeSelect(Sender: TObject);
     procedure btnCopyClick(Sender: TObject);
     procedure btnPasteClick(Sender: TObject);
@@ -123,7 +125,7 @@ type
       const ACoordRepresentationConfig: ICoordRepresentationConfig;
       const ACoordFromStringParser: ICoordFromStringParser;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
-      ATileSelectStyle: TTileSelectStyle
+      const ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     destructor Destroy; override;
 
@@ -164,7 +166,7 @@ constructor TfrLonLat.Create(
   const ACoordRepresentationConfig: ICoordRepresentationConfig;
   const ACoordFromStringParser: ICoordFromStringParser;
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
-  ATileSelectStyle: TTileSelectStyle
+  const ATileSelectStyle: TTileSelectStyle
 );
 begin
   Assert(ACoordRepresentationConfig <> nil);
@@ -279,6 +281,7 @@ begin
   grdpnlLonLat.Visible := False;
   pnlProjected.Visible := False;
   pnlXY.Visible := False;
+  pnlMgrs.Visible := False;
 
   if ItemIndexToCoordType(cbbCoordType.ItemIndex, VCoordType) then begin
     case VCoordType of
@@ -289,6 +292,9 @@ begin
       cstUTM, cstSK42GK: begin
         pnlProjected.Visible := True;
       end;
+      cstMGRS: begin
+        pnlMgrs.Visible := True;
+      end
     else
       Assert(False);
     end;
@@ -305,7 +311,7 @@ end;
 
 procedure TfrLonLat.SetLonLat(const AValue: TDoublePoint);
 var
-  VLon, VLat: string;
+  VLon, VLat, VZoneStr: string;
   VLatBand: Char;
   VTilePoint: TPoint;
   VPixelPoint: TPoint;
@@ -338,7 +344,7 @@ begin
     end;
 
     FCoordToStringConverter.GetStatic.LonLatConvert(
-      AValue.X, AValue.Y, False, False, VLon, VLat
+      AValue.X, AValue.Y, False, False, VLon, VLat, VZoneStr
     );
 
     case VCoordType of
@@ -354,6 +360,10 @@ begin
         cbbZone.ItemIndex := VZone - 1;
         chkNorth.Checked := (AValue.Y >= 0);
       end;
+
+      cstMGRS: begin
+        edtMgrs.Text := VZoneStr + ' ' + VLon + ' ' + VLat;
+      end
     else
       Assert(False);
     end;
@@ -444,6 +454,12 @@ begin
           X, Y, VZone, chkNorth.Checked, VLonLat
         );
       end;
+
+      cstMGRS: begin
+        Result := FCoordFromStringParser.TryStrToCoord(
+          edtMgrs.Text, '', 0, False, VLonLat
+        );
+      end
     else
       Assert(False);
     end;
@@ -532,9 +548,14 @@ begin
       cstWGS84, cstSK42: begin
         VStr := edtLat.Text + CSep + edtLon.Text;
       end;
+
       cstUTM, cstSK42GK: begin
         VStr := edtProjectedX.Text + CSep + edtProjectedY.Text;
       end;
+
+      cstMGRS: begin
+        VStr := edtMgrs.Text;
+      end
     else
       Assert(False);
     end;
@@ -546,97 +567,150 @@ begin
 end;
 
 procedure TfrLonLat.btnPasteClick(Sender: TObject);
+
+  function GetCoordFromClipboardText(const AText: string; out S1, S2: string): Boolean;
+  var
+    I: Integer;
+  begin
+    I := Pos(' ', AText); // "Lat Lon" or "X Y"
+    if I > 0 then begin
+      S1 := Trim(Copy(AText, 1, I-1));
+      S2 := Trim(Copy(AText, I+1));
+    end else begin
+      S1 := '';
+      S2 := '';
+    end;
+
+    Result := (S1 <> '') and (S2 <> '');
+
+    if not Result then begin
+      MessageDlg(
+        Format(_('Can''t parse coordinates from clipboard: %s'), [AText]),
+        mtError, [mbOK], 0
+      );
+      Exit;
+    end;
+  end;
+
 var
-  I: Integer;
   S1, S2: string;
   VText: string;
   VCoordType: TCoordSysType;
 begin
-  VText := Clipboard.AsText;
+  VText := Trim(Clipboard.AsText);
 
   if VText = '' then begin
     MessageDlg(_('Clipboard is empty!'), mtError, [mbOK], 0);
     Exit;
   end;
 
-  I := Pos(' ', VText); // "Lat Lon" or "X Y"
-  if I > 0 then begin
-    S1 := Trim(Copy(VText, 1, I-1));
-    S2 := Trim(Copy(VText, I+1));
-  end else begin
-    S1 := '';
-    S2 := '';
-  end;
-
-  if (S1 = '') or (S2 = '') then begin
-    MessageDlg(
-      Format(_('Can''t parse coordinates from clipboard: %s'), [VText]),
-      mtError, [mbOK], 0
-    );
-    Exit;
-  end;
-
   if ItemIndexToCoordType(cbbCoordType.ItemIndex, VCoordType) then begin
     case VCoordType of
       cstWGS84, cstSK42: begin
-        edtLat.Text := S1;
-        edtLon.Text := S2;
+        if GetCoordFromClipboardText(VText, S1, S2) then begin
+          edtLat.Text := S1;
+          edtLon.Text := S2;
+        end;
       end;
+
       cstUTM, cstSK42GK: begin
-        edtProjectedX.Text := S1;
-        edtProjectedY.Text := S2;
+        if GetCoordFromClipboardText(VText, S1, S2) then begin
+          edtProjectedX.Text := S1;
+          edtProjectedY.Text := S2;
+        end;
       end;
+
+      cstMGRS: begin
+        edtMgrs.Text := VText;
+      end
     else
       Assert(False);
     end;
   end else begin
-    edtX.Text := S1;
-    edtY.Text := S2;
+    if GetCoordFromClipboardText(VText, S1, S2) then begin
+      edtX.Text := S1;
+      edtY.Text := S2;
+    end;
   end;
 end;
 
-function TagToDegrShowFormat(const ATag: Integer): TDegrShowFormat; inline;
+function TagToGeogCoordShowFormat(const ATag: Integer): TGeogCoordShowFormat; inline;
 begin
-  Result := TDegrShowFormat(ATag - 100);
+  Result := TGeogCoordShowFormat(ATag - 100);
 end;
 
-function DegrShowFormatToTag(const AFormat: TDegrShowFormat): Integer; inline;
+function GeogCoordShowFormatToTag(const AFormat: TGeogCoordShowFormat): Integer; inline;
 begin
   Result := 100 + Integer(AFormat);
 end;
 
+function TagToProjCoordShowFormat(const ATag: Integer): TProjCoordShowFormat; inline;
+begin
+  Result := TProjCoordShowFormat(ATag - 500);
+end;
+
+function ProjCoordShowFormatToTag(const AFormat: TProjCoordShowFormat): Integer; inline;
+begin
+  Result := 500 + Integer(AFormat);
+end;
+
 procedure TfrLonLat.BuildCoordFormatMenu;
 var
-  I: TDegrShowFormat;
+  I: TGeogCoordShowFormat;
+  J: TProjCoordShowFormat;
   VItem: TTBXCustomItem;
-  VCaption: TDegrShowFormatCaption;
+  VGeogCaption: TGeogCoordShowFormatCaption;
+  VProjCaption: TProjCoordShowFormatCaption;
+  VGeogFormat: TGeogCoordShowFormat;
+  VProjFormat: TProjCoordShowFormat;
 begin
-  VCaption := GetDegrShowFormatCaption;
   tbxpmnCoordFormat.Items.Clear;
-  for I := Low(TDegrShowFormat) to High(TDegrShowFormat) do begin
-    VItem := TTBXCustomItem.Create(tbxpmnCoordFormat);
-    VItem.Caption := VCaption[I];
-    VItem.GroupIndex := 1;
-    VItem.Tag := DegrShowFormatToTag(I);
-    VItem.OnClick := Self.OnCoordFormatClick;
-    tbxpmnCoordFormat.Items.Add(VItem);
+
+  case FCoordRepresentationConfig.CoordSysType of
+    cstWGS84, cstSK42: begin
+      VGeogCaption := GetGeogCoordShowFormatCaption;
+      VGeogFormat := FCoordRepresentationConfig.GeogCoordShowFormat;
+      for I := Low(TGeogCoordShowFormat) to High(TGeogCoordShowFormat) do begin
+        VItem := TTBXCustomItem.Create(tbxpmnCoordFormat);
+        VItem.Caption := VGeogCaption[I];
+        VItem.Checked := (I = VGeogFormat);
+        VItem.GroupIndex := 1;
+        VItem.Tag := GeogCoordShowFormatToTag(I);
+        VItem.OnClick := Self.OnCoordFormatClick;
+        tbxpmnCoordFormat.Items.Add(VItem);
+      end;
+    end;
+
+    cstUTM, cstSK42GK: begin
+      VProjCaption := GetProjCoordShowFormatCaption;
+      VProjFormat := FCoordRepresentationConfig.ProjCoordShowFormat;
+      for J := Low(TProjCoordShowFormat) to High(TProjCoordShowFormat) do begin
+        VItem := TTBXCustomItem.Create(tbxpmnCoordFormat);
+        VItem.Caption := VProjCaption[J];
+        VItem.Checked := (J = VProjFormat);
+        VItem.GroupIndex := 1;
+        VItem.Tag := ProjCoordShowFormatToTag(J);
+        VItem.OnClick := Self.OnCoordFormatClick;
+        tbxpmnCoordFormat.Items.Add(VItem);
+      end;
+    end;
+
+    cstMGRS: begin
+      // do nothing
+    end;
+  else
+    Assert(False);
   end;
+
+  btnCoordFormat.Enabled := tbxpmnCoordFormat.Items.Count > 0;
 end;
 
 procedure TfrLonLat.OnCoordRepresentationConfigChange;
-var
-  I: Integer;
-  VItem: TTBCustomItem;
-  VFormat: TDegrShowFormat;
 begin
   cbbCoordType.ItemIndex := CoordTypeToItemIndex(
     FCoordRepresentationConfig.CoordSysType
   );
-  VFormat := FCoordRepresentationConfig.DegrShowFormat;
-  for I := 0 to tbxpmnCoordFormat.Items.Count - 1 do begin
-    VItem := tbxpmnCoordFormat.Items[I];
-    VItem.Checked := TagToDegrShowFormat(VItem.Tag) = VFormat;
-  end;
+  BuildCoordFormatMenu;
 end;
 
 procedure TfrLonLat.OnCoordFormatClick(Sender: TObject);
@@ -644,7 +718,19 @@ var
   VItem: TTBXCustomItem;
 begin
   VItem := Sender as TTBXCustomItem;
-  FCoordRepresentationConfig.DegrShowFormat := TagToDegrShowFormat(VItem.Tag);
+
+  case FCoordRepresentationConfig.CoordSysType of
+    cstWGS84, cstSK42: begin
+      FCoordRepresentationConfig.GeogCoordShowFormat := TagToGeogCoordShowFormat(VItem.Tag);
+    end;
+
+    cstUTM, cstSK42GK: begin
+      FCoordRepresentationConfig.ProjCoordShowFormat := TagToProjCoordShowFormat(VItem.Tag);
+    end;
+  else
+    Assert(False);
+  end;
+
   SetLonLat(FCoordinates);
 end;
 

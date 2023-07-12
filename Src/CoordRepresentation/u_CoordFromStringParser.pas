@@ -211,26 +211,42 @@ function TCoordFromStringParser.TryStrToCoord(
   out ACoord: TDoublePoint
 ): Boolean;
 var
-  X, Y: Double;
   VCoord: TDoublePoint;
+  VUtm: TUtmCoord;
+  VMgrs: TMgrsCoord;
+  VGauss: TGaussKrugerCoord;
 begin
   Result := False;
 
-  X := str2r( StripAxisMarker(AX) );
-  Y := str2r( StripAxisMarker(AY) );
-
   case FConfig.CoordSysType of
     cstSK42GK: begin
-      Result := gauss_kruger_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
+      VGauss.Zone := AZone;
+      VGauss.IsNorth := AIsNorth;
+      VGauss.X := str2r( StripAxisMarker(AX) );
+      VGauss.Y := str2r( StripAxisMarker(AY) );
+
+      Result := gauss_kruger_to_wgs84(VGauss, VCoord.X, VCoord.Y);
     end;
 
     cstUTM: begin
+      VUtm.Zone := AZone;
+      VUtm.Band := #0;
+      VUtm.IsNorth := AIsNorth;
+      VUtm.X := str2r( StripAxisMarker(AX) );
+      VUtm.Y := str2r( StripAxisMarker(AY) );
+
       if AZone > 0 then begin
-        Result := utm_to_wgs84(X, Y, AZone, AIsNorth, VCoord.X, VCoord.Y);
+        Result := utm_to_wgs84(VUtm, VCoord.X, VCoord.Y);
       end else begin
-        Result := ups_to_wgs84(X, Y, AIsNorth, VCoord.X, VCoord.Y);
+        Result := ups_to_wgs84(VUtm, VCoord.X, VCoord.Y);
       end;
     end;
+
+    cstMGRS: begin
+      Result :=
+        str_to_mgrs(AX, VMgrs) and
+        mgrs_to_wgs84(VMgrs, VCoord.X, VCoord.Y);
+    end
   else
     Assert(False);
   end;

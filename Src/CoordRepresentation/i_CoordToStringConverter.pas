@@ -39,7 +39,8 @@ type
     ): string; overload;
 
     function LonLatConvert(
-      const ALonStr, ALatStr: string
+      const ALonStr, ALatStr: string;
+      const AZoneStr: string = ''
     ): string; overload;
 
     procedure LonLatConvert(
@@ -48,7 +49,8 @@ type
       const ACutZero: Boolean;
       const AWriteAxisMarker: Boolean;
       out ALonStr: string;
-      out ALatStr: string
+      out ALatStr: string;
+      out AZoneStr: string
     ); overload;
   end;
 

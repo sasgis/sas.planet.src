@@ -92,7 +92,8 @@ begin
   Result :=
     TCoordToStringConverter.Create(
       VConfig.IsLatitudeFirst,
-      VConfig.DegrShowFormat,
+      VConfig.GeogCoordShowFormat,
+      VConfig.ProjCoordShowFormat,
       VConfig.CoordSysType,
       VConfig.CoordSysInfoType
     );

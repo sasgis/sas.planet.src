@@ -35,12 +35,20 @@ function GetCoordSysTypeCaptionShort: TCoordSysTypeCaption;
 function GetUPSCoordSysTypeCaptionShort: string;
 
 type
-  TDegrShowFormatCaption = array [TDegrShowFormat] of string;
+  TGeogCoordShowFormatCaption = array [TGeogCoordShowFormat] of string;
 
-function GetDegrShowFormatCaption: TDegrShowFormatCaption;
+function GetGeogCoordShowFormatCaption: TGeogCoordShowFormatCaption;
 
-function DegrShowFormatToId(const AValue: TDegrShowFormat): Integer;
-function IdToDegrShowFormat(const AValue: Integer): TDegrShowFormat;
+function GeogCoordShowFormatToInteger(const AValue: TGeogCoordShowFormat): Integer;
+function IntegerToGeogCoordShowFormat(const AValue: Integer): TGeogCoordShowFormat;
+
+type
+  TProjCoordShowFormatCaption = array [TProjCoordShowFormat] of string;
+
+function GetProjCoordShowFormatCaption: TProjCoordShowFormatCaption;
+
+function ProjCoordShowFormatToInteger(const AValue: TProjCoordShowFormat): Integer;
+function IntegerToProjCoordShowFormat(const AValue: Integer): TProjCoordShowFormat;
 
 implementation
 
@@ -50,19 +58,23 @@ uses
 function GetCoordSysTypeCaption: TCoordSysTypeCaption;
 begin
   Result[cstWGS84]  := _('WGS 84 / Geographic');
-  Result[cstUTM]    := _('WGS 84 / UTM (6 degree zones)');
 
   Result[cstSK42]   := _('SK-42 (Pulkovo-1942) / Geographic');
   Result[cstSK42GK] := _('SK-42 / Gauss-Kruger (6 degree zones)');
+
+  Result[cstUTM]    := _('WGS 84 / UTM (6 degree zones)');
+  Result[cstMGRS]   := _('WGS 84 / Military Grid Reference System');
 end;
 
 function GetCoordSysTypeCaptionShort: TCoordSysTypeCaption;
 begin
   Result[cstWGS84]  := 'WGS 84';
-  Result[cstUTM]    := 'WGS 84 / UTM';
 
   Result[cstSK42]   := _('SK-42');
   Result[cstSK42GK] := _('SK-42 / GK');
+
+  Result[cstUTM]    := 'WGS 84 / UTM';
+  Result[cstMGRS]   := 'WGS 84 / MGRS';
 end;
 
 function GetUPSCoordSysTypeCaptionShort: string;
@@ -70,7 +82,7 @@ begin
   Result := 'WGS 84 / UPS';
 end;
 
-function GetDegrShowFormatCaption: TDegrShowFormatCaption;
+function GetGeogCoordShowFormatCaption: TGeogCoordShowFormatCaption;
 begin
   Result[dshCharDegrMinSec] := _('WS deg.min.sec. (W12°12''12.1234")');
   Result[dshCharDegrMin]    := _('WS deg.min. (W12°12.123456'')');
@@ -84,27 +96,60 @@ begin
 end;
 
 const
-  CDegrShowFormatId: array[TDegrShowFormat] of Integer = (
+  CGeogCoordShowFormatId: array[TGeogCoordShowFormat] of Integer = (
     0, 1, 2, 21, 3, 4, 5, 51
   );
 
-function DegrShowFormatToId(const AValue: TDegrShowFormat): Integer;
+function GeogCoordShowFormatToInteger(const AValue: TGeogCoordShowFormat): Integer;
 begin
-  Result := CDegrShowFormatId[AValue];
+  Result := CGeogCoordShowFormatId[AValue];
 end;
 
-function IdToDegrShowFormat(const AValue: Integer): TDegrShowFormat;
+function IntegerToGeogCoordShowFormat(const AValue: Integer): TGeogCoordShowFormat;
 var
-  I: TDegrShowFormat;
+  I: TGeogCoordShowFormat;
 begin
-  for I := Low(TDegrShowFormat) to High(TDegrShowFormat) do begin
-    if CDegrShowFormatId[I] = AValue then begin
+  for I := Low(TGeogCoordShowFormat) to High(TGeogCoordShowFormat) do begin
+    if CGeogCoordShowFormatId[I] = AValue then begin
       Result := I;
       Exit;
     end;
   end;
 
-  Result := Low(TDegrShowFormat);
+  Result := Low(TGeogCoordShowFormat);
+end;
+
+function GetProjCoordShowFormatCaption: TProjCoordShowFormatCaption;
+begin
+  Result[csfWhole]         := '12345';
+  Result[csfWholeWithAxis] := '12345N';
+
+  Result[csfExact]         := '12345.000';
+  Result[csfExactWithAxis] := '12345.000N';
+end;
+
+const
+  CProjCoordShowFormatId: array[TProjCoordShowFormat] of Integer = (
+    0, 1, 2, 3
+  );
+
+function ProjCoordShowFormatToInteger(const AValue: TProjCoordShowFormat): Integer;
+begin
+  Result := Integer(AValue);
+end;
+
+function IntegerToProjCoordShowFormat(const AValue: Integer): TProjCoordShowFormat;
+var
+  I: TProjCoordShowFormat;
+begin
+  for I := Low(TProjCoordShowFormat) to High(TProjCoordShowFormat) do begin
+    if CProjCoordShowFormatId[I] = AValue then begin
+      Result := I;
+      Exit;
+    end;
+  end;
+
+  Result := Low(TProjCoordShowFormat);
 end;
 
 end.

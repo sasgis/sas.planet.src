@@ -140,6 +140,7 @@ var
   i, j: Integer;
   VTextSize: TSize;
   VListNameLon, VListNameLat: string;
+  VZoneStr: string;
   VLocalCellCenter: TDoublePoint;
   VOutPoint: TPoint;
 begin
@@ -193,7 +194,8 @@ begin
           True,
           False,
           VListNameLon,
-          VListNameLat
+          VListNameLat,
+          VZoneStr
         )
       end else begin
         VListNameLon := '';
