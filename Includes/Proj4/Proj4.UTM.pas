@@ -35,15 +35,14 @@ function geodetic_wgs84_to_ups(const ALon, ALat: Double; out AUtm: TUtmCoord): B
 function ups_to_wgs84(const AUtm: TUtmCoord; out ALon, ALat: Double): Boolean;
 
 function geodetic_wgs84_to_mgrs(const ALon, ALat: Double; out AMgrs: TMgrsCoord): Boolean;
-function mgrs_to_wgs84(const AMgrs: TMgrsCoord; out ALon, ALat: Double): Boolean;
+
+function mgrs_to_utm(const AMgrs: TMgrsCoord; out AUtm: TUtmCoord): Boolean;
+function mgrs_to_wgs84(const AMgrs: TMgrsCoord; out ALon, ALat: Double): Boolean; inline;
 
 function str_to_mgrs(const AStr: string; out AMgrs: TMgrsCoord): Boolean;
 
 const
-  CMgrsSouthLatBands = 'CDEFGHJKLM';
-  CMgrsNorthLatBands = 'NPQRSTUVWXX'; // X is repeated for 80-84N
-
-  CMgrsLatBands = CMgrsSouthLatBands + CMgrsNorthLatBands;
+  CMgrsLatBands = 'CDEFGHJKLMNPQRSTUVWXX'; // X is repeated for 80-84N
 
   CMgrsUtmCols: array [0..2] of string = (
     'ABCDEFGH', 'JKLMNPQR', 'STUVWXYZ'
@@ -68,6 +67,10 @@ uses
   SysUtils,
   Proj4.Utils,
   Proj4.Defines;
+
+const
+  CFeUps: array[0..3] of Integer = (8, 20, 8, 20);
+  CFnUps: array[0..3] of Integer = (8, 8, 13, 13);
 
 function wgs84_long_to_utm_zone(const ALon: Double): Integer;
 begin
@@ -127,7 +130,7 @@ function get_utm_init(const AZone: Integer; const ALatBand: Char): AnsiString;
 begin
   Assert(Pos(UpperCase(ALatBand), CMgrsLatBands) > 0);
 
-  Result := get_utm_init(AZone, Pos(UpperCase(ALatBand), CMgrsNorthLatBands) > 0);
+  Result := get_utm_init(AZone, UpperCase(ALatBand) >= 'N');
 end;
 
 function get_utm_init(const AZone: Integer; const AIsNorth: Boolean): AnsiString;
@@ -145,7 +148,7 @@ var
 begin
   Result := wgs84_longlat_to_utm_zone(ALon, ALat, AUtm.Zone, AUtm.Band);
   if Result then begin
-    AUtm.IsNorth := Pos(AUtm.Band, CMgrsNorthLatBands) > 0;
+    AUtm.IsNorth := AUtm.Band >= 'N';
     VInitStr := get_utm_init(AUtm.Zone, AUtm.IsNorth);
     Result := geodetic_cs_to_projected_cs(wgs_84, VInitStr, ALon, ALat, AUtm.X, AUtm.Y);
   end;
@@ -209,9 +212,6 @@ begin
 end;
 
 function geodetic_wgs84_to_mgrs(const ALon, ALat: Double; out AMgrs: TMgrsCoord): Boolean;
-const
-  CFeUps: array[0..3] of Integer = (8, 20, 8, 20);
-  CFnUps: array[0..3] of Integer = (8, 8, 13, 13);
 var
   I: Integer;
   VUtm: TUtmCoord;
@@ -243,8 +243,8 @@ begin
       'Y': I := 2;
       'Z': I := 3;
     else
-      I := 0;
-      Assert(False);
+      Result := False;
+      Exit;
     end;
 
     AMgrs.Digraph[0] := CMgrsUpsCols[I][1 + (VCol - CFeUps[I])];
@@ -255,16 +255,173 @@ begin
   AMgrs.Y := Trunc(VUtm.Y) mod 100000;
 end;
 
-function mgrs_to_wgs84(const AMgrs: TMgrsCoord; out ALon, ALat: Double): Boolean;
+function mgrs_to_utm(const AMgrs: TMgrsCoord; out AUtm: TUtmCoord): Boolean;
+var
+  I: Integer;
+  VPos: Integer;
+  VUtmTmp: TUtmCoord;
+  VLatMax: Integer;
+  e, n, nBand, n2M: Integer;
 begin
   Result := False;
-  // todo
+
+  AUtm.Zone := AMgrs.Zone;
+  AUtm.Band := AMgrs.Band;
+
+  n2M := 0;
+
+  if AUtm.Zone > 0 then begin
+    AUtm.IsNorth := AMgrs.Band >= 'N';
+
+    I := AMgrs.Zone - 1;
+
+    VPos := Pos(AMgrs.Digraph[0], CMgrsUtmCols[I mod 3]);
+    if VPos > 0 then begin
+      Dec(VPos);
+      e := (VPos + 1) * 100000;
+    end else begin
+      Exit;
+    end;
+
+    VPos := Pos(AMgrs.Digraph[1], CMgrsUtmRows[I mod 2]);
+    if VPos > 0 then begin
+      Dec(VPos);
+      n := VPos * 100000;
+    end else begin
+      Exit;
+    end;
+
+    VPos := Pos(AMgrs.Band, CMgrsLatBands);
+    if VPos > 0 then begin
+      Dec(VPos);
+      VLatMax := (VPos - 10) * 8;
+    end else begin
+      Exit;
+    end;
+
+    if not geodetic_wgs84_to_utm(3, VLatMax, VUtmTmp) then begin
+      Exit;
+    end;
+
+    nBand := Trunc(VUtmTmp.Y / 100000) * 100000;
+
+    while n2M + n + AMgrs.Y < nBand do begin
+      Inc(n2M, 2000000);
+    end;
+
+  end else begin
+    AUtm.IsNorth := AnsiChar(AMgrs.Band) in ['Y', 'Z'];
+
+    case AMgrs.Band of
+      'A': I := 0;
+      'B': I := 1;
+      'Y': I := 2;
+      'Z': I := 3;
+    else
+      Exit;
+    end;
+
+    VPos := Pos(AMgrs.Digraph[0], CMgrsUpsCols[I]);
+    if VPos > 0 then begin
+      Dec(VPos);
+      e := (VPos + CFeUps[I]) * 100000;
+    end else begin
+      Exit;
+    end;
+
+    VPos := Pos(AMgrs.Digraph[1], CMgrsUpsRows[I]);
+    if VPos > 0 then begin
+      Dec(VPos);
+      n := (VPos + CFnUps[I]) * 100000;
+    end else begin
+      Exit;
+    end;
+  end;
+
+  AUtm.X := e + AMgrs.X;
+  AUtm.Y := n2M + n + AMgrs.Y;
+
+  Result := True;
+end;
+
+function mgrs_to_wgs84(const AMgrs: TMgrsCoord; out ALon, ALat: Double): Boolean;
+var
+  VUtm: TUtmCoord;
+begin
+  Result := mgrs_to_utm(AMgrs, VUtm);
+  if Result then begin
+    if VUtm.Zone > 0 then begin
+      Result := utm_to_wgs84(VUtm, ALon, ALat);
+    end else begin
+      Result := ups_to_wgs84(VUtm, ALon, ALat);
+    end;
+  end;
 end;
 
 function str_to_mgrs(const AStr: string; out AMgrs: TMgrsCoord): Boolean;
+var
+  P: PChar;
+  I: Integer;
+  VStr: string;
+  VTmp: string;
+  VLen: Integer;
 begin
   Result := False;
-  // todo
+
+  VStr := StringReplace(UpperCase(AStr), ' ', '', [rfReplaceAll]);
+  VLen := Length(VStr);
+
+  if VLen < 13 then begin
+    Exit;
+  end;
+
+  I := 0;
+  P := Pointer(VStr);
+  while AnsiChar(P^) in ['0'..'9'] do begin
+    Inc(P);
+    Inc(I);
+  end;
+
+  if I > 2 then begin
+    Exit;
+  end;
+
+  if I > 0 then begin
+    AMgrs.Zone := StrToInt( Copy(VStr, 1, I) );
+    if not (AMgrs.Zone in [1..60]) then begin
+      Exit;
+    end;
+  end else begin
+    AMgrs.Zone := 0;
+  end;
+
+  AMgrs.Band := P^;
+  Inc(P);
+
+  AMgrs.Digraph[0] := P^;
+  Inc(P);
+
+  AMgrs.Digraph[1] := P^;
+  Inc(P);
+
+  while P^ <> #0 do begin
+    if AnsiChar(P^) in ['0'..'9'] then begin
+      Inc(P);
+    end else begin
+      Exit;
+    end;
+  end;
+
+  Inc(I, 3);
+  VTmp := Copy(VStr, 1+I, (VLen-I) div 2);
+  AMgrs.X := StrToInt(VTmp);
+
+  Inc(I, Length(VTmp));
+  VTmp := Copy(VStr, 1+I);
+  AMgrs.Y := StrToInt(VTmp);
+
+  Inc(I, Length(VTmp));
+  Result := I = VLen;
 end;
 
 end.
