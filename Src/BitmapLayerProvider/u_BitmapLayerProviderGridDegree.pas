@@ -140,7 +140,7 @@ var
   i, j: Integer;
   VTextSize: TSize;
   VListNameLon, VListNameLat: string;
-  VZoneStr: string;
+  VCoordParts: TCoordPartArray;
   VLocalCellCenter: TDoublePoint;
   VOutPoint: TPoint;
 begin
@@ -188,15 +188,11 @@ begin
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
 
       if abs(VLonLatRectOfCell.Top) <= 85 then begin
-        FCoordToStringConverter.LonLatConvert(
-          VLonLatRectOfCell.Left,
-          VLonLatRectOfCell.Top,
-          True,
-          False,
-          VListNameLon,
-          VListNameLat,
-          VZoneStr
-        )
+        VCoordParts := FCoordToStringConverter.LonLatConvertExt(
+          VLonLatRectOfCell.TopLeft, [coCutZero]
+        );
+        VListNameLon := VCoordParts[cpiLon];
+        VListNameLat := VCoordParts[cpiLat];
       end else begin
         VListNameLon := '';
         VListNameLat := '';

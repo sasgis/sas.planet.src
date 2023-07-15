@@ -24,36 +24,49 @@ unit u_CoordRepresentation;
 interface
 
 uses
-  t_CoordRepresentation;
+  Types,
+  SysUtils,
+  t_CoordRepresentation,
+  i_CoordRepresentationConfig;
 
 type
   TCoordSysTypeCaption = array [TCoordSysType] of string;
 
 function GetCoordSysTypeCaption: TCoordSysTypeCaption;
 function GetCoordSysTypeCaptionShort: TCoordSysTypeCaption;
-
 function GetUPSCoordSysTypeCaptionShort: string;
 
-type
-  TGeogCoordShowFormatCaption = array [TGeogCoordShowFormat] of string;
-
-function GetGeogCoordShowFormatCaption: TGeogCoordShowFormatCaption;
+//-----------------------------------------------------------------------------
 
 function GeogCoordShowFormatToInteger(const AValue: TGeogCoordShowFormat): Integer;
 function IntegerToGeogCoordShowFormat(const AValue: Integer): TGeogCoordShowFormat;
 
-type
-  TProjCoordShowFormatCaption = array [TProjCoordShowFormat] of string;
-
-function GetProjCoordShowFormatCaption: TProjCoordShowFormatCaption;
+//-----------------------------------------------------------------------------
 
 function ProjCoordShowFormatToInteger(const AValue: TProjCoordShowFormat): Integer;
 function IntegerToProjCoordShowFormat(const AValue: Integer): TProjCoordShowFormat;
+
+//-----------------------------------------------------------------------------
+
+function GetCoordShowFormatCaptions(
+  const AConfig: ICoordRepresentationConfigStatic;
+  out AItems: TStringDynArray;
+  out AActiveItemIndex: Integer
+): Boolean;
+
+procedure SetCoordShowFormat(
+  const AConfig: ICoordRepresentationConfig;
+  const AIndex: Integer
+);
 
 implementation
 
 uses
   gnugettext;
+
+type
+  TGeogCoordShowFormatCaption = array [TGeogCoordShowFormat] of string;
+  TProjCoordShowFormatCaption = array [TProjCoordShowFormat] of string;
 
 function GetCoordSysTypeCaption: TCoordSysTypeCaption;
 begin
@@ -63,7 +76,7 @@ begin
   Result[cstSK42GK] := _('SK-42 / Gauss-Kruger (6 degree zones)');
 
   Result[cstUTM]    := _('WGS 84 / UTM (6 degree zones)');
-  Result[cstMGRS]   := _('WGS 84 / Military Grid Reference System');
+  Result[cstMGRS]   := 'WGS 84 / MGRS';
 end;
 
 function GetCoordSysTypeCaptionShort: TCoordSysTypeCaption;
@@ -121,16 +134,13 @@ end;
 
 function GetProjCoordShowFormatCaption: TProjCoordShowFormatCaption;
 begin
-  Result[csfWhole]         := '12345';
-  Result[csfWholeWithAxis] := '12345N';
-
-  Result[csfExact]         := '12345.000';
-  Result[csfExactWithAxis] := '12345.000N';
+  Result[csfWhole] := '12345';
+  Result[csfExact] := '12345.000';
 end;
 
 const
   CProjCoordShowFormatId: array[TProjCoordShowFormat] of Integer = (
-    0, 1, 2, 3
+    0, 1
   );
 
 function ProjCoordShowFormatToInteger(const AValue: TProjCoordShowFormat): Integer;
@@ -150,6 +160,93 @@ begin
   end;
 
   Result := Low(TProjCoordShowFormat);
+end;
+
+function GetCoordShowFormatCaptions(
+  const AConfig: ICoordRepresentationConfigStatic;
+  out AItems: TStringDynArray;
+  out AActiveItemIndex: Integer
+): Boolean;
+
+  procedure _GetGeogCaptions;
+  var
+    I: Integer;
+    VFormat: TGeogCoordShowFormat;
+    VCaption: TGeogCoordShowFormatCaption;
+  begin
+    VCaption := GetGeogCoordShowFormatCaption;
+    SetLength(AItems, Length(VCaption));
+
+    I := 0;
+    for VFormat := Low(TGeogCoordShowFormat) to High(TGeogCoordShowFormat) do begin
+      AItems[I] := VCaption[VFormat];
+      Inc(I);
+    end;
+
+    AActiveItemIndex := Integer(AConfig.GeogCoordShowFormat);
+  end;
+
+  procedure _GetProjCaptions;
+  var
+    I: Integer;
+    VFormat: TProjCoordShowFormat;
+    VCaption: TProjCoordShowFormatCaption;
+  begin
+    VCaption := GetProjCoordShowFormatCaption;
+    SetLength(AItems, Length(VCaption));
+
+    I := 0;
+    for VFormat := Low(TProjCoordShowFormat) to High(TProjCoordShowFormat) do begin
+      AItems[I] := VCaption[VFormat];
+      Inc(I);
+    end;
+
+    AActiveItemIndex := Integer(AConfig.ProjCoordShowFormat);
+  end;
+
+begin
+  AItems := nil;
+  AActiveItemIndex := -1;
+
+  case AConfig.CoordSysType of
+    cstWGS84, cstSK42: begin
+      _GetGeogCaptions;
+    end;
+
+    cstSK42GK, cstUTM: begin
+      _GetProjCaptions;
+    end;
+
+    cstMGRS: begin
+      //
+    end;
+  else
+    Assert(False);
+  end;
+
+  Result := (Length(AItems) > 0) and (AActiveItemIndex >= 0);
+end;
+
+procedure SetCoordShowFormat(
+  const AConfig: ICoordRepresentationConfig;
+  const AIndex: Integer
+);
+begin
+  case AConfig.CoordSysType of
+    cstWGS84, cstSK42: begin
+      AConfig.GeogCoordShowFormat := TGeogCoordShowFormat(AIndex);
+    end;
+
+    cstSK42GK, cstUTM: begin
+      AConfig.ProjCoordShowFormat := TProjCoordShowFormat(AIndex);
+    end;
+
+    cstMGRS: begin
+      //
+    end;
+  else
+    Assert(False);
+  end;
 end;
 
 end.

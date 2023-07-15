@@ -28,6 +28,20 @@ uses
   i_Changeable;
 
 type
+  TCoordToStringConverterOption = (
+    coCutZero,
+    coIncludeZone,
+    coLatitudeFirst
+  );
+
+  TCoordToStringConverterOptions = set of TCoordToStringConverterOption;
+
+  TCoordPartItem = (
+    cpiZone, cpiLon, cpiLat // do not change order
+  );
+
+  TCoordPartArray = array[TCoordPartItem] of string;
+
   ICoordToStringConverter = interface
   ['{0140A97B-47A3-44DE-91D5-9BAA54B34C4C}']
     function GetCoordSysInfo(
@@ -35,23 +49,14 @@ type
     ): string;
 
     function LonLatConvert(
-      const ALonLat: TDoublePoint
-    ): string; overload;
+      const ALonLat: TDoublePoint;
+      const AOptions: TCoordToStringConverterOptions = []
+    ): string;
 
-    function LonLatConvert(
-      const ALonStr, ALatStr: string;
-      const AZoneStr: string = ''
-    ): string; overload;
-
-    procedure LonLatConvert(
-      const ALon: Double;
-      const ALat: Double;
-      const ACutZero: Boolean;
-      const AWriteAxisMarker: Boolean;
-      out ALonStr: string;
-      out ALatStr: string;
-      out AZoneStr: string
-    ); overload;
+    function LonLatConvertExt(
+      const ALonLat: TDoublePoint;
+      const AOptions: TCoordToStringConverterOptions = []
+    ): TCoordPartArray;
   end;
 
   ICoordToStringConverterChangeable = interface(IChangeable)

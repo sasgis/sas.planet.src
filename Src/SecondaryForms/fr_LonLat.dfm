@@ -432,13 +432,8 @@ object frLonLat: TfrLonLat
         end
         item
           Column = 1
-          Control = cbbZone
+          Control = edtZone
           Row = 0
-        end
-        item
-          Column = 1
-          Control = chkNorth
-          Row = 1
         end>
       RowCollection = <
         item
@@ -459,27 +454,17 @@ object frLonLat: TfrLonLat
         Alignment = taRightJustify
         Caption = 'Zone:'
       end
-      object cbbZone: TComboBox
-        AlignWithMargins = True
+      object edtZone: TEdit
         Left = 63
         Top = 3
-        Width = 89
-        Height = 21
-        Align = alTop
+        Width = 90
+        Height = 18
+        Align = alCustom
+        Anchors = [akLeft, akTop, akRight]
+        BorderStyle = bsNone
+        Ctl3D = False
+        ParentCtl3D = False
         TabOrder = 0
-      end
-      object chkNorth: TCheckBox
-        AlignWithMargins = True
-        Left = 63
-        Top = 26
-        Width = 89
-        Height = 20
-        Align = alTop
-        Caption = 'North'
-        TabOrder = 1
-        ExplicitLeft = 100
-        ExplicitTop = 48
-        ExplicitWidth = 145
       end
     end
   end
@@ -526,15 +511,8 @@ object frLonLat: TfrLonLat
       Align = alTop
       Style = csDropDownList
       Anchors = []
-      ItemHeight = 13
-      ItemIndex = 0
-      TabOrder = 0
-      Text = 'Geographic Coordinates'
+      TabOrder = 1
       OnSelect = cbbCoordTypeSelect
-      Items.Strings = (
-        'Geographic Coordinates'
-        'Pixel'
-        'Tile')
     end
     object pnlButtons: TPanel
       Left = 361

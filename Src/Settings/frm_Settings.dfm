@@ -770,6 +770,7 @@ object frmSettings: TfrmSettings
               Style = csDropDownList
               ItemHeight = 13
               TabOrder = 0
+              OnChange = cbbCoordRepresentationChange
             end
           end
           object pnlLang: TPanel

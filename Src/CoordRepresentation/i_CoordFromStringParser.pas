@@ -38,8 +38,12 @@ type
     function TryStrToCoord(
       const AX: string;
       const AY: string;
-      const AZone: Integer;
-      const AIsNorth: Boolean;
+      const AZone: string;
+      out ACoord: TDoublePoint
+    ): Boolean; overload;
+
+    function TryStrToCoord(
+      const AStr: string;
       out ACoord: TDoublePoint
     ): Boolean; overload;
   end;

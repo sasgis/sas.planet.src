@@ -24,6 +24,7 @@ unit frm_Settings;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   Controls,
@@ -279,6 +280,7 @@ type
     procedure cbbNetworkEngineChange(Sender: TObject);
     procedure btnMarkCaptionFontClick(Sender: TObject);
     procedure cbbCoordSysTypeChange(Sender: TObject);
+    procedure cbbCoordRepresentationChange(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -319,7 +321,7 @@ type
     FfrYandexApiKey: TfrGeoCoderApiKey;
 
     procedure InitCoordSysTypeList;
-    procedure InitCoordRepresentationList;
+    procedure InitCoordShowFormat;
 
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
@@ -362,6 +364,7 @@ uses
   t_CoordRepresentation,
   i_WinInetConfig,
   i_MarksDrawConfig,
+  i_CoordRepresentationConfig,
   u_ListenerNotifierLinksList,
   u_AnsiStr,
   u_GlobalState,
@@ -690,6 +693,7 @@ var
   VNeedReboot: Boolean;
   VConnsPerServer: TConnsPerServerRec;
   VMarksCaptionDrawConfig: ICaptionDrawConfig;
+  VCoordRepresentationConfig: ICoordRepresentationConfig;
 begin
   VNeedReboot := False;
 
@@ -735,25 +739,15 @@ begin
 
   GState.CacheConfig.DefCache := FfrCacheTypesList.IntCode;
 
-  GState.Config.CoordRepresentationConfig.LockWrite;
+  VCoordRepresentationConfig := GState.Config.CoordRepresentationConfig;
+  VCoordRepresentationConfig.LockWrite;
   try
-    GState.Config.CoordRepresentationConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
-    GState.Config.CoordRepresentationConfig.CoordSysType := TCoordSysType(cbbCoordSysType.ItemIndex);
-
-    case GState.Config.CoordRepresentationConfig.CoordSysType of
-      cstWGS84, cstSK42: begin
-        GState.Config.CoordRepresentationConfig.GeogCoordShowFormat := TGeogCoordShowFormat(cbbCoordRepresentation.ItemIndex);
-      end;
-      cstUTM, cstSK42GK, cstMGRS: begin
-        GState.Config.CoordRepresentationConfig.ProjCoordShowFormat := TProjCoordShowFormat(cbbCoordRepresentation.ItemIndex);
-      end;
-    else
-      Assert(False);
-    end;
-
-    GState.Config.CoordRepresentationConfig.CoordSysInfoType := TCoordSysInfoType(cbbCoordSysInfoType.ItemIndex);
+    VCoordRepresentationConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
+    VCoordRepresentationConfig.CoordSysType := TCoordSysType(cbbCoordSysType.ItemIndex);
+    VCoordRepresentationConfig.CoordSysInfoType := TCoordSysInfoType(cbbCoordSysInfoType.ItemIndex);
+    SetCoordShowFormat(VCoordRepresentationConfig, cbbCoordRepresentation.ItemIndex);
   finally
-    GState.Config.CoordRepresentationConfig.UnlockWrite;
+    VCoordRepresentationConfig.UnlockWrite;
   end;
 
   GState.Config.ValueToStringConverterConfig.LockWrite;
@@ -1154,8 +1148,7 @@ begin
   GState.Config.CoordRepresentationConfig.LockRead;
   try
     InitCoordSysTypeList;
-    InitCoordRepresentationList;
-
+    InitCoordShowFormat;
     ChBoxFirstLat.Checked := GState.Config.CoordRepresentationConfig.IsLatitudeFirst;
     cbbCoordSysInfoType.ItemIndex := Integer(GState.Config.CoordRepresentationConfig.CoordSysInfoType);
   finally
@@ -1224,7 +1217,13 @@ end;
 
 procedure TfrmSettings.cbbCoordSysTypeChange(Sender: TObject);
 begin
-  InitCoordRepresentationList;
+  GState.Config.CoordRepresentationConfig.CoordSysType := TCoordSysType(cbbCoordSysType.ItemIndex);
+  InitCoordShowFormat;
+end;
+
+procedure TfrmSettings.cbbCoordRepresentationChange(Sender: TObject);
+begin
+  SetCoordShowFormat(GState.Config.CoordRepresentationConfig, cbbCoordRepresentation.ItemIndex);
 end;
 
 procedure TfrmSettings.InitCoordSysTypeList;
@@ -1241,46 +1240,24 @@ begin
   cbbCoordSysType.ItemIndex := Integer(GState.Config.CoordRepresentationConfig.CoordSysType);
 end;
 
-procedure TfrmSettings.InitCoordRepresentationList;
+procedure TfrmSettings.InitCoordShowFormat;
 var
-  I: TGeogCoordShowFormat;
-  J: TProjCoordShowFormat;
-  VItemIndex: Integer;
-  VGeogCaption: TGeogCoordShowFormatCaption;
-  VProjCaption: TProjCoordShowFormatCaption;
+  I: Integer;
+  VIndex: Integer;
+  VItems: TStringDynArray;
+  VConfig: ICoordRepresentationConfigStatic;
 begin
-  VItemIndex := -1;
-
   cbbCoordRepresentation.Clear;
   cbbCoordRepresentation.Enabled := False;
 
-  case TCoordSysType(cbbCoordSysType.ItemIndex) of
-    cstWGS84, cstSK42: begin
-      VGeogCaption := GetGeogCoordShowFormatCaption;
-      for I := Low(TGeogCoordShowFormat) to High(TGeogCoordShowFormat) do begin
-        cbbCoordRepresentation.Items.Add(VGeogCaption[I]);
-      end;
-      VItemIndex := Integer(GState.Config.CoordRepresentationConfig.GeogCoordShowFormat);
+  VConfig := GState.Config.CoordRepresentationConfig.GetStatic;
+
+  if GetCoordShowFormatCaptions(VConfig, VItems, VIndex) then begin
+    for I := 0 to Length(VItems) - 1 do begin
+      cbbCoordRepresentation.Items.Add(VItems[I]);
     end;
-
-    cstUTM, cstSK42GK: begin
-      VProjCaption := GetProjCoordShowFormatCaption;
-      for J := Low(TProjCoordShowFormat) to High(TProjCoordShowFormat) do begin
-        cbbCoordRepresentation.Items.Add(VProjCaption[J]);
-      end;
-      VItemIndex := Integer(GState.Config.CoordRepresentationConfig.ProjCoordShowFormat);
-    end;
-
-    cstMGRS: begin
-      // do nothing
-    end
-  else
-    Assert(False);
-  end;
-
-  if VItemIndex >= 0 then begin
     cbbCoordRepresentation.Enabled := True;
-    cbbCoordRepresentation.ItemIndex := VItemIndex;
+    cbbCoordRepresentation.ItemIndex := VIndex;
   end;
 end;
 

@@ -158,8 +158,15 @@ function utm_to_wgs84(const AUtm: TUtmCoord; out ALon, ALat: Double): Boolean;
 var
   VInitStr: AnsiString;
 begin
-  VInitStr := get_utm_init(AUtm.Zone, AUtm.IsNorth);
-  Result := projected_cs_to_geodetic_cs(VInitStr, wgs_84, AUtm.X, AUtm.Y, ALon, ALat);
+  if AUtm.Zone in [1..60] then begin
+    VInitStr := get_utm_init(AUtm.Zone, AUtm.IsNorth);
+    Result := projected_cs_to_geodetic_cs(VInitStr, wgs_84, AUtm.X, AUtm.Y, ALon, ALat);
+  end else
+  if AUtm.Zone = 0 then begin
+    Result := ups_to_wgs84(AUtm, ALon, ALat);
+  end else begin
+    Result := False;
+  end;
 end;
 
 function geodetic_wgs84_to_ups(const ALon, ALat: Double; out AUtm: TUtmCoord): Boolean;
