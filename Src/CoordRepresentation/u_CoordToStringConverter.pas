@@ -36,6 +36,7 @@ type
     FIsLatitudeFirst: Boolean;
     FGeogCoordShowFormat: TGeogCoordShowFormat;
     FProjCoordShowFormat: TProjCoordShowFormat;
+    FMgrsCoordShowFormat: TMgrsCoordShowFormat;
     FCoordSysType: TCoordSysType;
     FCoordSysInfoType: TCoordSysInfoType;
     FEastMarker: string;
@@ -77,6 +78,7 @@ type
       const AIsLatitudeFirst: Boolean;
       const AGeogCoordShowFormat: TGeogCoordShowFormat;
       const AProjCoordShowFormat: TProjCoordShowFormat;
+      const AMgrsCoordShowFormat: TMgrsCoordShowFormat;
       const ACoordSysType: TCoordSysType;
       const ACoordSysInfoType: TCoordSysInfoType
     );
@@ -101,6 +103,7 @@ constructor TCoordToStringConverter.Create(
   const AIsLatitudeFirst: Boolean;
   const AGeogCoordShowFormat: TGeogCoordShowFormat;
   const AProjCoordShowFormat: TProjCoordShowFormat;
+  const AMgrsCoordShowFormat: TMgrsCoordShowFormat;
   const ACoordSysType: TCoordSysType;
   const ACoordSysInfoType: TCoordSysInfoType
 );
@@ -109,6 +112,7 @@ begin
   FIsLatitudeFirst := AIsLatitudeFirst;
   FGeogCoordShowFormat := AGeogCoordShowFormat;
   FProjCoordShowFormat := AProjCoordShowFormat;
+  FMgrsCoordShowFormat := AMgrsCoordShowFormat;
   FCoordSysType := ACoordSysType;
   FCoordSysInfoType := ACoordSysInfoType;
   FNorthMarker := 'N';
@@ -355,6 +359,35 @@ function TCoordToStringConverter.LonLatConvertExt(
     end;
   end;
 
+  procedure _MgrsCoordToStr(const AMgrs: TMgrsCoord; out AZone, AX, AY: string);
+  const
+    CMgrsCoordFormat = '%.5d';
+  var
+    VZone: string;
+  begin
+    AX := Format(CMgrsCoordFormat, [AMgrs.X]);
+    AY := Format(CMgrsCoordFormat, [AMgrs.Y]);
+
+    VZone := IntToStr(AMgrs.Zone);
+    if AMgrs.Zone = 0 then begin
+      VZone := '';
+    end;
+
+    case FMgrsCoordShowFormat of
+      msfSplitted : begin
+        AZone := VZone + AMgrs.Band + ' ' + AMgrs.Digraph[0] + AMgrs.Digraph[1];
+      end;
+
+      msfJoined: begin
+        AZone := VZone + AMgrs.Band + AMgrs.Digraph[0] + AMgrs.Digraph[1] + AX + AY;
+        AX := '';
+        AY := '';
+      end
+    else
+      Assert(False);
+    end;
+  end;
+
   function _ZoneInfoToStr(const AZone: Integer; const AIsNorth: Boolean): string;
   const
     CNorth: array[Boolean] of string = ('S', 'N');
@@ -417,15 +450,11 @@ begin
 
     cstMGRS: begin
       if geodetic_wgs84_to_mgrs(ALonLat.X, ALonLat.Y, VMgrs) then begin
-        VLonStr := Format('%.5d', [VMgrs.X]);
-        VLatStr := Format('%.5d', [VMgrs.Y]);
-        if VMgrs.Zone <> 0 then begin
-          VZoneStr := Format('%d%s %s%s', [VMgrs.Zone, VMgrs.Band, VMgrs.Digraph[0], VMgrs.Digraph[1]]);
-        end else begin
-          VZoneStr := Format('%s %s%s', [VMgrs.Band, VMgrs.Digraph[0], VMgrs.Digraph[1]]);
-        end;
+        _MgrsCoordToStr(VMgrs, VZoneStr, VLonStr, VLatStr);
       end;
     end;
+  else
+    Assert(False);
   end;
 
   Result[cpiZone] := VZoneStr;

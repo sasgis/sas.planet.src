@@ -40,6 +40,11 @@ type
     csfExact
   );
 
+  TMgrsCoordShowFormat = (
+    msfSplitted,
+    msfJoined
+  );
+
   TCoordSysType = (
     cstWGS84,   // WGS 84 / Geographic
     cstSK42,    // SK-42 (Pulkovo-1942) / Geographic

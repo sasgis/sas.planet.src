@@ -39,6 +39,9 @@ type
     function GetProjCoordShowFormat: TProjCoordShowFormat;
     property ProjCoordShowFormat: TProjCoordShowFormat read GetProjCoordShowFormat;
 
+    function GetMgrsCoordShowFormat: TMgrsCoordShowFormat;
+    property MgrsCoordShowFormat: TMgrsCoordShowFormat read GetMgrsCoordShowFormat;
+
     function GetCoordSysType: TCoordSysType;
     property CoordSysType: TCoordSysType read GetCoordSysType;
 
@@ -59,6 +62,10 @@ type
     function GetProjCoordShowFormat: TProjCoordShowFormat;
     procedure SetProjCoordShowFormat(const AValue: TProjCoordShowFormat);
     property ProjCoordShowFormat: TProjCoordShowFormat read GetProjCoordShowFormat write SetProjCoordShowFormat;
+
+    function GetMgrsCoordShowFormat: TMgrsCoordShowFormat;
+    procedure SetMgrsCoordShowFormat(const AValue: TMgrsCoordShowFormat);
+    property MgrsCoordShowFormat: TMgrsCoordShowFormat read GetMgrsCoordShowFormat write SetMgrsCoordShowFormat;
 
     function GetCoordSysType: TCoordSysType;
     procedure SetCoordSysType(const AValue: TCoordSysType);

@@ -37,12 +37,14 @@ type
     FIsLatitudeFirst: Boolean;
     FGeogCoordShowFormat: TGeogCoordShowFormat;
     FProjCoordShowFormat: TProjCoordShowFormat;
+    FMgrsCoordShowFormat: TMgrsCoordShowFormat;
     FCoordSysType: TCoordSysType;
     FCoordSysInfoType: TCoordSysInfoType;
   private
     function GetIsLatitudeFirst: Boolean;
     function GetGeogCoordShowFormat: TGeogCoordShowFormat;
     function GetProjCoordShowFormat: TProjCoordShowFormat;
+    function GetMgrsCoordShowFormat: TMgrsCoordShowFormat;
     function GetCoordSysType: TCoordSysType;
     function GetCoordSysInfoType: TCoordSysInfoType;
   public
@@ -50,6 +52,7 @@ type
       const AIsLatitudeFirst: Boolean;
       const AGeogCoordShowFormat: TGeogCoordShowFormat;
       const AProjCoordShowFormat: TProjCoordShowFormat;
+      const AMgrsCoordShowFormat: TMgrsCoordShowFormat;
       const ACoordSysType: TCoordSysType;
       const ACoordSysInfoType: TCoordSysInfoType
     );
@@ -60,6 +63,7 @@ type
     FIsLatitudeFirst: Boolean;
     FGeogCoordShowFormat: TGeogCoordShowFormat;
     FProjCoordShowFormat: TProjCoordShowFormat;
+    FMgrsCoordShowFormat: TMgrsCoordShowFormat;
     FCoordSysType: TCoordSysType;
     FCoordSysInfoType: TCoordSysInfoType;
   protected
@@ -77,6 +81,9 @@ type
 
     function GetProjCoordShowFormat: TProjCoordShowFormat;
     procedure SetProjCoordShowFormat(const AValue: TProjCoordShowFormat);
+
+    function GetMgrsCoordShowFormat: TMgrsCoordShowFormat;
+    procedure SetMgrsCoordShowFormat(const AValue: TMgrsCoordShowFormat);
 
     function GetCoordSysType: TCoordSysType;
     procedure SetCoordSysType(const AValue: TCoordSysType);
@@ -102,6 +109,7 @@ begin
   FIsLatitudeFirst := True;
   FGeogCoordShowFormat := dshCharDegrMinSec;
   FProjCoordShowFormat := csfWhole;
+  FMgrsCoordShowFormat := msfSplitted;
   FCoordSysType := cstWGS84;
   FCoordSysInfoType := csitShowExceptWGS84;
 end;
@@ -115,6 +123,7 @@ begin
       FIsLatitudeFirst,
       FGeogCoordShowFormat,
       FProjCoordShowFormat,
+      FMgrsCoordShowFormat,
       FCoordSysType,
       FCoordSysInfoType
     );
@@ -130,6 +139,7 @@ begin
     FIsLatitudeFirst := AConfigData.ReadBool('FirstLat', FIsLatitudeFirst);
     FGeogCoordShowFormat := IntegerToGeogCoordShowFormat(AConfigData.ReadInteger('DegrisShowFormat', GeogCoordShowFormatToInteger(FGeogCoordShowFormat)));
     FProjCoordShowFormat := IntegerToProjCoordShowFormat(AConfigData.ReadInteger('ProjCoordShowFormat', ProjCoordShowFormatToInteger(FProjCoordShowFormat)));
+    FMgrsCoordShowFormat := TMgrsCoordShowFormat(AConfigData.ReadInteger('MgrsCoordShowFormat', Integer(FMgrsCoordShowFormat)));
     FCoordSysType := TCoordSysType(AConfigData.ReadInteger('CoordSysType', Integer(FCoordSysType)));
     FCoordSysInfoType := TCoordSysInfoType(AConfigData.ReadInteger('CoordSysInfoType', Integer(FCoordSysInfoType)));
     SetChanged;
@@ -144,6 +154,7 @@ begin
   AConfigData.WriteBool('FirstLat', FIsLatitudeFirst);
   AConfigData.WriteInteger('DegrisShowFormat', GeogCoordShowFormatToInteger(FGeogCoordShowFormat));
   AConfigData.WriteInteger('ProjCoordShowFormat', ProjCoordShowFormatToInteger(FProjCoordShowFormat));
+  AConfigData.WriteInteger('MgrsCoordShowFormat', Integer(FMgrsCoordShowFormat));
   AConfigData.WriteInteger('CoordSysType', Integer(FCoordSysType));
   AConfigData.WriteInteger('CoordSysInfoType', Integer(FCoordSysInfoType));
 end;
@@ -193,6 +204,16 @@ begin
   LockRead;
   try
     Result := FIsLatitudeFirst;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TCoordRepresentationConfig.GetMgrsCoordShowFormat: TMgrsCoordShowFormat;
+begin
+  LockRead;
+  try
+    Result := FMgrsCoordShowFormat;
   finally
     UnlockRead;
   end;
@@ -276,12 +297,26 @@ begin
   end;
 end;
 
+procedure TCoordRepresentationConfig.SetMgrsCoordShowFormat(const AValue: TMgrsCoordShowFormat);
+begin
+  LockWrite;
+  try
+    if FMgrsCoordShowFormat <> AValue then begin
+      FMgrsCoordShowFormat := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 { TCoordRepresentationConfigStatic }
 
 constructor TCoordRepresentationConfigStatic.Create(
   const AIsLatitudeFirst: Boolean;
   const AGeogCoordShowFormat: TGeogCoordShowFormat;
   const AProjCoordShowFormat: TProjCoordShowFormat;
+  const AMgrsCoordShowFormat: TMgrsCoordShowFormat;
   const ACoordSysType: TCoordSysType;
   const ACoordSysInfoType: TCoordSysInfoType
 );
@@ -290,6 +325,7 @@ begin
   FIsLatitudeFirst := AIsLatitudeFirst;
   FGeogCoordShowFormat := AGeogCoordShowFormat;
   FProjCoordShowFormat := AProjCoordShowFormat;
+  FMgrsCoordShowFormat := AMgrsCoordShowFormat;
   FCoordSysType := ACoordSysType;
   FCoordSysInfoType := ACoordSysInfoType;
 end;
@@ -317,6 +353,11 @@ end;
 function TCoordRepresentationConfigStatic.GetIsLatitudeFirst: Boolean;
 begin
   Result := FIsLatitudeFirst;
+end;
+
+function TCoordRepresentationConfigStatic.GetMgrsCoordShowFormat: TMgrsCoordShowFormat;
+begin
+  Result := FMgrsCoordShowFormat;
 end;
 
 end.

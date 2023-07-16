@@ -67,6 +67,7 @@ uses
 type
   TGeogCoordShowFormatCaption = array [TGeogCoordShowFormat] of string;
   TProjCoordShowFormatCaption = array [TProjCoordShowFormat] of string;
+  TMgrsCoordShowFormatCaption = array [TMgrsCoordShowFormat] of string;
 
 function GetCoordSysTypeCaption: TCoordSysTypeCaption;
 begin
@@ -162,6 +163,12 @@ begin
   Result := Low(TProjCoordShowFormat);
 end;
 
+function GetMgrsCoordShowFormatCaption: TMgrsCoordShowFormatCaption;
+begin
+  Result[msfSplitted] := '12U PQ 12345 12345';
+  Result[msfJoined]   := '12UPQ1234512345';
+end;
+
 function GetCoordShowFormatCaptions(
   const AConfig: ICoordRepresentationConfigStatic;
   out AItems: TStringDynArray;
@@ -204,6 +211,24 @@ function GetCoordShowFormatCaptions(
     AActiveItemIndex := Integer(AConfig.ProjCoordShowFormat);
   end;
 
+  procedure _GetMgrsCaptions;
+  var
+    I: Integer;
+    VFormat: TMgrsCoordShowFormat;
+    VCaption: TMgrsCoordShowFormatCaption;
+  begin
+    VCaption := GetMgrsCoordShowFormatCaption;
+    SetLength(AItems, Length(VCaption));
+
+    I := 0;
+    for VFormat := Low(TMgrsCoordShowFormat) to High(TMgrsCoordShowFormat) do begin
+      AItems[I] := VCaption[VFormat];
+      Inc(I);
+    end;
+
+    AActiveItemIndex := Integer(AConfig.MgrsCoordShowFormat);
+  end;
+
 begin
   AItems := nil;
   AActiveItemIndex := -1;
@@ -218,7 +243,7 @@ begin
     end;
 
     cstMGRS: begin
-      //
+      _GetMgrsCaptions;
     end;
   else
     Assert(False);
@@ -242,7 +267,7 @@ begin
     end;
 
     cstMGRS: begin
-      //
+      AConfig.MgrsCoordShowFormat := TMgrsCoordShowFormat(AIndex);
     end;
   else
     Assert(False);

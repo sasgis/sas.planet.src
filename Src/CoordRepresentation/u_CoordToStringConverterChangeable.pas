@@ -94,6 +94,7 @@ begin
       VConfig.IsLatitudeFirst,
       VConfig.GeogCoordShowFormat,
       VConfig.ProjCoordShowFormat,
+      VConfig.MgrsCoordShowFormat,
       VConfig.CoordSysType,
       VConfig.CoordSysInfoType
     );
