@@ -83,8 +83,8 @@ type
     pnlButtons: TPanel;
     btnCoordFormat: TTBXButton;
     tbxpmnCoordFormat: TTBXPopupMenu;
-    pnlMgrs: TPanel;
-    edtMgrs: TEdit;
+    pnlCustom: TPanel;
+    edtCustom: TEdit;
     procedure cbbCoordTypeSelect(Sender: TObject);
     procedure btnCopyClick(Sender: TObject);
     procedure btnPasteClick(Sender: TObject);
@@ -235,6 +235,20 @@ begin
   cbbCoordType.ItemIndex := CoordTypeToItemIndex(VCoordType);
 end;
 
+function TfrLonLat.CoordTypeToItemIndex(const AType: TCoordSysType): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to Length(FCoordTypeItems) - 1 do begin
+    if FCoordTypeItems[I] = AType then begin
+      Result := I;
+      Break;
+    end;
+  end;
+  Assert(Result >= 0);
+end;
+
 function TfrLonLat.ItemIndexToCoordType(const AIndex: Integer; out AType: TCoordSysType): Boolean;
 begin
   Assert(AIndex >= 0);
@@ -244,6 +258,16 @@ begin
   end else begin
     Result := False;
   end;
+end;
+
+procedure TfrLonLat.cbbCoordTypeSelect(Sender: TObject);
+var
+  VCoordType: TCoordSysType;
+begin
+  if ItemIndexToCoordType(cbbCoordType.ItemIndex, VCoordType) then begin
+    FCoordRepresentationConfig.CoordSysType := VCoordType;
+  end;
+  SetLonLat(FCoordinates);
 end;
 
 function TfrLonLat.ItemIndexToCoordSysGroup(const AIndex: Integer): TCoordSysGroup;
@@ -275,36 +299,12 @@ begin
   end;
 end;
 
-function TfrLonLat.CoordTypeToItemIndex(const AType: TCoordSysType): Integer;
-var
-  I: Integer;
-begin
-  Result := -1;
-  for I := 0 to Length(FCoordTypeItems) - 1 do begin
-    if FCoordTypeItems[I] = AType then begin
-      Result := I;
-      Break;
-    end;
-  end;
-  Assert(Result >= 0);
-end;
-
-procedure TfrLonLat.cbbCoordTypeSelect(Sender: TObject);
-var
-  VCoordType: TCoordSysType;
-begin
-  if ItemIndexToCoordType(cbbCoordType.ItemIndex, VCoordType) then begin
-    FCoordRepresentationConfig.CoordSysType := VCoordType;
-  end;
-  SetLonLat(FCoordinates);
-end;
-
 procedure TfrLonLat.Init;
 begin
   grdpnlLonLat.Visible := False;
   pnlProjected.Visible := False;
   pnlXY.Visible := False;
-  pnlMgrs.Visible := False;
+  pnlCustom.Visible := False;
 
   case ItemIndexToCoordSysGroup(cbbCoordType.ItemIndex) of
     csgGeog: begin
@@ -315,7 +315,7 @@ begin
       pnlProjected.Visible := True;
     end;
     csgCustom: begin
-      pnlMgrs.Visible := True;
+      pnlCustom.Visible := True;
     end;
     csgPixelXYZ, csgTileXYZ: begin
       pnlXY.Visible := True;
@@ -362,7 +362,7 @@ begin
     end;
 
     csgCustom: begin
-      edtMgrs.Text := FCoordToStringConverter.GetStatic.LonLatConvert(AValue, [coIncludeZone]);
+      edtCustom.Text := FCoordToStringConverter.GetStatic.LonLatConvert(AValue, [coIncludeZone]);
     end;
 
     csgPixelXYZ: begin
@@ -440,7 +440,7 @@ begin
 
       csgCustom: begin
         Result := FCoordFromStringParser.TryStrToCoord(
-          edtMgrs.Text, VLonLat
+          edtCustom.Text, VLonLat
         );
       end;
 
@@ -520,7 +520,7 @@ begin
       VStr := edtProjectedX.Text + CSep + edtProjectedY.Text;
     end;
     csgCustom: begin
-      VStr := edtMgrs.Text;
+      VStr := edtCustom.Text;
     end;
     csgPixelXYZ, csgTileXYZ: begin
       VStr := edtX.Text + CSep + edtY.Text;
@@ -587,7 +587,7 @@ begin
       edtProjectedY.Text := S2;
     end;
     csgCustom: begin
-      edtMgrs.Text := VText;
+      edtCustom.Text := VText;
     end;
     csgPixelXYZ, csgTileXYZ: begin
       edtX.Text := S1;

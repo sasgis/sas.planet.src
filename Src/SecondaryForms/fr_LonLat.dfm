@@ -564,12 +564,12 @@ object frLonLat: TfrLonLat
       end
     end
   end
-  object pnlMgrs: TPanel
+  object pnlCustom: TPanel
     AlignWithMargins = True
     Left = 0
     Top = 168
     Width = 451
-    Height = 48
+    Height = 33
     Margins.Left = 0
     Margins.Top = 0
     Margins.Right = 0
@@ -578,14 +578,15 @@ object frLonLat: TfrLonLat
     BevelOuter = bvNone
     TabOrder = 4
     Visible = False
-    object edtMgrs: TEdit
+    object edtCustom: TEdit
       Left = 3
       Top = 6
       Width = 445
-      Height = 21
+      Height = 18
       Align = alCustom
       Alignment = taCenter
       Anchors = [akLeft, akTop, akRight]
+      BorderStyle = bsNone
       TabOrder = 0
     end
   end
