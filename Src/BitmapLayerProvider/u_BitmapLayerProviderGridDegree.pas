@@ -85,6 +85,7 @@ implementation
 uses
   Math,
   t_GeoTypes,
+  t_CoordRepresentation,
   i_ProjectionType,
   u_SimpleFlagWithInterlock,
   u_GeoFunc,
@@ -189,7 +190,7 @@ begin
 
       if abs(VLonLatRectOfCell.Top) <= 85 then begin
         VCoordParts := FCoordToStringConverter.LonLatConvertExt(
-          VLonLatRectOfCell.TopLeft, [coCutZero]
+          VLonLatRectOfCell.TopLeft, cstWGS84, [coCutZero]
         );
         VListNameLon := VCoordParts[cpiLon];
         VListNameLat := VCoordParts[cpiLat];

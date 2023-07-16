@@ -25,6 +25,7 @@ interface
 
 uses
   t_GeoTypes,
+  t_CoordRepresentation,
   i_Changeable;
 
 type
@@ -56,7 +57,13 @@ type
     function LonLatConvertExt(
       const ALonLat: TDoublePoint;
       const AOptions: TCoordToStringConverterOptions = []
-    ): TCoordPartArray;
+    ): TCoordPartArray; overload;
+
+    function LonLatConvertExt(
+      const ALonLat: TDoublePoint;
+      const ACoordSysType: TCoordSysType;
+      const AOptions: TCoordToStringConverterOptions = []
+    ): TCoordPartArray; overload;
   end;
 
   ICoordToStringConverterChangeable = interface(IChangeable)

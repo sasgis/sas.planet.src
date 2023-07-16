@@ -65,7 +65,13 @@ type
     function LonLatConvertExt(
       const ALonLat: TDoublePoint;
       const AOptions: TCoordToStringConverterOptions = []
-    ): TCoordPartArray;
+    ): TCoordPartArray; overload; inline;
+
+    function LonLatConvertExt(
+      const ALonLat: TDoublePoint;
+      const ACoordSysType: TCoordSysType;
+      const AOptions: TCoordToStringConverterOptions = []
+    ): TCoordPartArray; overload;
   public
     constructor Create(
       const AIsLatitudeFirst: Boolean;
@@ -310,7 +316,7 @@ begin
     Include(VOptions, coLatitudeFirst);
   end;
 
-  VArr := LonLatConvertExt(ALonLat, VOptions);
+  VArr := LonLatConvertExt(ALonLat, FCoordSysType, VOptions);
 
   Result := '';
   for I := Low(TCoordPartItem) to High(TCoordPartItem) do begin
@@ -323,6 +329,15 @@ end;
 function TCoordToStringConverter.LonLatConvertExt(
   const ALonLat: TDoublePoint;
   const AOptions: TCoordToStringConverterOptions
+): TCoordPartArray;
+begin
+  Result := LonLatConvertExt(ALonLat, FCoordSysType, AOptions);
+end;
+
+function TCoordToStringConverter.LonLatConvertExt(
+  const ALonLat: TDoublePoint;
+  const ACoordSysType: TCoordSysType;
+  const AOptions: TCoordToStringConverterOptions = []
 ): TCoordPartArray;
 
   procedure _GeodeticCoordToStr(const ALonLat: TDoublePoint; out ALon, ALat: string);
@@ -375,7 +390,7 @@ begin
   VLatStr := 'NaN';
   VZoneStr := '';
 
-  case FCoordSysType of
+  case ACoordSysType of
     cstWGS84: begin // WGS 84 / Geographic
       _GeodeticCoordToStr(ALonLat, VLonStr, VLatStr);
     end;
