@@ -91,7 +91,7 @@ uses
   u_GeoFunc,
   u_Synchronizer;
 
-{ TBitmapLayerProviderGridGenshtab }
+{ TBitmapLayerProviderGridDegree }
 
 constructor TBitmapLayerProviderGridDegree.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
