@@ -470,7 +470,7 @@ procedure TWindowLayerStatusBar.GetItemsInfo(out AItems: TStatusBarItems);
     VCoordToStringConverter := FCoordToStringConverter.GetStatic;
     Result := VCoordToStringConverter.GetCoordSysInfo(ALonLat);
     if Result <> '' then begin
-      Result := Result + ' ';
+      Result := Result + ' : ';
     end;
     Result := Result + VCoordToStringConverter.LonLatConvert(ALonLat, [coIncludeZone])
   end;

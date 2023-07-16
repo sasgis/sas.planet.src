@@ -269,16 +269,13 @@ end;
 function TCoordToStringConverter.GetCoordSysInfo(
   const ALonLat: TDoublePoint
 ): string;
-var
-  VCaptions: TCoordSysTypeCaption;
 begin
   if FCoordSysInfoType = csitDontShow then begin
     Result := '';
     Exit;
   end;
 
-  VCaptions := GetCoordSysTypeCaptionShort;
-  Result := VCaptions[FCoordSysType];
+  Result := GetCoordSysTypeCaptionShort[FCoordSysType];
 
   case FCoordSysType of
     cstWGS84: begin
@@ -292,10 +289,6 @@ begin
         Result := GetUPSCoordSysTypeCaptionShort;
       end;
     end;
-  end;
-
-  if Result <> '' then begin
-    Result := Result + ' :';
   end;
 end;
 
