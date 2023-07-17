@@ -326,6 +326,12 @@ ResourceString
   SAS_UNITS_km2 = 'km2';
   SAS_UNITS_Ha = 'ha';
 
+  SAS_UNITS_yd2 = 'yd2';
+  SAS_UNITS_ft2 = 'ft2';
+  SAS_UNITS_mi2 = 'mi2';
+  SAS_UNITS_nmi2 = 'nmi2';
+  SAS_UNITS_acr = 'acr';
+
 implementation
 
 end.

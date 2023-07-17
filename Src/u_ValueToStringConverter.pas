@@ -24,6 +24,7 @@ unit u_ValueToStringConverter;
 interface
 
 uses
+  SysUtils,
   t_GeoTypes,
   t_CommonTypes,
   i_ValueToStringConverter,
@@ -54,6 +55,12 @@ type
     FUnitsHa: string;
     FUnitsSqKm: string;
     FUnitsSqMeters: string;
+
+    FUnitsAcr: string;
+    FUnitsSqMi: string;
+    FUnitsSqNMi: string;
+    FUnitsSqFt: string;
+    FUnitsSqYd: string;
   private
     function DataSizeConvert(const ASizeInKb: Double): string;
     function DistConvert(const ADistInMeters: Double): string;
@@ -72,9 +79,16 @@ implementation
 
 uses
   Math,
-  SysUtils,
   StrUtils,
   u_ResStrings;
+
+const
+  CInvalidValue = 'NaN';
+
+function ValToNum(const AValue: Double; const AUnits: string; const ADigits: Integer = 2): string; inline;
+begin
+  Result := FloatToStrF(AValue, ffNumber, 15, ADigits) + ' ' + AUnits;
+end;
 
 { TValueToStringConverter }
 
@@ -103,69 +117,100 @@ begin
 
   FUnitsKmph := SAS_UNITS_kmperh;
 
-  FUnitsSqKm := SAS_UNITS_km2;
   FUnitsHa := SAS_UNITS_Ha;
+  FUnitsSqKm := SAS_UNITS_km2;
   FUnitsSqMeters := SAS_UNITS_m2;
+
+  FUnitsAcr := SAS_UNITS_acr;
+  FUnitsSqMi := SAS_UNITS_mi2;
+  FUnitsSqNMi := SAS_UNITS_nmi2;
+  FUnitsSqFt := SAS_UNITS_ft2;
+  FUnitsSqYd := SAS_UNITS_yd2;
 end;
 
 function TValueToStringConverter.AltitudeConvert(const AMeters: Double): string;
 begin
   if IsNan(AMeters) then begin
-    Result := 'NAN';
+    Result := CInvalidValue;
     Exit;
   end;
 
-  Result := FormatFloat('0.0', AMeters) + ' ' + FUnitsMeter;
+  Result := ValToNum(AMeters, FUnitsMeter, 1);
 end;
 
 function TValueToStringConverter.AreaConvert(const AAreaInSqm: Double): string;
 begin
   if IsNan(AAreaInSqm) then begin
-    Result := 'NAN';
+    Result := CInvalidValue;
     Exit;
   end;
 
   case FAreaShowFormat of
     asfAuto: begin
       if AAreaInSqm <= 1000000 then begin
-        Result := FormatFloat('0.00', AAreaInSqm) + ' ' + FUnitsSqMeters;
+        Result := ValToNum(AAreaInSqm, FUnitsSqMeters);
       end else begin
-        Result := FormatFloat('0.00', AAreaInSqm / 1000000) + ' ' + FUnitsSqKm;
+        Result := ValToNum(AAreaInSqm / 1000000, FUnitsSqKm);
       end;
     end;
+
     asfSqM: begin
       if AAreaInSqm <= 100 then begin
-        Result := FormatFloat('0.00', AAreaInSqm) + ' ' + FUnitsSqMeters;
+        Result := ValToNum(AAreaInSqm, FUnitsSqMeters);
       end else begin
-        Result := FormatFloat('0.', AAreaInSqm) + ' ' + FUnitsSqMeters;
+        Result := ValToNum(AAreaInSqm, FUnitsSqMeters, 0);
       end;
     end;
+
     asfSqKm: begin
       if AAreaInSqm <= 1000000 then begin
-        Result := FormatFloat('0.000000', AAreaInSqm / 1000000) + ' ' + FUnitsSqKm;
+        Result := ValToNum(AAreaInSqm / 1000000, FUnitsSqKm, 6);
       end else begin
-        Result := FormatFloat('0.00', AAreaInSqm / 1000000) + ' ' + FUnitsSqKm;
+        Result := ValToNum(AAreaInSqm / 1000000, FUnitsSqKm);
       end;
     end;
+
     asfHa: begin
       if AAreaInSqm <= 1000000 then begin
-        Result := FormatFloat('0.0000', AAreaInSqm / 10000) + ' ' + FUnitsHa;
+        Result := ValToNum(AAreaInSqm / 10000, FUnitsHa, 4);
       end else begin
-        Result := FormatFloat('0.00', AAreaInSqm / 10000) + ' ' + FUnitsHa;
+        Result := ValToNum(AAreaInSqm / 10000, FUnitsHa);
       end;
     end;
+
+    asfSqFoot: begin
+      Result := ValToNum(AAreaInSqm / 0.09290304, FUnitsSqFt);
+    end;
+
+    asfSqYard: begin
+      Result := ValToNum(AAreaInSqm / 0.83612736, FUnitsSqYd);
+    end;
+
+    asfSqMile: begin
+      Result := ValToNum(AAreaInSqm / 2589988.110336, FUnitsSqMi);
+    end;
+
+    asfSqNauticalMile: begin
+      Result := ValToNum(AAreaInSqm / 3429904, FUnitsSqNMi);
+    end;
+
+    asfSqAcr: begin
+      Result := ValToNum(AAreaInSqm / 4046.8564224, FUnitsAcr);
+    end;
+  else
+    Assert(False);
   end;
 end;
 
 function TValueToStringConverter.DataSizeConvert(const ASizeInKb: Double): string;
 begin
   if ASizeInKb > 1048576 then begin
-    result := FormatFloat('0.0', ASizeInKb / 1048576) + ' ' + FUnitsGb;
+    Result := ValToNum(ASizeInKb / 1048576, FUnitsGb, 1);
   end else begin
     if ASizeInKb > 1024 then begin
-      result := FormatFloat('0.0', ASizeInKb / 1024) + ' ' + FUnitsMb;
+      Result := ValToNum(ASizeInKb / 1024, FUnitsMb, 1);
     end else begin
-      result := FormatFloat('0.0', ASizeInKb) + ' ' + FUnitsKb;
+      Result := ValToNum(ASizeInKb, FUnitsKb, 1);
     end;
   end;
 end;
@@ -176,61 +221,65 @@ var
   VKmDist: Double;
 begin
   if IsNan(ADistInMeters) then begin
-    Result := 'NAN';
+    Result := CInvalidValue;
     Exit;
   end;
-  VDistInMeters := Abs(ADistInMeters);
+
   Result := '';
+  VDistInMeters := Abs(ADistInMeters);
+
   case FDistStrFormat of
     dsfKmAndM: begin
       if VDistInMeters > 1000 then begin
         VKmDist := VDistInMeters / 1000;
-        Result := IntToStr(Trunc(VKmDist)) + ' ' + FUnitsKm + ' ';
-        Result := Result + FormatFloat('0.00', frac(VKmDist) * 1000) + ' ' + FUnitsMeter;
+        Result := ValToNum(Trunc(VKmDist), FUnitsKm, 0) + ' ' +
+                  ValToNum(Frac(VKmDist) * 1000, FUnitsMeter);
       end else begin
-        Result := FormatFloat('0.00', VDistInMeters) + ' ' + FUnitsMeter;
+        Result := ValToNum(VDistInMeters, FUnitsMeter);
       end;
     end;
 
     dsfKmOrM: begin
       if VDistInMeters < 10000 then begin
-        Result := FormatFloat('0.00', VDistInMeters) + ' ' + FUnitsMeter;
+        Result := ValToNum(VDistInMeters, FUnitsMeter);
       end else begin
-        Result := FormatFloat('0.00', VDistInMeters / 1000) + ' ' + FUnitsKm;
+        Result := ValToNum(VDistInMeters / 1000, FUnitsKm);
       end;
     end;
 
     dsfSimpleKm: begin
-      Result := FloatToStrF(VDistInMeters * 1 / 1000, ffNumber, 15, 2) + ' ' + FUnitsKm;
+      Result := ValToNum(VDistInMeters / 1000, FUnitsKm);
     end;
 
     dsfSimpleMeter: begin
-      Result := FloatToStrF(VDistInMeters * 1, ffNumber, 15, 2) + ' ' + FUnitsMeter;
+      Result := ValToNum(VDistInMeters, FUnitsMeter);
     end;
 
     dsfSimpleCentimeter: begin
-      Result := FloatToStrF(VDistInMeters * 100, ffNumber, 15, 2) + ' ' + FUnitsCentimeter;
+      Result := ValToNum(VDistInMeters * 100, FUnitsCentimeter);
     end;
 
     dsfSimpleMile: begin
-      Result := FloatToStrF(VDistInMeters * 1 / 1609.344, ffNumber, 15, 2) + ' ' + FUnitsMile;
+      Result := ValToNum(VDistInMeters / 1609.344, FUnitsMile);
     end;
 
     dsfSimpleYard: begin
-      Result := FloatToStrF(VDistInMeters * 1 / 0.9144, ffNumber, 15, 2) + ' ' + FUnitsYard;
+      Result := ValToNum(VDistInMeters / 0.9144, FUnitsYard);
     end;
 
     dsfSimpleFoot: begin
-      Result := FloatToStrF(VDistInMeters * 1 / 0.3048, ffNumber, 15, 2) + ' ' + FUnitsFoot;
+      Result := ValToNum(VDistInMeters / 0.3048, FUnitsFoot);
     end;
 
     dsfSimpleInch: begin
-      Result := FloatToStrF(VDistInMeters * 1 / 0.0254, ffNumber, 15, 2) + ' ' + FUnitsInch;
+      Result := ValToNum(VDistInMeters / 0.0254, FUnitsInch);
     end;
 
     dsfSimpleNauticalMile: begin
-      Result := FloatToStrF(VDistInMeters * 1 / 1852.0, ffNumber, 15, 2) + ' ' + FUnitsNauticalMile;
+      Result := ValToNum(VDistInMeters / 1852.0, FUnitsNauticalMile);
     end;
+  else
+    Assert(False);
   end;
 
   if ADistInMeters < 0 then begin
@@ -248,11 +297,11 @@ end;
 function TValueToStringConverter.SpeedConvert(const AKmph: Double): string;
 begin
   if IsNan(AKmph) then begin
-    Result := 'NAN';
+    Result := CInvalidValue;
     Exit;
   end;
 
-  Result := FormatFloat('0.0', AKmph) + ' ' + FUnitsKmph;
+  Result := ValToNum(AKmph, FUnitsKmph, 1);
 end;
 
 end.

@@ -42,7 +42,19 @@ type
     dsfSimpleNauticalMile
   );
 
-  TAreaStrFormat = (asfAuto = 0, asfSqM = 1, asfSqKm = 2, asfHa = 3);
+  TAreaStrFormat = (
+    asfAuto,
+
+    asfSqM,
+    asfSqKm,
+    asfHa,
+
+    asfSqFoot,
+    asfSqYard,
+    asfSqMile,
+    asfSqNauticalMile,
+    asfSqAcr
+  );
 
   TStringTypeSupport = (stsAscii = 0, stsAnsi = 1, stsUnicode = 2);
   

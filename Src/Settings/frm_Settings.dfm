@@ -1037,13 +1037,18 @@ object frmSettings: TfrmSettings
               Style = csDropDownList
               ItemHeight = 13
               ItemIndex = 0
+              DropDownCount = 9
               TabOrder = 0
-              Text = 'Auto'
               Items.Strings = (
                 'Auto'
-                '2066339 m2'
-                '2,07 km2'
-                '206,63 ha')
+                'Square Meters'
+                'Square Kilometers'
+                'Hectares'
+                'Square Feet'
+                'Square Yards'
+                'Square Miles'
+                'Square Nautical Miles'
+                'Acres')
             end
           end
           object pnlCoordSys: TPanel
