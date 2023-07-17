@@ -349,7 +349,7 @@ function TCoordToStringConverter.LonLatConvertExt(
 
   procedure _ProjectedCoordToStr(const X, Y: Double; const ASwapXY: Boolean; out AX, AY: string);
   const
-    CFloatFormat: array[TProjCoordShowFormat] of string = ('0', '0.000');
+    CFloatFormat: array[TProjCoordShowFormat] of string = ('0.', '0.0', '0.00', '0.000');
   begin
     AX := FloatToStr(CFloatFormat[FProjCoordShowFormat], X);
     AY := FloatToStr(CFloatFormat[FProjCoordShowFormat], Y);

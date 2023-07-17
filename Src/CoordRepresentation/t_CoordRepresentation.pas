@@ -36,8 +36,10 @@ type
   );
 
   TProjCoordShowFormat = (
-    csfWhole,
-    csfExact
+    psfRoundedToWhole,
+    psfRoundedToTenth,
+    psfRoundedToHundredths,
+    psfRoundedToThousandths
   );
 
   TMgrsCoordShowFormat = (

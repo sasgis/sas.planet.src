@@ -108,7 +108,7 @@ begin
   inherited Create;
   FIsLatitudeFirst := True;
   FGeogCoordShowFormat := dshCharDegrMinSec;
-  FProjCoordShowFormat := csfWhole;
+  FProjCoordShowFormat := psfRoundedToWhole;
   FMgrsCoordShowFormat := msfSplitted;
   FCoordSysType := cstWGS84;
   FCoordSysInfoType := csitShowExceptWGS84;

@@ -135,13 +135,15 @@ end;
 
 function GetProjCoordShowFormatCaption: TProjCoordShowFormatCaption;
 begin
-  Result[csfWhole] := '12345';
-  Result[csfExact] := '12345.000';
+  Result[psfRoundedToWhole] := '12345';
+  Result[psfRoundedToTenth] := '12345.0';
+  Result[psfRoundedToHundredths] := '12345.00';
+  Result[psfRoundedToThousandths] := '12345.000';
 end;
 
 const
   CProjCoordShowFormatId: array[TProjCoordShowFormat] of Integer = (
-    0, 1
+    0, 1, 2, 3
   );
 
 function ProjCoordShowFormatToInteger(const AValue: TProjCoordShowFormat): Integer;
