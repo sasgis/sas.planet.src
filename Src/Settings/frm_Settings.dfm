@@ -731,11 +731,19 @@ object frmSettings: TfrmSettings
               Style = csDropDownList
               ItemHeight = 13
               ItemIndex = 0
+              DropDownCount = 10
               TabOrder = 0
-              Text = '12 km 423 m'
               Items.Strings = (
-                '12 km 423 m'
-                '23.4 km')
+                '123 km 123 m'
+                '123.12 km'
+                'Kilometers'
+                'Meters'
+                'Centimeters'
+                'Miles'
+                'Yards'
+                'Feet'
+                'Inches'
+                'Nautical Miles')
             end
           end
           object pnlLonLatFormat: TPanel

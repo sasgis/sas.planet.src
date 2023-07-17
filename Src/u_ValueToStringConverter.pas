@@ -34,12 +34,23 @@ type
   private
     FDistStrFormat: TDistStrFormat;
     FAreaShowFormat: TAreaStrFormat;
+
     FUnitsKb: string;
     FUnitsMb: string;
     FUnitsGb: string;
+
     FUnitsKm: string;
-    FUnitsMeters: string;
+    FUnitsMeter: string;
+    FUnitsCentimeter: string;
+
+    FUnitsMile: string;
+    FUnitsYard: string;
+    FUnitsFoot: string;
+    FUnitsInch: string;
+    FUnitsNauticalMile: string;
+
     FUnitsKmph: string;
+
     FUnitsHa: string;
     FUnitsSqKm: string;
     FUnitsSqMeters: string;
@@ -75,12 +86,23 @@ begin
   inherited Create;
   FDistStrFormat := ADistStrFormat;
   FAreaShowFormat := AAreaShowFormat;
+
   FUnitsKb := SAS_UNITS_kb;
   FUnitsMb := SAS_UNITS_mb;
   FUnitsGb := SAS_UNITS_gb;
+
   FUnitsKm := SAS_UNITS_km;
-  FUnitsMeters := SAS_UNITS_m;
+  FUnitsMeter := SAS_UNITS_m;
+  FUnitsCentimeter := SAS_UNITS_sm;
+
+  FUnitsMile := SAS_UNITS_mile;
+  FUnitsYard := SAS_UNITS_yard;
+  FUnitsFoot := SAS_UNITS_foot;
+  FUnitsInch := SAS_UNITS_inch;
+  FUnitsNauticalMile := SAS_UNITS_nauticalmile;
+
   FUnitsKmph := SAS_UNITS_kmperh;
+
   FUnitsSqKm := SAS_UNITS_km2;
   FUnitsHa := SAS_UNITS_Ha;
   FUnitsSqMeters := SAS_UNITS_m2;
@@ -93,7 +115,7 @@ begin
     Exit;
   end;
 
-  Result := FormatFloat('0.0', AMeters) + ' ' + FUnitsMeters;
+  Result := FormatFloat('0.0', AMeters) + ' ' + FUnitsMeter;
 end;
 
 function TValueToStringConverter.AreaConvert(const AAreaInSqm: Double): string;
@@ -164,19 +186,53 @@ begin
       if VDistInMeters > 1000 then begin
         VKmDist := VDistInMeters / 1000;
         Result := IntToStr(Trunc(VKmDist)) + ' ' + FUnitsKm + ' ';
-        Result := Result + FormatFloat('0.00', frac(VKmDist) * 1000) + ' ' + FUnitsMeters;
+        Result := Result + FormatFloat('0.00', frac(VKmDist) * 1000) + ' ' + FUnitsMeter;
       end else begin
-        Result := FormatFloat('0.00', VDistInMeters) + ' ' + FUnitsMeters;
+        Result := FormatFloat('0.00', VDistInMeters) + ' ' + FUnitsMeter;
       end;
     end;
-    dsfSimpleKM: begin
+
+    dsfKmOrM: begin
       if VDistInMeters < 10000 then begin
-        Result := FormatFloat('0.00', VDistInMeters) + ' ' + FUnitsMeters;
+        Result := FormatFloat('0.00', VDistInMeters) + ' ' + FUnitsMeter;
       end else begin
         Result := FormatFloat('0.00', VDistInMeters / 1000) + ' ' + FUnitsKm;
       end;
     end;
+
+    dsfSimpleKm: begin
+      Result := FloatToStrF(VDistInMeters * 1 / 1000, ffNumber, 15, 2) + ' ' + FUnitsKm;
+    end;
+
+    dsfSimpleMeter: begin
+      Result := FloatToStrF(VDistInMeters * 1, ffNumber, 15, 2) + ' ' + FUnitsMeter;
+    end;
+
+    dsfSimpleCentimeter: begin
+      Result := FloatToStrF(VDistInMeters * 100, ffNumber, 15, 2) + ' ' + FUnitsCentimeter;
+    end;
+
+    dsfSimpleMile: begin
+      Result := FloatToStrF(VDistInMeters * 1 / 1609.344, ffNumber, 15, 2) + ' ' + FUnitsMile;
+    end;
+
+    dsfSimpleYard: begin
+      Result := FloatToStrF(VDistInMeters * 1 / 0.9144, ffNumber, 15, 2) + ' ' + FUnitsYard;
+    end;
+
+    dsfSimpleFoot: begin
+      Result := FloatToStrF(VDistInMeters * 1 / 0.3048, ffNumber, 15, 2) + ' ' + FUnitsFoot;
+    end;
+
+    dsfSimpleInch: begin
+      Result := FloatToStrF(VDistInMeters * 1 / 0.0254, ffNumber, 15, 2) + ' ' + FUnitsInch;
+    end;
+
+    dsfSimpleNauticalMile: begin
+      Result := FloatToStrF(VDistInMeters * 1 / 1852.0, ffNumber, 15, 2) + ' ' + FUnitsNauticalMile;
+    end;
   end;
+
   if ADistInMeters < 0 then begin
     Result := '-' + Result;
   end;
