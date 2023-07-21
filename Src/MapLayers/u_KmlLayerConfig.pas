@@ -67,7 +67,7 @@ begin
 
   VPointMarkerDefault :=
     TMarkerSimpleConfigStatic.Create(
-      6,
+      8,
       SetAlpha(clWhite32, 170),
       clBlack32
     );
