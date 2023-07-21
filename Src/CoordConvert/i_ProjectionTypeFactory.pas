@@ -31,9 +31,7 @@ type
   IProjectionTypeFactory = interface
     ['{B7FCF190-0A79-493D-9A39-A87DE2676236}']
     function GetByConfig(const AConfig: IConfigDataProvider): IProjectionType;
-    function GetByCode(
-      AProjectionEPSG: Integer
-    ): IProjectionType;
+    function GetByCode(AProjectionEPSG: Integer): IProjectionType;
   end;
 
 implementation

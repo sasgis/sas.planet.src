@@ -48,13 +48,13 @@ var
 begin
   inherited Create;
   VProjectionSet := AFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
-  Add(VProjectionSet, gettext_NoOp('Mercator / Google Maps (Sphere Radius 6378137) / EPSG:3785'));
+  Add(VProjectionSet, gettext_NoOp('Spherical Mercator (GoogleMaps, OSM, Bing) / EPSG:3857'));
 
   VProjectionSet := AFactory.GetProjectionSetByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
-  Add(VProjectionSet, gettext_NoOp('Mercator / WGS84 / EPSG:3395'));
+  Add(VProjectionSet, gettext_NoOp('World Mercator (Yandex) / EPSG:3395'));
 
   VProjectionSet := AFactory.GetProjectionSetByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
-  Add(VProjectionSet, gettext_NoOp('Geographic (Latitude/Longitude) / WGS84 / EPSG:4326'));
+  Add(VProjectionSet, gettext_NoOp('Geographic (GoogleEarth) / EPSG:4326'));
 end;
 
 end.

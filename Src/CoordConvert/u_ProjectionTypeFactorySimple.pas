@@ -43,10 +43,9 @@ type
     FLonLat: IProjectionType;
     FEPSG53004: IProjectionType;
   private
+    { IProjectionTypeFactory }
     function GetByConfig(const AConfig: IConfigDataProvider): IProjectionType;
-    function GetByCode(
-      AProjectionEPSG: Integer
-    ): IProjectionType;
+    function GetByCode(AProjectionEPSG: Integer): IProjectionType;
   public
     constructor Create(
       const AHashFunction: IHashFunction;
@@ -110,7 +109,7 @@ function TProjectionTypeFactorySimple.GetByCode(
 begin
   Result := nil;
   case AProjectionEPSG of
-    CGoogleProjectionEPSG: begin
+    CGoogleProjectionEPSG, CGoogleProjectionEPSG_Old: begin
       Result := FGoogle;
     end;
     53004: begin
@@ -122,9 +121,8 @@ begin
     CGELonLatProjectionEPSG: begin
       Result := FLonLat;
     end;
-  else begin
+  else
     raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(AProjectionEPSG)]);
-  end;
   end;
 end;
 
@@ -170,9 +168,9 @@ begin
         if (Abs(VRadiusA - 6378137) < 1) and (Abs(VRadiusB - 6356752) < 1) then begin
           VEPSG := CGELonLatProjectionEPSG;
         end;
-      end else begin
+      end;
+    else
       raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
-    end;
     end;
   end;
 
@@ -221,9 +219,8 @@ begin
           Result := TProjectionTypeGeographic.Create(VHash, VDatum, 0);
         end;
       end;
-    else begin
+    else
       raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
-    end;
     end;
   end;
 end;
