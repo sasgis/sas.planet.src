@@ -38,6 +38,7 @@ uses
   i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_BitmapMarker,
+  i_MarkerDrawable,
   i_MarkerProviderByAppearancePointIcon,
   i_VectorTileRenderer,
   u_BaseInterfacedObject;
@@ -47,7 +48,8 @@ type
   private
     FColorMain: TColor32;
     FColorBG: TColor32;
-    FPointMarker: IBitmapMarker;
+    FPointBitmapMarker: IBitmapMarker;
+    FPointMarkerDrawable: IMarkerDrawableChangeable;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FMarkerIconProvider: IMarkerProviderByAppearancePointIcon;
     FProjectedCache: IGeometryProjectedProvider;
@@ -118,9 +120,10 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      AColorMain: TColor32;
-      AColorBG: TColor32;
-      const APointMarker: IBitmapMarker;
+      const AColorMain: TColor32;
+      const AColorBG: TColor32;
+      const APointBitmapMarker: IBitmapMarker;
+      const APointMarkerDrawable: IMarkerDrawableChangeable;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectedCache: IGeometryProjectedProvider;
       const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
@@ -143,22 +146,24 @@ uses
 { TVectorTileRenderer }
 
 constructor TVectorTileRenderer.Create(
-  AColorMain: TColor32;
-  AColorBG: TColor32;
-  const APointMarker: IBitmapMarker;
+  const AColorMain: TColor32;
+  const AColorBG: TColor32;
+  const APointBitmapMarker: IBitmapMarker;
+  const APointMarkerDrawable: IMarkerDrawableChangeable;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectedCache: IGeometryProjectedProvider;
   const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
 );
 begin
-  Assert(Assigned(APointMarker));
+  Assert(Assigned(APointBitmapMarker) or Assigned(APointMarkerDrawable));
   Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProjectedCache));
   Assert(Assigned(AMarkerIconProvider));
   inherited Create;
   FColorMain := AColorMain;
   FColorBG := AColorBG;
-  FPointMarker := APointMarker;
+  FPointBitmapMarker := APointBitmapMarker;
+  FPointMarkerDrawable := APointMarkerDrawable;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectedCache := AProjectedCache;
   FMarkerIconProvider := AMarkerIconProvider;
@@ -177,30 +182,48 @@ var
   VMapPoint: TDoublePoint;
   VLocalPoint: TDoublePoint;
   VRect: TRect;
-  VDrawMarker: IBitmapMarker;
+  VBitmapMarker: IBitmapMarker;
+  VMarkerDrawable: IMarkerDrawable;
   VAppearanceIcon: IAppearancePointIcon;
 begin
   Result := False;
+  VBitmapMarker := nil;
+  VMarkerDrawable := nil;
   VLonLat := AGeometry.Point;
   AProjection.ProjectionType.ValidateLonLatPos(VLonLat);
   VMapPoint := AProjection.LonLat2PixelPosFloat(VLonLat);
   VLocalPoint.X := VMapPoint.X - AMapRect.Left;
   VLocalPoint.Y := VMapPoint.Y - AMapRect.Top;
+
   if Supports(APoint.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
-    VDrawMarker := FMarkerIconProvider.GetMarker(VAppearanceIcon);
-  end;
-  if not Assigned(VDrawMarker) then begin
-    VDrawMarker := FPointMarker;
+    VBitmapMarker := FMarkerIconProvider.GetMarker(VAppearanceIcon);
   end;
 
-  VRect := GetMarkerBoundsForPosition(VDrawMarker, VLocalPoint);
+  if not Assigned(VBitmapMarker) and Assigned(FPointBitmapMarker) then begin
+    VBitmapMarker := FPointBitmapMarker;
+  end else begin
+    Assert(FPointMarkerDrawable <> nil);
+    VMarkerDrawable := FPointMarkerDrawable.GetStatic;
+  end;
+
+  if Assigned(VBitmapMarker) then begin
+    VRect := GetMarkerBoundsForPosition(VBitmapMarker, VLocalPoint);
+  end else begin
+    Assert(VMarkerDrawable <> nil);
+    VRect := VMarkerDrawable.GetBoundsForPosition(VLocalPoint);
+  end;
+
   if Types.IntersectRect(VRect, Rect(0, 0, AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top), VRect) then begin
     if not ABitmapInited then begin
       InitBitmap(ATargetBmp, Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top));
       ABitmapInited := True;
     end;
-
-    Result := DrawMarkerToBitmap(ATargetBmp, VDrawMarker, VLocalPoint);
+    if Assigned(VBitmapMarker) then begin
+      Result := DrawMarkerToBitmap(ATargetBmp, VBitmapMarker, VLocalPoint);
+    end else begin
+      Assert(VMarkerDrawable <> nil);
+      Result := VMarkerDrawable.DrawToBitmap(ATargetBmp, VLocalPoint);
+    end;
   end;
 end;
 
