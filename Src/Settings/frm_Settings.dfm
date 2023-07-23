@@ -1958,13 +1958,13 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 644
-        Height = 57
+        Height = 129
         Align = alTop
         BevelOuter = bvNone
         ColumnCollection = <
           item
             SizeStyle = ssAbsolute
-            Value = 150.000000000000000000
+            Value = 200.000000000000000000
           end
           item
             Value = 100.000000000000000000
@@ -1982,60 +1982,169 @@ object frmSettings: TfrmSettings
           end
           item
             Column = 0
-            Control = lblWikiBgColor
+            Control = lblWikiShadowColor
             Row = 1
           end
           item
             Column = 1
-            Control = CBWFonColor
+            Control = CBWShadowColor
             Row = 1
+          end
+          item
+            Column = 0
+            Control = lblWikiFillColor
+            Row = 2
+          end
+          item
+            Column = 1
+            Control = CBWFillColor
+            Row = 2
+          end
+          item
+            Column = 0
+            Control = lblWikiBorderColor
+            Row = 3
+          end
+          item
+            Column = 1
+            Control = CBWBorderColor
+            Row = 3
+          end
+          item
+            Column = 0
+            Control = lblWikiMarkerSize
+            Row = 4
+          end
+          item
+            Column = 1
+            Control = seWikiMarkerSize
+            Row = 4
           end>
         RowCollection = <
           item
-            Value = 50.000000000000000000
+            SizeStyle = ssAbsolute
+            Value = 25.000000000000000000
           end
           item
-            Value = 50.000000000000000000
+            SizeStyle = ssAbsolute
+            Value = 25.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 25.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 25.000000000000000000
+          end
+          item
+            SizeStyle = ssAbsolute
+            Value = 25.000000000000000000
           end>
         TabOrder = 0
         DesignSize = (
           644
-          57)
+          129)
         object lblWikiMainColor: TLabel
-          Left = 44
-          Top = 7
-          Width = 62
-          Height = 13
-          Anchors = []
+          AlignWithMargins = True
+          Left = 3
+          Top = 5
+          Width = 194
+          Height = 17
+          Margins.Top = 5
+          Margins.Bottom = 3
+          Align = alClient
           Caption = 'Primary color'
         end
         object CBWMainColor: TColorBox
-          Left = 150
-          Top = 3
+          Left = 200
+          Top = 1
           Width = 159
           Height = 22
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
           Anchors = [akLeft, akTop, akBottom]
-          ItemHeight = 16
           TabOrder = 0
         end
-        object lblWikiBgColor: TLabel
-          Left = 46
-          Top = 36
-          Width = 58
-          Height = 13
-          Anchors = []
-          Caption = 'Border color'
+        object lblWikiShadowColor: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 30
+          Width = 194
+          Height = 17
+          Margins.Top = 5
+          Margins.Bottom = 3
+          Align = alClient
+          Caption = 'Shadow color'
         end
-        object CBWFonColor: TColorBox
-          Left = 150
-          Top = 31
+        object CBWShadowColor: TColorBox
+          Left = 200
+          Top = 26
           Width = 159
           Height = 22
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
           Anchors = [akLeft, akTop, akBottom]
-          ItemHeight = 16
           TabOrder = 1
+        end
+        object lblWikiFillColor: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 55
+          Width = 194
+          Height = 17
+          Margins.Top = 5
+          Margins.Bottom = 3
+          Align = alClient
+          Caption = 'Marker fill color'
+        end
+        object CBWFillColor: TColorBox
+          Left = 200
+          Top = 51
+          Width = 159
+          Height = 22
+          Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+          Anchors = [akLeft, akTop, akBottom]
+          TabOrder = 2
+        end
+        object lblWikiBorderColor: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 80
+          Width = 194
+          Height = 17
+          Margins.Top = 5
+          Margins.Bottom = 3
+          Align = alClient
+          Caption = 'Marker border color'
+        end
+        object CBWBorderColor: TColorBox
+          Left = 200
+          Top = 76
+          Width = 159
+          Height = 22
+          Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+          Anchors = [akLeft, akTop, akBottom]
+          TabOrder = 3
+        end
+        object lblWikiMarkerSize: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 105
+          Width = 194
+          Height = 17
+          Margins.Top = 5
+          Margins.Bottom = 3
+          Align = alClient
+          Caption = 'Marker size'
+        end
+        object seWikiMarkerSize: TSpinEdit
+          Left = 200
+          Top = 100
+          Width = 159
+          Height = 22
+          MaxValue = 0
+          MinValue = 0
+          TabOrder = 4
+          Value = 0
         end
       end
     end

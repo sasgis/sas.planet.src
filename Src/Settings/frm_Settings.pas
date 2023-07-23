@@ -86,10 +86,16 @@ type
     TilesOverScreenEdit: TSpinEdit;
     Label69: TLabel;
     tsWiki: TTabSheet;
-    CBWMainColor: TColorBox;
     lblWikiMainColor: TLabel;
-    lblWikiBgColor: TLabel;
-    CBWFonColor: TColorBox;
+    lblWikiShadowColor: TLabel;
+    lblWikiFillColor: TLabel;
+    lblWikiBorderColor: TLabel;
+    lblWikiMarkerSize: TLabel;
+    CBWMainColor: TColorBox;
+    CBWShadowColor: TColorBox;
+    CBWFillColor: TColorBox;
+    CBWBorderColor: TColorBox;
+    seWikiMarkerSize: TSpinEdit;
     cbbCoordRepresentation: TComboBox;
     Label84: TLabel;
     CBShowmapname: TCheckBox;
@@ -860,11 +866,28 @@ begin
       );
     FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor :=
       SetAlpha(
-        Color32(CBWFonColor.Selected),
+        Color32(CBWShadowColor.Selected),
         AlphaComponent(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor)
       );
   finally
     FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockWrite;
+  end;
+
+  FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.LockWrite;
+  try
+    FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.MarkerColor :=
+      SetAlpha(
+        Color32(CBWFillColor.Selected),
+        AlphaComponent(FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.MarkerColor)
+      );
+    FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.BorderColor :=
+      SetAlpha(
+        Color32(CBWBorderColor.Selected),
+        AlphaComponent(FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.BorderColor)
+      );
+    FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.MarkerSize := seWikiMarkerSize.Value;
+  finally
+    FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.UnlockWrite;
   end;
 
   VMarksCaptionDrawConfig := FMainFormConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig;
@@ -1151,12 +1174,22 @@ begin
   finally
     GState.Config.ValueToStringConverterConfig.UnlockRead;
   end;
+
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockRead;
   try
     CBWMainColor.Selected := WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor);
-    CBWFonColor.Selected := WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor);
+    CBWShadowColor.Selected := WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor);
   finally
     FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockRead;
+  end;
+
+  FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.LockRead;
+  try
+    CBWFillColor.Selected := WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.MarkerColor);
+    CBWBorderColor.Selected := WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.BorderColor);
+    seWikiMarkerSize.Value := FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.MarkerSize;
+  finally
+    FMainFormConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig.UnlockRead;
   end;
 
   TilesOverScreenEdit.Value := FMainFormConfig.DownloadUIConfig.TilesOut;
