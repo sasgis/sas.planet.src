@@ -35,6 +35,7 @@ uses
   Dialogs,
   Spin,
   UITypes,
+  Buttons,
   urlmon,
   wininet,
   GR32,
@@ -57,7 +58,7 @@ uses
   fr_GPSConfig,
   fr_PathSelect,
   fr_CacheTypeList,
-  fr_ShortCutList, Buttons;
+  fr_ShortCutList;
 
 type
   TfrmSettings = class(TFormWitghLanguageManager)
@@ -212,7 +213,6 @@ type
     pnlMarksDbPath: TPanel;
     pnlMarksIconsPath: TPanel;
     pnlMediaDataPath: TPanel;
-    pnlMapSvcScan: TPanel;
     pnlNewCpath: TPanel;
     pnlOldCpath: TPanel;
     pnlEScPath: TPanel;
@@ -300,7 +300,6 @@ type
     FfrMarksIconsPathSelect: TfrPathSelect;
     FfrMarksDbPathSelect: TfrPathSelect;
     FfrMediaDataPathSelect: TfrPathSelect;
-//    FfrMapSvcScanPathSelect: TfrPathSelect;
     FfrBaseCachePathSelect: TfrPathSelect;
 
     FfrNewCachePath: TfrPathSelect;
@@ -487,16 +486,6 @@ begin
       gettext_NoOp('Path to MediaData'),
       GState.Config.MediaDataPath
     );
-
-  // http://www.sasgis.org/mantis/view.php?id=3803
-  pnlMapSvcScan.Visible := False;
-
-//  FfrMapSvcScanPathSelect :=
-//    TfrPathSelect.Create(
-//      ALanguageManager,
-//      gettext_NoOp('Path to map scan DB'),
-//      GState.Config.MapSvcScanConfig.Path
-//    );
 
   FfrBaseCachePathSelect :=
     TfrPathSelect.Create(
@@ -860,7 +849,6 @@ begin
   FfrMarksIconsPathSelect.ApplyChanges;
   FfrMarksDbPathSelect.ApplyChanges;
   FfrMediaDataPathSelect.ApplyChanges;
-//  FfrMapSvcScanPathSelect.ApplyChanges;
   FfrBaseCachePathSelect.ApplyChanges;
 
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
@@ -942,7 +930,6 @@ begin
   FreeAndNil(FfrMarksIconsPathSelect);
   FreeAndNil(FfrMarksDbPathSelect);
   FreeAndNil(FfrMediaDataPathSelect);
-//  FreeAndNil(FfrMapSvcScanPathSelect);
   FreeAndNil(FfrBaseCachePathSelect);
 
   FreeAndNil(FfrNewCachePath);
@@ -989,7 +976,6 @@ begin
   FfrMarksIconsPathSelect.Show(pnlMarksIconsPath);
   FfrMarksDbPathSelect.Show(pnlMarksDbPath);
   FfrMediaDataPathSelect.Show(pnlMediaDataPath);
-//  FfrMapSvcScanPathSelect.Show(pnlMapSvcScan);
   FfrBaseCachePathSelect.Show(pnlBaseCahcePath);
 
   FfrNewCachePath.Show(pnlNewCpath);

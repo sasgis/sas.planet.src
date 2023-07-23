@@ -2112,16 +2112,6 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         TabOrder = 2
       end
-      object pnlMapSvcScan: TPanel
-        Left = 0
-        Top = 224
-        Width = 644
-        Height = 28
-        Align = alTop
-        BevelEdges = []
-        BevelOuter = bvNone
-        TabOrder = 8
-      end
       object pnlBaseCahcePath: TPanel
         Left = 0
         Top = 0
