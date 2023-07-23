@@ -303,28 +303,28 @@ object frmSettings: TfrmSettings
           TabOrder = 3
         end
         object flwpnlDownloadTimeOut: TFlowPanel
-          AlignWithMargins = True
           Left = 3
-          Top = 294
+          Top = 291
           Width = 632
-          Height = 22
+          Height = 28
           Margins.Left = 0
           Margins.Right = 0
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
-          TabOrder = 5
+          BorderWidth = 3
+          TabOrder = 6
           object Label32: TLabel
             AlignWithMargins = True
-            Left = 3
-            Top = 3
+            Left = 6
+            Top = 6
             Width = 153
             Height = 13
             Caption = 'Network operations timeout, ms'
           end
           object SETimeOut: TSpinEdit
-            Left = 159
-            Top = 0
+            Left = 162
+            Top = 3
             Width = 73
             Height = 22
             MaxValue = 0
@@ -489,28 +489,29 @@ object frmSettings: TfrmSettings
           end
         end
         object flwpnl1: TFlowPanel
-          AlignWithMargins = True
           Left = 3
-          Top = 322
+          Top = 319
           Width = 632
-          Height = 22
+          Height = 28
           Margins.Left = 0
           Margins.Right = 0
+          Margins.Bottom = 5
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
-          TabOrder = 6
+          BorderWidth = 3
+          TabOrder = 7
           object lbl1: TLabel
             AlignWithMargins = True
-            Left = 3
-            Top = 3
+            Left = 6
+            Top = 6
             Width = 144
             Height = 13
             Caption = 'Sleep on reset connection, ms'
           end
           object seSleepOnResetConnection: TSpinEdit
-            Left = 150
-            Top = 0
+            Left = 153
+            Top = 3
             Width = 73
             Height = 22
             MaxValue = 0
@@ -521,38 +522,35 @@ object frmSettings: TfrmSettings
         end
         object pnl1: TPanel
           AlignWithMargins = True
-          Left = 3
+          Left = 6
           Top = 378
-          Width = 629
+          Width = 626
           Height = 23
-          Margins.Left = 0
           Align = alTop
           BevelOuter = bvNone
-          TabOrder = 8
+          TabOrder = 9
           object lbl2: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
             Width = 59
-            Height = 17
+            Height = 20
             Align = alLeft
             Caption = 'User-Agent:'
-            ExplicitHeight = 13
           end
           object edtUserAgent: TEdit
             AlignWithMargins = True
             Left = 68
             Top = 0
-            Width = 537
+            Width = 534
             Height = 23
             Margins.Top = 0
             Margins.Bottom = 0
             Align = alClient
             TabOrder = 0
-            ExplicitHeight = 21
           end
           object btnResetUserAgentString: TButton
-            Left = 608
+            Left = 605
             Top = 0
             Width = 21
             Height = 23
@@ -563,28 +561,28 @@ object frmSettings: TfrmSettings
           end
         end
         object flwpnlMaxConnsPerServer: TFlowPanel
-          AlignWithMargins = True
           Left = 3
-          Top = 350
+          Top = 347
           Width = 632
-          Height = 22
+          Height = 28
           Margins.Left = 0
           Margins.Right = 0
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
-          TabOrder = 7
+          BorderWidth = 3
+          TabOrder = 8
           object lblMaxConnsPerServer: TLabel
             AlignWithMargins = True
-            Left = 3
-            Top = 3
+            Left = 6
+            Top = 6
             Width = 250
             Height = 13
             Caption = 'Max number of simultaneous connections per server'
           end
           object seMaxConnsPerServer: TSpinEdit
-            Left = 256
-            Top = 0
+            Left = 259
+            Top = 3
             Width = 73
             Height = 22
             MaxValue = 0
