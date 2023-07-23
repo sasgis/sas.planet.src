@@ -1588,6 +1588,16 @@ object frmSettings: TfrmSettings
             ExplicitTop = 460
             ExplicitWidth = 314
           end
+          object chkAddTimeToMarkDescription: TCheckBox
+            AlignWithMargins = True
+            Left = 6
+            Top = 440
+            Width = 308
+            Height = 17
+            Align = alTop
+            Caption = 'Insert timestamp into placemark description'
+            TabOrder = 11
+          end
         end
       end
     end

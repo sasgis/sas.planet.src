@@ -262,6 +262,7 @@ type
     pnlMarkCaptionFont: TPanel;
     dlgFont: TFontDialog;
     chkMarksCaptionVisible: TCheckBox;
+    chkAddTimeToMarkDescription: TCheckBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -891,6 +892,8 @@ begin
     VMarksCaptionDrawConfig.UnlockWrite;
   end;
 
+  GState.Config.MarksGUIConfig.IsAddTimeToDescription := chkAddTimeToMarkDescription.Checked;
+
   GState.Config.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 
   FMainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
@@ -1183,6 +1186,8 @@ begin
   finally
     VMarksCaptionDrawConfig.UnlockRead;
   end;
+
+  chkAddTimeToMarkDescription.Checked := GState.Config.MarksGUIConfig.IsAddTimeToDescription;
 
   rbProxyClick(Self);
 end;
