@@ -594,7 +594,6 @@ procedure StableSortInterfaceListByIntegerMeasure(
   begin
     // calculate the midpoint
     VMid := (AFirstIndex + ALastIndex) div 2;
-
     // sort the 1st half of the list, either with merge sort, or, if there are
     // few enough items, with insertion sort
     if AFirstIndex < VMid then begin
@@ -604,7 +603,6 @@ procedure StableSortInterfaceListByIntegerMeasure(
         DoMergeSort(AFirstIndex, VMid, ATempList, ATempMeasure);
       end;
     end;
-
     // sort the 2nd half of the list likewise
     if Succ(VMid) < ALastIndex then begin
       if ALastIndex - Succ(VMid) <= CMinListSize then begin
@@ -613,14 +611,12 @@ procedure StableSortInterfaceListByIntegerMeasure(
         DoMergeSort(Succ(VMid), ALastIndex, ATempList, ATempMeasure);
       end;
     end;
-
     // copy the first half of the list to our temporary list
     VFirstCount := Succ(VMid - AFirstIndex);
     for I := 0 to VFirstCount - 1 do begin
       ATempList[I] := AList[AFirstIndex + I];
     end;
     System.Move(AMeasure[AFirstIndex], ATempMeasure[0], VFirstCount * SizeOf(Integer));
-
     // set up the indexes: i is the index for the temporary list (i.e., the
     // first half of the list), j is the index for the second half of the
     // list, ToInx is the index in the merged where items will be copied
@@ -645,7 +641,6 @@ procedure StableSortInterfaceListByIntegerMeasure(
       // there's one more item in the merged list
       Inc(VToInx);
     end;
-
     // if there are any more items in the first list, copy them back over
     if I < VFirstCount then begin
       for J := 0 to VFirstCount - I - 1 do begin
@@ -653,7 +648,6 @@ procedure StableSortInterfaceListByIntegerMeasure(
       end;
       System.Move(ATempMeasure[I], AMeasure[VToInx], (VFirstCount - I) * SizeOf(Integer));
     end;
-
     // if there are any more items in the second list then they're already in
     // place and we're done; if there aren't, we're still done
   end;
@@ -711,7 +705,6 @@ procedure StableSortInterfaceListByStringMeasure(
     VFirstCount: Integer;
   begin
     VMid := (AFirstIndex + ALastIndex) div 2;
-
     if AFirstIndex < VMid then begin
       if VMid - AFirstIndex <= CMinListSize then begin
         DoInsertionSort(AFirstIndex, VMid);
@@ -719,7 +712,6 @@ procedure StableSortInterfaceListByStringMeasure(
         DoMergeSort(AFirstIndex, VMid, ATempList, ATempMeasure);
       end;
     end;
-
     if Succ(VMid) < ALastIndex then begin
       if ALastIndex - Succ(VMid) <= CMinListSize then begin
         DoInsertionSort(Succ(VMid), ALastIndex);
@@ -727,7 +719,6 @@ procedure StableSortInterfaceListByStringMeasure(
         DoMergeSort(Succ(VMid), ALastIndex, ATempList, ATempMeasure);
       end;
     end;
-
     VFirstCount := Succ(VMid - AFirstIndex);
     for I := 0 to VFirstCount - 1 do begin
       ATempList[I] := AList[AFirstIndex + I];
@@ -750,7 +741,6 @@ procedure StableSortInterfaceListByStringMeasure(
       end;
       Inc(VToInx);
     end;
-
     if I < VFirstCount then begin
       for J := 0 to VFirstCount - I - 1 do begin
         AList[VToInx + J] := ATempList[I + J];
