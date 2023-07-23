@@ -1950,7 +1950,7 @@ object frmSettings: TfrmSettings
       end
     end
     object tsWiki: TTabSheet
-      Caption = 'Wikimapia'
+      Caption = 'Vector Layer'
       ImageIndex = 7
       object grdpnlWiki: TGridPanel
         Left = 0
