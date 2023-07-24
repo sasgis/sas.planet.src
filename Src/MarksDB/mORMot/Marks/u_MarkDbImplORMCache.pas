@@ -57,7 +57,7 @@ type
   public
     property Rows: TSQLMarkImageRowDynArray read FRows;
   public
-    constructor Create(const AMaxRamSize: Integer = 0);
+    constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
@@ -90,7 +90,7 @@ type
   public
     property Rows: TSQLMarkAppearanceRowDynArray read FRows;
   public
-    constructor Create(const AMaxRamSize: Integer = 0);
+    constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
@@ -117,7 +117,7 @@ type
   public
     property Rows: TSQLMarkViewRowDynArray read FRows;
   public
-    constructor Create(const AMaxRamSize: Integer = 0);
+    constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
@@ -152,7 +152,7 @@ type
   public
     property Rows: TSQLMarkIdIndexRecDynArray read FRows;
   public
-    constructor Create;
+    constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
@@ -177,7 +177,7 @@ type
     procedure Add(const ACategoryID: TID; const AMarkID: TID);
     procedure Delete(const ACategoryID: TID; const AMarkID: TID);
   public
-    constructor Create;
+    constructor Create(const AMaxCacheSize: Int64);
     destructor Destroy; override;
   end;
 
@@ -209,13 +209,13 @@ type
   public
     property Rows: TSQLMarkRowDynArray read FRows;
   public
-    constructor Create(const AMaxRamSize: Integer = 0);
+    constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
   (*                        TSQLMarkGeometryCache                             *)
   (****************************************************************************)
-  
+
   TSQLMarkGeometryRec = packed record
     MarkID: TID;
     Size: Integer;
@@ -246,7 +246,7 @@ type
   public
     property IsPrepared: Boolean read FIsPrepared;
   public
-    constructor Create(const AMaxRamSize: Integer = 0);
+    constructor Create(const AMaxCacheSize: Int64);
     destructor Destroy; override;
   end;
 
@@ -258,11 +258,13 @@ type
     FMarkCache: TSQLMarkCache;
     FMarkGeometryCache: TSQLMarkGeometryCache;
     FMarkViewCache: TSQLMarkViewCache;
-    FMarkImage: TSQLMarkImageCache;
-    FMarkAppearance: TSQLMarkAppearanceCache;
+    FMarkImageCache: TSQLMarkImageCache;
+    FMarkAppearanceCache: TSQLMarkAppearanceCache;
+
     FMarkIdIndex: TSQLMarkIdIndex;
     FMarkIdByCategoryIndex: TSQLMarkIdByCategoryIndex;
-    procedure Init(const AMaxCacheSize: Int64 = 100*1024*1024); // 100Mb
+
+    procedure Init(const AMaxCacheSize: Int64);
     procedure Done;
   end;
 
@@ -280,24 +282,28 @@ var
   VMarkCacheSize: Int64;
   VMarkGeometryCacheSize: Int64;
 begin
-  VMarkCacheSize := Round(0.2 * AMaxCacheSize); // 20 %
+  VMarkCacheSize := Round(0.3 * AMaxCacheSize); // 30 %
   VMarkGeometryCacheSize := Round(0.7 * AMaxCacheSize); // 70%
-  // + keep 10% reserved for View/Image/Appearance/Index caches
+
   FMarkCache := TSQLMarkCache.Create(VMarkCacheSize);
   FMarkGeometryCache := TSQLMarkGeometryCache.Create(VMarkGeometryCacheSize);
-  FMarkViewCache := TSQLMarkViewCache.Create;
-  FMarkImage := TSQLMarkImageCache.Create;
-  FMarkAppearance := TSQLMarkAppearanceCache.Create;
-  FMarkIdIndex := TSQLMarkIdIndex.Create;
-  FMarkIdByCategoryIndex := TSQLMarkIdByCategoryIndex.Create;
+
+  // no limits for View/Image/Appearance caches
+  FMarkViewCache := TSQLMarkViewCache.Create(CUnlimCacheSize);
+  FMarkImageCache := TSQLMarkImageCache.Create(CUnlimCacheSize);
+  FMarkAppearanceCache := TSQLMarkAppearanceCache.Create(CUnlimCacheSize);
+
+  // and no limits for indexes
+  FMarkIdIndex := TSQLMarkIdIndex.Create(CUnlimCacheSize);
+  FMarkIdByCategoryIndex := TSQLMarkIdByCategoryIndex.Create(CUnlimCacheSize);
 end;
 
 procedure TSQLMarkDbCache.Done;
 begin
   FreeAndNil(FMarkIdByCategoryIndex);
   FreeAndNil(FMarkIdIndex);
-  FreeAndNil(FMarkAppearance);
-  FreeAndNil(FMarkImage);
+  FreeAndNil(FMarkAppearanceCache);
+  FreeAndNil(FMarkImageCache);
   FreeAndNil(FMarkViewCache);
   FreeAndNil(FMarkGeometryCache);
   FreeAndNil(FMarkCache);
@@ -305,10 +311,10 @@ end;
 
 { TSQLMarkImageCache }
 
-constructor TSQLMarkImageCache.Create(const AMaxRamSize: Integer);
+constructor TSQLMarkImageCache.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create(
-    TypeInfo(TSQLMarkImageRowDynArray), FRows, djInt64, AMaxRamSize
+    TypeInfo(TSQLMarkImageRowDynArray), FRows, djInt64, AMaxCacheSize
   );
 end;
 
@@ -402,10 +408,10 @@ end;
 
 { TSQLMarkAppearanceCache }
 
-constructor TSQLMarkAppearanceCache.Create(const AMaxRamSize: Integer);
+constructor TSQLMarkAppearanceCache.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create(
-    TypeInfo(TSQLMarkAppearanceRowDynArray), FRows, djInt64, AMaxRamSize
+    TypeInfo(TSQLMarkAppearanceRowDynArray), FRows, djInt64, AMaxCacheSize
   );
 end;
 
@@ -495,9 +501,11 @@ end;
 
 { TSQLMarkIdIndex }
 
-constructor TSQLMarkIdIndex.Create;
+constructor TSQLMarkIdIndex.Create(const AMaxCacheSize: Int64);
 begin
-  inherited Create(TypeInfo(TSQLMarkIdIndexRecDynArray), FRows, djInt64, 0);
+  inherited Create(
+    TypeInfo(TSQLMarkIdIndexRecDynArray), FRows, djInt64, AMaxCacheSize
+  );
 end;
 
 function TSQLMarkIdIndex.Find(const AID: TID; out AItem: PSQLMarkIdIndexRec): Boolean;
@@ -633,10 +641,10 @@ end;
 
 { TSQLMarkIdByCategoryIndex }
 
-constructor TSQLMarkIdByCategoryIndex.Create;
+constructor TSQLMarkIdByCategoryIndex.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create;
-  FDynArray := TDynArrayByRecWithPointer.Create(dpObj, nil, 0);
+  FDynArray := TDynArrayByRecWithPointer.Create(dpObj, nil, AMaxCacheSize);
 end;
 
 destructor TSQLMarkIdByCategoryIndex.Destroy;
@@ -750,9 +758,9 @@ end;
 
 { TSQLMarkCache }
 
-constructor TSQLMarkCache.Create(const AMaxRamSize: Integer);
+constructor TSQLMarkCache.Create(const AMaxCacheSize: Int64);
 begin
-  inherited Create(TypeInfo(TSQLMarkRowDynArray), FRows, djInt64, AMaxRamSize);
+  inherited Create(TypeInfo(TSQLMarkRowDynArray), FRows, djInt64, AMaxCacheSize);
 end;
 
 function TSQLMarkCache.Find(const AID: TID; out AItem: PSQLMarkRow): Boolean;
@@ -896,10 +904,10 @@ end;
 
 { TSQLMarkViewCache }
 
-constructor TSQLMarkViewCache.Create(const AMaxRamSize: Integer);
+constructor TSQLMarkViewCache.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create(
-    TypeInfo(TSQLMarkViewRowDynArray), FRows, djInt64, AMaxRamSize
+    TypeInfo(TSQLMarkViewRowDynArray), FRows, djInt64, AMaxCacheSize
   );
 end;
 
@@ -1029,12 +1037,12 @@ end;
 
 { TSQLMarkGeometryCache }
 
-constructor TSQLMarkGeometryCache.Create(const AMaxRamSize: Integer);
+constructor TSQLMarkGeometryCache.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create;
   FIsPrepared := False;
   FPreparedCategories := TIDDynArrayObject.Create;
-  FGeometryArray := TDynArrayByRecWithPointer.Create(dpIntf, nil, AMaxRamSize);
+  FGeometryArray := TDynArrayByRecWithPointer.Create(dpIntf, nil, AMaxCacheSize);
 end;
 
 destructor TSQLMarkGeometryCache.Destroy;

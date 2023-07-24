@@ -217,11 +217,7 @@ begin
   inherited Create;
 
   FIsReadOnly := AIsReadOnly;
-  if ACacheSizeMb > 0 then begin
-    FCache.Init(ACacheSizeMb*1024*1024);
-  end else begin
-    FCache.Init(1024*1024*1024); // 1 Gb
-  end;
+  FCache.Init(ACacheSizeMb * 1024 * 1024);
 
   FGeometryReader := AGeometryReader;
   FGeometryMetaReader := AGeometryMetaReader;
@@ -318,7 +314,7 @@ begin
   {$IF CompilerVersion < 33}
   Result := 0; // prevent compiler warning
   {$IFEND}
-  if FCache.FMarkImage.Find(APicName, VItem) then begin
+  if FCache.FMarkImageCache.Find(APicName, VItem) then begin
     // found in cache
     Result := VItem.ImageId;
   end else begin
@@ -332,7 +328,7 @@ begin
       end;
       Result := VSQLMarkImage.ID;
       // add to cache
-      FCache.FMarkImage.AddOrIgnore(Result, APicName);
+      FCache.FMarkImageCache.AddOrIgnore(Result, APicName);
     finally
       VSQLMarkImage.Free;
     end;
@@ -346,7 +342,7 @@ var
 begin
   if AMarkRec.FGeoType = gtPoint then begin
     if AMarkRec.FPicId > 0 then begin
-      if FCache.FMarkImage.Find(AMarkRec.FPicId, VItem) then begin
+      if FCache.FMarkImageCache.Find(AMarkRec.FPicId, VItem) then begin
         // found in cache
         AMarkRec.FPicName := VItem.Name;
       end else begin
@@ -356,7 +352,7 @@ begin
           CheckID(VSQLMarkImage.ID);
           AMarkRec.FPicName := UTF8ToString(VSQLMarkImage.FName);
           // add to cache
-          FCache.FMarkImage.AddOrIgnore(AMarkRec);
+          FCache.FMarkImageCache.AddOrIgnore(AMarkRec);
         finally
           VSQLMarkImage.Free;
         end;
@@ -378,7 +374,7 @@ begin
   {$IF CompilerVersion < 33}
   Result := 0; // prevent compiler warning
   {$IFEND}
-  if FCache.FMarkAppearance.Find(AColor1, AColor2, AScale1, AScale2, VItem) then begin
+  if FCache.FMarkAppearanceCache.Find(AColor1, AColor2, AScale1, AScale2, VItem) then begin
     // found in cache
     Result := VItem.AppearanceId;
   end else begin
@@ -397,7 +393,7 @@ begin
       end;
       Result := VSQLMarkAppearance.ID;
       // add to cache
-      FCache.FMarkAppearance.AddOrIgnore(Result, AColor1, AColor2, AScale1, AScale2);
+      FCache.FMarkAppearanceCache.AddOrIgnore(Result, AColor1, AColor2, AScale1, AScale2);
     finally
       VSQLMarkAppearance.Free;
     end;
@@ -409,7 +405,7 @@ var
   VItem: PSQLMarkAppearanceRow;
   VSQLMarkAppearance: TSQLMarkAppearance;
 begin
-  if FCache.FMarkAppearance.Find(AMarkRec.FAppearanceId, VItem) then begin
+  if FCache.FMarkAppearanceCache.Find(AMarkRec.FAppearanceId, VItem) then begin
     // found in cache
     AMarkRec.FColor1 := VItem.Color1;
     AMarkRec.FColor2 := VItem.Color2;
@@ -425,7 +421,7 @@ begin
       AMarkRec.FScale1 := VSQLMarkAppearance.FScale1;
       AMarkRec.FScale2 := VSQLMarkAppearance.FScale2;
       // add to cache
-      FCache.FMarkAppearance.AddOrIgnore(AMarkRec);
+      FCache.FMarkAppearanceCache.AddOrIgnore(AMarkRec);
     finally
       VSQLMarkAppearance.Free;
     end;
