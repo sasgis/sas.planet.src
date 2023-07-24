@@ -128,10 +128,12 @@ type
     ): Integer;
   public
     function DeleteMarkSQL(
-      const AMarkID: TID
+      const AMarkID: TID;
+      const AUseTransactions: Boolean
     ): Boolean;
     function InsertMarkSQL(
-      var AMarkRec: TSQLMarkRec
+      var AMarkRec: TSQLMarkRec;
+      const AUseTransactions: Boolean
     ): Boolean;
     function UpdateMarkSQL(
       const AOldMarkRec: TSQLMarkRec;
@@ -428,7 +430,10 @@ begin
   end;
 end;
 
-function TMarkDbImplORMHelper.DeleteMarkSQL(const AMarkID: TID): Boolean;
+function TMarkDbImplORMHelper.DeleteMarkSQL(
+  const AMarkID: TID;
+  const AUseTransactions: Boolean
+): Boolean;
 var
   VTransaction: TTransactionRec;
   VIndex: PSQLMarkIdIndexRec;
@@ -439,12 +444,24 @@ begin
     Exit;
   end;
 
-  if not (AMarkID > 0) then begin
+  if AMarkID <= 0 then begin
     Assert(False);
     Exit;
   end;
 
-  StartTransaction(FClient, VTransaction, FSQLMarkClass);
+  // delete from cache
+  FCache.FMarkCache.Delete(AMarkID);
+  FCache.FMarkGeometryCache.Delete(AMarkID);
+  FCache.FMarkViewCache.Delete(AMarkID);
+  if FCache.FMarkIdIndex.Find(AMarkID, VIndex) then begin
+    FCache.FMarkIdIndex.Delete(AMarkID);
+    FCache.FMarkIdByCategoryIndex.Delete(VIndex.CategoryId, AMarkID);
+  end;
+
+  // delete from db
+  if AUseTransactions then begin
+    StartTransaction(FClient, VTransaction, FSQLMarkClass);
+  end;
   try
     // delete view for all Users if exists
     FClient.Delete(TSQLMarkView, FormatUTF8('mvMark=?', [], [AMarkID]));
@@ -465,25 +482,23 @@ begin
 
     // pic name and appearance are never deleted...
 
-    CommitTransaction(FClient, VTransaction);
+    if AUseTransactions then begin
+      CommitTransaction(FClient, VTransaction);
+    end;
   except
-    RollBackTransaction(FClient, VTransaction);
+    if AUseTransactions then begin
+      RollBackTransaction(FClient, VTransaction);
+    end;
     raise;
-  end;
-
-  // delete from cache
-  FCache.FMarkCache.Delete(AMarkID);
-  FCache.FMarkGeometryCache.Delete(AMarkID);
-  FCache.FMarkViewCache.Delete(AMarkID);
-  if FCache.FMarkIdIndex.Find(AMarkID, VIndex) then begin
-    FCache.FMarkIdIndex.Delete(AMarkID);
-    FCache.FMarkIdByCategoryIndex.Delete(VIndex.CategoryId, AMarkID);
   end;
 
   Result := True;
 end;
 
-function TMarkDbImplORMHelper.InsertMarkSQL(var AMarkRec: TSQLMarkRec): Boolean;
+function TMarkDbImplORMHelper.InsertMarkSQL(
+  var AMarkRec: TSQLMarkRec;
+  const AUseTransactions: Boolean
+): Boolean;
 var
   VRect: TDoubleRect;
   VIntRect: TRect;
@@ -510,7 +525,9 @@ begin
   VGeometryMetaBlob := _GeomertryMetaToBlob(AMarkRec.FGeometry);
   CalcGeometrySize(VRect, AMarkRec.FGeoLonSize, AMarkRec.FGeoLatSize);
 
-  StartTransaction(FClient, VTransaction, FSQLMarkClass);
+  if AUseTransactions then begin
+    StartTransaction(FClient, VTransaction, FSQLMarkClass);
+  end;
   try
     if AMarkRec.FPicName <> '' then begin
       AMarkRec.FPicId := _AddMarkImage(AMarkRec.FPicName);
@@ -623,9 +640,13 @@ begin
       end;
     end;
 
-    CommitTransaction(FClient, VTransaction);
+    if AUseTransactions then begin
+      CommitTransaction(FClient, VTransaction);
+    end;
   except
-    RollBackTransaction(FClient, VTransaction);
+    if AUseTransactions then begin
+      RollBackTransaction(FClient, VTransaction);
+    end;
     raise;
   end;
 
@@ -920,7 +941,7 @@ begin
             FCache.FMarkCache.AddOrUpdate(AMarkRec);
             VSQLWhere := '';
           end else begin
-            DeleteMarkSQL(VMarkID);
+            DeleteMarkSQL(VMarkID, True);
             Exit;
           end;
         end else begin
