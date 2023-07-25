@@ -664,6 +664,10 @@ begin
           VMaxCount := ANewMarkList.Count;
         end;
         for I := 0 to VMinCount - 1 do begin
+          if VDoNotify and (I mod 1000 = 0) then begin
+            CommitTransaction(FClient, VTransaction);
+            StartTransaction(FClient, VTransaction, TSQLMark);
+          end;
           VOld := AOldMarkList[I];
           VNew := ANewMarkList[I];
           VResult := _UpdateMark(VOld, VNew, VIsChanged, False);
@@ -683,6 +687,10 @@ begin
           VDoNotify := VDoNotify or VIsChanged;
           if I < VTemp.Capacity then begin
             VTemp.Add(VResult);
+          end;
+          if VDoNotify and (I mod 1000 = 0) then begin
+            CommitTransaction(FClient, VTransaction);
+            StartTransaction(FClient, VTransaction, TSQLMark);
           end;
         end;
         CommitTransaction(FClient, VTransaction);
@@ -704,6 +712,10 @@ begin
       StartTransaction(FClient, VTransaction, TSQLMark);
       try
         for I := 0 to AOldMarkList.Count - 1 do begin
+          if VDoNotify and (I mod 1000 = 0) then begin
+            CommitTransaction(FClient, VTransaction);
+            StartTransaction(FClient, VTransaction, TSQLMark);
+          end;
           _UpdateMark(AOldMarkList[I], nil, VIsChanged, False);
           VDoNotify := VDoNotify or VIsChanged;
         end;
