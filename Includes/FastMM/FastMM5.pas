@@ -1,6 +1,6 @@
 {
 
-FastMM 5.04
+FastMM 5.05
 
 Description:
   A fast replacement memory manager for Embarcadero Delphi applications that scales well across multiple threads and CPU
@@ -155,6 +155,11 @@ uses
 {$LongStrings On}
 {$Align 8}
 
+{Optionally import the legacy version 4 defines.}
+{$ifdef FastMM_IncludeLegacyOptionsFile}
+  {$Include FastMM4Options.inc}
+{$endif}
+
 {Translate legacy v4 defines to their current names.}
 {$ifdef FullDebugMode} {$define FastMM_FullDebugMode} {$endif}
 {$ifdef LoadDebugDLLDynamically} {$define FastMM_DebugLibraryDynamicLoading} {$endif}
@@ -168,6 +173,7 @@ uses
 {$ifdef ShareMM} {$define FastMM_ShareMMIfLibrary} {$endif}
 {$ifdef ShareMM} {$define FastMM_AttemptToUseSharedMM} {$endif}
 {$ifdef ShareMM} {$define FastMM_NeverUninstall} {$endif}
+{$ifdef NoDebugInfo} {$define FastMM_NoDebugInfo} {$endif}
 
 {If the "FastMM_FullDebugMode" is defined then a static dependency on the debug support library is assumed, unless
 dynamic loading is explicitly specified.}
@@ -203,10 +209,15 @@ dynamic loading is explicitly specified.}
   {$endif}
 {$endif}
 
+{Optionally disable debug info in this unit, so the debugger does not step into it.}
+{$ifdef FastMM_NoDebugInfo}
+  {$DEBUGINFO OFF}
+{$endif}
+
 const
 
   {The current version of FastMM.  The first digit is the major version, followed by a two digit minor version number.}
-  CFastMM_Version = 504;
+  CFastMM_Version = 505;
 
   {The number of arenas for small, medium and large blocks.  Increasing the number of arenas decreases the likelihood
   of thread contention happening (when the number of threads inside a GetMem call is greater than the number of arenas),
@@ -351,7 +362,8 @@ type
     ReservedSpace2: Byte;
     {The number of entries in the allocation and free call stacks in the debug footer.}
     StackTraceEntryCount: Byte;
-    {The debug block signature.  This will always be CIsDebugBlockFlag.}
+    {The debug block signature.  This will be CIsDebugBlockFlag if the debug block is in use, and (CIsDebugBlockFlag or
+    CBlockIsFreeFlag) if it has been freed or is in the process of being freed.}
     DebugBlockFlags: SmallInt;
     {Returns a pointer to the start of the debug footer.  The debug footer consists of the footer checksum (dword),
     followed by the allocation stack trace and then the free stack trace.}
@@ -436,10 +448,13 @@ type
 
   {A routine used to convert a stack trace to a textual representation (typically unit and line information).
   APReturnAddresses points to a buffer with up to AMaxDepth return addresses (zero return addresses are ignored).  The
-  textual representation is stored to APBufferPosition.  The routine will update both APBufferPosition and
-  ARemainingBufferSpaceInWideChars.}
+  textual representation is stored to APBuffer.  The routine will return the new end of the buffer.}
   TFastMM_ConvertStackTraceToText = function(APReturnAddresses: PNativeUInt; AMaxDepth: Cardinal;
     APBuffer, APBufferEnd: PWideChar): PWideChar;
+
+  {The interface for the legacy (version 4) stack trace conversion routine in the FastMM_FullDebugMode library.}
+  TFastMM_LegacyConvertStackTraceToText = function(APReturnAddresses: PNativeUInt; AMaxDepth: Cardinal;
+    APBuffer: PAnsiChar): PAnsiChar;
 
   {List of registered leaks}
   TFastMM_RegisteredMemoryLeak = record
@@ -527,29 +542,35 @@ checking for corruption of the debug header, footer, and in the case of freed bl
 modified after the block was freed.  If a corruption is encountered an error message will be logged and/or displayed
 (as per the error logging configuration) and an invalid pointer exception will be raised.  This is a function that
 always returns True (unless an exception is raised), so may be used in a debug watch to scan blocks every time the
-debugger stops on a breakpoint, etc.}
-function FastMM_ScanDebugBlocksForCorruption: Boolean;
+debugger stops on a breakpoint, etc.  ALockTimeoutMilliseconds is the maximum wait time for another thread to release
+a lock on a block before the block is skipped (0 = no waiting).}
+function FastMM_ScanDebugBlocksForCorruption(ALockTimeoutMilliseconds: Cardinal = 50): Boolean;
 
 {Returns the number of bytes of address space that is currently either committed or reserved by FastMM.  This includes
 the total used by the heap, as well as all internal management structures.  This may be restricted via the
 FastMM_SetMemoryUsageLimit call.}
 function FastMM_GetCurrentMemoryUsage: NativeUInt;
 
-{Returns a THeapStatus structure with information about the current memory usage.}
-function FastMM_GetHeapStatus: THeapStatus;
+{Returns a THeapStatus structure with information about the current memory usage.  Note that this call requires walking
+of the entire memory pool and is thus very expensive.  ALockTimeoutMilliseconds is the maximum wait time for another
+thread to release a lock on a block before the block is skipped (0 = no waiting).}
+function FastMM_GetHeapStatus(ALockTimeoutMilliseconds: Cardinal = 50): THeapStatus;
 
 {Returns the number of allocated bytes, the number of overhead bytes (wastage due to management structures and internal
 fragmentation), as well as the efficiency percentage.  The efficiency percentage is the total allocated bytes divided
 by the total address space committed (whether in use or reserved for future use) multiplied by 100.  Note that freed
 blocks not yet released to the operating system are included in the overhead, which differs from FastMM_GetHeapStatus
-that exposes freed blocks in separate fields.}
-function FastMM_GetUsageSummary: TFastMM_UsageSummary;
+that exposes freed blocks in separate fields.  Note that this call requires walking of the entire memory pool and is
+thus very expensive.  ALockTimeoutMilliseconds is the maximum wait time for another thread to release a lock on a block
+before the block is skipped (0 = no waiting).}
+function FastMM_GetUsageSummary(ALockTimeoutMilliseconds: Cardinal = 50): TFastMM_UsageSummary;
 
 {Writes a log file containing a summary of the memory manager state and a list of allocated blocks grouped by class.
 The file will be saved in the encoding specified by FastMM_TextFileEncoding.  ALockTimeoutMilliseconds is the maximum
-amount of time to wait for a lock on a manager to be released, before it is skipped.  Returns True on success.}
+amount of time to wait for a lock on a manager to be released, before it is skipped (0 = no waiting).  Returns True on
+success.}
 function FastMM_LogStateToFile(const AFilename: string; const AAdditionalDetails: string = '';
-  ALockTimeoutMilliseconds: Cardinal = 1000): Boolean;
+  ALockTimeoutMilliseconds: Cardinal = 50): Boolean;
 
 {------------------------Memory Manager Sharing------------------------}
 
@@ -628,6 +649,17 @@ function FastMM_ExitDebugMode: Boolean;
 FastMM_ExitDebugMode.}
 function FastMM_DebugModeActive: Boolean;
 
+{Enables/disables the erasure of the content of freed blocks.  Calls may be nested, in which case erasure is only
+disabled when the number of FastMM_EndEraseFreedBlockContent calls equal the number of
+FastMM_BeginEraseFreedBlockContent calls.  When enabled the content of all freed blocks is filled with the debug pattern
+$80808080 before being returned to the memory pool.  This is useful for security purposes, and may also help catch "use
+after free" programming errors (like debug mode, but at reduced CPU cost).}
+function FastMM_BeginEraseFreedBlockContent: Boolean;
+function FastMM_EndEraseFreedBlockContent: Boolean;
+{Returns True if free blocks are currently erased on free, i.e. FastMM_BeginEraseFreedBlockContent has been called more
+times than FastMM_EndEraseFreedBlockContent.}
+function FastMM_EraseFreedBlockContentActive: Boolean;
+
 {Gets/sets the depth of allocation and free stack traces in debug mode.  The minimum stack trace depth is 0, and the
 maximum is CFastMM_MaximumStackTraceEntryCount.}
 function FastMM_GetDebugModeStackTraceEntryCount: Byte;
@@ -671,6 +703,10 @@ var
   reason there are live pointers that will still be in use after this unit is finalized.  Under normal operation this
   should not be necessary.}
   FastMM_NeverUninstall: Boolean = False;
+  {Allocates all memory from the top of the address space downward.  This is useful to catch bad pointer typecasts in
+  64-bit code, where pointers would otherwise often fit in a 32-bit variable.  Note that this comes with a performance
+  impact in the other of O(n^2), where n is the number of chunks obtained from the OS.}
+  FastMM_AllocateTopDown: Boolean = False;
   {When this variable is True and debug mode is enabled, all debug blocks will be checked for corruption on entry to any
   memory manager operation (i.e. GetMem, FreeMem, AllocMem and ReallocMem).  Note that this comes with an extreme
   performance penalty.}
@@ -833,6 +869,23 @@ var
     + '{20}% Efficiency'#13#10#13#10
     + 'Usage Detail:'#13#10;
   FastMM_LogStateToFileTemplate_UsageDetail: PWideChar = '{21} bytes: {8} x {22} ({23} bytes avg.)'#13#10;
+
+{$ifndef FastMM_DebugLibraryStaticDependency}
+  {The stack trace routines from the FastMM_FullDebugMode support DLL.  These will only be set if the support DLL is
+  loaded.}
+  DebugLibrary_GetRawStackTrace: TFastMM_GetStackTrace;
+  DebugLibrary_GetFrameBasedStackTrace: TFastMM_GetStackTrace;
+  {The legacy stack trace to text conversion routine from the FastMM_FullDebugMode support DLL.  This will only be set
+  if the support DLL is loaded.  This is used by the FastMM_DebugLibrary_LegacyLogStackTrace_Wrapper function.}
+  DebugLibrary_LogStackTrace_Legacy: TFastMM_LegacyConvertStackTraceToText;
+{$else}
+procedure DebugLibrary_GetRawStackTrace(APReturnAddresses: PNativeUInt; AMaxDepth, ASkipFrames: Cardinal);
+  external CFastMM_DefaultDebugSupportLibraryName name 'GetRawStackTrace';
+procedure DebugLibrary_GetFrameBasedStackTrace(APReturnAddresses: PNativeUInt; AMaxDepth, ASkipFrames: Cardinal);
+  external CFastMM_DefaultDebugSupportLibraryName name 'GetFrameBasedStackTrace';
+function DebugLibrary_LogStackTrace_Legacy(APReturnAddresses: PNativeUInt; AMaxDepth: Cardinal;
+  APBuffer: PAnsiChar): PAnsiChar; external CFastMM_DefaultDebugSupportLibraryName name 'LogStackTrace';
+{$endif}
 
 implementation
 
@@ -1403,7 +1456,7 @@ type
   public
     {Virtual method calls that will redirect to VirtualMethodOnFreedObject}
     function Equals(Obj: TObject): Boolean; override;
-    function GetHashCode: Integer; override;
+    function GetHashCode: {$if CompilerVersion < 36}Integer{$else}NativeInt{$endif}; override;
     function ToString: string; override;
     function SafeCallException(ExceptObject: TObject; ExceptAddr: Pointer): HResult; override;
     procedure AfterConstruction; override;
@@ -1439,11 +1492,6 @@ type
     procedure VirtualMethod69; virtual; procedure VirtualMethod70; virtual; procedure VirtualMethod71; virtual;
     procedure VirtualMethod72; virtual; procedure VirtualMethod73; virtual; procedure VirtualMethod74; virtual;
   end;
-
-  {-------Legacy debug support DLL interface--------}
-  {The interface for the legacy (version 4) stack trace conversion routine in the FastMM_FullDebugMode library.}
-  TFastMM_LegacyConvertStackTraceToText = function(APReturnAddresses: PNativeUInt; AMaxDepth: Cardinal;
-    APBuffer: PAnsiChar): PAnsiChar;
 
 const
   {Structure size constants}
@@ -1601,8 +1649,11 @@ var
   {The current installation state of FastMM.}
   CurrentInstallationState: TFastMM_MemoryManagerInstallationState;
 
-  {The difference between the number of times EnterDebugMode has been called vs ExitDebugMode.}
+  {The difference between the number of times FastMM_EnterDebugMode has been called vs FastMM_ExitDebugMode.}
   DebugModeCounter: Integer;
+
+  {The difference between the number of times FastMM_BeginEraseFreedBlockContent has been called vs FastMM_EndEraseFreedBlockContent.}
+  EraseFreedBlockContentCounter: Integer;
 
   {The number of entries in stack traces in debug mode.}
   DebugMode_StackTrace_EntryCount: Byte;
@@ -1637,23 +1688,6 @@ var
     '_', 'P', 'I', 'D', '_', '?', '?', '?', '?', '?', '?', '?', '?', #0);
   {The handle of the memory mapped file.}
   SharingFileMappingObjectHandle: NativeUInt;
-{$endif}
-
-{$ifndef FastMM_DebugLibraryStaticDependency}
-  {The stack trace routines from the FastMM_FullDebugMode support DLL.  These will only be set if the support DLL is
-  loaded.}
-  DebugLibrary_GetRawStackTrace: TFastMM_GetStackTrace;
-  DebugLibrary_GetFrameBasedStackTrace: TFastMM_GetStackTrace;
-  {The legacy stack trace to text conversion routine from the FastMM_FullDebugMode support DLL.  This will only be set
-  if the support DLL is loaded.  This is used by the FastMM_DebugLibrary_LegacyLogStackTrace_Wrapper function.}
-  DebugLibrary_LogStackTrace_Legacy: TFastMM_LegacyConvertStackTraceToText;
-{$else}
-procedure DebugLibrary_GetRawStackTrace(APReturnAddresses: PNativeUInt; AMaxDepth, ASkipFrames: Cardinal);
-  external CFastMM_DefaultDebugSupportLibraryName name 'GetRawStackTrace';
-procedure DebugLibrary_GetFrameBasedStackTrace(APReturnAddresses: PNativeUInt; AMaxDepth, ASkipFrames: Cardinal);
-  external CFastMM_DefaultDebugSupportLibraryName name 'GetFrameBasedStackTrace';
-function DebugLibrary_LogStackTrace_Legacy(APReturnAddresses: PNativeUInt; AMaxDepth: Cardinal;
-  APBuffer: PAnsiChar): PAnsiChar; external CFastMM_DefaultDebugSupportLibraryName name 'LogStackTrace';
 {$endif}
 
 {--------------------------------------------------------}
@@ -2318,16 +2352,21 @@ end;
 
 {Allocates a block of memory from the operating system.  The block will be aligned to at least a 64 byte boundary, and
 will be zero initialized.  Returns nil on error.}
-function OS_AllocateVirtualMemory(ABlockSize: NativeInt; AAllocateTopDown: Boolean;
-  AReserveOnlyNoReadWriteAccess: Boolean): Pointer;
+function OS_AllocateVirtualMemory(ABlockSize: NativeInt; AReserveOnlyNoReadWriteAccess: Boolean): Pointer;
+var
+  LAllocationFlags: Cardinal;
 begin
   if AReserveOnlyNoReadWriteAccess then
   begin
-    Result := Winapi.Windows.VirtualAlloc(nil, ABlockSize, MEM_RESERVE, PAGE_NOACCESS);
+    Result := Winapi.Windows.VirtualAlloc(nil, NativeUInt(ABlockSize), MEM_RESERVE, PAGE_NOACCESS);
   end
   else
   begin
-    Result := Winapi.Windows.VirtualAlloc(nil, ABlockSize, MEM_COMMIT, PAGE_READWRITE);
+    if FastMM_AllocateTopDown then
+      LAllocationFlags := MEM_COMMIT or MEM_TOP_DOWN
+    else
+      LAllocationFlags := MEM_COMMIT;
+    Result := Winapi.Windows.VirtualAlloc(nil, NativeUInt(ABlockSize), LAllocationFlags, PAGE_READWRITE);
     {The emergency address space reserve is released when address space runs out for the first time.  This allows some
     subsequent memory allocation requests to succeed in order to allow the application to allocate some memory for error
     handling, etc. in response to the EOutOfMemory exception.  This only applies to 32-bit applications.}
@@ -2357,12 +2396,12 @@ function OS_AllocateVirtualMemoryAtAddress(APAddress: Pointer; ABlockSize: Nativ
 begin
   if AReserveOnlyNoReadWriteAccess then
   begin
-    Result := Winapi.Windows.VirtualAlloc(APAddress, ABlockSize, MEM_RESERVE, PAGE_NOACCESS) <> nil;
+    Result := Winapi.Windows.VirtualAlloc(APAddress, NativeUInt(ABlockSize), MEM_RESERVE, PAGE_NOACCESS) <> nil;
   end
   else
   begin
-    Result := (Winapi.Windows.VirtualAlloc(APAddress, ABlockSize, MEM_RESERVE, PAGE_READWRITE) <> nil)
-      and (Winapi.Windows.VirtualAlloc(APAddress, ABlockSize, MEM_COMMIT, PAGE_READWRITE) <> nil);
+    Result := (Winapi.Windows.VirtualAlloc(APAddress, NativeUInt(ABlockSize), MEM_RESERVE, PAGE_READWRITE) <> nil)
+      and (Winapi.Windows.VirtualAlloc(APAddress, NativeUInt(ABlockSize), MEM_COMMIT, PAGE_READWRITE) <> nil);
   end;
 
   if Result then
@@ -2458,7 +2497,7 @@ begin
   if AReturnLibraryFilename and IsLibrary then
     LModuleHandle := HInstance;
 
-  LNumChars := Winapi.Windows.GetModuleFileNameW(LModuleHandle, Result, CharCount(APBufferEnd, APFilenameBuffer));
+  LNumChars := Winapi.Windows.GetModuleFileNameW(LModuleHandle, Result, Cardinal(CharCount(APBufferEnd, APFilenameBuffer)));
   Inc(Result, LNumChars);
 end;
 
@@ -2471,7 +2510,7 @@ begin
   if Result >= APBufferEnd then
     Exit;
 
-  LBufferSize := (NativeInt(APBufferEnd) - NativeInt(Result)) div SizeOf(WideChar);
+  LBufferSize := (NativeUInt(APBufferEnd) - NativeUInt(Result)) div SizeOf(WideChar);
   LNumChars := Winapi.Windows.GetEnvironmentVariableW(APEnvironmentVariableName, Result, LBufferSize);
   if LNumChars < LBufferSize then
     Inc(Result, LNumChars);
@@ -2666,7 +2705,7 @@ begin
   encoded text.}
   LBufferSize := (AWideCharCount + 4) * 3;
 
-  LPBufferStart := OS_AllocateVirtualMemory(LBufferSize, False, False);
+  LPBufferStart := OS_AllocateVirtualMemory(LBufferSize, False);
   if LPBufferStart = nil then
     Exit(False);
 
@@ -2854,7 +2893,7 @@ begin
     Exit(NativeUInt(LLeakedClass));
 
   LStringType := FastMM_DetectStringData(APMemoryBlock, AAvailableSpaceInBlock);
-  Result := Ord(LStringType);
+  Result := NativeUInt(Ord(LStringType));
 end;
 
 {Counts the number of characters up to the trailing #0}
@@ -2914,7 +2953,7 @@ end;
 function NativeUIntToHexadecimalBuffer(AValue: NativeUInt; APTarget, APTargetBufferEnd: PWideChar): PWideChar;
 var
   LTempBuffer: array[0..15] of WideChar;
-  LDigit: NativeInt;
+  LDigit: NativeUInt;
   LDigitCount: Integer;
   LPPos: PWideChar;
 begin
@@ -2942,7 +2981,7 @@ end;
 function NativeUIntToTextBuffer(AValue: NativeUInt; APTarget, APTargetBufferEnd: PWideChar): PWideChar;
 var
   LTempBuffer: array[0..20] of WideChar;
-  LDigit: NativeInt;
+  LDigit: NativeUInt;
   LDigitCount: Integer;
   LPPos: PWideChar;
 begin
@@ -2976,7 +3015,7 @@ begin
   if AValue < 0 then
     Result := AppendTextToBuffer(@CMinusSign, 1, Result, APTargetBufferEnd);
 
-  Result := NativeUIntToTextBuffer(Abs(AValue), Result, APTargetBufferEnd);
+  Result := NativeUIntToTextBuffer(NativeUInt(Abs(AValue)), Result, APTargetBufferEnd);
 end;
 
 function BlockContentTypeToTextBuffer(ABlockContentType: NativeUInt; APTarget, APTargetBufferEnd: PWideChar): PWideChar;
@@ -3683,7 +3722,7 @@ begin
   VirtualMethodOnFreedObject('FreeInstance');
 end;
 
-function TFastMM_FreedObject.GetHashCode: Integer;
+function TFastMM_FreedObject.GetHashCode: {$if CompilerVersion < 36}Integer{$else}NativeInt{$endif};
 begin
   VirtualMethodOnFreedObject('GetHashCode');
   Result := 0; //Suppress compiler warning
@@ -4118,7 +4157,7 @@ procedure EnsureEmergencyReserveAddressSpaceAllocated;
 begin
 {$ifdef 32Bit}
   if EmergencyReserveAddressSpace = nil then
-    EmergencyReserveAddressSpace := OS_AllocateVirtualMemory(CEmergencyReserveAddressSpace, False, True);
+    EmergencyReserveAddressSpace := OS_AllocateVirtualMemory(CEmergencyReserveAddressSpace, True);
 {$endif}
 end;
 
@@ -4332,7 +4371,7 @@ begin
     begin
       OS_GetVirtualMemoryRegionInfo(LPCurrentSegment, LMemoryRegionInfo);
 
-      Result := OS_FreeVirtualMemory(LPCurrentSegment, LMemoryRegionInfo.RegionSize);
+      Result := OS_FreeVirtualMemory(LPCurrentSegment, NativeInt(LMemoryRegionInfo.RegionSize));
       if Result <> 0 then
         Break;
 
@@ -4449,9 +4488,8 @@ begin
   LLargeBlockActualSize := (ASize + CLargeBlockHeaderSize + CLargeBlockGranularity - 1) and -CLargeBlockGranularity;
   if LLargeBlockActualSize <= CMaximumMediumBlockSize then
     Exit(nil);
-  {Get the large block.  For segmented large blocks to work in practice without excessive move operations we need to
-  allocate top down.}
-  Result := OS_AllocateVirtualMemory(LLargeBlockActualSize, True, False);
+  {Get the large block.}
+  Result := OS_AllocateVirtualMemory(LLargeBlockActualSize, False);
 
   {Set the Large block fields}
   if Result <> nil then
@@ -4576,7 +4614,7 @@ begin
         {There is enough space after the block to extend it - determine by how much}
         LNewSegmentSize := (LNewAllocSize - LOldAvailableSize + CLargeBlockGranularity - 1) and -CLargeBlockGranularity;
         if NativeUInt(LNewSegmentSize) > LMemoryRegionInfo.RegionSize then
-          LNewSegmentSize := LMemoryRegionInfo.RegionSize;
+          LNewSegmentSize := NativeInt(LMemoryRegionInfo.RegionSize);
         {Attempt to reserve the address range (which will fail if another thread has just reserved it) and commit it
         immediately afterwards.}
         if OS_AllocateVirtualMemoryAtAddress(LPNextSegment, LNewSegmentSize, False) then
@@ -4752,7 +4790,7 @@ begin
   {Get the bin for blocks of this size.  If the block is not aligned to a bin size, then put it in the closest bin
   smaller than the block size.}
   if AMediumBlockSize < CMaximumMediumBlockSize then
-    LBinNumber := GetBinNumberForMediumBlockSize(AMediumBlockSize)
+    LBinNumber := Cardinal(GetBinNumberForMediumBlockSize(AMediumBlockSize))
   else
     LBinNumber := CMediumBlockBinCount - 1;
   LPBin := @APMediumBlockManager.FirstFreeBlockInBin[LBinNumber];
@@ -4812,7 +4850,7 @@ begin
   begin
     {Calculate the bin number from the bin pointer:  LPNextFreeBlock will be a pointer to the bin, since the bin is now
     empty.)}
-    LBinNumber := (NativeInt(LPNextFreeBlock) - NativeInt(@APMediumBlockManager.FirstFreeBlockInBin)) shr CPointerSizeBitShift;
+    LBinNumber := (NativeUInt(LPNextFreeBlock) - NativeUInt(@APMediumBlockManager.FirstFreeBlockInBin)) shr CPointerSizeBitShift;
     LBinGroupNumber := LBinNumber shr 5; //32 bins per group
     {Flag this bin as empty}
     APMediumBlockManager.MediumBlockBinBitmaps[LBinGroupNumber] := APMediumBlockManager.MediumBlockBinBitmaps[LBinGroupNumber]
@@ -5046,7 +5084,7 @@ begin
   BinMediumSequentialFeedRemainder(APMediumBlockManager);
   {Allocate a new sequential feed block pool.  The block is assumed to be zero initialized.}
   LNewSpanSize := DefaultMediumBlockSpanSize;
-  LPNewSpan := OS_AllocateVirtualMemory(LNewSpanSize, False, False);
+  LPNewSpan := OS_AllocateVirtualMemory(LNewSpanSize, False);
   if LPNewSpan <> nil then
   begin
     LPNewSpan.SpanSize := LNewSpanSize;
@@ -7626,6 +7664,14 @@ begin
 {$endif}
 end;
 
+function FastMM_FreeMem_EraseBeforeFree(APointer: Pointer): Integer;
+begin
+  {Fill the user area of the block with the debug fill pattern before passing the block to the regular FreeMem handler.}
+  FillChar(APointer^, FastMM_BlockMaximumUserBytes(APointer), CDebugFillPattern1B);
+
+  Result := FastMM_FreeMem(APointer);
+end;
+
 function FastMM_ReallocMem(APointer: Pointer; ANewSize: NativeInt): Pointer;
 {$ifndef PurePascal}
 asm
@@ -7847,7 +7893,7 @@ end;
 
 procedure FastMM_NoOpGetStackTrace(APReturnAddresses: PNativeUInt; AMaxDepth, ASkipFrames: Cardinal);
 var
-  i: Integer;
+  i: Cardinal;
 begin
   for i := 1 to AMaxDepth do
   begin
@@ -8419,18 +8465,39 @@ begin
   if ABlockInfo.DebugInformation = nil then
     Exit;
 
-  {Check the block header and footer for corruption}
-  if not CheckDebugBlockHeaderAndFooterCheckSumsValid(ABlockInfo.DebugInformation) then
-    System.Error(reInvalidPtr);
+  {Check the block header and footer for corruption.}
+  if (ABlockInfo.DebugInformation.CalculateHeaderCheckSum <> ABlockInfo.DebugInformation.HeaderCheckSum)
+    or (ABlockInfo.DebugInformation.CalculateFooterCheckSum <> ABlockInfo.DebugInformation.DebugFooterPtr^) then
+  begin
+    {The header and/or footer checksums are not currently correct, but that may just be due to a race condition:  When a
+    debug block is freed the debug header and footer are updated while the block manager is not yet locked, so we need
+    to check again whether the block is still flagged as having debug information, and if so, check its contents a
+    second time.}
+    if BlockHasDebugInfo(ABlockInfo.DebugInformation) then
+    begin
+      {The block is still flagged as containing debug information, so one of two scenarios are possible:
+      1) The block header or footer has been corrupted
+      2) The block is being freed, and FastMM_FreeMem_FreeDebugBlock has completed updating the headers and footers}
+      if not CheckDebugBlockHeaderAndFooterCheckSumsValid(ABlockInfo.DebugInformation) then
+        System.Error(reInvalidPtr);
+    end
+    else
+    begin
+      {The "debug info" flag in the block header is not currently set.  This means that the debug header and footer are
+      currently being updated inside FastMM_FreeMem_FreeDebugBlock before the block is actually freed.}
+      Exit;
+    end;
+  end;
 
   {If it is a free block, check whether it has been modified after being freed.}
   if ABlockInfo.BlockIsFree and (not CheckDebugBlockFillPatternIntact(ABlockInfo.DebugInformation)) then
     System.Error(reInvalidPtr);
 end;
 
-function FastMM_ScanDebugBlocksForCorruption: Boolean;
+function FastMM_ScanDebugBlocksForCorruption(ALockTimeoutMilliseconds: Cardinal): Boolean;
 begin
-  FastMM_WalkBlocks(FastMM_ScanDebugBlocksForCorruption_CallBack, [btLargeBlock, btMediumBlock, btSmallBlock], False);
+  FastMM_WalkBlocks(FastMM_ScanDebugBlocksForCorruption_CallBack, [btLargeBlock, btMediumBlock, btSmallBlock], False,
+    nil, ALockTimeoutMilliseconds);
 
   Result := True;
 end;
@@ -8488,23 +8555,24 @@ begin
 end;
 
 {Returns a THeapStatus structure with information about the current memory usage.}
-function FastMM_GetHeapStatus: THeapStatus;
+function FastMM_GetHeapStatus(ALockTimeoutMilliseconds: Cardinal): THeapStatus;
 begin
   Result := Default(THeapStatus);
 
   FastMM_WalkBlocks(FastMM_GetHeapStatus_CallBack,
-    [btLargeBlock, btMediumBlockSpan, btMediumBlock, btSmallBlockSpan, btSmallBlock], False, @Result);
+    [btLargeBlock, btMediumBlockSpan, btMediumBlock, btSmallBlockSpan, btSmallBlock], False, @Result,
+    ALockTimeoutMilliseconds);
 
   Result.TotalFree := Result.FreeSmall + Result.FreeBig + Result.Unused;
   Result.TotalAddrSpace := Result.TotalCommitted;
   Result.Overhead := Result.TotalAddrSpace - Result.TotalAllocated - Result.TotalFree;
 end;
 
-function FastMM_GetUsageSummary: TFastMM_UsageSummary;
+function FastMM_GetUsageSummary(ALockTimeoutMilliseconds: Cardinal): TFastMM_UsageSummary;
 var
   LHeapStatus: THeapStatus;
 begin
-  LHeapStatus := FastMM_GetHeapStatus;
+  LHeapStatus := FastMM_GetHeapStatus(ALockTimeoutMilliseconds);
 
   Result.AllocatedBytes := LHeapStatus.TotalAllocated;
   Result.OverheadBytes := LHeapStatus.TotalAddrSpace - LHeapStatus.TotalAllocated;
@@ -8750,7 +8818,7 @@ begin
   end;
 end;
 
-{Writes a log file containing a summary of the memory mananger state and a summary of allocated blocks grouped by class.
+{Writes a log file containing a summary of the memory manager state and a summary of allocated blocks grouped by class.
 The file will be saved in the encoding specified by FastMM_TextFileEncoding.}
 function FastMM_LogStateToFile(const AFilename: string; const AAdditionalDetails: string;
   ALockTimeoutMilliseconds: Cardinal): Boolean;
@@ -8772,7 +8840,7 @@ begin
 
   {Allocate the memory required to store the token buffer, log text, as well as the detailed allocation information.}
   LBufferSize := SizeOf(TMemoryLogInfo) + (CTokenBufferMaxWideChars + CStateLogMaxChars) * SizeOf(Char);
-  LPLogInfo := OS_AllocateVirtualMemory(LBufferSize, False, False);
+  LPLogInfo := OS_AllocateVirtualMemory(LBufferSize, False);
   if LPLogInfo <> nil then
   begin
     try
@@ -9099,14 +9167,14 @@ begin
 
   {Allocate the list if it does not exist}
   if ExpectedMemoryLeaks = nil then
-    ExpectedMemoryLeaks := OS_AllocateVirtualMemory(CExpectedMemoryLeaksListSize, False, False);
+    ExpectedMemoryLeaks := OS_AllocateVirtualMemory(CExpectedMemoryLeaksListSize, False);
 
   Result := ExpectedMemoryLeaks <> nil;
 end;
 
 {Registers expected memory leaks.  Returns True on success.  The list of leaked blocks is limited, so failure is
 possible if the list is full.}
-function FastMM_RegisterExpectedMemoryLeak(ALeakedPointer: Pointer): Boolean; overload;
+function FastMM_RegisterExpectedMemoryLeak(ALeakedPointer: Pointer): Boolean;
 var
   LNewEntry: TExpectedMemoryLeak;
 begin
@@ -9121,7 +9189,7 @@ begin
   ExpectedMemoryLeaksListLocked := 0;
 end;
 
-function FastMM_RegisterExpectedMemoryLeak(ALeakedObjectClass: TClass; ACount: Integer = 1): Boolean; overload;
+function FastMM_RegisterExpectedMemoryLeak(ALeakedObjectClass: TClass; ACount: Integer = 1): Boolean;
 var
   LNewEntry: TExpectedMemoryLeak;
 begin
@@ -9136,7 +9204,7 @@ begin
   ExpectedMemoryLeaksListLocked := 0;
 end;
 
-function FastMM_RegisterExpectedMemoryLeak(ALeakedBlockSize: NativeInt; ACount: Integer = 1): Boolean; overload;
+function FastMM_RegisterExpectedMemoryLeak(ALeakedBlockSize: NativeInt; ACount: Integer = 1): Boolean;
 var
   LNewEntry: TExpectedMemoryLeak;
 begin
@@ -9151,7 +9219,7 @@ begin
   ExpectedMemoryLeaksListLocked := 0;
 end;
 
-function FastMM_UnregisterExpectedMemoryLeak(ALeakedPointer: Pointer): Boolean; overload;
+function FastMM_UnregisterExpectedMemoryLeak(ALeakedPointer: Pointer): Boolean;
 var
   LNewEntry: TExpectedMemoryLeak;
 begin
@@ -9166,12 +9234,12 @@ begin
   ExpectedMemoryLeaksListLocked := 0;
 end;
 
-function FastMM_UnregisterExpectedMemoryLeak(ALeakedObjectClass: TClass; ACount: Integer = 1): Boolean; overload;
+function FastMM_UnregisterExpectedMemoryLeak(ALeakedObjectClass: TClass; ACount: Integer = 1): Boolean;
 begin
   Result := FastMM_RegisterExpectedMemoryLeak(ALeakedObjectClass, -ACount);
 end;
 
-function FastMM_UnregisterExpectedMemoryLeak(ALeakedBlockSize: NativeInt; ACount: Integer = 1): Boolean; overload;
+function FastMM_UnregisterExpectedMemoryLeak(ALeakedBlockSize: NativeInt; ACount: Integer = 1): Boolean;
 begin
   Result := FastMM_RegisterExpectedMemoryLeak(ALeakedBlockSize, -ACount);
 end;
@@ -9217,7 +9285,7 @@ end;
 
 {Tries to account for a memory leak.  If the block is an expected leak then it is removed from the list of leaks and
 the leak type is returned.}
-function FastMM_PerformMemoryLeakCheck_DetectLeakType(AAddress: Pointer; ASpaceInsideBlock: NativeUInt): TMemoryLeakType;
+function FastMM_PerformMemoryLeakCheck_DetectLeakType(AAddress: Pointer; ASpaceInsideBlock: NativeInt): TMemoryLeakType;
 var
   LLeak: TExpectedMemoryLeak;
 begin
@@ -9430,13 +9498,15 @@ begin
 end;
 
 procedure FastMM_PerformMemoryLeakCheck;
+const
+  CFastMM_PerformMemoryLeakCheck_LockTimeout = 1000;
 var
   LLeakSummary: TMemoryLeakSummary;
 begin
   LLeakSummary := Default(TMemoryLeakSummary);
 
   FastMM_WalkBlocks(FastMM_PerformMemoryLeakCheck_CallBack, [btLargeBlock, btMediumBlock, btSmallBlock], True,
-    @LLeakSummary);
+    @LLeakSummary, CFastMM_PerformMemoryLeakCheck_LockTimeout);
 
   {Build the leak summary by walking all the block categories.}
   if (LLeakSummary.LeakCount > 0)
@@ -9946,7 +10016,10 @@ begin
   if DebugModeCounter <= 0 then
   begin
     LNewMemoryManager.GetMem := FastMM_GetMem;
-    LNewMemoryManager.FreeMem := FastMM_FreeMem;
+    if EraseFreedBlockContentCounter <= 0 then
+      LNewMemoryManager.FreeMem := FastMM_FreeMem
+    else
+      LNewMemoryManager.FreeMem := FastMM_FreeMem_EraseBeforeFree;
     LNewMemoryManager.ReallocMem := FastMM_ReallocMem;
     LNewMemoryManager.AllocMem := FastMM_AllocMem;
     LNewMemoryManager.RegisterExpectedMemoryLeak := FastMM_RegisterExpectedMemoryLeak;
@@ -10111,7 +10184,7 @@ begin
       if not DebugSupportConfigured then
         FastMM_ConfigureDebugMode;
 
-      Result := FastMM_SetNormalOrDebugMemoryManager
+      Result := FastMM_SetNormalOrDebugMemoryManager;
     end
     else
       Result := True;
@@ -10149,6 +10222,37 @@ begin
     AStackTraceEntryCount := CFastMM_StackTrace_MaximumEntryCount;
 
   DebugMode_StackTrace_EntryCount := AStackTraceEntryCount;
+end;
+
+function FastMM_BeginEraseFreedBlockContent: Boolean;
+begin
+  if CurrentInstallationState = mmisInstalled then
+  begin
+    if AtomicIncrement(EraseFreedBlockContentCounter) = 1 then
+      Result := FastMM_SetNormalOrDebugMemoryManager
+    else
+      Result := True;
+  end
+  else
+    Result := False;
+end;
+
+function FastMM_EndEraseFreedBlockContent: Boolean;
+begin
+  if CurrentInstallationState = mmisInstalled then
+  begin
+    if AtomicDecrement(EraseFreedBlockContentCounter) = 0 then
+      Result := FastMM_SetNormalOrDebugMemoryManager
+    else
+      Result := True;
+  end
+  else
+    Result := False;
+end;
+
+function FastMM_EraseFreedBlockContentActive: Boolean;
+begin
+  Result := EraseFreedBlockContentCounter > 0;
 end;
 
 procedure FastMM_ApplyConditionalDefines;
