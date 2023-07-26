@@ -85,6 +85,11 @@ type
       const ACategoryId: TID = 0
     ): IInterfaceListStatic;
 
+    function _GetMarkInternalId(
+      const AMark: IInterface;
+      out AId: TID
+    ): Boolean;
+
     procedure _GetMarkSubset(
       const ACategoryID: TID;
       const AIncludeHiddenMarks: Boolean;
@@ -513,6 +518,27 @@ begin
   end;
 end;
 
+function TMarkDbImplORM._GetMarkInternalId(const AMark: IInterface; out AId: TID): Boolean;
+var
+  VMark: IVectorDataItem;
+  VMarkInternal: IMarkInternalORM;
+begin
+  AId := cEmptyID;
+  if Supports(AMark, IMarkInternalORM, VMarkInternal) then begin
+    if VMarkInternal.DbId = FDbId then begin
+      AId := VMarkInternal.Id;
+    end;
+  end else
+  if Supports(AMark, IVectorDataItem, VMark) then begin
+    if Supports(VMark.MainInfo, IMarkInternalORM, VMarkInternal) then begin
+      if VMarkInternal.DbId = FDbId then begin
+        AId := VMarkInternal.Id;
+      end;
+    end;
+  end;
+  Result := AId <> cEmptyID;
+end;
+
 function TMarkDbImplORM._UpdateMark(
   const AOldMark: IInterface;
   const ANewMark: IInterface;
@@ -521,7 +547,6 @@ function TMarkDbImplORM._UpdateMark(
 ): IVectorDataItem;
 var
   VIdOld: TID;
-  VMarkInternal: IMarkInternalORM;
   VOldMark: IVectorDataItem;
   VNewMark: IVectorDataItem;
   VSQLMarkRecNew: TSQLMarkRec;
@@ -530,29 +555,13 @@ begin
   Result := nil;
   AIsChanged := False;
 
-  VIdOld := 0;
-
-  if Supports(AOldMark, IMarkInternalORM, VMarkInternal) then begin
-    if VMarkInternal.DbId = FDbId then begin
-      VIdOld := VMarkInternal.Id;
-    end else begin
+  if Assigned(AOldMark) then begin
+    if not _GetMarkInternalId(AOldMark, VIdOld) then begin
       Assert(False);
       Exit;
     end;
-  end else if Supports(AOldMark, IVectorDataItem, VOldMark) then begin
-    if Supports(VOldMark.MainInfo, IMarkInternalORM, VMarkInternal) then begin
-      if VMarkInternal.DbId = FDbId then begin
-        VIdOld := VMarkInternal.Id;
-      end else begin
-        Assert(False);
-        Exit;
-      end;
-    end;
   end else begin
-    Assert(not Assigned(AOldMark));
-    if Assigned(AOldMark) then begin
-      Exit;
-    end;
+    VIdOld := 0;
   end;
 
   if Supports(ANewMark, IVectorDataItem, VNewMark) then begin
@@ -639,6 +648,7 @@ var
   VIsChanged: Boolean;
   VDoNotify: Boolean;
   VTransaction: TTransactionRec;
+  VIds: TIDDynArray;
 begin
   Result := nil;
   VDoNotify := False;
@@ -709,22 +719,14 @@ begin
   end else begin
     LockWrite;
     try
-      StartTransaction(FClient, VTransaction, TSQLMark);
-      try
-        for I := 0 to AOldMarkList.Count - 1 do begin
-          if VDoNotify and (I mod 1000 = 0) then begin
-            CommitTransaction(FClient, VTransaction);
-            StartTransaction(FClient, VTransaction, TSQLMark);
-          end;
-          _UpdateMark(AOldMarkList[I], nil, VIsChanged, False);
-          VDoNotify := VDoNotify or VIsChanged;
+      SetLength(VIds, AOldMarkList.Count);
+      for I := 0 to AOldMarkList.Count - 1 do begin
+        if not _GetMarkInternalId(AOldMarkList[I], VIds[I]) then begin
+          Assert(False, 'Can''t get internal MarkID');
+          Exit;
         end;
-        CommitTransaction(FClient, VTransaction);
-      except
-        RollBackTransaction(FClient, VTransaction);
-        raise;
       end;
-      if VDoNotify then begin
+      if FHelper.DeleteMarkSQL(VIds) then begin
         SetChanged;
       end;
     finally

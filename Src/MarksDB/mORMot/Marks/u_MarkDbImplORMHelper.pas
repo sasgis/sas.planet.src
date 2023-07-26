@@ -130,7 +130,10 @@ type
     function DeleteMarkSQL(
       const AMarkID: TID;
       const AUseTransactions: Boolean
-    ): Boolean;
+    ): Boolean; overload;
+    function DeleteMarkSQL(
+      const AMarkIDs: TIDDynArray
+    ): Boolean; overload;
     function InsertMarkSQL(
       var AMarkRec: TSQLMarkRec;
       const AUseTransactions: Boolean
@@ -493,6 +496,65 @@ begin
   end;
 
   Result := True;
+end;
+
+function TMarkDbImplORMHelper.DeleteMarkSQL(
+  const AMarkIDs: TIDDynArray
+): Boolean;
+const
+  // SQLITE_MAX_VARIABLE_NUMBER: https://www.sqlite.org/limits.html
+  // 999 for SQLite versions prior to 3.32.0 (2020-05-22) or 32766 for SQLite versions after 3.32.0
+  CMaxVarNumber = 900;
+var
+  I: Integer;
+  VCount, VLen: Integer;
+  VIds: RawUTF8;
+  VTransaction: TTransactionRec;
+begin
+  Result := False;
+
+  if FIsReadOnly then begin
+    Exit;
+  end;
+
+  // delete from cache
+  FCache.FMarkCache.Reset;
+  FCache.FMarkGeometryCache.Reset;
+  FCache.FMarkViewCache.Reset;
+  FCache.FMarkIdIndex.Reset;
+  FCache.FMarkIdByCategoryIndex.Reset;
+
+  // delete from db
+  StartTransaction(FClient, VTransaction, FSQLMarkClass);
+  try
+    I := 0;
+    VLen := Length(AMarkIDs);
+    while I < VLen do begin
+      VCount := Min(CMaxVarNumber, Length(AMarkIDs) - I);
+      VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '(', ');', True);
+      Inc(I, VCount);
+
+      if FClientType = ctSQLite3 then begin
+        Result := FClient.Execute('DELETE FROM MarkRTree WHERE RowID IN ' + VIds);
+      end else begin
+        Result := True; // nothing to do (data embeded into "FSQLMarkClass" table)
+      end;
+
+      Result :=
+        Result and
+        FClient.Execute('DELETE FROM MarkFTS WHERE RowID IN ' + VIds) and
+        FClient.Execute('DELETE FROM MarkMeta WHERE mMark IN ' + VIds) and
+        FClient.Execute('DELETE FROM MarkView WHERE mvMark IN ' + VIds) and
+        FClient.Execute('DELETE FROM ' + FSQLMarkName + ' WHERE RowID IN ' + VIds);
+
+      CheckDeleteResult(Result);
+    end;
+
+    CommitTransaction(FClient, VTransaction);
+  except
+    RollBackTransaction(FClient, VTransaction);
+    raise;
+  end;
 end;
 
 function TMarkDbImplORMHelper.InsertMarkSQL(
@@ -1611,7 +1673,7 @@ begin
       VCategoryWhere := FormatUTF8('AND %.mCategory=? ',[FSQLMarkName],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray));
+    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), '', '', False);
     VCategoryWhere := FormatUTF8('AND %.mCategory IN (%) ', [FSQLMarkName, VCategoryWhere]);
   end else begin
     VCategoryWhere := '';
@@ -1683,7 +1745,7 @@ begin
       VCategoryWhere := FormatUTF8('mCategory=? AND ',[],[ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray));
+    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), '', '', False);
     VCategoryWhere := FormatUTF8('mCategory IN (%) AND ', [VCategoryWhere]);
   end else begin
     VCategoryWhere := '';
@@ -1760,7 +1822,7 @@ begin
   end else if VLen > 1 then begin
     VCategoryWhere :=
       Int64DynArrayToCSV(
-        TInt64DynArray(ACategoryIDArray), '{mCategory:{$in:[',']}},'
+        TInt64DynArray(ACategoryIDArray), '{mCategory:{$in:[',']}},', False
       );
   end else begin
     VCategoryWhere := '';

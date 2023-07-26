@@ -176,6 +176,7 @@ type
     );
     procedure Add(const ACategoryID: TID; const AMarkID: TID);
     procedure Delete(const ACategoryID: TID; const AMarkID: TID);
+    procedure Reset;
   public
     constructor Create(const AMaxCacheSize: Int64);
     destructor Destroy; override;
@@ -754,6 +755,11 @@ begin
     SQLLogCache('Del CategoryID=%, MarkID=%, MarksCountNew=%', [ACategoryID, AMarkID, VArray.Count], Self);
     {$ENDIF}
   end;
+end;
+
+procedure TSQLMarkIdByCategoryIndex.Reset;
+begin
+  FDynArray.Reset;
 end;
 
 { TSQLMarkCache }
