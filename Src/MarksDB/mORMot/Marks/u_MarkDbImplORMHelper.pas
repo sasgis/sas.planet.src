@@ -1203,6 +1203,8 @@ begin
           // add to db
           CheckID( FClient.Add(VSQLMarkView, True) );
           Result := True;
+        end else { AVisible = True } begin
+          // Marks visible by default, so we can not add an entry to the db
         end;
       end else begin
         Result := True;
@@ -1234,26 +1236,62 @@ var
   VCount: Integer;
   VArray: TIDDynArray;
   VTransaction: TTransactionRec;
+  VExecRequest: array of RawUTF8;
 begin
   Result := False;
   CheckID(ACategoryID);
-  if _FillPrepareMarkIdIndex(ACategoryID) > 0 then begin
-    _FillPrepareMarkViewCache(ACategoryID);
-    if FCache.FMarkIdByCategoryIndex.Find(ACategoryID, VArray, VCount) then begin
-      StartTransaction(FClient, VTransaction, TSQLMarkView);
-      try
-        // ToDo: 'UPDATE MarkView SET mvVisible=? WHERE mvCategory=? AND mvUser=?'
-        for I := 0 to VCount - 1 do begin
-          UpdateMarkView(VArray[I], ACategoryID, AVisible, False);
-        end;
-        CommitTransaction(FClient, VTransaction);
-        Result := True;
-      except
-        RollBackTransaction(FClient, VTransaction);
-        raise;
+
+  if FClientType = ctSQLite3 then begin
+    // update cache
+    FCache.FMarkViewCache.Reset;
+
+    // update db
+    StartTransaction(FClient, VTransaction, TSQLMarkView);
+    try
+      SetLength(VExecRequest, 2);
+
+      VExecRequest[0] := FormatUTF8(
+        'UPDATE MarkView SET mvVisible=% WHERE mvCategory=? AND mvUser=?',
+        [AVisible], [ACategoryID, FUserID]
+      );
+
+      if not AVisible then begin
+        VExecRequest[1] := FormatUTF8(
+          'INSERT OR IGNORE INTO MarkView (mvUser,mvMark,mvCategory,mvVisible) SELECT %,RowID,%,% FROM Mark WHERE mCategory=?',
+          [FUserID, ACategoryID, AVisible], [ACategoryID]
+        );
+      end else begin
+        SetLength(VExecRequest, 1);
       end;
-    end else begin
-      Assert(False);
+
+      for I := 0 to Length(VExecRequest) - 1 do begin
+        Result := FClient.Execute(VExecRequest[I]);
+        CheckExecuteResult(Result);
+      end;
+
+      CommitTransaction(FClient, VTransaction);
+    except
+      RollBackTransaction(FClient, VTransaction);
+      raise;
+    end;
+  end else begin
+    if _FillPrepareMarkIdIndex(ACategoryID) > 0 then begin
+      _FillPrepareMarkViewCache(ACategoryID);
+      if FCache.FMarkIdByCategoryIndex.Find(ACategoryID, VArray, VCount) then begin
+        StartTransaction(FClient, VTransaction, TSQLMarkView);
+        try
+          for I := 0 to VCount - 1 do begin
+            UpdateMarkView(VArray[I], ACategoryID, AVisible, False);
+          end;
+          CommitTransaction(FClient, VTransaction);
+          Result := True;
+        except
+          RollBackTransaction(FClient, VTransaction);
+          raise;
+        end;
+      end else begin
+        Assert(False);
+      end;
     end;
   end;
 end;
