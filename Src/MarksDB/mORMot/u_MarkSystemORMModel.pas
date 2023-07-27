@@ -24,7 +24,10 @@ unit u_MarkSystemORMModel;
 interface
 
 uses
+  SysUtils,
+  StrUtils,
   mORMot,
+  mORMotSQLite3,
   SynCommons;
 
 type
@@ -176,6 +179,10 @@ function CreateModelSQLite3: TSQLModel;
 function CreateModelDBMS: TSQLModel;
 function CreateModelMongoDB: TSQLModel;
 
+procedure CreateMissingIndexesSQLite3(const AServer: TSQLRestServerDB);
+procedure CreateMissingIndexesDBMS(const AServer: TSQLRestServerDB);
+procedure CreateMissingIndexesMongoDB(const AServer: TSQLRestServerDB);
+
 implementation
 
 function CreateModelSQLite3: TSQLModel;
@@ -231,6 +238,101 @@ begin
         TSQLMarkMeta
       ]
     );
+end;
+
+procedure CreateMissingIndexesSQLite3(const AServer: TSQLRestServerDB);
+
+  function _IsIndexExists(const AName: RawUTF8; const AExisting: TRawUTF8DynArray): Boolean;
+  var
+    I: Integer;
+  begin
+    Result := False;
+    for I := 0 to Length(AExisting) - 1 do begin
+      if EndsStr(AName, AExisting[I]) then begin
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+
+var
+  VIdxName: RawUTF8;
+  VCount: Integer;
+  VExisting: TRawUTF8DynArray;
+begin
+  VCount := AServer.DB.Execute(
+    'SELECT name FROM sqlite_master WHERE type=''index'' AND name NOT LIKE ''sqlite_%'';',
+    VExisting
+  );
+  SetLength(VExisting, VCount);
+
+  // --------------- User -----------------------------------------------------
+  VIdxName := '_uName';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLIndex(TSQLUser, 'uName', True, VIdxName); // unique
+  end;
+
+  // --------------- Category -------------------------------------------------
+  VIdxName := '_cName';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLIndex(TSQLCategory, 'cName', False, VIdxName); // not unique for backward compatibility
+  end;
+
+  // --------------- CategoryView ---------------------------------------------
+  VIdxName := '_cvUser';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLIndex(TSQLCategoryView, 'cvUser', False, VIdxName);
+  end;
+
+  VIdxName := '_cvCategoryUser';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLMultiIndex(TSQLCategoryView, ['cvCategory', 'cvUser'], True, VIdxName); // unique
+  end;
+
+  // --------------- MarkImage ------------------------------------------------
+  VIdxName := '_miName';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLIndex(TSQLMarkImage, 'miName', True, VIdxName); // unique
+  end;
+
+  // --------------- MarkAppearance -------------------------------------------
+  VIdxName := '_maC1C2S1S2';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLMultiIndex(TSQLMarkAppearance, ['maColor1', 'maColor2', 'maScale1', 'maScale2'],
+      True, VIdxName); // unique
+  end;
+
+  // --------------- Mark -----------------------------------------------------
+  VIdxName := '_mCategory';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLIndex(TSQLMark, 'mCategory', False, VIdxName);
+  end;
+
+  // --------------- MarkView -------------------------------------------------
+  VIdxName := '_mvUser';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLIndex(TSQLMarkView, 'mvUser', False, VIdxName);
+  end;
+
+  VIdxName := '_mvCategoryUser';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLMultiIndex(TSQLMarkView, ['mvCategory', 'mvUser'], False, VIdxName);
+  end;
+
+  VIdxName := '_mvMarkUser';
+  if not _IsIndexExists(VIdxName, VExisting) then begin
+    AServer.CreateSQLMultiIndex(TSQLMarkView, ['mvMark', 'mvUser'], True, VIdxName); // unique
+  end;
+end;
+
+procedure CreateMissingIndexesDBMS(const AServer: TSQLRestServerDB);
+begin
+  // ToDo
+end;
+
+procedure CreateMissingIndexesMongoDB(const AServer: TSQLRestServerDB);
+begin
+  // ToDo
 end;
 
 end.

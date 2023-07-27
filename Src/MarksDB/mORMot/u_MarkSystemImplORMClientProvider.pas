@@ -183,6 +183,7 @@ begin
   FClientDB.DB.WALMode := True; // for multi-user access
   if not FImplConfig.IsReadOnly then begin
     FClientDB.Server.CreateMissingTables;
+    CreateMissingIndexesSQLite3(FClientDB.Server);
   end;
 end;
 
@@ -295,6 +296,7 @@ begin
 
   if not FImplConfig.IsReadOnly then begin
     VServer.CreateMissingTables;
+    CreateMissingIndexesMongoDB(VServer);
   end;
 
   for I := 0 to High(FModel.Tables) do begin
@@ -404,6 +406,7 @@ begin
   end;
 
   FClientDB.Server.CreateMissingTables;
+  CreateMissingIndexesDBMS(FClientDB.Server);
 
   for I := 0 to High(FModel.Tables) do begin
     VTable := FModel.Tables[I];
