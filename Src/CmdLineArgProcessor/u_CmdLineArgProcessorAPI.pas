@@ -91,6 +91,11 @@ begin
     '                            Insert the given placemark into the    ' + CR +
     '                            temporary database                     ' + CR +
                                                                             CR +
+    '    --insert-placemark-with-icon=                                  ' + CR +
+    '        "<name>";(<lon>,<lat>);"<icon>";"<desc>"                   ' + CR +
+    '                            Insert the given placemark into the    ' + CR +
+    '                            temporary database with icon           ' + CR +
+                                                                            CR +
     '    --sls-autostart         Run download from saved session (*.sls)' + CR +
     '                            immediately. Without this option       ' + CR +
     '                            dounload will be started in paused     ' + CR +
