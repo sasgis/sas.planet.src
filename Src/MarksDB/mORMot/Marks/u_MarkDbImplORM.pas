@@ -267,7 +267,7 @@ begin
 
   FStateChangeNotifier := FStateInternal.ChangeNotifier;
   if Assigned(FStateChangeNotifier) then begin
-    FStateChangeListener := TNotifyNoMmgEventListener.Create(_OnStateChange);
+    FStateChangeListener := TNotifyNoMmgEventListener.Create(Self._OnStateChange);
     FStateChangeNotifier.Add(FStateChangeListener);
   end else begin
     FStateChangeListener := nil;
@@ -278,10 +278,12 @@ destructor TMarkDbImplORM.Destroy;
 begin
   if Assigned(FStateChangeNotifier) and Assigned(FStateChangeListener) then begin
     FStateChangeNotifier.Remove(FStateChangeListener);
+    FStateChangeListener := nil;
   end;
   FreeAndNil(FHelper);
+  FStateInternal := nil;
   FFactoryDbInternal := nil;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TMarkDbImplORM._OnStateChange;
@@ -659,7 +661,7 @@ begin
 
     LockWrite;
     try
-      StartTransaction(FClient, VTransaction, TSQLMark);
+      StartTransaction(FClient, VTransaction, TSQLMark, FHelper.IsReadOnly);
       try
         if (AOldMarkList <> nil) then begin
           if AOldMarkList.Count < ANewMarkList.Count then begin
@@ -676,7 +678,7 @@ begin
         for I := 0 to VMinCount - 1 do begin
           if VDoNotify and (I mod 1000 = 0) then begin
             CommitTransaction(FClient, VTransaction);
-            StartTransaction(FClient, VTransaction, TSQLMark);
+            StartTransaction(FClient, VTransaction, TSQLMark, FHelper.IsReadOnly);
           end;
           VOld := AOldMarkList[I];
           VNew := ANewMarkList[I];
@@ -700,7 +702,7 @@ begin
           end;
           if VDoNotify and (I mod 1000 = 0) then begin
             CommitTransaction(FClient, VTransaction);
-            StartTransaction(FClient, VTransaction, TSQLMark);
+            StartTransaction(FClient, VTransaction, TSQLMark, FHelper.IsReadOnly);
           end;
         end;
         CommitTransaction(FClient, VTransaction);
@@ -1100,7 +1102,7 @@ begin
   if (AMarkList <> nil) and (AMarkList.Count > 0) then begin
     LockWrite;
     try
-      StartTransaction(FClient, VTransaction, TSQLMarkView);
+      StartTransaction(FClient, VTransaction, TSQLMarkView, FHelper.IsReadOnly);
       try
         VIsChanged := False;
         for I := 0 to AMarkList.Count - 1 do begin

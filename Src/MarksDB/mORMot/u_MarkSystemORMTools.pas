@@ -50,7 +50,8 @@ procedure CheckExecuteResult(const AResult: Boolean); inline;
 procedure StartTransaction(
   const AClient: TSQLRestClient;
   var ATrans: TTransactionRec;
-  const ASQLTableClass: TSQLRecordClass
+  const ASQLTableClass: TSQLRecordClass;
+  const AIsReadOnly: Boolean
 ); inline;
 
 procedure CommitTransaction(
@@ -140,9 +141,14 @@ end;
 procedure StartTransaction(
   const AClient: TSQLRestClient;
   var ATrans: TTransactionRec;
-  const ASQLTableClass: TSQLRecordClass
+  const ASQLTableClass: TSQLRecordClass;
+  const AIsReadOnly: Boolean
 );
 begin
+  ATrans.FIsReadOnly := AIsReadOnly;
+  if AIsReadOnly then begin
+    Exit;
+  end;
   ATrans.FSessionID := AClient.TransactionActiveSession;
   if ATrans.FSessionID = 0 then begin
     ATrans.FSessionID := GetTickCount;
@@ -160,6 +166,9 @@ procedure CommitTransaction(
   var ATrans: TTransactionRec
 );
 begin
+  if ATrans.FIsReadOnly then begin
+    Exit;
+  end;
   Assert(ATrans.FSessionID > 0);
   if ATrans.FIsInternal and (ATrans.FSessionID > 0) then begin
     AClient.Commit(ATrans.FSessionID, True);
@@ -172,6 +181,9 @@ procedure RollBackTransaction(
   var ATrans: TTransactionRec
 );
 begin
+  if ATrans.FIsReadOnly then begin
+    Exit;
+  end;
   Assert(ATrans.FSessionID > 0);
   if ATrans.FIsInternal and (ATrans.FSessionID > 0) then begin
     AClient.RollBack(ATrans.FSessionID);

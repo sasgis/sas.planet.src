@@ -79,6 +79,7 @@ type
     FPreparedCategoriesDynArr: TDynArray;
   public
     procedure Reset; override;
+    procedure ResetCategory(const ACategoryID: TID);
     function IsCategoryPrepared(const ACategoryID: TID): Boolean;
   public
     constructor Create(
@@ -290,6 +291,16 @@ procedure TSQLCacheBaseWithPreparedByCategory.Reset;
 begin
   inherited Reset;
   FPreparedCategoriesDynArr.Clear;
+end;
+
+procedure TSQLCacheBaseWithPreparedByCategory.ResetCategory(const ACategoryID: TID);
+var
+  I: Integer;
+begin
+  I := FPreparedCategoriesDynArr.Find(ACategoryID);
+  if I >= 0 then begin
+    FPreparedCategoriesDynArr.FastDeleteSorted(I);
+  end;
 end;
 
 { TIDDynArrayObject }

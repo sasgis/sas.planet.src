@@ -126,6 +126,7 @@ type
       out ANameIDArray: TIDDynArray;
       out ADescIDArray: TIDDynArray
     ): Integer;
+    procedure SetReadOnly(const AValue: Boolean);
   public
     function DeleteMarkSQL(
       const AMarkID: TID;
@@ -191,7 +192,7 @@ type
     );
     destructor Destroy; override;
   public
-    property IsReadOnly: Boolean read FIsReadOnly write FIsReadOnly;
+    property IsReadOnly: Boolean read FIsReadOnly write SetReadOnly;
   end;
 
 implementation
@@ -468,7 +469,7 @@ begin
 
   // delete from db
   if AUseTransactions then begin
-    StartTransaction(FClient, VTransaction, FSQLMarkClass);
+    StartTransaction(FClient, VTransaction, FSQLMarkClass, FIsReadOnly);
   end;
   try
     // delete view for all Users if exists
@@ -519,18 +520,16 @@ begin
   end;
 
   if FClientType = ctMongoDB then begin
-    // ToDo: write optimized mongo-specific requests
-    // code bellow works very slow
-    StartTransaction(FClient, VTransaction, FSQLMarkClass);
+    // ToDo: write optimized mongo-specific requests, code bellow works slow
+    StartTransaction(FClient, VTransaction, FSQLMarkClass, FIsReadOnly);
     try
       for I := 0 to Length(AMarkIDs) - 1 do begin
         if Result and (I mod 1000 = 0) then begin
           CommitTransaction(FClient, VTransaction);
-          StartTransaction(FClient, VTransaction, FSQLMarkClass);
+          StartTransaction(FClient, VTransaction, FSQLMarkClass, FIsReadOnly);
         end;
 
         Result := DeleteMarkSQL(AMarkIDs[I], False);
-
         CheckDeleteResult(Result);
       end;
       CommitTransaction(FClient, VTransaction);
@@ -547,13 +546,13 @@ begin
     FCache.FMarkIdByCategoryIndex.Reset;
 
     // delete from db
-    StartTransaction(FClient, VTransaction, FSQLMarkClass);
+    StartTransaction(FClient, VTransaction, FSQLMarkClass, FIsReadOnly);
     try
       I := 0;
       VLen := Length(AMarkIDs);
       while I < VLen do begin
         VCount := Min(CSQLiteMaxVarNumber, Length(AMarkIDs) - I);
-        VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '(', ');', True);
+        VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '(', ');', FClientType = ctSQLite3);
         Inc(I, VCount);
 
         if FClientType = ctSQLite3 then begin
@@ -570,6 +569,11 @@ begin
           FClient.Execute('DELETE FROM ' + FSQLMarkName + ' WHERE RowID IN ' + VIds);
 
         CheckDeleteResult(Result);
+
+        if FClientType <> ctSQLite3 then begin
+          CommitTransaction(FClient, VTransaction);
+          StartTransaction(FClient, VTransaction, FSQLMarkClass, FIsReadOnly);
+        end;
       end;
 
       CommitTransaction(FClient, VTransaction);
@@ -611,7 +615,7 @@ begin
   CalcGeometrySize(VRect, AMarkRec.FGeoLonSize, AMarkRec.FGeoLatSize);
 
   if AUseTransactions then begin
-    StartTransaction(FClient, VTransaction, FSQLMarkClass);
+    StartTransaction(FClient, VTransaction, FSQLMarkClass, FIsReadOnly);
   end;
   try
     if AMarkRec.FPicName <> '' then begin
@@ -797,7 +801,7 @@ begin
     CalcGeometrySize(VRect, ANewMarkRec.FGeoLonSize, ANewMarkRec.FGeoLatSize);
   end;
 
-  StartTransaction(FClient, VTransaction, FSQLMarkClass);
+  StartTransaction(FClient, VTransaction, FSQLMarkClass, FIsReadOnly);
   try
     if VUpdateIdIndex then begin
       if ANewMarkRec.FPicName <> '' then begin
@@ -1159,12 +1163,13 @@ begin
   Result := False;
 
   if AUseTransaction then begin
-    StartTransaction(FClient, VTransaction, TSQLMarkView);
+    StartTransaction(FClient, VTransaction, TSQLMarkView, FIsReadOnly);
   end;
   try
     VSQLMarkView := TSQLMarkView.Create;
     try
       VUpdateCache := True;
+      VSQLMarkView.IDValue := 0;
       VFind := FCache.FMarkViewCache.Find(AMarkID, VItem);
       if VFind then begin
         VSQLMarkView.IDValue := VItem.ViewId;
@@ -1211,7 +1216,7 @@ begin
       end;
       if VUpdateCache then begin
         // update cache
-        FCache.FMarkViewCache.AddOrUpdate(AMarkID, VSQLMarkView.ID, ACategoryID, AVisible);
+        FCache.FMarkViewCache.AddOrUpdate(AMarkID, VSQLMarkView.ID {can be zero}, ACategoryID, AVisible);
       end;
     finally
       VSQLMarkView.Free;
@@ -1231,57 +1236,71 @@ function TMarkDbImplORMHelper.SetMarksInCategoryVisibleSQL(
   const ACategoryID: TID;
   const AVisible: Boolean
 ): Boolean;
+
+  function _TryFastUpdate(const AMarkID: TID): Boolean;
+  var
+    VView: PSQLMarkViewRow;
+  begin
+    Result := False;
+    if FCache.FMarkViewCache.Find(AMarkID, VView) then begin
+      if VView.Visible = AVisible then begin
+        Result := True; // nothing to change in db
+      end else if FIsReadOnly then begin              
+        FCache.FMarkViewCache.AddOrUpdate(AMarkID, VView.ViewId, ACategoryID, AVisible);
+        Result := True;
+      end;
+    end else if FIsReadOnly then begin              
+      FCache.FMarkViewCache.AddOrUpdate(AMarkID, 0 {use fake id}, ACategoryID, AVisible);
+      Result := True;
+    end;
+  end;
+
 var
   I: Integer;
   VCount: Integer;
   VArray: TIDDynArray;
   VTransaction: TTransactionRec;
-  VExecRequest: array of RawUTF8;
+  VSQLRequest: RawUTF8;
 begin
   Result := False;
   CheckID(ACategoryID);
 
-  if FClientType = ctSQLite3 then begin
-    // update cache
-    FCache.FMarkViewCache.Reset;
+  if not FIsReadOnly and (FClientType in [ctSQLite3, ctODBC, ctZDBC]) then begin
+    // UPDATE: SQLite3 and DBMS
+    FCache.FMarkViewCache.ResetCategory(ACategoryID);
 
-    // update db
-    StartTransaction(FClient, VTransaction, TSQLMarkView);
-    try
-      SetLength(VExecRequest, 2);
+    VSQLRequest := FormatUTF8(
+      'UPDATE MarkView SET mvVisible=% WHERE mvCategory=? AND mvUser=?',
+      [AVisible], [ACategoryID, FUserID]
+    );
 
-      VExecRequest[0] := FormatUTF8(
-        'UPDATE MarkView SET mvVisible=% WHERE mvCategory=? AND mvUser=?',
-        [AVisible], [ACategoryID, FUserID]
-      );
+    Result := FClient.Execute(VSQLRequest);
+    CheckUpdateResult(Result);
+  end;
 
-      if not AVisible then begin
-        VExecRequest[1] := FormatUTF8(
-          'INSERT OR IGNORE INTO MarkView (mvUser,mvMark,mvCategory,mvVisible) SELECT %,RowID,%,% FROM Mark WHERE mCategory=?',
-          [FUserID, ACategoryID, AVisible], [ACategoryID]
-        );
-      end else begin
-        SetLength(VExecRequest, 1);
-      end;
+  if not FIsReadOnly and not AVisible and (FClientType = ctSQLite3) then begin
+    // INSERT: SQLite3
+    VSQLRequest := FormatUTF8(
+      'INSERT OR IGNORE INTO MarkView (mvUser,mvMark,mvCategory,mvVisible) SELECT %,RowID,%,% FROM Mark WHERE mCategory=?',
+      [FUserID, ACategoryID, AVisible], [ACategoryID]
+    );
 
-      for I := 0 to Length(VExecRequest) - 1 do begin
-        Result := FClient.Execute(VExecRequest[I]);
-        CheckExecuteResult(Result);
-      end;
-
-      CommitTransaction(FClient, VTransaction);
-    except
-      RollBackTransaction(FClient, VTransaction);
-      raise;
-    end;
-  end else begin
+    Result := FClient.Execute(VSQLRequest);
+    CheckExecuteResult(Result);
+  end else
+  if FIsReadOnly or not AVisible or (FClientType = ctMongoDB) then begin
+    // INSERT: DBMS (if not ReadOnly)
+    // UPDATE or INSERT: MongoDB (if not ReadOnly)
+    // AddOrUpdate: FMarkViewCache
     if _FillPrepareMarkIdIndex(ACategoryID) > 0 then begin
       _FillPrepareMarkViewCache(ACategoryID);
       if FCache.FMarkIdByCategoryIndex.Find(ACategoryID, VArray, VCount) then begin
-        StartTransaction(FClient, VTransaction, TSQLMarkView);
+        StartTransaction(FClient, VTransaction, TSQLMarkView, FIsReadOnly);
         try
-          for I := 0 to VCount - 1 do begin
-            UpdateMarkView(VArray[I], ACategoryID, AVisible, False);
+          for I := 0 to VCount - 1 do begin            
+            if not _TryFastUpdate(VArray[I]) then begin            
+              UpdateMarkView(VArray[I], ACategoryID, AVisible, False);
+            end;
           end;
           CommitTransaction(FClient, VTransaction);
           Result := True;
@@ -2218,6 +2237,16 @@ begin
     end;
     SetLength(AMarkRecArray, J);
     Result := J;
+  end;
+end;
+
+procedure TMarkDbImplORMHelper.SetReadOnly(const AValue: Boolean);
+begin
+  if FIsReadOnly <> AValue then begin
+    if FIsReadOnly then begin      
+      FCache.FMarkViewCache.Reset; // remove possible fake id's
+    end;
+    FIsReadOnly := AValue;
   end;
 end;
 

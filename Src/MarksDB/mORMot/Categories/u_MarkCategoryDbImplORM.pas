@@ -140,10 +140,12 @@ destructor TMarkCategoryDbImplORM.Destroy;
 begin
   if Assigned(FStateChangeNotifier) and Assigned(FStateChangeListener) then begin
     FStateChangeNotifier.Remove(FStateChangeListener);
+    FStateChangeListener := nil;
   end;
   FreeAndNil(FHelper);
+  FStateInternal := nil;
   FFactoryDbInternal := nil;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TMarkCategoryDbImplORM._OnStateChange;
@@ -202,7 +204,7 @@ begin
   end;
 
   if AUseTransactions then begin
-    StartTransaction(FClient, VTransaction, TSQLCategory);
+    StartTransaction(FClient, VTransaction, TSQLCategory, FHelper.IsReadOnly);
   end;
   try
     if Assigned(AOldCategory) and not Assigned(ANewCategory) then
@@ -301,7 +303,7 @@ begin
   try
     VDoNotify := False;
 
-    StartTransaction(FClient, VTransaction, TSQLCategory);
+    StartTransaction(FClient, VTransaction, TSQLCategory, FHelper.IsReadOnly);
     try
       if ANewCategoryList <> nil then begin
         VTemp := TInterfaceListSimple.Create;
@@ -428,7 +430,7 @@ var
 begin
   LockWrite;
   try
-    StartTransaction(FClient, VTransaction, TSQLCategoryView);
+    StartTransaction(FClient, VTransaction, TSQLCategoryView, FHelper.IsReadOnly);
     try
       FHelper.SetAllCategoriesVisibleSQL(ANewVisible);
       CommitTransaction(FClient, VTransaction);
