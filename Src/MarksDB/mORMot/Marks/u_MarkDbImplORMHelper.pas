@@ -1267,7 +1267,7 @@ begin
 
   if not FIsReadOnly and (FClientType in [ctSQLite3, ctODBC, ctZDBC]) then begin
     // UPDATE: SQLite3 and DBMS
-    FCache.FMarkViewCache.ResetCategory(ACategoryID);
+    FCache.FMarkViewCache.Reset;
 
     VSQLRequest := FormatUTF8(
       'UPDATE MarkView SET mvVisible=% WHERE mvCategory=? AND mvUser=?',
