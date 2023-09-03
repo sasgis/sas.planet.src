@@ -49,6 +49,7 @@ type
     FTileStorageSQLiteHolder: ITileStorageSQLiteHolder;
     FFileNameGenerator: ITileFileNameGenerator;
     FUseVersion: Boolean;
+    FIsReadOnly: Boolean;
     FShutdown: Boolean;
     function InternalHandlerFactory(
       const AOper: PNotifierOperationRec;
@@ -103,7 +104,8 @@ type
       const AStoragePath: string;
       const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
       const AFileNameGenerator: ITileFileNameGenerator;
-      const AUseVersion: Boolean
+      const AUseVersion: Boolean;
+      const AIsReadOnly: Boolean
     );
     destructor Destroy; override;
   end;
@@ -132,7 +134,8 @@ constructor TTileStorageSQLiteHelper.Create(
   const AStoragePath: string;
   const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
   const AFileNameGenerator: ITileFileNameGenerator;
-  const AUseVersion: Boolean
+  const AUseVersion: Boolean;
+  const AIsReadOnly: Boolean
 );
 begin
   inherited Create;
@@ -140,6 +143,7 @@ begin
   FTileStorageSQLiteHolder := ATileStorageSQLiteHolder;
   FFileNameGenerator := AFileNameGenerator;
   FUseVersion := AUseVersion;
+  FIsReadOnly := AIsReadOnly;
   FShutdown := False;
   FDBSingleList.Init(InternalHandlerFactory);
 end;
@@ -173,7 +177,7 @@ begin
   ADBNotFound := not FileExists(VDBPath);
   if ADBNotFound then begin
     // no database
-    if not AForceMakeDB then begin
+    if FIsReadOnly or not AForceMakeDB then begin
       Result := nil;
       Exit;
     end;
@@ -192,7 +196,8 @@ begin
       FTileStorageSQLiteHolder,
       VDBPath,
       AVersionInfo,
-      FUseVersion
+      FUseVersion,
+      FIsReadOnly
     );
 
   // check if opened

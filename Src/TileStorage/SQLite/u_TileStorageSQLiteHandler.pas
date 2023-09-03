@@ -117,7 +117,8 @@ type
       const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
       const ADBFilename: string;
       const ASingleVersionOnly: IMapVersionInfo;
-      const AUseVersionFieldInDB: Boolean
+      const AUseVersionFieldInDB: Boolean;
+      const AIsReadOnly: Boolean
     );
     destructor Destroy; override;
   end;
@@ -354,7 +355,8 @@ constructor TTileStorageSQLiteHandler.Create(
   const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
   const ADBFilename: string;
   const ASingleVersionOnly: IMapVersionInfo;
-  const AUseVersionFieldInDB: Boolean
+  const AUseVersionFieldInDB: Boolean;
+  const AIsReadOnly: Boolean
 );
 var
   VOpenFlags: Integer;
@@ -370,17 +372,22 @@ begin
   // open database and prepare to work
   try
     if FSQLite3DbHandler.Init then begin
-      // open existing or create new
-      VOpenFlags := SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE;
-      FSQLite3DbHandler.Open(FDBFilename, VOpenFlags, True);
-      // apply session params
-      FTileStorageSQLiteHolder.ExecMakeSession(ExecuteSQL);
-      // make or check structure
-      InternalCheckStructure;
-      // apply working params
-      FTileStorageSQLiteHolder.ExecEstablished(ExecuteSQL);
-      // register BUSY-handler
-      FSQLite3DbHandler.SetBusyTryCount(3);
+      if AIsReadOnly then begin
+        VOpenFlags := SQLITE_OPEN_READONLY or SQLITE_OPEN_URI;
+        FSQLite3DbHandler.Open('file:///' + FDBFilename + '?immutable=1', VOpenFlags, True);
+      end else begin
+        // open existing or create new
+        VOpenFlags := SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE;
+        FSQLite3DbHandler.Open(FDBFilename, VOpenFlags, True);
+        // apply session params
+        FTileStorageSQLiteHolder.ExecMakeSession(ExecuteSQL);
+        // make or check structure
+        InternalCheckStructure;
+        // apply working params
+        FTileStorageSQLiteHolder.ExecEstablished(ExecuteSQL);
+        // register BUSY-handler
+        FSQLite3DbHandler.SetBusyTryCount(3);
+      end;
     end;
   except
     on E: Exception do begin

@@ -48,6 +48,7 @@ type
     FZoom: Byte;
     FState: TTileEnumState;
     FUseVersionFieldInDB: Boolean;
+    FIsReadOnly: Boolean;
     FIgnoreTNE: Boolean;
     FIgnoreMultiVersionTiles: Boolean;
   private
@@ -59,6 +60,7 @@ type
       const ATileFileNameParser: ITileFileNameParser;
       const AHolder: ITileStorageSQLiteHolder;
       const AUseVersionFieldInDB: Boolean;
+      const AIsReadOnly: Boolean;
       const AIgnoreTNE: Boolean;
       const AIgnoreMultiVersionTiles: Boolean
     );
@@ -80,6 +82,7 @@ constructor TEnumTileInfoBySQLite.Create(
   const ATileFileNameParser: ITileFileNameParser;
   const AHolder: ITileStorageSQLiteHolder;
   const AUseVersionFieldInDB: Boolean;
+  const AIsReadOnly: Boolean;
   const AIgnoreTNE: Boolean;
   const AIgnoreMultiVersionTiles: Boolean
 );
@@ -90,6 +93,7 @@ begin
   FTileFileNameParser := ATileFileNameParser;
   FHolder := AHolder;
   FUseVersionFieldInDB := AUseVersionFieldInDB;
+  FIsReadOnly := AIsReadOnly;
   FIgnoreTNE := AIgnoreTNE;
   FIgnoreMultiVersionTiles := AIgnoreMultiVersionTiles; // (!) not used
   FFetcher := nil;
@@ -131,6 +135,7 @@ begin
               FStoragePath + VDatabaseFilename,
               nil,
               FUseVersionFieldInDB,
+              FIsReadOnly,
               FIgnoreTNE
             );
           // check opened

@@ -52,6 +52,7 @@ uses
 type
   TTileStorageSQLite = class(TTileStorageAbstract)
   private
+    FIsReadOnly: Boolean;
     FIsVersioned: Boolean;
     FGCNotifier: INotifierTime;
     FSyncCallListner: IListenerTimeWithUsedFlag;
@@ -209,12 +210,18 @@ begin
       True
     );
 
+  FIsReadOnly :=
+    not StorageStateInternal.AddAccess and
+    not StorageStateInternal.DeleteAccess and
+    not StorageStateInternal.ReplaceAccess;
+
   FTileStorageSQLiteHelper :=
     TTileStorageSQLiteHelper.Create(
       Self.StoragePath,
       FTileStorageSQLiteHolder,
       FTileFileNameGenerator,
-      FIsVersioned
+      FIsVersioned,
+      FIsReadOnly
     );
 
   FSyncCallListner :=
@@ -570,6 +577,7 @@ begin
         VFileNameParser,
         FTileStorageSQLiteHolder,
         FIsVersioned,
+        FIsReadOnly,
         AIgnoreTNE,
         AIgnoreMultiVersionTiles
       );
