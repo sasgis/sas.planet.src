@@ -150,8 +150,6 @@ uses
   Math,
   Clipbrd,
   gnugettext,
-  Proj4.UTM,
-  Proj4.GaussKruger,
   i_Projection,
   i_ProjectionSet,
   i_LocalCoordConverter,

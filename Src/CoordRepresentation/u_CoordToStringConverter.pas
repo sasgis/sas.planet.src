@@ -25,6 +25,9 @@ interface
 
 uses
   SysUtils,
+  Proj4.UTM,
+  Proj4.GaussKruger,
+  Proj4.Utils,
   t_GeoTypes,
   t_CoordRepresentation,
   i_CoordToStringConverter,
@@ -44,6 +47,7 @@ type
     FNorthMarker: string;
     FSouthMarker: string;
     FFormatSettings: TFormatSettings;
+    FSK42: TGaussKruger;
   private
     function FloatToStr(const AFormat: string; const AValue: Double): string; inline;
     function DegrToStr(
@@ -82,6 +86,7 @@ type
       const ACoordSysType: TCoordSysType;
       const ACoordSysInfoType: TCoordSysInfoType
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -90,8 +95,6 @@ uses
   Math,
   StrUtils,
   gnugettext,
-  Proj4.UTM,
-  Proj4.GaussKruger,
   u_CoordRepresentation,
   u_GeoFunc,
   u_StrFunc,
@@ -120,6 +123,13 @@ begin
   FWestMarker := 'W';
   FSouthMarker := 'S';
   FFormatSettings.DecimalSeparator := '.';
+  FSK42 := TGaussKrugerFactory.BuildSK42;
+end;
+
+destructor TCoordToStringConverter.Destroy;
+begin
+  FreeAndNil(FSK42);
+  inherited Destroy;
 end;
 
 function TCoordToStringConverter.FloatToStr(
@@ -423,13 +433,13 @@ begin
 
     cstSK42: begin // Pulkovo-1942 / Geographic
       VGeogLonLat := ALonLat;
-      if geodetic_wgs84_to_sk42(VGeogLonLat.X, VGeogLonLat.Y) then begin
+      if FSK42.wgs84_to_geog(VGeogLonLat.X, VGeogLonLat.Y) then begin
         _GeodeticCoordToStr(VGeogLonLat, VLonStr, VLatStr);
       end;
     end;
 
     cstSK42GK: begin // Pulkovo-1942 / Gauss-Kruger
-      if geodetic_wgs84_to_gauss_kruger(ALonLat.X, ALonLat.Y, VGauss) then begin
+      if FSK42.wgs84_to_proj(ALonLat.X, ALonLat.Y, VGauss) then begin
         _ProjectedCoordToStr(VGauss.X, VGauss.Y, {Swap=}True, VLonStr, VLatStr);
         VZoneStr := _ZoneInfoToStr(VGauss.Zone, VGauss.IsNorth);
       end;

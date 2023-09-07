@@ -21,12 +21,18 @@ const
   // EPSG:4269 = NAD83
   nad_83 = '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs';
 
-  // EPSG:2463-2491 = Pulkovo 1995 / Gauss-Kruger CM
-  // EPSG:2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
-  gauss_kruger_fmt = '+proj=tmerc +lat_0=0 +lon_0=%d +k=1 +x_0=%d +y_0=%d +ellps=krass +units=m +no_defs';
-
   // GOST P 51794-2008 (http://www.sasgis.org/mantis/view.php?id=3179)
   sk_42 = '+proj=longlat +ellps=krass +towgs84=23.57,-140.95,-79.8,0,0.35,0.79,-0.22 +no_defs';
+
+  // EPSG:2463-2491 = Pulkovo 1995 / Gauss-Kruger CM
+  // EPSG:2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
+  sk_42_gauss_kruger_fmt = '+proj=tmerc +lat_0=0 +lon_0=%d +k=1 +x_0=%d +y_0=%d +ellps=krass +units=m +no_defs';
+
+  // GSK-2011
+  gsk_2011 = '+proj=longlat +a=6378136.5 +rf=298.2564151 +towgs84=0.013,-0.092,-0.03,-0.001738,0.003559,-0.004263,0.0074 +no_defs';
+
+  // GSK-2011 / Gauss-Kruger CM
+  gsk_2011_gauss_kruger_fmt = '+proj=tmerc +lat_0=0 +lon_0=%d +k=1 +x_0=%d +y_0=%d +a=6378136.5 +rf=298.2564151 +units=m +no_defs';
 
   // EPSG:32601-32660 = WGS 84 / UTM Zone North
   utm_north_fmt = '+proj=utm +zone=%d +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
@@ -69,7 +75,7 @@ begin
       if I > 180 then begin
         I := I - 360;
       end;
-      Result := AnsiString(Format(gauss_kruger_fmt, [I, 500000, 0]));
+      Result := AnsiString(Format(sk_42_gauss_kruger_fmt, [I, 500000, 0]));
     end;
 
     2492..2522: begin // Pulkovo 1942
@@ -77,7 +83,7 @@ begin
       if I > 180 then begin
         I := I - 360;
       end;
-      Result := AnsiString(Format(gauss_kruger_fmt, [I, 500000, 0]));
+      Result := AnsiString(Format(sk_42_gauss_kruger_fmt, [I, 500000, 0]));
     end;
 
     32601..32660: begin

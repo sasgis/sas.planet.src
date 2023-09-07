@@ -24,6 +24,9 @@ unit u_CoordFromStringParser;
 interface
 
 uses
+  Proj4.UTM,
+  Proj4.GaussKruger,
+  Proj4.Utils,
   t_GeoTypes,
   t_CoordRepresentation,
   i_CoordFromStringParser,
@@ -34,6 +37,7 @@ type
   TCoordFromStringParser = class(TBaseInterfacedObject, ICoordFromStringParser)
   private
     FConfig: ICoordRepresentationConfig;
+    FSK42: TGaussKruger;
   private
     { ICoordFromStringParser }
     function TryStrToCoord(
@@ -57,6 +61,7 @@ type
     constructor Create(
       const AConfig: ICoordRepresentationConfig
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -64,8 +69,6 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  Proj4.UTM,
-  Proj4.GaussKruger,
   u_GeoToStrFunc;
 
 function Edit2Digit(
@@ -153,7 +156,15 @@ constructor TCoordFromStringParser.Create(
 begin
   Assert(AConfig <> nil);
   inherited Create;
+
   FConfig := AConfig;
+  FSK42 := TGaussKrugerFactory.BuildSK42;
+end;
+
+destructor TCoordFromStringParser.Destroy;
+begin
+  FreeAndNil(FSK42);
+  inherited Destroy;
 end;
 
 function TCoordFromStringParser.TryStrToCoord(
@@ -178,7 +189,7 @@ begin
     end;
 
     cstSK42: begin
-      Result := geodetic_sk42_to_wgs84(ACoord.X, ACoord.Y);
+      Result := FSK42.geog_to_wgs84(ACoord.X, ACoord.Y);
     end
   else
     Result := False;
@@ -257,7 +268,7 @@ begin
       VGauss.X := X;
       VGauss.Y := Y;
 
-      Result := gauss_kruger_to_wgs84(VGauss, ACoord.X, ACoord.Y);
+      Result := FSK42.proj_to_wgs84(VGauss, ACoord.X, ACoord.Y);
     end;
 
     cstUTM: begin

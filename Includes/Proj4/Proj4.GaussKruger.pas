@@ -10,20 +10,36 @@ type
     Y: Double;
   end;
 
-function sk42_long_to_gauss_kruger_zone(const ALon: Double): Integer; inline;
-function gauss_kruger_zone_to_sk42_lon(const AZone: Integer): Double; inline;
+  TGaussKruger = class
+  private
+    FGeogInit: AnsiString;
+    FProjInitFmt: AnsiString;
+  protected
+    function GetGeogInit: AnsiString; virtual;
+    function GetProjInit(const AZone: Integer; const AIsNorth: Boolean): AnsiString; virtual;
+  public
+    class function geog_long_to_zone(const ALon: Double): Integer; inline;
+    class function zone_to_geog_lon(const AZone: Integer): Double; inline;
 
-function get_sk42_gauss_kruger_init(const ALon, ALat: Double): AnsiString; overload;
-function get_sk42_gauss_kruger_init(const AZone: Integer; const AIsNorth: Boolean): AnsiString; overload;
+    function wgs84_to_geog(var ALon, ALat: Double): Boolean; inline;
+    function geog_to_wgs84(var ALon, ALat: Double): Boolean; inline;
 
-function geodetic_wgs84_to_sk42(var ALon, ALat: Double): Boolean;
-function geodetic_sk42_to_wgs84(var ALon, ALat: Double): Boolean;
+    function geog_to_proj(const ALon, ALat: Double; out ACoord: TGaussKrugerCoord): Boolean;
+    function wgs84_to_proj(const ALon, ALat: Double; out ACoord: TGaussKrugerCoord): Boolean;
 
-function geodetic_sk42_to_gauss_kruger(const ALon, ALat: Double; out ACoord: TGaussKrugerCoord): Boolean;
-function geodetic_wgs84_to_gauss_kruger(const ALon, ALat: Double; out ACoord: TGaussKrugerCoord): Boolean;
+    function proj_to_wgs84(const ACoord: TGaussKrugerCoord; out ALon, ALat: Double): Boolean;
+    function proj_to_geog(const ACoord: TGaussKrugerCoord; out ALon, ALat: Double): Boolean;
+  public
+    constructor Create(
+      const AGeogInit: AnsiString;
+      const AProjInitFmt: AnsiString
+    );
+  end;
 
-function gauss_kruger_to_wgs84(const ACoord: TGaussKrugerCoord; out ALon, ALat: Double): Boolean;
-function gauss_kruger_to_sk42(const ACoord: TGaussKrugerCoord; out ALon, ALat: Double): Boolean;
+  TGaussKrugerFactory = record
+    class function BuildSK42: TGaussKruger; static;
+    class function BuildGSK2011: TGaussKruger; static;
+  end;
 
 implementation
 
@@ -33,7 +49,20 @@ uses
   Proj4.Defines,
   Proj4.Utils;
 
-function sk42_long_to_gauss_kruger_zone(const ALon: Double): Integer; inline;
+{ TGaussKruger }
+
+constructor TGaussKruger.Create(
+  const AGeogInit: AnsiString;
+  const AProjInitFmt: AnsiString
+);
+begin
+  inherited Create;
+
+  FGeogInit := AGeogInit;
+  FProjInitFmt := AProjInitFmt;
+end;
+
+class function TGaussKruger.geog_long_to_zone(const ALon: Double): Integer;
 begin
   if ALon > 0 then begin
     Result := Floor(ALon / 6) + 1;
@@ -42,7 +71,7 @@ begin
   end;
 end;
 
-function gauss_kruger_zone_to_sk42_lon(const AZone: Integer): Double; inline;
+class function TGaussKruger.zone_to_geog_lon(const AZone: Integer): Double;
 begin
   Result := (AZone - 1) * 6;
   if AZone > 30 then begin
@@ -50,15 +79,12 @@ begin
   end;
 end;
 
-function get_sk42_gauss_kruger_init(const ALon, ALat: Double): AnsiString;
-var
-  VZone: Integer;
+function TGaussKruger.GetGeogInit: AnsiString;
 begin
-  VZone := sk42_long_to_gauss_kruger_zone(ALon);
-  Result := get_sk42_gauss_kruger_init(VZone, (ALat >= 0));
+  Result := FGeogInit;
 end;
 
-function get_sk42_gauss_kruger_init(const AZone: Integer; const AIsNorth: Boolean): AnsiString;
+function TGaussKruger.GetProjInit(const AZone: Integer; const AIsNorth: Boolean): AnsiString;
 var
   lon_0: Integer;
   x_0, y_0: Integer;
@@ -73,31 +99,31 @@ begin
   end else begin
     y_0 := 10000000;
   end;
-  Result := AnsiString(Format(gauss_kruger_fmt, [lon_0, x_0, y_0]));
+  Result := AnsiString(Format(FProjInitFmt, [lon_0, x_0, y_0]));
 end;
 
-function geodetic_wgs84_to_sk42(var ALon, ALat: Double): Boolean;
+function TGaussKruger.wgs84_to_geog(var ALon, ALat: Double): Boolean;
 begin
-  Result := geodetic_cs_to_cs(wgs_84, sk_42, ALon, ALat);
+  Result := geodetic_cs_to_cs(wgs_84, GetGeogInit, ALon, ALat);
 end;
 
-function geodetic_sk42_to_wgs84(var ALon, ALat: Double): Boolean;
+function TGaussKruger.geog_to_wgs84(var ALon, ALat: Double): Boolean;
 begin
-  Result := geodetic_cs_to_cs(sk_42, wgs_84, ALon, ALat);
+  Result := geodetic_cs_to_cs(GetGeogInit, wgs_84, ALon, ALat);
 end;
 
-function geodetic_sk42_to_gauss_kruger(const ALon, ALat: Double; out ACoord: TGaussKrugerCoord): Boolean;
+function TGaussKruger.geog_to_proj(const ALon, ALat: Double; out ACoord: TGaussKrugerCoord): Boolean;
 var
   VInitStr: AnsiString;
 begin
-  ACoord.Zone := sk42_long_to_gauss_kruger_zone(ALon);
+  ACoord.Zone := geog_long_to_zone(ALon);
   ACoord.IsNorth := ALat >= 0;
 
-  VInitStr := get_sk42_gauss_kruger_init(ACoord.Zone, ACoord.IsNorth);
-  Result := geodetic_cs_to_projected_cs(sk_42, VInitStr, ALon, ALat, ACoord.X, ACoord.Y);
+  VInitStr := GetProjInit(ACoord.Zone, ACoord.IsNorth);
+  Result := geodetic_cs_to_projected_cs(GetGeogInit, VInitStr, ALon, ALat, ACoord.X, ACoord.Y);
 end;
 
-function geodetic_wgs84_to_gauss_kruger(const ALon, ALat: Double; out ACoord: TGaussKrugerCoord): Boolean;
+function TGaussKruger.wgs84_to_proj(const ALon, ALat: Double; out ACoord: TGaussKrugerCoord): Boolean;
 var
   VLon, VLat: Double;
 begin
@@ -105,23 +131,35 @@ begin
   VLat := ALat;
 
   Result :=
-    geodetic_cs_to_cs(wgs_84, sk_42, VLon, VLat) and
-    geodetic_sk42_to_gauss_kruger(VLon, VLat, ACoord);
+    geodetic_cs_to_cs(wgs_84, GetGeogInit, VLon, VLat) and
+    geog_to_proj(VLon, VLat, ACoord);
 end;
 
-function gauss_kruger_to_wgs84(const ACoord: TGaussKrugerCoord; out ALon, ALat: Double): Boolean;
+function TGaussKruger.proj_to_wgs84(const ACoord: TGaussKrugerCoord; out ALon, ALat: Double): Boolean;
 begin
   Result :=
-    gauss_kruger_to_sk42(ACoord, ALon, ALat) and
-    geodetic_cs_to_cs(sk_42, wgs_84, ALon, ALat);
+    proj_to_geog(ACoord, ALon, ALat) and
+    geodetic_cs_to_cs(GetGeogInit, wgs_84, ALon, ALat);
 end;
 
-function gauss_kruger_to_sk42(const ACoord: TGaussKrugerCoord; out ALon, ALat: Double): Boolean;
+function TGaussKruger.proj_to_geog(const ACoord: TGaussKrugerCoord; out ALon, ALat: Double): Boolean;
 var
   VInitStr: AnsiString;
 begin
-  VInitStr := get_sk42_gauss_kruger_init(ACoord.Zone, ACoord.IsNorth);
-  Result := projected_cs_to_geodetic_cs(VInitStr, sk_42, ACoord.X, ACoord.Y, ALon, ALat);
+  VInitStr := GetProjInit(ACoord.Zone, ACoord.IsNorth);
+  Result := projected_cs_to_geodetic_cs(VInitStr, GetGeogInit, ACoord.X, ACoord.Y, ALon, ALat);
+end;
+
+{ TGaussKrugerFactory }
+
+class function TGaussKrugerFactory.BuildSK42: TGaussKruger;
+begin
+  Result := TGaussKruger.Create(sk_42, sk_42_gauss_kruger_fmt);
+end;
+
+class function TGaussKrugerFactory.BuildGSK2011: TGaussKruger;
+begin
+  Result := TGaussKruger.Create(gsk_2011, gsk_2011_gauss_kruger_fmt);
 end;
 
 end.
