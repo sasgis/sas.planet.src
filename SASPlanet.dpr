@@ -238,6 +238,7 @@ uses
   u_CoordRepresentationConfig in 'Src\CoordRepresentation\u_CoordRepresentationConfig.pas',
   u_CoordToStringConverter in 'Src\CoordRepresentation\u_CoordToStringConverter.pas',
   u_CoordToStringConverterChangeable in 'Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas',
+  u_CoordTransformer in 'Src\CoordRepresentation\u_CoordTransformer.pas',
   frm_DebugInfo in 'Src\Debug\frm_DebugInfo.pas' {frmDebugInfo},
   i_DebugInfoSubSystem in 'Src\Debug\i_DebugInfoSubSystem.pas',
   i_DebugInfoWindow in 'Src\Debug\i_DebugInfoWindow.pas',

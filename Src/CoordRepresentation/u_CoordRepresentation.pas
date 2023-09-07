@@ -36,6 +36,14 @@ function GetCoordSysTypeCaption: TCoordSysTypeCaption;
 function GetCoordSysTypeCaptionShort: TCoordSysTypeCaption;
 function GetUPSCoordSysTypeCaptionShort: string;
 
+function CoordSysTypeToInteger(const AValue: TCoordSysType): Integer;
+function IntegerToCoordSysType(const AValue: Integer): TCoordSysType;
+
+procedure SetCoordSysType(
+  const AConfig: ICoordRepresentationConfig;
+  const AIndex: Integer
+);
+
 //-----------------------------------------------------------------------------
 
 function GeogCoordShowFormatToInteger(const AValue: TGeogCoordShowFormat): Integer;
@@ -64,37 +72,86 @@ implementation
 uses
   gnugettext;
 
-type
-  TGeogCoordShowFormatCaption = array [TGeogCoordShowFormat] of string;
-  TProjCoordShowFormatCaption = array [TProjCoordShowFormat] of string;
-  TMgrsCoordShowFormatCaption = array [TMgrsCoordShowFormat] of string;
+const
+  CCoordSysTypeId: array[TCoordSysType] of Integer = (
+    0, 3, 4, 1, 2, 11, 12
+  );
 
 function GetCoordSysTypeCaption: TCoordSysTypeCaption;
 begin
   Result[cstWGS84]  := _('WGS 84 / Geographic');
 
+  Result[cstUTM]    := _('WGS 84 / UTM (6 degree zones)');
+  Result[cstMGRS]   := 'WGS 84 / MGRS';
+
   Result[cstSK42]   := _('SK-42 (Pulkovo-1942) / Geographic');
   Result[cstSK42GK] := _('SK-42 / Gauss-Kruger (6 degree zones)');
 
-  Result[cstUTM]    := _('WGS 84 / UTM (6 degree zones)');
-  Result[cstMGRS]   := 'WGS 84 / MGRS';
+  Result[cstGSK2011]   := _('GSK-2011 / Geographic');
+  Result[cstGSK2011GK] := _('GSK-2011 / Gauss-Kruger (6 degree zones)');
 end;
 
 function GetCoordSysTypeCaptionShort: TCoordSysTypeCaption;
 begin
   Result[cstWGS84]  := 'WGS 84';
 
+  Result[cstUTM]    := 'WGS 84 / UTM';
+  Result[cstMGRS]   := 'WGS 84 / MGRS';
+
   Result[cstSK42]   := _('SK-42');
   Result[cstSK42GK] := _('SK-42 / GK');
 
-  Result[cstUTM]    := 'WGS 84 / UTM';
-  Result[cstMGRS]   := 'WGS 84 / MGRS';
+  Result[cstGSK2011]   := _('GSK-2011');
+  Result[cstGSK2011GK] := _('GSK-2011 / GK');
 end;
 
 function GetUPSCoordSysTypeCaptionShort: string;
 begin
   Result := 'WGS 84 / UPS';
 end;
+
+function CoordSysTypeToInteger(const AValue: TCoordSysType): Integer;
+begin
+  Result := CCoordSysTypeId[AValue];
+end;
+
+function IntegerToCoordSysType(const AValue: Integer): TCoordSysType;
+var
+  I: TCoordSysType;
+begin
+  for I := Low(TCoordSysType) to High(TCoordSysType) do begin
+    if CCoordSysTypeId[I] = AValue then begin
+      Result := I;
+      Exit;
+    end;
+  end;
+  Result := Low(TCoordSysType);
+end;
+
+procedure SetCoordSysType(
+  const AConfig: ICoordRepresentationConfig;
+  const AIndex: Integer
+);
+var
+  I: Integer;
+  VType: TCoordSysType;
+begin
+  I := 0;
+  for VType := Low(TCoordSysType) to High(TCoordSysType) do begin
+    if I = AIndex then begin
+      AConfig.CoordSysType := VType;
+      Exit;
+    end;
+    Inc(I);
+  end;
+end;
+
+//-----------------------------------------------------------------------------
+
+type
+  TGeogCoordShowFormatCaption = array [TGeogCoordShowFormat] of string;
+  TProjCoordShowFormatCaption = array [TProjCoordShowFormat] of string;
+  TMgrsCoordShowFormatCaption = array [TMgrsCoordShowFormat] of string;
 
 function GetGeogCoordShowFormatCaption: TGeogCoordShowFormatCaption;
 begin
@@ -236,11 +293,11 @@ begin
   AActiveItemIndex := -1;
 
   case AConfig.CoordSysType of
-    cstWGS84, cstSK42: begin
+    cstWGS84, cstSK42, cstGSK2011: begin
       _GetGeogCaptions;
     end;
 
-    cstSK42GK, cstUTM: begin
+    cstUTM, cstSK42GK, cstGSK2011GK: begin
       _GetProjCaptions;
     end;
 
@@ -260,11 +317,11 @@ procedure SetCoordShowFormat(
 );
 begin
   case AConfig.CoordSysType of
-    cstWGS84, cstSK42: begin
+    cstWGS84, cstSK42, cstGSK2011: begin
       AConfig.GeogCoordShowFormat := TGeogCoordShowFormat(AIndex);
     end;
 
-    cstSK42GK, cstUTM: begin
+    cstUTM, cstSK42GK, cstGSK2011GK: begin
       AConfig.ProjCoordShowFormat := TProjCoordShowFormat(AIndex);
     end;
 

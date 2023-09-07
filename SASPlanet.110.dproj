@@ -1185,6 +1185,7 @@
         <DCCReference Include="Src\CoordRepresentation\u_CoordRepresentationConfig.pas"/>
         <DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverter.pas"/>
         <DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas"/>
+        <DCCReference Include="Src\CoordRepresentation\u_CoordTransformer.pas"/>
         <DCCReference Include="Src\Debug\frm_DebugInfo.pas">
             <Form>frmDebugInfo</Form>
         </DCCReference>

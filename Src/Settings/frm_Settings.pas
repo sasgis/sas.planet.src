@@ -739,7 +739,7 @@ begin
   VCoordRepresentationConfig.LockWrite;
   try
     VCoordRepresentationConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
-    VCoordRepresentationConfig.CoordSysType := TCoordSysType(cbbCoordSysType.ItemIndex);
+    SetCoordSysType(VCoordRepresentationConfig, cbbCoordSysType.ItemIndex);
     VCoordRepresentationConfig.CoordSysInfoType := TCoordSysInfoType(cbbCoordSysInfoType.ItemIndex);
     SetCoordShowFormat(VCoordRepresentationConfig, cbbCoordRepresentation.ItemIndex);
   finally
@@ -1241,7 +1241,7 @@ end;
 
 procedure TfrmSettings.cbbCoordSysTypeChange(Sender: TObject);
 begin
-  GState.Config.CoordRepresentationConfig.CoordSysType := TCoordSysType(cbbCoordSysType.ItemIndex);
+  SetCoordSysType(GState.Config.CoordRepresentationConfig, cbbCoordSysType.ItemIndex);
   InitCoordShowFormat;
 end;
 
@@ -1253,15 +1253,25 @@ end;
 procedure TfrmSettings.InitCoordSysTypeList;
 var
   I: TCoordSysType;
+  J: Integer;
+  VActive: TCoordSysType;
+  VActiveIndex: Integer;
   VCaption: TCoordSysTypeCaption;
 begin
   VCaption := GetCoordSysTypeCaption;
   cbbCoordSysType.Clear;
+  VActive := GState.Config.CoordRepresentationConfig.CoordSysType;
+  VActiveIndex := 0;
+  J := 0;
   for I := Low(TCoordSysType) to High(TCoordSysType) do begin
     cbbCoordSysType.Items.Add(VCaption[I]);
+    if I = VActive then begin
+      VActiveIndex := J;
+    end;
+    Inc(J);
   end;
 
-  cbbCoordSysType.ItemIndex := Integer(GState.Config.CoordRepresentationConfig.CoordSysType);
+  cbbCoordSysType.ItemIndex := VActiveIndex;
 end;
 
 procedure TfrmSettings.InitCoordShowFormat;

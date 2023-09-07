@@ -229,6 +229,8 @@ begin
   cbbCoordType.Items.Add( _('Pixel Coordinates') );
   cbbCoordType.Items.Add( _('Tile Coordinates') );
 
+  cbbCoordType.DropDownCount := cbbCoordType.Items.Count;
+
   VCoordType := FCoordRepresentationConfig.CoordSysType;
   cbbCoordType.ItemIndex := CoordTypeToItemIndex(VCoordType);
 end;
@@ -274,10 +276,10 @@ var
 begin
   if ItemIndexToCoordType(AIndex, VCoordSysType) then begin
     case VCoordSysType of
-      cstWGS84, cstSK42: begin
+      cstWGS84, cstSK42, cstGSK2011: begin
         Result := csgGeog;
       end;
-      cstSK42GK, cstUTM: begin
+      cstUTM, cstSK42GK, cstGSK2011GK: begin
         Result := csgProjWithZone;
       end;
       cstMGRS: begin

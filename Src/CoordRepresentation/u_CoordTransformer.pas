@@ -19,52 +19,67 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit t_CoordRepresentation;
+unit u_CoordTransformer;
 
 interface
 
+uses
+  Proj4.GaussKruger,
+  t_CoordRepresentation;
+
 type
-  TGeogCoordShowFormat = (
-    dshCharDegrMinSec,
-    dshCharDegrMin,
-    dshCharDegr,
-    dshCharDegr2,
-    dshSignDegrMinSec,
-    dshSignDegrMin,
-    dshSignDegr,
-    dshSignDegr2
-  );
-
-  TProjCoordShowFormat = (
-    psfRoundedToWhole,
-    psfRoundedToTenth,
-    psfRoundedToHundredths,
-    psfRoundedToThousandths
-  );
-
-  TMgrsCoordShowFormat = (
-    msfSplitted,
-    msfJoined
-  );
-
-  TCoordSysType = (
-    cstWGS84,    // WGS 84 / Geographic
-    cstUTM,      // WGS 84 / UTM zones
-    cstMGRS,     // WGS 84 / MGRS
-
-    cstSK42,     // SK-42 / Geographic
-    cstSK42GK,   // SK-42 / Gauss-Kruger zones
-
-    cstGSK2011,  // GSK-2011 / Geographic
-    cstGSK2011GK // GSK-2011 / Gauss-Kruger zones
-  );
-
-  TCoordSysInfoType = (
-    csitDontShow = 0,
-    csitShowExceptWGS84 = 1,
-    csitShowForAll = 2
-  );
+  TCoordTransformer = class
+  private
+    FSK42: TGaussKruger;
+    FGSK2011: TGaussKruger;
+    FItems: array [TCoordSysType] of TGaussKruger;
+  public
+    function GetItem(const AType: TCoordSysType): TGaussKruger; inline;
+    property Item[const AType: TCoordSysType]: TGaussKruger read GetItem; default;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
 
 implementation
+
+uses
+  SysUtils;
+
+{ TCoordTransformer }
+
+constructor TCoordTransformer.Create;
+begin
+  inherited Create;
+
+  FSK42 := TGaussKrugerFactory.BuildSK42;
+  FGSK2011 := TGaussKrugerFactory.BuildGSK2011;
+
+  FItems[cstWGS84] := nil; // no any transformations needed
+
+  FItems[cstUTM] := nil; // todo
+  FItems[cstMGRS] := nil; // todo
+
+  FItems[cstSK42] := FSK42;
+  FItems[cstSK42GK] := FSK42;
+
+  FItems[cstGSK2011] := FGSK2011;
+  FItems[cstGSK2011GK] := FGSK2011;
+end;
+
+destructor TCoordTransformer.Destroy;
+begin
+  FreeAndNil(FSK42);
+  FreeAndNil(FGSK2011);
+
+  inherited Destroy;
+end;
+
+function TCoordTransformer.GetItem(const AType: TCoordSysType): TGaussKruger;
+begin
+  Result := FItems[AType];
+
+  Assert(Result <> nil);
+end;
 
 end.

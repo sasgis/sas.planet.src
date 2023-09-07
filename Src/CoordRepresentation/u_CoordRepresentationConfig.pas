@@ -140,7 +140,7 @@ begin
     FGeogCoordShowFormat := IntegerToGeogCoordShowFormat(AConfigData.ReadInteger('DegrisShowFormat', GeogCoordShowFormatToInteger(FGeogCoordShowFormat)));
     FProjCoordShowFormat := IntegerToProjCoordShowFormat(AConfigData.ReadInteger('ProjCoordShowFormat', ProjCoordShowFormatToInteger(FProjCoordShowFormat)));
     FMgrsCoordShowFormat := TMgrsCoordShowFormat(AConfigData.ReadInteger('MgrsCoordShowFormat', Integer(FMgrsCoordShowFormat)));
-    FCoordSysType := TCoordSysType(AConfigData.ReadInteger('CoordSysType', Integer(FCoordSysType)));
+    FCoordSysType := IntegerToCoordSysType(AConfigData.ReadInteger('CoordSysType', CoordSysTypeToInteger(FCoordSysType)));
     FCoordSysInfoType := TCoordSysInfoType(AConfigData.ReadInteger('CoordSysInfoType', Integer(FCoordSysInfoType)));
     SetChanged;
   end;
@@ -155,7 +155,7 @@ begin
   AConfigData.WriteInteger('DegrisShowFormat', GeogCoordShowFormatToInteger(FGeogCoordShowFormat));
   AConfigData.WriteInteger('ProjCoordShowFormat', ProjCoordShowFormatToInteger(FProjCoordShowFormat));
   AConfigData.WriteInteger('MgrsCoordShowFormat', Integer(FMgrsCoordShowFormat));
-  AConfigData.WriteInteger('CoordSysType', Integer(FCoordSysType));
+  AConfigData.WriteInteger('CoordSysType', CoordSysTypeToInteger(FCoordSysType));
   AConfigData.WriteInteger('CoordSysInfoType', Integer(FCoordSysInfoType));
 end;
 

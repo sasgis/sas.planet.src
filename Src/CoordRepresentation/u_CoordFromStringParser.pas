@@ -31,13 +31,14 @@ uses
   t_CoordRepresentation,
   i_CoordFromStringParser,
   i_CoordRepresentationConfig,
+  u_CoordTransformer,
   u_BaseInterfacedObject;
 
 type
   TCoordFromStringParser = class(TBaseInterfacedObject, ICoordFromStringParser)
   private
     FConfig: ICoordRepresentationConfig;
-    FSK42: TGaussKruger;
+    FTransformer: TCoordTransformer;
   private
     { ICoordFromStringParser }
     function TryStrToCoord(
@@ -158,12 +159,12 @@ begin
   inherited Create;
 
   FConfig := AConfig;
-  FSK42 := TGaussKrugerFactory.BuildSK42;
+  FTransformer := TCoordTransformer.Create;
 end;
 
 destructor TCoordFromStringParser.Destroy;
 begin
-  FreeAndNil(FSK42);
+  FreeAndNil(FTransformer);
   inherited Destroy;
 end;
 
@@ -172,6 +173,8 @@ function TCoordFromStringParser.TryStrToCoord(
   const ALat: string;
   out ACoord: TDoublePoint
 ): Boolean;
+var
+  VCoordSysType: TCoordSysType;
 begin
   Result := Edit2Digit(ALon, False, ACoord.X);
   if not Result then begin
@@ -183,14 +186,16 @@ begin
     Exit;
   end;
 
-  case FConfig.CoordSysType of
+  VCoordSysType := FConfig.CoordSysType;
+
+  case VCoordSysType of
     cstWGS84: begin
       Result := True;
     end;
 
-    cstSK42: begin
-      Result := FSK42.geog_to_wgs84(ACoord.X, ACoord.Y);
-    end
+    cstSK42, cstGSK2011: begin
+      Result := FTransformer[VCoordSysType].geog_to_wgs84(ACoord.X, ACoord.Y);
+    end;
   else
     Result := False;
     Assert(False);
@@ -247,6 +252,7 @@ var
   VGauss: TGaussKrugerCoord;
   VZoneNumber: Integer;
   VZoneLetter: Char;
+  VCoordSysType: TCoordSysType;
 begin
   Result := False;
 
@@ -255,8 +261,10 @@ begin
 
   _GetZoneParts(VZoneNumber, VZoneLetter);
 
-  case FConfig.CoordSysType of
-    cstSK42GK: begin
+  VCoordSysType := FConfig.CoordSysType;
+
+  case VCoordSysType of
+    cstSK42GK, cstGSK2011GK: begin
       if not (VZoneNumber in [1..60]) or not (AnsiChar(VZoneLetter) in ['N', 'S']) then begin
         Exit;
       end;
@@ -268,7 +276,7 @@ begin
       VGauss.X := X;
       VGauss.Y := Y;
 
-      Result := FSK42.proj_to_wgs84(VGauss, ACoord.X, ACoord.Y);
+      Result := FTransformer[VCoordSysType].proj_to_wgs84(VGauss, ACoord.X, ACoord.Y);
     end;
 
     cstUTM: begin

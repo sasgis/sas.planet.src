@@ -31,6 +31,7 @@ uses
   t_GeoTypes,
   t_CoordRepresentation,
   i_CoordToStringConverter,
+  u_CoordTransformer,
   u_BaseInterfacedObject;
 
 type
@@ -47,7 +48,7 @@ type
     FNorthMarker: string;
     FSouthMarker: string;
     FFormatSettings: TFormatSettings;
-    FSK42: TGaussKruger;
+    FTransformer: TCoordTransformer;
   private
     function FloatToStr(const AFormat: string; const AValue: Double): string; inline;
     function DegrToStr(
@@ -123,12 +124,12 @@ begin
   FWestMarker := 'W';
   FSouthMarker := 'S';
   FFormatSettings.DecimalSeparator := '.';
-  FSK42 := TGaussKrugerFactory.BuildSK42;
+  FTransformer := TCoordTransformer.Create;
 end;
 
 destructor TCoordToStringConverter.Destroy;
 begin
-  FreeAndNil(FSK42);
+  FreeAndNil(FTransformer);
   inherited Destroy;
 end;
 
@@ -431,15 +432,15 @@ begin
       _GeodeticCoordToStr(ALonLat, VLonStr, VLatStr);
     end;
 
-    cstSK42: begin // Pulkovo-1942 / Geographic
+    cstSK42, cstGSK2011: begin // SK-42 / GSK-2011 (Geographic)
       VGeogLonLat := ALonLat;
-      if FSK42.wgs84_to_geog(VGeogLonLat.X, VGeogLonLat.Y) then begin
+      if FTransformer[ACoordSysType].wgs84_to_geog(VGeogLonLat.X, VGeogLonLat.Y) then begin
         _GeodeticCoordToStr(VGeogLonLat, VLonStr, VLatStr);
       end;
     end;
 
-    cstSK42GK: begin // Pulkovo-1942 / Gauss-Kruger
-      if FSK42.wgs84_to_proj(ALonLat.X, ALonLat.Y, VGauss) then begin
+    cstSK42GK, cstGSK2011GK: begin // SK-42 / GSK-2011 (Gauss-Kruger)
+      if FTransformer[ACoordSysType].wgs84_to_proj(ALonLat.X, ALonLat.Y, VGauss) then begin
         _ProjectedCoordToStr(VGauss.X, VGauss.Y, {Swap=}True, VLonStr, VLatStr);
         VZoneStr := _ZoneInfoToStr(VGauss.Zone, VGauss.IsNorth);
       end;
