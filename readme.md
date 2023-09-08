@@ -1,7 +1,7 @@
 
-#### How to compile SAS.Planet project
+#### How to build
 
-1. Set up the environment following by this instruction: [sas.requires/readme.md](https://github.com/sasgis/sas.requires/blob/master/readme.md)
+1. Set up the environment: [sas.requires/readme.md](https://github.com/sasgis/sas.requires/blob/master/readme.md)
 
 2. Clone this repository to any place on your disk:
 
@@ -13,13 +13,7 @@
 
 5. Update maps: execute *sas.planet.src\\.bin\Maps\sas.maps\Update.cmd*
 
-6. Now you can open `*.dproj` file (for example: *sas.planet.src\SASPlanet.104.dproj*) and compile it!
-
----
-
-#### Project files naming
-
- We have main *SASPlanet.dproj* that compatible with Delphi 2007 and any other (newer) Delphi version. You can use it to create project file for your specific Delphi version, like it already done for Delphi XE2 (*SASPlanet.XE2.dproj*), Delphi 10.4 (*SASPlanet.104.dproj*) and others.
+6. Now you can open `*.dproj` file (for example: *sas.planet.src\SASPlanet.104.dproj* for Delphi 10.4) and compile it!
 
 ---
 
