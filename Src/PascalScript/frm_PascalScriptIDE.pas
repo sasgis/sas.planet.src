@@ -198,6 +198,11 @@ type
     procedure OnBeforeRunScript(const APSExec: TPSExecEx);
     procedure OnExecSuccess;
     procedure CreateSynEditTextHighlighters;
+    procedure SynEditTextKeyHandler(
+      Sender: TObject;
+      var AKey: Word;
+      AShift: TShiftState
+    );
     procedure OnSynEditStatusChange(
       Sender: TObject;
       Changes: TSynStatusChanges
@@ -1157,6 +1162,29 @@ begin
 
   synedtParams := TSynEditBuilder.SynEditWithIniHighlighter(Self);
   SetProps(synedtParams, pnlParamsTxt, 2);
+
+  synedtParams.AddKeyDownHandler(Self.SynEditTextKeyHandler);
+end;
+
+procedure TfrmPascalScriptIDE.SynEditTextKeyHandler(Sender: TObject; var AKey: Word; AShift: TShiftState);
+var
+  VText: string;
+  VSynEdit: TSynEdit;
+begin
+  VSynEdit := Sender as TSynEdit;
+  if Assigned(VSynEdit) and (VSynEdit.Tag = 2) then begin
+    if (AKey = vkG) and (AShift = [ssShift, ssCtrl]) then begin
+      // Ctrl + Shift + G --> insert GUID
+      VText := TGUID.NewGuid.ToString;
+      if VSynEdit.SelLength > 0 then begin
+        // replace selected text
+        VSynEdit.SelText := VText;
+      end else begin
+        // insert at caret position
+        VSynEdit.InsertBlock(VSynEdit.CaretXY, VSynEdit.CaretXY, PChar(VText), True);
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmPascalScriptIDE.OnSynEditStatusChange(
