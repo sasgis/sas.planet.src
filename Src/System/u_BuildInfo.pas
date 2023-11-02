@@ -152,21 +152,31 @@ end;
 
 function TBuildInfo.GetCompilerInfo: string;
 begin
-  {$DEFINE UNKNOWNVERFORBUILDINFO}
-
-  {$IFDEF VER185} Result := 'CodeGear'    + #153 +' Delphi' + #174 + ' 2007'; {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
-  {$IFDEF VER220} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE';   {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
-  {$IFDEF VER230} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE2';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
-  {$IFDEF VER310} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.1 Berlin';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
-  {$IFDEF VER320} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.2 Tokyo';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
-  {$IFDEF VER330} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.3 Rio';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
-  {$IFDEF VER340} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 10.4 Sydney';  {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
-  {$IFDEF VER350} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' 11.0'; {$UNDEF UNKNOWNVERFORBUILDINFO}{$ENDIF}
-
-  {$IFDEF UNKNOWNVERFORBUILDINFO}
-    {$MESSAGE ERROR 'Define your compiler version above!'}
-  {$ENDIF}
-  {$UNDEF UNKNOWNVERFORBUILDINFO}
+  Result := 'Delphi'
+    {$if     defined(VER185)} + ' 2007'
+    {$elseif defined(VER200)} + ' 2009'
+    {$elseif defined(VER210)} + ' 2010'
+    {$elseif defined(VER220)} + ' XE'
+    {$elseif defined(VER230)} + ' XE2'
+    {$elseif defined(VER240)} + ' XE3'
+    {$elseif defined(VER250)} + ' XE4'
+    {$elseif defined(VER260)} + ' XE5'
+    {$elseif defined(VER270)} + ' XE6'
+    {$elseif defined(VER280)} + ' XE7'
+    {$elseif defined(VER290)} + ' XE8'
+    {$elseif defined(VER300)} + ' 10'
+    {$elseif defined(VER310)} + ' 10.1'
+    {$elseif defined(VER320)} + ' 10.2'
+    {$elseif defined(VER330)} + ' 10.3'
+    {$elseif defined(VER340)} + ' 10.4'
+    {$elseif defined(VER350)} + ' 11'
+      {$if declared(RTLVersion113)} + '.3' {$else}
+      {$if declared(RTLVersion112)} + '.2' {$else}
+      {$if declared(RTLVersion111)} + '.1' {$ifend} {$ifend} {$ifend}
+    {$elseif defined(VER360)} + ' 12'
+      {$if declared(RTLVersion121)} + '.1' {$ifend}
+    {$else} {$message hint 'Define your compiler version above!'}
+    {$ifend};
 end;
 
 function TBuildInfo.GetDescription: string;
