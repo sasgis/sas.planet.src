@@ -1573,6 +1573,14 @@ begin
   try
     VApp := Application;
 
+    {$IF CompilerVersion > 34}
+      // The default font changed from "Tahoma, 8 pt" to "Segoe UI, 9 pt"
+      // starting with Delphi 11. This increased the text size by 2 pixels.
+      {$MESSAGE HINT 'fix UI with new default font "Segoe UI, 9 pt"'}
+      VApp.DefaultFont.Name := 'Tahoma';
+      VApp.DefaultFont.Size := 8;
+    {$ENDIF}
+
     VApp.Initialize;
     VApp.MainFormOnTaskBar := True;
     VApp.Title := GState.ApplicationCaption;
