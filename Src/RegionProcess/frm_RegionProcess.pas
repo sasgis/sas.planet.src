@@ -530,7 +530,7 @@ function TfrmRegionProcess.PrepareProviders(
 var
   VProgressFactory: IRegionProcessProgressInfoInternalFactory;
   VMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  VExportProvider: IRegionProcessProvider;
+  VProvider: IRegionProcessProvider;
   VList: IInterfaceListSimple;
 begin
   VList := TInterfaceListSimple.Create;
@@ -569,10 +569,10 @@ begin
       FMarkDBGUI,
       AMainMapConfig
     );
-  VExportProvider := FProviderTilesDownload;
-  VList.Add(VExportProvider);
+  VProvider := FProviderTilesDownload;
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TRegionProcessProviderComplex.Create(
       ALanguageManager,
       PrepareCombineProviders(
@@ -609,9 +609,9 @@ begin
       gettext_NoOp('Stitch selection'),
       gettext_NoOp('Output format:')
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderTilesGenPrev.Create(
       VProgressFactory,
       FTileIteratorFactory,
@@ -622,9 +622,9 @@ begin
       AImageResamplerFactoryList,
       AImageResamplerConfig
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TRegionProcessProviderComplex.Create(
       ALanguageManager,
       PrepareDeleteProviders(
@@ -640,9 +640,9 @@ begin
       '',
       ''
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TRegionProcessProviderComplex.Create(
       ALanguageManager,
       PrepareExportProviders(
@@ -666,9 +666,9 @@ begin
       '',
       gettext_NoOp('Export selection to format')
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderTilesCopy.Create(
       ATimerNoifier,
       VProgressFactory,
@@ -686,7 +686,7 @@ begin
       ABitmapFactory,
       ABitmapTileSaveLoadFactory
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
   Result := VList.MakeStaticAndClear;
 end;
@@ -721,12 +721,12 @@ function TfrmRegionProcess.PrepareCombineProviders(
   const AMapCalibrationList: IMapCalibrationList
 ): IInterfaceListStatic;
 var
-  VExportProvider: IRegionProcessProvider;
+  VProvider: IRegionProcessProvider;
   VList: IInterfaceListSimple;
 begin
   VList := TInterfaceListSimple.Create;
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryJPG.Create(ACounterList),
       AProgressFactory,
@@ -754,9 +754,9 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryPNG.Create(ACounterList),
       AProgressFactory,
@@ -784,9 +784,9 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryBMP.Create(ACounterList),
       AProgressFactory,
@@ -814,9 +814,9 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryECW.Create(ACounterList),
       AProgressFactory,
@@ -844,9 +844,9 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryJP2.Create(ACounterList, False),
       AProgressFactory,
@@ -874,9 +874,9 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryJP2.Create(ACounterList, True),
       AProgressFactory,
@@ -904,9 +904,9 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryKMZ.Create(ABitmapTileSaveLoadFactory, AArchiveReadWriteFactory, ABitmapFactory),
       AProgressFactory,
@@ -934,9 +934,9 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryRAW.Create(ACounterList),
       AProgressFactory,
@@ -964,9 +964,9 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TProviderMapCombine.Create(
       TBitmapMapCombinerFactoryGeoTIFF.Create(ACounterList),
       AProgressFactory,
@@ -994,7 +994,7 @@ begin
       ACoordToStringConverter,
       AMapCalibrationList
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
   Result := VList.MakeStaticAndClear;
 end;
 
@@ -1007,12 +1007,12 @@ function TfrmRegionProcess.PrepareDeleteProviders(
   const AMarkSystem: IMarkSystem
 ): IInterfaceListStatic;
 var
-  VExportProvider: IRegionProcessProvider;
+  VProvider: IRegionProcessProvider;
   VList: IInterfaceListSimple;
 begin
   VList := TInterfaceListSimple.Create;
 
-  VExportProvider :=
+  VProvider :=
     TProviderDeleteTiles.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1020,8 +1020,8 @@ begin
       FTileIteratorFactory
     );
 
-  VList.Add(VExportProvider);
-  VExportProvider :=
+  VList.Add(VProvider);
+  VProvider :=
     TProviderDeleteMarks.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1030,7 +1030,7 @@ begin
       AVectorGeometryProjectedFactory,
       AMarkSystem
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
   Result := VList.MakeStaticAndClear;
 end;
@@ -1052,30 +1052,30 @@ function TfrmRegionProcess.PrepareExportProviders(
   const ATileNameGenerator: ITileFileNameGeneratorsList
 ): IInterfaceListStatic;
 var
-  VExportProvider: IRegionProcessProvider;
+  VProvider: IRegionProcessProvider;
   VList: IInterfaceListSimple;
 begin
   VList := TInterfaceListSimple.Create;
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderKml.Create(
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
       FTileIteratorFactory
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderAUX.Create(
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
       FTileIteratorFactory
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderZip.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1085,9 +1085,9 @@ begin
       ATileStorageTypeList,
       ATileNameGenerator
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderTar.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1097,9 +1097,9 @@ begin
       ATileStorageTypeList,
       ATileNameGenerator
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderJNX.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1108,9 +1108,9 @@ begin
       ABitmapTileSaveLoadFactory,
       ABitmapPostProcessing
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderIMG.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1119,18 +1119,18 @@ begin
       ABitmapTileSaveLoadFactory,
       ABitmapPostProcessing
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderCE.Create(
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
       FTileIteratorFactory
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderRMapsSQLite.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1142,9 +1142,9 @@ begin
       AProjectionSetFactory,
       mtBase
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderRMapsSQLite.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1156,9 +1156,9 @@ begin
       AProjectionSetFactory,
       mtOsmAnd
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderRMapsSQLite.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1170,9 +1170,9 @@ begin
       AProjectionSetFactory,
       mtLocus
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderOruxMapsSQLite.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1184,9 +1184,9 @@ begin
       ABitmapTileSaveLoadFactory,
       AProjectionSetFactory
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderMBTiles.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1197,9 +1197,9 @@ begin
       ABitmapTileSaveLoadFactory,
       AProjectionSetFactory
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
-  VExportProvider :=
+  VProvider :=
     TExportProviderRMP.Create(
       AProgressFactory,
       ALanguageManager,
@@ -1212,7 +1212,7 @@ begin
       ATileReprojectResamplerConfig,
       AProjectionSetFactory
     );
-  VList.Add(VExportProvider);
+  VList.Add(VProvider);
 
   Result := VList.MakeStaticAndClear;
 end;
