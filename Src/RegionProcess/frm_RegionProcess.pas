@@ -968,7 +968,7 @@ begin
 
   VProvider :=
     TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryGeoTIFF.Create(ACounterList),
+      TBitmapMapCombinerFactoryGeoTiffStripped.Create(ACounterList),
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
@@ -995,6 +995,37 @@ begin
       AMapCalibrationList
     );
   VList.Add(VProvider);
+
+  VProvider :=
+    TProviderMapCombine.Create(
+      TBitmapMapCombinerFactoryGeoTiffTiled.Create(ACounterList),
+      AProgressFactory,
+      ALanguageManager,
+      AMapSelectFrameBuilder,
+      AActiveMapsSet,
+      AViewConfig,
+      AViewProjectionConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionSet,
+      AProjectionSetList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter,
+      AMapCalibrationList
+    );
+  VList.Add(VProvider);
+
   Result := VList.MakeStaticAndClear;
 end;
 

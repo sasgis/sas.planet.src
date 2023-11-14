@@ -3,7 +3,7 @@ unit libtiff;
 interface
 
 {.$DEFINE TIFF_STATIC_LINK}
-{.$DEFINE  USE_DELPHI_STREAM}
+{.$DEFINE USE_DELPHI_STREAM}
 
 {$IFDEF USE_DELPHI_STREAM}
 uses
@@ -47,6 +47,7 @@ procedure TIFFClose(Handle: PTIFF); cdecl; external libtiff_dll;
 function TIFFSetFileno(Handle: PTIFF; Newvalue: Integer): Integer; cdecl; external libtiff_dll;
 function TIFFSetField(Handle: PTIFF; Tag: Cardinal): Integer; cdecl; external libtiff_dll; varargs;
 function TIFFWriteScanline(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: Word): Integer; cdecl; external libtiff_dll;
+function TIFFWriteTile(Handle: PTIFF; Buf: Pointer; X, Y, Z: Cardinal; Sample: Word): Integer; cdecl; external libtiff_dll;
 {$ELSE}
 var
   TIFFGetVersion: function(): PAnsiChar; cdecl;
@@ -70,6 +71,7 @@ var
   TIFFSetFileno: function(Handle: PTIFF; Newvalue: Integer): Integer; cdecl;
   TIFFSetField: function(Handle: PTIFF; Tag: Cardinal): Integer; cdecl varargs;
   TIFFWriteScanline: function(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: Word): Integer; cdecl;
+  TIFFWriteTile: function(Handle: PTIFF; Buf: Pointer; X, Y, Z: Cardinal; Sample: Word): Integer; cdecl;
 {$ENDIF}
 
 {$REGION 'TIFF constants'}
@@ -574,6 +576,7 @@ begin
       TIFFSetFileno := GetProcAddr('TIFFSetFileno');
       TIFFSetField := GetProcAddr('TIFFSetField');
       TIFFWriteScanline := GetProcAddr('TIFFWriteScanline');
+      TIFFWriteTile := GetProcAddr('TIFFWriteTile');
     end else begin
       RaiseLastOSError;
     end;
@@ -605,6 +608,7 @@ begin
     TIFFSetFileno := nil;
     TIFFSetField := nil;
     TIFFWriteScanline := nil;
+    TIFFWriteTile := nil;
   finally
     gLock.Release;
   end;

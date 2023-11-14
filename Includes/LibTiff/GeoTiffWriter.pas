@@ -13,6 +13,11 @@ type
     ttBigTiff = 1
   );
 
+  TTiffStorageType = (
+    tstStripped = 0,
+    tstTiled = 1
+  );
+
   TTiffCompression = (
     tcNone = 0,
     tcZip = 1,
@@ -23,6 +28,12 @@ type
   TGetLineCallBack = function(
     const ARowNumber: Integer;
     const ALineSize: Integer;
+    const AUserInfo: Pointer
+  ): Pointer of object;
+
+  TGetTileCallBack = function(
+    const X, Y, Z: Integer;
+    const ATileSize: Integer;
     const AUserInfo: Pointer
   ): Pointer of object;
 
@@ -40,10 +51,15 @@ type
   private
     FWidth: Integer;
     FHeight: Integer;
+    FTileWidth: Integer;
+    FTileHeight: Integer;
+    FOverVeiws: string;
     FBitsPerPixel: Integer;
     FSoftwareIDStr: AnsiString;
+    FErrorMessage: string;
     procedure WriteTIFFDirectory(
       const ATiff: PTIFF;
+      const AStorageType: TTiffStorageType;
       const ACompression: TTiffCompression;
       const AStoreAlphaChanel: Boolean;
       const AProjectionInfo: PProjectionInfo
@@ -55,20 +71,51 @@ type
     function WriteImage(
       const ATiff: PTIFF;
       const AGetLineCallBack: TGetLineCallBack;
+      const AGetTileCallBack: TGetTileCallBack;
+      const AUserInfo: Pointer
+    ): Boolean;
+    function Write(
+      const ATiffType: TTiffType;
+      const AOutputFileName: string;
+      const AWidth, AHeight: Integer;
+      const AOverVeiws: string;
+      const ACompression: TTiffCompression;
+      const AGetLineCallBack: TGetLineCallBack;
+      const AGetTileCallBack: TGetTileCallBack;
+      const AStoreAlphaChanel: Boolean;
+      const AProjectionInfo: PProjectionInfo;
       const AUserInfo: Pointer
     ): Boolean;
   public
-    procedure Write(
+    function WriteStripped(
       const ATiffType: TTiffType;
       const AOutputFileName: string;
       const AWidth, AHeight: Integer;
       const ACompression: TTiffCompression;
       const AGetLineCallBack: TGetLineCallBack;
-      const AStoreAlphaChanel: Boolean = False;
-      const AProjectionInfo: PProjectionInfo = nil;
-      const AUserInfo: Pointer = nil
+      const AStoreAlphaChanel: Boolean;
+      const AProjectionInfo: PProjectionInfo;
+      const AUserInfo: Pointer;
+      out AErrorMessage: string
+    ): Boolean; inline;
+    function WriteTiled(
+      const ATiffType: TTiffType;
+      const AOutputFileName: string;
+      const AWidth, AHeight: Integer;
+      const AOverVeiws: string;
+      const ACompression: TTiffCompression;
+      const AGetTileCallBack: TGetTileCallBack;
+      const AStoreAlphaChanel: Boolean;
+      const AProjectionInfo: PProjectionInfo;
+      const AUserInfo: Pointer;
+      out AErrorMessage: string
+    ): Boolean; inline;
+  public
+    constructor Create(
+      const ASoftwareIDStr: AnsiString = '';
+      const ATileWidth: Integer = 256;
+      const ATileHeight: Integer = 256
     );
-    constructor Create(const ASoftwareIDStr: AnsiString = '');
     procedure AfterConstruction; override;
   end;
 
@@ -77,49 +124,119 @@ implementation
 { TGeoTiffWriter }
 
 constructor TGeoTiffWriter.Create(
-  const ASoftwareIDStr: AnsiString
+  const ASoftwareIDStr: AnsiString;
+  const ATileWidth: Integer;
+  const ATileHeight: Integer
 );
 begin
   inherited Create;
   FSoftwareIDStr := ASoftwareIDStr;
+  FTileWidth := ATileWidth;
+  FTileHeight := ATileHeight;
 end;
 
 procedure TGeoTiffWriter.AfterConstruction;
 begin
-  InitLibTiff; // (!)
-  InitLibGeoTiff; // (!)
+  InitLibTiff;
+  InitLibGeoTiff;
 
   if FSoftwareIDStr <> '' then begin
-    FSoftwareIDStr := FSoftwareIDStr + ' with ';
+    FSoftwareIDStr := FSoftwareIDStr + ' with ' + AnsiString(TIFFGetVersion());
   end;
-  FSoftwareIDStr := FSoftwareIDStr + AnsiString(TIFFGetVersion());
 end;
 
-procedure TGeoTiffWriter.Write(
+function TGeoTiffWriter.WriteStripped(
   const ATiffType: TTiffType;
   const AOutputFileName: string;
   const AWidth, AHeight: Integer;
   const ACompression: TTiffCompression;
   const AGetLineCallBack: TGetLineCallBack;
-  const AStoreAlphaChanel: Boolean = False;
-  const AProjectionInfo: PProjectionInfo = nil;
-  const AUserInfo: Pointer = nil
-);
+  const AStoreAlphaChanel: Boolean;
+  const AProjectionInfo: PProjectionInfo;
+  const AUserInfo: Pointer;
+  out AErrorMessage: string
+): Boolean;
+begin
+  Result := Self.Write(
+    ATiffType,
+    AOutputFileName,
+    AWidth,
+    AHeight,
+    '',
+    ACompression,
+    AGetLineCallBack,
+    nil,
+    AStoreAlphaChanel,
+    AProjectionInfo,
+    AUserInfo
+  );
+  if not Result then begin
+    AErrorMessage := FErrorMessage;
+  end;
+end;
+
+function TGeoTiffWriter.WriteTiled(
+  const ATiffType: TTiffType;
+  const AOutputFileName: string;
+  const AWidth, AHeight: Integer;
+  const AOverVeiws: string;
+  const ACompression: TTiffCompression;
+  const AGetTileCallBack: TGetTileCallBack;
+  const AStoreAlphaChanel: Boolean;
+  const AProjectionInfo: PProjectionInfo;
+  const AUserInfo: Pointer;
+  out AErrorMessage: string
+): Boolean;
+begin
+  Result := Self.Write(
+    ATiffType,
+    AOutputFileName,
+    AWidth,
+    AHeight,
+    AOverVeiws,
+    ACompression,
+    nil,
+    AGetTileCallBack,
+    AStoreAlphaChanel,
+    AProjectionInfo,
+    AUserInfo
+  );
+  if not Result then begin
+    AErrorMessage := FErrorMessage;
+  end;
+end;
+
+function TGeoTiffWriter.Write(
+  const ATiffType: TTiffType;
+  const AOutputFileName: string;
+  const AWidth, AHeight: Integer;
+  const AOverVeiws: string;
+  const ACompression: TTiffCompression;
+  const AGetLineCallBack: TGetLineCallBack;
+  const AGetTileCallBack: TGetTileCallBack;
+  const AStoreAlphaChanel: Boolean;
+  const AProjectionInfo: PProjectionInfo;
+  const AUserInfo: Pointer
+): Boolean;
 var
   VTiff: PTIFF;
   VGTiff: PGTIFF;
   VMode: AnsiString;
-  VIsWriteOK: Boolean;
+  VStorageType: TTiffStorageType;
 begin
+  Result := False;
+  FErrorMessage := '';
+
   Assert(AOutputFileName <> '');
   Assert(AWidth > 0);
   Assert(AHeight > 0);
 
   FWidth := AWidth;
   FHeight := AHeight;
+  FOverVeiws := AOverVeiws;
 
   if AProjectionInfo <> nil then begin
-    XTIFFInitialize; // (!) Registers an GeoTIFF extension with libtiff
+    XTIFFInitialize; // Registration of a GeoTIFF extension with libtiff
   end;
 
   VMode := 'w';
@@ -133,47 +250,52 @@ begin
   VTiff := TIFFOpen(PAnsiChar(AnsiString(AOutputFileName)), PAnsiChar(VMode));
   {$IFEND}
 
-  if VTiff <> nil then begin
-    try
-      WriteTIFFDirectory(
-        VTiff,
-        ACompression,
-        AStoreAlphaChanel,
-        AProjectionInfo
-      );
-      if AProjectionInfo <> nil then begin
-        VIsWriteOK := False;
-        VGTiff := GTIFNew(VTiff);
-        if VGTiff <> nil then begin
-          try
-            WriteGeoKeys(
-              VGTiff,
-              AProjectionInfo
-            );
-            GTIFWriteKeys(VGTiff);
-            VIsWriteOK := WriteImage(VTiff, AGetLineCallBack, AUserInfo);
-          finally
-            GTIFFree(VGTiff);
-          end;
-        end else begin
-          // error create GeoTiff struct
-        end;
-      end else begin
-        VIsWriteOK := WriteImage(VTiff, AGetLineCallBack, AUserInfo);
-      end;
-      if not VIsWriteOK then begin
-        // error write TIFF
-      end;
-    finally
-      TIFFClose(VTiff);
+  if VTiff = nil then begin
+    FErrorMessage := 'TIFFOpen() failed!';
+    Exit;
+  end;
+
+  try
+    if Assigned(AGetLineCallBack) then begin
+      VStorageType := tstStripped;
+    end else begin
+      VStorageType := tstTiled;
     end;
-  end else begin
-    // error open TIFF
+
+    WriteTIFFDirectory(
+      VTiff,
+      VStorageType,
+      ACompression,
+      AStoreAlphaChanel,
+      AProjectionInfo
+    );
+
+    VGTiff := nil;
+    try
+      if AProjectionInfo <> nil then begin
+        VGTiff := GTIFNew(VTiff);
+        if VGTiff = nil then begin
+          FErrorMessage := 'GTIFNew() failed!';
+          Exit;
+        end;
+        WriteGeoKeys(VGTiff, AProjectionInfo);
+        GTIFWriteKeys(VGTiff);
+      end;
+
+      Result := WriteImage(VTiff, AGetLineCallBack, AGetTileCallBack, AUserInfo);
+    finally
+      if VGTiff <> nil then begin
+        GTIFFree(VGTiff);
+      end;
+    end;
+  finally
+    TIFFClose(VTiff);
   end;
 end;
 
 procedure TGeoTiffWriter.WriteTIFFDirectory(
   const ATiff: PTIFF;
+  const AStorageType: TTiffStorageType;
   const ACompression: TTiffCompression;
   const AStoreAlphaChanel: Boolean;
   const AProjectionInfo: PProjectionInfo
@@ -185,10 +307,33 @@ var
   VTiePoints: array [0..5] of Double;
   VPixScale: array [0..2] of Double;
 begin
-  TIFFSetField(ATiff, TIFFTAG_SOFTWARE, PAnsiChar(FSoftwareIDStr));
+  case ACompression of
+    tcZip: VCompression := COMPRESSION_DEFLATE;
+    tcLZW: VCompression := COMPRESSION_LZW;
+    tcJPG: VCompression := COMPRESSION_JPEG;
+  else
+    VCompression := COMPRESSION_NONE;
+  end;
+
+  if FSoftwareIDStr <> '' then begin
+    TIFFSetField(ATiff, TIFFTAG_SOFTWARE, PAnsiChar(FSoftwareIDStr));
+  end;
 
 	TIFFSetField(ATiff, TIFFTAG_IMAGEWIDTH, FWidth);
 	TIFFSetField(ATiff, TIFFTAG_IMAGELENGTH, FHeight);
+
+  if AStorageType = tstTiled then begin
+    TIFFSetField(ATiff, TIFFTAG_TILEWIDTH, FTileWidth);
+    TIFFSetField(ATiff, TIFFTAG_TILELENGTH, FTileHeight);
+    //TIFFSetField(ATiff, TIFFTAG_IMAGEDEPTH, 1); // todo: add overviews support
+  end else begin
+    if VCompression = COMPRESSION_JPEG then begin
+      VRowsPerStrip := 8; // value must be multiply 8
+    end else begin
+      VRowsPerStrip := 1;
+    end;
+    TIFFSetField(ATiff, TIFFTAG_ROWSPERSTRIP, VRowsPerStrip);
+  end;
 
   if AStoreAlphaChanel then begin
     FBitsPerPixel := 4*8;
@@ -201,26 +346,13 @@ begin
     TIFFSetField(ATiff, TIFFTAG_SAMPLESPERPIXEL, 3);
   end;
 
-  case ACompression of
-    tcZip: VCompression := COMPRESSION_DEFLATE;
-    tcLZW: VCompression := COMPRESSION_LZW;
-    tcJPG: VCompression := COMPRESSION_JPEG;
-  else
-    VCompression := COMPRESSION_NONE;
-  end;
-  TIFFSetField(ATiff, TIFFTAG_COMPRESSION, VCompression);
-
 	TIFFSetField(ATiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 	TIFFSetField(ATiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 	TIFFSetField(ATiff, TIFFTAG_BITSPERSAMPLE, 8);
+  TIFFSetField(ATiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
   TIFFSetField(ATiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
 
-  if VCompression = COMPRESSION_JPEG then begin
-    VRowsPerStrip := 8; // value must be multiply 8
-  end else begin
-    VRowsPerStrip := 1;
-  end;
-	TIFFSetField(ATiff, TIFFTAG_ROWSPERSTRIP, VRowsPerStrip);
+  TIFFSetField(ATiff, TIFFTAG_COMPRESSION, VCompression);
 
   if AProjectionInfo <> nil then begin
     // GeoTiff info in Tiff Directory
@@ -284,32 +416,56 @@ end;
 function TGeoTiffWriter.WriteImage(
   const ATiff: PTIFF;
   const AGetLineCallBack: TGetLineCallBack;
+  const AGetTileCallBack: TGetTileCallBack;
   const AUserInfo: Pointer
 ): Boolean;
 var
   I: Integer;
-  VLine: Pointer;
-  VLineSize: Integer;
-  VWriteResult: Integer;
+  X, Y, Z: Integer;
+  VData: Pointer;
+  VDataSize: Integer;
 begin
-  Assert(Assigned(AGetLineCallBack));
+  Result := False;
 
-  Result := True;
+  if Assigned(AGetLineCallBack) then begin
 
-  VLineSize := FWidth * (FBitsPerPixel div 8);
-  Assert(VLineSize > 0);
+    VDataSize := FWidth * (FBitsPerPixel div 8);
+    Assert(VDataSize > 0);
 
-  for I := 0 to FHeight - 1 do begin
-    VLine := AGetLineCallBack(I, VLineSize, AUserInfo);
-    if VLine <> nil then begin
-      VWriteResult := TIFFWriteScanline(ATiff, VLine, I, 0);
-      if VWriteResult < 0 then begin
-        Result := False; // Failure in WriteScanline
-        Break;
+    for I := 0 to FHeight - 1 do begin
+      VData := AGetLineCallBack(I, VDataSize, AUserInfo);
+      if VData <> nil then begin
+        if TIFFWriteScanline(ATiff, VData, I, 0) < 0 then begin
+          FErrorMessage := 'TIFFWriteScanline() failed!';
+          Exit;
+        end;
+      end else begin
+        FErrorMessage := 'GetLineCallBack() failed!';
+        Exit;
       end;
-    end else begin
-      Result := False; // Failure in GetLine
-      Break;
+    end;
+
+  end else
+  if Assigned(AGetTileCallBack) then begin
+
+    VDataSize := FWidth * (FBitsPerPixel div 8) * FHeight;
+    Assert(VDataSize > 0);
+
+    Z := 0; // todo: add overviews support
+
+    for X := 0 to (FWidth div FTileWidth) - 1 do begin
+      for Y := 0 to (FHeight div FTileHeight) - 1 do begin
+        VData := AGetTileCallBack(X, Y, Z, VDataSize, AUserInfo);
+        if VData <> nil then begin
+          if TIFFWriteTile(ATiff, VData, X * FTileWidth, Y * FTileHeight, Z, 0) < 0 then begin
+            FErrorMessage := 'TIFFWriteTile() failed!';
+            Exit;
+          end;
+        end else begin
+          FErrorMessage := 'GetTileCallBack() failed!';
+          Exit;
+        end;
+      end;
     end;
   end;
 end;
