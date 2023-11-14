@@ -64,6 +64,10 @@ uses
   u_GeoFunc,
   u_ResStrings;
 
+const
+  PNG_MAX_WIDTH = 65536;
+  PNG_MAX_HEIGHT = 65536;
+
 type
   TBitmapMapCombinerPNG = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
@@ -126,9 +130,6 @@ procedure TBitmapMapCombinerPNG.SaveRect(
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
-const
-  PNG_MAX_HEIGHT = 65536;
-  PNG_MAX_WIDTH = 65536;
 var
   VDest: TFileStream;
   VBitsPerPix: Integer;
@@ -142,56 +143,56 @@ begin
 
   VContext := FSaveRectCounter.StartOperation;
   try
-  VCurrentPieceRect := AMapRect;
-  VMapPieceSize := RectSize(VCurrentPieceRect);
+    VCurrentPieceRect := AMapRect;
+    VMapPieceSize := RectSize(VCurrentPieceRect);
 
-  FWidth := VMapPieceSize.X;
-  FHeight := VMapPieceSize.Y;
+    FWidth := VMapPieceSize.X;
+    FHeight := VMapPieceSize.Y;
 
-  if (FWidth >= PNG_MAX_WIDTH) or (FHeight >= PNG_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(
-      SAS_ERR_ImageIsTooBig,
-      ['PNG', FWidth, PNG_MAX_WIDTH, FHeight, PNG_MAX_HEIGHT, 'PNG']
-    );
-  end;
-
-  if FWithAlpha then begin
-    VBitsPerPix := 32;
-    FLineProvider :=
-      TImageLineProviderRGBA.Create(
-        FPrepareDataCounter,
-        FGetLineCounter,
-        AImageProvider,
-        AMapRect
+    if (FWidth >= PNG_MAX_WIDTH) or (FHeight >= PNG_MAX_HEIGHT) then begin
+      raise Exception.CreateFmt(
+        SAS_ERR_ImageResolutionIsTooHigh,
+        ['PNG', FWidth, PNG_MAX_WIDTH, FHeight, PNG_MAX_HEIGHT]
       );
-  end else begin
-    VBitsPerPix := 24;
-    FLineProvider :=
-      TImageLineProviderRGB.Create(
-        FPrepareDataCounter,
-        FGetLineCounter,
-        AImageProvider,
-        AMapRect
-      );
-  end;
-
-  VDest := TFileStream.Create(AFileName, fmCreate);
-  try
-    VPngWriter := TLibPngWriter.Create;
-    try
-      VPngWriter.Write(
-        VDest,
-        FWidth,
-        FHeight,
-        VBitsPerPix,
-        Self.GetLineCallBack
-      );
-    finally
-      VPngWriter.Free;
     end;
-  finally
-    VDest.Free;
-  end;
+
+    if FWithAlpha then begin
+      VBitsPerPix := 32;
+      FLineProvider :=
+        TImageLineProviderRGBA.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          AMapRect
+        );
+    end else begin
+      VBitsPerPix := 24;
+      FLineProvider :=
+        TImageLineProviderRGB.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          AMapRect
+        );
+    end;
+
+    VDest := TFileStream.Create(AFileName, fmCreate);
+    try
+      VPngWriter := TLibPngWriter.Create;
+      try
+        VPngWriter.Write(
+          VDest,
+          FWidth,
+          FHeight,
+          VBitsPerPix,
+          Self.GetLineCallBack
+        );
+      finally
+        VPngWriter.Free;
+      end;
+    finally
+      VDest.Free;
+    end;
   finally
     FSaveRectCounter.FinishOperation(VContext);
   end;
@@ -223,7 +224,7 @@ var
 begin
   inherited Create(
     Point(0, 0),
-    Point(65536, 65536),
+    Point(PNG_MAX_WIDTH, PNG_MAX_HEIGHT),
     stsUnicode,
     'png',
     gettext_NoExtract('PNG (Portable Network Graphics)'),

@@ -555,19 +555,24 @@ var
   I: Integer;
 begin
   if (FfrMapSelect.GetSelectedMapType = nil) and (FfrLayerSelect.GetSelectedMapType = nil) then begin
-    ShowMessage(_('Please select map or layer'));
+    ShowMessage(_('Please select a map or layer first!'));
     Result := False;
     Exit;
   end;
+
   VProjection := GetProjection;
   VEPSG := VProjection.ProjectionType.ProjectionEPSG;
   if VEPSG <= 0 then begin
-    VMsg := Format(_('Map has unknown projection (EPSG=%d).'#13#10 + 'Do you want to set the projection manually?'), [VEPSG]);
-    if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+    VMsg := Format(
+      _('Map has unknown projection (EPSG=%d).'#13#10 + 'Do you want to set the projection manually?'),
+      [VEPSG]
+    );
+    if Application.MessageBox(PChar(VMsg), PChar(SAS_MSG_coution), 36) = IDYES then begin
       Result := False;
       Exit;
     end;
   end;
+
   VLonLatRect := FPolygLL.Bounds.Rect;
   VProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
   VPixelRect :=
@@ -580,33 +585,48 @@ begin
   VPixelSize.X := Trunc(VPixelSize.X / VSplitCount.X);
   VPixelSize.Y := Trunc(VPixelSize.Y / VSplitCount.Y);
   if VPixelSize.X < FMinPartSize.X then begin
-    ShowMessageFmt(_('Every map part must have width more than %0:d but exist %1:d'), [FMinPartSize.X, VPixelSize.X]);
+    ShowMessageFmt(
+      _('The width of each part of the map must be greater than %0:d pix (currently %1:d pix).'),
+      [FMinPartSize.X, VPixelSize.X]
+    );
     Result := False;
     Exit;
   end;
+
   if VPixelSize.Y < FMinPartSize.Y then begin
-    ShowMessageFmt(_('Every map part must have height more than %0:d but exist %1:d'), [FMinPartSize.Y, VPixelSize.Y]);
+    ShowMessageFmt(
+      _('The height of each part of the map must be greater than %0:d pix (currently %1:d pix).'),
+      [FMinPartSize.Y, VPixelSize.Y]
+    );
     Result := False;
     Exit;
   end;
 
   if VPixelSize.X > FMaxPartSize.X then begin
-    ShowMessageFmt(_('Every map part must have width less than %0:d but exist %1:d'), [FMaxPartSize.X, VPixelSize.X]);
+    ShowMessageFmt(
+      _('The width of each part of the map must not exceed %0:d pix (currently %1:d pix).'),
+      [FMaxPartSize.X, VPixelSize.X]
+    );
     Result := False;
     Exit;
   end;
+
   if VPixelSize.Y > FMaxPartSize.Y then begin
-    ShowMessageFmt(_('Every map part must have height less than %0:d but exist %1:d'), [FMaxPartSize.Y, VPixelSize.Y]);
+    ShowMessageFmt(
+      _('The height of each part of the map must not exceed %0:d pix (currently %1:d pix).'),
+      [FMaxPartSize.Y, VPixelSize.Y]
+    );
     Result := False;
     Exit;
   end;
 
   VPath := GetPath;
   if VPath = '' then begin
-    ShowMessage(_('Please, select output file first!'));
+    ShowMessage(_('Please select the output file first!'));
     Result := False;
     Exit;
   end;
+
   case FCombinePathStringTypeSupport of
     stsAscii: begin
       if not IsAscii(VPath) then begin
@@ -623,13 +643,15 @@ begin
       end;
     end;
   end;
+
   if FileExists(VPath) then begin
     VMsg := Format(SAS_MSG_FileExists, [VPath]);
-    if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
+    if Application.MessageBox(PChar(VMsg), PChar(SAS_MSG_coution), 36) <> IDYES then begin
       Result := False;
       Exit;
     end;
   end;
+
   VCalibrationList := GetMapCalibrationList;
   if Assigned(VCalibrationList) and (VCalibrationList.Count > 0) then begin
     VCalibrationStringSupport := stsUnicode;
@@ -638,7 +660,7 @@ begin
       case VCalibration.StringSupport of
         stsAscii: begin
           VCalibrationStringSupport := stsAscii;
-          break;
+          Break;
         end;
         stsAnsi: begin
           if VCalibrationStringSupport <> stsAscii then begin
@@ -647,6 +669,7 @@ begin
         end;
       end;
     end;
+
     if VCalibrationStringSupport <> stsUnicode then begin
       VFileName := ExtractFileName(VPath);
       case VCalibrationStringSupport of

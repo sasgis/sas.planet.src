@@ -66,6 +66,7 @@ uses
   u_CalcWFileParams,
   u_ImageLineProvider,
   u_ImageLineProviderMultiThread,
+  u_ResStrings,
   u_GeoFunc;
 
 type
@@ -170,6 +171,9 @@ procedure TBitmapMapCombinerGeoTIFF.SaveRect(
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
+const
+  TIFF_JPG_MAX_WIDTH = 65536;
+  TIFF_JPG_MAX_HEIGHT = 65536;
 var
   VCurrentPieceRect: TRect;
   VMapPieceSize: TPoint;
@@ -189,99 +193,109 @@ begin
 
   VContext := FSaveRectCounter.StartOperation;
   try
-  VCurrentPieceRect := AMapRect;
-  VMapPieceSize := RectSize(VCurrentPieceRect);
+    VCurrentPieceRect := AMapRect;
+    VMapPieceSize := RectSize(VCurrentPieceRect);
 
-  FWidth := VMapPieceSize.X;
-  FHeight := VMapPieceSize.Y;
+    FWidth := VMapPieceSize.X;
+    FHeight := VMapPieceSize.Y;
 
-  VProjection := AImageProvider.Projection;
-  VFullTileRect := VProjection.PixelRect2TileRect(VCurrentPieceRect);
-  VTileRectSize := RectSize(VFullTileRect);
-
-  CalculateWFileParams(
-    VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
-    VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
-    VMapPieceSize.X, VMapPieceSize.Y, VProjection.ProjectionType,
-    VCellIncrementX, VCellIncrementY, VOriginX, VOriginY
-  );
-
-  VProjInfo.EPSG := VProjection.ProjectionType.ProjectionEPSG;
-  VProjInfo.IsGeographic := (VProjInfo.EPSG = CGELonLatProjectionEPSG);
-  VProjInfo.CellIncrementX := VCellIncrementX;
-  VProjInfo.CellIncrementY := -VCellIncrementY;
-  VProjInfo.OriginX := VOriginX;
-  VProjInfo.OriginY := VOriginY;
-
-  case FCompression of
-    gtcZIP: VCompression := tcZip;
-    gtcLZW: VCompression := tcLZW;
-    gtcJPEG: VCompression := tcJPG;
-  else
-    VCompression := tcNone;
-  end;
-  VThreadNumber := FThreadNumber;
-  if (VThreadNumber > 1) and (VTileRectSize.X <= VThreadNumber) then begin
-    VThreadNumber := 1;
-  end;
-
-  VTiffType := _GetTiffType;
-
-  if FWithAlpha then begin
-    if VThreadNumber > 1 then begin
-      FLineProvider :=
-        TImageLineProviderRGBAMultiThread.Create(
-          FPrepareDataCounter,
-          FGetLineCounter,
-          AImageProvider,
-          VThreadNumber,
-          VCurrentPieceRect
-        );
-    end else begin
-      FLineProvider :=
-        TImageLineProviderRGBA.Create(
-          FPrepareDataCounter,
-          FGetLineCounter,
-          AImageProvider,
-          VCurrentPieceRect
-        );
+    if (FCompression = gtcJPEG) and
+       ((FWidth >= TIFF_JPG_MAX_WIDTH) or (FHeight >= TIFF_JPG_MAX_HEIGHT)) then
+    begin
+      raise Exception.CreateFmt(
+        SAS_ERR_GeoTiffWithJpegResolutionIsTooHigh,
+        [FWidth, TIFF_JPG_MAX_WIDTH, FHeight, TIFF_JPG_MAX_HEIGHT]
+      );
     end;
-  end else begin
-    if VThreadNumber > 1 then begin
-      FLineProvider :=
-        TImageLineProviderRGBMultiThread.Create(
-          FPrepareDataCounter,
-          FGetLineCounter,
-          AImageProvider,
-          VThreadNumber,
-          VCurrentPieceRect
-        );
-    end else begin
-      FLineProvider :=
-        TImageLineProviderRGB.Create(
-          FPrepareDataCounter,
-          FGetLineCounter,
-          AImageProvider,
-          VCurrentPieceRect
-        );
-    end;
-  end;
 
-  VGeoTiffWriter := TGeoTiffWriter.Create('SAS.Planet');
-  try
-    VGeoTiffWriter.Write(
-      VTiffType,
-      AFileName,
-      FWidth,
-      FHeight,
-      VCompression,
-      Self.GetLineCallBack,
-      FWithAlpha,
-      @VProjInfo
+    VProjection := AImageProvider.Projection;
+    VFullTileRect := VProjection.PixelRect2TileRect(VCurrentPieceRect);
+    VTileRectSize := RectSize(VFullTileRect);
+
+    CalculateWFileParams(
+      VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
+      VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
+      VMapPieceSize.X, VMapPieceSize.Y, VProjection.ProjectionType,
+      VCellIncrementX, VCellIncrementY, VOriginX, VOriginY
     );
-  finally
-    VGeoTiffWriter.Free;
-  end;
+
+    VProjInfo.EPSG := VProjection.ProjectionType.ProjectionEPSG;
+    VProjInfo.IsGeographic := (VProjInfo.EPSG = CGELonLatProjectionEPSG);
+    VProjInfo.CellIncrementX := VCellIncrementX;
+    VProjInfo.CellIncrementY := -VCellIncrementY;
+    VProjInfo.OriginX := VOriginX;
+    VProjInfo.OriginY := VOriginY;
+
+    case FCompression of
+      gtcZIP: VCompression := tcZip;
+      gtcLZW: VCompression := tcLZW;
+      gtcJPEG: VCompression := tcJPG;
+    else
+      VCompression := tcNone;
+    end;
+
+    VThreadNumber := FThreadNumber;
+    if (VThreadNumber > 1) and (VTileRectSize.X <= VThreadNumber) then begin
+      VThreadNumber := 1;
+    end;
+
+    VTiffType := _GetTiffType;
+
+    if FWithAlpha then begin
+      if VThreadNumber > 1 then begin
+        FLineProvider :=
+          TImageLineProviderRGBAMultiThread.Create(
+            FPrepareDataCounter,
+            FGetLineCounter,
+            AImageProvider,
+            VThreadNumber,
+            VCurrentPieceRect
+          );
+      end else begin
+        FLineProvider :=
+          TImageLineProviderRGBA.Create(
+            FPrepareDataCounter,
+            FGetLineCounter,
+            AImageProvider,
+            VCurrentPieceRect
+          );
+      end;
+    end else begin
+      if VThreadNumber > 1 then begin
+        FLineProvider :=
+          TImageLineProviderRGBMultiThread.Create(
+            FPrepareDataCounter,
+            FGetLineCounter,
+            AImageProvider,
+            VThreadNumber,
+            VCurrentPieceRect
+          );
+      end else begin
+        FLineProvider :=
+          TImageLineProviderRGB.Create(
+            FPrepareDataCounter,
+            FGetLineCounter,
+            AImageProvider,
+            VCurrentPieceRect
+          );
+      end;
+    end;
+
+    VGeoTiffWriter := TGeoTiffWriter.Create('SAS.Planet');
+    try
+      VGeoTiffWriter.Write(
+        VTiffType,
+        AFileName,
+        FWidth,
+        FHeight,
+        VCompression,
+        Self.GetLineCallBack,
+        FWithAlpha,
+        @VProjInfo
+      );
+    finally
+      VGeoTiffWriter.Free;
+    end;
   finally
     FSaveRectCounter.FinishOperation(VContext);
   end;

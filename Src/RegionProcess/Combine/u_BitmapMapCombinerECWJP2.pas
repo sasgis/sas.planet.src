@@ -330,7 +330,7 @@ var
   VEncodeInfoMsg: string;
 begin
   VEncodeInfoMsg := Format(
-    'Compression finished sucessfull at %s sec.' + #13#10 + #13#10 +
+    'The compression was completed successfully in %s sec.' + #13#10 + #13#10 +
     'Target compression ratio: %2.f' + #13#10 +
     'Actual compression ratio: %2.f' + #13#10 +
     'Compression speed: %4.f MB/sec' + #13#10 +

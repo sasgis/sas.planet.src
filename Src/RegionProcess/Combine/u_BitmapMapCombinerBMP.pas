@@ -63,6 +63,10 @@ uses
   u_GeoFunc,
   u_ResStrings;
 
+const
+  BMP_MAX_WIDTH = 32768;
+  BMP_MAX_HEIGHT = 32768;
+
 type
   TBitmapMapCombinerBMP = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
@@ -108,11 +112,8 @@ procedure TBitmapMapCombinerBMP.SaveRect(
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
-const
-  BMP_MAX_WIDTH = 32768;
-  BMP_MAX_HEIGHT = 32768;
 var
-  i: Integer;
+  I: Integer;
   VBMP: TBitmapFile;
   VLineBGR: Pointer;
   VSize: TPoint;
@@ -121,41 +122,44 @@ var
 begin
   VContext := FSaveRectCounter.StartOperation;
   try
-  VSize := RectSize(AMapRect);
+    VSize := RectSize(AMapRect);
 
-  if (VSize.X >= BMP_MAX_WIDTH) or (VSize.Y >= BMP_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['BMP', VSize.X, BMP_MAX_WIDTH, VSize.Y, BMP_MAX_HEIGHT, 'BMP']);
-  end;
-
-  VBMP := TBitmapFile.Create(AFileName, VSize.X, VSize.Y);
-  try
-    VLineProvider :=
-      TImageLineProviderBGR.Create(
-        FPrepareDataCounter,
-        FGetLineCounter,
-        AImageProvider,
-        AMapRect
+    if (VSize.X >= BMP_MAX_WIDTH) or (VSize.Y >= BMP_MAX_HEIGHT) then begin
+      raise Exception.CreateFmt(
+        SAS_ERR_ImageResolutionIsTooHigh,
+        ['BMP', VSize.X, BMP_MAX_WIDTH, VSize.Y, BMP_MAX_HEIGHT]
       );
-    for i := 0 to VSize.Y - 1 do begin
-      VLineBGR := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);
-      if VLineBGR <> nil then begin
-        if not VBMP.WriteLine(i, VLineBGR) then begin
-          raise Exception.Create(_('BMP: Line write failure!'));
-        end;
-      end else begin
-        raise Exception.Create(_('BMP: Fill line failure!'));
-      end;
-
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Break;
-      end;
-      if i mod 256 = 0 then begin
-        FProgressUpdate.Update(i / VSize.Y);
-      end;
     end;
-  finally
-    VBMP.Free;
-  end;
+
+    VBMP := TBitmapFile.Create(AFileName, VSize.X, VSize.Y);
+    try
+      VLineProvider :=
+        TImageLineProviderBGR.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          AMapRect
+        );
+      for I := 0 to VSize.Y - 1 do begin
+        VLineBGR := VLineProvider.GetLine(AOperationID, ACancelNotifier, I);
+        if VLineBGR <> nil then begin
+          if not VBMP.WriteLine(I, VLineBGR) then begin
+            raise Exception.Create(_('BMP: Line write failure!'));
+          end;
+        end else begin
+          raise Exception.Create(_('BMP: Fill line failure!'));
+        end;
+
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
+        end;
+        if I mod 256 = 0 then begin
+          FProgressUpdate.Update(I / VSize.Y);
+        end;
+      end;
+    finally
+      VBMP.Free;
+    end;
   finally
     FSaveRectCounter.FinishOperation(VContext);
   end;
@@ -171,7 +175,7 @@ var
 begin
   inherited Create(
     Point(0, 0),
-    Point(32768, 32768),
+    Point(BMP_MAX_WIDTH, BMP_MAX_HEIGHT),
     stsUnicode,
     'bmp',
     gettext_NoExtract('BMP (Bitmap Picture)')

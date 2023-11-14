@@ -43,10 +43,15 @@ ResourceString
   SAS_MSG_DeleteMarksInRegionAsk = 'Are you sure you want to delete Marks in selected region?';
 
   SAS_MSG_ResetSensorAsk = 'Are you sure you want to reset sensor?';
-  SAS_MSG_TileExists = 'Tile %0:s is available in cache.'#13#10 +
+
+  SAS_MSG_TileExists =
+    'Tile %0:s is available in cache.' + #13#10 +
     'Replace?';
-  SAS_MSG_FileExists = 'File %0:s is available on disk.'#13#10 +
+
+  SAS_MSG_FileExists =
+    'File %0:s is available on disk.' + #13#10 +
     'Replace?';
+
   SAS_MSG_NeedHL = 'Please select at least one region';
   SAS_MSG_NeedZoom = 'Please select at least one zoom';
   SAS_MSG_FunExForPoly = 'The feature can be used on polygons and polylines';
@@ -58,10 +63,13 @@ ResourceString
   SAS_MSG_NoFlyOnTrackSource = 'No source for Fly-on-Track mode';
   SAS_MSG_UnknownGPSOrigin = 'GPS origin misconfiguration: unknown mode %d';
   SAS_MSG_NoGPSdetected = 'No GPS receiver found';
-  SAS_MSG_GarminMax1Mp = 'The number of JPEG files will exceed 100. If your'#13#10 +
-    'navigation device split the image using'#13#10 +
-    '"Manage Selection - Stitch" window'#13#10 +
+
+  SAS_MSG_GarminMax1Mp =
+    'The number of JPEG files will exceed 100. If your' + #13#10 +
+    'navigation device split the image using' + #13#10 +
+    '"Manage Selection - Stitch" window' + #13#10 +
     'and use resulting KMZ files separately';
+
   SAS_MSG_HotKeyExists = 'Hotkey in use. Please select another one';
   SAS_MSG_CantGetTileFileName = 'This is not simple file storage. Tile''s file name does not exist.';
   SAS_MSG_SetAsDefaultForNewMarks = 'Set as default for new marks?';
@@ -74,10 +82,15 @@ ResourceString
   SAS_ERR_Communication = 'Error communicating with device';
   SAS_ERR_UnablePposition = 'Unable to fix position';
   SAS_ERR_ParamsInput = 'Error in parameters!';
-  SAS_ERR_LonLat1 = 'Longitude of upper left corner must be less than '#13#10 +
+
+  SAS_ERR_LonLat1 =
+    'Longitude of upper left corner must be less than ' + #13#10 +
     'longitude of lower right corner';
-  SAS_ERR_LonLat2 = 'Latitude of upper left corner must be less than '#13#10 +
+
+  SAS_ERR_LonLat2 =
+    'Latitude of upper left corner must be less than ' + #13#10 +
     'latitude of lower right corner';
+
   SAS_ERR_Authorization = 'Proxy authorization error';
   SAS_ERR_WaitTime = 'Wait %0:d seconds...';
   SAS_ERR_Ban = 'Most likely you''ve been banned by the server!';
@@ -119,12 +132,22 @@ ResourceString
   SAS_ERR_ETS_UnknownError = 'Unknown error at external tile storage, see Storage Options for more information';
   SAS_ERR_ETS_ConnectionIsDead = 'Connection to external tile storage is dead and cannot be reestablished';
 
-  SAS_ERR_ImageIsTooBig = 'Selected resolution is too big for %s format!'#13#10 +
-    'Widht = %d (max = %d)'#13#10 + 'Height = %d (max = %d)'#13#10 +
-    'Try select smaller region to stitch in %s or select other output format (ECW is the best).';
+  SAS_ERR_ImageResolutionIsTooHigh =
+    'The selected resolution is too high for the %s format!' + #13#10 +
+    'Widht = %d pix (max = %d pix)' + #13#10 +
+    'Height = %d pix (max = %d pix)' + #13#10 +
+    'Try to select a smaller region or choose a different output format.';
 
-  SAS_ERR_ContentTypeMismatch = 'Cache converter aborted with error: Content-Type mismatch!' + #13#10 +
-    'Source: %s' + #13#10 + 'Destination: %s';
+  SAS_ERR_GeoTiffWithJpegResolutionIsTooHigh =
+    'The selected resolution is too high for the GeoTIFF format with JPEG compression!' + #13#10 +
+    'Widht = %d pix (max = %d pix)' + #13#10 +
+    'Height = %d pix (max = %d pix)' + #13#10 +
+    'Try to select a smaller region or choose a different compression algorithm / output format.';
+
+  SAS_ERR_ContentTypeMismatch =
+    'Cache converter aborted with error: Content-Type mismatch!' + #13#10 +
+    'Source: %s' + #13#10 +
+    'Destination: %s';
 
   SAS_ERR_TileProcessError =
     'Tile processing error!' + #13#10 +
@@ -273,19 +296,19 @@ ResourceString
 
   SAS_STR_SensorGPSRecorderUTCTimeCaption = 'UTC time:';
   SAS_STR_SensorGPSRecorderUTCTimeDescription = 'Shows UTC time';
-  SAS_STR_SensorGPSRecorderUTCTimeMenuItemName = 'UTC time'; // UTC time
+  SAS_STR_SensorGPSRecorderUTCTimeMenuItemName = 'UTC time';
 
   SAS_STR_SensorGPSRecorderSunRiseTimeCaption = 'Sunraise time:';
   SAS_STR_SensorGPSRecorderSunRiseTimeDescription = 'Shows Sunraise time for current position';
-  SAS_STR_SensorGPSRecorderSunRiseTimeMenuItemName = 'Sunraise time'; // Sunraise time
+  SAS_STR_SensorGPSRecorderSunRiseTimeMenuItemName = 'Sunraise time';
 
   SAS_STR_SensorGPSRecorderSunSetTimeCaption = 'Sunset time:';
   SAS_STR_SensorGPSRecorderSunSetTimeDescription = 'Shows Sunset time for current position';
-  SAS_STR_SensorGPSRecorderSunSetTimeMenuItemName = 'Sunset time'; // Sunset time
+  SAS_STR_SensorGPSRecorderSunSetTimeMenuItemName = 'Sunset time';
 
   SAS_STR_SensorGPSRecorderLocalTimeCaption = 'Local time:';
   SAS_STR_SensorGPSRecorderLocalTimeDescription = 'Shows local time';
-  SAS_STR_SensorGPSRecorderLocalTimeMenuItemName = 'Local time'; // Local time
+  SAS_STR_SensorGPSRecorderLocalTimeMenuItemName = 'Local time';
 
   SAS_STR_SensorGPSRecorderDGPSCaption = 'DGPS:';
   SAS_STR_SensorGPSRecorderDGPSDescription = 'Shows differential GPS';
@@ -293,11 +316,11 @@ ResourceString
 
   SAS_STR_SensorGPSRecorderGPSUnitInfoCaption = 'Unit info:';
   SAS_STR_SensorGPSRecorderGPSUnitInfoDescription = 'Shows GPS Unit info';
-  SAS_STR_SensorGPSRecorderGPSUnitInfoMenuItemName = 'Unit info'; // DGPS
+  SAS_STR_SensorGPSRecorderGPSUnitInfoMenuItemName = 'Unit info';
 
   SAS_STR_SensorGPSRecorderGPSSatellitesCaption = 'Satellite Signal Strength:';
   SAS_STR_SensorGPSRecorderGPSSatellitesDescription = 'Shows Satellite Signal Strength bars';
-  SAS_STR_SensorGPSRecorderGPSSatellitesMenuItemName = 'Satellite Signal Strength'; // DGPS
+  SAS_STR_SensorGPSRecorderGPSSatellitesMenuItemName = 'Satellite Signal Strength';
 
   SAS_STR_GoogleSearchLanguage = '&hl=en';
 

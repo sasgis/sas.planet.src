@@ -67,6 +67,10 @@ uses
   u_GeoFunc,
   u_ResStrings;
 
+const
+  JPG_MAX_WIDTH = 65536;
+  JPG_MAX_HEIGHT = 65536;
+
 type
   TBitmapMapCombinerJPG = class(TBaseInterfacedObject, IBitmapMapCombiner)
   private
@@ -85,7 +89,7 @@ type
       Sender: TObject;
       ALineNumber: Integer;
       ALineSize: Cardinal;
-      out Abort: Boolean
+      out AAbort: Boolean
     ): PByte;
   private
     procedure SaveRect(
@@ -133,9 +137,6 @@ procedure TBitmapMapCombinerJPG.SaveRect(
   const AImageProvider: IBitmapTileProvider;
   const AMapRect: TRect
 );
-const
-  JPG_MAX_HEIGHT = 65536;
-  JPG_MAX_WIDTH = 65536;
 var
   VJpegWriter: TJpegWriter;
   VStream: TFileStream;
@@ -152,59 +153,64 @@ begin
 
   VContext := FSaveRectCounter.StartOperation;
   try
-  VProjection := AImageProvider.Projection;
-  VCurrentPieceRect := AMapRect;
-  VMapPieceSize := RectSize(VCurrentPieceRect);
+    VProjection := AImageProvider.Projection;
+    VCurrentPieceRect := AMapRect;
+    VMapPieceSize := RectSize(VCurrentPieceRect);
 
-  VUseBGRAColorSpace := True; // Available for libjpeg-turbo only
+    VUseBGRAColorSpace := True; // Available for libjpeg-turbo only
 
-  if VUseBGRAColorSpace then begin
-    FLineProvider :=
-      TImageLineProviderBGRA.Create(
-        FPrepareDataCounter,
-        FGetLineCounter,
-        AImageProvider,
-        AMapRect
-      );
-  end else begin
-    FLineProvider :=
-      TImageLineProviderRGB.Create(
-        FPrepareDataCounter,
-        FGetLineCounter,
-        AImageProvider,
-        AMapRect
-      );
-  end;
-
-  FWidth := VMapPieceSize.X;
-  FHeight := VMapPieceSize.Y;
-  if (FWidth >= JPG_MAX_WIDTH) or (FHeight >= JPG_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['JPG', FWidth, JPG_MAX_WIDTH, FHeight, JPG_MAX_HEIGHT, 'JPG']);
-  end;
-  VStream := TFileStream.Create(AFileName, fmCreate);
-  try
-    VJpegWriter := TJpegWriter.Create(VStream, VUseBGRAColorSpace);
-    try
-      VJpegWriter.Width := FWidth;
-      VJpegWriter.Height := FHeight;
-      VJpegWriter.Quality := FQuality;
-      VJpegWriter.AddCommentMarker('Created with SAS.Planet' + #0);
-      if FSaveGeoRefInfoToExif then begin
-        VCenterLonLat := VProjection.PixelPos2LonLat(CenterPoint(AMapRect));
-        VExif := TExifSimple.Create(VCenterLonLat.Y, VCenterLonLat.X);
-        try
-          VJpegWriter.AddExifMarker(VExif.Stream);
-        finally
-          VExif.Free;
-        end;
-      end;
-      VJpegWriter.Compress(Self.GetLine);
-    finally
-      VJpegWriter.Free;
+    if VUseBGRAColorSpace then begin
+      FLineProvider :=
+        TImageLineProviderBGRA.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          AMapRect
+        );
+    end else begin
+      FLineProvider :=
+        TImageLineProviderRGB.Create(
+          FPrepareDataCounter,
+          FGetLineCounter,
+          AImageProvider,
+          AMapRect
+        );
     end;
-  finally
-    VStream.Free;
-  end;
+
+    FWidth := VMapPieceSize.X;
+    FHeight := VMapPieceSize.Y;
+
+    if (FWidth >= JPG_MAX_WIDTH) or (FHeight >= JPG_MAX_HEIGHT) then begin
+      raise Exception.CreateFmt(
+        SAS_ERR_ImageResolutionIsTooHigh,
+        ['JPEG', FWidth, JPG_MAX_WIDTH, FHeight, JPG_MAX_HEIGHT]
+      );
+    end;
+
+    VStream := TFileStream.Create(AFileName, fmCreate);
+    try
+      VJpegWriter := TJpegWriter.Create(VStream, VUseBGRAColorSpace);
+      try
+        VJpegWriter.Width := FWidth;
+        VJpegWriter.Height := FHeight;
+        VJpegWriter.Quality := FQuality;
+        VJpegWriter.AddCommentMarker('Created with SAS.Planet' + #0);
+        if FSaveGeoRefInfoToExif then begin
+          VCenterLonLat := VProjection.PixelPos2LonLat(CenterPoint(AMapRect));
+          VExif := TExifSimple.Create(VCenterLonLat.Y, VCenterLonLat.X);
+          try
+            VJpegWriter.AddExifMarker(VExif.Stream);
+          finally
+            VExif.Free;
+          end;
+        end;
+        VJpegWriter.Compress(Self.GetLine);
+      finally
+        VJpegWriter.Free;
+      end;
+    finally
+      VStream.Free;
+    end;
   finally
     FSaveRectCounter.FinishOperation(VContext);
   end;
@@ -214,14 +220,14 @@ function TBitmapMapCombinerJPG.GetLine(
   Sender: TObject;
   ALineNumber: Integer;
   ALineSize: Cardinal;
-  out Abort: Boolean
+  out AAbort: Boolean
 ): PByte;
 begin
   if ALineNumber mod 256 = 0 then begin
     FProgressUpdate.Update(ALineNumber / FHeight);
   end;
   Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ALineNumber);
-  Abort := (Result = nil) or FCancelNotifier.IsOperationCanceled(FOperationID);
+  AAbort := (Result = nil) or FCancelNotifier.IsOperationCanceled(FOperationID);
 end;
 
 { TBitmapMapCombinerFactoryJPG }
@@ -234,7 +240,7 @@ var
 begin
   inherited Create(
     Point(0, 0),
-    Point(65536, 65536),
+    Point(JPG_MAX_WIDTH, JPG_MAX_HEIGHT),
     stsUnicode,
     'jpg',
     gettext_NoExtract('JPEG (Joint Photographic Experts Group)'),
