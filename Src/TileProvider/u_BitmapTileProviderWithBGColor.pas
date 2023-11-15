@@ -53,7 +53,8 @@ type
     procedure CropByPolygon(
       const ABitmap: TBitmap32ByStaticBitmap;
       const ATileSize: TPoint;
-      const ATile: TPoint
+      const ACopyMapRect: TRect;
+      const ACopyRectAtSource: TRect
     );
   private
     { IBitmapTileProvider }
@@ -147,6 +148,9 @@ function TBitmapTileProviderWithBgColor.GetTile(
 var
   VTileSize: TPoint;
   VTargetBmp: TBitmap32ByStaticBitmap;
+  VTileMapRect: TRect;
+  VCopyMapRect: TRect;
+  VCopyRectAtSource: TRect;
 begin
   Result :=
     FSourceProvider.GetTile(
@@ -162,16 +166,31 @@ begin
         VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
         VTargetBmp.Clear(FBackGroundColor);
 
-        BlockTransferFull(
-          VTargetBmp,
-          0,
-          0,
-          Result,
-          dmBlend
-        );
-
         if FUsePreciseCropping then begin
-          CropByPolygon(VTargetBmp, VTileSize, ATile);
+          VTileMapRect := FProjection.TilePos2PixelRect(ATile);
+          Types.IntersectRect(VCopyMapRect, VTileMapRect, FMapRect);
+          VCopyRectAtSource := RectMove(VCopyMapRect, VTileMapRect.TopLeft);
+
+          BlockTransfer(
+            VTargetBmp,
+            VCopyRectAtSource.Left,
+            VCopyRectAtSource.Top,
+            Result,
+            VCopyRectAtSource,
+            dmBlend
+          );
+
+          if FPolygon.IsRectIntersectBorder( DoubleRect(VCopyMapRect) ) then begin
+            CropByPolygon(VTargetBmp, VTileSize, VCopyMapRect, VCopyRectAtSource);
+          end;
+        end else begin
+          BlockTransferFull(
+            VTargetBmp,
+            0,
+            0,
+            Result,
+            dmBlend
+          );
         end;
 
         Result := VTargetBmp.MakeAndClear;
@@ -199,35 +218,25 @@ end;
 procedure TBitmapTileProviderWithBgColor.CropByPolygon(
   const ABitmap: TBitmap32ByStaticBitmap;
   const ATileSize: TPoint;
-  const ATile: TPoint
+  const ACopyMapRect: TRect;
+  const ACopyRectAtSource: TRect
 );
 var
   I, J: Integer;
   VTileMapRect: TRect;
   VCopyRectSize: TPoint;
-  VCopyMapRect: TRect;
-  VCopyRectAtSource: TRect;
   VPix: PColor32;
   VPixelPoint: TDoublePoint;
 begin
-  VTileMapRect := FProjection.TilePos2PixelRect(ATile);
-
-  Types.IntersectRect(VCopyMapRect, VTileMapRect, FMapRect);
-
-  if not FPolygon.IsRectIntersectBorder( DoubleRect(VCopyMapRect) ) then begin
-    Exit;
-  end;
-
-  VCopyRectSize := RectSize(VCopyMapRect);
-  VCopyRectAtSource := RectMove(VCopyMapRect, VTileMapRect.TopLeft);
+  VCopyRectSize := RectSize(ACopyMapRect);
 
   for I := 0 to VCopyRectSize.Y - 1 do begin
-    VPix := @ABitmap.Bits[VCopyRectAtSource.Left + (I + VCopyRectAtSource.Top) * ATileSize.X];
+    VPix := @ABitmap.Bits[ACopyRectAtSource.Left + (I + ACopyRectAtSource.Top) * ATileSize.X];
 
     for J := 0 to VCopyRectSize.X - 1 do begin
       if VPix^ <> FBackGroundColor then begin
-        VPixelPoint.X := VCopyMapRect.Left + J;
-        VPixelPoint.Y := VCopyMapRect.Top + I;
+        VPixelPoint.X := ACopyMapRect.Left + J;
+        VPixelPoint.Y := ACopyMapRect.Top + I;
         if not FPolygon.IsPointInPolygon(VPixelPoint) then begin
           VPix^ := FBackGroundColor;
         end;
