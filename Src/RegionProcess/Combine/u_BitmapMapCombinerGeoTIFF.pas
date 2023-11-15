@@ -560,7 +560,7 @@ begin
     stsUnicode,
     'tif',
     gettext_NoExtract('GeoTIFF (Stripped)'),
-    [mcAlphaUncheck, mcGeoTiff, mcThreadCount]
+    [mcAlphaUncheck, mcGeoTiffStripped, mcThreadCount]
   );
   VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF (Stripped)');
   FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
@@ -600,7 +600,7 @@ begin
     stsUnicode,
     'tif',
     gettext_NoExtract('GeoTIFF (Tiled)'),
-    [mcAlphaUncheck, mcGeoTiff]
+    [mcAlphaUncheck, mcGeoTiffTiled]
   );
   VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF (Tiled)');
   FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');

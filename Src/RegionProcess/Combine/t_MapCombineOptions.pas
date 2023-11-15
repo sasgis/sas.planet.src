@@ -30,7 +30,8 @@ type
     mcThreadCount,
     mcExif,
     mcQuality,
-    mcGeoTiff
+    mcGeoTiffStripped,
+    mcGeoTiffTiled
   );
 
   TMapCombineOptionsSet = set of TMapCombineOptions;

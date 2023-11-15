@@ -673,6 +673,7 @@ var
   VFileName: string;
   VSplitCount: TPoint;
   VSkipExistingFiles: Boolean;
+  VRoundToTileRect: Boolean;
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
@@ -687,6 +688,7 @@ begin
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
   VSkipExistingFiles := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SkipExistingFiles;
+  VRoundToTileRect := (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.RoundToTileRect;
   VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   VCombiner := FCombinerFactory.PrepareMapCombiner(ParamsFrame as IRegionProcessParamsFrameMapCombine, VProgressUpdate);
   VMapRect := PrepareTargetRect(VProjection, VProjectedPolygon);
@@ -701,7 +703,8 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
-      VSkipExistingFiles
+      VSkipExistingFiles,
+      VRoundToTileRect
     );
 end;
 

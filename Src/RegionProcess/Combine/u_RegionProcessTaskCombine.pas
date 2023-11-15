@@ -42,6 +42,7 @@ type
     FMapCalibrationList: IMapCalibrationList;
     FSplitCount: TPoint;
     FSkipExistingFiles: Boolean;
+    FRoundToTileRect: Boolean;
     FFileName: string;
     FFilePath: string;
     FFileExt: string;
@@ -59,7 +60,8 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
-      const ASkipExistingFiles: Boolean
+      const ASkipExistingFiles: Boolean;
+      const ARoundToTileRect: Boolean
     );
   end;
 
@@ -81,7 +83,8 @@ constructor TRegionProcessTaskCombine.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
-  const ASkipExistingFiles: Boolean
+  const ASkipExistingFiles: Boolean;
+  const ARoundToTileRect: Boolean
 );
 begin
   inherited Create(
@@ -94,6 +97,7 @@ begin
   FImageProvider := AImageProvider;
   FSplitCount := ASplitCount;
   FSkipExistingFiles := ASkipExistingFiles;
+  FRoundToTileRect := ARoundToTileRect;
   FFilePath := ExtractFilePath(AFileName);
   FFileExt := ExtractFileExt(AFileName);
   FFileName := ChangeFileExt(ExtractFileName(AFileName), '');
@@ -110,7 +114,7 @@ end;
 procedure TRegionProcessTaskCombine.ProcessRegion;
 var
   VProjection: IProjection;
-  i, j, pti: integer;
+  I, J, K: Integer;
   VProcessTiles: Int64;
   VTileRect: TRect;
   VMapRect: TRect;
@@ -123,13 +127,15 @@ var
 begin
   inherited;
   VProjection := FImageProvider.Projection;
-  VMapRect := FMapRect;
+
+  VTileRect := VProjection.PixelRect2TileRect(FMapRect);
+
+  if FRoundToTileRect then begin
+    VMapRect := VProjection.TileRect2PixelRect(VTileRect);
+  end else begin
+    VMapRect := FMapRect;
+  end;
   VMapSize := RectSize(VMapRect);
-  VTileRect := VProjection.PixelRect2TileRect(VMapRect);
-  VSizeInTile.X := VTileRect.Right - VTileRect.Left;
-  VSizeInTile.Y := VTileRect.Bottom - VTileRect.Top;
-  VProcessTiles := VSizeInTile.X;
-  VProcessTiles := VProcessTiles * VSizeInTile.Y;
 
   VStr :=
     Format(
@@ -137,25 +143,43 @@ begin
       [VMapSize.X, VMapSize.Y, FSplitCount.X * FSplitCount.Y]
     );
   ProgressInfo.SetCaption(VStr);
+
+  VSizeInTile := RectSize(VTileRect);
+  VProcessTiles := Int64(VSizeInTile.X) * VSizeInTile.Y;
+
   VStr :=
     Format(
       SAS_STR_MapCombineProgressLine0,
       [VSizeInTile.X, VSizeInTile.Y, VProcessTiles]
     );
   ProgressInfo.SetFirstLine(VStr);
-  ProgressFormUpdateOnProgress(0);
-  VMapPieceSize.X := VMapSize.X div FSplitCount.X;
-  VMapPieceSize.Y := VMapSize.Y div FSplitCount.Y;
 
-  for i := 1 to FSplitCount.X do begin
-    for j := 1 to FSplitCount.Y do begin
-      VCurrentPieceRect.Left := VMapRect.Left + VMapPieceSize.X * (i - 1);
-      VCurrentPieceRect.Right := VMapRect.Left + VMapPieceSize.X * i;
-      VCurrentPieceRect.Top := VMapRect.Top + VMapPieceSize.Y * (j - 1);
-      VCurrentPieceRect.Bottom := VMapRect.Top + VMapPieceSize.Y * j;
+  ProgressFormUpdateOnProgress(0);
+
+  if FRoundToTileRect then begin
+    VMapPieceSize.X := (VSizeInTile.X div FSplitCount.X) * 256;
+    VMapPieceSize.Y := (VSizeInTile.Y div FSplitCount.Y) * 256;
+  end else begin
+    VMapPieceSize.X := VMapSize.X div FSplitCount.X;
+    VMapPieceSize.Y := VMapSize.Y div FSplitCount.Y;
+  end;
+
+  for I := 1 to FSplitCount.X do begin
+    for J := 1 to FSplitCount.Y do begin
+      VCurrentPieceRect.Left := VMapRect.Left + VMapPieceSize.X * (I - 1);
+      VCurrentPieceRect.Right := VMapRect.Left + VMapPieceSize.X * I;
+      VCurrentPieceRect.Top := VMapRect.Top + VMapPieceSize.Y * (J - 1);
+      VCurrentPieceRect.Bottom := VMapRect.Top + VMapPieceSize.Y * J;
+
+      if I = FSplitCount.X then begin
+        VCurrentPieceRect.Right := VMapRect.Right;
+      end;
+      if J = FSplitCount.Y then begin
+        VCurrentPieceRect.Bottom := VMapRect.Bottom;
+      end;
 
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
-        VCurrentFileName := FFilePath + FFileName + '_' + inttostr(i) + '-' + inttostr(j) + FFileExt;
+        VCurrentFileName := FFilePath + FFileName + '_' + IntToStr(I) + '-' + IntToStr(J) + FFileExt;
         if FSkipExistingFiles and FileExists(VCurrentFileName) then begin
           Continue;
         end;
@@ -164,9 +188,9 @@ begin
       end;
 
       if Assigned(FMapCalibrationList) then begin
-        for pti := 0 to FMapCalibrationList.Count - 1 do begin
+        for K := 0 to FMapCalibrationList.Count - 1 do begin
           try
-            (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(
+            (FMapCalibrationList.Get(K) as IMapCalibration).SaveCalibrationInfo(
               VCurrentFileName,
               VCurrentPieceRect.TopLeft,
               VCurrentPieceRect.BottomRight,
@@ -177,6 +201,7 @@ begin
           end;
         end;
       end;
+
       try
         FCombiner.SaveRect(
           OperationID,
@@ -190,7 +215,7 @@ begin
           if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
             raise Exception.CreateFmt(
               '%0:s'#13#10'Piece %1:dx%2:d',
-              [E.message, i, j]
+              [E.message, I, J]
             );
           end else begin
             raise;

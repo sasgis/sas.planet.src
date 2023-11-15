@@ -59,6 +59,8 @@ type
     lblThreadCount: TLabel;
     seThreadCount: TSpinEdit;
   private
+    FRoundToTileRect: Boolean;
+  private
     { IMapCombineCustomOptions }
     function GetQuality: Integer;
     function GetIsSaveGeoRefInfoToExif: Boolean;
@@ -66,6 +68,7 @@ type
     function GetIsSaveAlfa: Boolean;
     function GetGeoTiffCompression: TGeoTiffCompression;
     function GetGeoTiffFormat: TGeoTiffFileFormat;
+    function GetRoundToTileRect: Boolean;
   public
     procedure Show(AParent: TWinControl);
     constructor Create(
@@ -132,13 +135,15 @@ begin
     Self.Visible := True;
   end;
 
-  if mcGeoTiff in AOptionsSet then begin
+  if (mcGeoTiffStripped in AOptionsSet) or (mcGeoTiffTiled in AOptionsSet) then begin
     SetControlVisible(flwpnlFormat, True);
     SetControlVisible(flwpnlCompression, True);
     cbbFormat.ItemIndex := 0; // Auto
     cbbCompression.ItemIndex := 2; // LZW
     Self.Visible := True;
   end;
+
+  FRoundToTileRect := (mcGeoTiffTiled in AOptionsSet);
 end;
 
 procedure TfrMapCombineCustomOptions.Show(AParent: TWinControl);
@@ -178,6 +183,11 @@ end;
 function TfrMapCombineCustomOptions.GetThreadCount: Integer;
 begin
   Result := seThreadCount.Value;
+end;
+
+function TfrMapCombineCustomOptions.GetRoundToTileRect: Boolean;
+begin
+  Result := FRoundToTileRect;
 end;
 
 end.

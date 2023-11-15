@@ -133,6 +133,9 @@ type
 
     function GetGeoTiffFormat: TGeoTiffFileFormat;
     property GeoTiffFormat: TGeoTiffFileFormat read GetGeoTiffFormat;
+
+    function GetRoundToTileRect: Boolean;
+    property RoundToTileRect: Boolean read GetRoundToTileRect;
   end;
 
   IRegionProcessParamsFrameMapCombine = interface(IRegionProcessParamsFrameBase)
