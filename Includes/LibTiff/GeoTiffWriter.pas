@@ -27,13 +27,11 @@ type
 
   TGetLineCallBack = function(
     const ARowNumber: Integer;
-    const ALineSize: Integer;
     const AUserInfo: Pointer
   ): Pointer of object;
 
   TGetTileCallBack = function(
     const X, Y, Z: Integer;
-    const ATileSize: Integer;
     const AUserInfo: Pointer
   ): Pointer of object;
 
@@ -423,17 +421,12 @@ var
   I: Integer;
   X, Y, Z: Integer;
   VData: Pointer;
-  VDataSize: Integer;
 begin
   Result := False;
 
   if Assigned(AGetLineCallBack) then begin
-
-    VDataSize := FWidth * (FBitsPerPixel div 8);
-    Assert(VDataSize > 0);
-
     for I := 0 to FHeight - 1 do begin
-      VData := AGetLineCallBack(I, VDataSize, AUserInfo);
+      VData := AGetLineCallBack(I, AUserInfo);
       if VData <> nil then begin
         if TIFFWriteScanline(ATiff, VData, I, 0) < 0 then begin
           FErrorMessage := 'TIFFWriteScanline() failed!';
@@ -444,18 +437,14 @@ begin
         Exit;
       end;
     end;
-
   end else
   if Assigned(AGetTileCallBack) then begin
-
-    VDataSize := FWidth * (FBitsPerPixel div 8) * FHeight;
-    Assert(VDataSize > 0);
 
     Z := 0; // todo: add overviews support
 
     for X := 0 to (FWidth div FTileWidth) - 1 do begin
       for Y := 0 to (FHeight div FTileHeight) - 1 do begin
-        VData := AGetTileCallBack(X, Y, Z, VDataSize, AUserInfo);
+        VData := AGetTileCallBack(X, Y, Z, AUserInfo);
         if VData <> nil then begin
           if TIFFWriteTile(ATiff, VData, X * FTileWidth, Y * FTileHeight, Z, 0) < 0 then begin
             FErrorMessage := 'TIFFWriteTile() failed!';
@@ -467,7 +456,12 @@ begin
         end;
       end;
     end;
+  end else begin
+    FErrorMessage := 'GetLine/GetTile CallBack not assigned!';
+    Exit;
   end;
+
+  Result := True;
 end;
 
 end.

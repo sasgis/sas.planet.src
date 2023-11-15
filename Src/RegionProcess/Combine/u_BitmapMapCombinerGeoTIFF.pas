@@ -70,19 +70,21 @@ uses
   gnugettext,
   GeoTiffWriter,
   t_GeoTIFF,
-  t_Bitmap32,
+  t_GeoTypes,
   t_CommonTypes,
   t_MapCombineOptions,
   c_CoordConverter,
   i_Projection,
+  i_ProjectionType,
   i_ImageLineProvider,
+  i_ImageTileProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
-  i_Bitmap32Static,
   u_BaseInterfacedObject,
   u_CalcWFileParams,
   u_ImageLineProvider,
   u_ImageLineProviderMultiThread,
+  u_ImageTileProvider,
   u_ResStrings,
   u_GeoFunc;
 
@@ -95,10 +97,17 @@ type
     FWithAlpha: Boolean;
     FFileFormat: TGeoTiffFileFormat;
     FCompression: TGeoTiffCompression;
+    FProjInfo: TProjectionInfo;
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
     FSaveRectCounter: IInternalPerformanceCounter;
     function GetTiffType: TTiffType;
+    function GetTiffCompression: TTiffCompression;
+    function GetProjInfo(
+      const ALonLatRect: TDoubleRect;
+      const AImageSizePix: TPoint;
+      const AProjectionType: IProjectionType
+    ): PProjectionInfo;
   protected
     procedure DoSaveRect(
       const AFileName: string;
@@ -133,7 +142,6 @@ type
   private
     function GetLineCallBack(
       const ARowNumber: Integer;
-      const ALineSize: Integer;
       const AUserInfo: Pointer
     ): Pointer;
   protected
@@ -157,17 +165,14 @@ type
 
   TBitmapMapCombinerGeoTiffTiled = class(TBitmapMapCombinerGeoTiffBase)
   private
-    FData: Pointer;
-    FTileSizePix: TPoint;
     FGetTileCounter: IInternalPerformanceCounter;
-    FImageProvider: IBitmapTileProvider;
+    FTileProvider: IImageTileProvider;
     FFullTileRect: TRect;
     FTotalTiles: UInt64;
     FProcessedTiles: UInt64;
   private
     function GetTileCallBack(
       const X, Y, Z: Integer;
-      const ASize: Integer;
       const AUserInfo: Pointer
     ): Pointer;
   protected
@@ -232,6 +237,41 @@ begin
   end;
 end;
 
+function TBitmapMapCombinerGeoTiffBase.GetTiffCompression: TTiffCompression;
+begin
+  case FCompression of
+    gtcZIP: Result := tcZip;
+    gtcLZW: Result := tcLZW;
+    gtcJPEG: Result := tcJPG;
+  else
+    Result := tcNone;
+  end;
+end;
+
+function TBitmapMapCombinerGeoTiffBase.GetProjInfo(
+  const ALonLatRect: TDoubleRect;
+  const AImageSizePix: TPoint;
+  const AProjectionType: IProjectionType
+): PProjectionInfo;
+var
+  VCellIncrementX, VCellIncrementY, VOriginX, VOriginY: Double;
+begin
+  CalculateWFileParams(
+    ALonLatRect.TopLeft, ALonLatRect.BottomRight,
+    AImageSizePix.X, AImageSizePix.Y, AProjectionType,
+    VCellIncrementX, VCellIncrementY, VOriginX, VOriginY
+  );
+
+  FProjInfo.EPSG := AProjectionType.ProjectionEPSG;
+  FProjInfo.IsGeographic := (FProjInfo.EPSG = CGELonLatProjectionEPSG);
+  FProjInfo.CellIncrementX := VCellIncrementX;
+  FProjInfo.CellIncrementY := -VCellIncrementY;
+  FProjInfo.OriginX := VOriginX;
+  FProjInfo.OriginY := VOriginY;
+
+  Result := @FProjInfo;
+end;
+
 procedure TBitmapMapCombinerGeoTiffBase.SaveRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
@@ -287,12 +327,11 @@ var
   VFullTileRect: TRect;
   VTileRectSize: TPoint;
   VProjection: IProjection;
-  VCellIncrementX, VCellIncrementY, VOriginX, VOriginY: Double;
   VGeoTiffWriter: TGeoTiffWriter;
-  VCompression: TTiffCompression;
-  VProjInfo: TProjectionInfo;
+  VProjInfo: PProjectionInfo;
   VThreadNumber: Integer;
   VErrorMessage: string;
+  VResult: Boolean;
 begin
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
@@ -313,27 +352,14 @@ begin
   VFullTileRect := VProjection.PixelRect2TileRect(VCurrentPieceRect);
   VTileRectSize := RectSize(VFullTileRect);
 
-  CalculateWFileParams(
-    VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
-    VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight),
-    VMapPieceSize.X, VMapPieceSize.Y, VProjection.ProjectionType,
-    VCellIncrementX, VCellIncrementY, VOriginX, VOriginY
+  VProjInfo := Self.GetProjInfo(
+    DoubleRect(
+      VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
+      VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight)
+    ),
+    VMapPieceSize,
+    VProjection.ProjectionType
   );
-
-  VProjInfo.EPSG := VProjection.ProjectionType.ProjectionEPSG;
-  VProjInfo.IsGeographic := (VProjInfo.EPSG = CGELonLatProjectionEPSG);
-  VProjInfo.CellIncrementX := VCellIncrementX;
-  VProjInfo.CellIncrementY := -VCellIncrementY;
-  VProjInfo.OriginX := VOriginX;
-  VProjInfo.OriginY := VOriginY;
-
-  case FCompression of
-    gtcZIP: VCompression := tcZip;
-    gtcLZW: VCompression := tcLZW;
-    gtcJPEG: VCompression := tcJPG;
-  else
-    VCompression := tcNone;
-  end;
 
   VThreadNumber := FThreadNumber;
   if (VThreadNumber > 1) and (VTileRectSize.X <= VThreadNumber) then begin
@@ -382,18 +408,21 @@ begin
 
   VGeoTiffWriter := TGeoTiffWriter.Create;
   try
-    VGeoTiffWriter.WriteStripped(
+    VResult := VGeoTiffWriter.WriteStripped(
       Self.GetTiffType,
       AFileName,
       FWidth,
       FHeight,
-      VCompression,
+      Self.GetTiffCompression,
       Self.GetLineCallBack,
       FWithAlpha,
-      @VProjInfo,
+      VProjInfo,
       nil,
       VErrorMessage
     );
+    if not VResult then begin
+      raise Exception.CreateFmt('TGeoTiffWriter.WriteStripped error: "%s"', [VErrorMessage]);
+    end;
   finally
     VGeoTiffWriter.Free;
   end;
@@ -401,17 +430,13 @@ end;
 
 function TBitmapMapCombinerGeoTiffStripped.GetLineCallBack(
   const ARowNumber: Integer;
-  const ALineSize: Integer;
   const AUserInfo: Pointer
 ): Pointer;
 begin
+  Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
+
   if ARowNumber mod 256 = 0 then begin
     FProgressUpdate.Update(ARowNumber / FHeight);
-  end;
-  if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-    Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
-  end else begin
-    Result := nil;
   end;
 end;
 
@@ -436,155 +461,88 @@ procedure TBitmapMapCombinerGeoTiffTiled.DoSaveRect(
   const AMapRect: TRect
 );
 var
-  VBytesPerPix: Integer;
+  VTileSizePix: TPoint;
   VTileRectSize: TPoint;
   VProjection: IProjection;
-  VCellIncrementX, VCellIncrementY, VOriginX, VOriginY: Double;
   VGeoTiffWriter: TGeoTiffWriter;
-  VCompression: TTiffCompression;
-  VProjInfo: TProjectionInfo;
+  VProjInfo: PProjectionInfo;
   VErrorMessage: string;
+  VResult: Boolean;
 begin
-  FImageProvider := AImageProvider;
+  if FWithAlpha then begin
+    FTileProvider :=
+      TImageTileProviderRGBA.Create(
+        FGetTileCounter,
+        AImageProvider
+      );
+  end else begin
+    FTileProvider :=
+      TImageTileProviderRGB.Create(
+        FGetTileCounter,
+        AImageProvider
+      );
+  end;
+
+  VTileSizePix := FTileProvider.TileSize;
+  Assert(VTileSizePix.X = VTileSizePix.Y);
 
   VProjection := AImageProvider.Projection;
   FFullTileRect := VProjection.PixelRect2TileRect(AMapRect);
   VTileRectSize := RectSize(FFullTileRect);
 
-  FTileSizePix := VProjection.GetTileSize(FFullTileRect.TopLeft);
-
-  Assert(FTileSizePix.X = FTileSizePix.Y);
-
-  FWidth := VTileRectSize.X * FTileSizePix.X;
-  FHeight := VTileRectSize.Y * FTileSizePix.Y;
+  FWidth := VTileRectSize.X * VTileSizePix.X;
+  FHeight := VTileRectSize.Y * VTileSizePix.Y;
 
   FTotalTiles := VTileRectSize.X * VTileRectSize.Y;
   FProcessedTiles := 0;
 
-  CalculateWFileParams(
-    VProjection.TilePos2LonLat(FFullTileRect.TopLeft),
-    VProjection.TilePos2LonLat(FFullTileRect.BottomRight),
-    FWidth, FHeight, VProjection.ProjectionType,
-    VCellIncrementX, VCellIncrementY, VOriginX, VOriginY
+  VProjInfo := Self.GetProjInfo(
+    DoubleRect(
+      VProjection.TilePos2LonLat(FFullTileRect.TopLeft),
+      VProjection.TilePos2LonLat(FFullTileRect.BottomRight)
+    ),
+    Types.Point(FWidth, FHeight),
+    VProjection.ProjectionType
   );
 
-  VProjInfo.EPSG := VProjection.ProjectionType.ProjectionEPSG;
-  VProjInfo.IsGeographic := (VProjInfo.EPSG = CGELonLatProjectionEPSG);
-  VProjInfo.CellIncrementX := VCellIncrementX;
-  VProjInfo.CellIncrementY := -VCellIncrementY;
-  VProjInfo.OriginX := VOriginX;
-  VProjInfo.OriginY := VOriginY;
-
-  case FCompression of
-    gtcZIP: VCompression := tcZip;
-    gtcLZW: VCompression := tcLZW;
-    gtcJPEG: VCompression := tcJPG;
-  else
-    VCompression := tcNone;
-  end;
-
-  if FWithAlpha then begin
-    VBytesPerPix := 4;
-  end else begin
-    VBytesPerPix := 3;
-  end;
-
-  GetMem(FData, FTileSizePix.X * FTileSizePix.Y * VBytesPerPix);
+  VGeoTiffWriter := TGeoTiffWriter.Create('', VTileSizePix.X, VTileSizePix.Y);
   try
-    VGeoTiffWriter := TGeoTiffWriter.Create('', FTileSizePix.X, FTileSizePix.Y);
-    try
-      VGeoTiffWriter.WriteTiled(
-        Self.GetTiffType,
-        AFileName,
-        FWidth,
-        FHeight,
-        '', // todo
-        VCompression,
-        Self.GetTileCallBack,
-        FWithAlpha,
-        @VProjInfo,
-        nil,
-        VErrorMessage
-      );
-    finally
-      VGeoTiffWriter.Free;
+    VResult := VGeoTiffWriter.WriteTiled(
+      Self.GetTiffType,
+      AFileName,
+      FWidth,
+      FHeight,
+      '', // todo
+      Self.GetTiffCompression,
+      Self.GetTileCallBack,
+      FWithAlpha,
+      VProjInfo,
+      nil,
+      VErrorMessage
+    );
+    if not VResult then begin
+      raise Exception.CreateFmt('TGeoTiffWriter.WriteTiled error: "%s"', [VErrorMessage]);
     end;
   finally
-    FreeMem(FData);
+    VGeoTiffWriter.Free;
   end;
 end;
 
 function TBitmapMapCombinerGeoTiffTiled.GetTileCallBack(
   const X, Y, Z: Integer;
-  const ASize: Integer;
   const AUserInfo: Pointer
 ): Pointer;
-
-type
-  TRGB  = packed record R,G,B: Byte; end;
-  TRGBA = packed record R,G,B,A: Byte; end;
-
-  function ToRGB(const AData: PColor32Array): Pointer;
-  var
-    I: Integer;
-    VSource: PColor32Entry;
-    VTarget: ^TRGB;
-  begin
-    VSource := PColor32Entry(AData);
-    VTarget := FData;
-    for I := 0 to FTileSizePix.X * FTileSizePix.Y - 1 do begin
-      VTarget.B := VSource.B;
-      VTarget.G := VSource.G;
-      VTarget.R := VSource.R;
-      Inc(VSource);
-      Inc(VTarget);
-    end;
-    Result := FData;
-  end;
-
-  function ToRGBA(const AData: PColor32Array): Pointer;
-  var
-    I: Integer;
-    VSource: PColor32Entry;
-    VTarget: ^TRGBA;
-  begin
-    VSource := PColor32Entry(AData);
-    VTarget := FData;
-    for I := 0 to FTileSizePix.X * FTileSizePix.Y - 1 do begin
-      VTarget.B := VSource.B;
-      VTarget.G := VSource.G;
-      VTarget.R := VSource.R;
-      VTarget.A := VSource.A;
-      Inc(VSource);
-      Inc(VTarget);
-    end;
-    Result := FData;
-  end;
-
 var
   VTile: TPoint;
-  VBitmap: IBitmap32Static;
 begin
-  Result := nil;
+  VTile.X := FFullTileRect.Left + X;
+  VTile.Y := FFullTileRect.Top + Y;
+
+  Result := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile, Z { todo } );
 
   Inc(FProcessedTiles);
   if FProcessedTiles mod 100 = 0 then begin
     FProgressUpdate.Update(FProcessedTiles / FTotalTiles);
-  end;
-
-  if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-    VTile.X := FFullTileRect.Left + X;
-    VTile.Y := FFullTileRect.Top + Y;
-
-    VBitmap := FImageProvider.GetTile(FOperationID, FCancelNotifier, VTile);
-
-    if Assigned(VBitmap) then begin
-      if FWithAlpha then begin
-        Result := ToRGBA(VBitmap.Data);
-      end else begin
-        Result := ToRGB(VBitmap.Data);
-      end;
-    end;
   end;
 end;
 

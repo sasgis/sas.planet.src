@@ -2040,6 +2040,7 @@
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\Combine\i_BitmapMapCombiner.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\i_ImageTileProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\t_GeoTIFF.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\t_MapCombineOptions.pas"/>
@@ -2056,6 +2057,7 @@
         <DCCReference Include="Src\RegionProcess\Combine\u_ECWJP2Write.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\u_ImageTileProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas"/>
         <DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
