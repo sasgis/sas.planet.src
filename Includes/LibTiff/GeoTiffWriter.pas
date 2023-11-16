@@ -442,8 +442,8 @@ begin
 
     Z := 0; // todo: add overviews support
 
-    for X := 0 to (FWidth div FTileWidth) - 1 do begin
-      for Y := 0 to (FHeight div FTileHeight) - 1 do begin
+    for Y := 0 to (FHeight div FTileHeight) - 1 do begin
+      for X := 0 to (FWidth div FTileWidth) - 1 do begin
         VData := AGetTileCallBack(X, Y, Z, AUserInfo);
         if VData <> nil then begin
           if TIFFWriteTile(ATiff, VData, X * FTileWidth, Y * FTileHeight, Z, 0) < 0 then begin
