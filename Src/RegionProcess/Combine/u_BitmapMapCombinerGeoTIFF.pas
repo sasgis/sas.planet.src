@@ -559,7 +559,7 @@ begin
     Point(1000000, MaxInt),
     stsUnicode,
     'tif',
-    gettext_NoExtract('GeoTIFF (Stripped)'),
+    gettext_NoExtract('GeoTIFF'),
     [mcAlphaUncheck, mcGeoTiffStripped, mcThreadCount]
   );
   VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF (Stripped)');

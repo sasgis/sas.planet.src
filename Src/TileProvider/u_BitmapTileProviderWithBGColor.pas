@@ -223,7 +223,6 @@ procedure TBitmapTileProviderWithBgColor.CropByPolygon(
 );
 var
   I, J: Integer;
-  VTileMapRect: TRect;
   VCopyRectSize: TPoint;
   VPix: PColor32;
   VPixelPoint: TDoublePoint;
