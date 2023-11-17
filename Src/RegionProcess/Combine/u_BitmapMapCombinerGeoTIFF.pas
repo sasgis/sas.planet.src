@@ -142,6 +142,7 @@ type
   private
     function GetLineCallBack(
       const ARowNumber: Integer;
+      const AOverView: Integer;
       const AUserInfo: Pointer
     ): Pointer;
   protected
@@ -172,7 +173,8 @@ type
     FProcessedTiles: UInt64;
   private
     function GetTileCallBack(
-      const X, Y, Z: Integer;
+      const X, Y: Integer;
+      const AOverView: Integer;
       const AUserInfo: Pointer
     ): Pointer;
   protected
@@ -430,6 +432,7 @@ end;
 
 function TBitmapMapCombinerGeoTiffStripped.GetLineCallBack(
   const ARowNumber: Integer;
+  const AOverView: Integer;
   const AUserInfo: Pointer
 ): Pointer;
 begin
@@ -512,7 +515,7 @@ begin
       AFileName,
       FWidth,
       FHeight,
-      '', // todo
+      [], // todo
       Self.GetTiffCompression,
       Self.GetTileCallBack,
       FWithAlpha,
@@ -529,7 +532,8 @@ begin
 end;
 
 function TBitmapMapCombinerGeoTiffTiled.GetTileCallBack(
-  const X, Y, Z: Integer;
+  const X, Y: Integer;
+  const AOverView: Integer;
   const AUserInfo: Pointer
 ): Pointer;
 var
@@ -538,7 +542,7 @@ begin
   VTile.X := FFullTileRect.Left + X;
   VTile.Y := FFullTileRect.Top + Y;
 
-  Result := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile, Z { todo } );
+  Result := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile, AOverView);
 
   Inc(FProcessedTiles);
   if FProcessedTiles mod 100 = 0 then begin

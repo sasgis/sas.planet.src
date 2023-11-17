@@ -24,6 +24,7 @@ type
   TIFFMapFileProc = function(Fd: Cardinal; PBase: PPointer; PSize: PCardinal): Integer; cdecl;
   TIFFUnmapFileProc = procedure(Fd: Cardinal; Base: Pointer; Size: Cardinal); cdecl;
   TIFFExtendProc = procedure(Handle: PTIFF); cdecl;
+  TIFFMsgHandler = procedure(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
 
 {$IFDEF TIFF_STATIC_LINK}
 function TIFFGetVersion: PAnsiChar; cdecl; external libtiff_dll;
@@ -43,11 +44,15 @@ function TIFFClientOpen(
   MapProc: TIFFMapFileProc;
   UnmapProc: TIFFUnmapFileProc
 ): PTIFF; cdecl; external libtiff_dll;
+function TIFFWriteDirectory(Handle: PTIFF): Integer; cdecl; external libtiff_dll;
+function TIFFCheckpointDirectory(Handle: PTIFF): Integer; cdecl; external libtiff_dll;
 procedure TIFFClose(Handle: PTIFF); cdecl; external libtiff_dll;
 function TIFFSetFileno(Handle: PTIFF; Newvalue: Integer): Integer; cdecl; external libtiff_dll;
 function TIFFSetField(Handle: PTIFF; Tag: Cardinal): Integer; cdecl; external libtiff_dll; varargs;
 function TIFFWriteScanline(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: Word): Integer; cdecl; external libtiff_dll;
 function TIFFWriteTile(Handle: PTIFF; Buf: Pointer; X, Y, Z: Cardinal; Sample: Word): Integer; cdecl; external libtiff_dll;
+function TIFFSetWarningHandler(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl; external libtiff_dll;
+function TIFFSetErrorHandler(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl; external libtiff_dll;
 {$ELSE}
 var
   TIFFGetVersion: function(): PAnsiChar; cdecl;
@@ -67,11 +72,15 @@ var
     MapProc: TIFFMapFileProc;
     UnmapProc: TIFFUnmapFileProc
   ): PTIFF; cdecl;
+  TIFFWriteDirectory: function(Handle: PTIFF): Integer; cdecl;
+  TIFFCheckpointDirectory: function(Handle: PTIFF): Integer; cdecl;
   TIFFClose: procedure(Handle: PTIFF); cdecl;
   TIFFSetFileno: function(Handle: PTIFF; Newvalue: Integer): Integer; cdecl;
   TIFFSetField: function(Handle: PTIFF; Tag: Cardinal): Integer; cdecl varargs;
   TIFFWriteScanline: function(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: Word): Integer; cdecl;
   TIFFWriteTile: function(Handle: PTIFF; Buf: Pointer; X, Y, Z: Cardinal; Sample: Word): Integer; cdecl;
+  TIFFSetWarningHandler: function(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl;
+	TIFFSetErrorHandler: function(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl;
 {$ENDIF}
 
 {$REGION 'TIFF constants'}
@@ -433,6 +442,9 @@ procedure InitLibTiff(const ALibName: string = libtiff_dll);
 function TIFFOpen_DelphiStream(const AStream: TStream; const AMode: AnsiString): PTIFF;
 {$ENDIF}
 
+procedure _TiffWarningHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
+procedure _TiffErrorHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
+
 implementation
 
 {$IFNDEF TIFF_STATIC_LINK}
@@ -440,6 +452,9 @@ uses
   Windows,
   SysUtils,
   SyncObjs;
+{$ELSE}
+uses
+  Windows;
 {$ENDIF}
 
 {$IFDEF USE_DELPHI_STREAM}
@@ -530,6 +545,30 @@ begin
 end;
 {$ENDIF}
 
+procedure _TiffMsgHandler(const AMsgId: PAnsiChar; const AModule: PAnsiChar;
+  const AFmt: PAnsiChar; const AArgs: array of const);
+var
+  VMsg: string;
+begin
+  VMsg := '[LIBTIFF ' + string(AMsgId) + ']: ';
+  if AModule <> nil then begin
+    VMsg := VMsg + string(AModule) + ' - ';
+  end;
+  VMsg := VMsg + '"' + Format(string(AFmt), AArgs) + '"';
+
+  OutputDebugString(PChar(VMsg));
+end;
+
+procedure _TiffWarningHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
+begin
+  _TiffMsgHandler('WARNING', AModule, AFmt, AArgs);
+end;
+
+procedure _TiffErrorHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
+begin
+  _TiffMsgHandler('ERROR', AModule, AFmt, AArgs);
+end;
+
 {$IFDEF TIFF_STATIC_LINK}
 procedure InitLibTiff(const ALibName: string);
 begin
@@ -537,13 +576,13 @@ begin
 end;
 {$ELSE}
 var
-  gHandle: THandle = 0;
-  gLock: TCriticalSection = nil;
-  gIsInitialized: Boolean = False;
+  GHandle: THandle = 0;
+  GLock: TCriticalSection = nil;
+  GIsInitialized: Boolean = False;
 
 function GetProcAddr(const AProcName: PAnsiChar): Pointer;
 begin
-  Result := GetProcAddress(gHandle, AProcName);
+  Result := GetProcAddress(GHandle, AProcName);
   if Addr(Result) = nil then begin
     RaiseLastOSError;
   end;
@@ -551,51 +590,55 @@ end;
 
 procedure InitLibTiff(const ALibName: string);
 begin
-  if gIsInitialized then begin
+  if GIsInitialized then begin
     Exit;
   end;
 
-  gLock.Acquire;
+  GLock.Acquire;
   try
-    if gIsInitialized then begin
+    if GIsInitialized then begin
       Exit;
     end;
 
-    if gHandle = 0 then begin
-      gHandle := LoadLibrary(PChar(ALibName));
+    if GHandle = 0 then begin
+      GHandle := LoadLibrary(PChar(ALibName));
     end;
 
-    if gHandle <> 0 then begin
+    if GHandle <> 0 then begin
       TIFFGetVersion := GetProcAddr('TIFFGetVersion');
       TIFFOpen := GetProcAddr('TIFFOpen');
       {$IFDEF WIN32}
       TIFFOpenW := GetProcAddr('TIFFOpenW');
       {$ENDIF}
+      TIFFWriteDirectory := GetProcAddr('TIFFWriteDirectory');
+      TIFFCheckpointDirectory := GetProcAddr('TIFFCheckpointDirectory');
       TIFFClientOpen := GetProcAddr('TIFFClientOpen');
       TIFFClose := GetProcAddr('TIFFClose');
       TIFFSetFileno := GetProcAddr('TIFFSetFileno');
       TIFFSetField := GetProcAddr('TIFFSetField');
       TIFFWriteScanline := GetProcAddr('TIFFWriteScanline');
       TIFFWriteTile := GetProcAddr('TIFFWriteTile');
+      TIFFSetWarningHandler := GetProcAddr('TIFFSetWarningHandler');
+      TIFFSetErrorHandler := GetProcAddr('TIFFSetErrorHandler');
     end else begin
       RaiseLastOSError;
     end;
 
-    gIsInitialized := True;
+    GIsInitialized := True;
   finally
-    gLock.Release;
+    GLock.Release;
   end;
 end;
 
 procedure FinLibTiff;
 begin
-  gLock.Acquire;
+  GLock.Acquire;
   try
-    gIsInitialized := False;
+    GIsInitialized := False;
 
-    if gHandle <> 0 then begin
-      FreeLibrary(gHandle);
-      gHandle := 0;
+    if GHandle <> 0 then begin
+      FreeLibrary(GHandle);
+      GHandle := 0;
     end;
 
     TIFFGetVersion := nil;
@@ -604,22 +647,26 @@ begin
     TIFFOpenW := nil;
     {$ENDIF}
     TIFFClientOpen := nil;
+    TIFFWriteDirectory := nil;
+    TIFFCheckpointDirectory := nil;
     TIFFClose := nil;
     TIFFSetFileno := nil;
     TIFFSetField := nil;
     TIFFWriteScanline := nil;
     TIFFWriteTile := nil;
+    TIFFSetWarningHandler := nil;
+    TIFFSetErrorHandler := nil;
   finally
-    gLock.Release;
+    GLock.Release;
   end;
 end;
 
 initialization
-  gLock := TCriticalSection.Create;
+  GLock := TCriticalSection.Create;
 
 finalization
   FinLibTiff;
-  FreeAndNil(gLock);
+  FreeAndNil(GLock);
 {$ENDIF}
 
 end.
