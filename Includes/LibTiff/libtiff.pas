@@ -3,11 +3,9 @@ unit libtiff;
 interface
 
 {.$DEFINE TIFF_STATIC_LINK}
-{.$DEFINE USE_DELPHI_STREAM}
 
-{$IFDEF USE_DELPHI_STREAM}
-uses
-  Classes;
+{$IFDEF DEBUG}
+  {$DEFINE TIFF_SETUP_ERROR_HANDLERS}
 {$ENDIF}
 
 const
@@ -15,70 +13,40 @@ const
 
 type
   PTIFF = Pointer;
-  tmsize_t = Integer;
+  tdata_t = Pointer;
+  tsize_t = NativeInt;
+  ttile_t = Cardinal;
 
-  TIFFReadWriteProc = function(Fd: Cardinal; Buffer: Pointer; Size: tmsize_t): tmsize_t; cdecl;
-  TIFFSeekProc = function(Fd: Cardinal; Off: UInt64; Whence: Integer): UInt64; cdecl;
-  TIFFCloseProc = function(Fd: Cardinal): Integer; cdecl;
-  TIFFSizeProc = function(Fd: Cardinal): UInt64; cdecl;
-  TIFFMapFileProc = function(Fd: Cardinal; PBase: PPointer; PSize: PCardinal): Integer; cdecl;
-  TIFFUnmapFileProc = procedure(Fd: Cardinal; Base: Pointer; Size: Cardinal); cdecl;
   TIFFExtendProc = procedure(Handle: PTIFF); cdecl;
-  TIFFMsgHandler = procedure(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
+  TIFFMsgHandler = procedure(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: Pointer); cdecl;
 
 {$IFDEF TIFF_STATIC_LINK}
 function TIFFGetVersion: PAnsiChar; cdecl; external libtiff_dll;
 function TIFFOpen(const FileName: PAnsiChar; const Mode: PAnsiChar): PTIFF; cdecl; external libtiff_dll;
-{$IFDEF WIN32}
 function TIFFOpenW(const FileName: PWideChar; const Mode: PAnsiChar): PTIFF; cdecl; external libtiff_dll;
-{$ENDIF}
-function TIFFClientOpen(
-  const Name: PAnsiChar;
-  const Mode: PAnsiChar;
-  ClientData: Cardinal;
-  ReadProc: TIFFReadWriteProc;
-  WriteProc: TIFFReadWriteProc;
-  SeekProc: TIFFSeekProc;
-  CloseProc: TIFFCloseProc;
-  SizeProc: TIFFSizeProc;
-  MapProc: TIFFMapFileProc;
-  UnmapProc: TIFFUnmapFileProc
-): PTIFF; cdecl; external libtiff_dll;
 function TIFFWriteDirectory(Handle: PTIFF): Integer; cdecl; external libtiff_dll;
 function TIFFCheckpointDirectory(Handle: PTIFF): Integer; cdecl; external libtiff_dll;
 procedure TIFFClose(Handle: PTIFF); cdecl; external libtiff_dll;
-function TIFFSetFileno(Handle: PTIFF; Newvalue: Integer): Integer; cdecl; external libtiff_dll;
 function TIFFSetField(Handle: PTIFF; Tag: Cardinal): Integer; cdecl; external libtiff_dll; varargs;
 function TIFFWriteScanline(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: Word): Integer; cdecl; external libtiff_dll;
 function TIFFWriteTile(Handle: PTIFF; Buf: Pointer; X, Y, Z: Cardinal; Sample: Word): Integer; cdecl; external libtiff_dll;
+function TIFFWriteRawTile(Handle: PTIFF; tile: ttile_t; buf: tdata_t; size: tsize_t): tsize_t; cdecl; external libtiff_dll;
+function TIFFWriteEncodedTile(Handle: PTIFF; tile: ttile_t; buf: tdata_t; size: tsize_t): tsize_t; cdecl; external libtiff_dll;
 function TIFFSetWarningHandler(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl; external libtiff_dll;
 function TIFFSetErrorHandler(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl; external libtiff_dll;
 {$ELSE}
 var
   TIFFGetVersion: function(): PAnsiChar; cdecl;
-  TIFFOpen: function (const FileName: PAnsiChar; const Mode: PAnsiChar): PTIFF; cdecl;
-  {$IFDEF WIN32}
+  TIFFOpen: function(const FileName: PAnsiChar; const Mode: PAnsiChar): PTIFF; cdecl;
   TIFFOpenW: function(const FileName: PWideChar; const Mode: PAnsiChar): PTIFF; cdecl;
-  {$ENDIF}
-  TIFFClientOpen: function(
-    const Name: PAnsiChar;
-    const Mode: PAnsiChar;
-    ClientData: Cardinal;
-    ReadProc: TIFFReadWriteProc;
-    WriteProc: TIFFReadWriteProc;
-    SeekProc: TIFFSeekProc;
-    CloseProc: TIFFCloseProc;
-    SizeProc: TIFFSizeProc;
-    MapProc: TIFFMapFileProc;
-    UnmapProc: TIFFUnmapFileProc
-  ): PTIFF; cdecl;
   TIFFWriteDirectory: function(Handle: PTIFF): Integer; cdecl;
   TIFFCheckpointDirectory: function(Handle: PTIFF): Integer; cdecl;
   TIFFClose: procedure(Handle: PTIFF); cdecl;
-  TIFFSetFileno: function(Handle: PTIFF; Newvalue: Integer): Integer; cdecl;
   TIFFSetField: function(Handle: PTIFF; Tag: Cardinal): Integer; cdecl varargs;
   TIFFWriteScanline: function(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: Word): Integer; cdecl;
   TIFFWriteTile: function(Handle: PTIFF; Buf: Pointer; X, Y, Z: Cardinal; Sample: Word): Integer; cdecl;
+  TIFFWriteRawTile: function(Handle: PTIFF; tile: ttile_t; buf: tdata_t; size: tsize_t): tsize_t; cdecl;
+  TIFFWriteEncodedTile: function(Handle: PTIFF; tile: ttile_t; buf: tdata_t; size: tsize_t): tsize_t; cdecl;
   TIFFSetWarningHandler: function(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl;
 	TIFFSetErrorHandler: function(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl;
 {$ENDIF}
@@ -436,143 +404,75 @@ const
 
 procedure InitLibTiff(const ALibName: string = libtiff_dll);
 
-{$IFDEF USE_DELPHI_STREAM}
-// fixme: for some unknown reason, this function can write Tiff up to 2 GB
-// and BigTiff up to 4GB only
-function TIFFOpen_DelphiStream(const AStream: TStream; const AMode: AnsiString): PTIFF;
-{$ENDIF}
-
-procedure _TiffWarningHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
-procedure _TiffErrorHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
-
 implementation
 
-{$IFNDEF TIFF_STATIC_LINK}
+{$IF NOT DEFINED(TIFF_STATIC_LINK)}
 uses
   Windows,
   SysUtils,
   SyncObjs;
-{$ELSE}
+{$ELSEIF DEFINED(TIFF_SETUP_ERROR_HANDLERS)}
 uses
   Windows;
 {$ENDIF}
 
-{$IFDEF USE_DELPHI_STREAM}
-function _StreamCloseProc(Fd: Cardinal): Integer; cdecl;
-begin
-  Result := 0;
-end;
-
-function _StreamSizeProc(Fd: Cardinal): UInt64; cdecl;
-begin
-  try
-    Result := TStream(Fd).Size;
-  except
-    Result := 0;
-  end;
-end;
-
-function _StreamSeekProc(Fd: Cardinal; Off: UInt64; Whence: Integer): UInt64; cdecl;
-const
-  SEEK_SET = 0;
-  SEEK_CUR = 1;
-  SEEK_END = 2;
-var
-  MoveMethod: Word;
-begin
-  case Whence of
-    SEEK_SET: MoveMethod := soFromBeginning;
-    SEEK_CUR: MoveMethod := soFromCurrent;
-    SEEK_END: MoveMethod := soFromEnd;
-  else
-    MoveMethod := soFromBeginning;
-  end;
-  try
-    Result := TStream(Fd).Seek(Off, MoveMethod);
-  except
-    Result := 0;
-  end;
-end;
-
-function _StreamReadProc(Fd: Cardinal; Buffer: Pointer; Size: tmsize_t): tmsize_t; cdecl;
-begin
-  try
-    Result := TStream(Fd).Read(Buffer^, Size);
-  except
-    Result := 0;
-  end;
-end;
-
-function _StreamWriteProc(Fd: Cardinal; Buffer: Pointer; Size: tmsize_t): tmsize_t; cdecl;
-begin
-  try
-    Result := TStream(Fd).Write(Buffer^, Size);
-  except
-    Result := 0;
-  end;
-end;
-
-function _DummyMapProc(Fd: Cardinal; PBase: PPointer; PSize: PCardinal): Integer; cdecl;
-begin
-  PBase^ := nil;
-  PSize^ := 0;
-  Result := 0;
-end;
-
-procedure _DummyUnmapProc(Fd: Cardinal; Base: Pointer; Size: Cardinal); cdecl;
-begin
-  // empty
-end;
-
-function TIFFOpen_DelphiStream(const AStream: TStream; const AMode: AnsiString): PTIFF;
-begin
-  {$MESSAGE WARN 'This function can write Tiff up to 2 GB and BigTiff up to 4GB only!'}
-  Result := TIFFClientOpen(
-    PAnsiChar('Stream'),
-    PAnsiChar(AMode),
-    Cardinal(AStream),
-    @_StreamReadProc,
-    @_StreamWriteProc,
-    @_StreamSeekProc,
-    @_StreamCloseProc,
-    @_StreamSizeProc,
-    @_DummyMapProc,
-    @_DummyUnmapProc
-  );
-  if Result <> nil then begin
-    TIFFSetFileno(Result, Cardinal(AStream));
-  end;
-end;
-{$ENDIF}
+{$IFDEF TIFF_SETUP_ERROR_HANDLERS}
+function vsnprintf(ABuffer: PAnsiChar; ACount: LongWord;
+  AFmt: PAnsiChar; AArgPtr: Pointer): Integer; cdecl; external 'msvcrt.dll';
 
 procedure _TiffMsgHandler(const AMsgId: PAnsiChar; const AModule: PAnsiChar;
-  const AFmt: PAnsiChar; const AArgs: array of const);
+  const AFmt: PAnsiChar; const AArgs: Pointer);
 var
-  VMsg: string;
+  VMsg: AnsiString;
+  VBuffer: array[0..4096] of AnsiChar;
+  VCount: Integer;
 begin
-  VMsg := '[LIBTIFF ' + string(AMsgId) + ']: ';
+  VMsg := AnsiString('[LIBTIFF ') + AMsgId + AnsiString(']: ');
   if AModule <> nil then begin
-    VMsg := VMsg + string(AModule) + ' - ';
+    VMsg := VMsg + AModule + ' - ';
   end;
-  VMsg := VMsg + '"' + Format(string(AFmt), AArgs) + '"';
 
-  OutputDebugString(PChar(VMsg));
+  VCount := vsnprintf(@VBuffer[0], SizeOf(VBuffer), AFmt, AArgs);
+  if VCount > 0 then begin
+    VMsg := VMsg + '"' + AnsiString(VBuffer) + '"';
+  end;
+
+  OutputDebugString(PChar(string(VMsg)));
 end;
 
-procedure _TiffWarningHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
+procedure _TiffWarningHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: Pointer); cdecl;
 begin
   _TiffMsgHandler('WARNING', AModule, AFmt, AArgs);
 end;
 
-procedure _TiffErrorHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: array of const); cdecl;
+procedure _TiffErrorHandler(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: Pointer); cdecl;
 begin
   _TiffMsgHandler('ERROR', AModule, AFmt, AArgs);
 end;
 
+procedure _SetupErrorHandlers;
+begin
+  TIFFSetWarningHandler(_TiffWarningHandler);
+  TIFFSetErrorHandler(_TiffErrorHandler);
+end;
+{$ELSE}
+procedure _SetupErrorHandlers;
+begin
+  TIFFSetWarningHandler(nil);
+  TIFFSetErrorHandler(nil);
+end;
+{$ENDIF}
+
 {$IFDEF TIFF_STATIC_LINK}
+var
+  GIsInitialized: Boolean = False;
+
 procedure InitLibTiff(const ALibName: string);
 begin
-  // empty
+  if not GIsInitialized then begin
+    GIsInitialized := True;
+    _SetupErrorHandlers;
+  end;
 end;
 {$ELSE}
 var
@@ -607,19 +507,19 @@ begin
     if GHandle <> 0 then begin
       TIFFGetVersion := GetProcAddr('TIFFGetVersion');
       TIFFOpen := GetProcAddr('TIFFOpen');
-      {$IFDEF WIN32}
       TIFFOpenW := GetProcAddr('TIFFOpenW');
-      {$ENDIF}
       TIFFWriteDirectory := GetProcAddr('TIFFWriteDirectory');
       TIFFCheckpointDirectory := GetProcAddr('TIFFCheckpointDirectory');
-      TIFFClientOpen := GetProcAddr('TIFFClientOpen');
       TIFFClose := GetProcAddr('TIFFClose');
-      TIFFSetFileno := GetProcAddr('TIFFSetFileno');
       TIFFSetField := GetProcAddr('TIFFSetField');
       TIFFWriteScanline := GetProcAddr('TIFFWriteScanline');
       TIFFWriteTile := GetProcAddr('TIFFWriteTile');
+      TIFFWriteRawTile := GetProcAddr('TIFFWriteRawTile');
+      TIFFWriteEncodedTile := GetProcAddr('TIFFWriteEncodedTile');
       TIFFSetWarningHandler := GetProcAddr('TIFFSetWarningHandler');
       TIFFSetErrorHandler := GetProcAddr('TIFFSetErrorHandler');
+
+      _SetupErrorHandlers;
     end else begin
       RaiseLastOSError;
     end;
@@ -643,17 +543,15 @@ begin
 
     TIFFGetVersion := nil;
     TIFFOpen := nil;
-    {$IFDEF WIN32}
     TIFFOpenW := nil;
-    {$ENDIF}
-    TIFFClientOpen := nil;
     TIFFWriteDirectory := nil;
     TIFFCheckpointDirectory := nil;
     TIFFClose := nil;
-    TIFFSetFileno := nil;
     TIFFSetField := nil;
     TIFFWriteScanline := nil;
     TIFFWriteTile := nil;
+    TIFFWriteRawTile := nil;
+    TIFFWriteEncodedTile := nil;
     TIFFSetWarningHandler := nil;
     TIFFSetErrorHandler := nil;
   finally

@@ -33,6 +33,9 @@ type
     function GetTileSize: TPoint;
     property TileSize: TPoint read GetTileSize;
 
+    function GetBytesPerPixel: Integer;
+    property BytesPerPixel: Integer read GetBytesPerPixel;
+
     function GetTile(
       const AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;

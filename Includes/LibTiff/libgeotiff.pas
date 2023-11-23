@@ -14,80 +14,17 @@ type
   PGTIFF = Pointer;
 
 {$IFDEF GEOTIFF_STATIC_LINK}
-{ Registers an extension with libtiff for adding GeoTIFF tags.
-After this one-time intialization, any TIFF open function may be called in
-the usual manner to create a TIFF file that compatible with libgeotiff.
-The XTIFF open functions are simply for convenience: they call this
-and then pass their parameters on to the appropriate TIFF open function.
-This function may be called any number of times safely, since it will
-only register the extension the first time it is called.}
 procedure XTIFFInitialize(); cdecl; external libgeotiff_dll;
-
-{* GeoTIFF compatible TIFF file open function.
- *
- * @param name The filename of a TIFF file to open.
- * @param mode The open mode ("r", "w" or "a").
- *
- * @return a TIFF * for the file, or NULL if the open failed.
- *
-This function is used to open GeoTIFF files instead of TIFFOpen() from
-libtiff.  Internally it calls TIFFOpen(), but sets up some extra hooks
-so that GeoTIFF tags can be extracted from the file.  If XTIFFOpen() isn't
-used, GTIFNew() won't work properly.  Files opened
-with XTIFFOpen() should be closed with XTIFFClose().
-
-The name of the file to be opened should be passed as <b>name</b>, and an
-opening mode ("r", "w" or "a") acceptable to TIFFOpen() should be passed as the
-<b>mode</b>.<p>
-
-If XTIFFOpen() fails it will return NULL.  Otherwise, normal TIFFOpen()
-error reporting steps will have already taken place.<p>}
 function  XTIFFOpen(const FileName: PAnsiChar; const Mode: PAnsiChar): PTIFF; cdecl; external libgeotiff_dll;
-function XTIFFClientOpen(
-  const Name: PAnsiChar;
-  const Mode: PAnsiChar;
-  ClientData: Cardinal;
-  ReadProc: TIFFReadWriteProc;
-  WriteProc: TIFFReadWriteProc;
-  SeekProc: TIFFSeekProc;
-  CloseProc: TIFFCloseProc;
-  SizeProc: TIFFSizeProc;
-  MapProc: TIFFMapFileProc;
-  UnmapProc: TIFFUnmapFileProc
-): PTIFF; cdecl; external libtiff_dll;
-
-{* Close a file opened with XTIFFOpen().
- *
- * @param tif The file handle returned by XTIFFOpen().
- *
- * If a GTIF structure was created with GTIFNew()
- * for this file, it should be freed with GTIFFree()
- * <i>before</i> calling XTIFFClose()}
 procedure XTIFFClose(Handle: PTIFF); cdecl; external libgeotiff_dll;
-
-// TIFF-level interface
 function  GTIFNew(Handle: PTIFF): PGTIFF; cdecl; external libgeotiff_dll;
 procedure GTIFFree(Handle: PGTIFF); cdecl; external libgeotiff_dll;
 function  GTIFWriteKeys(Handle: PGTIFF): Integer; cdecl; external libgeotiff_dll;
-
-// GeoKey Access
 function  GTIFKeySet(Handle: PGTIFF; KeyID: Integer; TagType: Integer; Count: Integer): Integer; cdecl; external libgeotiff_dll; varargs;
 {$ELSE}
 var
   XTIFFInitialize: procedure(); cdecl;
   XTIFFOpen: function(const FileName: PAnsiChar; const Mode: PAnsiChar): PTIFF; cdecl;
-  XTIFFClientOpen: function(
-    const Name: PAnsiChar;
-    const Mode: PAnsiChar;
-    ClientData: Cardinal;
-    ReadProc: TIFFReadWriteProc;
-    WriteProc: TIFFReadWriteProc;
-    SeekProc: TIFFSeekProc;
-    CloseProc: TIFFCloseProc;
-    SizeProc: TIFFSizeProc;
-    MapProc: TIFFMapFileProc;
-    UnmapProc: TIFFUnmapFileProc
-  ): PTIFF; cdecl;
   XTIFFClose: procedure(Handle: PTIFF); cdecl;
   GTIFNew: function(Handle: PTIFF): PGTIFF; cdecl;
   GTIFFree: procedure(Handle: PGTIFF); cdecl;
@@ -420,7 +357,7 @@ const
   Datum_Nord_de_Guerre =	6902;
 {$ENDREGION}
 
-procedure InitLibGeoTiff(const ALibName: string = libgeotiff_dll);
+procedure InitLibGeoTiff(const ALibName: string = libgeotiff_dll); {$IFDEF GEOTIFF_STATIC_LINK} inline; {$ENDIF}
 
 implementation
 
@@ -436,13 +373,13 @@ uses
   SyncObjs;
 
 var
-  gHandle: THandle = 0;
-  gLock: TCriticalSection = nil;
-  gIsInitialized: Boolean = False;
+  GHandle: THandle = 0;
+  GLock: TCriticalSection = nil;
+  GIsInitialized: Boolean = False;
 
 function GetProcAddr(const AProcName: PAnsiChar): Pointer;
 begin
-  Result := GetProcAddress(gHandle, AProcName);
+  Result := GetProcAddress(GHandle, AProcName);
   if Addr(Result) = nil then begin
     RaiseLastOSError;
   end;
@@ -450,24 +387,23 @@ end;
 
 procedure InitLibGeoTiff(const ALibName: string);
 begin
-  if gIsInitialized then begin
+  if GIsInitialized then begin
     Exit;
   end;
 
-  gLock.Acquire;
+  GLock.Acquire;
   try
-    if gIsInitialized then begin
+    if GIsInitialized then begin
       Exit;
     end;
 
-    if gHandle = 0 then begin
-      gHandle := LoadLibrary(PChar(ALibName));
+    if GHandle = 0 then begin
+      GHandle := LoadLibrary(PChar(ALibName));
     end;
 
-    if gHandle <> 0 then begin
+    if GHandle <> 0 then begin
       XTIFFInitialize := GetProcAddr('XTIFFInitialize');
       XTIFFOpen := GetProcAddr('XTIFFOpen');
-      XTIFFClientOpen := GetProcAddr('XTIFFClientOpen');
       XTIFFClose := GetProcAddr('XTIFFClose');
       GTIFNew := GetProcAddr('GTIFNew');
       GTIFFree := GetProcAddr('GTIFFree');
@@ -477,42 +413,41 @@ begin
       RaiseLastOSError;
     end;
 
-    gIsInitialized := True;
+    GIsInitialized := True;
   finally
-    gLock.Release;
+    GLock.Release;
   end;
 end;
 
 procedure FinLibTiff;
 begin
-  gLock.Acquire;
+  GLock.Acquire;
   try
-    gIsInitialized := False;
+    GIsInitialized := False;
 
-    if gHandle <> 0 then begin
-      FreeLibrary(gHandle);
-      gHandle := 0;
+    if GHandle <> 0 then begin
+      FreeLibrary(GHandle);
+      GHandle := 0;
     end;
 
     XTIFFInitialize := nil;
     XTIFFOpen := nil;
-    XTIFFClientOpen := nil;
     XTIFFClose := nil;
     GTIFNew := nil;
     GTIFFree := nil;
     GTIFWriteKeys := nil;
     GTIFKeySet := nil;
   finally
-    gLock.Release;
+    GLock.Release;
   end;
 end;
 
 initialization
-  gLock := TCriticalSection.Create;
+  GLock := TCriticalSection.Create;
 
 finalization
   FinLibTiff;
-  FreeAndNil(gLock);
+  FreeAndNil(GLock);
 {$ENDIF}
 
 end.

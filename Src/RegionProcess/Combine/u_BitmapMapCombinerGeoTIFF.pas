@@ -68,7 +68,7 @@ uses
   Classes,
   Types,
   gnugettext,
-  GeoTiffWriter,
+  libtiff.writer,
   t_GeoTIFF,
   t_GeoTypes,
   t_CommonTypes,
@@ -137,14 +137,16 @@ type
   private
     FThreadNumber: Integer;
     FLineProvider: IImageLineProvider;
+    FLineSizeInBytes: NativeInt;
     FPrepareDataCounter: IInternalPerformanceCounter;
     FGetLineCounter: IInternalPerformanceCounter;
   private
-    function GetLineCallBack(
+    function OnGetLineCallBack(
       const ARowNumber: Integer;
       const AOverView: Integer;
-      const AUserInfo: Pointer
-    ): Pointer;
+      out AData: Pointer;
+      out ADataSize: NativeInt
+    ): Boolean;
   protected
     procedure DoSaveRect(
       const AFileName: string;
@@ -168,15 +170,17 @@ type
   private
     FGetTileCounter: IInternalPerformanceCounter;
     FTileProvider: IImageTileProvider;
+    FTileSizeInBytes: NativeInt;
     FFullTileRect: TRect;
     FTotalTiles: UInt64;
     FProcessedTiles: UInt64;
   private
-    function GetTileCallBack(
+    function OnGetTileCallBack(
       const X, Y: Integer;
       const AOverView: Integer;
-      const AUserInfo: Pointer
-    ): Pointer;
+      out AData: Pointer;
+      out ADataSize: NativeInt
+    ): Boolean;
   protected
     procedure DoSaveRect(
       const AFileName: string;
@@ -219,7 +223,7 @@ var
   VBytesPerPix: Integer;
 begin
   case FFileFormat of
-    gtfOld: Result := ttOldTiff;
+    gtfClassic: Result := ttClassicTiff;
     gtfBig: Result := ttBigTiff;
   else
     begin
@@ -233,7 +237,7 @@ begin
       if VSize >= VOldTiffMaxFileSize then begin
         Result := ttBigTiff;
       end else begin
-        Result := ttOldTiff;
+        Result := ttClassicTiff;
       end;
     end;
   end;
@@ -243,8 +247,8 @@ function TBitmapMapCombinerGeoTiffBase.GetTiffCompression: TTiffCompression;
 begin
   case FCompression of
     gtcZIP: Result := tcZip;
-    gtcLZW: Result := tcLZW;
-    gtcJPEG: Result := tcJPG;
+    gtcLZW: Result := tcLzw;
+    gtcJPEG: Result := tcJpeg;
   else
     Result := tcNone;
   end;
@@ -329,11 +333,10 @@ var
   VFullTileRect: TRect;
   VTileRectSize: TPoint;
   VProjection: IProjection;
-  VGeoTiffWriter: TGeoTiffWriter;
   VProjInfo: PProjectionInfo;
+  VTiffWriterParams: TTiffWriterParams;
   VThreadNumber: Integer;
   VErrorMessage: string;
-  VResult: Boolean;
 begin
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
@@ -408,39 +411,47 @@ begin
     end;
   end;
 
-  VGeoTiffWriter := TGeoTiffWriter.Create;
+  FLineSizeInBytes := FLineProvider.ImageSize.X * FLineProvider.BytesPerPixel;
+
+  VTiffWriterParams := CTiffWriterParamsEmpty;
+  with VTiffWriterParams do begin
+    TiffType := Self.GetTiffType;
+    OutputFileName := AFileName;
+    ImageWidth := FWidth;
+    ImageHeight := FHeight;
+    Compression := Self.GetTiffCompression;
+    StoreAlphaChanel := FWithAlpha;
+    ProjectionInfo := VProjInfo;
+    GetLineCallBack := Self.OnGetLineCallBack;
+  end;
+
+  with TTiffWriter.Create do
   try
-    VResult := VGeoTiffWriter.WriteStripped(
-      Self.GetTiffType,
-      AFileName,
-      FWidth,
-      FHeight,
-      Self.GetTiffCompression,
-      Self.GetLineCallBack,
-      FWithAlpha,
-      VProjInfo,
-      nil,
-      VErrorMessage
-    );
-    if not VResult then begin
-      raise Exception.CreateFmt('TGeoTiffWriter.WriteStripped error: "%s"', [VErrorMessage]);
+    if not WriteStripped(@VTiffWriterParams, VErrorMessage) then begin
+      if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+        raise Exception.CreateFmt('TTiffWriter.WriteStripped error: "%s"', [VErrorMessage]);
+      end;
     end;
   finally
-    VGeoTiffWriter.Free;
+    Free;
   end;
 end;
 
-function TBitmapMapCombinerGeoTiffStripped.GetLineCallBack(
+function TBitmapMapCombinerGeoTiffStripped.OnGetLineCallBack(
   const ARowNumber: Integer;
   const AOverView: Integer;
-  const AUserInfo: Pointer
-): Pointer;
+  out AData: Pointer;
+  out ADataSize: NativeInt
+): Boolean;
 begin
-  Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
+  AData := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
+  ADataSize := FLineSizeInBytes;
 
   if ARowNumber mod 256 = 0 then begin
     FProgressUpdate.Update(ARowNumber / FHeight);
   end;
+
+  Result := AData <> nil;
 end;
 
 { TBitmapMapCombinerGeoTiffTiled }
@@ -467,10 +478,9 @@ var
   VTileSizePix: TPoint;
   VTileRectSize: TPoint;
   VProjection: IProjection;
-  VGeoTiffWriter: TGeoTiffWriter;
   VProjInfo: PProjectionInfo;
+  VTiffWriterParams: TTiffWriterParams;
   VErrorMessage: string;
-  VResult: Boolean;
 begin
   if FWithAlpha then begin
     FTileProvider :=
@@ -508,46 +518,53 @@ begin
     VProjection.ProjectionType
   );
 
-  VGeoTiffWriter := TGeoTiffWriter.Create('', VTileSizePix.X, VTileSizePix.Y);
+  FTileSizeInBytes := FTileProvider.TileSize.X * FTileProvider.TileSize.Y * FTileProvider.BytesPerPixel;
+
+  VTiffWriterParams := CTiffWriterParamsEmpty;
+  with VTiffWriterParams do begin
+    TiffType := Self.GetTiffType;
+    OutputFileName := AFileName;
+    ImageWidth := FWidth;
+    ImageHeight := FHeight;
+    Compression := Self.GetTiffCompression;
+    StoreAlphaChanel := FWithAlpha;
+    ProjectionInfo := VProjInfo;
+    GetTileCallBack := Self.OnGetTileCallBack;
+  end;
+
+  with TTiffWriter.Create do
   try
-    VResult := VGeoTiffWriter.WriteTiled(
-      Self.GetTiffType,
-      AFileName,
-      FWidth,
-      FHeight,
-      [], // todo
-      Self.GetTiffCompression,
-      Self.GetTileCallBack,
-      FWithAlpha,
-      VProjInfo,
-      nil,
-      VErrorMessage
-    );
-    if not VResult then begin
-      raise Exception.CreateFmt('TGeoTiffWriter.WriteTiled error: "%s"', [VErrorMessage]);
+    if not WriteTiled(@VTiffWriterParams, VErrorMessage) then begin
+      if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+        raise Exception.CreateFmt('TTiffWriter.WriteTiled error: "%s"', [VErrorMessage]);
+      end;
     end;
   finally
-    VGeoTiffWriter.Free;
+    Free;
   end;
 end;
 
-function TBitmapMapCombinerGeoTiffTiled.GetTileCallBack(
+function TBitmapMapCombinerGeoTiffTiled.OnGetTileCallBack(
   const X, Y: Integer;
   const AOverView: Integer;
-  const AUserInfo: Pointer
-): Pointer;
+  out AData: Pointer;
+  out ADataSize: NativeInt
+): Boolean;
 var
   VTile: TPoint;
 begin
   VTile.X := FFullTileRect.Left + X;
   VTile.Y := FFullTileRect.Top + Y;
 
-  Result := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile, AOverView);
+  AData := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile, 0);
+  ADataSize := FTileSizeInBytes;
 
   Inc(FProcessedTiles);
   if FProcessedTiles mod 100 = 0 then begin
     FProgressUpdate.Update(FProcessedTiles / FTotalTiles);
   end;
+
+  Result := AData <> nil;
 end;
 
 { TBitmapMapCombinerFactoryGeoTiffStripped }

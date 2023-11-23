@@ -26,7 +26,7 @@ interface
 type
   TGeoTiffFileFormat = (
     gtfAuto = 0,
-    gtfOld,
+    gtfClassic,
     gtfBig
   );
 

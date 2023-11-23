@@ -53,6 +53,7 @@ type
   private
     { IImageTileProvider }
     function GetTileSize: TPoint;
+    function GetBytesPerPixel: Integer;
 
     function GetTile(
       const AOperationID: Integer;
@@ -141,6 +142,11 @@ end;
 function TImageTileProviderAbstract.GetTileSize: TPoint;
 begin
   Result := FTileSize;
+end;
+
+function TImageTileProviderAbstract.GetBytesPerPixel: Integer;
+begin
+  Result := FBytesPerPixel;
 end;
 
 function TImageTileProviderAbstract.GetTile(
