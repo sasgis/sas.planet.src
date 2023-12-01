@@ -2357,11 +2357,13 @@
         <DCCReference Include="Src\TileMatrix\u_VectorTileMatrixChangeableForVectorLayers.pas"/>
         <DCCReference Include="Src\TileProvider\i_BinaryTileProvider.pas"/>
         <DCCReference Include="Src\TileProvider\i_BitmapTileProvider.pas"/>
+        <DCCReference Include="Src\TileProvider\i_BitmapTileProviderBuilder.pas"/>
         <DCCReference Include="Src\TileProvider\i_InfoTileProvider.pas"/>
         <DCCReference Include="Src\TileProvider\i_VectorTileProvider.pas"/>
         <DCCReference Include="Src\TileProvider\i_VectorTileProviderChangeable.pas"/>
         <DCCReference Include="Src\TileProvider\i_VectorTileRenderer.pas"/>
         <DCCReference Include="Src\TileProvider\i_VectorTileRendererChangeable.pas"/>
+        <DCCReference Include="Src\TileProvider\u_BitmapTileProviderBuilder.pas"/>
         <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByBitmapTileUniProvider.pas"/>
         <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByInfoTileProvider.pas"/>
         <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByMatrix.pas"/>

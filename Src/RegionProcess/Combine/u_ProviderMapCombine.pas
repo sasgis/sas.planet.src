@@ -29,27 +29,14 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_ProjectionSetList,
-  i_ProjectionSetChangeable,
-  i_BitmapLayerProvider,
   i_BitmapTileProvider,
-  i_HashFunction,
+  i_BitmapTileProviderBuilder,
   i_Projection,
   i_GeometryProjected,
   i_GeometryLonLat,
-  i_GeometryProjectedProvider,
-  i_VectorItemSubsetBuilder,
   i_UseTilePrevZoomConfig,
   i_Bitmap32BufferFactory,
-  i_BitmapPostProcessing,
-  i_MapLayerGridsConfig,
-  i_CoordToStringConverter,
-  i_UsedMarksConfig,
-  i_MarksDrawConfig,
-  i_MarkSystem,
   i_MapCalibration,
-  i_MapType,
-  i_FillingMapLayerConfig,
-  i_FillingMapPolygon,
   i_GeometryProjectedFactory,
   i_GlobalViewMainConfig,
   i_ViewProjectionConfig,
@@ -67,29 +54,15 @@ type
   TProviderMapCombine = class(TExportProviderBase)
   private
     FCombinerFactory: IBitmapMapCombinerFactory;
+    FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
     FViewConfig: IGlobalViewMainConfig;
     FViewProjectionConfig: IViewProjectionConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-    FHashFunction: IHashFunction;
     FBitmapFactory: IBitmap32StaticFactory;
-    FProjectionSet: IProjectionSetChangeable;
     FProjectionSetList: IProjectionSetList;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FProjectedGeometryProvider: IGeometryProjectedProvider;
-    FVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FMarksDB: IMarkSystem;
-    FMarksShowConfig: IUsedMarksConfig;
-    FMarksDrawConfig: IMarksDrawConfig;
     FActiveMapsSet: IMapTypeListChangeable;
-    FBitmapPostProcessing: IBitmapPostProcessingChangeable;
     FMapCalibrationList: IMapCalibrationList;
-    FFillingMapConfig: IFillingMapLayerConfig;
-    FFillingMapType: IMapTypeChangeable;
-    FFillingMapPolygon: IFillingMapPolygon;
-    FGridsConfig: IMapLayerGridsConfig;
-    FCoordToStringConverter: ICoordToStringConverterChangeable;
-    function PrepareGridsProvider(const AProjection: IProjection): IBitmapTileProvider;
-    function PrepareFillingMapProvider(const AProjection: IProjection): IBitmapTileProvider;
   protected
     function PrepareTargetFileName: string;
     function PrepareTargetRect(
@@ -121,6 +94,7 @@ type
   public
     constructor Create(
       const ACombinerFactory: IBitmapMapCombinerFactory;
+      const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -128,22 +102,9 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AViewProjectionConfig: IViewProjectionConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const AProjectionSet: IProjectionSetChangeable;
       const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AProjectedGeometryProvider: IGeometryProjectedProvider;
-      const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AMarksShowConfig: IUsedMarksConfig;
-      const AMarksDrawConfig: IMarksDrawConfig;
-      const AMarksDB: IMarkSystem;
-      const AHashFunction: IHashFunction;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-      const AFillingMapConfig: IFillingMapLayerConfig;
-      const AFillingMapType: IMapTypeChangeable;
-      const AFillingMapPolygon: IFillingMapPolygon;
-      const AGridsConfig: IMapLayerGridsConfig;
-      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList
     );
   end;
@@ -156,40 +117,10 @@ uses
   Types,
   Math,
   gnugettext,
-  t_Bitmap32,
-  i_LonLatRect,
-  i_InternalPerformanceCounter,
-  i_MarkCategoryList,
-  i_TextDrawerBasic,
-  i_MarkerProviderByAppearancePointIcon,
-  i_MarkerProviderForVectorItem,
-  u_InternalPerformanceCounterFake,
-  i_VectorItemSubset,
-  i_VectorTileProvider,
-  i_VectorTileRenderer,
-  i_FillingMapColorer,
-  i_MapVersionRequest,
-  u_BaseInterfacedObject,
   u_GeoFunc,
   u_ResStrings,
   u_RegionProcessTaskCombine,
-  u_TextDrawerBasic,
-  u_MarkerProviderByAppearancePointIcon,
-  u_MarkerProviderForVectorItemForMarkPoints,
-  u_VectorTileProviderByFixedSubset,
-  u_VectorTileRendererForMarks,
-  u_FillingMapColorerSimple,
-  u_BitmapLayerProviderFillingMap,
-  u_BitmapLayerProviderComplex,
-  u_BitmapLayerProviderGridGenshtab,
-  u_BitmapLayerProviderGridDegree,
-  u_BitmapLayerProviderGridTiles,
-  u_BitmapTileProviderByBitmapTileUniProvider,
-  u_BitmapTileProviderWithRecolor,
-  u_BitmapTileProviderByVectorTileProvider,
-  u_BitmapTileProviderComplex,
-  u_BitmapTileProviderInPolygon,
-  u_BitmapTileProviderWithBGColor;
+  u_BaseInterfacedObject;
 
 type
   TBitmapCombineProgressUpdate = class(TBaseInterfacedObject, IBitmapCombineProgressUpdate)
@@ -219,11 +150,11 @@ begin
   FProgressInfo.SetSecondLine(SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%');
 end;
 
-
 { TProviderMapCombineBase }
 
 constructor TProviderMapCombine.Create(
   const ACombinerFactory: IBitmapMapCombinerFactory;
+  const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
@@ -231,30 +162,14 @@ constructor TProviderMapCombine.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AViewProjectionConfig: IViewProjectionConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const AProjectionSet: IProjectionSetChangeable;
   const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AProjectedGeometryProvider: IGeometryProjectedProvider;
-  const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AMarksShowConfig: IUsedMarksConfig;
-  const AMarksDrawConfig: IMarksDrawConfig;
-  const AMarksDB: IMarkSystem;
-  const AHashFunction: IHashFunction;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-  const AFillingMapConfig: IFillingMapLayerConfig;
-  const AFillingMapType: IMapTypeChangeable;
-  const AFillingMapPolygon: IFillingMapPolygon;
-  const AGridsConfig: IMapLayerGridsConfig;
-  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );
 begin
   Assert(Assigned(ACombinerFactory));
-  Assert(Assigned(AFillingMapConfig));
-  Assert(Assigned(AFillingMapType));
-  Assert(Assigned(AFillingMapPolygon));
-  Assert(Assigned(AHashFunction));
+  Assert(Assigned(ABitmapTileProviderBuilder));
   inherited Create(
     AProgressFactory,
     ALanguageManager,
@@ -262,27 +177,15 @@ begin
     nil
   );
   FCombinerFactory := ACombinerFactory;
+  FBitmapTileProviderBuilder := ABitmapTileProviderBuilder;
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
   FViewProjectionConfig := AViewProjectionConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
-  FMarksShowConfig := AMarksShowConfig;
-  FMarksDrawConfig := AMarksDrawConfig;
-  FMarksDB := AMarksDB;
   FActiveMapsSet := AActiveMapsSet;
-  FBitmapPostProcessing := ABitmapPostProcessing;
-  FhashFunction := AHashFunction;
   FBitmapFactory := ABitmapFactory;
-  FProjectionSet := AProjectionSet;
   FProjectionSetList := AProjectionSetList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FProjectedGeometryProvider := AProjectedGeometryProvider;
-  FVectorSubsetBuilderFactory := AVectorSubsetBuilderFactory;
-  FFillingMapConfig := AFillingMapConfig;
-  FFillingMapType := AFillingMapType;
-  FFillingMapPolygon := AFillingMapPolygon;
-  FGridsConfig := AGridsConfig;
-  FCoordToStringConverter := ACoordToStringConverter;
 end;
 
 function TProviderMapCombine.CreateFrame: TFrame;
@@ -324,321 +227,6 @@ begin
   Result := TBitmapCombineProgressUpdate.Create(AProgressInfo);
 end;
 
-function TProviderMapCombine.PrepareFillingMapProvider(
-  const AProjection: IProjection
-): IBitmapTileProvider;
-var
-  VConfig: IFillingMapLayerConfigStatic;
-  VResult: IBitmapTileUniProvider;
-  VMap: IMapType;
-  VColorer: IFillingMapColorer;
-  VVersionRequest: IMapVersionRequest;
-begin
-  VResult := nil;
-  VConfig := FFillingMapConfig.GetStatic;
-  if VConfig.Visible then begin
-    VMap := FFillingMapType.GetStatic;
-    VVersionRequest := VMap.VersionRequest.GetStatic;
-    VColorer :=
-      TFillingMapColorerSimple.Create(
-        VConfig.NoTileColor,
-        VConfig.ShowTNE,
-        VConfig.TNEColor,
-        VConfig.FillMode,
-        VConfig.FilterMode,
-        VConfig.FillFirstDay,
-        VConfig.FillLastDay
-      );
-    VResult :=
-      TBitmapLayerProviderFillingMap.Create(
-        FBitmapFactory,
-        FVectorGeometryProjectedFactory,
-        VMap.TileStorage,
-        VVersionRequest,
-        VConfig.UseRelativeZoom,
-        VConfig.Zoom,
-        FFillingMapPolygon.Polygon,
-        VColorer
-      );
-    Result :=
-      TBitmapTileProviderByBitmapTileUniProvider.Create(
-        AProjection,
-        VResult
-      );
-  end;
-end;
-
-function TProviderMapCombine.PrepareGridsProvider(
-  const AProjection: IProjection
-): IBitmapTileProvider;
-var
-  VVisible: Boolean;
-  VColor: TColor32;
-  VUseRelativeZoom: Boolean;
-  VZoom: Integer;
-  VShowText: Boolean;
-  VShowLines: Boolean;
-  VScale: Integer;
-  VScaleDegree: Double;
-  VProvider: IBitmapTileUniProvider;
-  VResult: IBitmapTileUniProvider;
-begin
-  Result := nil;
-  VResult := nil;
-  FGridsConfig.TileGrid.LockRead;
-  try
-    VVisible := FGridsConfig.TileGrid.Visible;
-    VColor := FGridsConfig.TileGrid.GridColor;
-    VUseRelativeZoom := FGridsConfig.TileGrid.UseRelativeZoom;
-    VZoom := FGridsConfig.TileGrid.Zoom;
-    VShowText := FGridsConfig.TileGrid.ShowText;
-    VShowLines := True;
-  finally
-    FGridsConfig.TileGrid.UnlockRead;
-  end;
-  if VVisible then begin
-    VResult :=
-      TBitmapLayerProviderGridTiles.Create(
-        FBitmapFactory,
-        FProjectionSet.GetStatic,
-        VColor,
-        VUseRelativeZoom,
-        VZoom,
-        VShowText,
-        VShowLines
-      );
-  end;
-  FGridsConfig.GenShtabGrid.LockRead;
-  try
-    VVisible := FGridsConfig.GenShtabGrid.Visible;
-    VColor := FGridsConfig.GenShtabGrid.GridColor;
-    VScale := FGridsConfig.GenShtabGrid.Scale;
-    VShowText := FGridsConfig.GenShtabGrid.ShowText;
-    VShowLines := True;
-  finally
-    FGridsConfig.GenShtabGrid.UnlockRead;
-  end;
-  if VVisible then begin
-    VProvider :=
-      TBitmapLayerProviderGridGenshtab.Create(
-        FBitmapFactory,
-        VColor,
-        VScale,
-        VShowText,
-        VShowLines
-      );
-
-    if VResult <> nil then begin
-      VResult :=
-        TBitmapLayerProviderComplex.Create(
-          FBitmapFactory,
-          VResult,
-          VProvider
-        );
-    end else begin
-      VResult := VProvider;
-    end;
-  end;
-  FGridsConfig.DegreeGrid.LockRead;
-  try
-    VVisible := FGridsConfig.DegreeGrid.Visible;
-    VColor := FGridsConfig.DegreeGrid.GridColor;
-    VScaleDegree := FGridsConfig.DegreeGrid.Scale;
-    VShowText := FGridsConfig.DegreeGrid.ShowText;
-    VShowLines := True;
-  finally
-    FGridsConfig.DegreeGrid.UnlockRead;
-  end;
-  if VVisible then begin
-    VProvider :=
-      TBitmapLayerProviderGridDegree.Create(
-        FBitmapFactory,
-        VColor,
-        VScaleDegree,
-        VShowText,
-        VShowLines,
-        FCoordToStringConverter.GetStatic
-      );
-    if VResult <> nil then begin
-      VResult :=
-        TBitmapLayerProviderComplex.Create(
-          FBitmapFactory,
-          VResult,
-          VProvider
-        );
-    end else begin
-      VResult := VProvider;
-    end;
-  end;
-  if Assigned(VResult) then begin
-    Result :=
-      TBitmapTileProviderByBitmapTileUniProvider.Create(
-        AProjection,
-        VResult
-      );
-  end;
-end;
-
-function TProviderMapCombine.PrepareImageProvider(
-  const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjection;
-  const AProjectedPolygon: IGeometryProjectedPolygon
-): IBitmapTileProvider;
-var
-  VRect: ILonLatRect;
-  VLonLatRect: TDoubleRect;
-  VMarksSubset: IVectorItemSubset;
-  VPerf: IInternalPerformanceCounterList;
-  VMarksConfigStatic: IUsedMarksConfigStatic;
-  VTextDrawerBasic: ITextDrawerBasic;
-  VIconProvider :IMarkerProviderByAppearancePointIcon;
-  VList: IMarkCategoryList;
-  VMarksImageProvider: IBitmapTileProvider;
-  VRecolorConfig: IBitmapPostProcessing;
-  VSourceProvider: IBitmapTileUniProvider;
-  VUseMarks: Boolean;
-  VUseRecolor: Boolean;
-  VVectorTileProvider: IVectorTileUniProvider;
-  VVectorTileRenderer: IVectorTileRenderer;
-  VMarkerProvider: IMarkerProviderForVectorItem;
-  VGridsProvider: IBitmapTileProvider;
-  VFillingMapProvider: IBitmapTileProvider;
-begin
-  VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
-  Result :=
-    TBitmapTileProviderByBitmapTileUniProvider.Create(
-      AProjection,
-      VSourceProvider
-    );
-  VUseRecolor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseRecolor;
-  if VUseRecolor then begin
-    VRecolorConfig := FBitmapPostProcessing.GetStatic;
-    Result :=
-      TBitmapTileProviderWithRecolor.Create(
-        VRecolorConfig,
-        Result
-      );
-  end;
-
-  VRect := APolygon.Bounds;
-  VLonLatRect := VRect.Rect;
-  AProjection.ProjectionType.ValidateLonLatRect(VLonLatRect);
-
-  VUseMarks := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseMarks;
-  if VUseMarks then begin
-    VMarksSubset := nil;
-    VMarksConfigStatic := FMarksShowConfig.GetStatic;
-    if VMarksConfigStatic.IsUseMarks then begin
-      VList := nil;
-      if not VMarksConfigStatic.IgnoreCategoriesVisible then begin
-        VList := FMarksDB.CategoryDB.GetVisibleCategories(AProjection.Zoom);
-      end;
-      try
-        if (VList <> nil) and (VList.Count = 0) then begin
-          VMarksSubset := nil;
-        end else begin
-          VMarksSubset :=
-            FMarksDB.MarkDb.GetMarkSubsetByCategoryListInRect(
-              VLonLatRect,
-              VList,
-              VMarksConfigStatic.IgnoreMarksVisible,
-              DoublePoint(0, 0) // ToDo
-            );
-        end;
-      finally
-        VList := nil;
-      end;
-    end;
-    if VMarksSubset <> nil then begin
-      VPerf := TInternalPerformanceCounterFake.Create;
-      VTextDrawerBasic :=
-        TTextDrawerBasic.Create(
-          VPerf,
-          FHashFunction,
-          FBitmapFactory,
-          512,
-          1,
-          FMarksDrawConfig.CaptionDrawConfig.FontName
-        );
-      VIconProvider :=
-        TMarkerProviderByAppearancePointIcon.Create(
-          VPerf,
-          FHashFunction,
-          FBitmapFactory,
-          nil
-        );
-
-      VMarkerProvider :=
-        TMarkerProviderForVectorItemForMarkPoints.Create(
-          VTextDrawerBasic,
-          VIconProvider
-        );
-      VVectorTileRenderer :=
-        TVectorTileRendererForMarks.Create(
-          FMarksDrawConfig.CaptionDrawConfig.GetStatic,
-          FBitmapFactory,
-          FProjectedGeometryProvider,
-          VMarkerProvider
-        );
-      VVectorTileProvider :=
-        TVectorTileProviderByFixedSubset.Create(
-          FVectorSubsetBuilderFactory,
-          FMarksDrawConfig.DrawOrderConfig.GetStatic.OverSizeRect,
-          VMarksSubset
-        );
-      VMarksImageProvider :=
-        TBitmapTileProviderByVectorTileProvider.Create(
-          AProjection,
-          VVectorTileProvider,
-          VVectorTileRenderer
-        );
-      Result :=
-        TBitmapTileProviderComplex.Create(
-          FBitmapFactory,
-          Result,
-          VMarksImageProvider
-        );
-    end;
-  end;
-  if (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseFillingMap then begin
-    VFillingMapProvider := PrepareFillingMapProvider(AProjection);
-    if Assigned(VFillingMapProvider) then begin
-      Result :=
-        TBitmapTileProviderComplex.Create(
-          FBitmapFactory,
-          Result,
-          VFillingMapProvider
-        );
-    end;
-  end;
-  if (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseGrids then begin
-    VGridsProvider := PrepareGridsProvider(AProjection);
-    if Assigned(VGridsProvider) then begin
-      Result :=
-        TBitmapTileProviderComplex.Create(
-          FBitmapFactory,
-          Result,
-          VGridsProvider
-        );
-    end;
-  end;
-
-  Result :=
-    TBitmapTileProviderInPolygon.Create(
-      AProjectedPolygon,
-      Result
-    );
-  Result :=
-    TBitmapTileProviderWithBGColor.Create(
-      (ParamsFrame as IRegionProcessParamsFrameMapCombine).UsePreciseCropping,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
-      AProjectedPolygon,
-      FBitmapFactory,
-      Result
-    );
-end;
-
 function TProviderMapCombine.PreparePolygon(
   const AProjection: IProjection;
   const APolygon: IGeometryLonLatPolygon
@@ -662,6 +250,28 @@ function TProviderMapCombine.PrepareTargetRect(
 ): TRect;
 begin
   Result := RectFromDoubleRect(APolygon.Bounds, rrOutside);
+end;
+
+function TProviderMapCombine.PrepareImageProvider(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProjection: IProjection;
+  const AProjectedPolygon: IGeometryProjectedPolygon
+): IBitmapTileProvider;
+begin
+  Result :=
+    FBitmapTileProviderBuilder.Build(
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseMarks,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseRecolor,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseFillingMap,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseGrids,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).UsePreciseCropping,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
+      (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider,
+      APolygon,
+      AProjection,
+      AProjectedPolygon
+    );
 end;
 
 function TProviderMapCombine.PrepareTask(

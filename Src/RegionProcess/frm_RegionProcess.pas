@@ -89,6 +89,7 @@ uses
   i_RegionProcessProvider,
   i_TileIteratorFactory,
   i_ViewProjectionConfig,
+  i_BitmapTileProviderBuilder,
   u_CommonFormAndFrameParents,
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
@@ -180,6 +181,7 @@ type
     ): IInterfaceListStatic;
 
     function PrepareCombineProviders(
+      const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const ACounterList: IInternalPerformanceCounterList;
@@ -188,24 +190,11 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AViewProjectionConfig: IViewProjectionConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const AProjectionSet: IProjectionSetChangeable;
       const AProjectionSetList: IProjectionSetList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AProjectedGeometryProvider: IGeometryProjectedProvider;
-      const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-      const AMarksShowConfig: IUsedMarksConfig;
-      const AMarksDrawConfig: IMarksDrawConfig;
-      const AMarksDB: IMarkSystem;
-      const AHashFunction: IHashFunction;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-      const AFillingMapConfig: IFillingMapLayerConfig;
-      const AFillingMapType: IMapTypeChangeable;
-      const AFillingMapPolygon: IFillingMapPolygon;
-      const AGridsConfig: IMapLayerGridsConfig;
-      const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList
     ): IInterfaceListStatic;
     function PrepareDeleteProviders(
@@ -312,6 +301,8 @@ uses
   i_InterfaceListSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_BitmapMapCombiner,
+  u_BitmapTileProviderBuilder,
   u_TileIteratorFactory,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
@@ -532,8 +523,28 @@ var
   VMapSelectFrameBuilder: IMapSelectFrameBuilder;
   VProvider: IRegionProcessProvider;
   VList: IInterfaceListSimple;
+  VBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
 begin
   VList := TInterfaceListSimple.Create;
+
+  VBitmapTileProviderBuilder :=
+    TBitmapTileProviderBuilder.Create(
+      AProjectionSet,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter
+    );
 
   VMapSelectFrameBuilder :=
     TMapSelectFrameBuilder.Create(
@@ -576,6 +587,7 @@ begin
     TRegionProcessProviderComplex.Create(
       ALanguageManager,
       PrepareCombineProviders(
+        VBitmapTileProviderBuilder,
         VProgressFactory,
         ALanguageManager,
         ACounterList.CreateAndAddNewSubList('Combine'),
@@ -584,24 +596,11 @@ begin
         AViewConfig,
         AViewProjectionConfig,
         AUseTilePrevZoomConfig,
-        AProjectionSet,
         AProjectionSetList,
         AVectorGeometryProjectedFactory,
-        AProjectedGeometryProvider,
-        AVectorSubsetBuilderFactory,
         ABitmapTileSaveLoadFactory,
         AArchiveReadWriteFactory,
-        AMarksShowConfig,
-        AMarksDrawConfig,
-        AMarksDB,
-        AHashFunction,
         ABitmapFactory,
-        ABitmapPostProcessing,
-        AFillingMapConfig,
-        AFillingMapType,
-        AFillingMapPolygon,
-        AGridsConfig,
-        ACoordToStringConverter,
         AMapCalibrationList
       ),
       False,
@@ -692,6 +691,7 @@ begin
 end;
 
 function TfrmRegionProcess.PrepareCombineProviders(
+  const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const ACounterList: IInternalPerformanceCounterList;
@@ -700,331 +700,86 @@ function TfrmRegionProcess.PrepareCombineProviders(
   const AViewConfig: IGlobalViewMainConfig;
   const AViewProjectionConfig: IViewProjectionConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const AProjectionSet: IProjectionSetChangeable;
   const AProjectionSetList: IProjectionSetList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AProjectedGeometryProvider: IGeometryProjectedProvider;
-  const AVectorSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-  const AMarksShowConfig: IUsedMarksConfig;
-  const AMarksDrawConfig: IMarksDrawConfig;
-  const AMarksDB: IMarkSystem;
-  const AHashFunction: IHashFunction;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-  const AFillingMapConfig: IFillingMapLayerConfig;
-  const AFillingMapType: IMapTypeChangeable;
-  const AFillingMapPolygon: IFillingMapPolygon;
-  const AGridsConfig: IMapLayerGridsConfig;
-  const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
 ): IInterfaceListStatic;
+
 var
-  VProvider: IRegionProcessProvider;
   VList: IInterfaceListSimple;
+
+  procedure _AddProvider(const ACombinerFactory: IBitmapMapCombinerFactory);
+  var
+    VProvider: IRegionProcessProvider;
+  begin
+    VProvider :=
+      TProviderMapCombine.Create(
+        ACombinerFactory,
+        ABitmapTileProviderBuilder,
+        AProgressFactory,
+        ALanguageManager,
+        AMapSelectFrameBuilder,
+        AActiveMapsSet,
+        AViewConfig,
+        AViewProjectionConfig,
+        AUseTilePrevZoomConfig,
+        AProjectionSetList,
+        AVectorGeometryProjectedFactory,
+        ABitmapFactory,
+        AMapCalibrationList
+      );
+    VList.Add(VProvider);
+  end;
+
 begin
   VList := TInterfaceListSimple.Create;
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryJPG.Create(ACounterList),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryJPG.Create(ACounterList)
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryPNG.Create(ACounterList),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryPNG.Create(ACounterList)
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryBMP.Create(ACounterList),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryBMP.Create(ACounterList)
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryECW.Create(ACounterList),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryECW.Create(ACounterList)
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryJP2.Create(ACounterList, False),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryJP2.Create(ACounterList, False)
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryJP2.Create(ACounterList, True),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryJP2.Create(ACounterList, True)
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryKMZ.Create(ABitmapTileSaveLoadFactory, AArchiveReadWriteFactory, ABitmapFactory),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryKMZ.Create(
+      ABitmapTileSaveLoadFactory,
+      AArchiveReadWriteFactory,
+      ABitmapFactory
+    )
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryRAW.Create(ACounterList),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryRAW.Create(ACounterList)
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryGeoTiffStripped.Create(ACounterList),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryGeoTiffStripped.Create(ACounterList)
+  );
 
-  VProvider :=
-    TProviderMapCombine.Create(
-      TBitmapMapCombinerFactoryGeoTiffTiled.Create(ACounterList),
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      AActiveMapsSet,
-      AViewConfig,
-      AViewProjectionConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionSet,
-      AProjectionSetList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter,
-      AMapCalibrationList
-    );
-  VList.Add(VProvider);
+  _AddProvider(
+    TBitmapMapCombinerFactoryGeoTiffTiled.Create(ACounterList)
+  );
 
   Result := VList.MakeStaticAndClear;
 end;
