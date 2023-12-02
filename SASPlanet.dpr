@@ -1555,6 +1555,11 @@ const
   {$ENDIF}
 {$ENDIF}
 
+{$IF CompilerVersion > 34}
+  {$SETPEOSVERSION 5.0}
+  {$SETPESUBSYSVERSION 5.0}
+{$ENDIF}
+
 var
   VApp: TApplication;
   VAppEnum: IAppEnum;
