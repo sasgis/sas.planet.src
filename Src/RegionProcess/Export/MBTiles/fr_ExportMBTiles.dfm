@@ -147,6 +147,7 @@ object frExportMBTiles: TfrExportMBTiles
           Top = 22
           Width = 150
           Height = 21
+          Style = csDropDownList
           ItemIndex = 0
           TabOrder = 0
           Text = 'Auto'

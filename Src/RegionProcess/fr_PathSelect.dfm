@@ -23,16 +23,17 @@ object frPathSelect: TfrPathSelect
       BevelEdges = []
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 169
-      ExplicitWidth = 282
       object EPath: TEdit
+        AlignWithMargins = True
         Left = 0
         Top = 0
-        Width = 202
+        Width = 199
         Height = 23
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Bottom = 0
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 234
       end
       object pnlButtnos: TPanel
         Left = 202
@@ -44,7 +45,6 @@ object frPathSelect: TfrPathSelect
         BevelKind = bkTile
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 234
         object BtnDef: TButton
           Tag = 2
           Left = 2
@@ -83,11 +83,9 @@ object frPathSelect: TfrPathSelect
         Left = 3
         Top = 3
         Width = 195
-        Height = 17
+        Height = 20
         Align = alClient
         Layout = tlCenter
-        ExplicitWidth = 3
-        ExplicitHeight = 13
       end
     end
   end

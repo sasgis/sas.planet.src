@@ -8,13 +8,11 @@ object frmRegionProcess: TfrmRegionProcess
   Constraints.MinHeight = 400
   Constraints.MinWidth = 580
   ParentFont = True
-  OldCreateOrder = False
   PopupMode = pmExplicit
   Position = poMainFormCenter
   ShowHint = True
   OnShow = FormShow
-  PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 15
   object pnlBottomButtons: TPanel
     Left = 0
     Top = 413
@@ -49,37 +47,35 @@ object frmRegionProcess: TfrmRegionProcess
       OnClick = Button3Click
     end
     object TBXOperationsToolbar: TTBXToolbar
-      Left = 304
+      AlignWithMargins = True
+      Left = 329
       Top = 6
       Width = 100
-      Height = 24
-      Align = alCustom
+      Height = 25
+      Margins.Right = 6
+      Align = alRight
       Images = frmMain.MenusImageList
       ShrinkMode = tbsmWrap
       TabOrder = 1
       object tbtmCopyBbox: TTBItem
+        Hint = 'Copy BBOX coordinates'
         ImageIndex = 28
         OnClick = tbtmCopyBboxClick
-        Caption = ''
-        Hint = 'Copy BBOX coordinates'
       end
       object tbtmSave: TTBItem
+        Hint = 'Store selection as Poligon'
         ImageIndex = 17
         OnClick = tbtmSaveClick
-        Caption = ''
-        Hint = 'Store selection as Poligon'
       end
       object tbtmZoom: TTBItem
+        Hint = 'Fit to Screen'
         ImageIndex = 43
         OnClick = tbtmZoomClick
-        Caption = ''
-        Hint = 'Fit to Screen'
       end
       object tbtmMark: TTBItem
+        Hint = 'Save selection info to file'
         ImageIndex = 25
         OnClick = tbtmMarkClick
-        Caption = ''
-        Hint = 'Save selection info to file'
       end
     end
     object TBXDontClose: TTBXToolbar
@@ -93,9 +89,8 @@ object frmRegionProcess: TfrmRegionProcess
       TabOrder = 0
       object tbtmDontClose: TTBItem
         AutoCheck = True
-        ImageIndex = 46
-        Caption = ''
         Hint = 'Do not close this window after start'
+        ImageIndex = 46
       end
     end
   end
@@ -106,8 +101,6 @@ object frmRegionProcess: TfrmRegionProcess
     Height = 413
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 572
-    ExplicitHeight = 389
   end
   object SaveSelDialog: TSaveDialog
     DefaultExt = '*.hlg'

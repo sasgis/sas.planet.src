@@ -24,7 +24,7 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 41
-      Height = 13
+      Height = 19
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
@@ -32,13 +32,16 @@ object frMapCombine: TfrMapCombine
       Layout = tlCenter
     end
     object edtTargetFile: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 469
+      Width = 466
       Height = 19
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
-      ExplicitHeight = 21
     end
     object btnSelectTargetFile: TButton
       Left = 516
@@ -127,13 +130,12 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Caption = 'Precise cropping by the polygon'
         TabOrder = 6
-        ExplicitTop = 103
       end
       object pnlCustomOpt: TPanel
         Left = 3
-        Top = 88
+        Top = 105
         Width = 209
-        Height = 60
+        Height = 43
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 5
@@ -165,7 +167,7 @@ object frMapCombine: TfrMapCombine
         Width = 151
         Height = 130
         Align = alClient
-        ItemHeight = 13
+        ItemHeight = 15
         Items.Strings = (
           '.map'
           '.tab'
@@ -197,23 +199,23 @@ object frMapCombine: TfrMapCombine
         object lblSplitHor: TLabel
           Left = 7
           Top = 16
-          Width = 59
-          Height = 13
+          Width = 65
+          Height = 15
           Caption = 'horizontally:'
         end
         object lblSplitVert: TLabel
           AlignWithMargins = True
           Left = 7
           Top = 40
-          Width = 47
-          Height = 13
+          Width = 50
+          Height = 15
           Caption = 'vertically:'
         end
         object seSplitHor: TSpinEdit
           Left = 106
           Top = 13
           Width = 47
-          Height = 22
+          Height = 24
           MaxValue = 1000
           MinValue = 1
           TabOrder = 0
@@ -223,7 +225,7 @@ object frMapCombine: TfrMapCombine
           Left = 106
           Top = 37
           Width = 47
-          Height = 22
+          Height = 24
           MaxValue = 1000
           MinValue = 1
           TabOrder = 1
@@ -262,23 +264,23 @@ object frMapCombine: TfrMapCombine
       BevelOuter = bvNone
       TabOrder = 1
       object Labelzoom: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = -2
-        Width = 30
-        Height = 13
+        Left = 0
+        Top = 0
+        Width = 71
+        Height = 15
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
+        Align = alTop
         Caption = 'Zoom:'
       end
       object cbbZoom: TComboBox
-        Left = 1
-        Top = 11
-        Width = 67
-        Height = 21
+        Left = 0
+        Top = 15
+        Width = 71
+        Height = 23
+        Align = alTop
         Style = csDropDownList
-        ItemHeight = 0
         TabOrder = 0
         OnChange = cbbZoomChange
       end
@@ -294,9 +296,9 @@ object frMapCombine: TfrMapCombine
       object lblStat: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 113
-        Width = 6
-        Height = 13
+        Top = 111
+        Width = 463
+        Height = 15
         Align = alBottom
         Caption = '_'
         Layout = tlCenter
@@ -313,8 +315,8 @@ object frMapCombine: TfrMapCombine
         object lblMapCaption: TLabel
           Left = 0
           Top = 0
-          Width = 24
-          Height = 13
+          Width = 469
+          Height = 15
           Margins.Left = 0
           Margins.Top = 0
           Align = alTop
@@ -333,8 +335,8 @@ object frMapCombine: TfrMapCombine
         object lblLayerCaption: TLabel
           Left = 0
           Top = 0
-          Width = 69
-          Height = 13
+          Width = 469
+          Height = 15
           Margins.Left = 0
           Margins.Top = 0
           Align = alTop

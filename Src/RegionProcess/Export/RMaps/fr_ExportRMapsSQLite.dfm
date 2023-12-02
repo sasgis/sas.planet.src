@@ -149,6 +149,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
           Top = 22
           Width = 150
           Height = 21
+          Style = csDropDownList
           TabOrder = 0
           Text = 'JPEG'
           OnChange = cbbImageFormatChange

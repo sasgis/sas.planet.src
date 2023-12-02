@@ -27,6 +27,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
       Width = 140
       Height = 21
       ItemHeight = 13
+      Style = csDropDownList
       ItemIndex = 2
       TabOrder = 0
       Text = 'LZW'
@@ -60,6 +61,7 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
       Width = 140
       Height = 21
       ItemHeight = 13
+      Style = csDropDownList
       ItemIndex = 0
       TabOrder = 0
       Text = 'Auto'
