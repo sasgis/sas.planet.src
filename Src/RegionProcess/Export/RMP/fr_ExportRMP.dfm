@@ -38,38 +38,34 @@ object frExportRMP: TfrExportRMP
         Align = alTop
         AutoSize = False
         Caption = 'Map:'
-        ExplicitWidth = 461
       end
       object lblOverlay: TLabel
         Left = 3
-        Top = 42
+        Top = 39
         Width = 362
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = 'Overlay layer:'
-        ExplicitWidth = 69
       end
       object lblDesc: TLabel
         Left = 3
-        Top = 178
+        Top = 177
         Width = 362
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = 'Product:'
-        ExplicitWidth = 41
       end
       object lblAttr: TLabel
         Left = 3
-        Top = 212
+        Top = 215
         Width = 362
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = 'Provider:'
-        ExplicitWidth = 44
       end
       object pnlMap: TPanel
         Left = 3
-        Top = 19
+        Top = 16
         Width = 362
         Height = 23
         Align = alTop
@@ -78,7 +74,7 @@ object frExportRMP: TfrExportRMP
       end
       object pnlOverlay: TPanel
         Left = 3
-        Top = 55
+        Top = 54
         Width = 362
         Height = 23
         Align = alTop
@@ -87,7 +83,7 @@ object frExportRMP: TfrExportRMP
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 129
+        Top = 128
         Width = 362
         Height = 49
         Align = alTop
@@ -96,8 +92,8 @@ object frExportRMP: TfrExportRMP
         object lblJpgQulity: TLabel
           Left = 2
           Top = 6
-          Width = 63
-          Height = 13
+          Width = 67
+          Height = 15
           Caption = 'JPEG quality:'
           Layout = tlCenter
         end
@@ -105,7 +101,7 @@ object frExportRMP: TfrExportRMP
           Left = 2
           Top = 25
           Width = 151
-          Height = 22
+          Height = 24
           MaxValue = 100
           MinValue = 1
           TabOrder = 0
@@ -114,7 +110,7 @@ object frExportRMP: TfrExportRMP
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
-        Top = 95
+        Top = 94
         Width = 362
         Height = 17
         Align = alTop
@@ -123,23 +119,23 @@ object frExportRMP: TfrExportRMP
       end
       object edtRmpProduct: TEdit
         Left = 3
-        Top = 191
+        Top = 192
         Width = 362
-        Height = 21
+        Height = 23
         Align = alTop
         TabOrder = 6
       end
       object edtRmpProvider: TEdit
         Left = 3
-        Top = 225
+        Top = 230
         Width = 362
-        Height = 21
+        Height = 23
         Align = alTop
         TabOrder = 7
       end
       object chkAddVisibleLayers: TCheckBox
         Left = 3
-        Top = 78
+        Top = 77
         Width = 362
         Height = 17
         Align = alTop
@@ -149,7 +145,7 @@ object frExportRMP: TfrExportRMP
       end
       object chkDontProjectToLatLon: TCheckBox
         Left = 3
-        Top = 112
+        Top = 111
         Width = 362
         Height = 17
         Align = alTop
@@ -185,19 +181,22 @@ object frExportRMP: TfrExportRMP
       Left = 3
       Top = 3
       Width = 41
-      Height = 18
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 380
+      Width = 377
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
     end

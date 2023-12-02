@@ -43,11 +43,10 @@ object frExportAUX: TfrExportAUX
         BorderWidth = 3
         TabOrder = 0
         object lblZoom: TLabel
-          AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 53
-          Height = 13
+          Height = 15
           Margins.Left = 0
           Margins.Top = 0
           Margins.Right = 0
@@ -56,12 +55,11 @@ object frExportAUX: TfrExportAUX
         end
         object cbbZoom: TComboBox
           Left = 3
-          Top = 17
+          Top = 18
           Width = 53
-          Height = 21
-          Align = alBottom
+          Height = 23
+          Align = alTop
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 0
         end
       end
@@ -77,10 +75,9 @@ object frExportAUX: TfrExportAUX
           Left = 0
           Top = 0
           Width = 341
-          Height = 13
+          Height = 15
           Align = alTop
           Caption = 'Map/Overlay layer:'
-          ExplicitWidth = 93
         end
       end
     end
@@ -107,10 +104,14 @@ object frExportAUX: TfrExportAUX
       Layout = tlCenter
     end
     object edtTargetFile: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 329
+      Width = 326
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
     end

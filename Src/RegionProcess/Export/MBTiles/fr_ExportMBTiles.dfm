@@ -9,7 +9,6 @@ object frExportMBTiles: TfrExportMBTiles
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  ExplicitHeight = 304
   object pnlCenter: TPanel
     Left = 0
     Top = 27
@@ -18,7 +17,6 @@ object frExportMBTiles: TfrExportMBTiles
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitHeight = 277
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -28,7 +26,6 @@ object frExportMBTiles: TfrExportMBTiles
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitHeight = 277
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -44,46 +41,39 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object lblOverlay: TLabel
         Left = 3
-        Top = 42
+        Top = 39
         Width = 461
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = 'Overlay layer:'
-        ExplicitWidth = 69
       end
       object lblDesc: TLabel
         Left = 3
-        Top = 228
+        Top = 231
         Width = 461
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = 'Description:'
-        ExplicitTop = 211
-        ExplicitWidth = 57
       end
       object lblName: TLabel
         Left = 3
-        Top = 194
+        Top = 193
         Width = 461
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = 'Name:'
-        ExplicitTop = 177
-        ExplicitWidth = 31
       end
       object lblAttr: TLabel
         Left = 3
-        Top = 262
+        Top = 269
         Width = 461
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = 'Attribution:'
-        ExplicitTop = 245
-        ExplicitWidth = 55
       end
       object pnlMap: TPanel
         Left = 3
-        Top = 19
+        Top = 16
         Width = 461
         Height = 23
         Align = alTop
@@ -92,7 +82,7 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object pnlOverlay: TPanel
         Left = 3
-        Top = 55
+        Top = 54
         Width = 461
         Height = 23
         Align = alTop
@@ -101,34 +91,33 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 146
+        Top = 145
         Width = 461
         Height = 48
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 6
-        ExplicitTop = 129
         object lblJpgQulity: TLabel
           Left = 156
           Top = 6
-          Width = 90
-          Height = 13
+          Width = 95
+          Height = 15
           Caption = 'Quality (for JPEG):'
           Layout = tlCenter
         end
         object lblImageFormat: TLabel
           Left = 0
           Top = 6
-          Width = 69
-          Height = 13
+          Width = 75
+          Height = 15
           Caption = 'Image format:'
           Layout = tlCenter
         end
         object lblCompression: TLabel
           Left = 312
           Top = 6
-          Width = 113
-          Height = 13
+          Width = 126
+          Height = 15
           Caption = 'Compression (for PNG):'
           Layout = tlCenter
         end
@@ -136,7 +125,7 @@ object frExportMBTiles: TfrExportMBTiles
           Left = 156
           Top = 22
           Width = 150
-          Height = 22
+          Height = 24
           MaxValue = 100
           MinValue = 1
           TabOrder = 1
@@ -146,7 +135,7 @@ object frExportMBTiles: TfrExportMBTiles
           Left = 0
           Top = 22
           Width = 150
-          Height = 21
+          Height = 23
           Style = csDropDownList
           ItemIndex = 0
           TabOrder = 0
@@ -163,7 +152,7 @@ object frExportMBTiles: TfrExportMBTiles
           Left = 312
           Top = 22
           Width = 150
-          Height = 22
+          Height = 24
           MaxValue = 9
           MinValue = 0
           TabOrder = 2
@@ -172,7 +161,7 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
-        Top = 95
+        Top = 94
         Width = 461
         Height = 17
         Align = alTop
@@ -181,7 +170,7 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object chkUseXYZScheme: TCheckBox
         Left = 3
-        Top = 112
+        Top = 111
         Width = 461
         Height = 17
         Align = alTop
@@ -190,34 +179,31 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object edtDesc: TEdit
         Left = 3
-        Top = 241
+        Top = 246
         Width = 461
-        Height = 21
+        Height = 23
         Align = alTop
         TabOrder = 8
-        ExplicitTop = 224
       end
       object edtName: TEdit
         Left = 3
-        Top = 207
+        Top = 208
         Width = 461
-        Height = 21
+        Height = 23
         Align = alTop
         TabOrder = 7
-        ExplicitTop = 190
       end
       object edtAttr: TEdit
         Left = 3
-        Top = 275
+        Top = 284
         Width = 461
-        Height = 21
+        Height = 23
         Align = alTop
         TabOrder = 9
-        ExplicitTop = 258
       end
       object chkAddVisibleLayers: TCheckBox
         Left = 3
-        Top = 78
+        Top = 77
         Width = 461
         Height = 17
         Align = alTop
@@ -227,7 +213,7 @@ object frExportMBTiles: TfrExportMBTiles
       end
       object chkMakeTileMillStruct: TCheckBox
         Left = 3
-        Top = 129
+        Top = 128
         Width = 461
         Height = 17
         Align = alTop
@@ -245,7 +231,6 @@ object frExportMBTiles: TfrExportMBTiles
       BiDiMode = bdLeftToRight
       ParentBiDiMode = False
       TabOrder = 1
-      ExplicitHeight = 277
     end
   end
   object pnlTop: TPanel
@@ -262,19 +247,22 @@ object frExportMBTiles: TfrExportMBTiles
       Left = 3
       Top = 3
       Width = 41
-      Height = 18
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 479
+      Width = 476
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
     end

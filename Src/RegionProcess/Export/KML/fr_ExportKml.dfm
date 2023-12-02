@@ -48,7 +48,6 @@ object frExportKml: TfrExportKml
         Align = alTop
         AutoSize = False
         Caption = 'Map/Overlay layer:'
-        ExplicitWidth = 319
       end
       object chkNotSaveNotExists: TCheckBox
         Left = 3
@@ -107,10 +106,14 @@ object frExportKml: TfrExportKml
       Layout = tlCenter
     end
     object edtTargetFile: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 329
+      Width = 326
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
     end

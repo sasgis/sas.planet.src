@@ -11,7 +11,6 @@ object frExportToIMG: TfrExportToIMG
   ShowHint = True
   TabOrder = 0
   Visible = False
-  ExplicitHeight = 372
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -26,7 +25,7 @@ object frExportToIMG: TfrExportToIMG
       Left = 3
       Top = 3
       Width = 41
-      Height = 13
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
@@ -35,10 +34,14 @@ object frExportToIMG: TfrExportToIMG
       Layout = tlCenter
     end
     object edtTargetFile: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 409
+      Width = 406
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
     end
@@ -61,24 +64,18 @@ object frExportToIMG: TfrExportToIMG
     ActivePage = Map
     Align = alClient
     TabOrder = 1
-    ExplicitHeight = 313
     object Map: TTabSheet
       Caption = 'Map'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 285
       object pnlListMaps: TPanel
         Left = 0
         Top = 27
         Width = 327
-        Height = 288
+        Height = 286
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 1
-        ExplicitHeight = 258
         object pnlMaps: TPanel
           Left = 3
           Top = 3
@@ -91,8 +88,8 @@ object frExportToIMG: TfrExportToIMG
             AlignWithMargins = True
             Left = 0
             Top = 3
-            Width = 24
-            Height = 13
+            Width = 27
+            Height = 22
             Margins.Left = 0
             Margins.Right = 10
             Align = alLeft
@@ -100,9 +97,9 @@ object frExportToIMG: TfrExportToIMG
             Layout = tlCenter
           end
           object pnlMapselect: TPanel
-            Left = 34
+            Left = 37
             Top = 0
-            Width = 287
+            Width = 284
             Height = 25
             Align = alClient
             BevelOuter = bvNone
@@ -113,16 +110,15 @@ object frExportToIMG: TfrExportToIMG
           Left = 292
           Top = 28
           Width = 32
-          Height = 259
+          Height = 255
           Align = alRight
           AutoSize = True
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 2
-          ExplicitHeight = 227
           DesignSize = (
             32
-            257)
+            255)
           object btnRemoveLayer: TButton
             Left = 3
             Top = 117
@@ -152,7 +148,7 @@ object frExportToIMG: TfrExportToIMG
           Left = 3
           Top = 28
           Width = 289
-          Height = 257
+          Height = 255
           Align = alClient
           Columns = <
             item
@@ -179,38 +175,34 @@ object frExportToIMG: TfrExportToIMG
           OnCustomDrawItem = MapListCustomDrawItem
           OnDblClick = btnRemoveLayerClick
           OnSelectItem = MapListSelectItem
-          ExplicitHeight = 227
         end
       end
       object pnlZooms: TPanel
         Left = 362
         Top = 27
         Width = 110
-        Height = 288
+        Height = 286
         Align = alRight
         AutoSize = True
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 3
-        ExplicitHeight = 258
         object lblGarmin: TLabel
           Left = 3
           Top = 3
           Width = 104
-          Height = 13
+          Height = 15
           Align = alTop
           Caption = 'Garmin zoom'
           Layout = tlBottom
-          ExplicitWidth = 61
         end
         object ZoomGarmin: TCheckListBox
           Left = 3
-          Top = 16
+          Top = 18
           Width = 104
           Height = 183
-          OnClickCheck = ZoomGarminClickCheck
           Align = alTop
-          ItemHeight = 13
+          ItemHeight = 15
           Items.Strings = (
             '500..800km'
             '300km'
@@ -227,6 +219,7 @@ object frExportToIMG: TfrExportToIMG
             '5..200m')
           TabOrder = 0
           OnClick = ZoomGarminClick
+          OnClickCheck = ZoomGarminClickCheck
           OnDblClick = ZoomGarminDblClick
         end
         object TBXSettings: TTBXToolbar
@@ -252,30 +245,29 @@ object frExportToIMG: TfrExportToIMG
         Left = 327
         Top = 27
         Width = 35
-        Height = 288
+        Height = 286
         Align = alRight
         AutoSize = True
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 2
         Visible = False
-        ExplicitHeight = 258
         object lblsas: TLabel
           Left = 3
           Top = 3
-          Width = 19
-          Height = 13
+          Width = 29
+          Height = 15
           Align = alTop
           Caption = 'SAS'
           Layout = tlBottom
         end
         object lstSasZooms: TListBox
           Left = 3
-          Top = 16
+          Top = 18
           Width = 29
           Height = 183
           Align = alTop
-          ItemHeight = 13
+          ItemHeight = 15
           TabOrder = 0
           OnClick = lstSasZoomsClick
           OnDblClick = lstSasZoomsDblClick
@@ -319,8 +311,8 @@ object frExportToIMG: TfrExportToIMG
           AlignWithMargins = True
           Left = 3
           Top = 6
-          Width = 50
-          Height = 13
+          Width = 62
+          Height = 18
           Margins.Left = 0
           Margins.Right = 10
           Align = alLeft
@@ -328,9 +320,9 @@ object frExportToIMG: TfrExportToIMG
           Layout = tlCenter
         end
         object edtMapName: TEdit
-          Left = 63
+          Left = 75
           Top = 3
-          Width = 406
+          Width = 394
           Height = 21
           Align = alClient
           TabOrder = 0
@@ -340,10 +332,6 @@ object frExportToIMG: TfrExportToIMG
     object Settings: TTabSheet
       Caption = 'Settings'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 285
       object PnlSettings: TPanel
         Left = 0
         Top = 0
@@ -356,51 +344,51 @@ object frExportToIMG: TfrExportToIMG
         object lblMapSeries: TLabel
           Left = 3
           Top = 64
-          Width = 52
-          Height = 13
+          Width = 57
+          Height = 15
           Align = alCustom
           Caption = 'Map Series'
         end
         object lblMapID: TLabel
           Left = 273
           Top = 64
-          Width = 34
-          Height = 13
+          Width = 38
+          Height = 15
           Caption = 'Map ID'
         end
         object lblMapFormat: TLabel
           Left = 3
           Top = 36
-          Width = 56
-          Height = 13
+          Width = 63
+          Height = 15
           Caption = 'IMG Format'
         end
         object lblDrawOrder: TLabel
           Left = 273
           Top = 36
-          Width = 56
-          Height = 13
+          Width = 60
+          Height = 15
           Caption = 'Draw Order'
         end
         object lblVolumeSize: TLabel
           Left = 3
           Top = 92
-          Width = 56
-          Height = 13
+          Width = 63
+          Height = 15
           Caption = 'Volume Size'
         end
         object lblCodePage: TLabel
           Left = 3
           Top = 8
-          Width = 75
-          Height = 13
+          Width = 84
+          Height = 15
           Caption = 'Map Code Page'
         end
         object edtMapID: TEdit
           Left = 379
           Top = 60
           Width = 74
-          Height = 21
+          Height = 23
           Align = alCustom
           MaxLength = 8
           TabOrder = 5
@@ -409,7 +397,7 @@ object frExportToIMG: TfrExportToIMG
           Left = 379
           Top = 32
           Width = 45
-          Height = 22
+          Height = 24
           MaxValue = 100
           MinValue = 0
           TabOrder = 2
@@ -419,9 +407,8 @@ object frExportToIMG: TfrExportToIMG
           Left = 113
           Top = 32
           Width = 142
-          Height = 21
+          Height = 23
           Style = csDropDownList
-          ItemHeight = 13
           ItemIndex = 2
           TabOrder = 1
           Text = 'New Format'
@@ -471,7 +458,7 @@ object frExportToIMG: TfrExportToIMG
           Left = 113
           Top = 88
           Width = 142
-          Height = 21
+          Height = 23
           TabOrder = 6
           Text = '$79999999'
         end
@@ -479,9 +466,8 @@ object frExportToIMG: TfrExportToIMG
           Left = 113
           Top = 4
           Width = 204
-          Height = 21
+          Height = 23
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 0
           Items.Strings = (
             'CP874 (Thai Sort)'
@@ -517,7 +503,9 @@ object frExportToIMG: TfrExportToIMG
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 2
-        ExplicitTop = 191
+        DesignSize = (
+          472
+          47)
         object lblMapCompilerLicensePath: TLabel
           Left = 3
           Top = 3
@@ -528,10 +516,10 @@ object frExportToIMG: TfrExportToIMG
           Caption = 'Path to map compiler license:'
         end
         object LLicenseFile: TLabel
-          Left = 381
+          Left = 432
           Top = 3
-          Width = 88
-          Height = 13
+          Width = 37
+          Height = 15
           Alignment = taRightJustify
           Anchors = [akTop, akRight]
           Caption = '(*.mpl)'
@@ -554,7 +542,6 @@ object frExportToIMG: TfrExportToIMG
           Align = alClient
           TabOrder = 0
           OnChange = edtMapCompilerLicensePathChange
-          ExplicitHeight = 21
         end
       end
       object pnlGMT: TPanel
@@ -575,7 +562,6 @@ object frExportToIMG: TfrExportToIMG
           Align = alClient
           TabOrder = 1
           OnChange = edtGMTPathChange
-          ExplicitHeight = 21
         end
         object btnSetGMTPath: TButton
           Left = 448
@@ -613,9 +599,6 @@ object frExportToIMG: TfrExportToIMG
             Font.Style = [fsUnderline]
             ParentFont = False
             OnClick = lblWebSiteClick
-            ExplicitLeft = 208
-            ExplicitTop = 1
-            ExplicitHeight = 17
           end
           object lblGMTPath: TLabel
             Left = 0
@@ -629,10 +612,6 @@ object frExportToIMG: TfrExportToIMG
             Align = alClient
             AutoSize = False
             Caption = 'Path to GMT.exe:'
-            ExplicitLeft = 1
-            ExplicitTop = 1
-            ExplicitWidth = 194
-            ExplicitHeight = 17
           end
         end
       end
@@ -645,7 +624,9 @@ object frExportToIMG: TfrExportToIMG
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 1
-        ExplicitTop = 144
+        DesignSize = (
+          472
+          47)
         object lblMapCompilerPath: TLabel
           Left = 3
           Top = 3
@@ -654,13 +635,12 @@ object frExportToIMG: TfrExportToIMG
           Align = alTop
           AutoSize = False
           Caption = 'Path to map compiler:'
-          ExplicitWidth = 345
         end
         object LMapCompilerPath: TLabel
-          Left = 381
+          Left = 375
           Top = 3
-          Width = 88
-          Height = 13
+          Width = 94
+          Height = 15
           Alignment = taRightJustify
           Anchors = [akTop, akRight]
           Caption = '(bld_gmap32.exe)'
@@ -683,7 +663,6 @@ object frExportToIMG: TfrExportToIMG
           Align = alClient
           TabOrder = 0
           OnChange = edtMapCompilePathChange
-          ExplicitHeight = 21
         end
       end
     end

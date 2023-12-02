@@ -45,8 +45,8 @@ object frExportToCE: TfrExportToCE
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 93
-        Height = 13
+        Width = 100
+        Height = 15
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
@@ -56,17 +56,16 @@ object frExportToCE: TfrExportToCE
       object lVolSize: TLabel
         Left = 271
         Top = 3
-        Width = 99
-        Height = 13
+        Width = 112
+        Height = 15
         Anchors = [akTop, akRight]
         Caption = 'Max volume size, Mb'
-        ExplicitLeft = 300
       end
       object EMapName: TEdit
         Left = 111
         Top = 47
         Width = 259
-        Height = 21
+        Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
       end
@@ -74,7 +73,7 @@ object frExportToCE: TfrExportToCE
         Left = 111
         Top = 74
         Width = 259
-        Height = 21
+        Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 4
       end
@@ -110,7 +109,7 @@ object frExportToCE: TfrExportToCE
         Left = 271
         Top = 19
         Width = 99
-        Height = 22
+        Height = 24
         Anchors = [akTop, akRight]
         MaxValue = 2047
         MinValue = 1
@@ -142,20 +141,23 @@ object frExportToCE: TfrExportToCE
       Left = 3
       Top = 3
       Width = 41
-      Height = 18
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 380
+      Width = 377
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
     end

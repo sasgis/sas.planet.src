@@ -43,12 +43,11 @@ object frExportToFileCont: TfrExportToFileCont
         Left = 3
         Top = 44
         Width = 370
-        Height = 13
+        Height = 15
         Margins.Left = 0
         Margins.Right = 0
         Align = alTop
         Caption = 'Export selection to format:'
-        ExplicitWidth = 129
       end
       object pnlFrame: TPanel
         Left = 3
@@ -63,18 +62,17 @@ object frExportToFileCont: TfrExportToFileCont
           Left = 0
           Top = 0
           Width = 370
-          Height = 13
+          Height = 15
           Margins.Left = 0
           Margins.Top = 0
           Margins.Right = 0
           Align = alTop
           Caption = 'Map/Overlay layer:'
-          ExplicitWidth = 93
         end
       end
       object pnlCacheTypes: TPanel
         Left = 3
-        Top = 60
+        Top = 59
         Width = 370
         Height = 21
         Align = alTop
@@ -84,7 +82,7 @@ object frExportToFileCont: TfrExportToFileCont
       object pnlArchiveWriteConfig: TPanel
         AlignWithMargins = True
         Left = 3
-        Top = 84
+        Top = 83
         Width = 370
         Height = 184
         Margins.Left = 0
@@ -93,7 +91,6 @@ object frExportToFileCont: TfrExportToFileCont
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitTop = 81
       end
     end
   end
@@ -111,20 +108,23 @@ object frExportToFileCont: TfrExportToFileCont
       Left = 3
       Top = 3
       Width = 41
-      Height = 18
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 380
+      Width = 377
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
     end

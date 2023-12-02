@@ -34,10 +34,14 @@ object frExportToJNX: TfrExportToJNX
       Layout = tlCenter
     end
     object edtTargetFile: TEdit
+      AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 409
+      Width = 406
       Height = 21
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alClient
       TabOrder = 0
     end
@@ -65,12 +69,12 @@ object frExportToJNX: TfrExportToJNX
       Caption = 'Map'
       DesignSize = (
         472
-        165)
+        163)
       object pnlCenter: TPanel
         Left = 0
         Top = 0
         Width = 472
-        Height = 165
+        Height = 163
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
@@ -78,8 +82,8 @@ object frExportToJNX: TfrExportToJNX
           AlignWithMargins = True
           Left = 27
           Top = 0
-          Width = 24
-          Height = 13
+          Width = 27
+          Height = 15
           Margins.Left = 0
           Margins.Top = 0
           Margins.Right = 0
@@ -103,24 +107,24 @@ object frExportToJNX: TfrExportToJNX
           object lblCompress: TLabel
             Left = 153
             Top = 0
-            Width = 65
-            Height = 13
+            Width = 73
+            Height = 15
             Anchors = [akTop, akRight]
             Caption = 'Compression:'
           end
           object Label1: TLabel
             Left = 5
             Top = 0
-            Width = 35
-            Height = 13
+            Width = 40
+            Height = 15
             Anchors = [akTop, akRight]
             Caption = 'Zooms:'
           end
           object Label2: TLabel
             Left = 70
             Top = 0
-            Width = 29
-            Height = 13
+            Width = 30
+            Height = 15
             Anchors = [akTop, akRight]
             Caption = 'Scale:'
           end
@@ -128,7 +132,7 @@ object frExportToJNX: TfrExportToJNX
             Left = 154
             Top = 19
             Width = 57
-            Height = 22
+            Height = 24
             Anchors = [akTop, akRight]
             Enabled = False
             MaxValue = 100
@@ -140,12 +144,11 @@ object frExportToJNX: TfrExportToJNX
             Left = 5
             Top = 19
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 0
             OnChange = CbbZoom1Change
           end
@@ -153,7 +156,7 @@ object frExportToJNX: TfrExportToJNX
             Left = 154
             Top = 46
             Width = 57
-            Height = 22
+            Height = 24
             Anchors = [akTop, akRight]
             Enabled = False
             MaxValue = 100
@@ -165,12 +168,11 @@ object frExportToJNX: TfrExportToJNX
             Left = 5
             Top = 46
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 4
             OnChange = CbbZoom2Change
           end
@@ -178,7 +180,7 @@ object frExportToJNX: TfrExportToJNX
             Left = 154
             Top = 100
             Width = 57
-            Height = 22
+            Height = 24
             Anchors = [akTop, akRight]
             Enabled = False
             MaxValue = 100
@@ -190,12 +192,11 @@ object frExportToJNX: TfrExportToJNX
             Left = 5
             Top = 100
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 12
             OnChange = CbbZoom4Change
           end
@@ -203,7 +204,7 @@ object frExportToJNX: TfrExportToJNX
             Left = 154
             Top = 127
             Width = 57
-            Height = 22
+            Height = 24
             Anchors = [akTop, akRight]
             Enabled = False
             MaxValue = 100
@@ -215,12 +216,11 @@ object frExportToJNX: TfrExportToJNX
             Left = 5
             Top = 127
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 16
             OnChange = CbbZoom5Change
           end
@@ -228,7 +228,7 @@ object frExportToJNX: TfrExportToJNX
             Left = 154
             Top = 73
             Width = 57
-            Height = 22
+            Height = 24
             Anchors = [akTop, akRight]
             Enabled = False
             MaxValue = 100
@@ -240,12 +240,11 @@ object frExportToJNX: TfrExportToJNX
             Left = 5
             Top = 73
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 8
             OnChange = CbbZoom3Change
           end
@@ -253,60 +252,55 @@ object frExportToJNX: TfrExportToJNX
             Left = 70
             Top = 46
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 5
           end
           object cbbscale3: TComboBox
             Left = 70
             Top = 73
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 9
           end
           object cbbscale4: TComboBox
             Left = 70
             Top = 100
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 13
           end
           object cbbscale5: TComboBox
             Left = 70
             Top = 127
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 17
           end
           object cbbscale1: TComboBox
             Left = 70
             Top = 19
             Width = 57
-            Height = 21
+            Height = 23
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
             TabOrder = 1
             Items.Strings = (
               '800km'
@@ -507,52 +501,52 @@ object frExportToJNX: TfrExportToJNX
       object PnlInfo: TPanel
         Left = 0
         Top = 0
-        Width = 443
-        Height = 249
+        Width = 472
+        Height = 163
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
         object LMapName: TLabel
           Left = 4
           Top = 35
-          Width = 50
-          Height = 13
+          Width = 59
+          Height = 15
           Caption = 'Map Name'
         end
         object LProductID: TLabel
           Left = 3
           Top = 9
-          Width = 51
-          Height = 13
+          Width = 56
+          Height = 15
           Align = alCustom
           Caption = 'Product ID'
         end
         object LProductName: TLabel
           Left = 4
           Top = 60
-          Width = 67
-          Height = 13
+          Width = 77
+          Height = 15
           Caption = 'Product Name'
         end
         object LVersion: TLabel
           Left = 3
           Top = 88
-          Width = 60
-          Height = 13
+          Width = 64
+          Height = 15
           Caption = 'JNX version:'
         end
         object LZOrder: TLabel
           Left = 155
           Top = 84
-          Width = 42
-          Height = 13
+          Width = 45
+          Height = 15
           Caption = 'Z-Order:'
         end
         object EMapName: TEdit
           Left = 96
           Top = 31
           Width = 253
-          Height = 21
+          Height = 23
           Align = alCustom
           TabOrder = 2
         end
@@ -560,10 +554,9 @@ object frExportToJNX: TfrExportToJNX
           Left = 96
           Top = 4
           Width = 253
-          Height = 21
+          Height = 23
           Align = alCustom
           AutoDropDown = True
-          ItemHeight = 0
           TabOrder = 1
           Items.Strings = (
             '0 - BirdsEye'
@@ -580,7 +573,7 @@ object frExportToJNX: TfrExportToJNX
           Left = 96
           Top = 57
           Width = 253
-          Height = 21
+          Height = 23
           Align = alCustom
           TabOrder = 3
         end
@@ -588,7 +581,7 @@ object frExportToJNX: TfrExportToJNX
           Left = 264
           Top = 84
           Width = 85
-          Height = 22
+          Height = 24
           MaxValue = 100
           MinValue = 0
           TabOrder = 5
@@ -612,9 +605,8 @@ object frExportToJNX: TfrExportToJNX
           Left = 96
           Top = 84
           Width = 41
-          Height = 21
+          Height = 23
           Style = csDropDownList
-          ItemHeight = 0
           ItemIndex = 0
           TabOrder = 4
           Text = '3'
