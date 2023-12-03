@@ -82,8 +82,7 @@ uses
   i_BitmapTileProvider,
   u_BaseInterfacedObject,
   u_CalcWFileParams,
-  u_ImageLineProvider,
-  u_ImageLineProviderMultiThread,
+  u_ImageProviderBuilder,
   u_ImageTileProvider,
   u_ResStrings,
   u_GeoFunc;
@@ -364,45 +363,15 @@ begin
     VThreadNumber := 1;
   end;
 
-  if FWithAlpha then begin
-    if VThreadNumber > 1 then begin
-      FLineProvider :=
-        TImageLineProviderRGBAMultiThread.Create(
-          FPrepareDataCounter,
-          FGetLineCounter,
-          AImageProvider,
-          VThreadNumber,
-          VCurrentPieceRect
-        );
-    end else begin
-      FLineProvider :=
-        TImageLineProviderRGBA.Create(
-          FPrepareDataCounter,
-          FGetLineCounter,
-          AImageProvider,
-          VCurrentPieceRect
-        );
-    end;
-  end else begin
-    if VThreadNumber > 1 then begin
-      FLineProvider :=
-        TImageLineProviderRGBMultiThread.Create(
-          FPrepareDataCounter,
-          FGetLineCounter,
-          AImageProvider,
-          VThreadNumber,
-          VCurrentPieceRect
-        );
-    end else begin
-      FLineProvider :=
-        TImageLineProviderRGB.Create(
-          FPrepareDataCounter,
-          FGetLineCounter,
-          AImageProvider,
-          VCurrentPieceRect
-        );
-    end;
-  end;
+  FLineProvider :=
+    TImageProviderBuilder.BuildLineProvider(
+      FPrepareDataCounter,
+      FGetLineCounter,
+      AImageProvider,
+      FWithAlpha,
+      VCurrentPieceRect,
+      VThreadNumber
+    );
 
   FLineSizeInBytes := FLineProvider.ImageSize.X * FLineProvider.BytesPerPixel;
 
@@ -474,19 +443,12 @@ var
   VTiffWriterParams: TTiffWriterParams;
   VErrorMessage: string;
 begin
-  if FWithAlpha then begin
-    FTileProvider :=
-      TImageTileProviderRGBA.Create(
-        FGetTileCounter,
-        AImageProvider
-      );
-  end else begin
-    FTileProvider :=
-      TImageTileProviderRGB.Create(
-        FGetTileCounter,
-        AImageProvider
-      );
-  end;
+  FTileProvider :=
+    TImageProviderBuilder.BuildTileProvider(
+      FGetTileCounter,
+      AImageProvider,
+      FWithAlpha
+    );
 
   VTileSizePix := FTileProvider.TileSize;
   Assert(VTileSizePix.X = VTileSizePix.Y);
@@ -510,7 +472,7 @@ begin
     VProjection.ProjectionType
   );
 
-  FTileSizeInBytes := FTileProvider.TileSize.X * FTileProvider.TileSize.Y * FTileProvider.BytesPerPixel;
+  FTileSizeInBytes := VTileSizePix.X * VTileSizePix.Y * FTileProvider.BytesPerPixel;
 
   VTiffWriterParams := CTiffWriterParamsEmpty;
   with VTiffWriterParams do begin

@@ -1014,6 +1014,7 @@ uses
   u_ECWJP2Write in 'Src\RegionProcess\Combine\u_ECWJP2Write.pas',
   u_ImageLineProvider in 'Src\RegionProcess\Combine\u_ImageLineProvider.pas',
   u_ImageLineProviderMultiThread in 'Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas',
+  u_ImageProviderBuilder in 'Src\RegionProcess\Combine\u_ImageProviderBuilder.pas',
   u_ImageTileProvider in 'Src\RegionProcess\Combine\u_ImageTileProvider.pas',
   u_ProviderMapCombine in 'Src\RegionProcess\Combine\u_ProviderMapCombine.pas',
   u_RegionProcessTaskCombine in 'Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas',

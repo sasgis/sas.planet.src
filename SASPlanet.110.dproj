@@ -2057,6 +2057,7 @@
         <DCCReference Include="Src\RegionProcess\Combine\u_ECWJP2Write.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\u_ImageProviderBuilder.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ImageTileProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas"/>
