@@ -222,7 +222,8 @@ begin
 end;
 
 function TProviderMapCombine.PrepareCombineProgressUpdate(
-  const AProgressInfo: IRegionProcessProgressInfoInternal): IBitmapCombineProgressUpdate;
+  const AProgressInfo: IRegionProcessProgressInfoInternal
+): IBitmapCombineProgressUpdate;
 begin
   Result := TBitmapCombineProgressUpdate.Create(AProgressInfo);
 end;

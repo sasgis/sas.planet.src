@@ -25,17 +25,22 @@ interface
 
 type
   TGeoTiffFileFormat = (
-    gtfAuto = 0,
+    gtfAuto,
     gtfClassic,
     gtfBig
   );
 
   TGeoTiffCompression = (
-    gtcNone = 0,
-    gtcZIP,
-    gtcLZW,
-    gtcJPEG
+    gtcNone,
+    gtcZip,
+    gtcLzw,
+    gtcJpeg
   );
+
+  TGeoTiffOptions = record
+    FileFormatType: TGeoTiffFileFormat;
+    CompressionType: TGeoTiffCompression;
+  end;
 
 implementation
 

@@ -66,8 +66,7 @@ type
     function GetIsSaveGeoRefInfoToExif: Boolean;
     function GetThreadCount: Integer;
     function GetIsSaveAlfa: Boolean;
-    function GetGeoTiffCompression: TGeoTiffCompression;
-    function GetGeoTiffFormat: TGeoTiffFileFormat;
+    function GetGeoTiffOptions: TGeoTiffOptions;
     function GetRoundToTileRect: Boolean;
   public
     procedure Show(AParent: TWinControl);
@@ -151,14 +150,12 @@ begin
   Parent := AParent;
 end;
 
-function TfrMapCombineCustomOptions.GetGeoTiffCompression: TGeoTiffCompression;
+function TfrMapCombineCustomOptions.GetGeoTiffOptions: TGeoTiffOptions;
 begin
-  Result := TGeoTiffCompression(cbbCompression.ItemIndex);
-end;
-
-function TfrMapCombineCustomOptions.GetGeoTiffFormat: TGeoTiffFileFormat;
-begin
-  Result := TGeoTiffFileFormat(cbbFormat.ItemIndex);
+  with Result do begin
+    FileFormatType := TGeoTiffFileFormat(cbbFormat.ItemIndex);
+    CompressionType := TGeoTiffCompression(cbbCompression.ItemIndex);
+  end;
 end;
 
 function TfrMapCombineCustomOptions.GetIsSaveAlfa: Boolean;

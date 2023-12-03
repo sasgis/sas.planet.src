@@ -128,11 +128,8 @@ type
     function GetIsSaveAlfa: Boolean;
     property IsSaveAlfa: Boolean read GetIsSaveAlfa;
 
-    function GetGeoTiffCompression: TGeoTiffCompression;
-    property GeoTiffCompression: TGeoTiffCompression read GetGeoTiffCompression;
-
-    function GetGeoTiffFormat: TGeoTiffFileFormat;
-    property GeoTiffFormat: TGeoTiffFileFormat read GetGeoTiffFormat;
+    function GetGeoTiffOptions: TGeoTiffOptions;
+    property GeoTiffOptions: TGeoTiffOptions read GetGeoTiffOptions;
 
     function GetRoundToTileRect: Boolean;
     property RoundToTileRect: Boolean read GetRoundToTileRect;

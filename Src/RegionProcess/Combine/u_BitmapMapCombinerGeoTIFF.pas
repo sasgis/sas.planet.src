@@ -95,8 +95,7 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FWithAlpha: Boolean;
-    FFileFormat: TGeoTiffFileFormat;
-    FCompression: TGeoTiffCompression;
+    FGeoTiffOptions: TGeoTiffOptions;
     FProjInfo: TProjectionInfo;
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
@@ -128,8 +127,7 @@ type
       const AProgressUpdate: IBitmapCombineProgressUpdate;
       const ASaveRectCounter: IInternalPerformanceCounter;
       const AWithAlpha: Boolean;
-      const AFileFormat: TGeoTiffFileFormat;
-      const ACompression: TGeoTiffCompression
+      const AGeoTiffOptions: TGeoTiffOptions
     );
   end;
 
@@ -161,8 +159,7 @@ type
       const AGetLineCounter: IInternalPerformanceCounter;
       const AThreadNumber: Integer;
       const AWithAlpha: Boolean;
-      const AFileFormat: TGeoTiffFileFormat;
-      const ACompression: TGeoTiffCompression
+      const AGeoTiffOptions: TGeoTiffOptions
     );
   end;
 
@@ -193,8 +190,7 @@ type
       const ASaveRectCounter: IInternalPerformanceCounter;
       const AGetTileCounter: IInternalPerformanceCounter;
       const AWithAlpha: Boolean;
-      const AFileFormat: TGeoTiffFileFormat;
-      const ACompression: TGeoTiffCompression
+      const AGeoTiffOptions: TGeoTiffOptions
     );
   end;
 
@@ -204,16 +200,14 @@ constructor TBitmapMapCombinerGeoTiffBase.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
   const ASaveRectCounter: IInternalPerformanceCounter;
   const AWithAlpha: Boolean;
-  const AFileFormat: TGeoTiffFileFormat;
-  const ACompression: TGeoTiffCompression
+  const AGeoTiffOptions: TGeoTiffOptions
 );
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
   FSaveRectCounter := ASaveRectCounter;
   FWithAlpha := AWithAlpha;
-  FFileFormat := AFileFormat;
-  FCompression := ACompression;
+  FGeoTiffOptions := AGeoTiffOptions;
 end;
 
 function TBitmapMapCombinerGeoTiffBase.GetTiffType: TTiffType;
@@ -222,7 +216,7 @@ var
   VOldTiffMaxFileSize: Int64;
   VBytesPerPix: Integer;
 begin
-  case FFileFormat of
+  case FGeoTiffOptions.FileFormatType of
     gtfClassic: Result := ttClassicTiff;
     gtfBig: Result := ttBigTiff;
   else
@@ -245,10 +239,10 @@ end;
 
 function TBitmapMapCombinerGeoTiffBase.GetTiffCompression: TTiffCompression;
 begin
-  case FCompression of
-    gtcZIP: Result := tcZip;
-    gtcLZW: Result := tcLzw;
-    gtcJPEG: Result := tcJpeg;
+  case FGeoTiffOptions.CompressionType of
+    gtcZip  : Result := tcZip;
+    gtcLzw  : Result := tcLzw;
+    gtcJpeg : Result := tcJpeg;
   else
     Result := tcNone;
   end;
@@ -308,11 +302,10 @@ constructor TBitmapMapCombinerGeoTiffStripped.Create(
   const AGetLineCounter: IInternalPerformanceCounter;
   const AThreadNumber: Integer;
   const AWithAlpha: Boolean;
-  const AFileFormat: TGeoTiffFileFormat;
-  const ACompression: TGeoTiffCompression
+  const AGeoTiffOptions: TGeoTiffOptions
 );
 begin
-  inherited Create(AProgressUpdate, ASaveRectCounter, AWithAlpha, AFileFormat, ACompression);
+  inherited Create(AProgressUpdate, ASaveRectCounter, AWithAlpha, AGeoTiffOptions);
 
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
@@ -344,7 +337,7 @@ begin
   FWidth := VMapPieceSize.X;
   FHeight := VMapPieceSize.Y;
 
-  if (FCompression = gtcJPEG) and
+  if (FGeoTiffOptions.CompressionType = gtcJpeg) and
      ((FWidth >= TIFF_JPG_MAX_WIDTH) or (FHeight >= TIFF_JPG_MAX_HEIGHT)) then
   begin
     raise Exception.CreateFmt(
@@ -460,11 +453,10 @@ constructor TBitmapMapCombinerGeoTiffTiled.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
   const ASaveRectCounter, AGetTileCounter: IInternalPerformanceCounter;
   const AWithAlpha: Boolean;
-  const AFileFormat: TGeoTiffFileFormat;
-  const ACompression: TGeoTiffCompression
+  const AGeoTiffOptions: TGeoTiffOptions
 );
 begin
-  inherited Create(AProgressUpdate, ASaveRectCounter, AWithAlpha, AFileFormat, ACompression);
+  inherited Create(AProgressUpdate, ASaveRectCounter, AWithAlpha, AGeoTiffOptions);
 
   FGetTileCounter := AGetTileCounter;
 end;
@@ -583,7 +575,7 @@ begin
     gettext_NoExtract('GeoTIFF'),
     [mcAlphaUncheck, mcGeoTiffStripped, mcThreadCount]
   );
-  VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF (Stripped)');
+  VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF');
   FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
   FPrepareDataCounter := VCounterList.CreateAndAddNewCounter('PrepareData');
   FGetLineCounter := VCounterList.CreateAndAddNewCounter('GetLine');
@@ -602,8 +594,7 @@ begin
       FGetLineCounter,
       AParams.CustomOptions.ThreadCount,
       AParams.CustomOptions.IsSaveAlfa,
-      AParams.CustomOptions.GeoTiffFormat,
-      AParams.CustomOptions.GeoTiffCompression
+      AParams.CustomOptions.GeoTiffOptions
     );
 end;
 
@@ -639,8 +630,7 @@ begin
       FSaveRectCounter,
       FGetTileCounter,
       AParams.CustomOptions.IsSaveAlfa,
-      AParams.CustomOptions.GeoTiffFormat,
-      AParams.CustomOptions.GeoTiffCompression
+      AParams.CustomOptions.GeoTiffOptions
     );
 end;
 
