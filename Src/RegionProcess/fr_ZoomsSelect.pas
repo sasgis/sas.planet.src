@@ -24,6 +24,7 @@ unit fr_ZoomsSelect;
 interface
 
 uses
+  Windows,
   Classes,
   SysUtils,
   Types,
@@ -44,6 +45,7 @@ type
     procedure chklstZoomsClick(Sender: TObject);
   private
     FOnClick: TNotifyEvent;
+    FLastDblClick: Cardinal;
   public
     procedure Show(AParent: TWinControl);
     function GetZoomList: TByteDynArray;
@@ -71,6 +73,7 @@ constructor TfrZoomsSelect.Create(
 begin
   inherited Create(ALanguageManager);
   FOnClick := AOnClick;
+  FLastDblClick := 0;
 end;
 
 procedure TfrZoomsSelect.chkAllZoomsClick(Sender: TObject);
@@ -119,22 +122,33 @@ begin
 end;
 
 procedure TfrZoomsSelect.chklstZoomsClick(Sender: TObject);
+const
+  CDblClickAftershockTimeoutMS = 50;
 var
-  i, VCountChecked, VDisabledCut: Integer;
+  I, VCountChecked, VDisabledCut: Integer;
 begin
+  if GetTickCount - FLastDblClick < CDblClickAftershockTimeoutMS then begin
+    I := chklstZooms.ItemIndex;
+    chklstZooms.Checked[I] := not chklstZooms.Checked[I];
+    FLastDblClick := 0;
+    Exit;
+  end;
+
   VCountChecked := 0;
   VDisabledCut := 0;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then begin
-      inc(VCountChecked);
+
+  for I := 0 to chklstZooms.Count - 1 do begin
+    if chklstZooms.Checked[I] then begin
+      Inc(VCountChecked);
     end;
-    if not chklstZooms.ItemEnabled[i] then begin
-      inc(VDisabledCut);
+    if not chklstZooms.ItemEnabled[I] then begin
+      Inc(VDisabledCut);
     end;
   end;
-  if chkAllZooms.state <> cbGrayed then begin
-    if (VCountChecked > 0) then begin
-      chkAllZooms.state := cbGrayed;
+
+  if chkAllZooms.State <> cbGrayed then begin
+    if VCountChecked > 0 then begin
+      chkAllZooms.State := cbGrayed;
     end;
   end else begin
     if VCountChecked + VDisabledCut = chklstZooms.Count then begin
@@ -144,6 +158,7 @@ begin
       chkAllZooms.State := cbUnchecked;
     end;
   end;
+
   if Assigned(FOnClick) then begin
     FOnClick(Sender);
   end;
@@ -151,44 +166,47 @@ end;
 
 procedure TfrZoomsSelect.chklstZoomsDblClick(Sender: TObject);
 var
-  i, VCountChecked, VDisabledCut: Integer;
+  I, VCountChecked, VDisabledCut: Integer;
 begin
   VCountChecked := 0;
   VDisabledCut := 0;
-  for i := 0 to chklstZooms.ItemIndex do begin //select items 0 -> click
-    if chklstZooms.ItemEnabled[i] then begin // Select only enabled items
-      chklstZooms.Checked[i] := true;
-      inc(VCountChecked);
+
+  for I := 0 to chklstZooms.ItemIndex do begin //select items 0 -> click
+    if chklstZooms.ItemEnabled[I] then begin // Select only enabled items
+      chklstZooms.Checked[I] := True;
+      Inc(VCountChecked);
     end else begin
-      chklstZooms.Checked[i] := false;
+      chklstZooms.Checked[I] := False;
     end;
-    if not chklstZooms.ItemEnabled[i] then begin
-      inc(VDisabledCut);
+    if not chklstZooms.ItemEnabled[I] then begin
+      Inc(VDisabledCut);
     end;
   end;
 
   if chklstZooms.ItemIndex < chklstZooms.count - 1 then begin //deselect click -> 24
-    for i := chklstZooms.ItemIndex + 1 to chklstZooms.count - 1 do begin
-      chklstZooms.Checked[i] := false;
-      if not chklstZooms.ItemEnabled[i] then begin
-        inc(VDisabledCut);
+    for I := chklstZooms.ItemIndex + 1 to chklstZooms.count - 1 do begin
+      chklstZooms.Checked[I] := False;
+      if not chklstZooms.ItemEnabled[I] then begin
+        Inc(VDisabledCut);
       end;
     end;
   end;
 
   if VCountChecked + VDisabledCut = 0 then begin   // mark chekbox All
-    chkAllZooms.state := cbUnchecked;
+    chkAllZooms.State := cbUnchecked;
   end else begin
     if VCountChecked + VDisabledCut = chklstZooms.Items.Count then begin
-      chkAllZooms.state := cbChecked;
+      chkAllZooms.State := cbChecked;
     end else begin
-      chkAllZooms.state := cbGrayed;
+      chkAllZooms.State := cbGrayed;
     end;
   end;
 
   if Assigned(FOnClick) then begin
     FOnClick(Sender);
   end;
+
+  FLastDblClick := GetTickCount;
 end;
 
 function TfrZoomsSelect.GetZoomList: TByteDynArray;
