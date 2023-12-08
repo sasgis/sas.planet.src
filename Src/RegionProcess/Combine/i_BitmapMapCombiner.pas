@@ -45,7 +45,8 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect
+      const AMapRect: TRect;
+      const ACombinerCustomParams: IInterface
     );
   end;
 

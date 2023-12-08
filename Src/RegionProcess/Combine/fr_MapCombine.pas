@@ -64,6 +64,7 @@ type
       IRegionProcessParamsFrameMapCalibrationList,
       IRegionProcessParamsFrameTargetProjection,
       IRegionProcessParamsFrameTargetPath,
+      IRegionProcessParamsFrameCustom,
       IRegionProcessParamsFrameMapCombine
     )
     pnlTargetFile: TPanel;
@@ -120,6 +121,7 @@ type
     FfrMapCombineOptions: TfrMapCombineCustomOptions;
     FMinPartSize: TPoint;
     FMaxPartSize: TPoint;
+    FOptionsSet: TMapCombineOptionsSet;
     FCombinePathStringTypeSupport: TStringTypeSupport;
     procedure UpdateStatCaption;
     procedure OnMapChange(Sender: TObject);
@@ -135,6 +137,7 @@ type
     function GetProvider: IBitmapTileUniProvider;
     function GetPath: string;
     function GetProjection: IProjection;
+    function GetCustomParams: IInterface;
     function GetMapCalibrationList: IMapCalibrationList;
   private
     function GetUseMarks: Boolean;
@@ -147,6 +150,8 @@ type
     function GetUsePreciseCropping: Boolean;
     function GetCustomOptions: IMapCombineCustomOptions;
     function GetAllowWrite(const AMapType: IMapType): Boolean;
+  protected
+    procedure RefreshTranslation; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -177,15 +182,18 @@ uses
   GR32,
   gnugettext,
   t_GeoTypes,
+  t_GeoTIFF,
   i_MapVersionRequest,
   i_MapTypeListStatic,
   i_InterfaceListSimple,
   i_GeometryProjected,
   i_ProjectionSet,
+  i_GeoTiffCombinerCustomParams,
   u_InterfaceListSimple,
   u_AnsiStr,
   u_GeoFunc,
   u_GeometryFunc,
+  u_GeoTiffCombinerCustomParams,
   u_BitmapLayerProviderMapWithLayer,
   u_MapCalibrationListBasic,
   u_ResStrings;
@@ -224,12 +232,13 @@ begin
   FMaxPartSize := AMaxPartSize;
   FViewConfig := AViewConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
+  FOptionsSet := AOptionsSet;
   FCombinePathStringTypeSupport := ACombinePathStringTypeSupport;
   FDefaultExt := ADefaultExt;
   FFormatName := AFormatName;
 
   FfrMapCombineOptions :=
-    TfrMapCombineCustomOptions.Create(ALanguageManager, AOptionsSet);
+    TfrMapCombineCustomOptions.Create(ALanguageManager, FOptionsSet);
 
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
@@ -363,6 +372,30 @@ end;
 function TfrMapCombine.GetCustomOptions: IMapCombineCustomOptions;
 begin
   Result := (FfrMapCombineOptions as IMapCombineCustomOptions);
+end;
+
+function TfrMapCombine.GetCustomParams: IInterface;
+
+  function GetSelectedMap: IMapType;
+  begin
+    Result := FfrMapSelect.GetSelectedMapType;
+    if not Assigned(Result) and not chkAddVisibleLayers.Checked then begin
+      Result := FfrLayerSelect.GetSelectedMapType;
+    end;
+  end;
+
+begin
+  Result := nil;
+  if (mcGeoTiff in FOptionsSet) or (mcGeoTiffTiled in FOptionsSet) then begin
+    Result :=
+      TGeoTiffCombinerCustomParams.Create(
+        Self.GetCustomOptions.GeoTiffOptions,
+        GetUseMarks or GetUseGrids or GetUseFillingMap or GetUseRecolor,
+        Self.GetProjection,
+        FfrProjectionSelect.GetSelectedProjection,
+        GetSelectedMap
+      );
+  end;
 end;
 
 function TfrMapCombine.GetMapCalibrationList: IMapCalibrationList;
@@ -692,6 +725,12 @@ begin
   end;
 
   Result := True;
+end;
+
+procedure TfrMapCombine.RefreshTranslation;
+begin
+  inherited;
+  UpdateStatCaption;
 end;
 
 end.

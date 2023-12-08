@@ -81,7 +81,8 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect
+      const AMapRect: TRect;
+      const ACombinerCustomParams: IInterface
     );
   public
     constructor Create(
@@ -117,7 +118,8 @@ procedure TBitmapMapCombinerRAW.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
-  const AMapRect: TRect
+  const AMapRect: TRect;
+  const ACombinerCustomParams: IInterface
 );
 var
   i: Integer;

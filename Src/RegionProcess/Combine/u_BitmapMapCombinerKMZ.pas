@@ -107,7 +107,8 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect
+      const AMapRect: TRect;
+      const ACombinerCustomParams: IInterface
     );
   public
     constructor Create(
@@ -199,7 +200,8 @@ procedure TBitmapMapCombinerKMZ.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
-  const AMapRect: TRect
+  const AMapRect: TRect;
+  const ACombinerCustomParams: IInterface
 );
 var
   iWidth, iHeight: integer;

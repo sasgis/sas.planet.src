@@ -39,9 +39,14 @@ type
     function GetTile(
       const AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const APoint: TPoint;
-      const AZoom: Integer
-    ): Pointer;
+      const APoint: TPoint
+    ): Pointer; overload;
+
+    function GetTile(
+      const AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const APixelRect: TRect
+    ): Pointer; overload;
   end;
 
 implementation

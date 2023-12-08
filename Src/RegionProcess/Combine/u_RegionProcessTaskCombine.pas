@@ -47,6 +47,7 @@ type
     FFilePath: string;
     FFileExt: string;
     FCombiner: IBitmapMapCombiner;
+    FCombinerCustomParams: IInterface;
   protected
     procedure ProgressFormUpdateOnProgress(AProgress: Double);
     procedure ProcessRegion; override;
@@ -56,6 +57,7 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AMapRect: TRect;
       const ACombiner: IBitmapMapCombiner;
+      const ACombinerCustomParams: IInterface;
       const AImageProvider: IBitmapTileProvider;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
@@ -79,6 +81,7 @@ constructor TRegionProcessTaskCombine.Create(
   const APolygon: IGeometryLonLatPolygon;
   const AMapRect: TRect;
   const ACombiner: IBitmapMapCombiner;
+  const ACombinerCustomParams: IInterface;
   const AImageProvider: IBitmapTileProvider;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
@@ -94,6 +97,7 @@ begin
   );
   FMapRect := AMapRect;
   FCombiner := ACombiner;
+  FCombinerCustomParams := ACombinerCustomParams;
   FImageProvider := AImageProvider;
   FSplitCount := ASplitCount;
   FSkipExistingFiles := ASkipExistingFiles;
@@ -208,7 +212,8 @@ begin
           CancelNotifier,
           VCurrentFileName,
           FImageProvider,
-          VCurrentPieceRect
+          VCurrentPieceRect,
+          FCombinerCustomParams
         );
       except
         on E: Exception do begin

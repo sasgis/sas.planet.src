@@ -2025,6 +2025,14 @@
         <DCCReference Include="Src\Predicate\i_PredicateByTileRequest.pas"/>
         <DCCReference Include="Src\Predicate\u_PredicateByStaticSampleList.pas"/>
         <DCCReference Include="Src\Predicate\u_PredicateByTileInfoBase.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\frm_GeoTiffOptions.pas">
+            <Form>frmGeoTiffOptions</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\i_GeoTiffCombinerCustomParams.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\t_GeoTIFF.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\u_GeoTiffCombinerCustomParams.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\u_GeoTiffFunc.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\fr_MapCombine.pas">
             <Form>frMapCombine</Form>
             <DesignClass>TFrame</DesignClass>
@@ -2042,7 +2050,6 @@
         <DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\i_ImageTileProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas"/>
-        <DCCReference Include="Src\RegionProcess\Combine\t_GeoTIFF.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\t_MapCombineOptions.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerBMP.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECWJP2.pas"/>

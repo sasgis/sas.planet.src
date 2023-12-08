@@ -74,6 +74,9 @@ type
       const AProjection: IProjection;
       const AProjectedPolygon: IGeometryProjectedPolygon
     ): IBitmapTileProvider;
+    function PrepareCustomParams(
+      const APolygon: IGeometryLonLatPolygon
+    ): IInterface;
     function PrepareProjection: IProjection;
     function PreparePolygon(
       const AProjection: IProjection;
@@ -117,6 +120,7 @@ uses
   Types,
   Math,
   gnugettext,
+  i_GeoTiffCombinerCustomParams,
   u_GeoFunc,
   u_ResStrings,
   u_RegionProcessTaskCombine,
@@ -275,6 +279,30 @@ begin
     );
 end;
 
+function TProviderMapCombine.PrepareCustomParams(
+  const APolygon: IGeometryLonLatPolygon
+): IInterface;
+var
+  I: Integer;
+  VParams: IInterface;
+  VGeoTiffParams: IGeoTiffCombinerCustomParams;
+  VProjection: IProjection;
+  VProjectedPolygon: IGeometryProjectedPolygon;
+begin
+  VParams := (ParamsFrame as IRegionProcessParamsFrameCustom).CustomParams;
+
+  if Supports(VParams, IGeoTiffCombinerCustomParams, VGeoTiffParams) then begin
+    for I := 0 to VGeoTiffParams.OverviewCount - 1 do begin
+      VProjection := VGeoTiffParams.Projection[I];
+      VProjectedPolygon := PreparePolygon(VProjection, APolygon);
+      VGeoTiffParams.BitmapTileProvider[I] := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
+    end;
+    VParams := VGeoTiffParams;
+  end;
+
+  Result := VParams;
+end;
+
 function TProviderMapCombine.PrepareTask(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal
@@ -290,6 +318,7 @@ var
   VImageProvider: IBitmapTileProvider;
   VProgressUpdate: IBitmapCombineProgressUpdate;
   VCombiner: IBitmapMapCombiner;
+  VCombinerCustomParams: IInterface;
   VMapRect: TRect;
 begin
   VProjection := PrepareProjection;
@@ -302,6 +331,7 @@ begin
   VRoundToTileRect := (ParamsFrame as IRegionProcessParamsFrameMapCombine).CustomOptions.RoundToTileRect;
   VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   VCombiner := FCombinerFactory.PrepareMapCombiner(ParamsFrame as IRegionProcessParamsFrameMapCombine, VProgressUpdate);
+  VCombinerCustomParams := PrepareCustomParams(APolygon);
   VMapRect := PrepareTargetRect(VProjection, VProjectedPolygon);
 
   Result :=
@@ -310,6 +340,7 @@ begin
       APolygon,
       VMapRect,
       VCombiner,
+      VCombinerCustomParams,
       VImageProvider,
       VMapCalibrations,
       VFileName,

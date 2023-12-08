@@ -114,6 +114,12 @@ type
     property Path: string read GetPath;
   end;
 
+  IRegionProcessParamsFrameCustom = interface(IRegionProcessParamsFrameBase)
+    ['{AF63045C-C9E0-41D5-B68A-68C57E059CCB}']
+    function GetCustomParams: IInterface;
+    property CustomParams: IInterface read GetCustomParams;
+  end;
+
   IMapCombineCustomOptions = interface
     ['{5E584132-7A0B-4A8A-A79E-005329AF1821}']
     function GetQuality: Integer;

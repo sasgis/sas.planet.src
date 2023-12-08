@@ -3,7 +3,9 @@ unit libtiff.writer;
 interface
 
 uses
+  Types,
   SysUtils,
+  Math,
   libgeotiff,
   libtiff;
 
@@ -54,8 +56,6 @@ type
   end;
   PProjectionInfo = ^TProjectionInfo;
 
-  TOverViewsArray = array of Integer;
-
   TTiffWriterParams = record
     TiffType: TTiffType;
     OutputFileName: string;
@@ -63,7 +63,7 @@ type
     ImageHeight: Integer;
     TileWidth: Integer;
     TileHeight: Integer;
-    OverViews: TOverViewsArray;
+    OverViews: TIntegerDynArray;
     Compression: TTiffCompression;
     CompressionLevel: Integer;
     ColorScheme: TTiffColorScheme;
@@ -124,7 +124,7 @@ const
     ImageHeight      : 0;
     TileWidth        : 256;
     TileHeight       : 256;
-    OverViews        : [];
+    OverViews        : nil;
     Compression      : tcNone;
     CompressionLevel : -1;
     ColorScheme      : tcsRGB;
@@ -459,8 +459,8 @@ begin
     H := FParams.TileHeight;
     VTileNum := 0;
 
-    for Y := 0 to (FHeight div H) - 1 do begin
-      for X := 0 to (FWidth div W) - 1 do begin
+    for Y := 0 to Ceil(FHeight / H) - 1 do begin
+      for X := 0 to Ceil(FWidth / W) - 1 do begin
         if not FParams.GetTileCallBack(X, Y, AOverView, VData, VSize) then begin
           FErrorMessage := 'Aborted by user!';
           Exit;

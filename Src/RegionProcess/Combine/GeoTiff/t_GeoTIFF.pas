@@ -19,22 +19,48 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit t_MapCombineOptions;
+unit t_GeoTIFF;
 
 interface
 
+uses
+  Types;
+
 type
-  TMapCombineOptions = (
-    mcAlphaCheck = 0,
-    mcAlphaUncheck,
-    mcThreadCount,
-    mcExif,
-    mcQuality,
-    mcGeoTiff,
-    mcGeoTiffTiled
+  TGeoTiffFileFormat = (
+    gtfAuto,
+    gtfClassic,
+    gtfBig
   );
 
-  TMapCombineOptionsSet = set of TMapCombineOptions;
+  TGeoTiffStorageType = (
+    gtstStripped,
+    gtstTiled
+  );
+
+  TGeoTiffCompression = (
+    gtcNone,
+    gtcZip,
+    gtcLzw,
+    gtcJpeg
+  );
+
+  TGeoTiffColorspace = (
+    gtcsRGB,
+    gtcsYCbCr
+  );
+
+  TGeoTiffOptions = record
+    FileFormatType: TGeoTiffFileFormat;
+    StorageType: TGeoTiffStorageType;
+    CompressionType: TGeoTiffCompression;
+    CompressionLevelZip: Integer;
+    CompressionLevelJpeg: Integer;
+    Colorspace: TGeoTiffColorspace;
+    CopyRawJpegTiles: Boolean;
+    Overview: TIntegerDynArray;
+  end;
+  PGeoTiffOptions = ^TGeoTiffOptions;
 
 implementation
 

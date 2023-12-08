@@ -1063,7 +1063,6 @@ var
   VPixelRectTarget: TRect;
   VProjection: IProjection;
   VLonLatRectTarget: TDoubleRect;
-  VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
   VSpr: IBitmap32Static;
   VTargetImageSize: TPoint;
@@ -1085,7 +1084,7 @@ begin
     VProjection.ProjectionType.ValidateLonLatRect(VLonLatRectTarget);
 
     if (VLonLatRectTarget.Left = VLonLatRectTarget.Right) or (VLonLatRectTarget.Top = VLonLatRectTarget.Bottom) then begin
-      exit;
+      Exit;
     end;
 
     VPixelRectOfTargetPixelRectInSource :=
@@ -1093,7 +1092,7 @@ begin
         VProjection.LonLatRect2PixelRectFloat(VLonLatRectTarget),
         rrToTopLeft
       );
-    VTileRectInSource := VProjection.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource);
+
     VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VProjection.Zoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
     if VSpr <> nil then begin
       VResampler := FResamplerChangeProjection.GetStatic.CreateResampler;

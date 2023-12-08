@@ -26,6 +26,7 @@ interface
 uses
   Windows,
   i_BitmapTileProvider,
+  i_Bitmap32BufferFactory,
   i_ImageLineProvider,
   i_ImageTileProvider,
   i_InternalPerformanceCounter;
@@ -44,6 +45,7 @@ type
     class function BuildTileProvider(
       const AGetTileCounter: IInternalPerformanceCounter;
       const AImageProvider: IBitmapTileProvider;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AWithAlpha: Boolean;
       const AThreadCount: Integer = 1
     ): IImageTileProvider; static;
@@ -110,6 +112,7 @@ end;
 class function TImageProviderBuilder.BuildTileProvider(
   const AGetTileCounter: IInternalPerformanceCounter;
   const AImageProvider: IBitmapTileProvider;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AWithAlpha: Boolean;
   const AThreadCount: Integer
 ): IImageTileProvider;
@@ -120,13 +123,15 @@ begin
     Result :=
       TImageTileProviderRGBA.Create(
         AGetTileCounter,
-        AImageProvider
+        AImageProvider,
+        ABitmapFactory
       );
   end else begin
     Result :=
       TImageTileProviderRGB.Create(
         AGetTileCounter,
-        AImageProvider
+        AImageProvider,
+        ABitmapFactory
       );
   end;
 end;

@@ -24,9 +24,12 @@ unit u_BitmapMapCombinerGeoTIFF;
 interface
 
 uses
+  Math,
   i_InternalPerformanceCounter,
   i_BitmapMapCombiner,
   i_RegionProcessParamsFrame,
+  i_Bitmap32BufferFactory,
+  i_BitmapTileSaveLoadFactory,
   u_BitmapMapCombinerFactoryBase;
 
 type
@@ -50,6 +53,8 @@ type
   private
     FSaveRectCounter: IInternalPerformanceCounter;
     FGetTileCounter: IInternalPerformanceCounter;
+    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
     function PrepareMapCombiner(
       const AParams: IRegionProcessParamsFrameMapCombine;
@@ -57,7 +62,9 @@ type
     ): IBitmapMapCombiner; override;
   public
     constructor Create(
-      const ACounterList: IInternalPerformanceCounterList
+      const ACounterList: IInternalPerformanceCounterList;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
     );
   end;
 
@@ -80,10 +87,10 @@ uses
   i_ImageTileProvider,
   i_NotifierOperation,
   i_BitmapTileProvider,
+  i_GeoTiffCombinerCustomParams,
   u_BaseInterfacedObject,
   u_CalcWFileParams,
   u_ImageProviderBuilder,
-  u_ImageTileProvider,
   u_ResStrings,
   u_GeoFunc;
 
@@ -91,6 +98,8 @@ type
   TBitmapMapCombinerGeoTiffBase = class(TBaseInterfacedObject, IBitmapMapCombiner)
   protected
     FProgressUpdate: IBitmapCombineProgressUpdate;
+    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FWidth: Integer;
     FHeight: Integer;
     FWithAlpha: Boolean;
@@ -99,13 +108,16 @@ type
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
     FSaveRectCounter: IInternalPerformanceCounter;
+    FCustomParams: IGeoTiffCombinerCustomParams;
     function GetTiffType: TTiffType;
     function GetTiffCompression: TTiffCompression;
+    function GetTiffCompressionLevel: Integer;
     function GetProjInfo(
       const ALonLatRect: TDoubleRect;
       const AImageSizePix: TPoint;
       const AProjectionType: IProjectionType
     ): PProjectionInfo;
+    function GetOverviews: TIntegerDynArray;
   protected
     procedure DoSaveRect(
       const AFileName: string;
@@ -119,12 +131,15 @@ type
       const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapTileProvider;
-      const AMapRect: TRect
+      const AMapRect: TRect;
+      const ACombinerCustomParams: IInterface
     );
   public
     constructor Create(
       const AProgressUpdate: IBitmapCombineProgressUpdate;
       const ASaveRectCounter: IInternalPerformanceCounter;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AWithAlpha: Boolean;
       const AGeoTiffOptions: TGeoTiffOptions
     );
@@ -168,9 +183,16 @@ type
     FTileProvider: IImageTileProvider;
     FTileSizeInBytes: NativeInt;
     FFullTileRect: TRect;
+    FMapRect: TRect;
+    FLonLatRect: TDoubleRect;
+    FOverview: Integer;
     FTotalTiles: UInt64;
     FProcessedTiles: UInt64;
   private
+    function PrepareTileProvider(
+      const AOverview: Integer;
+      const AImageProvider: IBitmapTileProvider = nil
+    ): Boolean;
     function OnGetTileCallBack(
       const X, Y: Integer;
       const AOverView: Integer;
@@ -188,6 +210,8 @@ type
       const AProgressUpdate: IBitmapCombineProgressUpdate;
       const ASaveRectCounter: IInternalPerformanceCounter;
       const AGetTileCounter: IInternalPerformanceCounter;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AWithAlpha: Boolean;
       const AGeoTiffOptions: TGeoTiffOptions
     );
@@ -198,6 +222,8 @@ type
 constructor TBitmapMapCombinerGeoTiffBase.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
   const ASaveRectCounter: IInternalPerformanceCounter;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AWithAlpha: Boolean;
   const AGeoTiffOptions: TGeoTiffOptions
 );
@@ -205,6 +231,8 @@ begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
   FSaveRectCounter := ASaveRectCounter;
+  FBitmapFactory := ABitmapFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FWithAlpha := AWithAlpha;
   FGeoTiffOptions := AGeoTiffOptions;
 end;
@@ -247,6 +275,25 @@ begin
   end;
 end;
 
+function TBitmapMapCombinerGeoTiffBase.GetTiffCompressionLevel: Integer;
+begin
+  case FGeoTiffOptions.CompressionType of
+    gtcZip  : Result := FGeoTiffOptions.CompressionLevelZip;
+    gtcJpeg : Result := FGeoTiffOptions.CompressionLevelJpeg;
+  else
+    Result := -1;
+  end;
+end;
+
+function TBitmapMapCombinerGeoTiffBase.GetOverviews: TIntegerDynArray;
+begin
+  if FCustomParams <> nil then begin
+    Result := FCustomParams.GetOverviewArray;
+  end else begin
+    Result := nil;
+  end;
+end;
+
 function TBitmapMapCombinerGeoTiffBase.GetProjInfo(
   const ALonLatRect: TDoubleRect;
   const AImageSizePix: TPoint;
@@ -276,13 +323,18 @@ procedure TBitmapMapCombinerGeoTiffBase.SaveRect(
   const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
-  const AMapRect: TRect
+  const AMapRect: TRect;
+  const ACombinerCustomParams: IInterface
 );
 var
   VContext: TInternalPerformanceCounterContext;
 begin
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
+
+  if not Supports(ACombinerCustomParams, IGeoTiffCombinerCustomParams, FCustomParams) then begin
+    FCustomParams := nil;
+  end;
 
   VContext := FSaveRectCounter.StartOperation;
   try
@@ -304,7 +356,7 @@ constructor TBitmapMapCombinerGeoTiffStripped.Create(
   const AGeoTiffOptions: TGeoTiffOptions
 );
 begin
-  inherited Create(AProgressUpdate, ASaveRectCounter, AWithAlpha, AGeoTiffOptions);
+  inherited Create(AProgressUpdate, ASaveRectCounter, nil, nil, AWithAlpha, AGeoTiffOptions);
 
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
@@ -382,6 +434,7 @@ begin
     ImageWidth := FWidth;
     ImageHeight := FHeight;
     Compression := Self.GetTiffCompression;
+    CompressionLevel := Self.GetTiffCompressionLevel;
     StoreAlphaChanel := FWithAlpha;
     ProjectionInfo := VProjInfo;
     GetLineCallBack := Self.OnGetLineCallBack;
@@ -421,13 +474,76 @@ end;
 constructor TBitmapMapCombinerGeoTiffTiled.Create(
   const AProgressUpdate: IBitmapCombineProgressUpdate;
   const ASaveRectCounter, AGetTileCounter: IInternalPerformanceCounter;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AWithAlpha: Boolean;
   const AGeoTiffOptions: TGeoTiffOptions
 );
 begin
-  inherited Create(AProgressUpdate, ASaveRectCounter, AWithAlpha, AGeoTiffOptions);
+  inherited Create(AProgressUpdate, ASaveRectCounter, ABitmapFactory,
+    ABitmapTileSaveLoadFactory, AWithAlpha, AGeoTiffOptions);
 
   FGetTileCounter := AGetTileCounter;
+end;
+
+function TBitmapMapCombinerGeoTiffTiled.PrepareTileProvider(
+  const AOverview: Integer;
+  const AImageProvider: IBitmapTileProvider
+): Boolean;
+
+  procedure DoPrepare(const AProvider: IBitmapTileProvider);
+  var
+    VTileSizePix: TPoint;
+    VTileRectSize: TPoint;
+    VProjection: IProjection;
+  begin
+    FTileProvider :=
+      TImageProviderBuilder.BuildTileProvider(
+        FGetTileCounter,
+        AProvider,
+        FBitmapFactory,
+        FWithAlpha
+      );
+
+    VTileSizePix := FTileProvider.TileSize;
+    Assert(VTileSizePix.X = VTileSizePix.Y);
+
+    VProjection := AProvider.Projection;
+    FFullTileRect := RectFromDoubleRect(VProjection.LonLatRect2TileRectFloat(FLonLatRect), rrOutside);
+    VTileRectSize := RectSize(FFullTileRect);
+
+    FMapRect := RectFromDoubleRect(VProjection.LonLatRect2PixelRectFloat(FLonLatRect), rrOutside);
+
+    FWidth := VTileRectSize.X * VTileSizePix.X;
+    FHeight := VTileRectSize.Y * VTileSizePix.Y;
+
+    FTileSizeInBytes := VTileSizePix.X * VTileSizePix.Y * FTileProvider.BytesPerPixel;
+
+    FTotalTiles := VTileRectSize.X * VTileRectSize.Y;
+    FProcessedTiles := 0;
+  end;
+
+var
+  VIndex: Integer;
+  VImageProvider: IBitmapTileProvider;
+begin
+  if FOverview <> AOverview then
+  try
+    FOverview := AOverview;
+    if AImageProvider <> nil then begin
+      DoPrepare(AImageProvider);
+    end else begin
+      VIndex := FCustomParams.GetOverviewIndex(FOverview);
+      Assert(VIndex >= 0);
+      VImageProvider := FCustomParams.BitmapTileProvider[VIndex];
+      Assert(VImageProvider <> nil);
+      DoPrepare(VImageProvider);
+    end;
+  except
+    FTileProvider := nil;
+  end;
+
+  Result := FTileProvider <> nil;
 end;
 
 procedure TBitmapMapCombinerGeoTiffTiled.DoSaveRect(
@@ -436,32 +552,20 @@ procedure TBitmapMapCombinerGeoTiffTiled.DoSaveRect(
   const AMapRect: TRect
 );
 var
-  VTileSizePix: TPoint;
-  VTileRectSize: TPoint;
   VProjection: IProjection;
   VProjInfo: PProjectionInfo;
   VTiffWriterParams: TTiffWriterParams;
   VErrorMessage: string;
 begin
-  FTileProvider :=
-    TImageProviderBuilder.BuildTileProvider(
-      FGetTileCounter,
-      AImageProvider,
-      FWithAlpha
-    );
-
-  VTileSizePix := FTileProvider.TileSize;
-  Assert(VTileSizePix.X = VTileSizePix.Y);
+  FOverview := -1;
 
   VProjection := AImageProvider.Projection;
-  FFullTileRect := VProjection.PixelRect2TileRect(AMapRect);
-  VTileRectSize := RectSize(FFullTileRect);
+  FLonLatRect := VProjection.PixelRect2LonLatRect(AMapRect);
 
-  FWidth := VTileRectSize.X * VTileSizePix.X;
-  FHeight := VTileRectSize.Y * VTileSizePix.Y;
-
-  FTotalTiles := VTileRectSize.X * VTileRectSize.Y;
-  FProcessedTiles := 0;
+  if not PrepareTileProvider(0, AImageProvider) then begin
+    Assert(False);
+    Exit;
+  end;
 
   VProjInfo := Self.GetProjInfo(
     DoubleRect(
@@ -472,8 +576,6 @@ begin
     VProjection.ProjectionType
   );
 
-  FTileSizeInBytes := VTileSizePix.X * VTileSizePix.Y * FTileProvider.BytesPerPixel;
-
   VTiffWriterParams := CTiffWriterParamsEmpty;
   with VTiffWriterParams do begin
     TiffType := Self.GetTiffType;
@@ -481,8 +583,10 @@ begin
     ImageWidth := FWidth;
     ImageHeight := FHeight;
     Compression := Self.GetTiffCompression;
+    CompressionLevel := Self.GetTiffCompressionLevel;
     StoreAlphaChanel := FWithAlpha;
     ProjectionInfo := VProjInfo;
+    OverViews := Self.GetOverviews;
     GetTileCallBack := Self.OnGetTileCallBack;
   end;
 
@@ -506,11 +610,31 @@ function TBitmapMapCombinerGeoTiffTiled.OnGetTileCallBack(
 ): Boolean;
 var
   VTile: TPoint;
+  VRect: TRect;
 begin
-  VTile.X := FFullTileRect.Left + X;
-  VTile.Y := FFullTileRect.Top + Y;
+  if FOverview <> AOverView then begin
+    if not PrepareTileProvider(AOverView) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
 
-  AData := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile, 0);
+  if AOverView = 0 then begin
+    VTile.X := FFullTileRect.Left + X;
+    VTile.Y := FFullTileRect.Top + Y;
+
+    AData := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile);
+  end else begin
+    VTile := FTileProvider.TileSize;
+
+    VRect.Left := FMapRect.Left + X * VTile.X;
+    VRect.Right := VRect.Left + VTile.X;
+    VRect.Top := FMapRect.Top + Y * VTile.Y;
+    VRect.Bottom := VRect.Top + VTile.Y;
+
+    AData := FTileProvider.GetTile(FOperationID, FCancelNotifier, VRect);
+  end;
+
   ADataSize := FTileSizeInBytes;
 
   Inc(FProcessedTiles);
@@ -535,7 +659,7 @@ begin
     stsUnicode,
     'tif',
     gettext_NoExtract('GeoTIFF'),
-    [mcAlphaUncheck, mcGeoTiffStripped, mcThreadCount]
+    [mcAlphaUncheck, mcGeoTiff, mcThreadCount]
   );
   VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF');
   FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
@@ -563,7 +687,9 @@ end;
 { TBitmapMapCombinerFactoryGeoTiffTiled }
 
 constructor TBitmapMapCombinerFactoryGeoTiffTiled.Create(
-  const ACounterList: IInternalPerformanceCounterList
+  const ACounterList: IInternalPerformanceCounterList;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
 );
 var
   VCounterList: IInternalPerformanceCounterList;
@@ -579,6 +705,8 @@ begin
   VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF (Tiled)');
   FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
   FGetTileCounter := VCounterList.CreateAndAddNewCounter('GetTile');
+  FBitmapFactory := ABitmapFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
 end;
 
 function TBitmapMapCombinerFactoryGeoTiffTiled.PrepareMapCombiner(
@@ -591,6 +719,8 @@ begin
       AProgressInfo,
       FSaveRectCounter,
       FGetTileCounter,
+      FBitmapFactory,
+      FBitmapTileSaveLoadFactory,
       AParams.CustomOptions.IsSaveAlfa,
       AParams.CustomOptions.GeoTiffOptions
     );

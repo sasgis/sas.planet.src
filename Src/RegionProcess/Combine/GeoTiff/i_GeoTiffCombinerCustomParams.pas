@@ -19,27 +19,36 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit t_GeoTIFF;
+unit i_GeoTiffCombinerCustomParams;
 
 interface
 
+uses
+  Types,
+  i_Projection,
+  i_TileStorage,
+  i_BitmapTileProvider;
+
 type
-  TGeoTiffFileFormat = (
-    gtfAuto,
-    gtfClassic,
-    gtfBig
-  );
+  IGeoTiffCombinerCustomParams = interface
+    ['{ED4575BB-AC6D-498E-8BE1-38098D55DE57}']
+    function GetOverviewCount: Integer;
+    property OverviewCount: Integer read GetOverviewCount;
 
-  TGeoTiffCompression = (
-    gtcNone,
-    gtcZip,
-    gtcLzw,
-    gtcJpeg
-  );
+    function GetProjection(const AOverviewIndex: Integer): IProjection;
+    property Projection[const AOverviewIndex: Integer]: IProjection read GetProjection;
 
-  TGeoTiffOptions = record
-    FileFormatType: TGeoTiffFileFormat;
-    CompressionType: TGeoTiffCompression;
+    function GetBitmapTileProvider(const AOverviewIndex: Integer): IBitmapTileProvider;
+    procedure SetBitmapTileProvider(const AOverviewIndex: Integer; const AValue: IBitmapTileProvider);
+    property BitmapTileProvider[const AOverviewIndex: Integer]: IBitmapTileProvider read GetBitmapTileProvider write SetBitmapTileProvider;
+
+    function GetZoomArray: TByteDynArray;
+    function GetOverviewArray: TIntegerDynArray;
+
+    function GetOverviewIndex(const AOverview: Integer): Integer;
+
+    function GetTileStorage: ITileStorage;
+    property TileStorage: ITileStorage read GetTileStorage;
   end;
 
 implementation

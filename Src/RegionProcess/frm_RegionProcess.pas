@@ -778,7 +778,11 @@ begin
   );
 
   _AddProvider(
-    TBitmapMapCombinerFactoryGeoTiffTiled.Create(ACounterList)
+    TBitmapMapCombinerFactoryGeoTiffTiled.Create(
+      ACounterList,
+      ABitmapFactory,
+      ABitmapTileSaveLoadFactory
+    )
   );
 
   Result := VList.MakeStaticAndClear;

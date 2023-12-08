@@ -36,20 +36,16 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
-  i_LanguageManager,
-  i_RegionProcessParamsFrame,
+  Math,
   t_GeoTIFF,
   t_MapCombineOptions,
-  u_CommonFormAndFrameParents;
+  i_LanguageManager,
+  i_RegionProcessParamsFrame,
+  frm_GeoTiffOptions,
+  u_CommonFormAndFrameParents, TBXDkPanels;
 
 type
   TfrMapCombineCustomOptions = class(TFrame, IMapCombineCustomOptions)
-    flwpnlCompression: TFlowPanel;
-    lblCompression: TLabel;
-    cbbCompression: TComboBox;
-    flwpnlFormat: TFlowPanel;
-    lblFormat: TLabel;
-    cbbFormat: TComboBox;
     flwpnlJpegQuality: TFlowPanel;
     lblJpgQulity: TLabel;
     seJpgQuality: TSpinEdit;
@@ -58,8 +54,15 @@ type
     flwpnlThreadCount: TFlowPanel;
     lblThreadCount: TLabel;
     seThreadCount: TSpinEdit;
+    flwpnlFormatOptions: TFlowPanel;
+    btnFormatOptions: TTBXButton;
   private
+    FOptionsSet: TMapCombineOptionsSet;
     FRoundToTileRect: Boolean;
+    FGeoTiffOptions: TGeoTiffOptions;
+    FfrmGeoTiffOptions: TfrmGeoTiffOptions;
+    procedure UpdateFormatOptionsButton(const ACaption: string = '');
+    procedure OnGetGeoTiffOptionsClick(Sender: TObject);
   private
     { IMapCombineCustomOptions }
     function GetQuality: Integer;
@@ -68,6 +71,8 @@ type
     function GetIsSaveAlfa: Boolean;
     function GetGeoTiffOptions: TGeoTiffOptions;
     function GetRoundToTileRect: Boolean;
+  protected
+    procedure RefreshTranslation; override;
   public
     procedure Show(AParent: TWinControl);
     constructor Create(
@@ -77,9 +82,6 @@ type
   end;
 
 implementation
-
-uses
-  gnugettext;
 
 {$R *.dfm}
 
@@ -100,17 +102,29 @@ begin
   AControl.Visible := AVisible;
 end;
 
+function GetTextWidth(const AText: string; const AFont: TFont): Integer;
+var
+  VBitmap: TBitmap;
+begin
+  VBitmap := TBitmap.Create;
+  try
+    VBitmap.Canvas.Font := AFont;
+    Result := VBitmap.Canvas.TextWidth(AText);
+  finally
+    VBitmap.Free;
+  end;
+end;
+
 constructor TfrMapCombineCustomOptions.Create(
   const ALanguageManager: ILanguageManager;
   const AOptionsSet: TMapCombineOptionsSet
 );
 begin
-  TP_Ignore(Self, 'cbbFormat.Items');
-  TP_Ignore(Self, 'cbbCompression.Items');
-
   inherited Create(ALanguageManager);
 
   SetControlVisible(Self, False);
+
+  FOptionsSet := AOptionsSet;
 
   if (mcAlphaCheck in AOptionsSet) or (mcAlphaUncheck in AOptionsSet) then begin
     chkPngWithAlpha.Checked := (mcAlphaCheck in AOptionsSet);
@@ -134,15 +148,31 @@ begin
     Self.Visible := True;
   end;
 
-  if (mcGeoTiffStripped in AOptionsSet) or (mcGeoTiffTiled in AOptionsSet) then begin
-    SetControlVisible(flwpnlFormat, True);
-    SetControlVisible(flwpnlCompression, True);
-    cbbFormat.ItemIndex := 0; // Auto
-    cbbCompression.ItemIndex := 2; // LZW
+  if (mcGeoTiff in AOptionsSet) or (mcGeoTiffTiled in AOptionsSet) then begin
+    SetControlVisible(flwpnlFormatOptions, True);
+    FGeoTiffOptions := CDefaultGeoTiffOptions;
+    if mcGeoTiff in AOptionsSet then begin
+      FGeoTiffOptions.StorageType := gtstStripped;
+    end else begin
+      FGeoTiffOptions.StorageType := gtstTiled;
+    end;
+    FfrmGeoTiffOptions := TfrmGeoTiffOptions.Create(Self);
+    btnFormatOptions.OnClick := Self.OnGetGeoTiffOptionsClick;
+    UpdateFormatOptionsButton(FfrmGeoTiffOptions.Caption);
     Self.Visible := True;
   end;
 
   FRoundToTileRect := (mcGeoTiffTiled in AOptionsSet);
+end;
+
+procedure TfrMapCombineCustomOptions.UpdateFormatOptionsButton(const ACaption: string);
+begin
+  if ACaption <> '' then begin
+    btnFormatOptions.Caption := ACaption;
+  end;
+  if btnFormatOptions.Visible then begin
+    btnFormatOptions.Width := GetTextWidth(btnFormatOptions.Caption, btnFormatOptions.Font) + 40;
+  end;
 end;
 
 procedure TfrMapCombineCustomOptions.Show(AParent: TWinControl);
@@ -152,19 +182,12 @@ end;
 
 function TfrMapCombineCustomOptions.GetGeoTiffOptions: TGeoTiffOptions;
 begin
-  with Result do begin
-    FileFormatType := TGeoTiffFileFormat(cbbFormat.ItemIndex);
-    CompressionType := TGeoTiffCompression(cbbCompression.ItemIndex);
-  end;
+  Result := FGeoTiffOptions;
 end;
 
 function TfrMapCombineCustomOptions.GetIsSaveAlfa: Boolean;
 begin
-  if chkPngWithAlpha.Visible then begin
-    Result := chkPngWithAlpha.Checked;
-  end else begin
-    Result := False;
-  end;
+  Result := chkPngWithAlpha.Visible and chkPngWithAlpha.Checked;
 end;
 
 function TfrMapCombineCustomOptions.GetIsSaveGeoRefInfoToExif: Boolean;
@@ -182,9 +205,21 @@ begin
   Result := seThreadCount.Value;
 end;
 
+procedure TfrMapCombineCustomOptions.OnGetGeoTiffOptionsClick(Sender: TObject);
+begin
+  FfrmGeoTiffOptions.ShowOptionsModal(FGeoTiffOptions);
+end;
+
 function TfrMapCombineCustomOptions.GetRoundToTileRect: Boolean;
 begin
   Result := FRoundToTileRect;
+end;
+
+procedure TfrMapCombineCustomOptions.RefreshTranslation;
+begin
+  inherited RefreshTranslation;
+
+  UpdateFormatOptionsButton;
 end;
 
 end.

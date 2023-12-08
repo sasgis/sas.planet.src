@@ -4,78 +4,11 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
   Width = 385
   Height = 169
   TabOrder = 0
-  object flwpnlCompression: TFlowPanel
-    Left = 0
-    Top = 84
-    Width = 385
-    Height = 25
-    Align = alTop
-    AutoWrap = False
-    BevelOuter = bvNone
-    TabOrder = 4
-    object lblCompression: TLabel
-      AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 65
-      Height = 13
-      Caption = 'Compression:'
-    end
-    object cbbCompression: TComboBox
-      Left = 71
-      Top = 0
-      Width = 140
-      Height = 21
-      ItemHeight = 13
-      Style = csDropDownList
-      ItemIndex = 2
-      TabOrder = 0
-      Text = 'LZW'
-      Items.Strings = (
-        'None'
-        'ZIP (Deflate)'
-        'LZW'
-        'JPEG')
-    end
-  end
-  object flwpnlFormat: TFlowPanel
-    Left = 0
-    Top = 59
-    Width = 385
-    Height = 25
-    Align = alTop
-    AutoWrap = False
-    BevelOuter = bvNone
-    TabOrder = 3
-    object lblFormat: TLabel
-      AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 38
-      Height = 13
-      Caption = 'Format:'
-    end
-    object cbbFormat: TComboBox
-      Left = 44
-      Top = 0
-      Width = 140
-      Height = 21
-      ItemHeight = 13
-      Style = csDropDownList
-      ItemIndex = 0
-      TabOrder = 0
-      Text = 'Auto'
-      Items.Strings = (
-        'Auto'
-        'TIFF'
-        'BigTIFF')
-    end
-  end
   object flwpnlJpegQuality: TFlowPanel
     Left = 0
     Top = 34
     Width = 385
-    Height = 25
+    Height = 26
     Align = alTop
     AutoSize = True
     AutoWrap = False
@@ -85,21 +18,21 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     TabOrder = 2
     object lblJpgQulity: TLabel
       AlignWithMargins = True
-      Left = 0
+      Left = 1
       Top = 5
-      Width = 52
-      Height = 13
-      Margins.Left = 0
+      Width = 54
+      Height = 15
+      Margins.Left = 1
       Margins.Right = 5
       Alignment = taRightJustify
       Caption = 'Quality, %'
       Layout = tlCenter
     end
     object seJpgQuality: TSpinEdit
-      Left = 57
+      Left = 60
       Top = 2
       Width = 53
-      Height = 22
+      Height = 24
       MaxValue = 100
       MinValue = 1
       TabOrder = 0
@@ -128,33 +61,60 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
   end
   object flwpnlThreadCount: TFlowPanel
     Left = 0
-    Top = 109
+    Top = 60
     Width = 385
-    Height = 25
+    Height = 26
     Align = alTop
     AutoSize = True
     AutoWrap = False
     BevelOuter = bvNone
     Constraints.MinHeight = 25
     Padding.Top = 2
-    TabOrder = 5
+    TabOrder = 3
     object lblThreadCount: TLabel
       AlignWithMargins = True
-      Left = 3
+      Left = 1
       Top = 5
-      Width = 68
-      Height = 13
+      Width = 73
+      Height = 15
+      Margins.Left = 1
+      Margins.Right = 5
       Caption = 'Thread count:'
     end
     object seThreadCount: TSpinEdit
-      Left = 74
+      Left = 79
       Top = 2
       Width = 53
-      Height = 22
+      Height = 24
       MaxValue = 32
       MinValue = 1
       TabOrder = 0
       Value = 1
+    end
+  end
+  object flwpnlFormatOptions: TFlowPanel
+    Left = 0
+    Top = 86
+    Width = 385
+    Height = 28
+    Align = alTop
+    AutoSize = True
+    AutoWrap = False
+    BevelOuter = bvNone
+    Constraints.MinHeight = 25
+    Padding.Top = 2
+    TabOrder = 4
+    object btnFormatOptions: TTBXButton
+      Left = 0
+      Top = 2
+      Width = 120
+      Height = 26
+      Align = alLeft
+      Alignment = taLeftJustify
+      Caption = 'Format Options'
+      ImageIndex = 20
+      Images = frmMain.MenusImageList
+      TabOrder = 0
     end
   end
 end
