@@ -150,6 +150,8 @@ type
     FThreadNumber: Integer;
     FLineProvider: IImageLineProvider;
     FLineSizeInBytes: NativeInt;
+    FLonLatRect: TDoubleRect;
+    FOverview: Integer;
     FPrepareDataCounter: IInternalPerformanceCounter;
     FGetLineCounter: IInternalPerformanceCounter;
   private
@@ -158,6 +160,10 @@ type
       const AOverView: Integer;
       out AData: Pointer;
       out ADataSize: NativeInt
+    ): Boolean;
+    function PrepareLineProvider(
+      const AOverview: Integer;
+      const AImageProvider: IBitmapTileProvider = nil
     ): Boolean;
   protected
     procedure DoSaveRect(
@@ -363,6 +369,84 @@ begin
   FThreadNumber := AThreadNumber;
 end;
 
+function TBitmapMapCombinerGeoTiffStripped.PrepareLineProvider(
+  const AOverview: Integer;
+  const AImageProvider: IBitmapTileProvider
+): Boolean;
+
+  procedure DoPrepare(const AProvider: IBitmapTileProvider);
+  var
+    VMapRect: TRect;
+    VMapRectSize: TPoint;
+    VOverviewSize: TPoint;
+    VFullTileRect: TRect;
+    VTileRectSize: TPoint;
+    VProjection: IProjection;
+    VThreadNumber: Integer;
+  begin
+    VProjection := AProvider.Projection;
+
+    VFullTileRect := RectFromDoubleRect(VProjection.LonLatRect2TileRectFloat(FLonLatRect), rrOutside);
+    VTileRectSize := RectSize(VFullTileRect);
+
+    VThreadNumber := FThreadNumber;
+    if (VThreadNumber > 1) and (VTileRectSize.X <= VThreadNumber) then begin
+      VThreadNumber := 1;
+    end;
+
+    VMapRect := RectFromDoubleRect(VProjection.LonLatRect2PixelRectFloat(FLonLatRect), rrOutside);
+
+    if AOverview > 0 then begin
+      VMapRectSize := RectSize(VMapRect);
+      VOverviewSize := Point(
+        Ceil(FWidth / AOverview),
+        Ceil(FHeight / AOverview)
+      );
+      if (VMapRectSize.X < VOverviewSize.X) or (VMapRectSize.Y < VOverviewSize.Y) then begin
+        Assert(False, Format('Unexpected Overview size: %dx%d pix (expecting: %dx%d pix)',
+          [VMapRectSize.X, VMapRectSize.Y, VOverviewSize.X, VOverviewSize.Y])
+        );
+        VMapRect.Right := VMapRect.Left + VOverviewSize.X;
+        VMapRect.Bottom := VMapRect.Top + VOverviewSize.Y;
+      end;
+    end;
+
+    FLineProvider :=
+      TImageProviderBuilder.BuildLineProvider(
+        FPrepareDataCounter,
+        FGetLineCounter,
+        AProvider,
+        FWithAlpha,
+        VMapRect,
+        VThreadNumber
+      );
+
+    FLineSizeInBytes := FLineProvider.ImageSize.X * FLineProvider.BytesPerPixel;
+  end;
+
+var
+  VIndex: Integer;
+  VImageProvider: IBitmapTileProvider;
+begin
+  if FOverview <> AOverview then
+  try
+    FOverview := AOverview;
+    if AImageProvider <> nil then begin
+      DoPrepare(AImageProvider);
+    end else begin
+      VIndex := FCustomParams.GetOverviewIndex(FOverview);
+      Assert(VIndex >= 0);
+      VImageProvider := FCustomParams.BitmapTileProvider[VIndex];
+      Assert(VImageProvider <> nil);
+      DoPrepare(VImageProvider);
+    end;
+  except
+    FLineProvider := nil;
+  end;
+
+  Result := FLineProvider <> nil;
+end;
+
 procedure TBitmapMapCombinerGeoTiffStripped.DoSaveRect(
   const AFileName: string;
   const AImageProvider: IBitmapTileProvider;
@@ -372,21 +456,17 @@ const
   TIFF_JPG_MAX_WIDTH = 65536;
   TIFF_JPG_MAX_HEIGHT = 65536;
 var
-  VCurrentPieceRect: TRect;
-  VMapPieceSize: TPoint;
-  VFullTileRect: TRect;
-  VTileRectSize: TPoint;
+  VMapRectSize: TPoint;
   VProjection: IProjection;
   VProjInfo: PProjectionInfo;
   VTiffWriterParams: TTiffWriterParams;
-  VThreadNumber: Integer;
   VErrorMessage: string;
 begin
-  VCurrentPieceRect := AMapRect;
-  VMapPieceSize := RectSize(VCurrentPieceRect);
+  FOverview := -1;
+  VMapRectSize := RectSize(AMapRect);
 
-  FWidth := VMapPieceSize.X;
-  FHeight := VMapPieceSize.Y;
+  FWidth := VMapRectSize.X;
+  FHeight := VMapRectSize.Y;
 
   if (FGeoTiffOptions.CompressionType = gtcJpeg) and
      ((FWidth >= TIFF_JPG_MAX_WIDTH) or (FHeight >= TIFF_JPG_MAX_HEIGHT)) then
@@ -398,34 +478,21 @@ begin
   end;
 
   VProjection := AImageProvider.Projection;
-  VFullTileRect := VProjection.PixelRect2TileRect(VCurrentPieceRect);
-  VTileRectSize := RectSize(VFullTileRect);
+  FLonLatRect := VProjection.PixelRect2LonLatRect(AMapRect);
 
   VProjInfo := Self.GetProjInfo(
     DoubleRect(
-      VProjection.PixelPos2LonLat(VCurrentPieceRect.TopLeft),
-      VProjection.PixelPos2LonLat(VCurrentPieceRect.BottomRight)
+      VProjection.PixelPos2LonLat(AMapRect.TopLeft),
+      VProjection.PixelPos2LonLat(AMapRect.BottomRight)
     ),
-    VMapPieceSize,
+    VMapRectSize,
     VProjection.ProjectionType
   );
 
-  VThreadNumber := FThreadNumber;
-  if (VThreadNumber > 1) and (VTileRectSize.X <= VThreadNumber) then begin
-    VThreadNumber := 1;
+  if not PrepareLineProvider(0, AImageProvider) then begin
+    Assert(False);
+    Exit;
   end;
-
-  FLineProvider :=
-    TImageProviderBuilder.BuildLineProvider(
-      FPrepareDataCounter,
-      FGetLineCounter,
-      AImageProvider,
-      FWithAlpha,
-      VCurrentPieceRect,
-      VThreadNumber
-    );
-
-  FLineSizeInBytes := FLineProvider.ImageSize.X * FLineProvider.BytesPerPixel;
 
   VTiffWriterParams := CTiffWriterParamsEmpty;
   with VTiffWriterParams do begin
@@ -437,6 +504,7 @@ begin
     CompressionLevel := Self.GetTiffCompressionLevel;
     StoreAlphaChanel := FWithAlpha;
     ProjectionInfo := VProjInfo;
+    OverViews := Self.GetOverviews;
     GetLineCallBack := Self.OnGetLineCallBack;
   end;
 
@@ -459,11 +527,22 @@ function TBitmapMapCombinerGeoTiffStripped.OnGetLineCallBack(
   out ADataSize: NativeInt
 ): Boolean;
 begin
+  if FOverview <> AOverView then begin
+    if not PrepareLineProvider(AOverView) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
   AData := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
   ADataSize := FLineSizeInBytes;
 
   if ARowNumber mod 256 = 0 then begin
-    FProgressUpdate.Update(ARowNumber / FHeight);
+    if AOverView = 0 then begin
+      FProgressUpdate.Update(ARowNumber / FHeight);
+    end else begin
+      FProgressUpdate.Update(ARowNumber / Ceil(FHeight / AOverView));
+    end;
   end;
 
   Result := AData <> nil;

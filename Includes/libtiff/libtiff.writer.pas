@@ -262,24 +262,22 @@ begin
     end;
 
     // write sub-images
-    if FStorageType = tstTiled then begin
-      for I := 0 to Length(FParams.OverViews) - 1 do begin
+    for I := 0 to Length(FParams.OverViews) - 1 do begin
 
-        VOverView := FParams.OverViews[I]; // 2, 4, 8, 16, 32, 64 etc
+      VOverView := FParams.OverViews[I]; // 2, 4, 8, 16, 32, 64 etc
 
-        FWidth := FParams.ImageWidth div VOverView;
-        FHeight := FParams.ImageHeight div VOverView;
+      FWidth := Ceil(FParams.ImageWidth / VOverView);
+      FHeight := Ceil(FParams.ImageHeight / VOverView);
 
-        if (FWidth < FParams.TileWidth) or (FHeight < FParams.TileHeight) then begin
-          Break;
-        end;
+      if (FWidth < FParams.TileWidth) or (FHeight < FParams.TileHeight) then begin
+        Break;
+      end;
 
-        WriteTIFFDirectory(VTiff, True);
+      WriteTIFFDirectory(VTiff, True);
 
-        Result := WriteImage(VTiff, VOverView);
-        if not Result then begin
-          Exit;
-        end;
+      Result := WriteImage(VTiff, VOverView);
+      if not Result then begin
+        Exit;
       end;
     end;
   finally

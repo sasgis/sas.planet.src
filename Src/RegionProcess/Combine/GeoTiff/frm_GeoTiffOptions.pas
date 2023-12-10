@@ -139,8 +139,6 @@ begin
   pnlColorspace.Visible := False; // todo: FIsTiled;
   cbbColorspace.ItemIndex := Integer(FOptions.Colorspace);
 
-  pnlOverview.Visible := FIsTiled;
-
   chkCopyRawJpeg.Visible := False; // todo: FIsTiled;
   chkCopyRawJpeg.Checked := FOptions.CopyRawJpegTiles;
 
@@ -187,12 +185,8 @@ procedure TfrmGeoTiffOptions.btnApplyClick(Sender: TObject);
 var
   VOverview: TIntegerDynArray;
 begin
-  VOverview := nil;
-
-  if FIsTiled then begin
-    if not GetOverview(VOverview) then begin
-      Exit; // exit without closing window
-    end;
+  if not GetOverview(VOverview) then begin
+    Exit; // exit without closing window
   end;
 
   with FOptions^ do begin
@@ -204,8 +198,9 @@ begin
       gtcJpeg: FOptions.CompressionLevelJpeg := seCompressionLevel.Value;
     end;
 
+    Overview := VOverview;
+
     if FIsTiled then begin
-      Overview := VOverview;
       Colorspace := TGeoTiffColorspace(cbbColorspace.ItemIndex);
       CopyRawJpegTiles := chkCopyRawJpeg.Checked;
     end;
