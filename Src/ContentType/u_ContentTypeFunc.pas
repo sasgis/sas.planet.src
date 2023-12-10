@@ -19,46 +19,45 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_GeoTiffCombinerCustomParams;
+unit u_ContentTypeFunc;
 
 interface
 
 uses
-  Types,
-  t_Bitmap32,
-  i_Projection,
-  i_TileStorage,
-  i_MapVersionRequest,
-  i_BitmapTileProvider;
+  i_ContentTypeInfo;
 
-type
-  IGeoTiffCombinerCustomParams = interface
-    ['{ED4575BB-AC6D-498E-8BE1-38098D55DE57}']
-    function GetOverviewCount: Integer;
-    property OverviewCount: Integer read GetOverviewCount;
+function IsJpegContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean; overload; inline;
+function IsJpegContentType(const AContentType: AnsiString): Boolean; overload;
 
-    function GetProjection(const AOverviewIndex: Integer): IProjection;
-    property Projection[const AOverviewIndex: Integer]: IProjection read GetProjection;
-
-    function GetBitmapTileProvider(const AOverviewIndex: Integer): IBitmapTileProvider;
-    procedure SetBitmapTileProvider(const AOverviewIndex: Integer; const AValue: IBitmapTileProvider);
-    property BitmapTileProvider[const AOverviewIndex: Integer]: IBitmapTileProvider read GetBitmapTileProvider write SetBitmapTileProvider;
-
-    function GetZoomArray: TByteDynArray;
-    function GetOverviewArray: TIntegerDynArray;
-
-    function GetOverviewIndex(const AOverview: Integer): Integer;
-
-    function GetTileStorage: ITileStorage;
-    property TileStorage: ITileStorage read GetTileStorage;
-
-    function GetMapVersionRequest: IMapVersionRequest;
-    property MapVersionRequest: IMapVersionRequest read GetMapVersionRequest;
-
-    function GetBackgroundColor: TColor32;
-    property BackgroundColor: TColor32 read GetBackgroundColor;
-  end;
+function IsPngContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean; overload; inline;
+function IsPngContentType(const AContentType: AnsiString): Boolean; overload;
 
 implementation
+
+uses
+  u_AnsiStr;
+
+function IsJpegContentType(const AContentType: AnsiString): Boolean;
+begin
+  Result :=
+    SameTextA(AContentType, 'image/jpg') or
+    SameTextA(AContentType, 'image/jpeg') or
+    SameTextA(AContentType, 'image/pjpeg');
+end;
+
+function IsJpegContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean;
+begin
+  Result := IsJpegContentType(AContentTypeInfo.GetContentType);
+end;
+
+function IsPngContentType(const AContentType: AnsiString): Boolean;
+begin
+  Result := SameTextA(AContentType, 'image/png');
+end;
+
+function IsPngContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean;
+begin
+  Result := IsPngContentType(AContentTypeInfo.GetContentType);
+end;
 
 end.

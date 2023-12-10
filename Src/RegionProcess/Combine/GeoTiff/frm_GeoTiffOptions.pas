@@ -88,7 +88,7 @@ const
     CompressionLevelZip: 6;
     CompressionLevelJpeg: 95;
     Colorspace: gtcsRGB;
-    CopyRawJpegTiles: False;
+    CopyRawJpegTiles: True;
     Overview: nil
   );
 
@@ -139,7 +139,7 @@ begin
   pnlColorspace.Visible := False; // todo: FIsTiled;
   cbbColorspace.ItemIndex := Integer(FOptions.Colorspace);
 
-  chkCopyRawJpeg.Visible := False; // todo: FIsTiled;
+  chkCopyRawJpeg.Visible := FIsTiled;
   chkCopyRawJpeg.Checked := FOptions.CopyRawJpegTiles;
 
   ShowModal;

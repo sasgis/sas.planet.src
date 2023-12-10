@@ -26,26 +26,32 @@ interface
 uses
   Types,
   t_Bitmap32,
+  i_BinaryData,
   i_Bitmap32Static,
   i_BitmapTileProvider,
   i_Bitmap32BufferFactory,
+  i_BitmapTileSaveLoad,
+  i_BitmapTileSaveLoadFactory,
   i_ImageTileProvider,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_Projection,
+  i_TileStorage,
+  i_TileInfoBasic,
+  i_MapVersionRequest,
   u_BaseInterfacedObject;
 
 type
   TImageTileProviderAbstract = class(TBaseInterfacedObject, IImageTileProvider)
   private
-    FTileSize: TPoint;
-
     FBuffer: Pointer;
     FBufferSize: Integer;
 
     FGetTileCounter: IInternalPerformanceCounter;
     FImageProvider: IBitmapTileProvider;
     FBitmapFactory: IBitmap32StaticFactory;
+
+    FTileSizeInPix: TPoint;
     FBytesPerPixel: Integer;
 
     function LoadAndPrepareTile(
@@ -67,13 +73,15 @@ type
     function GetTile(
       const AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const APoint: TPoint
+      const APoint: TPoint;
+      out ASize: NativeInt
     ): Pointer; overload;
 
     function GetTile(
       const AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const APixelRect: TRect
+      const APixelRect: TRect;
+      out ASize: NativeInt
     ): Pointer; overload;
   public
     constructor Create(
@@ -115,15 +123,72 @@ type
     );
   end;
 
+  TImageTileProviderRawJpeg = class(TBaseInterfacedObject, IImageTileProvider)
+  private
+    FZoom: Byte;
+    FTileSizeInPix: TPoint;
+    FGetTileCounter: IInternalPerformanceCounter;
+    FImageProvider: IBitmapTileProvider;
+    FTileStorage: ITileStorage;
+    FMapVersionRequest: IMapVersionRequest;
+    FEmptyTile: IBinaryData;
+    FTileData: IBinaryData;
+    FJpegSaver: IBitmapTileSaver;
+  private
+    { IImageTileProvider }
+    function GetTileSize: TPoint;
+    function GetBytesPerPixel: Integer;
+
+    function GetTile(
+      const AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const APoint: TPoint;
+      out ASize: NativeInt
+    ): Pointer; overload;
+
+    function GetTile(
+      const AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
+      const APixelRect: TRect;
+      out ASize: NativeInt
+    ): Pointer; overload;
+  public
+    constructor Create(
+      const AGetTileCounter: IInternalPerformanceCounter;
+      const AImageProvider: IBitmapTileProvider;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const ATileStorage: ITileStorage;
+      const AMapVersionRequest: IMapVersionRequest;
+      const ABgColor: TColor32;
+      const AJpegQuality: Byte;
+      const AZoom: Byte
+    );
+  end;
+
 implementation
 
 uses
   SysUtils,
   GR32,
   c_CoordConverter,
+  i_ContentTypeInfo,
   u_BitmapFunc,
+  u_ContentTypeFunc,
   u_TileIteratorByRect,
   u_Bitmap32ByStaticBitmap;
+
+function GetProviderTileSize(const AImageProvider: IBitmapTileProvider): TPoint;
+var
+  VTileSplitCode: Integer;
+begin
+  VTileSplitCode := AImageProvider.Projection.GetTileSplitCode;
+  if VTileSplitCode = CTileSplitQuadrate256x256 then begin
+    Result := Types.Point(256, 256);
+  end else begin
+    raise Exception.CreateFmt('Unexpected TileSplitCode: %d', [VTileSplitCode]);
+  end;
+end;
 
 { TImageTileProviderAbstract }
 
@@ -133,8 +198,6 @@ constructor TImageTileProviderAbstract.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABytesPerPixel: Integer
 );
-var
-  VTileSplitCode: Integer;
 begin
   inherited Create;
 
@@ -143,16 +206,9 @@ begin
   FBitmapFactory := ABitmapFactory;
   FBytesPerPixel := ABytesPerPixel;
 
-  VTileSplitCode := FImageProvider.Projection.GetTileSplitCode;
-  case VTileSplitCode of
-    CTileSplitQuadrate256x256: begin
-      FTileSize := Types.Point(256, 256);
-    end;
-  else
-    raise Exception.CreateFmt('Unexpected TileSplitCode: %d', [VTileSplitCode]);
-  end;
+  FTileSizeInPix := GetProviderTileSize(FImageProvider);
 
-  FBufferSize := FTileSize.X * FTileSize.Y * FBytesPerPixel;
+  FBufferSize := FTileSizeInPix.X * FTileSizeInPix.Y * FBytesPerPixel;
   GetMem(FBuffer, FBufferSize);
 end;
 
@@ -164,7 +220,7 @@ end;
 
 function TImageTileProviderAbstract.GetTileSize: TPoint;
 begin
-  Result := FTileSize;
+  Result := FTileSizeInPix;
 end;
 
 function TImageTileProviderAbstract.GetBytesPerPixel: Integer;
@@ -192,11 +248,13 @@ end;
 function TImageTileProviderAbstract.GetTile(
   const AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const APoint: TPoint
+  const APoint: TPoint;
+  out ASize: NativeInt
 ): Pointer;
 var
   VContext: TInternalPerformanceCounterContext;
 begin
+  ASize := FBufferSize;
   VContext := FGetTileCounter.StartOperation;
   try
     Result := LoadAndPrepareTile(AOperationID, ACancelNotifier, APoint);
@@ -208,7 +266,8 @@ end;
 function TImageTileProviderAbstract.GetTile(
   const AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const APixelRect: TRect
+  const APixelRect: TRect;
+  out ASize: NativeInt
 ): Pointer;
 var
   VProjection: IProjection;
@@ -225,13 +284,14 @@ var
   VContext: TInternalPerformanceCounterContext;
 begin
   Result := nil;
+  ASize := FBufferSize;
 
   VContext := FGetTileCounter.StartOperation;
   try
     VTargetImageSize.X := APixelRect.Right - APixelRect.Left;
     VTargetImageSize.Y := APixelRect.Bottom - APixelRect.Top;
 
-    if (VTargetImageSize.X <> FTileSize.X) or (VTargetImageSize.Y <> FTileSize.Y) then begin
+    if (VTargetImageSize.X <> FTileSizeInPix.X) or (VTargetImageSize.Y <> FTileSizeInPix.Y) then begin
       Assert(False);
       Exit;
     end;
@@ -388,6 +448,106 @@ begin
     Inc(VSource);
     Inc(VTarget);
   end;
+end;
+
+{ TImageTileProviderRawJpeg }
+
+constructor TImageTileProviderRawJpeg.Create(
+  const AGetTileCounter: IInternalPerformanceCounter;
+  const AImageProvider: IBitmapTileProvider;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const ATileStorage: ITileStorage;
+  const AMapVersionRequest: IMapVersionRequest;
+  const ABgColor: TColor32;
+  const AJpegQuality: Byte;
+  const AZoom: Byte
+);
+begin
+  FGetTileCounter := AGetTileCounter;
+  FImageProvider := AImageProvider;
+  FTileStorage := ATileStorage;
+  FMapVersionRequest := AMapVersionRequest;
+  FZoom := AZoom;
+
+  FJpegSaver := ABitmapTileSaveLoadFactory.CreateJpegSaver(AJpegQuality);
+  FTileSizeInPix := GetProviderTileSize(FImageProvider);
+
+  with TBitmap32ByStaticBitmap.Create(ABitmapFactory) do
+  try
+    SetSize(FTileSizeInPix.X, FTileSizeInPix.Y);
+    Clear(ABgColor);
+    FEmptyTile := FJpegSaver.Save(MakeAndClear);
+  finally
+    Free;
+  end;
+end;
+
+function TImageTileProviderRawJpeg.GetBytesPerPixel: Integer;
+begin
+  Result := 3;
+end;
+
+function TImageTileProviderRawJpeg.GetTileSize: TPoint;
+begin
+  Result := FTileSizeInPix;
+end;
+
+function TImageTileProviderRawJpeg.GetTile(
+  const AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const APoint: TPoint;
+  out ASize: NativeInt
+): Pointer;
+var
+  VTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
+  VBitmap: IBitmap32Static;
+  VContext: TInternalPerformanceCounterContext;
+begin
+  VContext := FGetTileCounter.StartOperation;
+  try
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Result := nil;
+      Exit;
+    end;
+
+    VTileInfo := FTileStorage.GetTileInfoEx(APoint, FZoom, FMapVersionRequest, gtimWithData);
+
+    if (VTileInfo = nil) or
+       not VTileInfo.IsExists or
+       not Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then
+    begin
+      Result := FEmptyTile.Buffer;
+      ASize := FEmptyTile.Size;
+      Exit;
+    end;
+
+    if IsJpegContentType(VTileInfoWithData.ContentType) then begin
+      FTileData := VTileInfoWithData.TileData;
+    end else begin
+      VBitmap := FImageProvider.GetTile(AOperationID, ACancelNotifier, APoint);
+      FTileData := FJpegSaver.Save(VBitmap);
+    end;
+
+    Assert(FTileData <> nil);
+
+    Result := FTileData.Buffer;
+    ASize := FTileData.Size;
+  finally
+    FGetTileCounter.FinishOperation(VContext);
+  end;
+end;
+
+function TImageTileProviderRawJpeg.GetTile(
+  const AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const APixelRect: TRect;
+  out ASize: NativeInt
+): Pointer;
+begin
+  Assert(False);
+  Result := nil;
 end;
 
 end.

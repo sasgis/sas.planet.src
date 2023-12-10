@@ -1133,6 +1133,7 @@
         <DCCReference Include="Src\ContentType\u_ContentConverterKmz2Kml.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentConverterMatrix.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentConvertersListByKey.pas"/>
+        <DCCReference Include="Src\ContentType\u_ContentTypeFunc.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentTypeInfo.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentTypeListByKey.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentTypeManagerBase.pas"/>

@@ -187,7 +187,6 @@ type
   private
     FGetTileCounter: IInternalPerformanceCounter;
     FTileProvider: IImageTileProvider;
-    FTileSizeInBytes: NativeInt;
     FFullTileRect: TRect;
     FMapRect: TRect;
     FLonLatRect: TDoubleRect;
@@ -576,13 +575,31 @@ function TBitmapMapCombinerGeoTiffTiled.PrepareTileProvider(
     VTileRectSize: TPoint;
     VProjection: IProjection;
   begin
-    FTileProvider :=
-      TImageProviderBuilder.BuildTileProvider(
-        FGetTileCounter,
-        AProvider,
-        FBitmapFactory,
-        FWithAlpha
-      );
+    if (FOverview = 0) and
+       FGeoTiffOptions.CopyRawJpegTiles and
+       (FCustomParams.TileStorage <> nil) then
+    begin
+      FTileProvider :=
+        TImageProviderBuilder.BuildTileProviderRawJpeg(
+          FGetTileCounter,
+          AProvider,
+          FBitmapFactory,
+          FBitmapTileSaveLoadFactory,
+          FCustomParams.TileStorage,
+          FCustomParams.MapVersionRequest,
+          FCustomParams.BackgroundColor,
+          FGeoTiffOptions.CompressionLevelJpeg,
+          AProvider.Projection.Zoom
+        );
+    end else begin
+      FTileProvider :=
+        TImageProviderBuilder.BuildTileProvider(
+          FGetTileCounter,
+          AProvider,
+          FBitmapFactory,
+          FWithAlpha
+        );
+    end;
 
     VTileSizePix := FTileProvider.TileSize;
     Assert(VTileSizePix.X = VTileSizePix.Y);
@@ -596,8 +613,6 @@ function TBitmapMapCombinerGeoTiffTiled.PrepareTileProvider(
     FWidth := VTileRectSize.X * VTileSizePix.X;
     FHeight := VTileRectSize.Y * VTileSizePix.Y;
 
-    FTileSizeInBytes := VTileSizePix.X * VTileSizePix.Y * FTileProvider.BytesPerPixel;
-
     FTotalTiles := VTileRectSize.X * VTileRectSize.Y;
     FProcessedTiles := 0;
   end;
@@ -606,8 +621,7 @@ var
   VIndex: Integer;
   VImageProvider: IBitmapTileProvider;
 begin
-  if FOverview <> AOverview then
-  try
+  if FOverview <> AOverview then begin
     FOverview := AOverview;
     if AImageProvider <> nil then begin
       DoPrepare(AImageProvider);
@@ -618,10 +632,7 @@ begin
       Assert(VImageProvider <> nil);
       DoPrepare(VImageProvider);
     end;
-  except
-    FTileProvider := nil;
   end;
-
   Result := FTileProvider <> nil;
 end;
 
@@ -666,6 +677,7 @@ begin
     StoreAlphaChanel := FWithAlpha;
     ProjectionInfo := VProjInfo;
     OverViews := Self.GetOverviews;
+    WriteRawData := FGeoTiffOptions.CopyRawJpegTiles and (FCustomParams.TileStorage <> nil);
     GetTileCallBack := Self.OnGetTileCallBack;
   end;
 
@@ -702,7 +714,7 @@ begin
     VTile.X := FFullTileRect.Left + X;
     VTile.Y := FFullTileRect.Top + Y;
 
-    AData := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile);
+    AData := FTileProvider.GetTile(FOperationID, FCancelNotifier, VTile, ADataSize);
   end else begin
     VTile := FTileProvider.TileSize;
 
@@ -711,10 +723,8 @@ begin
     VRect.Top := FMapRect.Top + Y * VTile.Y;
     VRect.Bottom := VRect.Top + VTile.Y;
 
-    AData := FTileProvider.GetTile(FOperationID, FCancelNotifier, VRect);
+    AData := FTileProvider.GetTile(FOperationID, FCancelNotifier, VRect, ADataSize);
   end;
-
-  ADataSize := FTileSizeInBytes;
 
   Inc(FProcessedTiles);
   if FProcessedTiles mod 100 = 0 then begin

@@ -163,8 +163,8 @@ uses
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_MapTypeListStatic,
-  u_AnsiStr,
   u_FileSystemFunc,
+  u_ContentTypeFunc,
   u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
@@ -179,9 +179,10 @@ var
   VContentType: AnsiString;
 begin
   VContentType := AContentTypeInfo.GetContentType;
-  if SameTextA(VContentType, 'image/jpg') then begin
+  if IsJpegContentType(VContentType) then begin
     Result := ctJPG;
-  end else if SameTextA(VContentType, 'image/png') then begin
+  end else
+  if IsPngContentType(VContentType) then begin
     Result := ctPNG;
   end else begin
     Result := ctUnk;

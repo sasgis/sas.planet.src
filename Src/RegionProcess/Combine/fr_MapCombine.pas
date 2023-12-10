@@ -393,7 +393,8 @@ begin
         GetUseMarks or GetUseGrids or GetUseFillingMap or GetUseRecolor,
         Self.GetProjection,
         FfrProjectionSelect.GetSelectedProjection,
-        GetSelectedMap
+        GetSelectedMap,
+        GetBGColor
       );
   end;
 end;

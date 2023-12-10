@@ -151,19 +151,10 @@ uses
   i_MapTypeListStatic,
   u_AnsiStr,
   u_FileSystemFunc,
+  u_ContentTypeFunc,
   u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
-
-function IsJpegContentType(
-  const AContentTypeInfo: IContentTypeInfoBasic
-): Boolean;
-var
-  VContentType: AnsiString;
-begin
-  VContentType := AContentTypeInfo.GetContentType;
-  Result := SameTextA(VContentType, 'image/jpg');
-end;
 
 { TfrExportRMP }
 

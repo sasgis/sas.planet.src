@@ -73,6 +73,7 @@ type
     ProjectionInfo: PProjectionInfo;
     SoftwareId: AnsiString;
     WriteRawData: Boolean;
+    WriteRawOverview: Boolean;
   end;
   PTiffWriterParams = ^TTiffWriterParams;
 
@@ -81,6 +82,7 @@ type
     FParams: PTiffWriterParams;
     FWidth: Integer;
     FHeight: Integer;
+    FWriteRawData: Boolean;
     FStorageType: TTiffStorageType;
     FErrorMessage: string;
     procedure CheckpointTiffDirectory(
@@ -134,6 +136,7 @@ const
     ProjectionInfo   : nil;
     SoftwareId       : '';
     WriteRawData     : False;
+    WriteRawOverview : False;
   );
 
 implementation
@@ -153,7 +156,7 @@ end;
 
 procedure TTiffWriter.CheckpointTiffDirectory(const ATiff: PTIFF);
 begin
-  if not FParams.WriteRawData and (FParams.Compression = tcJpeg) then begin
+  if not FWriteRawData and (FParams.Compression = tcJpeg) then begin
     // Calling Checkpoint before writing a tile or strip causes TIFF corruption
     // (jpeg quantization table overwrites tile data)
     Exit;
@@ -220,6 +223,8 @@ begin
   FWidth := FParams.ImageWidth;
   FHeight := FParams.ImageHeight;
 
+  FWriteRawData := FParams.WriteRawData;
+
   if FParams.ProjectionInfo <> nil then begin
     XTIFFInitialize; // Registration of a GeoTIFF extension with libtiff
   end;
@@ -263,6 +268,7 @@ begin
 
     // write sub-images
     for I := 0 to Length(FParams.OverViews) - 1 do begin
+      FWriteRawData := FParams.WriteRawOverview;
 
       VOverView := FParams.OverViews[I]; // 2, 4, 8, 16, 32, 64 etc
 
@@ -332,7 +338,7 @@ begin
     TIFFSetField(ATiff, TIFFTAG_SAMPLESPERPIXEL, 3);
   end;
 
-  if FParams.WriteRawData and (FParams.Compression = tcJpeg) then begin
+  if FWriteRawData and (FParams.Compression = tcJpeg) then begin
     TIFFSetField(ATiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR);
   end else begin
     TIFFSetField(ATiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
@@ -467,7 +473,7 @@ begin
           FErrorMessage := 'GetTileCallBack() failed!';
           Exit;
         end;
-        if FParams.WriteRawData then begin
+        if FWriteRawData then begin
           if TIFFWriteRawTile(ATiff, VTileNum, VData, VSize) < 0 then begin
             FErrorMessage := 'TIFFWriteRawTile() failed!';
             Exit;

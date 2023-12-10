@@ -86,6 +86,7 @@ uses
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   u_AnsiStr,
+  u_ContentTypeFunc,
   u_ResStrings;
 
 constructor TExportTaskToJnx.Create(
@@ -209,7 +210,7 @@ begin
 
             if Supports(VTileStorage.GetTileInfoEx(VTile, VZoom, VVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
               VData := nil;
-              if VRecompress or not SameTextA(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
+              if VRecompress or not IsJpegContentType(VTileInfo.ContentType) then begin
                 if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
                   try
                     VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);

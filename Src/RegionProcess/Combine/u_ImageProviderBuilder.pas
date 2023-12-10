@@ -25,11 +25,15 @@ interface
 
 uses
   Windows,
+  t_Bitmap32,
   i_BitmapTileProvider,
   i_Bitmap32BufferFactory,
+  i_BitmapTileSaveLoadFactory,
   i_ImageLineProvider,
   i_ImageTileProvider,
-  i_InternalPerformanceCounter;
+  i_InternalPerformanceCounter,
+  i_TileStorage,
+  i_MapVersionRequest;
 
 type
   TImageProviderBuilder = record
@@ -48,6 +52,18 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       const AWithAlpha: Boolean;
       const AThreadCount: Integer = 1
+    ): IImageTileProvider; static;
+
+    class function BuildTileProviderRawJpeg(
+      const AGetTileCounter: IInternalPerformanceCounter;
+      const AImageProvider: IBitmapTileProvider;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const ATileStorage: ITileStorage;
+      const AMapVersionRequest: IMapVersionRequest;
+      const ABgColor: TColor32;
+      const AJpegQuality: Byte;
+      const AZoom: Byte
     ): IImageTileProvider; static;
   end;
 
@@ -134,6 +150,32 @@ begin
         ABitmapFactory
       );
   end;
+end;
+
+class function TImageProviderBuilder.BuildTileProviderRawJpeg(
+  const AGetTileCounter: IInternalPerformanceCounter;
+  const AImageProvider: IBitmapTileProvider;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const ATileStorage: ITileStorage;
+  const AMapVersionRequest: IMapVersionRequest;
+  const ABgColor: TColor32;
+  const AJpegQuality: Byte;
+  const AZoom: Byte
+): IImageTileProvider;
+begin
+  Result :=
+    TImageTileProviderRawJpeg.Create(
+      AGetTileCounter,
+      AImageProvider,
+      ABitmapFactory,
+      ABitmapTileSaveLoadFactory,
+      ATileStorage,
+      AMapVersionRequest,
+      ABgColor,
+      AJpegQuality,
+      AZoom
+    );
 end;
 
 end.

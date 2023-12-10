@@ -186,6 +186,7 @@ uses
   u_ContentConverterKmz2Kml in 'Src\ContentType\u_ContentConverterKmz2Kml.pas',
   u_ContentConverterMatrix in 'Src\ContentType\u_ContentConverterMatrix.pas',
   u_ContentConvertersListByKey in 'Src\ContentType\u_ContentConvertersListByKey.pas',
+  u_ContentTypeFunc in 'Src\ContentType\u_ContentTypeFunc.pas',
   u_ContentTypeInfo in 'Src\ContentType\u_ContentTypeInfo.pas',
   u_ContentTypeListByKey in 'Src\ContentType\u_ContentTypeListByKey.pas',
   u_ContentTypeManagerBase in 'Src\ContentType\u_ContentTypeManagerBase.pas',

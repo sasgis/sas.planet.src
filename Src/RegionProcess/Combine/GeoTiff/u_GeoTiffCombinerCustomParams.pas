@@ -27,6 +27,7 @@ uses
   Types,
   SysUtils,
   t_GeoTIFF,
+  t_Bitmap32,
   i_Projection,
   i_ProjectionSet,
   i_BitmapTileProvider,
@@ -42,6 +43,7 @@ type
     FBaseZoom: Byte;
     FTileStorage: ITileStorage;
     FMapVersionRequest: IMapVersionRequest;
+    FBackgroundColor: TColor32;
     FProjection: array of IProjection;
     FBitmapTileProvider: array of IBitmapTileProvider;
 
@@ -76,13 +78,16 @@ type
     function GetOverviewIndex(const AOverview: Integer): Integer;
 
     function GetTileStorage: ITileStorage;
+    function GetMapVersionRequest: IMapVersionRequest;
+    function GetBackgroundColor: TColor32;
   public
     constructor Create(
       const AGeoTiffOptions: TGeoTiffOptions;
       const AUseOverlays: Boolean;
       const AProjection: IProjection;
       const AProjectionSet: IProjectionSet;
-      const AMapType: IMapType
+      const AMapType: IMapType;
+      const ABackgroundColor: TColor32
     );
   end;
 
@@ -91,7 +96,9 @@ type
 implementation
 
 uses
-  u_GeoTiffFunc;
+  i_ContentTypeInfo,
+  u_GeoTiffFunc,
+  u_ContentTypeFunc;
 
 { TGeoTiffCombinerCustomParams }
 
@@ -100,12 +107,15 @@ constructor TGeoTiffCombinerCustomParams.Create(
   const AUseOverlays: Boolean;
   const AProjection: IProjection;
   const AProjectionSet: IProjectionSet;
-  const AMapType: IMapType
+  const AMapType: IMapType;
+  const ABackgroundColor: TColor32
 );
 var
   I: Integer;
 begin
   inherited Create;
+
+  FBackgroundColor := ABackgroundColor;
 
   FBaseZoom := AProjection.Zoom;
 
@@ -147,23 +157,25 @@ procedure TGeoTiffCombinerCustomParams.PrepareTileStorage(
   const AUseOverlays: Boolean;
   const AMapType: IMapType
 );
-
-  function IsSupportedContentType(const AContentType: AnsiString): Boolean;
-  begin
-    Result :=
-      SameText('image/jpg', AContentType) or
-      SameText('image/jpeg', AContentType);
-  end;
-
 begin
   if not AUseOverlays and
      AGeoTiffOptions.CopyRawJpegTiles and
      Assigned(AMapType) and
-     IsSupportedContentType(AMapType.ContentType.GetContentType) then
+     IsJpegContentType(AMapType.ContentType) then
   begin
     FTileStorage := AMapType.TileStorage;
     FMapVersionRequest := AMapType.VersionRequest.GetStatic;
   end;
+end;
+
+function TGeoTiffCombinerCustomParams.GetMapVersionRequest: IMapVersionRequest;
+begin
+  Result := FMapVersionRequest;
+end;
+
+function TGeoTiffCombinerCustomParams.GetBackgroundColor: TColor32;
+begin
+  Result := FBackgroundColor;
 end;
 
 function TGeoTiffCombinerCustomParams.GetOverviewArray: TIntegerDynArray;
