@@ -112,6 +112,7 @@ type
     function GetTiffType: TTiffType;
     function GetTiffCompression: TTiffCompression;
     function GetTiffCompressionLevel: Integer;
+    function GetTiffColorspace: TTiffColorspace;
     function GetProjInfo(
       const ALonLatRect: TDoubleRect;
       const AImageSizePix: TPoint;
@@ -287,6 +288,17 @@ begin
     gtcJpeg : Result := FGeoTiffOptions.CompressionLevelJpeg;
   else
     Result := -1;
+  end;
+end;
+
+function TBitmapMapCombinerGeoTiffBase.GetTiffColorspace: TTiffColorspace;
+begin
+  if (FGeoTiffOptions.Colorspace = gtcsYCbCr) and
+     (FGeoTiffOptions.CompressionType = gtcJpeg) then
+  begin
+    Result := tcsYCbCr;
+  end else begin
+    Result := tcsRGB;
   end;
 end;
 
@@ -501,7 +513,8 @@ begin
     ImageHeight := FHeight;
     Compression := Self.GetTiffCompression;
     CompressionLevel := Self.GetTiffCompressionLevel;
-    StoreAlphaChanel := FWithAlpha;
+    StoreAlpha := FWithAlpha and (Compression <> tcJpeg);
+    ColorSpace := Self.GetTiffColorspace;
     ProjectionInfo := VProjInfo;
     OverViews := Self.GetOverviews;
     GetLineCallBack := Self.OnGetLineCallBack;
@@ -674,7 +687,8 @@ begin
     ImageHeight := FHeight;
     Compression := Self.GetTiffCompression;
     CompressionLevel := Self.GetTiffCompressionLevel;
-    StoreAlphaChanel := FWithAlpha;
+    StoreAlpha := FWithAlpha and (Compression <> tcJpeg);
+    ColorSpace := Self.GetTiffColorspace;
     ProjectionInfo := VProjInfo;
     OverViews := Self.GetOverviews;
     WriteRawData := FGeoTiffOptions.CopyRawJpegTiles and (FCustomParams.TileStorage <> nil);

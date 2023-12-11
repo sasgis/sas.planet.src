@@ -86,8 +86,8 @@ const
     StorageType: gtstTiled;
     CompressionType: gtcLzw;
     CompressionLevelZip: 6;
-    CompressionLevelJpeg: 95;
-    Colorspace: gtcsRGB;
+    CompressionLevelJpeg: 75;
+    Colorspace: gtcsYCbCr;
     CopyRawJpegTiles: True;
     Overview: nil
   );
@@ -134,13 +134,14 @@ begin
 
   cbbFormat.ItemIndex := Integer(FOptions.FileFormatType);
   cbbCompression.ItemIndex := Integer(FOptions.CompressionType);
-  cbbCompressionChange(Self); // setup CompressionLevel
 
-  pnlColorspace.Visible := False; // todo: FIsTiled;
+  pnlColorspace.Visible := True;
   cbbColorspace.ItemIndex := Integer(FOptions.Colorspace);
 
   chkCopyRawJpeg.Visible := FIsTiled;
   chkCopyRawJpeg.Checked := FOptions.CopyRawJpegTiles;
+
+  cbbCompressionChange(Self);
 
   ShowModal;
 end;
@@ -199,9 +200,9 @@ begin
     end;
 
     Overview := VOverview;
+    Colorspace := TGeoTiffColorspace(cbbColorspace.ItemIndex);
 
     if FIsTiled then begin
-      Colorspace := TGeoTiffColorspace(cbbColorspace.ItemIndex);
       CopyRawJpegTiles := chkCopyRawJpeg.Checked;
     end;
   end;
@@ -216,9 +217,11 @@ end;
 
 procedure TfrmGeoTiffOptions.cbbCompressionChange(Sender: TObject);
 var
+  VIsColorspaceEnabled: Boolean;
   VIsCopyRawJpegEnabled: Boolean;
   VIsCompressionLevelEnabled: Boolean;
 begin
+  VIsColorspaceEnabled := False;
   VIsCopyRawJpegEnabled := False;
   VIsCompressionLevelEnabled := False;
 
@@ -236,6 +239,9 @@ begin
       seCompressionLevel.Value := FOptions.CompressionLevelJpeg;
       VIsCompressionLevelEnabled := True;
 
+      cbbColorspace.ItemIndex := Integer(FOptions.Colorspace);
+
+      VIsColorspaceEnabled := pnlColorspace.Visible;
       VIsCopyRawJpegEnabled := chkCopyRawJpeg.Visible;
     end;
   end;
@@ -243,6 +249,11 @@ begin
   SetControlEnabled(pnlCompressionLevel, VIsCompressionLevelEnabled);
   if not seCompressionLevel.Enabled then begin
     seCompressionLevel.Value := 0;
+  end;
+
+  SetControlEnabled(pnlColorspace, VIsColorspaceEnabled);
+  if not cbbColorspace.Enabled then begin
+    cbbColorspace.ItemIndex := 0;
   end;
 
   chkCopyRawJpeg.Enabled := VIsCopyRawJpegEnabled;

@@ -6,8 +6,8 @@ uses
   Types,
   SysUtils,
   Math,
-  libgeotiff,
-  libtiff;
+  libtiff,
+  libgeotiff;
 
 type
   TTiffType = (
@@ -27,7 +27,7 @@ type
     tcJpeg
   );
 
-  TTiffColorScheme = (
+  TTiffColorSpace = (
     tcsRGB,
     tcsYCbCr
   );
@@ -66,10 +66,10 @@ type
     OverViews: TIntegerDynArray;
     Compression: TTiffCompression;
     CompressionLevel: Integer;
-    ColorScheme: TTiffColorScheme;
+    ColorSpace: TTiffColorSpace;
     GetLineCallBack: TGetLineCallBack;
     GetTileCallBack: TGetTileCallBack;
-    StoreAlphaChanel: Boolean;
+    StoreAlpha: Boolean;
     ProjectionInfo: PProjectionInfo;
     SoftwareId: AnsiString;
     WriteRawData: Boolean;
@@ -79,12 +79,15 @@ type
 
   TTiffWriter = class(TObject)
   private
-    FParams: PTiffWriterParams;
+    FParams: TTiffWriterParams;
     FWidth: Integer;
     FHeight: Integer;
     FWriteRawData: Boolean;
     FStorageType: TTiffStorageType;
     FErrorMessage: string;
+    procedure SetupParams(
+      const AParams: PTiffWriterParams
+    );
     procedure CheckpointTiffDirectory(
       const ATiff: PTIFF
     ); inline;
@@ -129,10 +132,10 @@ const
     OverViews        : nil;
     Compression      : tcNone;
     CompressionLevel : -1;
-    ColorScheme      : tcsRGB;
+    ColorSpace       : tcsRGB;
     GetLineCallBack  : nil;
     GetTileCallBack  : nil;
-    StoreAlphaChanel : False;
+    StoreAlpha       : False;
     ProjectionInfo   : nil;
     SoftwareId       : '';
     WriteRawData     : False;
@@ -152,6 +155,30 @@ begin
 
   InitLibTiff(ALibTiffDllName);
   InitLibGeoTiff(ALibGeoTiffDllName);
+end;
+
+procedure TTiffWriter.SetupParams(const AParams: PTiffWriterParams);
+begin
+  FParams := AParams^;
+
+  Assert(FParams.OutputFileName <> '');
+  Assert(FParams.ImageWidth > 0);
+  Assert(FParams.ImageHeight > 0);
+
+  if FParams.StoreAlpha and (FParams.Compression = tcJpeg) then begin
+    Assert(False);
+    FParams.StoreAlpha := False;
+  end;
+
+  if (FParams.ColorSpace = tcsYCbCr) and (FParams.Compression <> tcJpeg) then begin
+    Assert(False);
+    FParams.ColorSpace := tcsRGB;
+  end;
+
+  FWidth := FParams.ImageWidth;
+  FHeight := FParams.ImageHeight;
+
+  FWriteRawData := FParams.WriteRawData;
 end;
 
 procedure TTiffWriter.CheckpointTiffDirectory(const ATiff: PTIFF);
@@ -177,7 +204,7 @@ begin
   end;
 
   FStorageType := tstStripped;
-  FParams := AParams;
+  SetupParams(AParams);
 
   Result := Self.DoWrite;
   if not Result then begin
@@ -197,7 +224,7 @@ begin
   end;
 
   FStorageType := tstTiled;
-  FParams := AParams;
+  SetupParams(AParams);
 
   Result := Self.DoWrite;
   if not Result then begin
@@ -215,15 +242,6 @@ var
 begin
   Result := False;
   FErrorMessage := '';
-
-  Assert(FParams.OutputFileName <> '');
-  Assert(FParams.ImageWidth > 0);
-  Assert(FParams.ImageHeight > 0);
-
-  FWidth := FParams.ImageWidth;
-  FHeight := FParams.ImageHeight;
-
-  FWriteRawData := FParams.WriteRawData;
 
   if FParams.ProjectionInfo <> nil then begin
     XTIFFInitialize; // Registration of a GeoTIFF extension with libtiff
@@ -295,21 +313,66 @@ procedure TTiffWriter.WriteTIFFDirectory(
   const ATiff: PTIFF;
   const AIsSubImage: Boolean
 );
+
+  procedure _SetCompression;
+  var
+    VCompression: Word;
+  begin
+    case FParams.Compression of
+      tcZip: VCompression := COMPRESSION_DEFLATE;
+      tcLzw: VCompression := COMPRESSION_LZW;
+      tcJpeg: VCompression := COMPRESSION_JPEG;
+    else
+      VCompression := COMPRESSION_NONE;
+    end;
+
+    TIFFSetField(ATiff, TIFFTAG_COMPRESSION, VCompression);
+
+    if FParams.CompressionLevel >= 0 then begin
+      Assert( SizeOf(FParams.CompressionLevel) = 4 );
+      case VCompression of
+        COMPRESSION_JPEG: TIFFSetField(ATiff, TIFFTAG_JPEGQUALITY, FParams.CompressionLevel); // 0..100
+        COMPRESSION_DEFLATE: TIFFSetField(ATiff, TIFFTAG_ZIPQUALITY, FParams.CompressionLevel); // 0..9
+      end;
+    end;
+  end;
+
+  procedure _SetColorspace;
+  begin
+    if FParams.ColorSpace = tcsRGB then begin
+      if FWriteRawData and (FParams.Compression = tcJpeg) then begin
+        TIFFSetField(ATiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR);
+      end else begin
+        TIFFSetField(ATiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+      end;
+    end else begin // YCbCr
+      TIFFSetField(ATiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR);
+      TIFFSetField(ATiff, TIFFTAG_YCBCRSUBSAMPLING, 2, 2);
+      if FParams.Compression = tcJpeg then begin
+        TIFFSetField(ATiff, TIFFTAG_JPEGCOLORMODE, JPEGCOLORMODE_RGB);
+      end;
+    end;
+  end;
+
+  procedure _SetRowsPerStrip;
+  var
+    VRowsPerStrip: Word;
+  begin
+    VRowsPerStrip := 1;
+    if FParams.ColorSpace = tcsYCbCr then begin
+      VRowsPerStrip := 2;
+    end;
+    if FParams.Compression = tcJpeg then begin
+      VRowsPerStrip := VRowsPerStrip * 8; // value must be multiply 8
+    end;
+    TIFFSetField(ATiff, TIFFTAG_ROWSPERSTRIP, VRowsPerStrip);
+  end;
+
 var
   VExtras: array of Word;
-  VCompression: Word;
-  VRowsPerStrip: Word;
   VTiePoints: array [0..5] of Double;
   VPixScale: array [0..2] of Double;
 begin
-  case FParams.Compression of
-    tcZip: VCompression := COMPRESSION_DEFLATE;
-    tcLzw: VCompression := COMPRESSION_LZW;
-    tcJpeg: VCompression := COMPRESSION_JPEG;
-  else
-    VCompression := COMPRESSION_NONE;
-  end;
-
   if (FParams.SoftwareId <> '') and not AIsSubImage then begin
     TIFFSetField(ATiff, TIFFTAG_SOFTWARE, PAnsiChar(FParams.SoftwareId));
   end;
@@ -321,15 +384,10 @@ begin
     TIFFSetField(ATiff, TIFFTAG_TILEWIDTH, FParams.TileWidth);
     TIFFSetField(ATiff, TIFFTAG_TILELENGTH, FParams.TileHeight);
   end else begin
-    if VCompression = COMPRESSION_JPEG then begin
-      VRowsPerStrip := 8; // value must be multiply 8
-    end else begin
-      VRowsPerStrip := 1;
-    end;
-    TIFFSetField(ATiff, TIFFTAG_ROWSPERSTRIP, VRowsPerStrip);
+    _SetRowsPerStrip;
   end;
 
-  if FParams.StoreAlphaChanel and (VCompression <> COMPRESSION_JPEG) then begin
+  if FParams.StoreAlpha then begin
     SetLength(VExtras, 1);
     VExtras[0] := EXTRASAMPLE_ASSOCALPHA;
     TIFFSetField(ATiff, TIFFTAG_SAMPLESPERPIXEL, 4);
@@ -338,26 +396,14 @@ begin
     TIFFSetField(ATiff, TIFFTAG_SAMPLESPERPIXEL, 3);
   end;
 
-  if FWriteRawData and (FParams.Compression = tcJpeg) then begin
-    TIFFSetField(ATiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR);
-  end else begin
-    TIFFSetField(ATiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-  end;
-
   TIFFSetField(ATiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
   TIFFSetField(ATiff, TIFFTAG_BITSPERSAMPLE, 8);
   TIFFSetField(ATiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
   //TIFFSetField(ATiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
 
-  TIFFSetField(ATiff, TIFFTAG_COMPRESSION, VCompression);
-
-  if FParams.CompressionLevel >= 0 then begin
-    Assert( SizeOf(FParams.CompressionLevel) = 4 );
-    case VCompression of
-      COMPRESSION_JPEG: TIFFSetField(ATiff, TIFFTAG_JPEGQUALITY, FParams.CompressionLevel); // 0..100
-      COMPRESSION_DEFLATE: TIFFSetField(ATiff, TIFFTAG_ZIPQUALITY, FParams.CompressionLevel); // 0..9
-    end;
-  end;
+  // Always setup Compression before Colorspace
+  _SetCompression;
+  _SetColorspace;
 
   if (FParams.ProjectionInfo <> nil) and not AIsSubImage then begin
     // GeoTiff info in Tiff Directory
