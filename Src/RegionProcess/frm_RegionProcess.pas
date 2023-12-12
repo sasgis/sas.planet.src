@@ -852,7 +852,9 @@ begin
       AProgressFactory,
       ALanguageManager,
       AMapSelectFrameBuilder,
-      FTileIteratorFactory
+      FTileIteratorFactory,
+      ATileStorageTypeList,
+      ATileNameGenerator
     );
   VList.Add(VProvider);
 

@@ -32,10 +32,11 @@ type
   TTileFileNameGeneratorsSimpleList = class(TBaseInterfacedObject, ITileFileNameGeneratorsList)
   private
     FItems: array of ITileFileNameGenerator;
+  private
+    { ITileFileNameGeneratorsList }
+    function GetGenerator(const ACacheType: Byte): ITileFileNameGenerator;
   public
     constructor Create;
-    destructor Destroy; override;
-    function GetGenerator(ACacheType: Byte): ITileFileNameGenerator;
   end;
 
 implementation
@@ -69,19 +70,9 @@ begin
   FItems[8] := TTileFileNameTMS.Create;
 end;
 
-destructor TTileFileNameGeneratorsSimpleList.Destroy;
-var
-  i: integer;
-begin
-  for i := 0 to Length(FItems) - 1 do begin
-    FItems[i] := nil;
-  end;
-  FItems := nil;
-  inherited;
-end;
-
 function TTileFileNameGeneratorsSimpleList.GetGenerator(
-  ACacheType: Byte): ITileFileNameGenerator;
+  const ACacheType: Byte
+): ITileFileNameGenerator;
 begin
   Assert(ACacheType <> c_File_Cache_Id_DEFAULT);
   case ACacheType of
@@ -121,10 +112,9 @@ begin
     begin
       Result := FItems[8];
     end;
-  else begin
+  else
     Assert(False);
     Result := nil;
-  end;
   end;
 end;
 

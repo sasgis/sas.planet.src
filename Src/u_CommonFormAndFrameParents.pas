@@ -26,6 +26,7 @@ interface
 uses
   Messages,
   Classes,
+  Controls,
   Forms,
   i_Notifier,
   i_Listener,
@@ -72,14 +73,46 @@ type
   public
     constructor Create(const ALanguageManager: ILanguageManager); reintroduce;
   end;
-
   TFrame = class(TCommonFrameParent);
+
+procedure SetControlVisible(const AControl: TControl; const AVisible: Boolean);
+procedure SetControlEnabled(const AControl: TControl; const AEnabled: Boolean);
 
 implementation
 
 uses
   gnugettext,
   u_ListenerByEvent;
+
+procedure SetControlVisible(const AControl: TControl; const AVisible: Boolean);
+var
+  I: Integer;
+begin
+  if AControl = nil then begin
+    Exit;
+  end;
+  if AControl is TWinControl then begin
+    for I := 0 to TWinControl(AControl).ControlCount - 1 do begin
+      SetControlVisible(TWinControl(AControl).Controls[I], AVisible);
+    end;
+  end;
+  AControl.Visible := AVisible;
+end;
+
+procedure SetControlEnabled(const AControl: TControl; const AEnabled: Boolean);
+var
+  I: Integer;
+begin
+  if AControl = nil then begin
+    Exit;
+  end;
+  if AControl is TWinControl then begin
+    for I := 0 to TWinControl(AControl).ControlCount - 1 do begin
+      SetControlEnabled(TWinControl(AControl).Controls[I], AEnabled);
+    end;
+  end;
+  AControl.Enabled := AEnabled;
+end;
 
 { TBaseForm }
 

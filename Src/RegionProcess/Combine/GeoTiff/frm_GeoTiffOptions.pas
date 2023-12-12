@@ -101,21 +101,6 @@ uses
 
 {$R *.dfm}
 
-procedure SetControlEnabled(const AControl: TControl; const AEnabled: Boolean);
-var
-  I: Integer;
-begin
-  if AControl = nil then begin
-    Exit;
-  end;
-  if AControl is TWinControl then begin
-    for I := 0 to TWinControl(AControl).ControlCount - 1 do begin
-      SetControlEnabled(TWinControl(AControl).Controls[I], AEnabled);
-    end;
-  end;
-  AControl.Enabled := AEnabled;
-end;
-
 { TfrmGeoTiffOptions }
 
 constructor TfrmGeoTiffOptions.Create(AOwner: TComponent);

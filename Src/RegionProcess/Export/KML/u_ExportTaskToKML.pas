@@ -34,6 +34,7 @@ uses
   i_GeometryLonLat,
   i_MapVersionInfo,
   i_TileStorage,
+  i_TileFileNameGenerator,
   u_ExportTaskAbstract;
 
 type
@@ -41,21 +42,28 @@ type
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
-    FNotSaveNotExists: Boolean;
-    FPathExport: string;
-    FRelativePath: Boolean;
+    FSaveExistsOnly: Boolean;
+    FKmlFileName: string;
+    FTilesPath: string;
+    FTryUseRelativePath: Boolean;
+    FExtractTilesFromStorage: Boolean;
+    FTileFileNameGenerator: ITileFileNameGenerator;
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
+    FKmlStream: TFileStream;
+    FTileStream: TMemoryStream;
     procedure KmlFileWrite(
-      const AStream: TStream;
       const ATile: TPoint;
       const AZoom: Byte;
       const ALevel: Byte
     );
-    procedure WriteTextToStream(
-      const AText: string;
-      const AStream: TStream
+    procedure WriteTextToKmlStream(
+      const AText: string
     );
+    function CopyTileToFileSystem(
+      const ATile: TPoint;
+      const AZoom: Byte
+    ): string;
   protected
     procedure ProcessRegion; override;
   public
@@ -68,8 +76,11 @@ type
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
       const ANotSaveNotExists: Boolean;
-      const ARelativePath: Boolean
+      const ARelativePath: Boolean;
+      const AExtractTilesFromStorage: Boolean;
+      const ATileFileNameGenerator: ITileFileNameGenerator
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -77,6 +88,7 @@ implementation
 uses
   Math,
   StrUtils,
+  i_BinaryData,
   i_Projection,
   i_TileInfoBasic,
   i_TileIterator,
@@ -94,24 +106,38 @@ constructor TExportTaskToKML.Create(
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;
   const ANotSaveNotExists: Boolean;
-  const ARelativePath: Boolean
+  const ARelativePath: Boolean;
+  const AExtractTilesFromStorage: Boolean;
+  const ATileFileNameGenerator: ITileFileNameGenerator
 );
 begin
+  if AExtractTilesFromStorage then begin
+    Assert(ATileFileNameGenerator <> nil);
+  end;
   inherited Create(
     AProgressInfo,
     APolygon,
     AZoomArr,
     ATileIteratorFactory
   );
-  FPathExport := APath;
-  FNotSaveNotExists := ANotSaveNotExists;
-  FRelativePath := ARelativePath;
+  FKmlFileName := APath;
+  FTilesPath := ExtractFilePath(FKmlFileName) + 'files' + PathDelim;
+  FSaveExistsOnly := ANotSaveNotExists;
+  FTryUseRelativePath := ARelativePath;
+  FExtractTilesFromStorage := AExtractTilesFromStorage;
+  FTileFileNameGenerator := ATileFileNameGenerator;
   FTileStorage := ATileStorage;
   FVersion := AVersion;
 end;
 
+destructor TExportTaskToKML.Destroy;
+begin
+  FreeAndNil(FKmlStream);
+  FreeAndNil(FTileStream);
+  inherited Destroy;
+end;
+
 procedure TExportTaskToKML.KmlFileWrite(
-  const AStream: TStream;
   const ATile: TPoint;
   const AZoom, ALevel: Byte
 );
@@ -119,23 +145,26 @@ var
   VZoom: Byte;
   VIterator: TTileIteratorByRectRecord;
   VSavePath, VNorth, VSouth, VEast, VWest: string;
-  VText: string;
   VTileRect: TRect;
   VTile: TPoint;
   VLonLatRect: TDoubleRect;
   VTileInfo: ITileInfoBasic;
 begin
-  //TODO: Нужно думать на случай когда тайлы будут в базе данных
-  if FNotSaveNotExists then begin
+  if FSaveExistsOnly then begin
     VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
     if not Assigned(VTileInfo) or not VTileInfo.GetIsExists then begin
       Exit;
     end;
   end;
 
-  VSavePath := FTileStorage.GetTileFileName(ATile, AZoom, FVersion);
-  if FRelativePath then begin
-    VSavePath := ExtractRelativePath(ExtractFilePath(FPathExport), VSavePath);
+  if FExtractTilesFromStorage then begin
+    VSavePath := CopyTileToFileSystem(ATile, AZoom);
+  end else begin
+    VSavePath := FTileStorage.GetTileFileName(ATile, AZoom, FVersion);
+  end;
+
+  if FTryUseRelativePath then begin
+    VSavePath := ExtractRelativePath(ExtractFilePath(FKmlFileName), VSavePath);
   end;
 
   VLonLatRect := FTileStorage.ProjectionSet.Zooms[AZoom].TilePos2LonLatRect(ATile);
@@ -144,7 +173,7 @@ begin
   VEast := R2StrPoint(VLonLatRect.Right);
   VWest := R2StrPoint(VLonLatRect.Left);
 
-  VText :=
+  WriteTextToKmlStream(
     #13#10 +
     '<Folder>' + #13#10 +
     '  <Region>' + #13#10 +
@@ -170,9 +199,8 @@ begin
     '      <east>' + VEast + '</east>' + #13#10 +
     '      <west>' + VWest + '</west>' + #13#10 +
     '    </LatLonBox>' + #13#10 +
-    '  </GroundOverlay>';
-
-  WriteTextToStream(VText, AStream);
+    '  </GroundOverlay>'
+  );
 
   Inc(FTilesProcessed);
   if FTilesProcessed mod 100 = 0 then begin
@@ -183,28 +211,28 @@ begin
     VZoom := FZooms[ALevel];
     VTileRect :=
       RectFromDoubleRect(
-        FTileStorage.ProjectionSet.Zooms[VZoom].RelativeRect2TileRectFloat(FTileStorage.ProjectionSet.Zooms[AZoom].TilePos2RelativeRect(ATile)),
+        FTileStorage.ProjectionSet.Zooms[VZoom].RelativeRect2TileRectFloat(
+          FTileStorage.ProjectionSet.Zooms[AZoom].TilePos2RelativeRect(ATile)
+        ),
         rrClosest
       );
     VIterator.Init(VTileRect);
     while VIterator.Next(VTile) do begin
-      KmlFileWrite(AStream, VTile, VZoom, ALevel + 1);
+      KmlFileWrite(VTile, VZoom, ALevel + 1);
     end;
   end;
 
-  WriteTextToStream(#13#10 + '</Folder>', AStream);
+  WriteTextToKmlStream(#13#10 + '</Folder>');
 end;
 
 procedure TExportTaskToKML.ProcessRegion;
 var
   I: Integer;
   VZoom: Byte;
-  VText: string;
   VProjection: IProjection;
   VTempIterator: ITileIterator;
   VIterator: ITileIterator;
   VTile: TPoint;
-  VKmlStream: TFileStream;
 begin
   inherited;
 
@@ -231,43 +259,82 @@ begin
   ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
 
   try
-    VKmlStream := TFileStream.Create(FPathExport, fmCreate);
-    try
-      VText :=
-        '<?xml version="1.0" encoding="UTF-8"?>' + #13#10 +
-        '<kml xmlns="http://earth.google.com/kml/2.1">' + #13#10 +
-        '<Document>' + #13#10 +
-        '<name>' + ExtractFileName(FPathExport) + '</name>' + #13#10;
+    WriteTextToKmlStream(
+      '<?xml version="1.0" encoding="UTF-8"?>' + #13#10 +
+      '<kml xmlns="http://earth.google.com/kml/2.1">' + #13#10 +
+      '<Document>' + #13#10 +
+      '<name>' + ExtractFileName(FKmlFileName) + '</name>'
+    );
 
-      WriteTextToStream(VText, VKmlStream);
-
-      VZoom := FZooms[0];
-      while VIterator.Next(VTile) do begin
-        if not CancelNotifier.IsOperationCanceled(OperationID) then begin
-          KmlFileWrite(VKmlStream, VTile, VZoom, 1);
-        end;
+    VZoom := FZooms[0];
+    while VIterator.Next(VTile) do begin
+      if not CancelNotifier.IsOperationCanceled(OperationID) then begin
+        KmlFileWrite(VTile, VZoom, 1);
       end;
-
-      VText := #13#10 + '</Document>' + #13#10 + '</kml>' + #13#10;
-      WriteTextToStream(VText, VKmlStream);
-    finally
-      VKmlStream.Free;
     end;
+
+    WriteTextToKmlStream(#13#10 + '</Document>' + #13#10 + '</kml>' + #13#10);
   finally
     ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
   end;
 end;
 
-procedure TExportTaskToKML.WriteTextToStream(
-  const AText: string;
-  const AStream: TStream
-);
+procedure TExportTaskToKML.WriteTextToKmlStream(const AText: string);
 var
   VUtf8Text: UTF8String;
 begin
-  if AText <> '' then begin
-    VUtf8Text := UTF8Encode(AText);
-    AStream.WriteBuffer(VUtf8Text[1], Length(VUtf8Text));
+  if AText = '' then begin
+    Exit;
+  end;
+  if FKmlStream = nil then begin
+    FKmlStream := TFileStream.Create(FKmlFileName, fmCreate);
+  end;
+  VUtf8Text := UTF8Encode(AText);
+  FKmlStream.WriteBuffer(VUtf8Text[1], Length(VUtf8Text));
+end;
+
+function TExportTaskToKML.CopyTileToFileSystem(
+  const ATile: TPoint;
+  const AZoom: Byte
+): string;
+
+  function _GetTileFileName(AExt: string = ''): string;
+  begin
+    if AExt = '' then begin
+      AExt := ExtractFileExt(FTileStorage.GetTileFileName(ATile, AZoom, FVersion));
+    end;
+    Result :=
+      FTilesPath +
+      FTileFileNameGenerator.AddExt(FTileFileNameGenerator.GetTileFileName(ATile, AZoom), AExt);
+  end;
+
+var
+  VData: IBinaryData;
+  VTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
+begin
+  VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimWithData);
+  if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+    Result := _GetTileFileName(VTileInfo.ContentType.GetDefaultExt);
+
+    if not ForceDirectories(ExtractFileDir(Result)) then begin
+      RaiseLastOSError;
+    end;
+
+    VData := VTileInfoWithData.TileData;
+    Assert(VData <> nil);
+
+    if FTileStream = nil then begin
+      FTileStream := TMemoryStream.Create;
+    end else begin
+      FTileStream.Clear;
+    end;
+
+    FTileStream.WriteBuffer(VData.Buffer^, VData.Size);
+    FTileStream.SaveToFile(Result);
+  end else begin
+    // tile not exists - ok
+    Result := _GetTileFileName;
   end;
 end;
 

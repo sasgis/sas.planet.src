@@ -29,11 +29,8 @@ uses
 type
   ITileFileNameGenerator = interface
     ['{E702ED99-8DC5-4C42-BB51-739011CEC6EA}']
-    function GetTileFileName(
-      AXY: TPoint;
-      AZoom: byte
-    ): string;
-    function AddExt(const AFileName, AExt: String): String;
+    function GetTileFileName(AXY: TPoint; AZoom: Byte): string;
+    function AddExt(const AFileName, AExt: string): string;
   end;
 
 implementation

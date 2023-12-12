@@ -35,9 +35,13 @@ uses
   i_LanguageManager,
   i_GeometryLonLat,
   i_MapType,
+  i_TileStorageTypeList,
+  i_TileFileNameGenerator,
+  i_TileFileNameGeneratorsList,
   i_RegionProcessParamsFrame,
   fr_MapSelect,
   fr_ZoomsSelect,
+  fr_CacheTypeList,
   u_CommonFormAndFrameParents;
 
 type
@@ -48,6 +52,12 @@ type
 
     function GetRelativePath: Boolean;
     property RelativePath: Boolean read GetRelativePath;
+
+    function GetExtractTilesFromStorage: Boolean;
+    property ExtractTilesFromStorage: Boolean read GetExtractTilesFromStorage;
+
+    function GetTileFileNameGenerator: ITileFileNameGenerator;
+    property TileFileNameGenerator: ITileFileNameGenerator read GetTileFileNameGenerator;
   end;
 
 type
@@ -71,10 +81,16 @@ type
     lblMap: TLabel;
     dlgSaveKML: TSaveDialog;
     pnlMap: TPanel;
+    chkExtractTiles: TCheckBox;
+    pnlFileNameGenerator: TPanel;
+    lblFileNameGenerator: TLabel;
     procedure btnSelectTargetFileClick(Sender: TObject);
+    procedure chkExtractTilesClick(Sender: TObject);
   private
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
+    FfrCacheTypeList: TfrCacheTypeList;
+    FTileNameGeneratorList: ITileFileNameGeneratorsList;
   private
     procedure Init(
       const AZoom: byte;
@@ -87,11 +103,15 @@ type
     function GetPath: string;
     function GetNotSaveNotExists: Boolean;
     function GetRelativePath: Boolean;
-    function GetAllowExport(const AMapType: IMapType): boolean;
+    function GetExtractTilesFromStorage: Boolean;
+    function GetTileFileNameGenerator: ITileFileNameGenerator;
+    function GetAllowExport(const AMapType: IMapType): Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMapSelectFrameBuilder: IMapSelectFrameBuilder
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
+      const ATileNameGeneratorList: ITileFileNameGeneratorsList
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -107,7 +127,9 @@ uses
 
 constructor TfrExportKml.Create(
   const ALanguageManager: ILanguageManager;
-  const AMapSelectFrameBuilder: IMapSelectFrameBuilder
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
+  const ATileNameGeneratorList: ITileFileNameGeneratorsList
 );
 begin
   inherited Create(ALanguageManager);
@@ -118,25 +140,49 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+
+  FfrCacheTypeList :=
+    TfrCacheTypeList.Create(
+      ALanguageManager,
+      ATileStorageTypeList,
+      False,
+      [tstcInSeparateFiles],
+      [tsacAdd]
+    );
+
+  FTileNameGeneratorList := ATileNameGeneratorList;
 end;
 
 destructor TfrExportKml.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrZoomsSelect);
-  inherited;
+  FreeAndNil(FfrCacheTypeList);
+  inherited Destroy;
 end;
 
-function TfrExportKml.GetAllowExport(const AMapType: IMapType): boolean;
+function TfrExportKml.GetAllowExport(const AMapType: IMapType): Boolean;
 begin
   Result :=
     (AMapType.IsBitmapTiles) and
-    (AMapType.TileStorage.StorageTypeAbilities.StorageClass = tstcInSeparateFiles);
+    (chkExtractTiles.Checked or (AMapType.TileStorage.StorageTypeAbilities.StorageClass = tstcInSeparateFiles));
+end;
+
+procedure TfrExportKml.chkExtractTilesClick(Sender: TObject);
+begin
+  FfrMapSelect.SetEnabled(True); // force refresh maps list
+  SetControlEnabled(pnlFileNameGenerator, chkExtractTiles.Checked);
+end;
+
+function TfrExportKml.GetExtractTilesFromStorage: Boolean;
+begin
+  Result := chkExtractTiles.Checked;
 end;
 
 procedure TfrExportKml.btnSelectTargetFileClick(Sender: TObject);
@@ -166,6 +212,11 @@ begin
   Result := chkUseRelativePath.Checked;
 end;
 
+function TfrExportKml.GetTileFileNameGenerator: ITileFileNameGenerator;
+begin
+  Result := FTileNameGeneratorList.GetGenerator(FfrCacheTypeList.IntCode);
+end;
+
 function TfrExportKml.GetZoomArray: TByteDynArray;
 begin
   Result := FfrZoomsSelect.GetZoomList;
@@ -175,6 +226,8 @@ procedure TfrExportKml.Init;
 begin
   FfrMapSelect.Show(pnlMap);
   FfrZoomsSelect.Show(pnlZoom);
+  FfrCacheTypeList.Show(pnlFileNameGenerator);
+  SetControlEnabled(pnlFileNameGenerator, chkExtractTiles.Checked);
 end;
 
 function TfrExportKml.Validate: Boolean;

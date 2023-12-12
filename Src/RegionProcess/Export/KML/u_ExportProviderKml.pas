@@ -25,14 +25,23 @@ interface
 
 uses
   Forms,
+  i_LanguageManager,
+  i_TileIteratorFactory,
+  i_TileStorageTypeList,
+  i_TileFileNameGeneratorsList,
+  i_RegionProcessProgressInfoInternalFactory,
   i_GeometryLonLat,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
   u_ExportProviderAbstract,
+  fr_MapSelect,
   fr_ExportKml;
 
 type
   TExportProviderKml = class(TExportProviderBase)
+  private
+    FTileStorageTypeList: ITileStorageTypeListStatic;
+    FTileNameGenerator: ITileFileNameGeneratorsList;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -41,6 +50,15 @@ type
       const APolygon: IGeometryLonLatPolygon;
       const AProgressInfo: IRegionProcessProgressInfoInternal
     ): IRegionProcessTask; override;
+  public
+    constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+      const ALanguageManager: ILanguageManager;
+      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const ATileIteratorFactory: ITileIteratorFactory;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
+      const ATileNameGenerator: ITileFileNameGeneratorsList
+    );
   end;
 
 
@@ -57,12 +75,33 @@ uses
 
 { TExportProviderKml }
 
+constructor TExportProviderKml.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
+  const ALanguageManager: ILanguageManager;
+  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const ATileIteratorFactory: ITileIteratorFactory;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
+  const ATileNameGenerator: ITileFileNameGeneratorsList
+);
+begin
+  inherited Create(
+    AProgressFactory,
+    ALanguageManager,
+    AMapSelectFrameBuilder,
+    ATileIteratorFactory
+  );
+  FTileStorageTypeList := ATileStorageTypeList;
+  FTileNameGenerator := ATileNameGenerator;
+end;
+
 function TExportProviderKml.CreateFrame: TFrame;
 begin
   Result :=
     TfrExportKml.Create(
       Self.LanguageManager,
-      Self.MapSelectFrameBuilder
+      Self.MapSelectFrameBuilder,
+      FTileStorageTypeList,
+      FTileNameGenerator
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
@@ -103,7 +142,9 @@ begin
       VMapType.TileStorage,
       VMapType.VersionRequest.GetStatic.BaseVersion,
       NotSaveNotExists,
-      RelativePath
+      RelativePath,
+      (ParamsFrame as IRegionProcessParamsFrameKmlExport).ExtractTilesFromStorage,
+      (ParamsFrame as IRegionProcessParamsFrameKmlExport).TileFileNameGenerator
     );
 end;
 

@@ -37,13 +37,14 @@ uses
   ExtCtrls,
   Spin,
   Math,
+  TBXDkPanels,
   gnugettext,
   t_GeoTIFF,
   t_MapCombineOptions,
   i_LanguageManager,
   i_RegionProcessParamsFrame,
   frm_GeoTiffOptions,
-  u_CommonFormAndFrameParents, TBXDkPanels;
+  u_CommonFormAndFrameParents;
 
 type
   TfrMapCombineCustomOptions = class(TFrame, IMapCombineCustomOptions)
@@ -86,23 +87,6 @@ implementation
 
 {$R *.dfm}
 
-{ TfrMapCombineCustomOptions }
-
-procedure SetControlVisible(const AControl: TControl; const AVisible: Boolean);
-var
-  I: Integer;
-begin
-  if AControl = nil then begin
-    Exit;
-  end;
-  if AControl is TWinControl then begin
-    for I := 0 to TWinControl(AControl).ControlCount - 1 do begin
-      SetControlVisible(TWinControl(AControl).Controls[I], AVisible);
-    end;
-  end;
-  AControl.Visible := AVisible;
-end;
-
 function GetTextWidth(const AText: string; const AFont: TFont): Integer;
 var
   VBitmap: TBitmap;
@@ -115,6 +99,8 @@ begin
     VBitmap.Free;
   end;
 end;
+
+{ TfrMapCombineCustomOptions }
 
 constructor TfrMapCombineCustomOptions.Create(
   const ALanguageManager: ILanguageManager;

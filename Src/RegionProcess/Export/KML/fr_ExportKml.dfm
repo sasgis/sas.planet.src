@@ -2,7 +2,7 @@ object frExportKml: TfrExportKml
   Left = 0
   Top = 0
   Width = 400
-  Height = 120
+  Height = 276
   Align = alClient
   Constraints.MinHeight = 120
   Constraints.MinWidth = 400
@@ -13,7 +13,7 @@ object frExportKml: TfrExportKml
     Left = 0
     Top = 27
     Width = 400
-    Height = 93
+    Height = 249
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
@@ -21,7 +21,7 @@ object frExportKml: TfrExportKml
       Left = 325
       Top = 0
       Width = 75
-      Height = 93
+      Height = 249
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -31,7 +31,7 @@ object frExportKml: TfrExportKml
       Left = 0
       Top = 0
       Width = 325
-      Height = 93
+      Height = 249
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -56,6 +56,8 @@ object frExportKml: TfrExportKml
         Height = 17
         Align = alTop
         Caption = 'Don'#39't store references to non-existent tiles'
+        Checked = True
+        State = cbChecked
         TabOrder = 2
       end
       object chkUseRelativePath: TCheckBox
@@ -81,6 +83,36 @@ object frExportKml: TfrExportKml
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
+      end
+      object chkExtractTiles: TCheckBox
+        Left = 3
+        Top = 76
+        Width = 319
+        Height = 17
+        Align = alTop
+        Caption = 'Extract tiles from cache'
+        TabOrder = 3
+        OnClick = chkExtractTilesClick
+      end
+      object pnlFileNameGenerator: TPanel
+        Left = 3
+        Top = 93
+        Width = 319
+        Height = 44
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 4
+        object lblFileNameGenerator: TLabel
+          AlignWithMargins = True
+          Left = 0
+          Top = 3
+          Width = 316
+          Height = 15
+          Margins.Left = 0
+          Margins.Bottom = 3
+          Align = alTop
+          Caption = 'Tile name format:'
+        end
       end
     end
   end
@@ -132,7 +164,7 @@ object frExportKml: TfrExportKml
     DefaultExt = 'kml'
     Filter = 'KML |*.kml'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 184
-    Top = 136
+    Left = 352
+    Top = 128
   end
 end
