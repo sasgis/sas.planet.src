@@ -37,6 +37,7 @@ uses
   ExtCtrls,
   Spin,
   Math,
+  gnugettext,
   t_GeoTIFF,
   t_MapCombineOptions,
   i_LanguageManager,
@@ -139,6 +140,19 @@ begin
   end;
 
   if mcQuality in AOptionsSet then begin
+    lblJpgQulity.Caption := _('Quality, %');
+    seJpgQuality.MinValue := 0;
+    seJpgQuality.MaxValue := 100;
+    seJpgQuality.Value := 95;
+    SetControlVisible(flwpnlJpegQuality, True);
+    Self.Visible := True;
+  end;
+
+  if mcCompressionLevel in AOptionsSet then begin
+    lblJpgQulity.Caption := _('Compression Level:');
+    seJpgQuality.MinValue := 0;
+    seJpgQuality.MaxValue := 9;
+    seJpgQuality.Value := 6;
     SetControlVisible(flwpnlJpegQuality, True);
     Self.Visible := True;
   end;

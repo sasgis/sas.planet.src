@@ -30,6 +30,7 @@ type
     mcThreadCount,
     mcExif,
     mcQuality,
+    mcCompressionLevel,
     mcGeoTiff,
     mcGeoTiffTiled
   );

@@ -75,6 +75,7 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FWithAlpha: Boolean;
+    FCompressionLevel: Integer;
     FSaveRectCounter: IInternalPerformanceCounter;
     FPrepareDataCounter: IInternalPerformanceCounter;
     FGetLineCounter: IInternalPerformanceCounter;
@@ -102,7 +103,8 @@ type
       const ASaveRectCounter: IInternalPerformanceCounter;
       const APrepareDataCounter: IInternalPerformanceCounter;
       const AGetLineCounter: IInternalPerformanceCounter;
-      AWithAlpha: Boolean
+      const ACompressionLevel: Integer;
+      const AWithAlpha: Boolean
     );
   end;
 
@@ -113,7 +115,8 @@ constructor TBitmapMapCombinerPNG.Create(
   const ASaveRectCounter: IInternalPerformanceCounter;
   const APrepareDataCounter: IInternalPerformanceCounter;
   const AGetLineCounter: IInternalPerformanceCounter;
-  AWithAlpha: Boolean
+  const ACompressionLevel: Integer;
+  const AWithAlpha: Boolean
 );
 begin
   inherited Create;
@@ -121,6 +124,7 @@ begin
   FSaveRectCounter := ASaveRectCounter;
   FPrepareDataCounter := APrepareDataCounter;
   FGetLineCounter := AGetLineCounter;
+  FCompressionLevel := ACompressionLevel;
   FWithAlpha := AWithAlpha;
 end;
 
@@ -187,7 +191,9 @@ begin
           FWidth,
           FHeight,
           VBitsPerPix,
-          Self.GetLineCallBack
+          Self.GetLineCallBack,
+          nil,
+          FCompressionLevel
         );
       finally
         VPngWriter.Free;
@@ -230,7 +236,7 @@ begin
     stsUnicode,
     'png',
     gettext_NoExtract('PNG (Portable Network Graphics)'),
-    [mcAlphaCheck]
+    [mcAlphaCheck, mcCompressionLevel]
   );
   VCounterList := ACounterList.CreateAndAddNewSubList('PNG');
   FSaveRectCounter := VCounterList.CreateAndAddNewCounter('SaveRect');
@@ -249,6 +255,7 @@ begin
       FSaveRectCounter,
       FPrepareDataCounter,
       FGetLineCounter,
+      AParams.CustomOptions.Quality,
       AParams.CustomOptions.IsSaveAlfa
     );
 end;

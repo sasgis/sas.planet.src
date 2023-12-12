@@ -44,7 +44,7 @@ type
       const ABitsPerPixel: Integer;             // 8, 24, 32 bits
       const AGetLineCallBack: TGetLineCallBack;
       const AUserInfo: Pointer = nil;
-      const ACompression: Integer = 2;          // 0..9 (0 = no compression)
+      const ACompression: Integer = 6;          // 0..9 (0 = no compression)
       const APalette: Pointer = nil;
       const APaletteSize: Integer = 0;          // 1..256 (0 = no palette)
       const AGamma: Double = 0.45455            // 0..1
@@ -88,7 +88,7 @@ begin
 
   png_set_write_fn(png_ptr, @rw_io, @lib_png_write_data_callback, nil);
 
-  png_set_compression_level(@png_ptr, FCompression);
+  png_set_compression_level(png_ptr, FCompression);
 end;
 
 procedure TLibPngWriter.FinWriter;
