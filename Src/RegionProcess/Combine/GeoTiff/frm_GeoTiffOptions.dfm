@@ -4,8 +4,8 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = 'GeoTiff Settings'
-  ClientHeight = 334
-  ClientWidth = 380
+  ClientHeight = 309
+  ClientWidth = 367
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,8 +15,8 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
   Position = poOwnerFormCenter
   TextHeight = 15
   object btnApply: TButton
-    Left = 188
-    Top = 301
+    Left = 183
+    Top = 276
     Width = 85
     Height = 25
     Align = alCustom
@@ -27,8 +27,8 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
     OnClick = btnApplyClick
   end
   object btnCancel: TButton
-    Left = 279
-    Top = 301
+    Left = 274
+    Top = 276
     Width = 85
     Height = 25
     Align = alCustom
@@ -41,7 +41,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 374
+    Width = 361
     Height = 23
     Align = alTop
     AutoSize = True
@@ -56,7 +56,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
       Caption = 'File format:'
     end
     object cbbFormat: TComboBox
-      Left = 220
+      Left = 215
       Top = 0
       Width = 141
       Height = 23
@@ -76,7 +76,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
     AlignWithMargins = True
     Left = 3
     Top = 32
-    Width = 374
+    Width = 361
     Height = 23
     Align = alTop
     AutoSize = True
@@ -91,7 +91,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
       Caption = 'Compression:'
     end
     object cbbCompression: TComboBox
-      Left = 220
+      Left = 215
       Top = 0
       Width = 141
       Height = 23
@@ -113,7 +113,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
     AlignWithMargins = True
     Left = 3
     Top = 61
-    Width = 374
+    Width = 361
     Height = 24
     Align = alTop
     AutoSize = True
@@ -128,7 +128,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
       Caption = 'Level:'
     end
     object seCompressionLevel: TSpinEdit
-      Left = 220
+      Left = 215
       Top = 0
       Width = 141
       Height = 24
@@ -144,7 +144,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
     AlignWithMargins = True
     Left = 3
     Top = 120
-    Width = 374
+    Width = 361
     Height = 97
     Align = alTop
     BevelOuter = bvNone
@@ -152,7 +152,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
     object grpOverview: TGroupBox
       Left = 0
       Top = 0
-      Width = 374
+      Width = 361
       Height = 97
       Align = alClient
       Caption = 'Overview levels'
@@ -161,7 +161,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
         AlignWithMargins = True
         Left = 8
         Top = 51
-        Width = 361
+        Width = 348
         Height = 15
         Margins.Left = 6
         Margins.Top = 6
@@ -172,8 +172,8 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
         AlignWithMargins = True
         Left = 5
         Top = 23
-        Width = 364
-        Height = 15
+        Width = 351
+        Height = 17
         Margins.Top = 6
         Align = alTop
         BevelInner = bvNone
@@ -182,7 +182,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
         Color = clBtnFace
         Columns = 6
         IntegralHeight = True
-        ItemHeight = 15
+        ItemHeight = 17
         Items.Strings = (
           '2'
           '4'
@@ -196,7 +196,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
         AlignWithMargins = True
         Left = 5
         Top = 69
-        Width = 364
+        Width = 351
         Height = 23
         Align = alBottom
         TabOrder = 1
@@ -208,7 +208,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
     AlignWithMargins = True
     Left = 8
     Top = 226
-    Width = 369
+    Width = 356
     Height = 17
     Margins.Left = 8
     Margins.Top = 6
@@ -220,7 +220,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
     AlignWithMargins = True
     Left = 3
     Top = 91
-    Width = 374
+    Width = 361
     Height = 23
     Align = alTop
     AutoSize = True
@@ -235,7 +235,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
       Caption = 'Color space:'
     end
     object cbbColorspace: TComboBox
-      Left = 220
+      Left = 215
       Top = 0
       Width = 141
       Height = 23
