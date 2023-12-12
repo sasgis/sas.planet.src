@@ -183,7 +183,7 @@ begin
   FVersionForCheck := AVersionForCheck;
   FVersionForDownload := AVersionForDownload;
   FZoom := AZoom;
-  FZoomArr := GetZoomArrayCopy(AZoomArr);
+  FZoomArr := Copy(AZoomArr);
   FReplaceExistTiles := AReplaceExistTiles;
   FCheckExistTileSize := ACheckExistTileSize;
   FCheckExistTileDate := ACheckExistTileDate;
@@ -450,7 +450,7 @@ begin
   FVersionForDownload := VVersionForDownload;
 
   FZoom := VZoom;
-  FZoomArr := GetZoomArrayCopy(VZoomArr);
+  FZoomArr := Copy(VZoomArr);
 
   FReplaceExistTiles := VReplaceExistTiles;
   FCheckExistTileSize := VCheckExistTileSize;
@@ -594,7 +594,7 @@ end;
 
 function TDownloadSession.GetZoomArr: TByteDynArray;
 begin
-  Result := GetZoomArrayCopy(FZoomArr);
+  Result := Copy(FZoomArr);
 end;
 
 procedure TDownloadSession.SetAutoCloseAtFinish(const Value: Boolean);

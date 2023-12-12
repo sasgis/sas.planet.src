@@ -31,7 +31,6 @@ procedure SortZoomArray(var AArray: TByteDynArray);
 function ZoomArrayFromStr(const AStr: string; out AZoomArr: TByteDynArray): Boolean;
 function ZoomArrayToStr(const AZoomArr: TByteDynArray): string;
 function IsZoomInZoomArray(const AZoom: Byte; const AZoomArr: TByteDynArray): Boolean;
-function GetZoomArrayCopy(const AZoomArr: TByteDynArray): TByteDynArray;
 
 implementation
 
@@ -237,15 +236,5 @@ begin
     end;
   end;
 end;
-
-function GetZoomArrayCopy(const AZoomArr: TByteDynArray): TByteDynArray;
-var
-  I: Integer;
-begin
-  SetLength(Result, Length(AZoomArr));
-  for I := Low(AZoomArr) to High(AZoomArr) do begin
-    Result[I] := AZoomArr[I];
-  end;
-end; 
 
 end.

@@ -112,7 +112,7 @@ begin
   FPolygon := APolygon;
   FTileIteratorFactory := ATileIteratorFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FZoomArray := GetZoomArrayCopy(AZoomArray);
+  FZoomArray := Copy(AZoomArray);
   FLastProcessedZoom := ALastProcessedZoom;
   FLastProcessedPoint := ALastProcessedPoint;
   FLastProcessedCount := ALastProcessedCount;
