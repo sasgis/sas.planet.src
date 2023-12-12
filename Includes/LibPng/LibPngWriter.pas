@@ -166,9 +166,7 @@ var
 begin
   // Palette images generally don't gain anything from filtering
   png_set_filter(png_ptr, PNG_FILTER_TYPE_BASE, PNG_FILTER_VALUE_NONE);
-
   SetGamma;
-
   // set the image parameters appropriately
   if FPaletteSize <= 2 then begin
     VSampleDepth := 1;
@@ -179,13 +177,10 @@ begin
   end else begin
     VSampleDepth := 8;
   end;
-
   png_set_IHDR(png_ptr, info_ptr, FWidth, FHeight, VSampleDepth, FPngColorType,
     PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_BASE);
-
   VPtr := FPalette;
   VNumTrans := 0;
-
   for I := 0 to FPaletteSize - 1 do begin
     VPal[I].blue := VPtr^;
     Inc(VPtr);
@@ -202,9 +197,7 @@ begin
     end;
     Inc(VPtr);
   end;
-
   png_set_PLTE(png_ptr, info_ptr, @VPal[0], FPaletteSize);
-
   if VNumTrans > 0 then begin
     png_set_tRNS(png_ptr, info_ptr, @VTrans[0], VNumTrans, nil);
   end;
