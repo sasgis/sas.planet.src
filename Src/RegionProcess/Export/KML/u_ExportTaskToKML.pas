@@ -51,7 +51,6 @@ type
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
     FKmlStream: TFileStream;
-    FTileStream: TMemoryStream;
     procedure KmlFileWrite(
       const ATile: TPoint;
       const AZoom: Byte;
@@ -133,7 +132,6 @@ end;
 destructor TExportTaskToKML.Destroy;
 begin
   FreeAndNil(FKmlStream);
-  FreeAndNil(FTileStream);
   inherited Destroy;
 end;
 
@@ -324,14 +322,12 @@ begin
     VData := VTileInfoWithData.TileData;
     Assert(VData <> nil);
 
-    if FTileStream = nil then begin
-      FTileStream := TMemoryStream.Create;
-    end else begin
-      FTileStream.Clear;
+    with TFileStream.Create(Result, fmCreate) do
+    try
+      WriteBuffer(VData.Buffer^, VData.Size);
+    finally
+      Free;
     end;
-
-    FTileStream.WriteBuffer(VData.Buffer^, VData.Size);
-    FTileStream.SaveToFile(Result);
   end else begin
     // tile not exists - ok
     Result := _GetTileFileName;

@@ -802,7 +802,7 @@ begin
     Point(MaxInt, MaxInt),
     stsUnicode,
     'tif',
-    gettext_NoExtract('GeoTIFF (Tiled)'),
+    gettext_NoExtract('GeoTIFF (Tiled / Cloud Optimized)'),
     [mcAlphaUncheck, mcGeoTiffTiled]
   );
   VCounterList := ACounterList.CreateAndAddNewSubList('GeoTIFF (Tiled)');
