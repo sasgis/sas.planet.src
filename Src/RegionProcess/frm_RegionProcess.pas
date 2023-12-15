@@ -128,6 +128,7 @@ type
     FMapGoto: IMapViewGoto;
     FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
+    FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
 
     function PrepareProviders(
       const ALanguageManager: ILanguageManager;
@@ -181,7 +182,6 @@ type
     ): IInterfaceListStatic;
 
     function PrepareCombineProviders(
-      const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const ACounterList: IInternalPerformanceCounterList;
@@ -219,7 +219,9 @@ type
       const ATileReprojectResamplerConfig: IImageResamplerConfig;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
-      const ATileNameGenerator: ITileFileNameGeneratorsList
+      const ATileNameGenerator: ITileFileNameGeneratorsList;
+      const AViewConfig: IGlobalViewMainConfig;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig
     ): IInterfaceListStatic;
   private
     procedure ProcessPolygon(
@@ -400,6 +402,25 @@ begin
   FTileIteratorFactory :=
     TTileIteratorFactory.Create(AVectorGeometryProjectedFactory);
 
+  FBitmapTileProviderBuilder :=
+    TBitmapTileProviderBuilder.Create(
+      AProjectionSet,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AVectorSubsetBuilderFactory,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      AHashFunction,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AFillingMapConfig,
+      AFillingMapType,
+      AFillingMapPolygon,
+      AGridsConfig,
+      ACoordToStringConverter
+    );
+
   FProviderAll :=
     TRegionProcessProviderComplex.Create(
       ALanguageManager,
@@ -523,28 +544,8 @@ var
   VMapSelectFrameBuilder: IMapSelectFrameBuilder;
   VProvider: IRegionProcessProvider;
   VList: IInterfaceListSimple;
-  VBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
 begin
   VList := TInterfaceListSimple.Create;
-
-  VBitmapTileProviderBuilder :=
-    TBitmapTileProviderBuilder.Create(
-      AProjectionSet,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AVectorSubsetBuilderFactory,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      AHashFunction,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AFillingMapConfig,
-      AFillingMapType,
-      AFillingMapPolygon,
-      AGridsConfig,
-      ACoordToStringConverter
-    );
 
   VMapSelectFrameBuilder :=
     TMapSelectFrameBuilder.Create(
@@ -587,7 +588,6 @@ begin
     TRegionProcessProviderComplex.Create(
       ALanguageManager,
       PrepareCombineProviders(
-        VBitmapTileProviderBuilder,
         VProgressFactory,
         ALanguageManager,
         ACounterList.CreateAndAddNewSubList('Combine'),
@@ -658,7 +658,9 @@ begin
         ATileReprojectResamplerConfig,
         AArchiveReadWriteFactory,
         ATileStorageTypeList,
-        ATileNameGenerator
+        ATileNameGenerator,
+        AViewConfig,
+        AUseTilePrevZoomConfig
       ),
       False,
       gettext_NoOp('Export'),
@@ -691,7 +693,6 @@ begin
 end;
 
 function TfrmRegionProcess.PrepareCombineProviders(
-  const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const ACounterList: IInternalPerformanceCounterList;
@@ -718,7 +719,7 @@ var
     VProvider :=
       TProviderMapCombine.Create(
         ACombinerFactory,
-        ABitmapTileProviderBuilder,
+        FBitmapTileProviderBuilder,
         AProgressFactory,
         ALanguageManager,
         AMapSelectFrameBuilder,
@@ -839,7 +840,9 @@ function TfrmRegionProcess.PrepareExportProviders(
   const ATileReprojectResamplerConfig: IImageResamplerConfig;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
-  const ATileNameGenerator: ITileFileNameGeneratorsList
+  const ATileNameGenerator: ITileFileNameGeneratorsList;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig
 ): IInterfaceListStatic;
 var
   VProvider: IRegionProcessProvider;
@@ -854,7 +857,12 @@ begin
       AMapSelectFrameBuilder,
       FTileIteratorFactory,
       ATileStorageTypeList,
-      ATileNameGenerator
+      ATileNameGenerator,
+      ABitmap32StaticFactory,
+      AActiveMapsList,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      FBitmapTileProviderBuilder
     );
   VList.Add(VProvider);
 

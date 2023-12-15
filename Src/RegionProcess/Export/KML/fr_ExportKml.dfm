@@ -49,6 +49,22 @@ object frExportKml: TfrExportKml
         AutoSize = False
         Caption = 'Map/Overlay layer:'
       end
+      object lblInfo: TLabel
+        AlignWithMargins = True
+        Left = 6
+        Top = 231
+        Width = 313
+        Height = 15
+        Align = alBottom
+        Caption = '_'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGrayText
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        Visible = False
+      end
       object chkNotSaveNotExists: TCheckBox
         Left = 3
         Top = 59
@@ -86,7 +102,7 @@ object frExportKml: TfrExportKml
       end
       object chkExtractTiles: TCheckBox
         Left = 3
-        Top = 76
+        Top = 93
         Width = 319
         Height = 17
         Align = alTop
@@ -96,7 +112,7 @@ object frExportKml: TfrExportKml
       end
       object pnlFileNameGenerator: TPanel
         Left = 3
-        Top = 93
+        Top = 110
         Width = 319
         Height = 44
         Align = alTop
@@ -113,6 +129,16 @@ object frExportKml: TfrExportKml
           Align = alTop
           Caption = 'Tile name format:'
         end
+      end
+      object chkAddVisibleOverlays: TCheckBox
+        Left = 3
+        Top = 76
+        Width = 319
+        Height = 17
+        Align = alTop
+        Caption = 'Add visible Layers/Placemarks/Grids etc.'
+        TabOrder = 5
+        OnClick = chkAddVisibleOverlaysClick
       end
     end
   end

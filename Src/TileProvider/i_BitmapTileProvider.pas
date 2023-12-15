@@ -42,6 +42,8 @@ type
     ): IBitmap32Static;
   end;
 
+  TBitmapTileProviderDynArray = array of IBitmapTileProvider;
+
 implementation
 
 end.

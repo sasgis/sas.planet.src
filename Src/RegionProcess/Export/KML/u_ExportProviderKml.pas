@@ -24,8 +24,12 @@ unit u_ExportProviderKml;
 interface
 
 uses
+  Types,
   Forms,
   i_LanguageManager,
+  i_BitmapTileProvider,
+  i_BitmapTileProviderBuilder,
+  i_Bitmap32BufferFactory,
   i_TileIteratorFactory,
   i_TileStorageTypeList,
   i_TileFileNameGeneratorsList,
@@ -33,6 +37,10 @@ uses
   i_GeometryLonLat,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
+  i_MapType,
+  i_MapTypeListChangeable,
+  i_GlobalViewMainConfig,
+  i_UseTilePrevZoomConfig,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportKml;
@@ -42,6 +50,16 @@ type
   private
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FTileNameGenerator: ITileFileNameGeneratorsList;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
+    FActiveMapsList: IMapTypeListChangeable;
+    FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
+    FViewConfig: IGlobalViewMainConfig;
+    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+    function PrepareBitmapTileProviders(
+      const AMapType: IMapType;
+      const APolygon: IGeometryLonLatPolygon;
+      const AZoomArr: TByteDynArray
+    ): TBitmapTileProviderDynArray;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -57,19 +75,24 @@ type
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const ATileIteratorFactory: ITileIteratorFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
-      const ATileNameGenerator: ITileFileNameGeneratorsList
+      const ATileNameGenerator: ITileFileNameGeneratorsList;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const AActiveMapsList: IMapTypeListChangeable;
+      const AViewConfig: IGlobalViewMainConfig;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+      const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder
     );
   end;
-
 
 implementation
 
 uses
-  Types,
   Classes,
   SysUtils,
-  i_MapType,
   i_RegionProcessParamsFrame,
+  i_BitmapTileSaveLoad,
+  i_BitmapLayerProvider,
+  u_BitmapLayerProviderMapWithLayer,
   u_ExportTaskToKML,
   u_ResStrings;
 
@@ -81,7 +104,12 @@ constructor TExportProviderKml.Create(
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const ATileIteratorFactory: ITileIteratorFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
-  const ATileNameGenerator: ITileFileNameGeneratorsList
+  const ATileNameGenerator: ITileFileNameGeneratorsList;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const AActiveMapsList: IMapTypeListChangeable;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+  const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder
 );
 begin
   inherited Create(
@@ -92,6 +120,11 @@ begin
   );
   FTileStorageTypeList := ATileStorageTypeList;
   FTileNameGenerator := ATileNameGenerator;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FActiveMapsList := AActiveMapsList;
+  FViewConfig := AViewConfig;
+  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
+  FBitmapTileProviderBuilder := ABitmapTileProviderBuilder;
 end;
 
 function TExportProviderKml.CreateFrame: TFrame;
@@ -101,11 +134,15 @@ begin
       Self.LanguageManager,
       Self.MapSelectFrameBuilder,
       FTileStorageTypeList,
-      FTileNameGenerator
+      FTileNameGenerator,
+      FBitmap32StaticFactory,
+      FActiveMapsList,
+      FUseTilePrevZoomConfig
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
+  Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
   Assert(Supports(Result, IRegionProcessParamsFrameKmlExport));
 end;
 
@@ -114,37 +151,76 @@ begin
   Result := SAS_STR_ExportGEKmlExportCaption;
 end;
 
+function TExportProviderKml.PrepareBitmapTileProviders(
+  const AMapType: IMapType;
+  const APolygon: IGeometryLonLatPolygon;
+  const AZoomArr: TByteDynArray
+): TBitmapTileProviderDynArray;
+var
+  I: Integer;
+  VUniProvider: IBitmapTileUniProvider;
+begin
+  VUniProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
+  if VUniProvider = nil then begin
+    Result := nil;
+    Exit;
+  end;
+  SetLength(Result, Length(AZoomArr));
+  for I := 0 to Length(AZoomArr) - 1 do begin
+    Result[I] :=
+      FBitmapTileProviderBuilder.Build(
+        True,  // marks
+        True,  // color correction
+        True,  // filling map
+        True,  // grids
+        False, // precise cropping
+        0,
+        FViewConfig.BackGroundColor,
+        VUniProvider,
+        APolygon,
+        AMapType.TileStorage.ProjectionSet.Zooms[AZoomArr[I]]
+      );
+  end;
+end;
+
 function TExportProviderKml.PrepareTask(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IRegionProcessTask;
 var
-  VPath: string;
+  VOutputFileName: string;
   VZoomArr: TByteDynArray;
   VMapType: IMapType;
-  NotSaveNotExists: boolean;
-  RelativePath: Boolean;
+  VSaveExistsOnly: Boolean;
+  VTryUseRelativePath: Boolean;
+  VBitmapTileSaver: IBitmapTileSaver;
+  VBitmapTileProviderArr: TBitmapTileProviderDynArray;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
-  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VOutputFileName := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-  RelativePath := (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath;
-  NotSaveNotExists := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
+  VTryUseRelativePath := (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath;
+  VSaveExistsOnly := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
+  VBitmapTileSaver := (ParamsFrame as IRegionProcessParamsFrameKmlExport).BitmapTileSaver;
+  VBitmapTileProviderArr := PrepareBitmapTileProviders(VMapType, APolygon, VZoomArr);
 
   Result :=
     TExportTaskToKML.Create(
       AProgressInfo,
-      VPath,
+      VOutputFileName,
       Self.TileIteratorFactory,
       APolygon,
       VZoomArr,
       VMapType.TileStorage,
       VMapType.VersionRequest.GetStatic.BaseVersion,
-      NotSaveNotExists,
-      RelativePath,
+      VSaveExistsOnly,
+      VTryUseRelativePath,
       (ParamsFrame as IRegionProcessParamsFrameKmlExport).ExtractTilesFromStorage,
-      (ParamsFrame as IRegionProcessParamsFrameKmlExport).TileFileNameGenerator
+      (ParamsFrame as IRegionProcessParamsFrameKmlExport).TileFileNameGenerator,
+      VBitmapTileSaver,
+      (ParamsFrame as IRegionProcessParamsFrameKmlExport).ContentTypeInfo,
+      VBitmapTileProviderArr
     );
 end;
 

@@ -86,6 +86,10 @@ function CalcTileCountInProjectedSinglePolygon(
   const AGeometry: IGeometryProjectedSinglePolygon
 ): Int64;
 
+function IsLonLatPolygonSimpleRect(
+  const APolygon: IGeometryLonLatPolygon
+): Boolean;
+
 function IsProjectedPolygonSimpleRect(
   const APolygon: IGeometryProjectedPolygon
 ): Boolean;
@@ -814,6 +818,42 @@ begin
         VCount := CalcTileCountInProjectedSinglePolygon(AProjection, VMulti.Item[I]);
         Inc(Result, VCount);
       end;
+    end;
+  end;
+end;
+
+function IsLonLatPolygonSimpleRect(
+  const APolygon: IGeometryLonLatPolygon
+): Boolean;
+var
+  I: Integer;
+  VSingle: IGeometryLonLatSinglePolygon;
+  VPoints: PDoublePointArray;
+  VCornerPoints: array [0..3] of TPoint;
+begin
+  Result := False;
+
+  if Supports(APolygon, IGeometryLonLatSinglePolygon, VSingle) then begin
+    if (VSingle.OuterBorder.Count = 4) and (VSingle.HoleCount = 0) then begin
+
+      VPoints := VSingle.OuterBorder.Points;
+
+      for I := 0 to 3 do begin
+        VCornerPoints[I] := PointFromDoublePoint(VPoints[I], prToTopLeft);
+      end;
+
+      Result :=
+        (
+          (VCornerPoints[0].X = VCornerPoints[3].X) and
+          (VCornerPoints[2].X = VCornerPoints[1].X) and
+          (VCornerPoints[0].Y = VCornerPoints[1].Y) and
+          (VCornerPoints[2].Y = VCornerPoints[3].Y)
+        ) or (
+          (VCornerPoints[0].X = VCornerPoints[1].X) and
+          (VCornerPoints[2].X = VCornerPoints[3].X) and
+          (VCornerPoints[3].Y = VCornerPoints[0].Y) and
+          (VCornerPoints[1].Y = VCornerPoints[2].Y)
+        );
     end;
   end;
 end;

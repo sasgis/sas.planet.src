@@ -29,10 +29,13 @@ uses
   Classes,
   t_GeoTypes,
   i_NotifierOperation,
+  i_ContentTypeInfo,
   i_RegionProcessProgressInfo,
   i_TileIteratorFactory,
   i_GeometryLonLat,
   i_MapVersionInfo,
+  i_BitmapTileProvider,
+  i_BitmapTileSaveLoad,
   i_TileStorage,
   i_TileFileNameGenerator,
   u_ExportTaskAbstract;
@@ -48,9 +51,14 @@ type
     FTryUseRelativePath: Boolean;
     FExtractTilesFromStorage: Boolean;
     FTileFileNameGenerator: ITileFileNameGenerator;
+    FBitmapTileSaver: IBitmapTileSaver;
+    FBitmapTileProviderArr: TBitmapTileProviderDynArray;
+    FContentTypeInfo: IContentTypeInfoBasic;
+    FProviderIndexByZoom: array[0..23] of Integer;
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
     FKmlStream: TFileStream;
+    FUseTileProviderAndSaver: Boolean;
     procedure KmlFileWrite(
       const ATile: TPoint;
       const AZoom: Byte;
@@ -68,7 +76,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APath: string;
+      const AOutputFileName: string;
       const ATileIteratorFactory: ITileIteratorFactory;
       const APolygon: IGeometryLonLatPolygon;
       const AZoomArr: TByteDynArray;
@@ -77,7 +85,10 @@ type
       const ANotSaveNotExists: Boolean;
       const ARelativePath: Boolean;
       const AExtractTilesFromStorage: Boolean;
-      const ATileFileNameGenerator: ITileFileNameGenerator
+      const ATileFileNameGenerator: ITileFileNameGenerator;
+      const ABitmapTileSaver: IBitmapTileSaver;
+      const AContentTypeInfo: IContentTypeInfoBasic;
+      const ABitmapTileProviderArr: TBitmapTileProviderDynArray
     );
     destructor Destroy; override;
   end;
@@ -88,6 +99,7 @@ uses
   Math,
   StrUtils,
   i_BinaryData,
+  i_Bitmap32Static,
   i_Projection,
   i_TileInfoBasic,
   i_TileIterator,
@@ -98,7 +110,7 @@ uses
 
 constructor TExportTaskToKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APath: string;
+  const AOutputFileName: string;
   const ATileIteratorFactory: ITileIteratorFactory;
   const APolygon: IGeometryLonLatPolygon;
   const AZoomArr: TByteDynArray;
@@ -107,26 +119,54 @@ constructor TExportTaskToKML.Create(
   const ANotSaveNotExists: Boolean;
   const ARelativePath: Boolean;
   const AExtractTilesFromStorage: Boolean;
-  const ATileFileNameGenerator: ITileFileNameGenerator
+  const ATileFileNameGenerator: ITileFileNameGenerator;
+  const ABitmapTileSaver: IBitmapTileSaver;
+  const AContentTypeInfo: IContentTypeInfoBasic;
+  const ABitmapTileProviderArr: TBitmapTileProviderDynArray
 );
+var
+  I, J: Integer;
 begin
   if AExtractTilesFromStorage then begin
     Assert(ATileFileNameGenerator <> nil);
   end;
+
   inherited Create(
     AProgressInfo,
     APolygon,
     AZoomArr,
     ATileIteratorFactory
   );
-  FKmlFileName := APath;
+
+  FKmlFileName := AOutputFileName;
   FTilesPath := ExtractFilePath(FKmlFileName) + 'files' + PathDelim;
-  FSaveExistsOnly := ANotSaveNotExists;
   FTryUseRelativePath := ARelativePath;
-  FExtractTilesFromStorage := AExtractTilesFromStorage;
   FTileFileNameGenerator := ATileFileNameGenerator;
   FTileStorage := ATileStorage;
+  FExtractTilesFromStorage := AExtractTilesFromStorage;
+  FSaveExistsOnly := ANotSaveNotExists;
   FVersion := AVersion;
+  FBitmapTileSaver := ABitmapTileSaver;
+  FContentTypeInfo := AContentTypeInfo;
+  FBitmapTileProviderArr := ABitmapTileProviderArr;
+
+  FUseTileProviderAndSaver :=
+    FExtractTilesFromStorage and
+    (FBitmapTileSaver <> nil) and
+    (FContentTypeInfo <> nil) and
+    (Length(FBitmapTileProviderArr) = Length(AZoomArr));
+
+  if FUseTileProviderAndSaver then begin
+    for I := 0 to Length(FProviderIndexByZoom) - 1 do begin
+      FProviderIndexByZoom[I] := -1;
+      for J := 0 to Length(AZoomArr) - 1 do begin
+        if I = AZoomArr[J] then begin
+          FProviderIndexByZoom[I] := J;
+          Break;
+        end;
+      end;
+    end;
+  end;
 end;
 
 destructor TExportTaskToKML.Destroy;
@@ -148,6 +188,11 @@ var
   VLonLatRect: TDoubleRect;
   VTileInfo: ITileInfoBasic;
 begin
+  Inc(FTilesProcessed);
+  if FTilesProcessed mod 100 = 0 then begin
+    ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
+  end;
+
   if FSaveExistsOnly then begin
     VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
     if not Assigned(VTileInfo) or not VTileInfo.GetIsExists then begin
@@ -157,6 +202,9 @@ begin
 
   if FExtractTilesFromStorage then begin
     VSavePath := CopyTileToFileSystem(ATile, AZoom);
+    if VSavePath = '' then begin
+      Exit;
+    end;
   end else begin
     VSavePath := FTileStorage.GetTileFileName(ATile, AZoom, FVersion);
   end;
@@ -199,11 +247,6 @@ begin
     '    </LatLonBox>' + #13#10 +
     '  </GroundOverlay>'
   );
-
-  Inc(FTilesProcessed);
-  if FTilesProcessed mod 100 = 0 then begin
-    ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
-  end;
 
   if ALevel < Length(FZooms) then begin
     VZoom := FZooms[ALevel];
@@ -296,41 +339,55 @@ function TExportTaskToKML.CopyTileToFileSystem(
   const AZoom: Byte
 ): string;
 
-  function _GetTileFileName(AExt: string = ''): string;
+  function _GetTileFileName(const AContentTypeInfo: IContentTypeInfoBasic): string;
   begin
-    if AExt = '' then begin
-      AExt := ExtractFileExt(FTileStorage.GetTileFileName(ATile, AZoom, FVersion));
+    Result := FTilesPath +
+      ChangeFileExt(
+        FTileFileNameGenerator.GetTileFileName(ATile, AZoom),
+        AContentTypeInfo.GetDefaultExt
+      );
+  end;
+
+  function _GetTile(out AFileName: string; out AData: IBinaryData): Boolean;
+  var
+    I: Integer;
+    VBitmap: IBitmap32Static;
+    VTileInfo: ITileInfoBasic;
+    VTileInfoWithData: ITileInfoWithData;
+  begin
+    if FUseTileProviderAndSaver then begin
+      I := FProviderIndexByZoom[AZoom];
+      Assert((I >= 0) and (I < Length(FBitmapTileProviderArr)));
+      VBitmap := FBitmapTileProviderArr[I].GetTile(Self.OperationID, Self.CancelNotifier, ATile);
+      AData := FBitmapTileSaver.Save(VBitmap);
+      AFileName := _GetTileFileName(FContentTypeInfo);
+    end else begin
+      VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimWithData);
+      if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+        AData := VTileInfoWithData.TileData;
+        AFileName := _GetTileFileName(VTileInfo.ContentType);
+      end;
     end;
-    Result :=
-      FTilesPath +
-      FTileFileNameGenerator.AddExt(FTileFileNameGenerator.GetTileFileName(ATile, AZoom), AExt);
+    Result := AData <> nil;
   end;
 
 var
   VData: IBinaryData;
-  VTileInfo: ITileInfoBasic;
-  VTileInfoWithData: ITileInfoWithData;
 begin
-  VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimWithData);
-  if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
-    Result := _GetTileFileName(VTileInfo.ContentType.GetDefaultExt);
+  if not _GetTile(Result, VData) then begin
+    Result := '';
+    Exit;
+  end;
 
-    if not ForceDirectories(ExtractFileDir(Result)) then begin
-      RaiseLastOSError;
-    end;
+  if not ForceDirectories(ExtractFileDir(Result)) then begin
+    RaiseLastOSError;
+  end;
 
-    VData := VTileInfoWithData.TileData;
-    Assert(VData <> nil);
-
-    with TFileStream.Create(Result, fmCreate) do
-    try
-      WriteBuffer(VData.Buffer^, VData.Size);
-    finally
-      Free;
-    end;
-  end else begin
-    // tile not exists - ok
-    Result := _GetTileFileName;
+  with TFileStream.Create(Result, fmCreate) do
+  try
+    WriteBuffer(VData.Buffer^, VData.Size);
+  finally
+    Free;
   end;
 end;
 
