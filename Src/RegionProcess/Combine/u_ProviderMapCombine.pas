@@ -66,22 +66,17 @@ type
   protected
     function PrepareTargetFileName: string;
     function PrepareTargetRect(
-      const AProjection: IProjection;
-      const APolygon: IGeometryProjectedPolygon
+      const APolygon: IGeometryLonLatPolygon;
+      const AProjection: IProjection
     ): TRect;
     function PrepareImageProvider(
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjection;
-      const AProjectedPolygon: IGeometryProjectedPolygon
+      const AProjection: IProjection
     ): IBitmapTileProvider;
     function PrepareCustomParams(
       const APolygon: IGeometryLonLatPolygon
     ): IInterface;
     function PrepareProjection: IProjection;
-    function PreparePolygon(
-      const AProjection: IProjection;
-      const APolygon: IGeometryLonLatPolygon
-    ): IGeometryProjectedPolygon;
     function PrepareCombineProgressUpdate(
       const AProgressInfo: IRegionProcessProgressInfoInternal
     ): IBitmapCombineProgressUpdate;
@@ -232,35 +227,25 @@ begin
   Result := TBitmapCombineProgressUpdate.Create(AProgressInfo);
 end;
 
-function TProviderMapCombine.PreparePolygon(
-  const AProjection: IProjection;
-  const APolygon: IGeometryLonLatPolygon
-): IGeometryProjectedPolygon;
-begin
-  Result :=
-    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      AProjection,
-      APolygon
-    );
-end;
-
 function TProviderMapCombine.PrepareProjection: IProjection;
 begin
   Result := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
 end;
 
 function TProviderMapCombine.PrepareTargetRect(
-  const AProjection: IProjection;
-  const APolygon: IGeometryProjectedPolygon
+  const APolygon: IGeometryLonLatPolygon;
+  const AProjection: IProjection
 ): TRect;
 begin
-  Result := RectFromDoubleRect(APolygon.Bounds, rrOutside);
+  Result := RectFromDoubleRect(
+    AProjection.LonLatRect2PixelRectFloat(APolygon.Bounds.Rect),
+    rrOutside
+  );
 end;
 
 function TProviderMapCombine.PrepareImageProvider(
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjection;
-  const AProjectedPolygon: IGeometryProjectedPolygon
+  const AProjection: IProjection
 ): IBitmapTileProvider;
 begin
   Result :=
@@ -274,8 +259,7 @@ begin
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
       (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider,
       APolygon,
-      AProjection,
-      AProjectedPolygon
+      AProjection
     );
 end;
 
@@ -287,15 +271,13 @@ var
   VParams: IInterface;
   VGeoTiffParams: IGeoTiffCombinerCustomParams;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
 begin
   VParams := (ParamsFrame as IRegionProcessParamsFrameCustom).CustomParams;
 
   if Supports(VParams, IGeoTiffCombinerCustomParams, VGeoTiffParams) then begin
     for I := 0 to VGeoTiffParams.OverviewCount - 1 do begin
       VProjection := VGeoTiffParams.Projection[I];
-      VProjectedPolygon := PreparePolygon(VProjection, APolygon);
-      VGeoTiffParams.BitmapTileProvider[I] := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
+      VGeoTiffParams.BitmapTileProvider[I] := PrepareImageProvider(APolygon, VProjection);
     end;
     VParams := VGeoTiffParams;
   end;
@@ -314,7 +296,6 @@ var
   VSkipExistingFiles: Boolean;
   VRoundToTileRect: Boolean;
   VProjection: IProjection;
-  VProjectedPolygon: IGeometryProjectedPolygon;
   VImageProvider: IBitmapTileProvider;
   VProgressUpdate: IBitmapCombineProgressUpdate;
   VCombiner: IBitmapMapCombiner;
@@ -322,8 +303,7 @@ var
   VMapRect: TRect;
 begin
   VProjection := PrepareProjection;
-  VProjectedPolygon := PreparePolygon(VProjection, APolygon);
-  VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
+  VImageProvider := PrepareImageProvider(APolygon, VProjection);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
@@ -332,7 +312,7 @@ begin
   VProgressUpdate := PrepareCombineProgressUpdate(AProgressInfo);
   VCombiner := FCombinerFactory.PrepareMapCombiner(ParamsFrame as IRegionProcessParamsFrameMapCombine, VProgressUpdate);
   VCombinerCustomParams := PrepareCustomParams(APolygon);
-  VMapRect := PrepareTargetRect(VProjection, VProjectedPolygon);
+  VMapRect := PrepareTargetRect(APolygon, VProjection);
 
   Result :=
     TRegionProcessTaskCombine.Create(

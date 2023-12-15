@@ -44,8 +44,7 @@ type
       const AEmptyColor: TColor32;
       const ASourceProvider: IBitmapTileUniProvider;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjection;
-      const AProjectedPolygon: IGeometryProjectedPolygon
+      const AProjection: IProjection
     ): IBitmapTileProvider;
   end;
 

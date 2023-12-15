@@ -81,8 +81,7 @@ type
       const AEmptyColor: TColor32;
       const ASourceProvider: IBitmapTileUniProvider;
       const APolygon: IGeometryLonLatPolygon;
-      const AProjection: IProjection;
-      const AProjectedPolygon: IGeometryProjectedPolygon
+      const AProjection: IProjection
     ): IBitmapTileProvider;
   public
     constructor Create(
@@ -342,8 +341,7 @@ function TBitmapTileProviderBuilder.Build(
   const AEmptyColor: TColor32;
   const ASourceProvider: IBitmapTileUniProvider;
   const APolygon: IGeometryLonLatPolygon;
-  const AProjection: IProjection;
-  const AProjectedPolygon: IGeometryProjectedPolygon
+  const AProjection: IProjection
 ): IBitmapTileProvider;
 var
   VRect: ILonLatRect;
@@ -361,6 +359,7 @@ var
   VMarkerProvider: IMarkerProviderForVectorItem;
   VGridsProvider: IBitmapTileProvider;
   VFillingMapProvider: IBitmapTileProvider;
+  VProjectedPolygon: IGeometryProjectedPolygon;
 begin
   Result :=
     TBitmapTileProviderByBitmapTileUniProvider.Create(
@@ -481,9 +480,15 @@ begin
     end;
   end;
 
+  VProjectedPolygon :=
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+      AProjection,
+      APolygon
+    );
+
   Result :=
     TBitmapTileProviderInPolygon.Create(
-      AProjectedPolygon,
+      VProjectedPolygon,
       Result
     );
 
@@ -492,7 +497,7 @@ begin
       AUsePreciseCropping,
       ABackGroundColor,
       AEmptyColor,
-      AProjectedPolygon,
+      VProjectedPolygon,
       FBitmapFactory,
       Result
     );
