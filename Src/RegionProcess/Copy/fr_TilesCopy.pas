@@ -508,6 +508,7 @@ var
 begin
   if pcSource.ActivePageIndex = 0 then begin
     Result := nil;
+    Exit;
   end;
 
   VMap := FfrMapSelect.GetSelectedMapType;
