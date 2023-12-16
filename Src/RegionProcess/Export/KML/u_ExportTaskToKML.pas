@@ -63,6 +63,7 @@ type
     FTilesProcessed: Int64;
     FKmlStream: TFileStream;
     FUseTileProviderAndSaver: Boolean;
+    FIsFirstVisibleLayerWritten: Boolean;
     FGeometryProjectedFactory: IGeometryProjectedFactory;
     FArr: array of record
       Proj: IProjection;
@@ -196,38 +197,26 @@ procedure TExportTaskToKML.KmlFileWrite(
 );
 
   function _IsTileInPoly: Boolean;
+  var
+    VIntersection: TRectWithPolygonIntersection;
   begin
     with FArr[ALevel] do begin
-      Result := Poly.IsRectIntersectPolygon( Proj.TilePos2PixelRectFloat(ATile) );
+      VIntersection := Poly.CheckRectIntersection( Proj.TilePos2PixelRectFloat(ATile) );
+      // Inore rwpPolygonInRect intersection to skip insufficient zooms
+      Result := VIntersection in [rwpIntersectPartial, rwpRectInPolygon];
     end;
   end;
 
-var
-  VNextLevel: Integer;
-  VDoWriteTile: Boolean;
-  VSavePath, VNorth, VSouth, VEast, VWest: string;
-  VTile: TPoint;
-  VTileRect: TRect;
-  VIterator: TTileIteratorByRectRecord;
-  VLonLatRect: TDoubleRect;
-  VTileInfo: ITileInfoBasic;
-begin
-  if CancelNotifier.IsOperationCanceled(OperationID) then begin
-    Exit;
-  end;
+  function _WriteTile: Boolean;
+  var
+    VSavePath: string;
+    VMinLodPix: string;
+    VNorth, VSouth, VEast, VWest: string;
+    VLonLatRect: TDoubleRect;
+    VTileInfo: ITileInfoBasic;
+  begin
+    Result := False;
 
-  Inc(FTilesProcessed);
-  if FTilesProcessed mod 100 = 0 then begin
-    ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
-  end;
-
-  if FUseTileProviderAndSaver then begin
-    VDoWriteTile := _IsTileInPoly;
-  end else begin
-    VDoWriteTile := AIsParentInPoly or _IsTileInPoly;
-  end;
-
-  if VDoWriteTile then begin
     if FSaveExistsOnly then begin
       VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
       if not Assigned(VTileInfo) or not VTileInfo.GetIsExists then begin
@@ -254,6 +243,13 @@ begin
     VEast := R2StrPoint(VLonLatRect.Right);
     VWest := R2StrPoint(VLonLatRect.Left);
 
+    if not FIsFirstVisibleLayerWritten then begin
+      VMinLodPix := '16';
+      FIsFirstVisibleLayerWritten := True;
+    end else begin
+      VMinLodPix := '128';
+    end;
+
     WriteTextToKmlStream(
       #13#10 +
       '<Folder>' + #13#10 +
@@ -265,7 +261,7 @@ begin
       '      <west>' + VWest + '</west>' + #13#10 +
       '    </LatLonAltBox>' + #13#10 +
       '    <Lod>' + #13#10 +
-      '      <minLodPixels>' + IfThen(ALevel > 0, '128', '16') +'</minLodPixels>' + #13#10 +
+      '      <minLodPixels>' + VMinLodPix +'</minLodPixels>' + #13#10 +
       '      <maxLodPixels>-1</maxLodPixels>' + #13#10 +
       '    </Lod>' + #13#10 +
       '  </Region>' + #13#10 +
@@ -282,24 +278,61 @@ begin
       '    </LatLonBox>' + #13#10 +
       '  </GroundOverlay>'
     );
+
+    Result := True;
   end;
 
-  VNextLevel := ALevel + 1;
-  if VNextLevel < Length(FZooms) then begin
-    VTileRect :=
-      RectFromDoubleRect(
-        FArr[VNextLevel].Proj.RelativeRect2TileRectFloat( FArr[ALevel].Proj.TilePos2RelativeRect(ATile) ),
-        rrClosest
-      );
-    if FArr[VNextLevel].Iter.TilesRect.IsIntersecWithRect(VTileRect) then begin
-      VIterator.Init(VTileRect);
-      while VIterator.Next(VTile) do begin
-        KmlFileWrite(VTile, FZooms[VNextLevel], VNextLevel, VDoWriteTile);
+  procedure _ProcessNextLevel(const AIsCurrentTileInPoly: Boolean);
+  var
+    VNextLevel: Integer;
+    VTile: TPoint;
+    VTileRect: TRect;
+    VIterator: TTileIteratorByRectRecord;
+  begin
+    VNextLevel := ALevel + 1;
+    if VNextLevel < Length(FZooms) then begin
+      VTileRect :=
+        RectFromDoubleRect(
+          FArr[VNextLevel].Proj.RelativeRect2TileRectFloat( FArr[ALevel].Proj.TilePos2RelativeRect(ATile) ),
+          rrClosest
+        );
+      if FArr[VNextLevel].Iter.TilesRect.IsIntersecWithRect(VTileRect) then begin
+        VIterator.Init(VTileRect);
+        while VIterator.Next(VTile) do begin
+          KmlFileWrite(VTile, FZooms[VNextLevel], VNextLevel, AIsCurrentTileInPoly);
+        end;
       end;
     end;
   end;
 
-  if VDoWriteTile then begin
+var
+  VIsTileInPoly: Boolean;
+  VWriteKmlFooter: Boolean;
+begin
+  if CancelNotifier.IsOperationCanceled(OperationID) then begin
+    Exit;
+  end;
+
+  Inc(FTilesProcessed);
+  if FTilesProcessed mod 100 = 0 then begin
+    ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
+  end;
+
+  if FUseTileProviderAndSaver then begin
+    VIsTileInPoly := _IsTileInPoly;
+  end else begin
+    VIsTileInPoly := AIsParentInPoly or _IsTileInPoly;
+  end;
+
+  if VIsTileInPoly then begin
+    VWriteKmlFooter := _WriteTile;
+  end else begin
+    VWriteKmlFooter := False;
+  end;
+
+  _ProcessNextLevel(VIsTileInPoly);
+
+  if VWriteKmlFooter then begin
     WriteTextToKmlStream(#13#10 + '</Folder>');
   end;
 end;
