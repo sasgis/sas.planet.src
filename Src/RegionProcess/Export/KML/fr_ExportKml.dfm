@@ -102,17 +102,19 @@ object frExportKml: TfrExportKml
       end
       object chkExtractTiles: TCheckBox
         Left = 3
-        Top = 93
+        Top = 127
         Width = 319
         Height = 17
         Align = alTop
         Caption = 'Extract tiles from cache'
+        Checked = True
+        State = cbChecked
         TabOrder = 3
         OnClick = chkExtractTilesClick
       end
       object pnlFileNameGenerator: TPanel
         Left = 3
-        Top = 110
+        Top = 144
         Width = 319
         Height = 44
         Align = alTop
@@ -138,7 +140,27 @@ object frExportKml: TfrExportKml
         Align = alTop
         Caption = 'Add visible Layers/Placemarks/Grids etc.'
         TabOrder = 5
-        OnClick = chkAddVisibleOverlaysClick
+      end
+      object chkUsePrevZoom: TCheckBox
+        Left = 3
+        Top = 110
+        Width = 319
+        Height = 17
+        Align = alTop
+        Caption = 'Use tiles from lower zooms (on unavalible tile)'
+        TabOrder = 6
+      end
+      object chkPreciseCropping: TCheckBox
+        Left = 3
+        Top = 93
+        Width = 319
+        Height = 17
+        Hint = 
+          'Precise cropping of the image along the boundaries of the polygo' +
+          'n'
+        Align = alTop
+        Caption = 'Precise cropping by the polygon'
+        TabOrder = 7
       end
     end
   end

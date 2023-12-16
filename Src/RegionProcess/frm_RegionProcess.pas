@@ -220,8 +220,7 @@ type
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList;
-      const AViewConfig: IGlobalViewMainConfig;
-      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig
+      const AViewConfig: IGlobalViewMainConfig
     ): IInterfaceListStatic;
   private
     procedure ProcessPolygon(
@@ -659,8 +658,7 @@ begin
         AArchiveReadWriteFactory,
         ATileStorageTypeList,
         ATileNameGenerator,
-        AViewConfig,
-        AUseTilePrevZoomConfig
+        AViewConfig
       ),
       False,
       gettext_NoOp('Export'),
@@ -841,8 +839,7 @@ function TfrmRegionProcess.PrepareExportProviders(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList;
-  const AViewConfig: IGlobalViewMainConfig;
-  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig
+  const AViewConfig: IGlobalViewMainConfig
 ): IInterfaceListStatic;
 var
   VProvider: IRegionProcessProvider;
@@ -861,7 +858,7 @@ begin
       ABitmap32StaticFactory,
       AActiveMapsList,
       AViewConfig,
-      AUseTilePrevZoomConfig,
+      AVectorGeometryProjectedFactory,
       FBitmapTileProviderBuilder
     );
   VList.Add(VProvider);

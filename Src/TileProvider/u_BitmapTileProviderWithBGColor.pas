@@ -122,10 +122,7 @@ begin
   end;
 
   FProjection := FSourceProvider.Projection;
-
-  FUsePreciseCropping :=
-    AUsePreciseCropping and
-    not IsProjectedPolygonSimpleRect(APolygon);
+  FUsePreciseCropping := AUsePreciseCropping;
 
   if FUsePreciseCropping then begin
     FPolygon := APolygon;

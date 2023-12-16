@@ -31,6 +31,7 @@ uses
   i_NotifierOperation,
   i_ContentTypeInfo,
   i_RegionProcessProgressInfo,
+  i_TileIterator,
   i_TileIteratorFactory,
   i_GeometryLonLat,
   i_MapVersionInfo,
@@ -38,6 +39,9 @@ uses
   i_BitmapTileSaveLoad,
   i_TileStorage,
   i_TileFileNameGenerator,
+  i_Projection,
+  i_GeometryProjected,
+  i_GeometryProjectedFactory,
   u_ExportTaskAbstract;
 
 type
@@ -59,10 +63,17 @@ type
     FTilesProcessed: Int64;
     FKmlStream: TFileStream;
     FUseTileProviderAndSaver: Boolean;
+    FGeometryProjectedFactory: IGeometryProjectedFactory;
+    FArr: array of record
+      Proj: IProjection;
+      Iter: ITileIterator;
+      Poly: IGeometryProjectedPolygon;
+    end;
     procedure KmlFileWrite(
       const ATile: TPoint;
       const AZoom: Byte;
-      const ALevel: Byte
+      const ALevel: Integer;
+      const AIsParentInPoly: Boolean
     );
     procedure WriteTextToKmlStream(
       const AText: string
@@ -77,6 +88,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AOutputFileName: string;
+      const AGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATileIteratorFactory: ITileIteratorFactory;
       const APolygon: IGeometryLonLatPolygon;
       const AZoomArr: TByteDynArray;
@@ -100,9 +112,7 @@ uses
   StrUtils,
   i_BinaryData,
   i_Bitmap32Static,
-  i_Projection,
   i_TileInfoBasic,
-  i_TileIterator,
   u_TileIteratorByRect,
   u_GeoToStrFunc,
   u_GeoFunc,
@@ -111,6 +121,7 @@ uses
 constructor TExportTaskToKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AOutputFileName: string;
+  const AGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATileIteratorFactory: ITileIteratorFactory;
   const APolygon: IGeometryLonLatPolygon;
   const AZoomArr: TByteDynArray;
@@ -138,8 +149,10 @@ begin
     ATileIteratorFactory
   );
 
+  FGeometryProjectedFactory := AGeometryProjectedFactory;
+
   FKmlFileName := AOutputFileName;
-  FTilesPath := ExtractFilePath(FKmlFileName) + 'files' + PathDelim;
+  FTilesPath := FKmlFileName + '.files' + PathDelim;
   FTryUseRelativePath := ARelativePath;
   FTileFileNameGenerator := ATileFileNameGenerator;
   FTileStorage := ATileStorage;
@@ -177,102 +190,123 @@ end;
 
 procedure TExportTaskToKML.KmlFileWrite(
   const ATile: TPoint;
-  const AZoom, ALevel: Byte
+  const AZoom: Byte;
+  const ALevel: Integer;
+  const AIsParentInPoly: Boolean
 );
+
+  function _IsTileInPoly: Boolean;
+  begin
+    with FArr[ALevel] do begin
+      Result := Poly.IsRectIntersectPolygon( Proj.TilePos2PixelRectFloat(ATile) );
+    end;
+  end;
+
 var
-  VZoom: Byte;
-  VIterator: TTileIteratorByRectRecord;
+  VNextLevel: Integer;
+  VDoWriteTile: Boolean;
   VSavePath, VNorth, VSouth, VEast, VWest: string;
-  VTileRect: TRect;
   VTile: TPoint;
+  VTileRect: TRect;
+  VIterator: TTileIteratorByRectRecord;
   VLonLatRect: TDoubleRect;
   VTileInfo: ITileInfoBasic;
 begin
+  if CancelNotifier.IsOperationCanceled(OperationID) then begin
+    Exit;
+  end;
+
   Inc(FTilesProcessed);
   if FTilesProcessed mod 100 = 0 then begin
     ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
   end;
 
-  if FSaveExistsOnly then begin
-    VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
-    if not Assigned(VTileInfo) or not VTileInfo.GetIsExists then begin
-      Exit;
-    end;
-  end;
-
-  if FExtractTilesFromStorage then begin
-    VSavePath := CopyTileToFileSystem(ATile, AZoom);
-    if VSavePath = '' then begin
-      Exit;
-    end;
+  if FUseTileProviderAndSaver then begin
+    VDoWriteTile := _IsTileInPoly;
   end else begin
-    VSavePath := FTileStorage.GetTileFileName(ATile, AZoom, FVersion);
+    VDoWriteTile := AIsParentInPoly or _IsTileInPoly;
   end;
 
-  if FTryUseRelativePath then begin
-    VSavePath := ExtractRelativePath(ExtractFilePath(FKmlFileName), VSavePath);
+  if VDoWriteTile then begin
+    if FSaveExistsOnly then begin
+      VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
+      if not Assigned(VTileInfo) or not VTileInfo.GetIsExists then begin
+        Exit;
+      end;
+    end;
+
+    if FExtractTilesFromStorage then begin
+      VSavePath := CopyTileToFileSystem(ATile, AZoom);
+      if VSavePath = '' then begin
+        Exit;
+      end;
+    end else begin
+      VSavePath := FTileStorage.GetTileFileName(ATile, AZoom, FVersion);
+    end;
+
+    if FTryUseRelativePath then begin
+      VSavePath := ExtractRelativePath(ExtractFilePath(FKmlFileName), VSavePath);
+    end;
+
+    VLonLatRect := FArr[ALevel].Proj.TilePos2LonLatRect(ATile);
+    VNorth := R2StrPoint(VLonLatRect.Top);
+    VSouth := R2StrPoint(VLonLatRect.Bottom);
+    VEast := R2StrPoint(VLonLatRect.Right);
+    VWest := R2StrPoint(VLonLatRect.Left);
+
+    WriteTextToKmlStream(
+      #13#10 +
+      '<Folder>' + #13#10 +
+      '  <Region>' + #13#10 +
+      '    <LatLonAltBox>' + #13#10 +
+      '      <north>' + VNorth + '</north>' + #13#10 +
+      '      <south>' + VSouth + '</south>' + #13#10 +
+      '      <east>' + VEast + '</east>' + #13#10 +
+      '      <west>' + VWest + '</west>' + #13#10 +
+      '    </LatLonAltBox>' + #13#10 +
+      '    <Lod>' + #13#10 +
+      '      <minLodPixels>' + IfThen(ALevel > 0, '128', '16') +'</minLodPixels>' + #13#10 +
+      '      <maxLodPixels>-1</maxLodPixels>' + #13#10 +
+      '    </Lod>' + #13#10 +
+      '  </Region>' + #13#10 +
+      '  <GroundOverlay>' + #13#10 +
+      '    <drawOrder>' + IntToStr(ALevel) + '</drawOrder>' + #13#10 +
+      '    <Icon>' + #13#10 +
+      '      <href>' + VSavePath + '</href>' + #13#10 +
+      '    </Icon>' + #13#10 +
+      '    <LatLonBox>' + #13#10 +
+      '      <north>' + VNorth + '</north>' + #13#10 +
+      '      <south>' + VSouth + '</south>' + #13#10 +
+      '      <east>' + VEast + '</east>' + #13#10 +
+      '      <west>' + VWest + '</west>' + #13#10 +
+      '    </LatLonBox>' + #13#10 +
+      '  </GroundOverlay>'
+    );
   end;
 
-  VLonLatRect := FTileStorage.ProjectionSet.Zooms[AZoom].TilePos2LonLatRect(ATile);
-  VNorth := R2StrPoint(VLonLatRect.Top);
-  VSouth := R2StrPoint(VLonLatRect.Bottom);
-  VEast := R2StrPoint(VLonLatRect.Right);
-  VWest := R2StrPoint(VLonLatRect.Left);
-
-  WriteTextToKmlStream(
-    #13#10 +
-    '<Folder>' + #13#10 +
-    '  <Region>' + #13#10 +
-    '    <LatLonAltBox>' + #13#10 +
-    '      <north>' + VNorth + '</north>' + #13#10 +
-    '      <south>' + VSouth + '</south>' + #13#10 +
-    '      <east>' + VEast + '</east>' + #13#10 +
-    '      <west>' + VWest + '</west>' + #13#10 +
-    '    </LatLonAltBox>' + #13#10 +
-    '    <Lod>' + #13#10 +
-    '      <minLodPixels>' + IfThen(ALevel > 1, '128', '16') +'</minLodPixels>' + #13#10 +
-    '      <maxLodPixels>-1</maxLodPixels>' + #13#10 +
-    '    </Lod>' + #13#10 +
-    '  </Region>' + #13#10 +
-    '  <GroundOverlay>' + #13#10 +
-    '    <drawOrder>' + IntToStr(ALevel) + '</drawOrder>' + #13#10 +
-    '    <Icon>' + #13#10 +
-    '      <href>' + VSavePath + '</href>' + #13#10 +
-    '    </Icon>' + #13#10 +
-    '    <LatLonBox>' + #13#10 +
-    '      <north>' + VNorth + '</north>' + #13#10 +
-    '      <south>' + VSouth + '</south>' + #13#10 +
-    '      <east>' + VEast + '</east>' + #13#10 +
-    '      <west>' + VWest + '</west>' + #13#10 +
-    '    </LatLonBox>' + #13#10 +
-    '  </GroundOverlay>'
-  );
-
-  if ALevel < Length(FZooms) then begin
-    VZoom := FZooms[ALevel];
+  VNextLevel := ALevel + 1;
+  if VNextLevel < Length(FZooms) then begin
     VTileRect :=
       RectFromDoubleRect(
-        FTileStorage.ProjectionSet.Zooms[VZoom].RelativeRect2TileRectFloat(
-          FTileStorage.ProjectionSet.Zooms[AZoom].TilePos2RelativeRect(ATile)
-        ),
+        FArr[VNextLevel].Proj.RelativeRect2TileRectFloat( FArr[ALevel].Proj.TilePos2RelativeRect(ATile) ),
         rrClosest
       );
-    VIterator.Init(VTileRect);
-    while VIterator.Next(VTile) do begin
-      KmlFileWrite(VTile, VZoom, ALevel + 1);
+    if FArr[VNextLevel].Iter.TilesRect.IsIntersecWithRect(VTileRect) then begin
+      VIterator.Init(VTileRect);
+      while VIterator.Next(VTile) do begin
+        KmlFileWrite(VTile, FZooms[VNextLevel], VNextLevel, VDoWriteTile);
+      end;
     end;
   end;
 
-  WriteTextToKmlStream(#13#10 + '</Folder>');
+  if VDoWriteTile then begin
+    WriteTextToKmlStream(#13#10 + '</Folder>');
+  end;
 end;
 
 procedure TExportTaskToKML.ProcessRegion;
 var
   I: Integer;
-  VZoom: Byte;
-  VProjection: IProjection;
-  VTempIterator: ITileIterator;
-  VIterator: ITileIterator;
   VTile: TPoint;
 begin
   inherited;
@@ -280,16 +314,14 @@ begin
   FTilesProcessed := 0;
   FTilesToProcess := 0;
 
-  if Length(FZooms) > 0 then begin
-    VZoom := FZooms[0];
-    VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
-    VIterator := Self.MakeTileIterator(VProjection);
-    FTilesToProcess := FTilesToProcess + VIterator.TilesTotal;
-    for I := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[I];
-      VProjection := FTileStorage.ProjectionSet.Zooms[VZoom];
-      VTempIterator := Self.MakeTileIterator(VProjection);
-      FTilesToProcess := FTilesToProcess + VTempIterator.TilesTotal;
+  SetLength(FArr, Length(FZooms));
+  for I := 0 to Length(FZooms) - 1 do begin
+    with FArr[I] do begin
+      Proj := FTileStorage.ProjectionSet.Zooms[FZooms[I]];
+      Iter := Self.MakeTileIterator(Proj);
+      Poly := FGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(Proj, Self.PolygLL);
+
+      Inc(FTilesToProcess, Iter.TilesTotal);
     end;
   end;
 
@@ -307,11 +339,8 @@ begin
       '<name>' + ExtractFileName(FKmlFileName) + '</name>'
     );
 
-    VZoom := FZooms[0];
-    while VIterator.Next(VTile) do begin
-      if not CancelNotifier.IsOperationCanceled(OperationID) then begin
-        KmlFileWrite(VTile, VZoom, 1);
-      end;
+    while FArr[0].Iter.Next(VTile) do begin
+      KmlFileWrite(VTile, FZooms[0], 0, False);
     end;
 
     WriteTextToKmlStream(#13#10 + '</Document>' + #13#10 + '</kml>' + #13#10);

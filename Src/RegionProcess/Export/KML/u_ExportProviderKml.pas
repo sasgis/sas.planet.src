@@ -40,7 +40,7 @@ uses
   i_MapType,
   i_MapTypeListChangeable,
   i_GlobalViewMainConfig,
-  i_UseTilePrevZoomConfig,
+  i_GeometryProjectedFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportKml;
@@ -54,7 +54,7 @@ type
     FActiveMapsList: IMapTypeListChangeable;
     FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
     FViewConfig: IGlobalViewMainConfig;
-    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+    FGeometryProjectedFactory: IGeometryProjectedFactory;
     function PrepareBitmapTileProviders(
       const AMapType: IMapType;
       const APolygon: IGeometryLonLatPolygon;
@@ -79,7 +79,7 @@ type
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AActiveMapsList: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
-      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+      const AGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder
     );
   end;
@@ -108,7 +108,7 @@ constructor TExportProviderKml.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AActiveMapsList: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
-  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+  const AGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder
 );
 begin
@@ -123,7 +123,7 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FActiveMapsList := AActiveMapsList;
   FViewConfig := AViewConfig;
-  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
+  FGeometryProjectedFactory := AGeometryProjectedFactory;
   FBitmapTileProviderBuilder := ABitmapTileProviderBuilder;
 end;
 
@@ -136,8 +136,7 @@ begin
       FTileStorageTypeList,
       FTileNameGenerator,
       FBitmap32StaticFactory,
-      FActiveMapsList,
-      FUseTilePrevZoomConfig
+      FActiveMapsList
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
@@ -169,12 +168,12 @@ begin
   for I := 0 to Length(AZoomArr) - 1 do begin
     Result[I] :=
       FBitmapTileProviderBuilder.Build(
-        True,  // marks
-        True,  // color correction
-        True,  // filling map
-        True,  // grids
-        False, // precise cropping
-        0,
+        (ParamsFrame as IRegionProcessParamsFrameKmlExport).UseMarks,
+        (ParamsFrame as IRegionProcessParamsFrameKmlExport).UseRecolor,
+        (ParamsFrame as IRegionProcessParamsFrameKmlExport).UseFillingMap,
+        (ParamsFrame as IRegionProcessParamsFrameKmlExport).UseGrids,
+        (ParamsFrame as IRegionProcessParamsFrameKmlExport).UsePreciseCropping,
+        FViewConfig.BackGroundColor,
         FViewConfig.BackGroundColor,
         VUniProvider,
         APolygon,
@@ -188,37 +187,30 @@ function TExportProviderKml.PrepareTask(
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IRegionProcessTask;
 var
-  VOutputFileName: string;
   VZoomArr: TByteDynArray;
   VMapType: IMapType;
-  VSaveExistsOnly: Boolean;
-  VTryUseRelativePath: Boolean;
-  VBitmapTileSaver: IBitmapTileSaver;
   VBitmapTileProviderArr: TBitmapTileProviderDynArray;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
-  VOutputFileName := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-  VTryUseRelativePath := (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath;
-  VSaveExistsOnly := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
-  VBitmapTileSaver := (ParamsFrame as IRegionProcessParamsFrameKmlExport).BitmapTileSaver;
   VBitmapTileProviderArr := PrepareBitmapTileProviders(VMapType, APolygon, VZoomArr);
 
   Result :=
     TExportTaskToKML.Create(
       AProgressInfo,
-      VOutputFileName,
+      (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path,
+      FGeometryProjectedFactory,
       Self.TileIteratorFactory,
       APolygon,
       VZoomArr,
       VMapType.TileStorage,
       VMapType.VersionRequest.GetStatic.BaseVersion,
-      VSaveExistsOnly,
-      VTryUseRelativePath,
+      (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists,
+      (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath,
       (ParamsFrame as IRegionProcessParamsFrameKmlExport).ExtractTilesFromStorage,
       (ParamsFrame as IRegionProcessParamsFrameKmlExport).TileFileNameGenerator,
-      VBitmapTileSaver,
+      (ParamsFrame as IRegionProcessParamsFrameKmlExport).BitmapTileSaver,
       (ParamsFrame as IRegionProcessParamsFrameKmlExport).ContentTypeInfo,
       VBitmapTileProviderArr
     );

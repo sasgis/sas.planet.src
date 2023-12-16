@@ -47,7 +47,6 @@ uses
   i_TileFileNameGenerator,
   i_TileFileNameGeneratorsList,
   i_RegionProcessParamsFrame,
-  i_UseTilePrevZoomConfig,
   fr_MapSelect,
   fr_ZoomsSelect,
   fr_CacheTypeList,
@@ -73,6 +72,21 @@ type
 
     function GetContentTypeInfo: IContentTypeInfoBasic;
     property ContentTypeInfo: IContentTypeInfoBasic read GetContentTypeInfo;
+
+    function GetUseMarks: Boolean;
+    property UseMarks: Boolean read GetUseMarks;
+
+    function GetUseGrids: Boolean;
+    property UseGrids: Boolean read GetUseGrids;
+
+    function GetUseFillingMap: Boolean;
+    property UseFillingMap: Boolean read GetUseFillingMap;
+
+    function GetUseRecolor: Boolean;
+    property UseRecolor: Boolean read GetUseRecolor;
+
+    function GetUsePreciseCropping: Boolean;
+    property UsePreciseCropping: Boolean read GetUsePreciseCropping;
   end;
 
 type
@@ -102,9 +116,10 @@ type
     lblFileNameGenerator: TLabel;
     chkAddVisibleOverlays: TCheckBox;
     lblInfo: TLabel;
+    chkUsePrevZoom: TCheckBox;
+    chkPreciseCropping: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkExtractTilesClick(Sender: TObject);
-    procedure chkAddVisibleOverlaysClick(Sender: TObject);
   private
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
@@ -112,10 +127,11 @@ type
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FActiveMapsList: IMapTypeListChangeable;
-    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FPolygon: IGeometryLonLatPolygon;
+    function GetUseUniProvider: Boolean;
     procedure UpdateInfoText;
     procedure OnChangeNotify(Sender: TObject);
+    procedure OnForceExtractTilesChange(Sender: TObject);
     function GetAllowExport(const AMapType: IMapType): Boolean;
   private
     procedure Init(
@@ -134,6 +150,11 @@ type
     function GetProvider: IBitmapTileUniProvider;
     function GetBitmapTileSaver: IBitmapTileSaver;
     function GetContentTypeInfo: IContentTypeInfoBasic;
+    function GetUseMarks: Boolean;
+    function GetUseGrids: Boolean;
+    function GetUseFillingMap: Boolean;
+    function GetUseRecolor: Boolean;
+    function GetUsePreciseCropping: Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -141,8 +162,7 @@ type
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AActiveMapsList: IMapTypeListChangeable;
-      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig
+      const AActiveMapsList: IMapTypeListChangeable
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -170,8 +190,7 @@ constructor TfrExportKml.Create(
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AActiveMapsList: IMapTypeListChangeable;
-  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig
+  const AActiveMapsList: IMapTypeListChangeable
 );
 begin
   inherited Create(ALanguageManager);
@@ -204,7 +223,10 @@ begin
   FTileNameGeneratorList := ATileNameGeneratorList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FActiveMapsList := AActiveMapsList;
-  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
+
+  chkAddVisibleOverlays.OnClick := Self.OnForceExtractTilesChange;
+  chkPreciseCropping.OnClick := Self.OnForceExtractTilesChange;
+  chkUsePrevZoom.OnClick := Self.OnForceExtractTilesChange;
 end;
 
 destructor TfrExportKml.Destroy;
@@ -254,7 +276,7 @@ var
 begin
   VText := '';
 
-  if chkExtractTiles.Checked and _CalcTilesCount(VCount) then begin
+  if Self.GetExtractTilesFromStorage and _CalcTilesCount(VCount) then begin
     if IsLonLatPolygonSimpleRect(FPolygon) then begin
       VText := IfThen(VText <> '', VText + #13#10) +
         Format(_('Tiles to extract: %.0n'), [VCount + 0.0])
@@ -264,7 +286,7 @@ begin
     end;
   end;
 
-  if chkAddVisibleOverlays.Checked then begin
+  if Self.GetUseUniProvider then begin
     VText := IfThen(VText <> '', VText + #13#10) +
       Format(_('Tiles target format: %s') , [GetContentTypeInfo.GetContentType]);
   end;
@@ -279,17 +301,28 @@ end;
 
 function TfrExportKml.GetAllowExport(const AMapType: IMapType): Boolean;
 begin
-  Result :=
-    (AMapType.IsBitmapTiles) and
-    (chkExtractTiles.Checked or (AMapType.TileStorage.StorageTypeAbilities.StorageClass = tstcInSeparateFiles));
+  Result := (AMapType.IsBitmapTiles) and (
+    Self.GetExtractTilesFromStorage or
+    (AMapType.TileStorage.StorageTypeAbilities.StorageClass = tstcInSeparateFiles)
+  );
 end;
 
-procedure TfrExportKml.chkAddVisibleOverlaysClick(Sender: TObject);
+function TfrExportKml.GetUseUniProvider: Boolean;
 begin
-  if chkAddVisibleOverlays.Checked then begin
+  Result :=
+    chkAddVisibleOverlays.Checked or
+    chkUsePrevZoom.Checked or
+    chkPreciseCropping.Checked;
+end;
+
+procedure TfrExportKml.OnForceExtractTilesChange(Sender: TObject);
+begin
+  if Self.GetUseUniProvider then begin
     chkExtractTiles.Checked := True;
+    chkExtractTiles.Enabled := False;
+  end else begin
+    chkExtractTiles.Enabled := True;
   end;
-  chkExtractTiles.Enabled := not chkAddVisibleOverlays.Checked;
   UpdateInfoText;
 end;
 
@@ -332,7 +365,7 @@ var
   VContentType: IContentTypeInfoBitmap;
 begin
   Result := nil;
-  if not chkAddVisibleOverlays.Checked then begin
+  if not Self.GetUseUniProvider then begin
     Exit;
   end;
   if Supports(Self.GetContentTypeInfo, IContentTypeInfoBitmap, VContentType) then begin
@@ -357,7 +390,7 @@ var
   VMap: IMapType;
   VMapVersion: IMapVersionRequest;
 begin
-  if not chkAddVisibleOverlays.Checked then begin
+  if not Self.GetUseUniProvider then begin
     Result := nil;
     Exit;
   end;
@@ -373,8 +406,8 @@ begin
       nil, // Layer
       nil, // LayerVersion,
       FActiveMapsList.List,
-      FUseTilePrevZoomConfig.UsePrevZoomAtMap,
-      FUseTilePrevZoomConfig.UsePrevZoomAtLayer
+      chkUsePrevZoom.Checked,
+      chkUsePrevZoom.Checked
     );
 end;
 
@@ -386,6 +419,31 @@ end;
 function TfrExportKml.GetTileFileNameGenerator: ITileFileNameGenerator;
 begin
   Result := FTileNameGeneratorList.GetGenerator(FfrCacheTypeList.IntCode);
+end;
+
+function TfrExportKml.GetUseFillingMap: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrExportKml.GetUseGrids: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrExportKml.GetUseMarks: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrExportKml.GetUseRecolor: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrExportKml.GetUsePreciseCropping: Boolean;
+begin
+  Result := chkPreciseCropping.Checked;
 end;
 
 function TfrExportKml.GetZoomArray: TByteDynArray;
@@ -403,6 +461,7 @@ begin
   FfrZoomsSelect.Show(pnlZoom);
   FfrCacheTypeList.Show(pnlFileNameGenerator);
   SetControlEnabled(pnlFileNameGenerator, chkExtractTiles.Checked);
+  OnChangeNotify(nil);
 end;
 
 function TfrExportKml.Validate: Boolean;
