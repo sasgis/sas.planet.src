@@ -24,6 +24,7 @@ unit u_RegionProcessTaskAbstract;
 interface
 
 uses
+  Math,
   i_GeometryLonLat,
   i_Projection,
   i_TileIterator,
@@ -103,9 +104,12 @@ end;
 procedure TRegionProcessTaskAbstract.ProgressFormUpdateOnProgress(
   AProcessed, AToProcess: Int64
 );
+var
+  VRatio: Double;
 begin
-  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
-  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
+  VRatio := IfThen(AToProcess > 0, AProcessed / AToProcess);
+  ProgressInfo.SetProcessedRatio(VRatio);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + IntToStr(AProcessed));
 end;
 
 end.
