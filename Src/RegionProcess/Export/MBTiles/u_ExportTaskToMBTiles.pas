@@ -55,7 +55,6 @@ type
     FBitmapTileSaver: IBitmapTileSaver;
     FBitmapProvider: IBitmapTileUniProvider;
     FDirectTilesCopy: Boolean;
-    FBasePoint: TPoint;
     FSQLiteStorage: TSQLiteStorageMBTilesBase;
   private
     function GetLonLatRect(const ATileIterator: ITileIterator): TDoubleRect;
@@ -225,7 +224,6 @@ begin
       VTileIterator := VTileIterators[I];
       if Assigned(VTileIterator) then begin
         VProjection := VTileIterator.TilesRect.Projection;
-        FBasePoint := VTileIterator.TilesRect.TopLeft;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             Exit;
