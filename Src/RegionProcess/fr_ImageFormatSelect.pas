@@ -46,14 +46,24 @@ type
     iftPng8bpp,
     iftPng24bpp,
     iftPng32bpp,
-    iftWebp
+    iftWebp,
+    iftWebpLossless
   );
 
   TImageFormatTypeSet = set of TImageFormatType;
 
 const
-  CImageFormatAll: TImageFormatTypeSet =
-    [iftAuto, iftBmp, iftGif, iftJpeg, iftPng8bpp, iftPng24bpp, iftPng32bpp, iftWebp];
+  CImageFormatAll: TImageFormatTypeSet = [
+    iftAuto,
+    iftBmp,
+    iftGif,
+    iftJpeg,
+    iftPng8bpp,
+    iftPng24bpp,
+    iftPng32bpp,
+    iftWebp,
+    iftWebpLossless
+  ];
 
 type
   TfrImageFormatSelect = class(TFrame)
@@ -103,10 +113,11 @@ var
     'BMP',
     'GIF',
     'JPEG',
-    'PNG 8 BPP',
-    'PNG 24 BPP',
-    'PNG 32 BPP',
-    'WEBP'
+    'PNG (8 BPP)',
+    'PNG (24 BPP)',
+    'PNG (32 BPP)',
+    'WEBP',
+    'WEBP (Lossless)'
   );
 
 const
@@ -118,7 +129,8 @@ const
     'image/png', // 8 bpp
     'image/png', // 24 bpp
     'image/png', // 32 bpp
-    'image/webp'
+    'image/webp',
+    'image/webp' // lossless
   );
 
 { TfrImageFormatSelect }
@@ -153,11 +165,11 @@ begin
   VFormat := GetSelectedFormat;
 
   VQuality := VFormat in [iftJpeg, iftWebp];
-  VCompression := VFormat in [iftPng24bpp, iftPng32bpp];
+  VCompression := VFormat in [iftPng8bpp, iftPng24bpp, iftPng32bpp];
 
   if VQuality then begin
     lblCompression.Caption := _('Quality:');
-    seCompression.MinValue := 0;
+    seCompression.MinValue := 1;
     seCompression.MaxValue := 100;
     seCompression.Value := 75;
   end else
@@ -165,7 +177,7 @@ begin
     lblCompression.Caption := _('Compression:');
     seCompression.MinValue := 0;
     seCompression.MaxValue := 9;
-    seCompression.Value := 2;
+    seCompression.Value := 6;
   end;
 
   seCompression.Visible := VQuality or VCompression;
@@ -190,6 +202,7 @@ begin
       FIndexByImageFormat[I] := -1;
     end;
   end;
+  cbbImageFormat.DropDownCount := cbbImageFormat.Items.Count;
 end;
 
 procedure TfrImageFormatSelect.Show(AParent: TWinControl);
@@ -275,6 +288,7 @@ begin
     iftPng24bpp: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, seCompression.Value);
     iftPng32bpp: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, seCompression.Value);
     iftWebp: Result := FBitmapTileSaveLoadFactory.CreateWebpSaver(seCompression.Value);
+    iftWebpLossless: Result := FBitmapTileSaveLoadFactory.CreateWebpLosslessSaver;
   else
     raise Exception.CreateFmt('Unexpected TImageFormatType value: %d', [Integer(VFormat)]);
   end;

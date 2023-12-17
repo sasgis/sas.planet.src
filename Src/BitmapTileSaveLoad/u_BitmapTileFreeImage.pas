@@ -99,7 +99,7 @@ type
   public
     constructor Create(
       const AFormat: FREE_IMAGE_FORMAT;
-      const APngCompress: Byte;
+      const ACompress: Integer;
       const ABitPerPixel: Byte;
       const ABitmap32To8Converter: IBitmap32To8Converter;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -124,7 +124,7 @@ type
   TBitmapTileFreeImageSaverPng = class(TBitmapTileFreeImageSaver)
   public
     constructor Create(
-      const APngCompress: Byte;
+      const ACompress: Byte;
       const ABitPerPixel: Integer;
       const ABitmap32To8Converter: IBitmap32To8Converter;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -134,7 +134,14 @@ type
   TBitmapTileFreeImageSaverWebp = class(TBitmapTileFreeImageSaver)
   public
     constructor Create(
-      ACompressionQuality: Byte;
+      const AQuality: Byte;
+      const APerfCounterList: IInternalPerformanceCounterList
+    );
+  end;
+
+  TBitmapTileFreeImageSaverWebpLossless = class(TBitmapTileFreeImageSaver)
+  public
+    constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -156,7 +163,7 @@ type
   EBitmapTileFreeImageSaver = class(Exception);
 
 const
-  cPngCompressLevelUndef = 255;
+  CWebpLosslessQuality = -1;
 
 { TBitmapTileFreeImageLoader }
 
@@ -302,7 +309,7 @@ end;
 
 constructor TBitmapTileFreeImageSaver.Create(
   const AFormat: FREE_IMAGE_FORMAT;
-  const APngCompress: Byte;
+  const ACompress: Integer;
   const ABitPerPixel: Byte;
   const ABitmap32To8Converter: IBitmap32To8Converter;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -314,35 +321,24 @@ begin
   FBitmap32To8Converter := ABitmap32To8Converter;
   FCounter := APerfCounterList.CreateAndAddNewCounter('Save');
   case FFormat of
-    FIF_PNG:
-    begin
-      case APngCompress of
-        1..4:
-        begin
-          FFlag := PNG_Z_BEST_SPEED;
-        end;
-        5..7:
-        begin
-          FFlag := PNG_Z_DEFAULT_COMPRESSION;
-        end;
-        8, 9:
-        begin
-          FFlag := PNG_Z_BEST_COMPRESSION;
-        end;
-      else // 0
-      begin
-        FFlag := PNG_Z_NO_COMPRESSION;
-      end;
+    FIF_PNG: begin
+      case ACompress of
+        0: FFlag := PNG_Z_NO_COMPRESSION;
+        1..9: FFlag := ACompress;
+      else
+        Assert(False, 'Invalid PNG compression level: ' + IntToStr(ACompress));
       end;
     end;
-    FIF_WEBP:
-    begin
-      FFlag := APngCompress;
+    FIF_WEBP: begin
+      case ACompress of
+        1..100: FFlag := ACompress;
+        CWebpLosslessQuality: FFlag := WEBP_LOSSLESS;
+      else
+        Assert(False, 'Invalid WebP quality value: ' + IntToStr(ACompress));
+      end;
     end
   else // FIF_BMP, FIF_GIF
-  begin
     FFlag := 0;
-  end;
   end;
 end;
 
@@ -482,7 +478,7 @@ constructor TBitmapTileFreeImageSaverBmp.Create(
 begin
   inherited Create(
     FIF_BMP,
-    cPngCompressLevelUndef,
+    0,
     32,
     nil,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/Bmp')
@@ -498,7 +494,7 @@ constructor TBitmapTileFreeImageSaverGif.Create(
 begin
   inherited Create(
     FIF_GIF,
-    cPngCompressLevelUndef,
+    0,
     8,
     ABitmap32To8Converter,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/Gif')
@@ -508,7 +504,7 @@ end;
 { TBitmapTileFreeImageSaverPng }
 
 constructor TBitmapTileFreeImageSaverPng.Create(
-  const APngCompress: Byte;
+  const ACompress: Byte;
   const ABitPerPixel: Integer;
   const ABitmap32To8Converter: IBitmap32To8Converter;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -516,26 +512,41 @@ constructor TBitmapTileFreeImageSaverPng.Create(
 begin
   inherited Create(
     FIF_PNG,
-    APngCompress,
+    ACompress,
     ABitPerPixel,
     ABitmap32To8Converter,
-    APerfCounterList.CreateAndAddNewSubList('FreeImage/Png')
+    APerfCounterList.CreateAndAddNewSubList('FreeImage/Png' + IntToStr(ABitPerPixel) + 'bpp')
   );
 end;
 
 { TBitmapTileFreeImageSaverWebp }
 
 constructor TBitmapTileFreeImageSaverWebp.Create(
-  ACompressionQuality: Byte;
+  const AQuality: Byte;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create(
     FIF_WEBP,
-    ACompressionQuality,
+    AQuality,
     32,
     nil,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/Webp')
+  );
+end;
+
+{ TBitmapTileFreeImageSaverWebpLossless }
+
+constructor TBitmapTileFreeImageSaverWebpLossless.Create(
+  const APerfCounterList: IInternalPerformanceCounterList
+);
+begin
+  inherited Create(
+    FIF_WEBP,
+    CWebpLosslessQuality,
+    32,
+    nil,
+    APerfCounterList.CreateAndAddNewSubList('FreeImage/WebpLossless')
   );
 end;
 

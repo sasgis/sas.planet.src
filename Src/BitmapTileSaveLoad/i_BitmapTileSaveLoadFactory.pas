@@ -80,6 +80,10 @@ type
       const ACompressionQuality: Byte = 75;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
+
+    function CreateWebpLosslessSaver(
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileSaver;
   end;
 
 implementation

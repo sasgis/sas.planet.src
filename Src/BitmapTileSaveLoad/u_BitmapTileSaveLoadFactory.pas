@@ -88,6 +88,10 @@ type
       const ACompressionQuality: Byte = 75;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
+
+    function CreateWebpLosslessSaver(
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileSaver;
   public
     constructor Create(
       const ABitmap32StaticFactory: IBitmap32StaticFactory
@@ -255,6 +259,15 @@ function TBitmapTileSaveLoadFactory.CreateWebpSaver(
 begin
   Result := TBitmapTileFreeImageSaverWebp.Create(
     ACompressionQuality,
+    GetValidPerfCounterList(APerfCounterList)
+  );
+end;
+
+function TBitmapTileSaveLoadFactory.CreateWebpLosslessSaver(
+  const APerfCounterList: IInternalPerformanceCounterList
+): IBitmapTileSaver;
+begin
+  Result := TBitmapTileFreeImageSaverWebpLossless.Create(
     GetValidPerfCounterList(APerfCounterList)
   );
 end;
