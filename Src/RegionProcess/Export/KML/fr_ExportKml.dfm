@@ -1,8 +1,8 @@
 object frExportKml: TfrExportKml
   Left = 0
   Top = 0
-  Width = 400
-  Height = 276
+  Width = 499
+  Height = 337
   Align = alClient
   Constraints.MinHeight = 120
   Constraints.MinWidth = 400
@@ -12,16 +12,16 @@ object frExportKml: TfrExportKml
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 400
-    Height = 249
+    Width = 499
+    Height = 310
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object pnlZoom: TPanel
-      Left = 325
+      Left = 424
       Top = 0
       Width = 75
-      Height = 249
+      Height = 310
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -30,8 +30,8 @@ object frExportKml: TfrExportKml
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 325
-      Height = 249
+      Width = 424
+      Height = 310
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -40,7 +40,7 @@ object frExportKml: TfrExportKml
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 319
+        Width = 418
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
@@ -52,8 +52,8 @@ object frExportKml: TfrExportKml
       object lblInfo: TLabel
         AlignWithMargins = True
         Left = 6
-        Top = 231
-        Width = 313
+        Top = 292
+        Width = 412
         Height = 15
         Align = alBottom
         Caption = '_'
@@ -68,7 +68,7 @@ object frExportKml: TfrExportKml
       object chkNotSaveNotExists: TCheckBox
         Left = 3
         Top = 59
-        Width = 319
+        Width = 418
         Height = 17
         Align = alTop
         Caption = 'Don'#39't store references to non-existent tiles'
@@ -80,7 +80,7 @@ object frExportKml: TfrExportKml
         AlignWithMargins = True
         Left = 3
         Top = 42
-        Width = 319
+        Width = 418
         Height = 17
         Margins.Left = 0
         Margins.Right = 0
@@ -94,7 +94,7 @@ object frExportKml: TfrExportKml
       object pnlMap: TPanel
         Left = 3
         Top = 16
-        Width = 319
+        Width = 418
         Height = 23
         Align = alTop
         BevelOuter = bvNone
@@ -103,7 +103,7 @@ object frExportKml: TfrExportKml
       object chkExtractTiles: TCheckBox
         Left = 3
         Top = 127
-        Width = 319
+        Width = 418
         Height = 17
         Align = alTop
         Caption = 'Extract tiles from cache'
@@ -115,8 +115,8 @@ object frExportKml: TfrExportKml
       object pnlFileNameGenerator: TPanel
         Left = 3
         Top = 144
-        Width = 319
-        Height = 44
+        Width = 418
+        Height = 42
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 4
@@ -124,7 +124,7 @@ object frExportKml: TfrExportKml
           AlignWithMargins = True
           Left = 0
           Top = 3
-          Width = 316
+          Width = 415
           Height = 15
           Margins.Left = 0
           Margins.Bottom = 3
@@ -135,7 +135,7 @@ object frExportKml: TfrExportKml
       object chkAddVisibleOverlays: TCheckBox
         Left = 3
         Top = 76
-        Width = 319
+        Width = 418
         Height = 17
         Align = alTop
         Caption = 'Add visible Layers/Placemarks/Grids etc.'
@@ -144,7 +144,7 @@ object frExportKml: TfrExportKml
       object chkUsePrevZoom: TCheckBox
         Left = 3
         Top = 110
-        Width = 319
+        Width = 418
         Height = 17
         Align = alTop
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
@@ -153,7 +153,7 @@ object frExportKml: TfrExportKml
       object chkPreciseCropping: TCheckBox
         Left = 3
         Top = 93
-        Width = 319
+        Width = 418
         Height = 17
         Hint = 
           'Precise cropping of the image along the boundaries of the polygo' +
@@ -162,12 +162,21 @@ object frExportKml: TfrExportKml
         Caption = 'Precise cropping by the polygon'
         TabOrder = 7
       end
+      object pnlImageFormat: TPanel
+        Left = 3
+        Top = 186
+        Width = 418
+        Height = 50
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 8
+      end
     end
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 400
+    Width = 499
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -189,7 +198,7 @@ object frExportKml: TfrExportKml
       AlignWithMargins = True
       Left = 47
       Top = 3
-      Width = 326
+      Width = 425
       Height = 21
       Margins.Left = 0
       Margins.Top = 0
@@ -198,7 +207,7 @@ object frExportKml: TfrExportKml
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 376
+      Left = 475
       Top = 3
       Width = 21
       Height = 21

@@ -33,16 +33,16 @@ uses
   StdCtrls,
   ExtCtrls,
   Math,
-  t_Bitmap32,
   i_LanguageManager,
   i_GeometryLonLat,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_MapType,
-  i_MapTypeListStatic,
   i_MapTypeListChangeable,
   i_BitmapLayerProvider,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoad,
+  i_BitmapTileSaveLoadFactory,
   i_TileStorageTypeList,
   i_TileFileNameGenerator,
   i_TileFileNameGeneratorsList,
@@ -50,6 +50,7 @@ uses
   fr_MapSelect,
   fr_ZoomsSelect,
   fr_CacheTypeList,
+  fr_ImageFormatSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -118,21 +119,25 @@ type
     lblInfo: TLabel;
     chkUsePrevZoom: TCheckBox;
     chkPreciseCropping: TCheckBox;
+    pnlImageFormat: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkExtractTilesClick(Sender: TObject);
   private
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
     FfrCacheTypeList: TfrCacheTypeList;
+    FfrImageFormatSelect: TfrImageFormatSelect;
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FActiveMapsList: IMapTypeListChangeable;
+    FContentTypeManager: IContentTypeManager;
     FPolygon: IGeometryLonLatPolygon;
     function GetUseUniProvider: Boolean;
     procedure UpdateInfoText;
     procedure OnChangeNotify(Sender: TObject);
     procedure OnForceExtractTilesChange(Sender: TObject);
     function GetAllowExport(const AMapType: IMapType): Boolean;
+    function GetContentType: AnsiString;
   private
     procedure Init(
       const AZoom: Byte;
@@ -162,6 +167,8 @@ type
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AContentTypeManager: IContentTypeManager;
       const AActiveMapsList: IMapTypeListChangeable
     ); reintroduce;
     destructor Destroy; override;
@@ -178,7 +185,6 @@ uses
   i_TileStorageAbilities,
   u_GeoFunc,
   u_GeometryFunc,
-  u_ContentTypeFunc,
   u_BitmapLayerProviderMapWithLayer,
   u_FileSystemFunc;
 
@@ -190,6 +196,8 @@ constructor TfrExportKml.Create(
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AContentTypeManager: IContentTypeManager;
   const AActiveMapsList: IMapTypeListChangeable
 );
 begin
@@ -220,8 +228,18 @@ begin
       [tsacAdd]
     );
 
+  FfrImageFormatSelect :=
+    TfrImageFormatSelect.Create(
+      ALanguageManager,
+      ABitmapTileSaveLoadFactory,
+      CImageFormatAll,
+      iftAuto,
+      Self.OnChangeNotify
+    );
+
   FTileNameGeneratorList := ATileNameGeneratorList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FContentTypeManager := AContentTypeManager;
   FActiveMapsList := AActiveMapsList;
 
   chkAddVisibleOverlays.OnClick := Self.OnForceExtractTilesChange;
@@ -288,7 +306,7 @@ begin
 
   if Self.GetUseUniProvider then begin
     VText := IfThen(VText <> '', VText + #13#10) +
-      Format(_('Tiles target format: %s') , [GetContentTypeInfo.GetContentType]);
+      Format(_('Tiles target format: %s') , [Self.GetContentType]);
   end;
 
   if VText <> '' then begin
@@ -323,6 +341,8 @@ begin
   end else begin
     chkExtractTiles.Enabled := True;
   end;
+
+  SetControlEnabled(pnlImageFormat, Self.GetUseUniProvider);
   UpdateInfoText;
 end;
 
@@ -361,25 +381,26 @@ begin
 end;
 
 function TfrExportKml.GetBitmapTileSaver: IBitmapTileSaver;
-var
-  VContentType: IContentTypeInfoBitmap;
 begin
-  Result := nil;
-  if not Self.GetUseUniProvider then begin
-    Exit;
+  if Self.GetUseUniProvider then begin
+    Result := FfrImageFormatSelect.GetBitmapTileSaver(Self.GetMapType, nil);
+  end else begin
+    Result := nil;
   end;
-  if Supports(Self.GetContentTypeInfo, IContentTypeInfoBitmap, VContentType) then begin
-    Result := VContentType.GetSaver;
-  end;
+end;
+
+function TfrExportKml.GetContentType: AnsiString;
+begin
+  Result := FfrImageFormatSelect.GetContentType(Self.GetMapType, nil);
 end;
 
 function TfrExportKml.GetContentTypeInfo: IContentTypeInfoBasic;
 var
-  VMap: IMapType;
+  VContentType: AnsiString;
 begin
-  VMap := Self.GetMapType;
-  if VMap <> nil then begin
-    Result := VMap.ContentType;
+  VContentType := Self.GetContentType;
+  if VContentType <> '' then begin
+    Result := FContentTypeManager.GetInfo(VContentType);
   end else begin
     Result := nil;
   end;
@@ -460,7 +481,9 @@ begin
   FfrMapSelect.Show(pnlMap);
   FfrZoomsSelect.Show(pnlZoom);
   FfrCacheTypeList.Show(pnlFileNameGenerator);
+  FfrImageFormatSelect.Show(pnlImageFormat);
   SetControlEnabled(pnlFileNameGenerator, chkExtractTiles.Checked);
+  SetControlEnabled(pnlImageFormat, Self.GetUseUniProvider);
   OnChangeNotify(nil);
 end;
 

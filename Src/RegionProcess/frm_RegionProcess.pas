@@ -220,6 +220,7 @@ type
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList;
+      const AContentTypeManager: IContentTypeManager;
       const AViewConfig: IGlobalViewMainConfig
     ): IInterfaceListStatic;
   private
@@ -658,6 +659,7 @@ begin
         AArchiveReadWriteFactory,
         ATileStorageTypeList,
         ATileNameGenerator,
+        AContentTypeManager,
         AViewConfig
       ),
       False,
@@ -839,6 +841,7 @@ function TfrmRegionProcess.PrepareExportProviders(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList;
+  const AContentTypeManager: IContentTypeManager;
   const AViewConfig: IGlobalViewMainConfig
 ): IInterfaceListStatic;
 var
@@ -856,6 +859,8 @@ begin
       ATileStorageTypeList,
       ATileNameGenerator,
       ABitmap32StaticFactory,
+      ABitmapTileSaveLoadFactory,
+      AContentTypeManager,
       AActiveMapsList,
       AViewConfig,
       AVectorGeometryProjectedFactory,

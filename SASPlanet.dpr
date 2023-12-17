@@ -1083,6 +1083,7 @@ uses
   fr_TilesGenPrev in 'Src\RegionProcess\GenPrev\fr_TilesGenPrev.pas' {frTilesGenPrev: TFrame},
   u_ProviderTilesGenPrev in 'Src\RegionProcess\GenPrev\u_ProviderTilesGenPrev.pas',
   u_ThreadGenPrevZoom in 'Src\RegionProcess\GenPrev\u_ThreadGenPrevZoom.pas',
+  fr_ImageFormatSelect in 'Src\RegionProcess\fr_ImageFormatSelect.pas' {Frame1: TFrame},
   fr_MapSelect in 'Src\RegionProcess\fr_MapSelect.pas' {frMapSelect: TFrame},
   fr_PathSelect in 'Src\RegionProcess\fr_PathSelect.pas' {frPathSelect: TFrame},
   fr_RegionProcessComplexComboBox in 'Src\RegionProcess\fr_RegionProcessComplexComboBox.pas' {frRegionProcessComplexComboBox: TFrame},

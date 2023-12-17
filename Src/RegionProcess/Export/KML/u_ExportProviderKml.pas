@@ -30,6 +30,8 @@ uses
   i_BitmapTileProvider,
   i_BitmapTileProviderBuilder,
   i_Bitmap32BufferFactory,
+  i_BitmapTileSaveLoadFactory,
+  i_ContentTypeManager,
   i_TileIteratorFactory,
   i_TileStorageTypeList,
   i_TileFileNameGeneratorsList,
@@ -51,6 +53,8 @@ type
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FContentTypeManager: IContentTypeManager;
     FActiveMapsList: IMapTypeListChangeable;
     FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
     FViewConfig: IGlobalViewMainConfig;
@@ -77,6 +81,8 @@ type
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AContentTypeManager: IContentTypeManager;
       const AActiveMapsList: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
       const AGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -106,6 +112,8 @@ constructor TExportProviderKml.Create(
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AContentTypeManager: IContentTypeManager;
   const AActiveMapsList: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
   const AGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -121,6 +129,8 @@ begin
   FTileStorageTypeList := ATileStorageTypeList;
   FTileNameGenerator := ATileNameGenerator;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FContentTypeManager := AContentTypeManager;
   FActiveMapsList := AActiveMapsList;
   FViewConfig := AViewConfig;
   FGeometryProjectedFactory := AGeometryProjectedFactory;
@@ -136,6 +146,8 @@ begin
       FTileStorageTypeList,
       FTileNameGenerator,
       FBitmap32StaticFactory,
+      FBitmapTileSaveLoadFactory,
+      FContentTypeManager,
       FActiveMapsList
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
