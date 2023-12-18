@@ -94,6 +94,21 @@ type
 
     function GetContentType: IContentTypeInfoBasic;
     property ContentType: IContentTypeInfoBasic read GetContentType;
+
+    function GetUseMarks: Boolean;
+    property UseMarks: Boolean read GetUseMarks;
+
+    function GetUseGrids: Boolean;
+    property UseGrids: Boolean read GetUseGrids;
+
+    function GetUseFillingMap: Boolean;
+    property UseFillingMap: Boolean read GetUseFillingMap;
+
+    function GetUseRecolor: Boolean;
+    property UseRecolor: Boolean read GetUseRecolor;
+
+    function GetUsePreciseCropping: Boolean;
+    property UsePreciseCropping: Boolean read GetUsePreciseCropping;
   end;
 
 type
@@ -132,6 +147,8 @@ type
     chkPlaceInNameSubFolder: TCheckBox;
     chkAddVisibleLayers: TCheckBox;
     cbbTargetPath: TComboBox;
+    chkAddVisibleOverlays: TCheckBox;
+    chkUseRecolor: TCheckBox;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure OnCacheTypeChange(Sender: TObject);
     procedure chkSetTargetVersionToClick(Sender: TObject);
@@ -178,6 +195,11 @@ type
     function GetProvider: IBitmapTileUniProvider;
     function GetBitmapTileSaver: IBitmapTileSaver;
     function GetContentType: IContentTypeInfoBasic;
+    function GetUseMarks: Boolean;
+    function GetUseGrids: Boolean;
+    function GetUseFillingMap: Boolean;
+    function GetUseRecolor: Boolean;
+    function GetUsePreciseCropping: Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -527,6 +549,31 @@ end;
 function TfrTilesCopy.GetTargetCacheType: Byte;
 begin
   Result := Byte(FfrCacheTypeList.IntCode);
+end;
+
+function TfrTilesCopy.GetUseFillingMap: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrTilesCopy.GetUseGrids: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrTilesCopy.GetUseMarks: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrTilesCopy.GetUseRecolor: Boolean;
+begin
+  Result := chkUseRecolor.Checked;
+end;
+
+function TfrTilesCopy.GetUsePreciseCropping: Boolean;
+begin
+  Result := False;
 end;
 
 function TfrTilesCopy.GetZoomArray: TByteDynArray;

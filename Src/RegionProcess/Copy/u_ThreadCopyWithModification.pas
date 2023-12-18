@@ -31,8 +31,8 @@ uses
   i_TileIteratorFactory,
   i_RegionProcessProgressInfo,
   i_ContentTypeInfo,
-  i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
+  i_BitmapTileProvider,
   i_MapType,
   u_ExportTaskAbstract;
 
@@ -43,7 +43,7 @@ type
     FTargetVersionInfo: IMapVersionInfo;
     FSource: IMapType;
     FLayer: IMapType;
-    FProvider: IBitmapTileUniProvider;
+    FBitmapTileProviderArr: TBitmapTileProviderDynArray;
     FBitmapTileSaver: IBitmapTileSaver;
     FContentType: IContentTypeInfoBasic;
     FIsOverwriteDestTiles: Boolean;
@@ -59,7 +59,7 @@ type
       const ATargetVersionForce: IMapVersionInfo;
       const ASource: IMapType;
       const ALayer: IMapType;
-      const AProvider: IBitmapTileUniProvider;
+      const ABitmapTileProviderArr: TBitmapTileProviderDynArray;
       const ABitmapTileSaver: IBitmapTileSaver;
       const AZoomArr: TByteDynArray;
       const AContentType: IContentTypeInfoBasic;
@@ -90,7 +90,7 @@ constructor TThreadCopyWithModification.Create(
   const ATargetVersionForce: IMapVersionInfo;
   const ASource: IMapType;
   const ALayer: IMapType;
-  const AProvider: IBitmapTileUniProvider;
+  const ABitmapTileProviderArr: TBitmapTileProviderDynArray;
   const ABitmapTileSaver: IBitmapTileSaver;
   const AZoomArr: TByteDynArray;
   const AContentType: IContentTypeInfoBasic;
@@ -98,18 +98,22 @@ constructor TThreadCopyWithModification.Create(
   const AIsOverwriteDestTiles: Boolean
 );
 begin
+  Assert(Length(AZoomArr) = Length(ABitmapTileProviderArr));
+
   inherited Create(
     AProgressInfo,
     APolygon,
     AZoomArr,
     ATileIteratorFactory
   );
+
   FIsProcessTne := AIsProcessTne;
-  FTarget := ATarget;
-  FTargetVersionInfo := ATargetVersionForce;
   FSource := ASource;
   FLayer := ALayer;
-  FProvider := AProvider;
+
+  FTarget := ATarget;
+  FTargetVersionInfo := ATargetVersionForce;
+  FBitmapTileProviderArr := ABitmapTileProviderArr;
   FBitmapTileSaver := ABitmapTileSaver;
   FContentType := AContentType;
   FIsOverwriteDestTiles := AIsOverwriteDestTiles;
@@ -118,7 +122,7 @@ end;
 procedure TThreadCopyWithModification.ProcessRegion;
 
   procedure ProcessTile(
-    const AProjection: IProjection;
+    const AProvider: IBitmapTileProvider;
     const ATile: TPoint;
     const AZoom: Byte;
     const ALoadDate: TDateTime
@@ -128,10 +132,9 @@ procedure TThreadCopyWithModification.ProcessRegion;
     VTileData: IBinaryData;
   begin
     VBitmapTile :=
-      FProvider.GetTile(
+      AProvider.GetTile(
         Self.OperationID,
         Self.CancelNotifier,
-        AProjection,
         ATile
       );
     if Assigned(VBitmapTile) then begin
@@ -152,7 +155,6 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileIterators: array of ITileIterator;
-  VTileProjections: array of IProjection;
   I: Integer;
   VZoom: Byte;
   VProjectionSet: IProjectionSet;
@@ -161,36 +163,33 @@ var
   VTile: TPoint;
 begin
   inherited;
+
   VTilesToProcess := 0;
   VTilesProcessed := 0;
 
   SetLength(VTileIterators, Length(FZooms));
-  SetLength(VTileProjections, Length(FZooms));
-  for I := 0 to High(FZooms) do begin
+  for I := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[I];
     VProjectionSet := FTarget.ProjectionSet;
     VProjection := VProjectionSet.Zooms[VZoom];
     VTileIterators[I] := Self.MakeTileIterator(VProjection);
-    VTileProjections[I] := VProjection;
-    VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
+    Inc(VTilesToProcess, VTileIterators[I].TilesTotal);
   end;
 
   ProgressInfo.SetCaption(SAS_STR_ExportTiles + ' ' + ZoomArrayToStr(FZooms));
   ProgressInfo.SetFirstLine(
-    SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
+    SAS_STR_AllSaves + ' ' + IntToStr(VTilesToProcess) + ' ' + SAS_STR_Files
   );
   ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 
-  for I := 0 to High(FZooms) do begin
-    VZoom := FZooms[I];
-    VProjection := VTileProjections[I];
+  for I := 0 to Length(FZooms) - 1 do begin
     VTileIterator := VTileIterators[I];
     while VTileIterator.Next(VTile) do begin
       if CancelNotifier.IsOperationCanceled(OperationID) then begin
         Exit;
       end;
 
-      ProcessTile(VProjection, VTile, VZoom, Now);
+      ProcessTile(FBitmapTileProviderArr[I], VTile, FZooms[I], Now);
 
       Inc(VTilesProcessed);
       if VTilesProcessed mod 100 = 0 then begin

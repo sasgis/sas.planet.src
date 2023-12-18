@@ -671,21 +671,21 @@ begin
 
   VProvider :=
     TProviderTilesCopy.Create(
-      ATimerNoifier,
       VProgressFactory,
       ALanguageManager,
       VMapSelectFrameBuilder,
+      FTileIteratorFactory,
       AActiveBitmapLayersList,
       AMainMapConfig,
-      AGlobalBerkeleyDBHelper,
       AFullMapsSet,
       AGUIConfigList,
       AMapTypeListBuilderFactory,
       AContentTypeManager,
-      FTileIteratorFactory,
       ATileStorageTypeList,
       ABitmapFactory,
-      ABitmapTileSaveLoadFactory
+      ABitmapTileSaveLoadFactory,
+      AViewConfig,
+      FBitmapTileProviderBuilder
     );
   VList.Add(VProvider);
 

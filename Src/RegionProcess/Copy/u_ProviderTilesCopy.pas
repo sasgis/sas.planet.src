@@ -29,6 +29,7 @@ uses
   i_NotifierTime,
   i_LanguageManager,
   i_GeometryLonLat,
+  i_MapType,
   i_MapTypeSet,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
@@ -41,10 +42,12 @@ uses
   i_ContentTypeInfo,
   i_MapTypeListStatic,
   i_MapTypeListChangeable,
-  i_GlobalBerkeleyDBHelper,
+  i_GlobalViewMainConfig,
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
+  i_BitmapTileProvider,
+  i_BitmapTileProviderBuilder,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,
@@ -55,8 +58,6 @@ type
   private
     FActiveMapsList: IMapTypeListChangeable;
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
-    FTimerNoifier: INotifierTime;
-    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FMainMapConfig: IActiveMapConfig;
@@ -64,6 +65,8 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FViewConfig: IGlobalViewMainConfig;
+    FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
   private
     function PrepareDirectCopy(
       const APolygon: IGeometryLonLatPolygon;
@@ -73,6 +76,11 @@ type
       const AZoomArr: TByteDynArray;
       const ADeleteSource, AReplace: Boolean
     ): IRegionProcessTask;
+    function PrepareBitmapTileProviders(
+      const AMapType: IMapType;
+      const APolygon: IGeometryLonLatPolygon;
+      const AZoomArr: TByteDynArray
+    ): TBitmapTileProviderDynArray;
     function PrepareModification(
       const APolygon: IGeometryLonLatPolygon;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
@@ -90,21 +98,21 @@ type
     ): IRegionProcessTask; override;
   public
     constructor Create(
-      const ATimerNoifier: INotifierTime;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+      const ATileIteratorFactory: ITileIteratorFactory;
       const AActiveMapsList: IMapTypeListChangeable;
       const AMainMapConfig: IActiveMapConfig;
-      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AContentTypeManager: IContentTypeManager;
-      const ATileIteratorFactory: ITileIteratorFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AViewConfig: IGlobalViewMainConfig;
+      const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder
     );
   end;
 
@@ -114,7 +122,7 @@ uses
   Classes,
   SysUtils,
   gnugettext,
-  i_MapType,
+  i_BitmapLayerProvider,
   i_TileStorageAbilities,
   i_TileStorageTypeListItem,
   i_RegionProcessParamsFrame,
@@ -125,21 +133,21 @@ uses
 { TProviderTilesCopy }
 
 constructor TProviderTilesCopy.Create(
-  const ATimerNoifier: INotifierTime;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
+  const ATileIteratorFactory: ITileIteratorFactory;
   const AActiveMapsList: IMapTypeListChangeable;
   const AMainMapConfig: IActiveMapConfig;
-  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AContentTypeManager: IContentTypeManager;
-  const ATileIteratorFactory: ITileIteratorFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AViewConfig: IGlobalViewMainConfig;
+  const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder
 );
 begin
   inherited Create(
@@ -153,12 +161,12 @@ begin
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
-  FTimerNoifier := ATimerNoifier;
-  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FContentTypeManager := AContentTypeManager;
   FTileStorageTypeList := ATileStorageTypeList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FViewConfig := AViewConfig;
+  FBitmapTileProviderBuilder := ABitmapTileProviderBuilder;
 end;
 
 function TProviderTilesCopy.CreateFrame: TFrame;
@@ -268,6 +276,38 @@ begin
     );
 end;
 
+function TProviderTilesCopy.PrepareBitmapTileProviders(
+  const AMapType: IMapType;
+  const APolygon: IGeometryLonLatPolygon;
+  const AZoomArr: TByteDynArray
+): TBitmapTileProviderDynArray;
+var
+  I: Integer;
+  VUniProvider: IBitmapTileUniProvider;
+begin
+  VUniProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
+  if VUniProvider = nil then begin
+    Result := nil;
+    Exit;
+  end;
+  SetLength(Result, Length(AZoomArr));
+  for I := 0 to Length(AZoomArr) - 1 do begin
+    Result[I] :=
+      FBitmapTileProviderBuilder.Build(
+        (ParamsFrame as IRegionProcessParamsFrameTilesCopy).UseMarks,
+        (ParamsFrame as IRegionProcessParamsFrameTilesCopy).UseRecolor,
+        (ParamsFrame as IRegionProcessParamsFrameTilesCopy).UseFillingMap,
+        (ParamsFrame as IRegionProcessParamsFrameTilesCopy).UseGrids,
+        (ParamsFrame as IRegionProcessParamsFrameTilesCopy).UsePreciseCropping,
+        FViewConfig.BackGroundColor,
+        FViewConfig.BackGroundColor,
+        VUniProvider,
+        APolygon,
+        AMapType.TileStorage.ProjectionSet.Zooms[AZoomArr[I]]
+      );
+  end;
+end;
+
 function TProviderTilesCopy.PrepareModification(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
@@ -284,6 +324,7 @@ var
   VMapType: IMapType;
   VContentType: IContentTypeInfoBasic;
   VPath: string;
+  VBitmapTileProviderArr: TBitmapTileProviderDynArray;
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapSource;
   VContentType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ContentType;
@@ -316,6 +357,8 @@ begin
     VTargetVersionForce := nil;
   end;
 
+  VBitmapTileProviderArr := PrepareBitmapTileProviders(VMapType, APolygon, AZoomArr);
+
   Result :=
     TThreadCopyWithModification.Create(
       AProgressInfo,
@@ -325,7 +368,7 @@ begin
       VTargetVersionForce,
       VMapType,
       (ParamsFrame as IRegionProcessParamsFrameTilesCopy).Overlay,
-      (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider,
+      VBitmapTileProviderArr,
       (ParamsFrame as IRegionProcessParamsFrameTilesCopy).BitmapTileSaver,
       AZoomArr,
       VContentType,

@@ -2,7 +2,7 @@ object frTilesCopy: TfrTilesCopy
   Left = 0
   Top = 0
   Width = 568
-  Height = 348
+  Height = 402
   Align = alClient
   Constraints.MinHeight = 300
   Constraints.MinWidth = 480
@@ -13,7 +13,7 @@ object frTilesCopy: TfrTilesCopy
     Left = 0
     Top = 49
     Width = 568
-    Height = 299
+    Height = 353
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
@@ -21,7 +21,7 @@ object frTilesCopy: TfrTilesCopy
       Left = 488
       Top = 0
       Width = 80
-      Height = 299
+      Height = 353
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -31,7 +31,7 @@ object frTilesCopy: TfrTilesCopy
       Left = 0
       Top = 0
       Width = 488
-      Height = 299
+      Height = 353
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -113,7 +113,7 @@ object frTilesCopy: TfrTilesCopy
         Left = 3
         Top = 104
         Width = 482
-        Height = 192
+        Height = 246
         ActivePage = tsOverlay
         Align = alClient
         TabOrder = 3
@@ -123,7 +123,7 @@ object frTilesCopy: TfrTilesCopy
             Left = 0
             Top = 37
             Width = 474
-            Height = 105
+            Height = 159
             Align = alClient
             ItemHeight = 15
             TabOrder = 2
@@ -131,7 +131,7 @@ object frTilesCopy: TfrTilesCopy
           object chkAllMaps: TCheckBox
             AlignWithMargins = True
             Left = 0
-            Top = 145
+            Top = 199
             Width = 474
             Height = 17
             Margins.Left = 0
@@ -202,7 +202,7 @@ object frTilesCopy: TfrTilesCopy
           end
           object pnlImageFormat: TPanel
             Left = 0
-            Top = 94
+            Top = 128
             Width = 474
             Height = 48
             Align = alTop
@@ -227,6 +227,25 @@ object frTilesCopy: TfrTilesCopy
             Caption = 'Add visible Layers'
             TabOrder = 2
             OnClick = chkAddVisibleLayersClick
+          end
+          object chkAddVisibleOverlays: TCheckBox
+            Left = 0
+            Top = 94
+            Width = 474
+            Height = 17
+            Align = alTop
+            Caption = 'Add visible Placemarks, Grids etc.'
+            TabOrder = 4
+            OnClick = chkAddVisibleLayersClick
+          end
+          object chkUseRecolor: TCheckBox
+            Left = 0
+            Top = 111
+            Width = 474
+            Height = 17
+            Align = alTop
+            Caption = 'Use postprocessing settings'
+            TabOrder = 5
           end
         end
       end
