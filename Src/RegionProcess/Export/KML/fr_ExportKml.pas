@@ -120,6 +120,8 @@ type
     chkUsePrevZoom: TCheckBox;
     chkPreciseCropping: TCheckBox;
     pnlImageFormat: TPanel;
+    chkUseRecolor: TCheckBox;
+    chkAddVisibleLayers: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkExtractTilesClick(Sender: TObject);
   private
@@ -181,6 +183,7 @@ uses
   gnugettext,
   t_GeoTypes,
   i_Projection,
+  i_MapTypeListStatic,
   i_MapVersionRequest,
   i_TileStorageAbilities,
   u_GeoFunc,
@@ -242,7 +245,9 @@ begin
   FContentTypeManager := AContentTypeManager;
   FActiveMapsList := AActiveMapsList;
 
+  chkAddVisibleLayers.OnClick := Self.OnForceExtractTilesChange;
   chkAddVisibleOverlays.OnClick := Self.OnForceExtractTilesChange;
+  chkUseRecolor.OnClick := Self.OnForceExtractTilesChange;
   chkPreciseCropping.OnClick := Self.OnForceExtractTilesChange;
   chkUsePrevZoom.OnClick := Self.OnForceExtractTilesChange;
 end;
@@ -329,7 +334,9 @@ end;
 function TfrExportKml.GetUseUniProvider: Boolean;
 begin
   Result :=
+    chkAddVisibleLayers.Checked or
     chkAddVisibleOverlays.Checked or
+    chkUseRecolor.Checked or
     chkUsePrevZoom.Checked or
     chkPreciseCropping.Checked;
 end;
@@ -411,6 +418,7 @@ function TfrExportKml.GetProvider: IBitmapTileUniProvider;
 var
   VMap: IMapType;
   VMapVersion: IMapVersionRequest;
+  VActiveMapsList: IMapTypeListStatic;
 begin
   if not Self.GetUseUniProvider then begin
     Result := nil;
@@ -420,6 +428,12 @@ begin
   VMap := FfrMapSelect.GetSelectedMapType;
   VMapVersion := VMap.VersionRequest.GetStatic;
 
+  if chkAddVisibleLayers.Checked then begin
+    VActiveMapsList := FActiveMapsList.List;
+  end else begin
+    VActiveMapsList := nil;
+  end;
+
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmap32StaticFactory,
@@ -427,7 +441,7 @@ begin
       VMapVersion,
       nil, // Layer
       nil, // LayerVersion,
-      FActiveMapsList.List,
+      VActiveMapsList,
       chkUsePrevZoom.Checked,
       chkUsePrevZoom.Checked
     );
@@ -460,7 +474,7 @@ end;
 
 function TfrExportKml.GetUseRecolor: Boolean;
 begin
-  Result := chkAddVisibleOverlays.Checked;
+  Result := chkUseRecolor.Checked;
 end;
 
 function TfrExportKml.GetUsePreciseCropping: Boolean;

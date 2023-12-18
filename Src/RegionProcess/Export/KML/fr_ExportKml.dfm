@@ -102,7 +102,7 @@ object frExportKml: TfrExportKml
       end
       object chkExtractTiles: TCheckBox
         Left = 3
-        Top = 127
+        Top = 161
         Width = 418
         Height = 17
         Align = alTop
@@ -114,7 +114,7 @@ object frExportKml: TfrExportKml
       end
       object pnlFileNameGenerator: TPanel
         Left = 3
-        Top = 144
+        Top = 178
         Width = 418
         Height = 42
         Align = alTop
@@ -134,16 +134,16 @@ object frExportKml: TfrExportKml
       end
       object chkAddVisibleOverlays: TCheckBox
         Left = 3
-        Top = 76
+        Top = 93
         Width = 418
         Height = 17
         Align = alTop
-        Caption = 'Add visible Layers/Placemarks/Grids etc.'
+        Caption = 'Add visible Placemarks, Grids etc.'
         TabOrder = 5
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
-        Top = 110
+        Top = 127
         Width = 418
         Height = 17
         Align = alTop
@@ -152,7 +152,7 @@ object frExportKml: TfrExportKml
       end
       object chkPreciseCropping: TCheckBox
         Left = 3
-        Top = 93
+        Top = 144
         Width = 418
         Height = 17
         Hint = 
@@ -164,12 +164,30 @@ object frExportKml: TfrExportKml
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 186
+        Top = 220
         Width = 418
         Height = 50
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 8
+      end
+      object chkUseRecolor: TCheckBox
+        Left = 3
+        Top = 110
+        Width = 418
+        Height = 17
+        Align = alTop
+        Caption = 'Use postprocessing settings'
+        TabOrder = 9
+      end
+      object chkAddVisibleLayers: TCheckBox
+        Left = 3
+        Top = 76
+        Width = 418
+        Height = 17
+        Align = alTop
+        Caption = 'Add visible Layers'
+        TabOrder = 10
       end
     end
   end
