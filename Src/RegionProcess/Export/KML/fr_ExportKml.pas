@@ -252,6 +252,7 @@ begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrZoomsSelect);
   FreeAndNil(FfrCacheTypeList);
+  FreeAndNil(FfrImageFormatSelect);
   inherited Destroy;
 end;
 
