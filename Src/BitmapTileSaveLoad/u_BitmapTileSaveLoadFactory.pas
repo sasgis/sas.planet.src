@@ -65,7 +65,7 @@ type
 
     function CreatePngSaver(
       const AColorDepth: TImageColorBitPerPix = i32bpp;
-      const ACompressionLevel: Byte = 2;
+      const ACompressionLevel: Byte = 6;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
 
@@ -134,7 +134,7 @@ begin
 end;
 
 function TBitmapTileSaveLoadFactory.CreateBmpLoader(
-  const APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList
 ): IBitmapTileLoader;
 begin
   Result := TBitmapTileFreeImageLoaderBmp.Create(
@@ -144,7 +144,7 @@ begin
 end;
 
 function TBitmapTileSaveLoadFactory.CreateBmpSaver(
-  const APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList
 ): IBitmapTileSaver;
 begin
   Result := TBitmapTileFreeImageSaverBmp.Create(
@@ -153,7 +153,7 @@ begin
 end;
 
 function TBitmapTileSaveLoadFactory.CreateGifLoader(
-  const APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList
 ): IBitmapTileLoader;
 begin
   Result := TBitmapTileFreeImageLoaderGif.Create(
@@ -163,7 +163,7 @@ begin
 end;
 
 function TBitmapTileSaveLoadFactory.CreateGifSaver(
-  const APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList
 ): IBitmapTileSaver;
 begin
   Result := TBitmapTileFreeImageSaverGif.Create(
@@ -173,7 +173,7 @@ begin
 end;
 
 function TBitmapTileSaveLoadFactory.CreatePngLoader(
-  const APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList
 ): IBitmapTileLoader;
 begin
   Result := TBitmapTileFreeImageLoaderPng.Create(
@@ -183,9 +183,9 @@ begin
 end;
 
 function TBitmapTileSaveLoadFactory.CreatePngSaver(
-  const AColorDepth: TImageColorBitPerPix = i32bpp;
-  const ACompressionLevel: Byte = 2;
-  const APerfCounterList: IInternalPerformanceCounterList = nil
+  const AColorDepth: TImageColorBitPerPix;
+  const ACompressionLevel: Byte;
+  const APerfCounterList: IInternalPerformanceCounterList
 ): IBitmapTileSaver;
 begin
   case AColorDepth of
@@ -222,7 +222,7 @@ begin
 end;
 
 function TBitmapTileSaveLoadFactory.CreateJpegLoader(
-  const APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList
 ): IBitmapTileLoader;
 begin
   Result := TLibJpegTileLoader.Create(
@@ -232,8 +232,8 @@ begin
 end;
 
 function TBitmapTileSaveLoadFactory.CreateJpegSaver(
-  const ACompressionQuality: Byte = 75;
-  const APerfCounterList: IInternalPerformanceCounterList = nil
+  const ACompressionQuality: Byte;
+  const APerfCounterList: IInternalPerformanceCounterList
 ): IBitmapTileSaver;
 begin
   Result := TLibJpegTileSaver.Create(

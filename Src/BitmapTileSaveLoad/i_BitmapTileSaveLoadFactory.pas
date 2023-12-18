@@ -57,7 +57,7 @@ type
 
     function CreatePngSaver(
       const AColorDepth: TImageColorBitPerPix = i32bpp;
-      const ACompressionLevel: Byte = 2;
+      const ACompressionLevel: Byte = 6;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
 
