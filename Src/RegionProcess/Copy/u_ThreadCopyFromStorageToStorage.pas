@@ -117,8 +117,10 @@ var
   VTile: TPoint;
 begin
   inherited;
+
   VTilesToProcess := 0;
   VTilesProcessed := 0;
+
   SetLength(VTileIterators, Length(FTasks), Length(FZooms));
   for I := 0 to Length(FTasks) - 1 do begin
     for J := 0 to Length(FZooms) - 1 do begin
@@ -126,40 +128,33 @@ begin
       VProjectionSet := FTasks[I].FSource.ProjectionSet;
       VProjection := VProjectionSet.Zooms[VZoom];
       VTileIterators[I, J] := Self.MakeTileIterator(VProjection);
-      VTilesToProcess := VTilesToProcess + VTileIterators[I, J].TilesTotal;
+      Inc(VTilesToProcess, VTileIterators[I, J].TilesTotal);
     end;
   end;
-  try
-    ProgressInfo.SetCaption(SAS_STR_ExportTiles + ' ' + ZoomArrayToStr(FZooms));
-    ProgressInfo.SetFirstLine(
-      SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
-    );
-    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-    for I := 0 to Length(FTasks) - 1 do begin
-      for J := 0 to Length(FZooms) - 1 do begin
-        VZoom := FZooms[J];
-        VTileIterator := VTileIterators[I, J];
-        while VTileIterator.Next(VTile) do begin
-          if CancelNotifier.IsOperationCanceled(OperationID) then begin
-            Exit;
-          end;
 
-          ProcessTile(FTasks[I], VTile, VZoom);
+  ProgressInfo.SetCaption(SAS_STR_ExportTiles + ' ' + ZoomArrayToStr(FZooms));
+  ProgressInfo.SetFirstLine(
+    SAS_STR_AllSaves + ' ' + IntToStr(VTilesToProcess) + ' ' + SAS_STR_Files
+  );
+  ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 
-          Inc(VTilesProcessed);
-          if VTilesProcessed mod 100 = 0 then begin
-            ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-          end;
+  for I := 0 to Length(FTasks) - 1 do begin
+    for J := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[J];
+      VTileIterator := VTileIterators[I, J];
+      while VTileIterator.Next(VTile) do begin
+        if CancelNotifier.IsOperationCanceled(OperationID) then begin
+          Exit;
+        end;
+
+        ProcessTile(FTasks[I], VTile, VZoom);
+
+        Inc(VTilesProcessed);
+        if VTilesProcessed mod 100 = 0 then begin
+          ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         end;
       end;
     end;
-  finally
-    for I := 0 to Length(FTasks) - 1 do begin
-      for J := 0 to Length(FZooms) - 1 do begin
-        VTileIterators[I, J] := nil;
-      end;
-    end;
-    VTileIterators := nil;
   end;
 end;
 
