@@ -34,9 +34,6 @@ uses
   ComCtrls,
   Spin,
   ExtCtrls,
-  fr_MapSelect,
-  fr_ZoomsSelect,
-  fr_CacheTypeList,
   i_LanguageManager,
   i_MapType,
   i_MapVersionRequest,
@@ -55,6 +52,10 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_TileStorageTypeList,
   i_RegionProcessParamsFrame,
+  fr_MapSelect,
+  fr_ZoomsSelect,
+  fr_CacheTypeList,
+  fr_ImageFormatSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -78,8 +79,8 @@ type
     function GetSetTargetVersionEnabled: Boolean;
     property SetTargetVersionEnabled: Boolean read GetSetTargetVersionEnabled;
 
-    function GetSetTargetVersionValue: String;
-    property SetTargetVersionValue: String read GetSetTargetVersionValue;
+    function GetSetTargetVersionValue: string;
+    property SetTargetVersionValue: string read GetSetTargetVersionValue;
 
     // For modifications
     function GetMapSource: IMapType;
@@ -126,22 +127,15 @@ type
     pnlOverlay: TPanel;
     chkDeleteSource: TCheckBox;
     pnlImageFormat: TPanel;
-    lblJpgQulity: TLabel;
-    lblCompression: TLabel;
-    seJpgQuality: TSpinEdit;
-    seCompression: TSpinEdit;
     pnlMap: TPanel;
     lblMap: TLabel;
     chkPlaceInNameSubFolder: TCheckBox;
-    lblImageFormat: TLabel;
-    cbbImageFormat: TComboBox;
     chkAddVisibleLayers: TCheckBox;
     cbbTargetPath: TComboBox;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure OnCacheTypeChange(Sender: TObject);
     procedure chkSetTargetVersionToClick(Sender: TObject);
     procedure chkAllMapsClick(Sender: TObject);
-    procedure cbbImageFormatChange(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -156,9 +150,10 @@ type
     FfrOverlaySelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
     FfrCacheTypeList: TfrCacheTypeList;
+    FfrImageFormatSelect: TfrImageFormatSelect;
   private
     procedure Init(
-      const AZoom: byte;
+      const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;
@@ -230,6 +225,7 @@ constructor TfrTilesCopy.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
   FActiveMapsList := AActiveMapsList;
   FMainMapConfig := AMainMapConfig;
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
@@ -238,6 +234,7 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FContentTypeManager := AContentTypeManager;
+
   FfrCacheTypeList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
@@ -247,6 +244,7 @@ begin
       [tsacAdd],
       Self.OnCacheTypeChange
     );
+
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
       mfMaps,          // show maps
@@ -254,6 +252,7 @@ begin
       False,           // show disabled map
       GetAllowCopy
     );
+
   FfrOverlaySelect :=
     AMapSelectFrameBuilder.Build(
       mfLayers,        // show layers
@@ -261,11 +260,20 @@ begin
       False,           // show disabled map
       GetAllowCopy
     );
+
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+
+  FfrImageFormatSelect :=
+    TfrImageFormatSelect.Create(
+      ALanguageManager,
+      ABitmapTileSaveLoadFactory,
+      CImageFormatAll
+    );
+
   pcSource.ActivePageIndex := 0;
 end;
 
@@ -275,47 +283,43 @@ begin
   FreeAndNil(FfrOverlaySelect);
   FreeAndNil(FfrZoomsSelect);
   FreeAndNil(FfrCacheTypeList);
+  FreeAndNil(FfrImageFormatSelect);
   inherited;
 end;
 
 procedure TfrTilesCopy.btnSelectTargetPathClick(Sender: TObject);
 var
-  TempPath: String;
-  i: Integer;
-  vFind: Boolean;
+  I: Integer;
+  VFound: Boolean;
+  VTempPath: string;
 begin
-  if SelectDirectory('', '', TempPath) then begin
-    cbbTargetPath.Text := IncludeTrailingPathDelimiter(TempPath);
-    vFind := False;
-    if cbbTargetPath.Items.Count > 0 then     
-      for i := 0 to cbbTargetPath.Items.Count - 1 do
-       if cbbTargetPath.Items.ValueFromIndex[i] = cbbTargetPath.Text then vFind := True;
-    if not vFind then cbbTargetPath.Items.Add(cbbTargetPath.Text)
+  if SelectDirectory('', '', VTempPath) then begin
+    VFound := False;
+    cbbTargetPath.Text := IncludeTrailingPathDelimiter(VTempPath);
+    if cbbTargetPath.Items.Count > 0 then begin
+      for I := 0 to cbbTargetPath.Items.Count - 1 do begin
+        if cbbTargetPath.Items.ValueFromIndex[I] = cbbTargetPath.Text then begin
+          VFound := True;
+          Break;
+        end;
+      end;
+    end;
+    if not VFound then begin
+      cbbTargetPath.Items.Add(cbbTargetPath.Text);
+    end;
   end;
 end;
 
 procedure TfrTilesCopy.OnCacheTypeChange(Sender: TObject);
-var
-  VIntCode: Byte;
-  VAllowSetVersion: Boolean;
+const
+  CVersionedTileStorageId = [
+    c_File_Cache_Id_DBMS,
+    c_File_Cache_Id_BDB_Versioned,
+    c_File_Cache_Id_SQLite
+  ];
 begin
-  VIntCode := GetTargetCacheType;
-  VAllowSetVersion := (VIntCode in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB_Versioned, c_File_Cache_Id_SQLite]);
-  chkSetTargetVersionTo.Enabled := VAllowSetVersion;
+  chkSetTargetVersionTo.Enabled := Self.GetTargetCacheType in CVersionedTileStorageId;
   UpdateSetTargetVersionState;
-end;
-
-procedure TfrTilesCopy.cbbImageFormatChange(Sender: TObject);
-var
-  VValue: Boolean;
-begin
-  VValue := not (cbbImageFormat.ItemIndex <= 0) and cbbImageFormat.Enabled;
-
-  lblJpgQulity.Enabled := VValue;
-  seJpgQuality.Enabled := VValue;
-
-  lblCompression.Enabled := VValue;
-  seCompression.Enabled := VValue;
 end;
 
 procedure TfrTilesCopy.chkAddVisibleLayersClick(Sender: TObject);
@@ -325,14 +329,14 @@ end;
 
 procedure TfrTilesCopy.chkAllMapsClick(Sender: TObject);
 var
-  i: byte;
+  I: Byte;
 begin
-  if chkAllMaps.state <> cbGrayed then begin
-    for i := 0 to chklstMaps.Count - 1 do begin
-      if chklstMaps.ItemEnabled[i]// Select only enabled items
-        or (not TCheckBox(Sender).Checked and chklstMaps.Checked[i]) // deselect disabled items
+  if chkAllMaps.State <> cbGrayed then begin
+    for I := 0 to chklstMaps.Count - 1 do begin
+      if chklstMaps.ItemEnabled[I] or // Select only enabled items
+         (not TCheckBox(Sender).Checked and chklstMaps.Checked[I]) // deselect disabled items
       then begin
-        chklstMaps.Checked[i] := TCheckBox(Sender).Checked;
+        chklstMaps.Checked[I] := TCheckBox(Sender).Checked;
       end;
     end;
   end;
@@ -365,78 +369,37 @@ begin
 end;
 
 function TfrTilesCopy.GetBitmapTileSaver: IBitmapTileSaver;
-
-  function _GetSaver(const AMap: IMapType): IBitmapTileSaver;
-  var
-    VContentType: IContentTypeInfoBitmap;
-  begin
-    Result := nil;
-    if Assigned(AMap) then begin
-      if Supports(AMap.ContentType, IContentTypeInfoBitmap, VContentType) then begin
-        Result := VContentType.GetSaver;
-      end;
-    end;
-  end;
-
 begin
   if pcSource.ActivePageIndex = 0 then begin
     Result := nil;
     Exit;
   end;
 
-  if cbbImageFormat.ItemIndex <= 0 then begin
-    Result := _GetSaver(FfrMapSelect.GetSelectedMapType);
-    if not Assigned(Result) then begin
-      Result := _GetSaver(GetSelectedLayer);
-    end;
-  end else begin
-    case cbbImageFormat.ItemIndex of
-      1: Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(seJpgQuality.Value);
-      2: Result := FBitmapTileSaveLoadFactory.CreateBmpSaver;
-      3: Result := FBitmapTileSaveLoadFactory.CreateGifSaver;
-      4: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, seCompression.Value);
-      5: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, seCompression.Value);
-      6: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, seCompression.Value);
-    end;
-  end;
-  if not Assigned(Result) then begin
-    Assert(False, 'Unexpected result!');
-    Result := FBitmapTileSaveLoadFactory.CreateJpegSaver;
-  end;
+  Result :=
+    FfrImageFormatSelect.GetBitmapTileSaver(
+      FfrMapSelect.GetSelectedMapType,
+      Self.GetSelectedLayer
+    );
 end;
 
 function TfrTilesCopy.GetContentType: IContentTypeInfoBasic;
-
-  function _GetContentType(const AMap: IMapType): IContentTypeInfoBasic;
-  begin
-    Result := nil;
-    if Assigned(AMap) then begin
-      Supports(AMap.ContentType, IContentTypeInfoBitmap, Result);
-    end;
-  end;
-
+var
+  VContentType: AnsiString;
 begin
+  Result := nil;
+
   if pcSource.ActivePageIndex = 0 then begin
-    Result := nil;
     Exit;
   end;
 
-  if cbbImageFormat.ItemIndex <= 0 then begin
-    Result := _GetContentType(FfrMapSelect.GetSelectedMapType);
-    if not Assigned(Result) then begin
-      Result := _GetContentType(GetSelectedLayer);
-    end;
-  end else begin
-    case cbbImageFormat.ItemIndex of
-      1: Result := FContentTypeManager.GetInfo('image/jpeg');
-      2: Result := FContentTypeManager.GetInfo('image/bmp');
-      3: Result := FContentTypeManager.GetInfo('image/gif');
-      4..6: Result := FContentTypeManager.GetInfo('image/png');
-    end;
-  end;
-  if not Assigned(Result) then begin
-    Assert(False, 'Unexpected result!');
-    Result := FContentTypeManager.GetInfo('image/jpeg');
+  VContentType :=
+    FfrImageFormatSelect.GetContentType(
+      FfrMapSelect.GetSelectedMapType,
+      Self.GetSelectedLayer
+    );
+
+  if VContentType <> '' then begin
+    Result := FContentTypeManager.GetInfo(VContentType);
   end;
 end;
 
@@ -459,9 +422,9 @@ end;
 
 function TfrTilesCopy.GetMapTypeList: IMapTypeListStatic;
 var
+  I: Integer;
   VMaps: IMapTypeListBuilder;
   VMapType: IMapType;
-  i: Integer;
 begin
   if pcSource.ActivePageIndex <> 0 then begin
     Result := nil;
@@ -469,9 +432,9 @@ begin
   end;
 
   VMaps := FMapTypeListBuilderFactory.Build;
-  for i := 0 to chklstMaps.Items.Count - 1 do begin
-    if chklstMaps.Checked[i] then begin
-      VMapType := IMapType(Pointer(chklstMaps.Items.Objects[i]));
+  for I := 0 to chklstMaps.Items.Count - 1 do begin
+    if chklstMaps.Checked[I] then begin
+      VMapType := IMapType(Pointer(chklstMaps.Items.Objects[I]));
       if VMapType <> nil then begin
         VMaps.Add(VMapType);
       end;
@@ -556,7 +519,7 @@ begin
   Result := chkSetTargetVersionTo.Enabled and chkSetTargetVersionTo.Checked;
 end;
 
-function TfrTilesCopy.GetSetTargetVersionValue: String;
+function TfrTilesCopy.GetSetTargetVersionValue: string;
 begin
   Result := Trim(edSetTargetVersionValue.Text);
 end;
@@ -573,7 +536,7 @@ end;
 
 procedure TfrTilesCopy.Init;
 var
-  i: integer;
+  I: Integer;
   VMapType: IMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
@@ -585,11 +548,13 @@ begin
   FfrZoomsSelect.Show(pnlZoom);
   FfrCacheTypeList.Show(pnlCacheTypes);
   FfrCacheTypeList.IntCode := c_File_Cache_Id_SAS;
+  FfrImageFormatSelect.Show(pnlImageFormat);
+
   VActiveMapGUID := FMainMapConfig.MainMapGUID;
   chklstMaps.Items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count - 1 do begin
-    VGUID := VGUIDList.Items[i];
+  For I := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[I];
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.GUIConfig.Enabled) then begin
       VAddedIndex := chklstMaps.Items.AddObject(VMapType.GUIConfig.Name.Value, TObject(Pointer(VMapType)));
@@ -600,8 +565,6 @@ begin
     end;
   end;
   FfrOverlaySelect.cbbMap.ItemIndex := 0;
-  cbbImageFormat.ItemIndex := 0;
-  cbbImageFormatChange(nil);
 end;
 
 procedure TfrTilesCopy.UpdateSetTargetVersionState;
@@ -628,6 +591,12 @@ begin
   if pcSource.ActivePageIndex = 0 then begin
     VMaps := GetMapTypeList;
     Result := Assigned(VMaps) and (VMaps.Count > 0);
+    if not Result then begin
+      ShowMessage(_('Please select at least one map'));
+      Exit;
+    end;
+  end else begin
+    Result := (FfrMapSelect.GetSelectedMapType <> nil) or (Self.GetSelectedLayer <> nil);
     if not Result then begin
       ShowMessage(_('Please select at least one map'));
       Exit;
