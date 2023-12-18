@@ -24,6 +24,7 @@ unit u_ProviderTilesCopy;
 interface
 
 uses
+  Types,
   Forms,
   i_NotifierTime,
   i_LanguageManager,
@@ -38,6 +39,7 @@ uses
   i_TileStorageTypeList,
   i_MapVersionInfo,
   i_ContentTypeInfo,
+  i_MapTypeListStatic,
   i_MapTypeListChangeable,
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessTask,
@@ -62,6 +64,22 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  private
+    function PrepareDirectCopy(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
+      const AMaps: IMapTypeListStatic;
+      const ACacheType: Byte;
+      const AZoomArr: TByteDynArray;
+      const ADeleteSource, AReplace: Boolean
+    ): IRegionProcessTask;
+    function PrepareModification(
+      const APolygon: IGeometryLonLatPolygon;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
+      const ACacheType: Byte;
+      const AZoomArr: TByteDynArray;
+      const ADeleteSource, AReplace: Boolean
+    ): IRegionProcessTask;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -93,12 +111,10 @@ type
 implementation
 
 uses
-  Types,
   Classes,
   SysUtils,
   gnugettext,
   i_MapType,
-  i_MapTypeListStatic,
   i_TileStorageAbilities,
   i_TileStorageTypeListItem,
   i_RegionProcessParamsFrame,
@@ -171,157 +187,163 @@ begin
   Result := _('Copy');
 end;
 
+function TProviderTilesCopy.PrepareDirectCopy(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
+  const AMaps: IMapTypeListStatic;
+  const ACacheType: Byte;
+  const AZoomArr: TByteDynArray;
+  const ADeleteSource, AReplace: Boolean
+): IRegionProcessTask;
+var
+  I: Integer;
+  VTasks: TCopyTaskArray;
+  VPlaceInSubFolder: Boolean;
+  VSetTargetVersionEnabled: Boolean;
+  VSetTargetVersionValue: string;
+  VTargetStoragePath: string;
+  VMapType: IMapType;
+  VStorageType: ITileStorageTypeListItem;
+  VPath: string;
+begin
+  VPlaceInSubFolder := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).PlaceInNameSubFolder;
+  if AMaps.Count > 1 then begin
+    VPlaceInSubFolder := True;
+  end;
+  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  if VPlaceInSubFolder then begin
+    VPath := IncludeTrailingPathDelimiter(VPath);
+  end;
+
+  // set version options
+  VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
+  if VSetTargetVersionEnabled then begin
+    VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue;
+  end else begin
+    VSetTargetVersionValue := '';
+  end;
+  VStorageType := FTileStorageTypeList.GetItemByCode(ACacheType);
+
+  SetLength(VTasks, AMaps.Count);
+  for I := 0 to AMaps.Count - 1 do begin
+    VMapType := AMaps.Items[I];
+    VTasks[I].FSource := VMapType.TileStorage;
+    VTasks[I].FSourceVersion := VMapType.VersionRequest.GetStatic;
+    if VPlaceInSubFolder then begin
+      VTargetStoragePath := VPath + VMapType.GetShortFolderName;
+    end else begin
+      VTargetStoragePath := VPath;
+    end;
+    if VStorageType.StorageType.Abilities.StorageClass in [tstcFolder, tstcInSeparateFiles] then begin
+      VTargetStoragePath := IncludeTrailingPathDelimiter(VTargetStoragePath);
+    end;
+    if Assigned(VStorageType) then begin
+      VTasks[I].FTarget :=
+        VStorageType.StorageType.BuildStorage(
+          nil,
+          VTasks[I].FSource.ProjectionSet,
+          VMapType.ContentType,
+          nil,
+          VTargetStoragePath,
+          nil
+        );
+    end;
+    if VSetTargetVersionEnabled then begin
+      VTasks[I].FTargetVersionForce := VMapType.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue);
+    end else begin
+      VTasks[I].FTargetVersionForce := nil;
+    end;
+  end;
+
+  Result :=
+    TThreadCopyFromStorageToStorage.Create(
+      AProgressInfo,
+      Self.TileIteratorFactory,
+      APolygon,
+      VTasks,
+      AZoomArr,
+      True,
+      ADeleteSource,
+      AReplace
+    );
+end;
+
+function TProviderTilesCopy.PrepareModification(
+  const APolygon: IGeometryLonLatPolygon;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
+  const ACacheType: Byte;
+  const AZoomArr: TByteDynArray;
+  const ADeleteSource, AReplace: Boolean
+): IRegionProcessTask;
+var
+  VSetTargetVersionEnabled: Boolean;
+  VSetTargetVersionValue: string;
+  VStorageType: ITileStorageTypeListItem;
+  VTarget: ITileStorage;
+  VTargetVersionForce: IMapVersionInfo;
+  VMapType: IMapType;
+  VContentType: IContentTypeInfoBasic;
+  VPath: string;
+begin
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapSource;
+  VContentType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ContentType;
+  VPath := IncludeTrailingPathDelimiter((ParamsFrame as IRegionProcessParamsFrameTargetPath).Path);
+
+  VStorageType := FTileStorageTypeList.GetItemByCode(ACacheType);
+  if Assigned(VStorageType) then begin
+    VTarget :=
+      VStorageType.StorageType.BuildStorage(
+        nil,
+        VMapType.TileStorage.ProjectionSet,
+        VContentType,
+        nil,
+        VPath,
+        nil
+      );
+  end;
+
+  // set version options
+  VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
+  if VSetTargetVersionEnabled then begin
+    VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue;
+  end else begin
+    VSetTargetVersionValue := '';
+  end;
+
+  if VSetTargetVersionEnabled then begin
+    VTargetVersionForce := VMapType.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue);
+  end else begin
+    VTargetVersionForce := nil;
+  end;
+
+  Result :=
+    TThreadCopyWithModification.Create(
+      AProgressInfo,
+      Self.TileIteratorFactory,
+      APolygon,
+      VTarget,
+      VTargetVersionForce,
+      VMapType,
+      (ParamsFrame as IRegionProcessParamsFrameTilesCopy).Overlay,
+      (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider,
+      (ParamsFrame as IRegionProcessParamsFrameTilesCopy).BitmapTileSaver,
+      AZoomArr,
+      VContentType,
+      True,
+      AReplace
+    );
+end;
+
 function TProviderTilesCopy.PrepareTask(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IRegionProcessTask;
 var
-  VMaps: IMapTypeListStatic;
-
-  function DoDirectCopy: Boolean;
-  begin
-    Result := Assigned(VMaps);
-  end;
-
-  function PrepareDirectCopy(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): IRegionProcessTask;
-  var
-    VTasks: TCopyTaskArray;
-    VPlaceInSubFolder: Boolean;
-    VSetTargetVersionEnabled: Boolean;
-    VSetTargetVersionValue: String;
-    VTargetStoragePath: String;
-    i: Integer;
-    VMapType: IMapType;
-    VStorageType: ITileStorageTypeListItem;
-    VPath: String;
-  begin
-    VPlaceInSubFolder := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).PlaceInNameSubFolder;
-    if VMaps.Count > 1 then begin
-      VPlaceInSubFolder := True;
-    end;
-    VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
-    if VPlaceInSubFolder then begin
-      VPath := IncludeTrailingPathDelimiter(VPath);
-    end;
-
-    // set version options
-    VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
-    if VSetTargetVersionEnabled then begin
-      VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue;
-    end else begin
-      VSetTargetVersionValue := '';
-    end;
-    VStorageType := FTileStorageTypeList.GetItemByCode(VCacheType);
-
-    SetLength(VTasks, VMaps.Count);
-    for i := 0 to VMaps.Count - 1 do begin
-      VMapType := VMaps.Items[i];
-      VTasks[i].FSource := VMapType.TileStorage;
-      VTasks[i].FSourceVersion := VMapType.VersionRequest.GetStatic;
-      if VPlaceInSubFolder then begin
-        VTargetStoragePath := VPath + VMapType.GetShortFolderName;
-      end else begin
-        VTargetStoragePath := VPath;
-      end;
-      if VStorageType.StorageType.Abilities.StorageClass in [tstcFolder, tstcInSeparateFiles] then begin
-        VTargetStoragePath := IncludeTrailingPathDelimiter(VTargetStoragePath);
-      end;
-      if Assigned(VStorageType) then begin
-        VTasks[i].FTarget :=
-          VStorageType.StorageType.BuildStorage(
-            nil,
-            VTasks[i].FSource.ProjectionSet,
-            VMapType.ContentType,
-            nil,
-            VTargetStoragePath,
-            nil
-          );
-      end;
-      if VSetTargetVersionEnabled then begin
-        VTasks[i].FTargetVersionForce := VMapType.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue);
-      end else begin
-        VTasks[i].FTargetVersionForce := nil;
-      end;
-    end;
-
-    Result :=
-      TThreadCopyFromStorageToStorage.Create(
-        VProgressInfo,
-        Self.TileIteratorFactory,
-        APolygon,
-        VTasks,
-        VZoomArr,
-        True,
-        VDeleteSource,
-        VReplace
-      );
-  end;
-
-  function PrepareModification(const VProgressInfo: IRegionProcessProgressInfoInternal; const VCacheType: Byte; const VZoomArr: TByteDynArray; const VDeleteSource, VReplace: Boolean): IRegionProcessTask;
-  var
-    VSetTargetVersionEnabled: Boolean;
-    VSetTargetVersionValue: String;
-    VStorageType: ITileStorageTypeListItem;
-    ATarget: ITileStorage;
-    ATargetVersionForce: IMapVersionInfo;
-    VMapType: IMapType;
-    VContentType: IContentTypeInfoBasic;
-    VPath: String;
-  begin
-    VMapType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapSource;
-    VContentType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ContentType;
-    VPath := IncludeTrailingPathDelimiter((ParamsFrame as IRegionProcessParamsFrameTargetPath).Path);
-
-    VStorageType := FTileStorageTypeList.GetItemByCode(VCacheType);
-    if Assigned(VStorageType) then begin
-      ATarget :=
-        VStorageType.StorageType.BuildStorage(
-          nil,
-          VMapType.TileStorage.ProjectionSet,
-          VContentType,
-          nil,
-          VPath,
-          nil
-        );
-    end;
-
-    // set version options
-    VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
-    if VSetTargetVersionEnabled then begin
-      VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue;
-    end else begin
-      VSetTargetVersionValue := '';
-    end;
-
-    if VSetTargetVersionEnabled then begin
-      ATargetVersionForce := VMapType.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue);
-    end else begin
-      ATargetVersionForce := nil;
-    end;
-
-    Result :=
-      TThreadCopyWithModification.Create(
-        VProgressInfo,
-        Self.TileIteratorFactory,
-        APolygon,
-        ATarget,
-        ATargetVersionForce,
-        VMapType,
-        (ParamsFrame as IRegionProcessParamsFrameTilesCopy).Overlay,
-        (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider,
-        (ParamsFrame as IRegionProcessParamsFrameTilesCopy).BitmapTileSaver,
-        VZoomArr,
-        VContentType,
-        True,
-        VReplace
-      );
-  end;
-
-var
   VCacheType: Byte;
   VZoomArr: TByteDynArray;
   VDeleteSource: Boolean;
   VReplace: Boolean;
+  VMaps: IMapTypeListStatic;
 begin
   VMaps := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapTypeList;
   VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
@@ -329,10 +351,10 @@ begin
   VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
   VReplace := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ReplaseTarget;
 
-  if DoDirectCopy then begin
-    Result := PrepareDirectCopy(AProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
+  if VMaps <> nil then begin
+    Result := PrepareDirectCopy(APolygon, AProgressInfo, VMaps, VCacheType, VZoomArr, VDeleteSource, VReplace);
   end else begin
-    Result := PrepareModification(AProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
+    Result := PrepareModification(APolygon, AProgressInfo, VCacheType, VZoomArr, VDeleteSource, VReplace);
   end;
 end;
 
