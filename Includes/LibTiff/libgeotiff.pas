@@ -8,7 +8,7 @@ uses
   libtiff;
 
 const
-  libgeotiff_dll = 'geotiff.dll';
+  libgeotiff_dll = 'libgeotiff.dll';
 
 type
   PGTIFF = Pointer;
