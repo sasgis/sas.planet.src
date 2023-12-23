@@ -37,7 +37,7 @@ type
   JCOEF = smallint;
   JOCTET = byte;
   JSAMPLE = byte;
-  
+
   JOCTET_ptr = ^JOCTET;
   JSAMPLE_ptr = ^JSAMPLE;
 
@@ -305,10 +305,8 @@ jvirt_sarray_ptr_ptr = ^jvirt_sarray_ptr;
 jvirt_barray_control = record dummy: longint; end;
 jvirt_barray_ptr = ^jvirt_barray_control;
 jvirt_barray_ptr_ptr = ^jvirt_barray_ptr;
-
 jpeg_comp_master = record dummy: longint; end;
 jpeg_comp_master_ptr = ^jpeg_comp_master;
-
 jpeg_c_main_controller = record dummy: longint; end;
 jpeg_c_main_controller_ptr = ^jpeg_c_main_controller;
 
