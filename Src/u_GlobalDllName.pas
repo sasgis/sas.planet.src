@@ -21,7 +21,7 @@
 
 unit u_GlobalDllName;
 
-{$DEFINE FORCE_USE_WINXP_DLL} // todo: add new dll's pack
+{.$DEFINE FORCE_USE_WINXP_DLL} // todo: add new dll's pack
 {.$DEFINE HANDLE_DELAYLOAD_ERRORS} // enable for dll's with delayed import (if any)
 
 interface
@@ -44,6 +44,7 @@ type
     FreeImage: string;
     Geodesic: string;
     MiniZip: string;
+    ImageQuant: string;
 
     procedure Init;
   end;
@@ -116,6 +117,7 @@ begin
     Self.Sqlite3 := 'sqlite3.dll';
     Self.Geodesic := 'geodesic.dll';
     Self.MiniZip := 'libminizip.dll';
+    Self.ImageQuant := 'libimagequant.dll';
   end else begin
     VPath := VAppPath + {$IFDEF WIN32} 'lib32' {$ELSE} 'lib64' {$ENDIF} + PathDelim;
 
@@ -131,6 +133,7 @@ begin
     Self.Sqlite3 := 'libsqlite3-0.dll';
     Self.Geodesic := 'libproj-25.dll';
     Self.MiniZip := 'libminizip-ng-1.dll';
+    Self.ImageQuant := 'imagequant.dll';
   end;
 
   if VPath <> '' then begin
