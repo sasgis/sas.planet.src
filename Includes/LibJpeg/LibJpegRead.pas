@@ -42,7 +42,7 @@ type
     FExifMarker: TMemoryStream;
     FAppData: Pointer;
     FDataManager: TJpegDataManager;
-    function InitDecompress: Boolean;
+    function InitDecompress(const ALibJpegDllName: string): Boolean;
     function DoDecompress(
       AReadCallBack: TReadScanLineCallBack = nil;
       AOutStream: TStream = nil
@@ -50,7 +50,11 @@ type
     function GetWidth: Integer;
     function GetHeight: Integer;
   public
-    constructor Create(AJpegSource: TStream; AUseBGRAColorSpace: Boolean);
+    constructor Create(
+      const AJpegSource: TStream;
+      const AUseBGRAColorSpace: Boolean;
+      const ALibJpegDllName: string
+    );
     destructor Destroy; override;
     function ReadHeader: Boolean;
     function Decompress(AReadCallBack: TReadScanLineCallBack): Boolean; overload;
@@ -73,7 +77,11 @@ implementation
 
 { TJpegReader }
 
-constructor TJpegReader.Create(AJpegSource: TStream; AUseBGRAColorSpace: Boolean);
+constructor TJpegReader.Create(
+  const AJpegSource: TStream;
+  const AUseBGRAColorSpace: Boolean;
+  const ALibJpegDllName: string
+);
 begin
   inherited Create;
   FDataManager.FStream := AJpegSource;
@@ -84,7 +92,7 @@ begin
   FComMarker := '';
   FExifMarker := nil;
   FAppData := nil;
-  FLibInitilized := InitDecompress;
+  FLibInitilized := InitDecompress(ALibJpegDllName);
 end;
 
 destructor TJpegReader.Destroy;
@@ -192,10 +200,10 @@ begin
   end;
 end;
 
-function TJpegReader.InitDecompress: Boolean;
+function TJpegReader.InitDecompress(const ALibJpegDllName: string): Boolean;
 begin
   {$IFNDEF LIB_JPEG_62_STATIC_LINK}
-  if not InitLibJpeg62 then begin
+  if not InitLibJpeg62(ALibJpegDllName) then begin
     raise ELibJpegException.Create('LibJpeg62 initialization failed!');
   end;
   {$ENDIF}

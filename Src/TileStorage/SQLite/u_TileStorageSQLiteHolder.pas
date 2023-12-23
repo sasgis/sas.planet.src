@@ -28,7 +28,6 @@ uses
   Types,
   SysUtils,
   Classes,
-  SQLite3Handler,
   i_StringListStatic,
   i_ContentTypeInfo,
   i_ContentTypeManager,
@@ -36,6 +35,7 @@ uses
   i_MapVersionFactory,
   i_TileStorageSQLiteHolder,
   i_TileStorageSQLiteErrorLogger,
+  u_SQLite3Handler,
   u_BaseInterfacedObject;
 
 type

@@ -56,9 +56,10 @@ uses
   DateUtils,
   libminizip,
   i_BinaryData,
+  u_AnsiStr,
   u_BinaryData,
-  u_StreamReadOnlyByBinaryData,
-  u_AnsiStr;
+  u_GlobalDllName,
+  u_StreamReadOnlyByBinaryData;
 
 type
   TArchiveReaderSequentialZip = class(TBaseInterfacedObject, IArchiveReaderSequential)
@@ -135,7 +136,7 @@ begin
   Assert(AFileName <> '');
   inherited Create;
 
-  LoadLibMiniZip;
+  LoadLibMiniZip(GDllName.MiniZip);
 
   VFileName := mz_string_encode(AFileName);
 
@@ -173,7 +174,8 @@ begin
     VVolumSize := 0;
   end;
 
-  mz_check( mz_zip_writer_create(FWriter) );
+  FWriter := mz_zip_writer_create();
+  mz_check(FWriter);
 
   mz_zip_writer_set_compress_method(FWriter, FCompressMethod);
   mz_zip_writer_set_compress_level(FWriter, VCompressLevel);
@@ -237,11 +239,13 @@ begin
   Assert(AFileName <> '');
   inherited Create;
 
-  LoadLibMiniZip;
+  LoadLibMiniZip(GDllName.MiniZip);
 
   VFileName := mz_string_encode(AFileName);
 
-  mz_check( mz_zip_reader_create(FReader) );
+  FReader := mz_zip_reader_create();
+  mz_check(FReader);
+
   mz_check( mz_zip_reader_open_file(FReader, @VFileName[1]) );
 
   Reset;

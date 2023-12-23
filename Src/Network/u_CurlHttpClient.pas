@@ -107,6 +107,7 @@ implementation
 uses
   WinSock,
   SysUtils,
+  u_GlobalDllName,
   u_NetworkStrFunc;
 
 function CurlWriteHeaderCallBack(
@@ -258,7 +259,7 @@ begin
   FProxy := cCurlDefaultProxy;
 
   if curl.Module = 0 then begin
-    LibCurlInitialize([giAll], 'libcurl.dll');
+    LibCurlInitialize([giAll], GDllName.Curl);
   end else
   if not CurlIsAvailable then begin
     raise ECurl.Create('Curl library is not available');

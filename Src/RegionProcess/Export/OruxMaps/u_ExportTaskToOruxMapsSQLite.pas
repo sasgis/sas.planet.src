@@ -28,7 +28,6 @@ uses
   Windows,
   SysUtils,
   Classes,
-  SQLite3Handler,
   i_BinaryData,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
@@ -42,6 +41,7 @@ uses
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
+  u_SQLite3Handler,
   u_ExportTaskAbstract;
 
 type
@@ -93,7 +93,6 @@ implementation
 
 uses
   Math,
-  ALSqlite3Wrapper,
   c_CoordConverter,
   t_GeoTypes,
   i_GeometryProjected,

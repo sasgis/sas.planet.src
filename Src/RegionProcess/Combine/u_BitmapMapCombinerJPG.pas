@@ -65,6 +65,7 @@ uses
   u_BaseInterfacedObject,
   u_ImageLineProvider,
   u_GeoFunc,
+  u_GlobalDllName,
   u_ResStrings;
 
 const
@@ -191,7 +192,7 @@ begin
 
     VStream := TFileStream.Create(AFileName, fmCreate);
     try
-      VJpegWriter := TJpegWriter.Create(VStream, VUseBGRAColorSpace);
+      VJpegWriter := TJpegWriter.Create(VStream, VUseBGRAColorSpace, GDllName.Jpeg62);
       try
         VJpegWriter.Width := FWidth;
         VJpegWriter.Height := FHeight;

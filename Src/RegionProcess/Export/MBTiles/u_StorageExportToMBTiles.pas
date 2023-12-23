@@ -28,9 +28,9 @@ uses
   Windows,
   Classes,
   SysUtils,
-  SQLite3Handler,
   i_BinaryData,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_SQLite3Handler;
 
 const
   cKeyValSep = '=';
@@ -130,7 +130,6 @@ type
 implementation
 
 uses
-  ALSqlite3Wrapper,
   MD5,
   u_AnsiStr,
   u_GeoFunc;

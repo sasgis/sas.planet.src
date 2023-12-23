@@ -1479,6 +1479,7 @@ uses
   u_GeoToStrFunc in 'Src\u_GeoToStrFunc.pas',
   u_GlobalAppConfig in 'Src\u_GlobalAppConfig.pas',
   u_GlobalConfig in 'Src\u_GlobalConfig.pas',
+  u_GlobalDllName in 'Src\u_GlobalDllName.pas',
   u_GlobalState in 'Src\u_GlobalState.pas',
   u_GlobalViewMainConfig in 'Src\u_GlobalViewMainConfig.pas',
   u_HashInterfaceCache2Q in 'Src\u_HashInterfaceCache2Q.pas',
@@ -1504,6 +1505,7 @@ uses
   u_ReadWriteStateStatic in 'Src\u_ReadWriteStateStatic.pas',
   u_ResStrings in 'Src\u_ResStrings.pas',
   u_SASMainConfigProvider in 'Src\u_SASMainConfigProvider.pas',
+  u_SQLite3Handler in 'Src\u_SQLite3Handler.pas',
   u_SatellitesInViewMapDrawSimple in 'Src\u_SatellitesInViewMapDrawSimple.pas',
   u_ShortCutSingleConfig in 'Src\u_ShortCutSingleConfig.pas',
   u_ShortcutManager in 'Src\u_ShortcutManager.pas',
@@ -1584,6 +1586,8 @@ begin
   if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
     TBaseInterfacedObjectDebug.InitCounters;
   end;
+
+  GDllName.Init;
 
   GState := TGlobalState.Create(VAppEnum);
   try

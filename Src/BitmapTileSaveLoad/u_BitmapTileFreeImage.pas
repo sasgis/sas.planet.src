@@ -156,7 +156,8 @@ uses
   FreeBitmap,
   t_Bitmap32,
   i_Bitmap8Static,
-  u_BinaryDataByMemStream;
+  u_BinaryDataByMemStream,
+  u_GlobalDllName;
 
 type
   EBitmapTileFreeImageLoader = class(Exception);
@@ -176,6 +177,8 @@ begin
   inherited Create;
   FCounter := APerfCounterList.CreateAndAddNewCounter('Load');
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+
+  InitFreeImageLib(GDllName.FreeImage);
 end;
 
 function TBitmapTileFreeImageLoader.Load(
@@ -340,6 +343,8 @@ begin
   else // FIF_BMP, FIF_GIF
     FFlag := 0;
   end;
+
+  InitFreeImageLib(GDllName.FreeImage);
 end;
 
 function TBitmapTileFreeImageSaver.Save(

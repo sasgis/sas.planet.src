@@ -27,7 +27,6 @@ uses
   Windows,
   Classes,
   SyncObjs,
-  SQLite3Handler,
   t_TileStorageSQLite,
   t_NotifierOperationRec,
   t_TileStorageSQLiteHandler,
@@ -39,6 +38,7 @@ uses
   i_TileInfoBasic,
   i_TileStorageSQLiteHandler,
   i_TileStorageSQLiteHolder,
+  u_SQLite3Handler,
   u_BaseInterfacedObject;
 
 type
@@ -190,7 +190,6 @@ implementation
 uses
   SysUtils,
   DateUtils,
-  AlSqlite3Wrapper,
   libcrc32,
   c_TileStorageSQLite,
   u_AnsiStr,

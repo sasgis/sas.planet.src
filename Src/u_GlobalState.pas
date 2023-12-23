@@ -952,9 +952,11 @@ end;
 
 destructor TGlobalState.Destroy;
 begin
-  FGCThread.Terminate;
-  FGCThread.WaitFor;
-  FreeAndNil(FGCThread);
+  if FGCThread <> nil then begin
+    FGCThread.Terminate;
+    FGCThread.WaitFor;
+    FreeAndNil(FGCThread);
+  end;
   FTileNameGenerator := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;

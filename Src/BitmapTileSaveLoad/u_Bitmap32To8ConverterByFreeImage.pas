@@ -34,6 +34,8 @@ type
   TBitmap32To8ConverterByFreeImage = class(TBaseInterfacedObject, IBitmap32To8Converter)
   private
     function Convert(const ABitmap32: IBitmap32Static): IBitmap8Static;
+  public
+    constructor Create;
   end;
 
 implementation
@@ -43,12 +45,20 @@ uses
   FreeImage,
   FreeBitmap,
   t_Bitmap32,
-  u_Bitmap8Static;
+  u_Bitmap8Static,
+  u_GlobalDllName;
 
 type
   EBitmap32To8ConverterByFreeImage = class(Exception);
 
 { TBitmap32To8ConverterByFreeImage }
+
+constructor TBitmap32To8ConverterByFreeImage.Create;
+begin
+  inherited Create;
+
+  InitFreeImageLib(GDllName.FreeImage);
+end;
 
 function TBitmap32To8ConverterByFreeImage.Convert(
   const ABitmap32: IBitmap32Static

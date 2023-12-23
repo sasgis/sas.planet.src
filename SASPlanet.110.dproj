@@ -2632,6 +2632,7 @@
         <DCCReference Include="Src\u_GeoToStrFunc.pas"/>
         <DCCReference Include="Src\u_GlobalAppConfig.pas"/>
         <DCCReference Include="Src\u_GlobalConfig.pas"/>
+        <DCCReference Include="Src\u_GlobalDllName.pas"/>
         <DCCReference Include="Src\u_GlobalState.pas"/>
         <DCCReference Include="Src\u_GlobalViewMainConfig.pas"/>
         <DCCReference Include="Src\u_HashInterfaceCache2Q.pas"/>
@@ -2657,6 +2658,7 @@
         <DCCReference Include="Src\u_ReadWriteStateStatic.pas"/>
         <DCCReference Include="Src\u_ResStrings.pas"/>
         <DCCReference Include="Src\u_SASMainConfigProvider.pas"/>
+        <DCCReference Include="Src\u_SQLite3Handler.pas"/>
         <DCCReference Include="Src\u_SatellitesInViewMapDrawSimple.pas"/>
         <DCCReference Include="Src\u_ShortCutSingleConfig.pas"/>
         <DCCReference Include="Src\u_ShortcutManager.pas"/>

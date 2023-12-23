@@ -27,7 +27,6 @@ uses
   Types,
   Windows,
   SysUtils,
-  SQLite3Handler,
   t_RMapsSQLite,
   i_BinaryData,
   i_NotifierOperation,
@@ -40,6 +39,7 @@ uses
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
+  u_SQLite3Handler,
   u_ExportTaskAbstract;
 
 type
@@ -96,7 +96,6 @@ type
 implementation
 
 uses
-  ALSqlite3Wrapper,
   t_GeoTypes,
   c_CoordConverter,
   i_ProjectionSet,

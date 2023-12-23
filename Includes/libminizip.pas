@@ -1,13 +1,6 @@
 {
-   MiniZip project
-
-   Copyright (C) 2010-2019 Nathan Moinvaziri
-     https://github.com/nmoinvaz/minizip
-   Copyright (C) 2009-2010 Mathias Svensson
-     Modifications for Zip64 support
-     http://result42.com
-   Copyright (C) 1998-2010 Gilles Vollant
-     https://www.winimage.com/zLibDll/minizip.html
+   Copyright (C) Nathan Moinvaziri
+     https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
@@ -16,12 +9,6 @@
 unit libminizip;
 
 {.$DEFINE MZ_ZIP_H}
-
-// dll compile-time defines:
-{$DEFINE MZ_ZLIB}
-{$DEFINE MZ_BZIP2}
-{$DEFINE MZ_LZMA}
-{.$DEFINE MZ_WZAES}
 
 interface
 
@@ -35,22 +22,7 @@ const
   libminizip_dll = 'libminizip.dll';
 
 const
-{$IFDEF MZ_LZMA}
-  MZ_VERSION_MADEBY_ZIP_VERSION = 63;
-{$ELSE}
-  {$IFDEF MZ_WZAES}
-  MZ_VERSION_MADEBY_ZIP_VERSION = 51;
-  {$ELSE}
-    {$IFDEF MZ_BZIP2}
-    MZ_VERSION_MADEBY_ZIP_VERSION = 46;
-    {$ELSE}
-    MZ_VERSION_MADEBY_ZIP_VERSION = 45;
-    {$ENDIF MZ_BZIP2}
-  {$ENDIF MZ_WZAES}
-{$ENDIF MZ_LZMA}
-
-const
-  MZ_VERSION = '2.8.8';
+  MZ_VERSION = '4.0.3';
 
   MZ_OK = 0;
 
@@ -91,18 +63,11 @@ const
   MZ_SEEK_END = 2;
 
   MZ_COMPRESS_METHOD_STORE = 0;
-  {$IFDEF MZ_ZLIB}
   MZ_COMPRESS_METHOD_DEFLATE = 8;
-  {$ENDIF}
-  {$IFDEF MZ_BZIP2}
   MZ_COMPRESS_METHOD_BZIP2 = 12;
-  {$ENDIF}
-  {$IFDEF MZ_LZMA}
   MZ_COMPRESS_METHOD_LZMA = 14;
-  {$ENDIF}
-  {$IFDEF MZ_WZAES}
+  MZ_COMPRESS_METHOD_XZ = 95;
   MZ_COMPRESS_METHOD_AES = 99;
-  {$ENDIF}
 
   MZ_COMPRESS_LEVEL_DEFAULT = -(1);
   MZ_COMPRESS_LEVEL_FAST = 2;
@@ -134,15 +99,19 @@ const
   MZ_HOST_SYSTEM_MSDOS = 0;
   MZ_HOST_SYSTEM_UNIX = 3;
   MZ_HOST_SYSTEM_WINDOWS_NTFS = 10;
+  MZ_HOST_SYSTEM_RISCOS = 13;
   MZ_HOST_SYSTEM_OSX_DARWIN = 19;
   MZ_VERSION_MADEBY_HOST_SYSTEM = MZ_HOST_SYSTEM_WINDOWS_NTFS;
 
   MZ_PKCRYPT_HEADER_SIZE = 12;
 
   MZ_AES_VERSION = 1;
-  MZ_AES_ENCRYPTION_MODE_128 = $01;
-  MZ_AES_ENCRYPTION_MODE_192 = $02;
-  MZ_AES_ENCRYPTION_MODE_256 = $03;
+  MZ_AES_MODE_ECB = 0;
+  MZ_AES_MODE_CBC = 1;
+  MZ_AES_MODE_GCM = 2;
+  MZ_AES_STRENGTH_128 = 1;
+  MZ_AES_STRENGTH_192 = 2;
+  MZ_AES_STRENGTH_256 = 3;
   MZ_AES_KEY_LENGTH_MAX = 32;
   MZ_AES_BLOCK_SIZE = 16;
   MZ_AES_FOOTER_SIZE = 10;
@@ -160,8 +129,6 @@ const
   MZ_ENCODING_CODEPAGE_936 = 936;
   MZ_ENCODING_CODEPAGE_950 = 950;
   MZ_ENCODING_UTF8 = 65001;
-
-  MZ_VERSION_MADEBY = (MZ_VERSION_MADEBY_HOST_SYSTEM shl 8) or MZ_VERSION_MADEBY_ZIP_VERSION;
 
 type
   int8_t = AnsiChar;
@@ -222,7 +189,7 @@ type
   mz_zip_locate_entry_cb = function(handle: pointer; userdata: pointer; var file_info: mz_zip_file): int32_t; cdecl;
 
 var
-  mz_zip_create: function(var handle: pointer): pointer; cdecl;
+  mz_zip_create: function(): pointer; cdecl;
   mz_zip_delete: procedure(var handle: pointer); cdecl;
   mz_zip_open: function(handle: pointer; stream: pointer; mode: int32_t):  int32_t; cdecl;
   mz_zip_close: function(handle: pointer): int32_t; cdecl;
@@ -298,7 +265,7 @@ var
   mz_zip_reader_entry_open: function(handle: pointer): int32_t; cdecl;
   mz_zip_reader_entry_close: function(handle: pointer): int32_t; cdecl;
   mz_zip_reader_entry_read: function(handle: pointer; buf: pointer; len: int32_t): int32_t; cdecl;
-  mz_zip_reader_entry_has_sign: function(handle: pointer): int32_t; cdecl;
+  //mz_zip_reader_entry_has_sign: function(handle: pointer): int32_t; cdecl;
   //mz_zip_reader_entry_sign_verify: function(handle: pointer): int32_t; cdecl;
   mz_zip_reader_entry_get_hash: function(handle: pointer; algorithm: uint16_t; digest: p_uint8_t; digest_size: int32_t): int32_t; cdecl;
   mz_zip_reader_entry_get_first_hash: function(handle: pointer; algorithm: p_uint16_t; digest_size: p_uint16_t): int32_t; cdecl;
@@ -317,14 +284,14 @@ var
   mz_zip_reader_get_zip_cd: function(handle: pointer; zip_cd: p_uint8_t): int32_t; cdecl;
   mz_zip_reader_get_comment: function(handle: pointer; out comment: p_char): int32_t; cdecl;
   mz_zip_reader_set_encoding: procedure(handle: pointer; encoding: int32_t); cdecl;
-  mz_zip_reader_set_sign_required: procedure(handle: pointer; sign_required: uint8_t); cdecl;
+  //mz_zip_reader_set_sign_required: procedure(handle: pointer; sign_required: uint8_t); cdecl;
   mz_zip_reader_set_overwrite_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_reader_overwrite_cb); cdecl;
   mz_zip_reader_set_password_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_reader_password_cb); cdecl;
   mz_zip_reader_set_progress_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_reader_progress_cb); cdecl;
   mz_zip_reader_set_progress_interval: procedure(handle: pointer; milliseconds: uint32_t); cdecl;
   mz_zip_reader_set_entry_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_reader_entry_cb); cdecl;
   mz_zip_reader_get_zip_handle: function(handle: pointer; out zip_handle: pointer): int32_t; cdecl;
-  mz_zip_reader_create: function(var handle: pointer): pointer; cdecl;
+  mz_zip_reader_create: function(): pointer; cdecl;
   mz_zip_reader_delete: procedure(var handle: pointer); cdecl;
 
 type
@@ -369,7 +336,7 @@ var
   mz_zip_writer_set_progress_interval: procedure(handle: pointer; milliseconds: uint32_t); cdecl;
   mz_zip_writer_set_entry_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_writer_entry_cb); cdecl;
   mz_zip_writer_get_zip_handle: function(handle: pointer; out zip_handle: pointer): int32_t; cdecl;
-  mz_zip_writer_create: function(var handle: pointer): pointer; cdecl;
+  mz_zip_writer_create: function(): pointer; cdecl;
   mz_zip_writer_delete: procedure(var handle: pointer); cdecl;
 
 //******************************************************************************
@@ -385,7 +352,6 @@ function mz_string_decode(const s: p_char): string; overload; inline;
 function mz_string_decode(const s: mz_string_t): string; overload; inline;
 
 function LoadLibMiniZip(const ALibName: string = libminizip_dll; const ASilent: Boolean = False): Boolean;
-procedure UnloadLibMiniZip;
 
 implementation
 
@@ -542,7 +508,7 @@ begin
     mz_zip_reader_entry_open := LoadProc('mz_zip_reader_entry_open');
     mz_zip_reader_entry_close := LoadProc('mz_zip_reader_entry_close');
     mz_zip_reader_entry_read := LoadProc('mz_zip_reader_entry_read');
-    mz_zip_reader_entry_has_sign := LoadProc('mz_zip_reader_entry_has_sign');
+    //mz_zip_reader_entry_has_sign := LoadProc('mz_zip_reader_entry_has_sign');
     //mz_zip_reader_entry_sign_verify := LoadProc('mz_zip_reader_entry_sign_verify');
     mz_zip_reader_entry_get_hash := LoadProc('mz_zip_reader_entry_get_hash');
     mz_zip_reader_entry_get_first_hash := LoadProc('mz_zip_reader_entry_get_first_hash');
@@ -561,7 +527,7 @@ begin
     mz_zip_reader_get_zip_cd := LoadProc('mz_zip_reader_get_zip_cd');
     mz_zip_reader_get_comment := LoadProc('mz_zip_reader_get_comment');
     mz_zip_reader_set_encoding := LoadProc('mz_zip_reader_set_encoding');
-    mz_zip_reader_set_sign_required := LoadProc('mz_zip_reader_set_sign_required');
+    //mz_zip_reader_set_sign_required := LoadProc('mz_zip_reader_set_sign_required');
     mz_zip_reader_set_overwrite_cb := LoadProc('mz_zip_reader_set_overwrite_cb');
     mz_zip_reader_set_password_cb := LoadProc('mz_zip_reader_set_password_cb');
     mz_zip_reader_set_progress_cb := LoadProc('mz_zip_reader_set_progress_cb');
@@ -697,7 +663,7 @@ begin
     mz_zip_reader_entry_open := nil;
     mz_zip_reader_entry_close := nil;
     mz_zip_reader_entry_read := nil;
-    mz_zip_reader_entry_has_sign := nil;
+    //mz_zip_reader_entry_has_sign := nil;
     //mz_zip_reader_entry_sign_verify := nil;
     mz_zip_reader_entry_get_hash := nil;
     mz_zip_reader_entry_get_first_hash := nil;
@@ -716,7 +682,7 @@ begin
     mz_zip_reader_get_zip_cd := nil;
     mz_zip_reader_get_comment := nil;
     mz_zip_reader_set_encoding := nil;
-    mz_zip_reader_set_sign_required := nil;
+    //mz_zip_reader_set_sign_required := nil;
     mz_zip_reader_set_overwrite_cb := nil;
     mz_zip_reader_set_password_cb := nil;
     mz_zip_reader_set_progress_cb := nil;

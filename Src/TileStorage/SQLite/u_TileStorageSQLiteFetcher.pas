@@ -26,7 +26,6 @@ interface
 uses
   Windows,
   Classes,
-  SQLite3Handler,
   t_TileStorageSQLiteHandler,
   i_MapVersionInfo,
   i_MapVersionListStatic,
@@ -34,6 +33,7 @@ uses
   i_TileStorageSQLiteHandler,
   i_TileStorageSQLiteHolder,
   i_TileStorageSQLiteFetcher,
+  u_SQLite3Handler,
   u_TileStorageSQLiteHandler,
   u_BaseInterfacedObject;
 
@@ -109,7 +109,6 @@ implementation
 uses
   SysUtils,
   DateUtils,
-  AlSqlite3Wrapper,
   c_TileStorageSQLite,
   u_TileStorageSQLiteFunc;
 

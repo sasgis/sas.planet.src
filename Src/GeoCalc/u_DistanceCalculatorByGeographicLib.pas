@@ -58,7 +58,8 @@ implementation
 
 uses
   SysUtils,
-  Math;
+  Math,
+  u_GlobalDllName;
 
 { TDistanceCalculatorByGeographicLib }
 
@@ -68,7 +69,7 @@ constructor TDistanceCalculatorByGeographicLib.Create(
 );
 begin
   inherited Create;
-  if init_geodesic_dll(geodesic_dll, True) then begin
+  if init_geodesic_dll(GDllName.Geodesic) then begin
     geod_init(@FGeod, ARadiusA, ((ARadiusA - ARadiusB) / ARadiusA));
   end;
 end;

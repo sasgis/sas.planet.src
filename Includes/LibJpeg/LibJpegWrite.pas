@@ -33,7 +33,7 @@ type
     FAppMarker: array [$E0..$EF] of TMemoryStream;
     FAppData: Pointer;
     FDataManager: TJpegDataManager;
-    function InitCompress: Boolean;
+    function InitCompress(const ALibJpegDllName: string): Boolean;
     function DoCompress(
       AWriteCallBack: TWriteScanLineCallBack = nil;
       AInPutStream: TStream = nil
@@ -41,7 +41,11 @@ type
     function SetCompOptions: Boolean;
     function WriteMarkers: Boolean;
   public
-    constructor Create(AJpegDest: TStream; AUseBGRAColorSpace: Boolean);
+    constructor Create(
+      const AJpegDest: TStream;
+      const AUseBGRAColorSpace: Boolean;
+      const ALibJpegDllName: string
+    );
     destructor Destroy; override;
     function Compress(AWriteCallBack: TWriteScanLineCallBack): Boolean; overload;
     function Compress(AInPutStream: TStream): Boolean; overload;
@@ -64,7 +68,11 @@ implementation
 
 { TJpegWriter }
 
-constructor TJpegWriter.Create(AJpegDest: TStream; AUseBGRAColorSpace: Boolean);
+constructor TJpegWriter.Create(
+  const AJpegDest: TStream;
+  const AUseBGRAColorSpace: Boolean;
+  const ALibJpegDllName: string
+);
 var
   I: Integer;
 begin
@@ -78,7 +86,7 @@ begin
     FAppMarker[I] := nil;
   end;
   FAppData := nil;
-  FLibInitilized := InitCompress;
+  FLibInitilized := InitCompress(ALibJpegDllName);
 end;
 
 destructor TJpegWriter.Destroy;
@@ -214,10 +222,10 @@ begin
   Result := True;
 end;
 
-function TJpegWriter.InitCompress: Boolean;
+function TJpegWriter.InitCompress(const ALibJpegDllName: string): Boolean;
 begin
   {$IFNDEF LIB_JPEG_62_STATIC_LINK}
-  if not InitLibJpeg62() then begin
+  if not InitLibJpeg62(ALibJpegDllName) then begin
     raise ELibJpegException.Create('LibJpeg62 initialization failed!');
   end;
   {$ENDIF}

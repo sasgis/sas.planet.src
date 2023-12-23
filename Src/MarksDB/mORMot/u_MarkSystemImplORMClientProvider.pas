@@ -45,6 +45,7 @@ uses
   SynSQLite3Static,
   {$ELSE}
   SynSQLite3,
+  SyncObjs,
   {$ENDIF}
   SynCommons,
   i_MarkSystemImplConfig,
@@ -97,12 +98,32 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  u_GlobalDllName,
   u_FileSystemFunc,
   u_MarkSystemORMTools;
 
 const
   cDefUserName = 'sasgis';
   cDefSQLite3DbFileName = 'Marks.db3';
+
+{$IFNDEF USE_STATIC_SQLITE3}
+var
+  GSQLite3Lock: TCriticalSection;
+
+procedure _SQLite3Init;
+begin
+  if not Assigned(SynSQLite3.sqlite3) then begin
+    GSQLite3Lock.Acquire;
+    try
+      if not Assigned(SynSQLite3.sqlite3) then begin
+        SynSQLite3.sqlite3 := TSQLite3LibraryDynamic.Create(GDllName.Sqlite3);
+      end;
+    finally
+      GSQLite3Lock.Release;
+    end;
+  end;
+end;
+{$ENDIF}
 
 { TMarkSystemImplORMClientProvider }
 
@@ -128,6 +149,10 @@ begin
   FMongoClient := nil;
 
   FSQLInitializeTableOptions := [itoNoIndex4TID];
+
+  {$IFNDEF USE_STATIC_SQLITE3}
+  _SQLite3Init;
+  {$ENDIF}
 
   Build;
 end;
@@ -487,11 +512,10 @@ end;
 
 {$IFNDEF USE_STATIC_SQLITE3}
 initialization
-  FreeAndNil(sqlite3);
-  sqlite3 := TSQLite3LibraryDynamic.Create('sqlite3.dll');
+  GSQLite3Lock := TCriticalSection.Create;
 
 finalization
-  FreeAndNil(sqlite3);
+  FreeAndNil(GSQLite3Lock);
 {$ENDIF}
 
 end.

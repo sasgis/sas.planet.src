@@ -1,4 +1,25 @@
-unit SQLite3Handler;
+{******************************************************************************}
+{* This file is part of SAS.Planet project.                                   *}
+{*                                                                            *}
+{* Copyright (C) 2007-2022, SAS.Planet development team.                      *}
+{*                                                                            *}
+{* SAS.Planet is free software: you can redistribute it and/or modify         *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* SAS.Planet is distributed in the hope that it will be useful,              *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the               *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with SAS.Planet. If not, see <http://www.gnu.org/licenses/>.         *}
+{*                                                                            *}
+{* https://github.com/sasgis/sas.planet.src                                   *}
+{******************************************************************************}
+
+unit u_SQLite3Handler;
 
 interface
 
@@ -20,6 +41,15 @@ const
   SQLITE_OPEN_READONLY  = AlSqlite3Wrapper.SQLITE_OPEN_READONLY;
   SQLITE_OPEN_READWRITE = AlSqlite3Wrapper.SQLITE_OPEN_READWRITE;
   SQLITE_OPEN_CREATE    = AlSqlite3Wrapper.SQLITE_OPEN_CREATE;
+  SQLITE_OPEN_URI       = AlSqlite3Wrapper.SQLITE_OPEN_URI;
+
+
+  SQLITE_INTEGER  = AlSqlite3Wrapper.SQLITE_INTEGER;
+  SQLITE_FLOAT    = AlSqlite3Wrapper.SQLITE_FLOAT;
+  SQLITE_BLOB     = AlSqlite3Wrapper.SQLITE_BLOB;
+  SQLITE_NULL     = AlSqlite3Wrapper.SQLITE_NULL;
+  SQLITE_TEXT     = AlSqlite3Wrapper.SQLITE_TEXT;
+  SQLITE3_TEXT    = AlSqlite3Wrapper.SQLITE3_TEXT;
 
 type
   PSQLite3StmtData = ^TSQLite3StmtData;
@@ -73,7 +103,7 @@ type
       const ASupportLogicalCollation: Boolean = False
     );
     procedure Close;
-    function Opened: Boolean; inline;
+    function Opened: Boolean; //inline;
     function Closed: Boolean; inline;
 
     procedure ExecSQL(
@@ -160,27 +190,21 @@ type
   ESQLite3SimpleError   = class(ESQLite3Exception);
   ESQLite3ErrorWithCode = class(ESQLite3Exception);
 
-function QuotedStrA(const S: string): AnsiString;
-  
 implementation
 
 uses
-  ALString;
+  u_AnsiStr,
+  u_GlobalDllName;
 
 var
   g_Sqlite3Library: TALSqlite3Library;
-
-function QuotedStrA(const S: string): AnsiString;
-begin
-  Result := AnsiToUtf8(QuotedStr(S));
-end;
 
 function InternalInitLib: Boolean;
 begin
   // инициализация при первом обращении
   if (nil=g_Sqlite3Library) then begin
     g_Sqlite3Library := TALSqlite3Library.Create;
-    Result := g_Sqlite3Library.Load;
+    Result := g_Sqlite3Library.Load(StringToAnsiSafe(GDllName.Sqlite3));
   end else begin
     // уже загружено
     Result := g_Sqlite3Library.Loaded;
@@ -198,13 +222,6 @@ begin
     Result := 0;
   end;
 end;
-
-{$IF CompilerVersion < 23}
-function CharInSet(AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
-begin
-  Result := AChar in ASet;
-end;
-{$IFEND}
 
 function CompareLogicallyAnsi(n1: Integer; const z1: PAnsiChar; n2: Integer;
   const z2: PAnsiChar): Integer;
@@ -406,12 +423,7 @@ begin
   if VValue = nil then begin
     Result := '';
   end else begin
-    Result :=
-      {$IFDEF UNICODE}
-      UTF8ToString(VValue);
-      {$ELSE}
-      UTf8ToAnsi(VValue);
-      {$ENDIF}
+    Result := UTF8ToString(VValue);
   end;
 end;
 
@@ -684,7 +696,7 @@ end;
 function TSQLite3DbHandler.LibVersionInfo: string;
 var FDLL: THandle;
 begin
-  FDLL := GetModuleHandle('sqlite3.dll');
+  FDLL := GetModuleHandle(PChar(GDllName.Sqlite3));
   if (FDLL<>0) then begin
     Result := string(AnsiString(g_Sqlite3Library.sqlite3_libversion));
     Result := Result + ' at ' + GetModuleName(FDLL);

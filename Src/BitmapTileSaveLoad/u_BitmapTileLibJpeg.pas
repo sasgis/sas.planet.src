@@ -81,6 +81,7 @@ implementation
 uses
   LibJpegRead,
   LibJpegWrite,
+  u_GlobalDllName,
   u_StreamReadOnlyByBinaryData,
   u_BinaryDataByMemStream;
 
@@ -126,7 +127,7 @@ begin
     VStream := TStreamReadOnlyByBinaryData.Create(AData);
     try
       VStream.Position := 0;
-      VJpeg := TJpegReader.Create(VStream, cUseBGRAColorSpace);
+      VJpeg := TJpegReader.Create(VStream, cUseBGRAColorSpace, GDllName.Jpeg62);
       try
         if VJpeg.ReadHeader() then begin
           VBuffer :=
@@ -218,7 +219,7 @@ begin
       VAppData.Size := ABitmap.Size;
       VAppData.Data := ABitmap.Data;
       VAppData.BGRAColorSpace := cUseBGRAColorSpace;
-      VJpeg := TJpegWriter.Create(VMemStream, VAppData.BGRAColorSpace);
+      VJpeg := TJpegWriter.Create(VMemStream, VAppData.BGRAColorSpace, GDllName.Jpeg62);
       try
         if VAppData.BGRAColorSpace then begin
           VAppData.LineSize := VAppData.Size.X * 4;

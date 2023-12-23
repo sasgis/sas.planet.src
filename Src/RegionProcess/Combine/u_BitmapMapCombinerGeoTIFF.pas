@@ -88,6 +88,7 @@ uses
   i_NotifierOperation,
   i_BitmapTileProvider,
   i_GeoTiffCombinerCustomParams,
+  u_GlobalDllName,
   u_BaseInterfacedObject,
   u_CalcWFileParams,
   u_ImageProviderBuilder,
@@ -520,7 +521,7 @@ begin
     GetLineCallBack := Self.OnGetLineCallBack;
   end;
 
-  with TTiffWriter.Create do
+  with TTiffWriter.Create(GDllName.Tiff, GDllName.GeoTiff) do
   try
     if not WriteStripped(@VTiffWriterParams, VErrorMessage) then begin
       if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
@@ -695,7 +696,7 @@ begin
     GetTileCallBack := Self.OnGetTileCallBack;
   end;
 
-  with TTiffWriter.Create do
+  with TTiffWriter.Create(GDllName.Tiff, GDllName.GeoTiff) do
   try
     if not WriteTiled(@VTiffWriterParams, VErrorMessage) then begin
       if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin

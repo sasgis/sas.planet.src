@@ -60,7 +60,19 @@ interface
 {$I 'Version.inc'}
 
 {$IFDEF MSWINDOWS}
-uses Windows;
+
+{.$DEFINE USE_MINGW_DLL}
+{.$DEFINE USE_DELAYLOAD}
+
+{.$DEFINE FREEIMAGE_STATIC_LINK}
+
+uses
+  Windows;
+
+const
+  CNamePrefixDefault = '_';
+  CNamePrefixMingwDll = '';
+  CNamePrefix = {$IFDEF USE_MINGW_DLL} CNamePrefixMingwDll {$ELSE} CNamePrefixDefault {$ENDIF};
 
 type
   FreeImageAnsiString = AnsiString;
@@ -116,7 +128,9 @@ type
 {$ENDIF}
 
 const
-  FIDLL = {$IFDEF MSWINDOWS}'libfreeimage-3.dll';{$ENDIF}
+  FIDLL = {$IFDEF MSWINDOWS}
+            {$IFDEF USE_MINGW_DLL}'libfreeimage-3.dll'{$ELSE}'FreeImage.dll';{$ENDIF}
+          {$ENDIF}
           {$IFDEF LINUX}'libfreeimage.so';{$ENDIF}
           {$IFDEF MACOS}'libfreeimage.dylib';{$ENDIF}
 
@@ -638,18 +652,19 @@ const
 // Constants used in FreeImage_RescaleEx
 
   FI_RESCALE_DEFAULT            = $00;  //! default options; none of the following other options apply
-  FI_RESCALE_TRUE_COLOR         = $01;  //! for non-transparent greyscale images, convert to 24-bit if src bitdepth <= 8 (default is a 8-bit greyscale image). 
+  FI_RESCALE_TRUE_COLOR         = $01;  //! for non-transparent greyscale images, convert to 24-bit if src bitdepth <= 8 (default is a 8-bit greyscale image).
   FI_RESCALE_OMIT_METADATA      = $02;  //! do not copy metadata to the rescaled image
 
+{$IFDEF FREEIMAGE_STATIC_LINK}
 // --------------------------------------------------------------------------
 // Init/Error routines ------------------------------------------------------
 // --------------------------------------------------------------------------
 
 procedure FreeImage_Initialise(load_local_plugins_only: LongBool = False); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Initialise@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Initialise@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Initialise'{$ENDIF};
 procedure FreeImage_DeInitialise; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_DeInitialise@0'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_DeInitialise@0'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_DeInitialise'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -657,10 +672,10 @@ procedure FreeImage_DeInitialise; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF
 // --------------------------------------------------------------------------
 
 function FreeImage_GetVersion: PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetVersion@0'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetVersion@0'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetVersion'{$ENDIF};
 function FreeImage_GetCopyrightMessage: PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetCopyrightMessage@0'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetCopyrightMessage@0'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetCopyrightMessage'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -674,10 +689,10 @@ type
     msg: PAnsiChar); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
 
 procedure FreeImage_SetOutputMessageStdCall(omf: FreeImage_OutputMessageFunctionStdCall); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetOutputMessageStdCall@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetOutputMessageStdCall@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetOutputMessageStdCall'{$ENDIF};
 procedure FreeImage_SetOutputMessage(omf: FreeImage_OutputMessageFunction); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetOutputMessage@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetOutputMessage@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetOutputMessage'{$ENDIF};
 
 {$IFDEF DELPHI6}
@@ -699,25 +714,25 @@ procedure FreeImage_OutputMessageProc(fif: Integer; fmt: PAnsiChar; args: array 
 
 function FreeImage_Allocate(width, height, bpp: Integer; red_mask: Cardinal = 0;
   green_mask: Cardinal = 0; blue_mask: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Allocate@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Allocate@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Allocate'{$ENDIF};
 function FreeImage_AllocateT(_type: FREE_IMAGE_TYPE; width, height: Integer;
   bpp: Integer = 8; red_mask: Cardinal = 0; green_mask: Cardinal = 0;
   blue_mask: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AllocateT@28'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AllocateT@28'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AllocateT'{$ENDIF};
 function FreeImage_Clone(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Clone@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Clone@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Clone'{$ENDIF};
 procedure FreeImage_Unload(dib: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Unload@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Unload@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Unload'{$ENDIF};
 
 // --------------------------------------------------------------------------
 // Header loading routines
 // --------------------------------------------------------------------------
 function FreeImage_HasPixels(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_HasPixels@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_HasPixels@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_HasPixels'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -726,27 +741,27 @@ function FreeImage_HasPixels(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcal
 
 function FreeImage_Load(fif: FREE_IMAGE_FORMAT; filename: PAnsiChar;
   flags: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Load@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Load@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Load'{$ENDIF};
 function FreeImage_LoadU(fif: FREE_IMAGE_FORMAT; filename: PWideChar;
   flags: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_LoadU@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_LoadU@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_LoadU'{$ENDIF};
 function FreeImage_LoadFromHandle(fif: FREE_IMAGE_FORMAT; io: PFreeImageIO;
   handle: fi_handle; flags: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_LoadFromHandle@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_LoadFromHandle@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_LoadFromHandle'{$ENDIF};
 function FreeImage_Save(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP; filename: PAnsiChar;
   flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Save@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Save@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Save'{$ENDIF};
 function FreeImage_SaveU(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP; filename: PWideChar;
   flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SaveU@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SaveU@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SaveU'{$ENDIF};
 function FreeImage_SaveToHandle(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP;
   io: PFreeImageIO; handle: fi_handle; flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SaveToHandle@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SaveToHandle@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SaveToHandle'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -754,45 +769,45 @@ function FreeImage_SaveToHandle(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP;
 // --------------------------------------------------------------------------
 
 function FreeImage_OpenMemory(data: PByte = nil; size_in_bytes: DWORD = 0): PFIMEMORY; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_OpenMemory@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_OpenMemory@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_OpenMemory'{$ENDIF};
 procedure FreeImage_CloseMemory(stream: PFIMEMORY); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_CloseMemory@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_CloseMemory@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_CloseMemory'{$ENDIF};
 function FreeImage_LoadFromMemory(fif: FREE_IMAGE_FORMAT; stream: PFIMEMORY;
   flags: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_LoadFromMemory@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_LoadFromMemory@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_LoadFromMemory'{$ENDIF};
 function FreeImage_SaveToMemory(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP;
   stream: PFIMEMORY; flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SaveToMemory@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SaveToMemory@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SaveToMemory'{$ENDIF};
 function FreeImage_TellMemory(stream: PFIMEMORY): LongInt; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_TellMemory@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_TellMemory@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_TellMemory'{$ENDIF};
 function FreeImage_SeekMemory(stream: PFIMEMORY; offset: LongInt;
   origin: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SeekMemory@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SeekMemory@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SeekMemory'{$ENDIF};
 function FreeImage_AcquireMemory(stream: PFIMEMORY; var data: PByte;
   var size_in_bytes: DWORD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AcquireMemory@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AcquireMemory@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AcquireMemory'{$ENDIF};
 function FreeImage_ReadMemory(buffer: Pointer; size, count: Cardinal;
   stream: PFIMEMORY): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ReadMemory@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ReadMemory@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ReadMemory'{$ENDIF};
 function FreeImage_WriteMemory(buffer: Pointer; size, count: Cardinal;
   stream: PFIMEMORY): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_WriteMemory@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_WriteMemory@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_WriteMemory'{$ENDIF};
 function FreeImage_LoadMultiBitmapFromMemory(fif: FREE_IMAGE_FORMAT; stream: PFIMEMORY;
   flags: Integer = 0): PFIMULTIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_LoadMultiBitmapFromMemory@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_LoadMultiBitmapFromMemory@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_LoadMultiBitmapFromMemory'{$ENDIF};
 function FreeImage_SaveMultiBitmapToMemory(fif: FREE_IMAGE_FORMAT; bitmap: PFIMULTIBITMAP;
   stream: PFIMEMORY; flags: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SaveMultiBitmapToMemory@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SaveMultiBitmapToMemory@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SaveMultiBitmapToMemory'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -802,68 +817,68 @@ function FreeImage_SaveMultiBitmapToMemory(fif: FREE_IMAGE_FORMAT; bitmap: PFIMU
 function FreeImage_RegisterLocalPlugin(proc_address: FI_InitProc; format: PAnsiChar = nil;
   description: PAnsiChar = nil; extension: PAnsiChar = nil;
   regexpr: PAnsiChar = nil): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_RegisterLocalPlugin@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_RegisterLocalPlugin@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_RegisterLocalPlugin'{$ENDIF};
 function FreeImage_RegisterExternalPlugin(path: PAnsiChar; format: PAnsiChar = nil;
   description: PAnsiChar = nil; extension: PAnsiChar = nil;
   regexpr: PAnsiChar = nil): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_RegisterExternalPlugin@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_RegisterExternalPlugin@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_RegisterExternalPlugin'{$ENDIF};
 function FreeImage_GetFIFCount: Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFCount@0'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFCount@0'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFCount'{$ENDIF};
 procedure FreeImage_SetPluginEnabled(fif: FREE_IMAGE_FORMAT; enable: LongBool); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetPluginEnabled@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetPluginEnabled@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetPluginEnabled'{$ENDIF};
 function FreeImage_IsPluginEnabled(fif: FREE_IMAGE_FORMAT): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_IsPluginEnabled@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_IsPluginEnabled@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_IsPluginEnabled'{$ENDIF};
 function FreeImage_GetFIFFromFormat(format: PAnsiChar): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFFromFormat@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFFromFormat@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFFromFormat'{$ENDIF};
 function FreeImage_GetFIFFromMime(mime: PAnsiChar): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFFromMime@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFFromMime@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFFromMime'{$ENDIF};
 function FreeImage_GetFormatFromFIF(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFormatFromFIF@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFormatFromFIF@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFormatFromFIF'{$ENDIF};
 function FreeImage_GetFIFExtensionList(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFExtensionList@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFExtensionList@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFExtensionList'{$ENDIF};
 function FreeImage_GetFIFDescription(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFDescription@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFDescription@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFDescription'{$ENDIF};
 function FreeImage_GetFIFRegExpr(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFRegExpr@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFRegExpr@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFRegExpr'{$ENDIF};
 function FreeImage_GetFIFMimeType(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFMimeType@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFMimeType@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFMimeType'{$ENDIF};
 function FreeImage_GetFIFFromFilename(filename: PAnsiChar): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFFromFilename@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFFromFilename@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFFromFilename'{$ENDIF};
 function FreeImage_GetFIFFromFilenameU(filename: PWideChar): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFIFFromFilenameU@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFIFFromFilenameU@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFIFFromFilenameU'{$ENDIF};
 function FreeImage_FIFSupportsReading(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FIFSupportsReading@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FIFSupportsReading@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FIFSupportsReading'{$ENDIF};
 function FreeImage_FIFSupportsWriting(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FIFSupportsWriting@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FIFSupportsWriting@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FIFSupportsWriting'{$ENDIF};
 function FreeImage_FIFSupportsExportBPP(fif: FREE_IMAGE_FORMAT;
   bpp: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FIFSupportsExportBPP@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FIFSupportsExportBPP@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FIFSupportsExportBPP'{$ENDIF};
 function FreeImage_FIFSupportsExportType(fif: FREE_IMAGE_FORMAT;
   _type: FREE_IMAGE_TYPE): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FIFSupportsExportType@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FIFSupportsExportType@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FIFSupportsExportType'{$ENDIF};
 function FreeImage_FIFSupportsICCProfiles(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FIFSupportsICCProfiles@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FIFSupportsICCProfiles@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FIFSupportsICCProfiles'{$ENDIF};
 function FreeImage_FIFSupportsNoPixels(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FIFSupportsNoPixels@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FIFSupportsNoPixels@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FIFSupportsNoPixels'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -873,46 +888,46 @@ function FreeImage_FIFSupportsNoPixels(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDE
 function FreeImage_OpenMultiBitmap(fif: FREE_IMAGE_FORMAT; filename: PAnsiChar;
   create_new, read_only: LongBool; keep_cache_in_memory: LongBool = False;
   flags: Integer = 0): PFIMULTIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_OpenMultiBitmap@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_OpenMultiBitmap@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_OpenMultiBitmap'{$ENDIF};
 function FreeImage_OpenMultiBitmapFromHandle(fif: FREE_IMAGE_FORMAT; io: PFreeImageIO;
   handle: fi_handle; flags: Integer = 0): PFIMULTIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_OpenMultiBitmapFromHandle@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_OpenMultiBitmapFromHandle@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_OpenMultiBitmapFromHandle'{$ENDIF};
 function FreeImage_SaveMultiBitmapToHandle(fif: FREE_IMAGE_FORMAT; bitmap: PFIMULTIBITMAP;
   io: PFreeImageIO; handle: fi_handle; flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SaveMultiBitmapToHandle@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SaveMultiBitmapToHandle@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SaveMultiBitmapToHandle'{$ENDIF};
 function FreeImage_CloseMultiBitmap(bitmap: PFIMULTIBITMAP;
   flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_CloseMultiBitmap@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_CloseMultiBitmap@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_CloseMultiBitmap'{$ENDIF};
 function FreeImage_GetPageCount(bitmap: PFIMULTIBITMAP): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetPageCount@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetPageCount@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetPageCount'{$ENDIF};
 procedure FreeImage_AppendPage(bitmap: PFIMULTIBITMAP; data: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AppendPage@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AppendPage@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AppendPage'{$ENDIF};
 procedure FreeImage_InsertPage(bitmap: PFIMULTIBITMAP; page: Integer;
   data: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_InsertPage@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_InsertPage@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_InsertPage'{$ENDIF};
 procedure FreeImage_DeletePage(bitmap: PFIMULTIBITMAP; page: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_DeletePage@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_DeletePage@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_DeletePage'{$ENDIF};
 function FreeImage_LockPage(bitmap: PFIMULTIBITMAP; page: Integer): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_LockPage@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_LockPage@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_LockPage'{$ENDIF};
 procedure FreeImage_UnlockPage(bitmap: PFIMULTIBITMAP; data: PFIBITMAP;
   changed: LongBool); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_UnlockPage@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_UnlockPage@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_UnlockPage'{$ENDIF};
 function FreeImage_MovePage(bitmap: PFIMULTIBITMAP; target, source: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_MovePage@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_MovePage@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_MovePage'{$ENDIF};
 function FreeImage_GetLockedPageNumbers(bitmap: PFIMULTIBITMAP; var pages: Integer;
   var count: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetLockedPageNumbers@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetLockedPageNumbers@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetLockedPageNumbers'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -921,19 +936,19 @@ function FreeImage_GetLockedPageNumbers(bitmap: PFIMULTIBITMAP; var pages: Integ
 
 function FreeImage_GetFileType(filename: PAnsiChar;
   size: Integer = 0): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFileType@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFileType@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFileType'{$ENDIF};
 function FreeImage_GetFileTypeU(filename: PWideChar;
   size: Integer = 0): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFileTypeU@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFileTypeU@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFileTypeU'{$ENDIF};
 function FreeImage_GetFileTypeFromHandle(io: PFreeImageIO; handle: FI_Handle;
   size: Integer = 0): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFileTypeFromHandle@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFileTypeFromHandle@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFileTypeFromHandle'{$ENDIF};
 function FreeImage_GetFileTypeFromMemory(stream: PFIMEMORY;
   size: Integer = 0): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetFileTypeFromMemory@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetFileTypeFromMemory@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetFileTypeFromMemory'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -941,7 +956,7 @@ function FreeImage_GetFileTypeFromMemory(stream: PFIMEMORY;
 // --------------------------------------------------------------------------
 
 function FreeImage_GetImageType(dib: PFIBITMAP): FREE_IMAGE_TYPE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetImageType@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetImageType@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetImageType'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -949,13 +964,13 @@ function FreeImage_GetImageType(dib: PFIBITMAP): FREE_IMAGE_TYPE; {$IFDEF MSWIND
 // --------------------------------------------------------------------------
 
 function FreeImage_IsLittleEndian: LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_IsLittleEndian@0'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_IsLittleEndian@0'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_IsLittleEndian'{$ENDIF};
 function FreeImage_LookupX11Color(szColor: PAnsiChar; var nRed, nGreen, nBlue: Byte): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_LookupX11Color@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_LookupX11Color@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_LookupX11Color'{$ENDIF};
 function FreeImage_LookupSVGColor(szColor: PAnsiChar; var nRed, nGreen, nBlue: Byte): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_LookupSVGColor@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_LookupSVGColor@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_LookupSVGColor'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -963,23 +978,23 @@ function FreeImage_LookupSVGColor(szColor: PAnsiChar; var nRed, nGreen, nBlue: B
 // --------------------------------------------------------------------------
 
 function FreeImage_GetBits(dib: PFIBITMAP): PByte; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetBits@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetBits@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetBits'{$ENDIF};
 function FreeImage_GetScanLine(dib: PFIBITMAP; scanline: Integer): PByte; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetScanLine@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetScanLine@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetScanLine'{$ENDIF};
 
 function FreeImage_GetPixelIndex(dib: PFIBITMAP; x, y: Cardinal; var value: Byte): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetPixelIndex@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetPixelIndex@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetPixelIndex'{$ENDIF};
 function FreeImage_GetPixelColor(dib: PFIBITMAP; x, y: Cardinal; var value: RGBQUAD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetPixelColor@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetPixelColor@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetPixelColor'{$ENDIF};
 function FreeImage_SetPixelIndex(dib: PFIBITMAP; x, y: Cardinal; var value: Byte): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetPixelIndex@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetPixelIndex@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetPixelIndex'{$ENDIF};
 function FreeImage_SetPixelColor(dib: PFIBITMAP; x, y: Cardinal; var value: RGBQUAD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetPixelColor@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetPixelColor@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetPixelColor'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -987,104 +1002,104 @@ function FreeImage_SetPixelColor(dib: PFIBITMAP; x, y: Cardinal; var value: RGBQ
 // --------------------------------------------------------------------------
 
 function FreeImage_GetColorsUsed(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetColorsUsed@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetColorsUsed@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetColorsUsed'{$ENDIF};
 function FreeImage_GetBPP(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetBPP@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetBPP@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetBPP'{$ENDIF};
 function FreeImage_GetWidth(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetWidth@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetWidth@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetWidth'{$ENDIF};
 function FreeImage_GetHeight(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetHeight@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetHeight@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetHeight'{$ENDIF};
 function FreeImage_GetLine(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetLine@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetLine@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetLine'{$ENDIF};
 function FreeImage_GetPitch(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetPitch@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetPitch@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetPitch'{$ENDIF};
 function FreeImage_GetDIBSize(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetDIBSize@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetDIBSize@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetDIBSize'{$ENDIF};
 function FreeImage_GetMemorySize(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetMemorySize@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetMemorySize@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetMemorySize'{$ENDIF};
 function FreeImage_GetPalette(dib: PFIBITMAP): PRGBQuad; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetPalette@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetPalette@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetPalette'{$ENDIF};
 
 function FreeImage_GetDotsPerMeterX(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetDotsPerMeterX@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetDotsPerMeterX@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetDotsPerMeterX'{$ENDIF};
 function FreeImage_GetDotsPerMeterY(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetDotsPerMeterY@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetDotsPerMeterY@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetDotsPerMeterY'{$ENDIF};
 procedure FreeImage_SetDotsPerMeterX(dib: PFIBITMAP; res: Cardinal); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetDotsPerMeterX@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetDotsPerMeterX@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetDotsPerMeterX'{$ENDIF};
 procedure FreeImage_SetDotsPerMeterY(dib: PFIBITMAP; res: Cardinal); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetDotsPerMeterY@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetDotsPerMeterY@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetDotsPerMeterY'{$ENDIF};
 
 function FreeImage_GetInfoHeader(dib: PFIBITMAP): PBITMAPINFOHEADER; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetInfoHeader@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetInfoHeader@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetInfoHeader'{$ENDIF};
 function FreeImage_GetInfo(dib: PFIBITMAP): PBITMAPINFO; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetInfo@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetInfo@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetInfo'{$ENDIF};
 function FreeImage_GetColorType(dib: PFIBITMAP): FREE_IMAGE_COLOR_TYPE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetColorType@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetColorType@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetColorType'{$ENDIF};
 
 function FreeImage_GetRedMask(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetRedMask@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetRedMask@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetRedMask'{$ENDIF};
 function FreeImage_GetGreenMask(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetGreenMask@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetGreenMask@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetGreenMask'{$ENDIF};
 function FreeImage_GetBlueMask(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetBlueMask@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetBlueMask@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetBlueMask'{$ENDIF};
 
 function FreeImage_GetTransparencyCount(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTransparencyCount@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTransparencyCount@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTransparencyCount'{$ENDIF};
 function FreeImage_GetTransparencyTable(dib: PFIBITMAP): PByte; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTransparencyTable@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTransparencyTable@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTransparencyTable'{$ENDIF};
 procedure FreeImage_SetTransparent(dib: PFIBITMAP; enabled: LongBool); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTransparent@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTransparent@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTransparent'{$ENDIF};
 procedure FreeImage_SetTransparencyTable(dib: PFIBITMAP; table: PByte;
   count: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTransparencyTable@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTransparencyTable@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTransparencyTable'{$ENDIF};
 function FreeImage_IsTransparent(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_IsTransparent@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_IsTransparent@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_IsTransparent'{$ENDIF};
 procedure FreeImage_SetTransparentIndex(dib: PFIBITMAP; index: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTransparentIndex@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTransparentIndex@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTransparentIndex'{$ENDIF};
 function FreeImage_GetTransparentIndex(dib: PFIBITMAP): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTransparentIndex@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTransparentIndex@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTransparentIndex'{$ENDIF};
 
 function FreeImage_HasBackgroundColor(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_HasBackgroundColor@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_HasBackgroundColor@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_HasBackgroundColor'{$ENDIF};
 function FreeImage_GetBackgroundColor(dib: PFIBITMAP; var bkcolor: RGBQUAD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetBackgroundColor@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetBackgroundColor@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetBackgroundColor'{$ENDIF};
 function FreeImage_SetBackgroundColor(dib: PFIBITMAP; bkcolor: PRGBQuad): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetBackgroundColor@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetBackgroundColor@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetBackgroundColor'{$ENDIF};
 
 function FreeImage_GetThumbnail(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetThumbnail@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetThumbnail@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetThumbnail'{$ENDIF};
 function FreeImage_SetThumbnail(dib, thumbnail: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetThumbnail@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetThumbnail@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetThumbnail'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -1092,14 +1107,14 @@ function FreeImage_SetThumbnail(dib, thumbnail: PFIBITMAP): LongBool; {$IFDEF MS
 // --------------------------------------------------------------------------
 
 function FreeImage_GetICCProfile(dib: PFIBITMAP): PFIICCPROFILE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetICCProfile@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetICCProfile@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetICCProfile'{$ENDIF};
 function FreeImage_CreateICCProfile(dib: PFIBITMAP; data: Pointer;
   size: LongInt): PFIICCPROFILE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name 'FreeImage_CreateICCProfile@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name 'FreeImage_CreateICCProfile@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name 'FreeImage_CreateICCProfile'{$ENDIF};
 procedure FreeImage_DestroyICCProfile(dib: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name 'FreeImage_DestroyICCProfile@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name 'FreeImage_DestroyICCProfile@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name 'FreeImage_DestroyICCProfile'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -1107,142 +1122,142 @@ procedure FreeImage_DestroyICCProfile(dib: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall
 // --------------------------------------------------------------------------
 
 procedure FreeImage_ConvertLine1To4(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine1To4@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine1To4@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine1To4'{$ENDIF};
 procedure FreeImage_ConvertLine8To4(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine8To4@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine8To4@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine8To4'{$ENDIF};
 procedure FreeImage_ConvertLine16To4_555(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16To4_555@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16To4_555@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16To4_555'{$ENDIF};
 procedure FreeImage_ConvertLine16To4_565(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16To4_565@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16To4_565@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16To4_565'{$ENDIF};
 procedure FreeImage_ConvertLine24To4(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine24To4@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine24To4@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine24To4'{$ENDIF};
 procedure FreeImage_ConvertLine32To4(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine32To4@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine32To4@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine32To4'{$ENDIF};
 
 procedure FreeImage_ConvertLine1To8(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine1To8@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine1To8@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine1To8'{$ENDIF};
 procedure FreeImage_ConvertLine4To8(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine4To8@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine4To8@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine4To8'{$ENDIF};
 procedure FreeImage_ConvertLine16To8_555(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16To8_555@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16To8_555@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16To8_555'{$ENDIF};
 procedure FreeImage_ConvertLine16To8_565(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16To8_565@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16To8_565@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16To8_565'{$ENDIF};
 procedure FreeImage_ConvertLine24To8(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine24To8@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine24To8@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine24To8'{$ENDIF};
 procedure FreeImage_ConvertLine32To8(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine32To8@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine32To8@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine32To8'{$ENDIF};
 
 procedure FreeImage_ConvertLine1To16_555(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine1To16_555@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine1To16_555@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine1To16_555'{$ENDIF};
 procedure FreeImage_ConvertLine4To16_555(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine4To16_555@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine4To16_555@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine4To16_555'{$ENDIF};
 procedure FreeImage_ConvertLine8To16_555(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine8To16_555@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine8To16_555@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine8To16_555'{$ENDIF};
 procedure FreeImage_ConvertLine16_565_To16_555(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16_565_To16_555@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16_565_To16_555@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16_565_To16_555'{$ENDIF};
 procedure FreeImage_ConvertLine24To16_555(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine24To16_555@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine24To16_555@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine24To16_555'{$ENDIF};
 procedure FreeImage_ConvertLine32To16_555(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine32To16_555@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine32To16_555@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine32To16_555'{$ENDIF};
 
 procedure FreeImage_ConvertLine1To16_565(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine1To16_565@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine1To16_565@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine1To16_565'{$ENDIF};
 procedure FreeImage_ConvertLine4To16_565(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine4To16_565@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine4To16_565@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine4To16_565'{$ENDIF};
 procedure FreeImage_ConvertLine8To16_565(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine8To16_565@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine8To16_565@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine8To16_565'{$ENDIF};
 procedure FreeImage_ConvertLine16_555_To16_565(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16_555_To16_565@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16_555_To16_565@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16_555_To16_565'{$ENDIF};
 procedure FreeImage_ConvertLine24To16_565(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine24To16_565@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine24To16_565@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine24To16_565'{$ENDIF};
 procedure FreeImage_ConvertLine32To16_565(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine32To16_565@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine32To16_565@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine32To16_565'{$ENDIF};
 
 procedure FreeImage_ConvertLine1To24(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine1To24@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine1To24@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine1To24'{$ENDIF};
 procedure FreeImage_ConvertLine4To24(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine4To24@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine4To24@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine4To24'{$ENDIF};
 procedure FreeImage_ConvertLine8To24(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine8To24@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine8To24@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine8To24'{$ENDIF};
 procedure FreeImage_ConvertLine16To24_555(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16To24_555@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16To24_555@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16To24_555'{$ENDIF};
 procedure FreeImage_ConvertLine16To24_565(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16To24_565@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16To24_565@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16To24_565'{$ENDIF};
 procedure FreeImage_ConvertLine32To24(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine32To24@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine32To24@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine32To24'{$ENDIF};
 
 procedure FreeImage_ConvertLine1To32(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine1To32@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine1To32@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine1To32'{$ENDIF};
 procedure FreeImage_ConvertLine1To32MapTransparency(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad; table: PByte; transparent_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine1To32MapTransparency@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine1To32MapTransparency@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine1To32MapTransparency'{$ENDIF};
 procedure FreeImage_ConvertLine4To32(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine4To32@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine4To32@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine4To32'{$ENDIF};
 procedure FreeImage_ConvertLine4To32MapTransparency(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad; table: PByte; transparent_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine4To32MapTransparency@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine4To32MapTransparency@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine4To32MapTransparency'{$ENDIF};
 procedure FreeImage_ConvertLine8To32(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine8To32@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine8To32@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine8To32'{$ENDIF};
 procedure FreeImage_ConvertLine8To32MapTransparency(target, source: PByte; width_in_pixels: Integer;
   palette: PRGBQuad; table: PByte; transparent_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine8To32MapTransparency@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine8To32MapTransparency@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine8To32MapTransparency'{$ENDIF};
 procedure FreeImage_ConvertLine16To32_555(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16To32_555@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16To32_555@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16To32_555'{$ENDIF};
 procedure FreeImage_ConvertLine16To32_565(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine16To32_565@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine16To32_565@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine16To32_565'{$ENDIF};
 procedure FreeImage_ConvertLine24To32(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertLine24To32@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertLine24To32@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertLine24To32'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -1250,104 +1265,104 @@ procedure FreeImage_ConvertLine24To32(target, source: PByte; width_in_pixels: In
 // --------------------------------------------------------------------------
 
 function FreeImage_ConvertTo4Bits(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertTo4Bits@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertTo4Bits@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertTo4Bits'{$ENDIF};
 function FreeImage_ConvertTo8Bits(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertTo8Bits@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertTo8Bits@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertTo8Bits'{$ENDIF};
 function FreeImage_ConvertToGreyscale(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToGreyscale@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToGreyscale@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToGreyscale'{$ENDIF};
 function FreeImage_ConvertTo16Bits555(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertTo16Bits555@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertTo16Bits555@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertTo16Bits555'{$ENDIF};
 function FreeImage_ConvertTo16Bits565(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertTo16Bits565@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertTo16Bits565@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertTo16Bits565'{$ENDIF};
 function FreeImage_ConvertTo24Bits(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertTo24Bits@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertTo24Bits@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertTo24Bits'{$ENDIF};
 function FreeImage_ConvertTo32Bits(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertTo32Bits@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertTo32Bits@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertTo32Bits'{$ENDIF};
 function FreeImage_ColorQuantize(dib: PFIBITMAP; quantize: FREE_IMAGE_QUANTIZE): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ColorQuantize@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ColorQuantize@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ColorQuantize'{$ENDIF};
 function FreeImage_ColorQuantizeEx(dib: PFIBITMAP; quantize: FREE_IMAGE_QUANTIZE = FIQ_WUQUANT;
   PaletteSize: Integer = 256; ReserveSize: Integer = 0;
   ReservePalette: PRGBQuad = nil): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ColorQuantizeEx@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ColorQuantizeEx@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ColorQuantizeEx'{$ENDIF};
 function FreeImage_Threshold(dib: PFIBITMAP; T: Byte): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Threshold@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Threshold@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Threshold'{$ENDIF};
 function FreeImage_Dither(dib: PFIBITMAP; algorithm: FREE_IMAGE_DITHER): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Dither@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Dither@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Dither'{$ENDIF};
 
 function FreeImage_ConvertFromRawBits(bits: PByte; width, height, pitch: Integer;
   bpp, red_mask, green_mask, blue_mask: Cardinal; topdown: LongBool = False): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertFromRawBits@36'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertFromRawBits@36'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertFromRawBits'{$ENDIF};
 function FreeImage_ConvertFromRawBitsEx(copySource: LongBool; bits: PByte; _type: FREE_IMAGE_TYPE;
   width, height, pitch: Integer; bpp, red_mask, green_mask, blue_mask: Cardinal;
   topdown: LongBool = False): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertFromRawBitsEx@44'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertFromRawBitsEx@44'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertFromRawBitsEx'{$ENDIF};
 procedure FreeImage_ConvertToRawBits(bits: PByte; dib: PFIBITMAP; pitch: Integer;
   bpp, red_mask, green_mask, blue_mask: Cardinal; topdown: LongBool = False); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToRawBits@32'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToRawBits@32'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToRawBits'{$ENDIF};
 
 function FreeImage_ConvertToFloat(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToFloat@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToFloat@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToFloat'{$ENDIF};
 function FreeImage_ConvertToRGBF(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToRGBF@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToRGBF@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToRGBF'{$ENDIF};
 function FreeImage_ConvertToRGBAF(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToRGBAF@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToRGBAF@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToRGBAF'{$ENDIF};
 function FreeImage_ConvertToUINT16(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToUINT16@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToUINT16@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToUINT16'{$ENDIF};
 function FreeImage_ConvertToRGB16(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToRGB16@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToRGB16@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToRGB16'{$ENDIF};
 function FreeImage_ConvertToRGBA16(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToRGBA16@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToRGBA16@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToRGBA16'{$ENDIF};
 
 function FreeImage_ConvertToStandardType(src: PFIBITMAP;
   scale_linear: LongBool = True): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToStandardType@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToStandardType@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToStandardType'{$ENDIF};
 function FreeImage_ConvertToType(src: PFIBITMAP; dst_type: FREE_IMAGE_TYPE;
   scale_linear: LongBool = True): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ConvertToType@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ConvertToType@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ConvertToType'{$ENDIF};
 
 // Tone mapping operators ---------------------------------------------------
 function FreeImage_ToneMapping(dib: PFIBITMAP; tmo: FREE_IMAGE_TMO;
   first_param: Double = 0; second_param: Double = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ToneMapping@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ToneMapping@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ToneMapping'{$ENDIF};
 function FreeImage_TmoDrago03(src: PFIBITMAP; gamma: Double = 2.2;
   exposure: Double = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_TmoDrago03@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_TmoDrago03@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_TmoDrago03'{$ENDIF};
 function FreeImage_TmoReinhard05(src: PFIBITMAP; intensity: Double = 0;
   contrast: Double = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_TmoReinhard05@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_TmoReinhard05@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_TmoReinhard05'{$ENDIF};
 function FreeImage_TmoReinhard05Ex(src: PFIBITMAP; intensity: Double = 0;
   contrast: Double = 0; adaptation: Double = 1; color_correction: Double = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_TmoReinhard05Ex@36'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_TmoReinhard05Ex@36'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_TmoReinhard05Ex'{$ENDIF};
 
 function FreeImage_TmoFattal02(src: PFIBITMAP; color_saturation: Double = 0.5;
   attenuation: Double = 0.85): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_TmoFattal02@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_TmoFattal02@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_TmoFattal02'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -1355,19 +1370,19 @@ function FreeImage_TmoFattal02(src: PFIBITMAP; color_saturation: Double = 0.5;
 // --------------------------------------------------------------------------
 
 function FreeImage_ZLibCompress(target: PByte; target_size: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ZLibCompress@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ZLibCompress@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ZLibCompress'{$ENDIF};
 function FreeImage_ZLibUncompress(target: PByte; target_size: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ZLibUncompress@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ZLibUncompress@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ZLibUncompress'{$ENDIF};
 function FreeImage_ZLibGZip(target: PByte; target_size: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ZLibGZip@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ZLibGZip@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ZLibGZip'{$ENDIF};
 function FreeImage_ZLibGUnzip(target: PByte; target_size: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ZLibGUnzip@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ZLibGUnzip@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ZLibGUnzip'{$ENDIF};
 function FreeImage_ZLibCRC32(crc: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ZLibCRC32@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ZLibCRC32@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ZLibCRC32'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -1376,98 +1391,98 @@ function FreeImage_ZLibCRC32(crc: DWORD; source: PByte; source_size: DWORD): DWO
 
 // tag creation / destruction
 function FreeImage_CreateTag: PFITAG; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_CreateTag@0'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_CreateTag@0'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_CreateTag'{$ENDIF};
 procedure FreeImage_DeleteTag(tag: PFITAG); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_DeleteTag@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_DeleteTag@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_DeleteTag'{$ENDIF};
 function FreeImage_CloneTag(tag: PFITAG): PFITAG; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_CloneTag@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_CloneTag@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_CloneTag'{$ENDIF};
 
 // tag getters and setters
 function FreeImage_GetTagKey(tag: PFITAG): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTagKey@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTagKey@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTagKey'{$ENDIF};
 function FreeImage_GetTagDescription(tag: PFITAG): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTagDescription@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTagDescription@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTagDescription'{$ENDIF};
 function FreeImage_GetTagID(tag: PFITAG): Word; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTagID@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTagID@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTagID'{$ENDIF};
 function FreeImage_GetTagType(tag: PFITAG): FREE_IMAGE_MDTYPE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTagType@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTagType@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTagType'{$ENDIF};
 function FreeImage_GetTagCount(tag: PFITAG): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTagCount@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTagCount@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTagCount'{$ENDIF};
 function FreeImage_GetTagLength(tag: PFITAG): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTagLength@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTagLength@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTagLength'{$ENDIF};
 function FreeImage_GetTagValue(tag: PFITAG): Pointer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetTagValue@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetTagValue@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetTagValue'{$ENDIF};
 
 function FreeImage_SetTagKey(tag: PFITAG; key: PAnsiChar): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTagKey@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTagKey@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTagKey'{$ENDIF};
 function FreeImage_SetTagDescription(tag: PFITAG; description: PAnsiChar): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTagDescription@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTagDescription@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTagDescription'{$ENDIF};
 function FreeImage_SetTagID(tag: PFITAG; id: Word): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTagID@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTagID@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTagID'{$ENDIF};
 function FreeImage_SetTagType(tag: PFITAG; _type: FREE_IMAGE_MDTYPE): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTagType@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTagType@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTagType'{$ENDIF};
 function FreeImage_SetTagCount(tag: PFITAG; count: DWORD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTagCount@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTagCount@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTagCount'{$ENDIF};
 function FreeImage_SetTagLength(tag: PFITAG; length: DWORD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTagLength@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTagLength@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTagLength'{$ENDIF};
 function FreeImage_SetTagValue(tag: PFITAG; value: Pointer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetTagValue@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetTagValue@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetTagValue'{$ENDIF};
 
 // iterator
 function FreeImage_FindFirstMetadata(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP;
   var tag: PFITAG): PFIMETADATA; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FindFirstMetadata@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FindFirstMetadata@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FindFirstMetadata'{$ENDIF};
 function FreeImage_FindNextMetadata(mdhandle: PFIMETADATA; var tag: PFITAG): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FindNextMetadata@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FindNextMetadata@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FindNextMetadata'{$ENDIF};
 procedure FreeImage_FindCloseMetadata(mdhandle: PFIMETADATA); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FindCloseMetadata@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FindCloseMetadata@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FindCloseMetadata'{$ENDIF};
 
 // metadata setter and getter
 function FreeImage_SetMetadata(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP;
   key: PAnsiChar; tag: PFITAG): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetMetadata@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetMetadata@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetMetadata'{$ENDIF};
 function FreeImage_GetMetadata(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP;
   key: PAnsiChar; var tag: PFITAG): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetMetadata@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetMetadata@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetMetadata'{$ENDIF};
 function FreeImage_SetMetadataKeyValue(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP;
   key, value: PAnsiChar): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetMetadataKeyValue@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetMetadataKeyValue@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetMetadataKeyValue'{$ENDIF};
 
 // helpers
 function FreeImage_GetMetadataCount(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetMetadataCount@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetMetadataCount@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetMetadataCount'{$ENDIF};
 function FreeImage_CloneMetadata(dst, src: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_CloneMetadata@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_CloneMetadata@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_CloneMetadata'{$ENDIF};
 
 // tag to C string conversion
 function FreeImage_TagToString(model: FREE_IMAGE_MDMODEL; tag: PFITAG;
   Make: PAnsiChar = nil): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_TagToString@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_TagToString@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_TagToString'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -1476,36 +1491,36 @@ function FreeImage_TagToString(model: FREE_IMAGE_MDMODEL; tag: PFITAG;
 
 function FreeImage_JPEGTransform(src_file, dst_file: PAnsiChar; operation: FREE_IMAGE_JPEG_OPERATION;
   perfect: LongBool = False): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_JPEGTransform@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_JPEGTransform@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_JPEGTransform'{$ENDIF};
 function FreeImage_JPEGTransformU(src_file, dst_file: PWideChar; operation: FREE_IMAGE_JPEG_OPERATION;
   perfect: LongBool = False): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_JPEGTransformU@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_JPEGTransformU@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_JPEGTransformU'{$ENDIF};
 function FreeImage_JPEGCrop(src_file, dst_file: PAnsiChar;
   left, top, right, bottom: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_JPEGCrop@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_JPEGCrop@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_JPEGCrop'{$ENDIF};
 function FreeImage_JPEGCropU(src_file, dst_file: PWideChar;
   left, top, right, bottom: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_JPEGCropU@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_JPEGCropU@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_JPEGCropU'{$ENDIF};
 function FreeImage_JPEGTransformFromHandle(src_io: PFreeImageIO; src_handle: fi_handle; dst_io: PFreeImageIO;
   dst_handle: fi_handle; operation: FREE_IMAGE_JPEG_OPERATION; var left, top, right, bottom: Integer;
   perfect: LongBool = True): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_JPEGTransformFromHandle@40'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_JPEGTransformFromHandle@40'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_JPEGTransformFromHandle'{$ENDIF};
 function FreeImage_JPEGTransformCombined(src_file, dst_file: PAnsiChar; operation: FREE_IMAGE_JPEG_OPERATION;
   var left, top, right, bottom: Integer; perfect: LongBool = True): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_JPEGTransformCombined@32'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_JPEGTransformCombined@32'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_JPEGTransformCombined'{$ENDIF};
 function FreeImage_JPEGTransformCombinedU(src_file, dst_file: PWideChar; operation: FREE_IMAGE_JPEG_OPERATION;
   var left, top, right, bottom: Integer; perfect: LongBool = True): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_JPEGTransformCombinedU@32'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_JPEGTransformCombinedU@32'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_JPEGTransformCombinedU'{$ENDIF};
 function FreeImage_JPEGTransformCombinedFromMemory(src_stream, dst_stream: PFIMEMORY; operation: FREE_IMAGE_JPEG_OPERATION;
   var left, top, right, bottom: Integer; perfect: LongBool = True): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_JPEGTransformCombinedFromMemory@32'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_JPEGTransformCombinedFromMemory@32'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_JPEGTransformCombinedFromMemory'{$ENDIF};
 
 // --------------------------------------------------------------------------
@@ -1515,140 +1530,503 @@ function FreeImage_JPEGTransformCombinedFromMemory(src_stream, dst_stream: PFIME
 // rotation and flipping
 // modif JMB : FreeImage_RotateClassic : deprecated function, call to DeprecationManager in 64 bits crashes freeimage.dll
 //function FreeImage_RotateClassic(dib: PFIBITMAP; angle: Double): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-//  external FIDLL {$IFDEF WIN32}name '_FreeImage_RotateClassic@12'{$ENDIF}
+//  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_RotateClassic@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
 //  {$IFDEF MACOS}name '_FreeImage_RotateClassic'{$ENDIF};
 function FreeImage_Rotate(dib: PFIBITMAP; angle: Double; bkcolor: Pointer = nil): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Rotate@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Rotate@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Rotate'{$ENDIF};
 function FreeImage_RotateEx(dib: PFIBITMAP; angle, x_shift, y_shift, x_origin, y_origin: Double;
   use_mask: LongBool): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_RotateEx@48'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_RotateEx@48'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_RotateEx'{$ENDIF};
 function FreeImage_FlipHorizontal(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FlipHorizontal@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FlipHorizontal@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FlipHorizontal'{$ENDIF};
 function FreeImage_FlipVertical(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FlipVertical@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FlipVertical@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FlipVertical'{$ENDIF};
 
 // upsampling / downsampling
 function FreeImage_Rescale(dib: PFIBITMAP; dst_width, dst_height: Integer;
   filter: FREE_IMAGE_FILTER = FILTER_CATMULLROM): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Rescale@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Rescale@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Rescale'{$ENDIF};
 function FreeImage_MakeThumbnail(dib: PFIBITMAP; max_pixel_size: Integer; convert: LongBool = True): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_MakeThumbnail@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_MakeThumbnail@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_MakeThumbnail'{$ENDIF};
 function FreeImage_RescaleRect(dib: PFIBITMAP; dst_width, dst_height, left, top, right, bottom: Integer;
   filter: FREE_IMAGE_FILTER = FILTER_CATMULLROM; flags: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_RescaleRect@36'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_RescaleRect@36'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_RescaleRect'{$ENDIF};
 
 // color manipulation routines (point operations)
 function FreeImage_AdjustCurve(dib: PFIBITMAP; LUT: PByte;
   channel: FREE_IMAGE_COLOR_CHANNEL): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AdjustCurve@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AdjustCurve@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AdjustCurve'{$ENDIF};
 function FreeImage_AdjustGamma(dib: PFIBITMAP; gamma: Double): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AdjustGamma@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AdjustGamma@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AdjustGamma'{$ENDIF};
 function FreeImage_AdjustBrightness(dib: PFIBITMAP; percentage: Double): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AdjustBrightness@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AdjustBrightness@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AdjustBrightness'{$ENDIF};
 function FreeImage_AdjustContrast(dib: PFIBITMAP; percentage: Double): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AdjustContrast@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AdjustContrast@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AdjustContrast'{$ENDIF};
 function FreeImage_Invert(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Invert@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Invert@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Invert'{$ENDIF};
 function FreeImage_GetHistogram(dib: PFIBITMAP; histo: PDWORD;
   channel: FREE_IMAGE_COLOR_CHANNEL = FICC_BLACK): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetHistogram@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetHistogram@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetHistogram'{$ENDIF};
 function FreeImage_GetAdjustColorsLookupTable(LUT: PByte; brightness, contrast, gamma: Double;
   invert: LongBool): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetAdjustColorsLookupTable@32'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetAdjustColorsLookupTable@32'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetAdjustColorsLookupTable'{$ENDIF};
 function FreeImage_AdjustColors(dib: PFIBITMAP; brightness, contrast, gamma: Double;
   invert: LongBool = False): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AdjustColors@32'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AdjustColors@32'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AdjustColors'{$ENDIF};
 function FreeImage_ApplyColorMapping(dib: PFIBITMAP; srccolors, dstcolors: PRGBQuad;
   count: Cardinal; ignore_alpha, swap: LongBool): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ApplyColorMapping@24'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ApplyColorMapping@24'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ApplyColorMapping'{$ENDIF};
 function FreeImage_SwapColors(dib: PFIBITMAP; color_a, color_b: PRGBQuad;
   ignore_alpha: LongBool): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SwapColors@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SwapColors@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SwapColors'{$ENDIF};
 function FreeImage_ApplyPaletteIndexMapping(dib: PFIBITMAP; srcindices, dstindices: PByte;
   count: Cardinal; swap: LongBool): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_ApplyPaletteIndexMapping@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_ApplyPaletteIndexMapping@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_ApplyPaletteIndexMapping'{$ENDIF};
 function FreeImage_SwapPaletteIndices(dib: PFIBITMAP; index_a, index_b: PByte): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SwapPaletteIndices@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SwapPaletteIndices@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SwapPaletteIndices'{$ENDIF};
 
 // channel processing routines
 function FreeImage_GetChannel(dib: PFIBITMAP; channel: FREE_IMAGE_COLOR_CHANNEL): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetChannel@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetChannel@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetChannel'{$ENDIF};
 function FreeImage_SetChannel(dst, src: PFIBITMAP; channel: FREE_IMAGE_COLOR_CHANNEL): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetChannel@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetChannel@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetChannel'{$ENDIF};
 function FreeImage_GetComplexChannel(src: PFIBITMAP; channel: FREE_IMAGE_COLOR_CHANNEL): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_GetComplexChannel@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_GetComplexChannel@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_GetComplexChannel'{$ENDIF};
 function FreeImage_SetComplexChannel(dst, src: PFIBITMAP; channel: FREE_IMAGE_COLOR_CHANNEL): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_SetComplexChannel@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_SetComplexChannel@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_SetComplexChannel'{$ENDIF};
 
 // copy / paste / composite routines
 
 function FreeImage_Copy(dib: PFIBITMAP; left, top, right, bottom: Integer): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Copy@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Copy@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Copy'{$ENDIF};
 function FreeImage_Paste(dst, src: PFIBITMAP; left, top, alpha: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Paste@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Paste@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Paste'{$ENDIF};
 function FreeImage_CreateView(dib: PFIBITMAP; left, top, right, bottom: Cardinal): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_CreateView@20'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_CreateView@20'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_CreateView'{$ENDIF};
 
 function FreeImage_Composite(fg: PFIBITMAP; useFileBkg: LongBool = False;
   appBkColor: PRGBQuad = nil; bg: PFIBITMAP = nil): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_Composite@16'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_Composite@16'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_Composite'{$ENDIF};
 function FreeImage_PreMultiplyWithAlpha(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_PreMultiplyWithAlpha@4'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_PreMultiplyWithAlpha@4'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_PreMultiplyWithAlpha'{$ENDIF};
 
 // background filling routines
 function FreeImage_FillBackground(dib: PFIBITMAP; color: Pointer;
   options: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_FillBackground@12'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_FillBackground@12'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_FillBackground'{$ENDIF};
 function FreeImage_EnlargeCanvas(src: PFIBITMAP; left, top, right, bottom: Integer;
   color: Pointer; options: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_EnlargeCanvas@28'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_EnlargeCanvas@28'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_EnlargeCanvas'{$ENDIF};
 function FreeImage_AllocateEx(width, height, bpp: Integer; color: PRGBQuad;
   options: Integer = 0; palette: PRGBQuad = nil; red_mask: Cardinal = 0;
   green_mask: Cardinal = 0; blue_mask: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AllocateEx@36'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AllocateEx@36'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AllocateEx'{$ENDIF};
 function FreeImage_AllocateExT(_type: FREE_IMAGE_TYPE; width, height, bpp: Integer;
   color: Pointer; options: Integer = 0; palette: PRGBQuad = nil; red_mask: Cardinal = 0;
   green_mask: Cardinal = 0; blue_mask: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_AllocateExT@40'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_AllocateExT@40'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_AllocateExT'{$ENDIF};
 
 // miscellaneous algorithms
 function FreeImage_MultigridPoissonSolver(Laplacian: PFIBITMAP;
   ncycle: Integer = 3): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
-  external FIDLL {$IFDEF WIN32}name '_FreeImage_MultigridPoissonSolver@8'{$ENDIF}
+  external FIDLL {$IFDEF WIN32}name CNamePrefix + 'FreeImage_MultigridPoissonSolver@8'{$ENDIF} {$IFDEF USE_DELAYLOAD}delayed{$ENDIF}
   {$IFDEF MACOS}name '_FreeImage_MultigridPoissonSolver'{$ENDIF};
 
+{$ELSE}
+
+type
+  FreeImage_OutputMessageFunction = procedure(fif: FREE_IMAGE_FORMAT;
+    msg: PAnsiChar); cdecl;
+  FreeImage_OutputMessageFunctionStdCall = procedure(fif: FREE_IMAGE_FORMAT;
+    msg: PAnsiChar); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+
+var
+  FreeImage_Initialise: procedure(load_local_plugins_only: LongBool = False); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_DeInitialise: procedure(); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetVersion: function(): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetCopyrightMessage: function(): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetOutputMessageStdCall: procedure(omf: FreeImage_OutputMessageFunctionStdCall); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetOutputMessage: procedure(omf: FreeImage_OutputMessageFunction); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+
+  //FreeImage_OutputMessageProc: procedure(fif: Integer; fmt: PAnsiChar); cdecl; varargs;
+
+  FreeImage_Allocate: function(width, height, bpp: Integer; red_mask: Cardinal = 0;
+    green_mask: Cardinal = 0; blue_mask: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AllocateT: function(_type: FREE_IMAGE_TYPE; width, height: Integer;
+    bpp: Integer = 8; red_mask: Cardinal = 0; green_mask: Cardinal = 0;
+    blue_mask: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Clone: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Unload: procedure(dib: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_HasPixels: function(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Load: function(fif: FREE_IMAGE_FORMAT; filename: PAnsiChar;
+    flags: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_LoadU: function(fif: FREE_IMAGE_FORMAT; filename: PWideChar;
+    flags: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_LoadFromHandle: function(fif: FREE_IMAGE_FORMAT; io: PFreeImageIO;
+    handle: fi_handle; flags: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Save: function(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP; filename: PAnsiChar;
+    flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SaveU: function(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP; filename: PWideChar;
+    flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SaveToHandle: function(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP;
+    io: PFreeImageIO; handle: fi_handle; flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_OpenMemory: function(data: PByte = nil; size_in_bytes: DWORD = 0): PFIMEMORY; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_CloseMemory: procedure(stream: PFIMEMORY); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_LoadFromMemory: function(fif: FREE_IMAGE_FORMAT; stream: PFIMEMORY;
+    flags: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SaveToMemory: function(fif: FREE_IMAGE_FORMAT; dib: PFIBITMAP;
+    stream: PFIMEMORY; flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_TellMemory: function(stream: PFIMEMORY): LongInt; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SeekMemory: function(stream: PFIMEMORY; offset: LongInt;
+    origin: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AcquireMemory: function(stream: PFIMEMORY; var data: PByte;
+    var size_in_bytes: DWORD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ReadMemory: function(buffer: Pointer; size, count: Cardinal;
+    stream: PFIMEMORY): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_WriteMemory: function(buffer: Pointer; size, count: Cardinal;
+    stream: PFIMEMORY): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_LoadMultiBitmapFromMemory: function(fif: FREE_IMAGE_FORMAT; stream: PFIMEMORY;
+    flags: Integer = 0): PFIMULTIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SaveMultiBitmapToMemory: function(fif: FREE_IMAGE_FORMAT; bitmap: PFIMULTIBITMAP;
+    stream: PFIMEMORY; flags: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_RegisterLocalPlugin: function(proc_address: FI_InitProc; format: PAnsiChar = nil;
+    description: PAnsiChar = nil; extension: PAnsiChar = nil;
+    regexpr: PAnsiChar = nil): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_RegisterExternalPlugin: function(path: PAnsiChar; format: PAnsiChar = nil;
+    description: PAnsiChar = nil; extension: PAnsiChar = nil;
+    regexpr: PAnsiChar = nil): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFCount: function(): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetPluginEnabled: procedure(fif: FREE_IMAGE_FORMAT; enable: LongBool); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_IsPluginEnabled: function(fif: FREE_IMAGE_FORMAT): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFFromFormat: function(format: PAnsiChar): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFFromMime: function(mime: PAnsiChar): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFormatFromFIF: function(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFExtensionList: function(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFDescription: function(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFRegExpr: function(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFMimeType: function(fif: FREE_IMAGE_FORMAT): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFFromFilename: function(filename: PAnsiChar): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFIFFromFilenameU: function(filename: PWideChar): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FIFSupportsReading: function(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FIFSupportsWriting: function(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FIFSupportsExportBPP: function(fif: FREE_IMAGE_FORMAT;
+    bpp: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FIFSupportsExportType: function(fif: FREE_IMAGE_FORMAT;
+    _type: FREE_IMAGE_TYPE): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FIFSupportsICCProfiles: function(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FIFSupportsNoPixels: function(fif: FREE_IMAGE_FORMAT): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_OpenMultiBitmap: function(fif: FREE_IMAGE_FORMAT; filename: PAnsiChar;
+    create_new, read_only: LongBool; keep_cache_in_memory: LongBool = False;
+    flags: Integer = 0): PFIMULTIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_OpenMultiBitmapFromHandle: function(fif: FREE_IMAGE_FORMAT; io: PFreeImageIO;
+    handle: fi_handle; flags: Integer = 0): PFIMULTIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SaveMultiBitmapToHandle: function(fif: FREE_IMAGE_FORMAT; bitmap: PFIMULTIBITMAP;
+    io: PFreeImageIO; handle: fi_handle; flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_CloseMultiBitmap: function(bitmap: PFIMULTIBITMAP;
+    flags: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetPageCount: function(bitmap: PFIMULTIBITMAP): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AppendPage: procedure(bitmap: PFIMULTIBITMAP; data: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_InsertPage: procedure(bitmap: PFIMULTIBITMAP; page: Integer;
+    data: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_DeletePage: procedure(bitmap: PFIMULTIBITMAP; page: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_LockPage: function(bitmap: PFIMULTIBITMAP; page: Integer): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_UnlockPage: procedure(bitmap: PFIMULTIBITMAP; data: PFIBITMAP;
+    changed: LongBool); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_MovePage: function(bitmap: PFIMULTIBITMAP; target, source: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetLockedPageNumbers: function(bitmap: PFIMULTIBITMAP; var pages: Integer;
+    var count: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFileType: function(filename: PAnsiChar;
+    size: Integer = 0): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFileTypeU: function(filename: PWideChar;
+    size: Integer = 0): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFileTypeFromHandle: function(io: PFreeImageIO; handle: FI_Handle;
+    size: Integer = 0): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetFileTypeFromMemory: function(stream: PFIMEMORY;
+    size: Integer = 0): FREE_IMAGE_FORMAT; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetImageType: function(dib: PFIBITMAP): FREE_IMAGE_TYPE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_IsLittleEndian: function(): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_LookupX11Color: function(szColor: PAnsiChar; var nRed, nGreen, nBlue: Byte): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_LookupSVGColor: function(szColor: PAnsiChar; var nRed, nGreen, nBlue: Byte): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetBits: function(dib: PFIBITMAP): PByte; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetScanLine: function(dib: PFIBITMAP; scanline: Integer): PByte; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetPixelIndex: function(dib: PFIBITMAP; x, y: Cardinal; var value: Byte): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetPixelColor: function(dib: PFIBITMAP; x, y: Cardinal; var value: RGBQUAD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetPixelIndex: function(dib: PFIBITMAP; x, y: Cardinal; var value: Byte): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetPixelColor: function(dib: PFIBITMAP; x, y: Cardinal; var value: RGBQUAD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetColorsUsed: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetBPP: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetWidth: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetHeight: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetLine: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetPitch: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetDIBSize: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetMemorySize: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetPalette: function(dib: PFIBITMAP): PRGBQuad; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetDotsPerMeterX: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetDotsPerMeterY: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetDotsPerMeterX: procedure(dib: PFIBITMAP; res: Cardinal); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetDotsPerMeterY: procedure(dib: PFIBITMAP; res: Cardinal); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetInfoHeader: function(dib: PFIBITMAP): PBITMAPINFOHEADER; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetInfo: function(dib: PFIBITMAP): PBITMAPINFO; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetColorType: function(dib: PFIBITMAP): FREE_IMAGE_COLOR_TYPE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetRedMask: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetGreenMask: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetBlueMask: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTransparencyCount: function(dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTransparencyTable: function(dib: PFIBITMAP): PByte; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTransparent: procedure(dib: PFIBITMAP; enabled: LongBool); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTransparencyTable: procedure(dib: PFIBITMAP; table: PByte;
+    count: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_IsTransparent: function(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTransparentIndex: procedure(dib: PFIBITMAP; index: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTransparentIndex: function(dib: PFIBITMAP): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_HasBackgroundColor: function(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetBackgroundColor: function(dib: PFIBITMAP; var bkcolor: RGBQUAD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetBackgroundColor: function(dib: PFIBITMAP; bkcolor: PRGBQuad): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetThumbnail: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetThumbnail: function(dib, thumbnail: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetICCProfile: function(dib: PFIBITMAP): PFIICCPROFILE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_CreateICCProfile: function(dib: PFIBITMAP; data: Pointer;
+    size: LongInt): PFIICCPROFILE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_DestroyICCProfile: procedure(dib: PFIBITMAP); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine1To4: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine8To4: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16To4_555: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16To4_565: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine24To4: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine32To4: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine1To8: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine4To8: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16To8_555: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16To8_565: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine24To8: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine32To8: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine1To16_555: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine4To16_555: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine8To16_555: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16_565_To16_555: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine24To16_555: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine32To16_555: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine1To16_565: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine4To16_565: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine8To16_565: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16_555_To16_565: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine24To16_565: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine32To16_565: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine1To24: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine4To24: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine8To24: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16To24_555: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16To24_565: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine32To24: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine1To32: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine1To32MapTransparency: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad; table: PByte; transparent_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine4To32: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine4To32MapTransparency: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad; table: PByte; transparent_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine8To32: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine8To32MapTransparency: procedure(target, source: PByte; width_in_pixels: Integer;
+    palette: PRGBQuad; table: PByte; transparent_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16To32_555: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine16To32_565: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertLine24To32: procedure(target, source: PByte; width_in_pixels: Integer); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertTo4Bits: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertTo8Bits: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToGreyscale: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertTo16Bits555: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertTo16Bits565: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertTo24Bits: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertTo32Bits: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ColorQuantize: function(dib: PFIBITMAP; quantize: FREE_IMAGE_QUANTIZE): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ColorQuantizeEx: function(dib: PFIBITMAP; quantize: FREE_IMAGE_QUANTIZE = FIQ_WUQUANT;
+    PaletteSize: Integer = 256; ReserveSize: Integer = 0;
+    ReservePalette: PRGBQuad = nil): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Threshold: function(dib: PFIBITMAP; T: Byte): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Dither: function(dib: PFIBITMAP; algorithm: FREE_IMAGE_DITHER): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertFromRawBits: function(bits: PByte; width, height, pitch: Integer;
+    bpp, red_mask, green_mask, blue_mask: Cardinal; topdown: LongBool = False): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertFromRawBitsEx: function(copySource: LongBool; bits: PByte; _type: FREE_IMAGE_TYPE;
+    width, height, pitch: Integer; bpp, red_mask, green_mask, blue_mask: Cardinal;
+    topdown: LongBool = False): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToRawBits: procedure(bits: PByte; dib: PFIBITMAP; pitch: Integer;
+    bpp, red_mask, green_mask, blue_mask: Cardinal; topdown: LongBool = False); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToFloat: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToRGBF: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToRGBAF: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToUINT16: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToRGB16: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToRGBA16: function(dib: PFIBITMAP): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToStandardType: function(src: PFIBITMAP;
+    scale_linear: LongBool = True): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ConvertToType: function(src: PFIBITMAP; dst_type: FREE_IMAGE_TYPE;
+    scale_linear: LongBool = True): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ToneMapping: function(dib: PFIBITMAP; tmo: FREE_IMAGE_TMO;
+    first_param: Double = 0; second_param: Double = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_TmoDrago03: function(src: PFIBITMAP; gamma: Double = 2.2;
+    exposure: Double = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_TmoReinhard05: function(src: PFIBITMAP; intensity: Double = 0;
+    contrast: Double = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_TmoReinhard05Ex: function(src: PFIBITMAP; intensity: Double = 0;
+    contrast: Double = 0; adaptation: Double = 1; color_correction: Double = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_TmoFattal02: function(src: PFIBITMAP; color_saturation: Double = 0.5;
+    attenuation: Double = 0.85): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ZLibCompress: function(target: PByte; target_size: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ZLibUncompress: function(target: PByte; target_size: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ZLibGZip: function(target: PByte; target_size: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ZLibGUnzip: function(target: PByte; target_size: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ZLibCRC32: function(crc: DWORD; source: PByte; source_size: DWORD): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_CreateTag: function(): PFITAG; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_DeleteTag: procedure(tag: PFITAG); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_CloneTag: function(tag: PFITAG): PFITAG; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTagKey: function(tag: PFITAG): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTagDescription: function(tag: PFITAG): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTagID: function(tag: PFITAG): Word; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTagType: function(tag: PFITAG): FREE_IMAGE_MDTYPE; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTagCount: function(tag: PFITAG): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTagLength: function(tag: PFITAG): DWORD; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetTagValue: function(tag: PFITAG): Pointer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTagKey: function(tag: PFITAG; key: PAnsiChar): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTagDescription: function(tag: PFITAG; description: PAnsiChar): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTagID: function(tag: PFITAG; id: Word): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTagType: function(tag: PFITAG; _type: FREE_IMAGE_MDTYPE): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTagCount: function(tag: PFITAG; count: DWORD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTagLength: function(tag: PFITAG; length: DWORD): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetTagValue: function(tag: PFITAG; value: Pointer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FindFirstMetadata: function(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP;
+    var tag: PFITAG): PFIMETADATA; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FindNextMetadata: function(mdhandle: PFIMETADATA; var tag: PFITAG): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FindCloseMetadata: procedure(mdhandle: PFIMETADATA); {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetMetadata: function(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP;
+    key: PAnsiChar; tag: PFITAG): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetMetadata: function(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP;
+    key: PAnsiChar; var tag: PFITAG): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetMetadataKeyValue: function(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP;
+    key, value: PAnsiChar): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetMetadataCount: function(model: FREE_IMAGE_MDMODEL; dib: PFIBITMAP): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_CloneMetadata: function(dst, src: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_TagToString: function(model: FREE_IMAGE_MDMODEL; tag: PFITAG;
+    Make: PAnsiChar = nil): PAnsiChar; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+
+  //FreeImage_JPEGTransform: function(src_file, dst_file: PAnsiChar; operation: FREE_IMAGE_JPEG_OPERATION;
+  //  perfect: LongBool = False): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  //FreeImage_JPEGTransformU: function(src_file, dst_file: PWideChar; operation: FREE_IMAGE_JPEG_OPERATION;
+  //  perfect: LongBool = False): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  //FreeImage_JPEGCrop: function(src_file, dst_file: PAnsiChar;
+  //  left, top, right, bottom: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  //FreeImage_JPEGCropU: function(src_file, dst_file: PWideChar;
+  //  left, top, right, bottom: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  //FreeImage_JPEGTransformFromHandle: function(src_io: PFreeImageIO; src_handle: fi_handle; dst_io: PFreeImageIO;
+  //  dst_handle: fi_handle; operation: FREE_IMAGE_JPEG_OPERATION; var left, top, right, bottom: Integer;
+  //  perfect: LongBool = True): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  //FreeImage_JPEGTransformCombined: function(src_file, dst_file: PAnsiChar; operation: FREE_IMAGE_JPEG_OPERATION;
+  //  var left, top, right, bottom: Integer; perfect: LongBool = True): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  //FreeImage_JPEGTransformCombinedU: function(src_file, dst_file: PWideChar; operation: FREE_IMAGE_JPEG_OPERATION;
+  //  var left, top, right, bottom: Integer; perfect: LongBool = True): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  //FreeImage_JPEGTransformCombinedFromMemory: function(src_stream, dst_stream: PFIMEMORY; operation: FREE_IMAGE_JPEG_OPERATION;
+  //  var left, top, right, bottom: Integer; perfect: LongBool = True): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+
+  //FreeImage_RotateClassic: function(dib: PFIBITMAP; angle: Double): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+
+  FreeImage_Rotate: function(dib: PFIBITMAP; angle: Double; bkcolor: Pointer = nil): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_RotateEx: function(dib: PFIBITMAP; angle, x_shift, y_shift, x_origin, y_origin: Double;
+    use_mask: LongBool): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FlipHorizontal: function(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FlipVertical: function(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Rescale: function(dib: PFIBITMAP; dst_width, dst_height: Integer;
+    filter: FREE_IMAGE_FILTER = FILTER_CATMULLROM): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_MakeThumbnail: function(dib: PFIBITMAP; max_pixel_size: Integer; convert: LongBool = True): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_RescaleRect: function(dib: PFIBITMAP; dst_width, dst_height, left, top, right, bottom: Integer;
+    filter: FREE_IMAGE_FILTER = FILTER_CATMULLROM; flags: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AdjustCurve: function(dib: PFIBITMAP; LUT: PByte;
+    channel: FREE_IMAGE_COLOR_CHANNEL): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AdjustGamma: function(dib: PFIBITMAP; gamma: Double): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AdjustBrightness: function(dib: PFIBITMAP; percentage: Double): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AdjustContrast: function(dib: PFIBITMAP; percentage: Double): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Invert: function(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetHistogram: function(dib: PFIBITMAP; histo: PDWORD;
+    channel: FREE_IMAGE_COLOR_CHANNEL = FICC_BLACK): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetAdjustColorsLookupTable: function(LUT: PByte; brightness, contrast, gamma: Double;
+    invert: LongBool): Integer; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AdjustColors: function(dib: PFIBITMAP; brightness, contrast, gamma: Double;
+    invert: LongBool = False): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ApplyColorMapping: function(dib: PFIBITMAP; srccolors, dstcolors: PRGBQuad;
+    count: Cardinal; ignore_alpha, swap: LongBool): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SwapColors: function(dib: PFIBITMAP; color_a, color_b: PRGBQuad;
+    ignore_alpha: LongBool): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_ApplyPaletteIndexMapping: function(dib: PFIBITMAP; srcindices, dstindices: PByte;
+    count: Cardinal; swap: LongBool): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SwapPaletteIndices: function(dib: PFIBITMAP; index_a, index_b: PByte): Cardinal; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetChannel: function(dib: PFIBITMAP; channel: FREE_IMAGE_COLOR_CHANNEL): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetChannel: function(dst, src: PFIBITMAP; channel: FREE_IMAGE_COLOR_CHANNEL): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_GetComplexChannel: function(src: PFIBITMAP; channel: FREE_IMAGE_COLOR_CHANNEL): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_SetComplexChannel: function(dst, src: PFIBITMAP; channel: FREE_IMAGE_COLOR_CHANNEL): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Copy: function(dib: PFIBITMAP; left, top, right, bottom: Integer): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Paste: function(dst, src: PFIBITMAP; left, top, alpha: Integer): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_CreateView: function(dib: PFIBITMAP; left, top, right, bottom: Cardinal): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_Composite: function(fg: PFIBITMAP; useFileBkg: LongBool = False;
+    appBkColor: PRGBQuad = nil; bg: PFIBITMAP = nil): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_PreMultiplyWithAlpha: function(dib: PFIBITMAP): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_FillBackground: function(dib: PFIBITMAP; color: Pointer;
+    options: Integer = 0): LongBool; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_EnlargeCanvas: function(src: PFIBITMAP; left, top, right, bottom: Integer;
+    color: Pointer; options: Integer = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AllocateEx: function(width, height, bpp: Integer; color: PRGBQuad;
+    options: Integer = 0; palette: PRGBQuad = nil; red_mask: Cardinal = 0;
+    green_mask: Cardinal = 0; blue_mask: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_AllocateExT: function(_type: FREE_IMAGE_TYPE; width, height, bpp: Integer;
+    color: Pointer; options: Integer = 0; palette: PRGBQuad = nil; red_mask: Cardinal = 0;
+    green_mask: Cardinal = 0; blue_mask: Cardinal = 0): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+  FreeImage_MultigridPoissonSolver: function(Laplacian: PFIBITMAP;
+    ncycle: Integer = 3): PFIBITMAP; {$IFDEF MSWINDOWS}stdcall;{$ELSE}cdecl;{$ENDIF}
+{$ENDIF}
+
+procedure InitFreeImageLib(const ALibName: string); {$IFDEF FREEIMAGE_STATIC_LINK}inline;{$ENDIF}
 
 implementation
 
@@ -1788,6 +2166,595 @@ begin
     FreeMem(Argv);
   end;
 end;
+{$ENDIF}
+
+{$IFDEF FREEIMAGE_STATIC_LINK}
+procedure InitFreeImageLib(const ALibName: string);
+begin
+  // nothing to do
+end;
+{$ELSE}
+uses
+  SyncObjs,
+  SysUtils;
+
+var
+  GHandle: THandle = 0;
+  GLock: TCriticalSection = nil;
+  GIsInitialized: Boolean = False;
+
+procedure InitFreeImageLib(const ALibName: string);
+var
+  VNamePrefix: string;
+  VRetryNamePrefix: Boolean;
+
+  function GetProcAddr(const AProcName: string): Pointer;
+  var
+    VName: string;
+  begin
+    VName := VNamePrefix + AProcName;
+    Result := GetProcAddress(GHandle, PChar(VName));
+    if Result = nil then begin
+      if VRetryNamePrefix then begin
+        VRetryNamePrefix := False;
+        if VNamePrefix = CNamePrefixDefault then begin
+          VNamePrefix := CNamePrefixMingwDll;
+        end else begin
+          VNamePrefix := CNamePrefixDefault;
+        end;
+        Result := GetProcAddr(AProcName);
+      end else begin
+        RaiseLastOSError(GetLastError, ': ' + VName + #13#10 + ALibName);
+      end;
+    end;
+  end;
+
+begin
+  if GIsInitialized then begin
+    Exit;
+  end;
+
+  GLock.Acquire;
+  try
+    if GHandle = 0 then begin
+      GHandle := LoadLibrary(PChar(ALibName));
+      if GHandle = 0 then begin
+        RaiseLastOSError(GetLastError, ': ' + ALibName);
+      end;
+    end;
+
+    VNamePrefix := CNamePrefix;
+    VRetryNamePrefix := True;
+
+    FreeImage_Initialise := GetProcAddr('FreeImage_Initialise@4');
+    FreeImage_DeInitialise := GetProcAddr('FreeImage_DeInitialise@0');
+    FreeImage_GetVersion := GetProcAddr('FreeImage_GetVersion@0');
+    FreeImage_GetCopyrightMessage := GetProcAddr('FreeImage_GetCopyrightMessage@0');
+    FreeImage_SetOutputMessageStdCall := GetProcAddr('FreeImage_SetOutputMessageStdCall@4');
+    FreeImage_SetOutputMessage := GetProcAddr('FreeImage_SetOutputMessage@4');
+    FreeImage_Allocate := GetProcAddr('FreeImage_Allocate@24');
+    FreeImage_AllocateT := GetProcAddr('FreeImage_AllocateT@28');
+    FreeImage_Clone := GetProcAddr('FreeImage_Clone@4');
+    FreeImage_Unload := GetProcAddr('FreeImage_Unload@4');
+    FreeImage_HasPixels := GetProcAddr('FreeImage_HasPixels@4');
+    FreeImage_Load := GetProcAddr('FreeImage_Load@12');
+    FreeImage_LoadU := GetProcAddr('FreeImage_LoadU@12');
+    FreeImage_LoadFromHandle := GetProcAddr('FreeImage_LoadFromHandle@16');
+    FreeImage_Save := GetProcAddr('FreeImage_Save@16');
+    FreeImage_SaveU := GetProcAddr('FreeImage_SaveU@16');
+    FreeImage_SaveToHandle := GetProcAddr('FreeImage_SaveToHandle@20');
+    FreeImage_OpenMemory := GetProcAddr('FreeImage_OpenMemory@8');
+    FreeImage_CloseMemory := GetProcAddr('FreeImage_CloseMemory@4');
+    FreeImage_LoadFromMemory := GetProcAddr('FreeImage_LoadFromMemory@12');
+    FreeImage_SaveToMemory := GetProcAddr('FreeImage_SaveToMemory@16');
+    FreeImage_TellMemory := GetProcAddr('FreeImage_TellMemory@4');
+    FreeImage_SeekMemory := GetProcAddr('FreeImage_SeekMemory@12');
+    FreeImage_AcquireMemory := GetProcAddr('FreeImage_AcquireMemory@12');
+    FreeImage_ReadMemory := GetProcAddr('FreeImage_ReadMemory@16');
+    FreeImage_WriteMemory := GetProcAddr('FreeImage_WriteMemory@16');
+    FreeImage_LoadMultiBitmapFromMemory := GetProcAddr('FreeImage_LoadMultiBitmapFromMemory@12');
+    FreeImage_SaveMultiBitmapToMemory := GetProcAddr('FreeImage_SaveMultiBitmapToMemory@16');
+    FreeImage_RegisterLocalPlugin := GetProcAddr('FreeImage_RegisterLocalPlugin@20');
+    FreeImage_RegisterExternalPlugin := GetProcAddr('FreeImage_RegisterExternalPlugin@20');
+    FreeImage_GetFIFCount := GetProcAddr('FreeImage_GetFIFCount@0');
+    FreeImage_SetPluginEnabled := GetProcAddr('FreeImage_SetPluginEnabled@8');
+    FreeImage_IsPluginEnabled := GetProcAddr('FreeImage_IsPluginEnabled@4');
+    FreeImage_GetFIFFromFormat := GetProcAddr('FreeImage_GetFIFFromFormat@4');
+    FreeImage_GetFIFFromMime := GetProcAddr('FreeImage_GetFIFFromMime@4');
+    FreeImage_GetFormatFromFIF := GetProcAddr('FreeImage_GetFormatFromFIF@4');
+    FreeImage_GetFIFExtensionList := GetProcAddr('FreeImage_GetFIFExtensionList@4');
+    FreeImage_GetFIFDescription := GetProcAddr('FreeImage_GetFIFDescription@4');
+    FreeImage_GetFIFRegExpr := GetProcAddr('FreeImage_GetFIFRegExpr@4');
+    FreeImage_GetFIFMimeType := GetProcAddr('FreeImage_GetFIFMimeType@4');
+    FreeImage_GetFIFFromFilename := GetProcAddr('FreeImage_GetFIFFromFilename@4');
+    FreeImage_GetFIFFromFilenameU := GetProcAddr('FreeImage_GetFIFFromFilenameU@4');
+    FreeImage_FIFSupportsReading := GetProcAddr('FreeImage_FIFSupportsReading@4');
+    FreeImage_FIFSupportsWriting := GetProcAddr('FreeImage_FIFSupportsWriting@4');
+    FreeImage_FIFSupportsExportBPP := GetProcAddr('FreeImage_FIFSupportsExportBPP@8');
+    FreeImage_FIFSupportsExportType := GetProcAddr('FreeImage_FIFSupportsExportType@8');
+    FreeImage_FIFSupportsICCProfiles := GetProcAddr('FreeImage_FIFSupportsICCProfiles@4');
+    FreeImage_FIFSupportsNoPixels := GetProcAddr('FreeImage_FIFSupportsNoPixels@4');
+    FreeImage_OpenMultiBitmap := GetProcAddr('FreeImage_OpenMultiBitmap@24');
+    FreeImage_OpenMultiBitmapFromHandle := GetProcAddr('FreeImage_OpenMultiBitmapFromHandle@16');
+    FreeImage_SaveMultiBitmapToHandle := GetProcAddr('FreeImage_SaveMultiBitmapToHandle@20');
+    FreeImage_CloseMultiBitmap := GetProcAddr('FreeImage_CloseMultiBitmap@8');
+    FreeImage_GetPageCount := GetProcAddr('FreeImage_GetPageCount@4');
+    FreeImage_AppendPage := GetProcAddr('FreeImage_AppendPage@8');
+    FreeImage_InsertPage := GetProcAddr('FreeImage_InsertPage@12');
+    FreeImage_DeletePage := GetProcAddr('FreeImage_DeletePage@8');
+    FreeImage_LockPage := GetProcAddr('FreeImage_LockPage@8');
+    FreeImage_UnlockPage := GetProcAddr('FreeImage_UnlockPage@12');
+    FreeImage_MovePage := GetProcAddr('FreeImage_MovePage@12');
+    FreeImage_GetLockedPageNumbers := GetProcAddr('FreeImage_GetLockedPageNumbers@12');
+    FreeImage_GetFileType := GetProcAddr('FreeImage_GetFileType@8');
+    FreeImage_GetFileTypeU := GetProcAddr('FreeImage_GetFileTypeU@8');
+    FreeImage_GetFileTypeFromHandle := GetProcAddr('FreeImage_GetFileTypeFromHandle@12');
+    FreeImage_GetFileTypeFromMemory := GetProcAddr('FreeImage_GetFileTypeFromMemory@8');
+    FreeImage_GetImageType := GetProcAddr('FreeImage_GetImageType@4');
+    FreeImage_IsLittleEndian := GetProcAddr('FreeImage_IsLittleEndian@0');
+    FreeImage_LookupX11Color := GetProcAddr('FreeImage_LookupX11Color@16');
+    FreeImage_LookupSVGColor := GetProcAddr('FreeImage_LookupSVGColor@16');
+    FreeImage_GetBits := GetProcAddr('FreeImage_GetBits@4');
+    FreeImage_GetScanLine := GetProcAddr('FreeImage_GetScanLine@8');
+    FreeImage_GetPixelIndex := GetProcAddr('FreeImage_GetPixelIndex@16');
+    FreeImage_GetPixelColor := GetProcAddr('FreeImage_GetPixelColor@16');
+    FreeImage_SetPixelIndex := GetProcAddr('FreeImage_SetPixelIndex@16');
+    FreeImage_SetPixelColor := GetProcAddr('FreeImage_SetPixelColor@16');
+    FreeImage_GetColorsUsed := GetProcAddr('FreeImage_GetColorsUsed@4');
+    FreeImage_GetBPP := GetProcAddr('FreeImage_GetBPP@4');
+    FreeImage_GetWidth := GetProcAddr('FreeImage_GetWidth@4');
+    FreeImage_GetHeight := GetProcAddr('FreeImage_GetHeight@4');
+    FreeImage_GetLine := GetProcAddr('FreeImage_GetLine@4');
+    FreeImage_GetPitch := GetProcAddr('FreeImage_GetPitch@4');
+    FreeImage_GetDIBSize := GetProcAddr('FreeImage_GetDIBSize@4');
+    FreeImage_GetMemorySize := GetProcAddr('FreeImage_GetMemorySize@4');
+    FreeImage_GetPalette := GetProcAddr('FreeImage_GetPalette@4');
+    FreeImage_GetDotsPerMeterX := GetProcAddr('FreeImage_GetDotsPerMeterX@4');
+    FreeImage_GetDotsPerMeterY := GetProcAddr('FreeImage_GetDotsPerMeterY@4');
+    FreeImage_SetDotsPerMeterX := GetProcAddr('FreeImage_SetDotsPerMeterX@8');
+    FreeImage_SetDotsPerMeterY := GetProcAddr('FreeImage_SetDotsPerMeterY@8');
+    FreeImage_GetInfoHeader := GetProcAddr('FreeImage_GetInfoHeader@4');
+    FreeImage_GetInfo := GetProcAddr('FreeImage_GetInfo@4');
+    FreeImage_GetColorType := GetProcAddr('FreeImage_GetColorType@4');
+    FreeImage_GetRedMask := GetProcAddr('FreeImage_GetRedMask@4');
+    FreeImage_GetGreenMask := GetProcAddr('FreeImage_GetGreenMask@4');
+    FreeImage_GetBlueMask := GetProcAddr('FreeImage_GetBlueMask@4');
+    FreeImage_GetTransparencyCount := GetProcAddr('FreeImage_GetTransparencyCount@4');
+    FreeImage_GetTransparencyTable := GetProcAddr('FreeImage_GetTransparencyTable@4');
+    FreeImage_SetTransparent := GetProcAddr('FreeImage_SetTransparent@8');
+    FreeImage_SetTransparencyTable := GetProcAddr('FreeImage_SetTransparencyTable@12');
+    FreeImage_IsTransparent := GetProcAddr('FreeImage_IsTransparent@4');
+    FreeImage_SetTransparentIndex := GetProcAddr('FreeImage_SetTransparentIndex@8');
+    FreeImage_GetTransparentIndex := GetProcAddr('FreeImage_GetTransparentIndex@4');
+    FreeImage_HasBackgroundColor := GetProcAddr('FreeImage_HasBackgroundColor@4');
+    FreeImage_GetBackgroundColor := GetProcAddr('FreeImage_GetBackgroundColor@8');
+    FreeImage_SetBackgroundColor := GetProcAddr('FreeImage_SetBackgroundColor@8');
+    FreeImage_GetThumbnail := GetProcAddr('FreeImage_GetThumbnail@4');
+    FreeImage_SetThumbnail := GetProcAddr('FreeImage_SetThumbnail@8');
+    FreeImage_GetICCProfile := GetProcAddr('FreeImage_GetICCProfile@4');
+    FreeImage_ConvertLine1To4 := GetProcAddr('FreeImage_ConvertLine1To4@12');
+    FreeImage_ConvertLine8To4 := GetProcAddr('FreeImage_ConvertLine8To4@16');
+    FreeImage_ConvertLine16To4_555 := GetProcAddr('FreeImage_ConvertLine16To4_555@12');
+    FreeImage_ConvertLine16To4_565 := GetProcAddr('FreeImage_ConvertLine16To4_565@12');
+    FreeImage_ConvertLine24To4 := GetProcAddr('FreeImage_ConvertLine24To4@12');
+    FreeImage_ConvertLine32To4 := GetProcAddr('FreeImage_ConvertLine32To4@12');
+    FreeImage_ConvertLine1To8 := GetProcAddr('FreeImage_ConvertLine1To8@12');
+    FreeImage_ConvertLine4To8 := GetProcAddr('FreeImage_ConvertLine4To8@12');
+    FreeImage_ConvertLine16To8_555 := GetProcAddr('FreeImage_ConvertLine16To8_555@12');
+    FreeImage_ConvertLine16To8_565 := GetProcAddr('FreeImage_ConvertLine16To8_565@12');
+    FreeImage_ConvertLine24To8 := GetProcAddr('FreeImage_ConvertLine24To8@12');
+    FreeImage_ConvertLine32To8 := GetProcAddr('FreeImage_ConvertLine32To8@12');
+    FreeImage_ConvertLine1To16_555 := GetProcAddr('FreeImage_ConvertLine1To16_555@16');
+    FreeImage_ConvertLine4To16_555 := GetProcAddr('FreeImage_ConvertLine4To16_555@16');
+    FreeImage_ConvertLine8To16_555 := GetProcAddr('FreeImage_ConvertLine8To16_555@16');
+    FreeImage_ConvertLine16_565_To16_555 := GetProcAddr('FreeImage_ConvertLine16_565_To16_555@12');
+    FreeImage_ConvertLine24To16_555 := GetProcAddr('FreeImage_ConvertLine24To16_555@12');
+    FreeImage_ConvertLine32To16_555 := GetProcAddr('FreeImage_ConvertLine32To16_555@12');
+    FreeImage_ConvertLine1To16_565 := GetProcAddr('FreeImage_ConvertLine1To16_565@16');
+    FreeImage_ConvertLine4To16_565 := GetProcAddr('FreeImage_ConvertLine4To16_565@16');
+    FreeImage_ConvertLine8To16_565 := GetProcAddr('FreeImage_ConvertLine8To16_565@16');
+    FreeImage_ConvertLine16_555_To16_565 := GetProcAddr('FreeImage_ConvertLine16_555_To16_565@12');
+    FreeImage_ConvertLine24To16_565 := GetProcAddr('FreeImage_ConvertLine24To16_565@12');
+    FreeImage_ConvertLine32To16_565 := GetProcAddr('FreeImage_ConvertLine32To16_565@12');
+    FreeImage_ConvertLine1To24 := GetProcAddr('FreeImage_ConvertLine1To24@16');
+    FreeImage_ConvertLine4To24 := GetProcAddr('FreeImage_ConvertLine4To24@16');
+    FreeImage_ConvertLine8To24 := GetProcAddr('FreeImage_ConvertLine8To24@16');
+    FreeImage_ConvertLine16To24_555 := GetProcAddr('FreeImage_ConvertLine16To24_555@12');
+    FreeImage_ConvertLine16To24_565 := GetProcAddr('FreeImage_ConvertLine16To24_565@12');
+    FreeImage_ConvertLine32To24 := GetProcAddr('FreeImage_ConvertLine32To24@12');
+    FreeImage_ConvertLine1To32 := GetProcAddr('FreeImage_ConvertLine1To32@16');
+    FreeImage_ConvertLine1To32MapTransparency := GetProcAddr('FreeImage_ConvertLine1To32MapTransparency@24');
+    FreeImage_ConvertLine4To32 := GetProcAddr('FreeImage_ConvertLine4To32@16');
+    FreeImage_ConvertLine4To32MapTransparency := GetProcAddr('FreeImage_ConvertLine4To32MapTransparency@24');
+    FreeImage_ConvertLine8To32 := GetProcAddr('FreeImage_ConvertLine8To32@16');
+    FreeImage_ConvertLine8To32MapTransparency := GetProcAddr('FreeImage_ConvertLine8To32MapTransparency@24');
+    FreeImage_ConvertLine16To32_555 := GetProcAddr('FreeImage_ConvertLine16To32_555@12');
+    FreeImage_ConvertLine16To32_565 := GetProcAddr('FreeImage_ConvertLine16To32_565@12');
+    FreeImage_ConvertLine24To32 := GetProcAddr('FreeImage_ConvertLine24To32@12');
+    FreeImage_ConvertTo4Bits := GetProcAddr('FreeImage_ConvertTo4Bits@4');
+    FreeImage_ConvertTo8Bits := GetProcAddr('FreeImage_ConvertTo8Bits@4');
+    FreeImage_ConvertToGreyscale := GetProcAddr('FreeImage_ConvertToGreyscale@4');
+    FreeImage_ConvertTo16Bits555 := GetProcAddr('FreeImage_ConvertTo16Bits555@4');
+    FreeImage_ConvertTo16Bits565 := GetProcAddr('FreeImage_ConvertTo16Bits565@4');
+    FreeImage_ConvertTo24Bits := GetProcAddr('FreeImage_ConvertTo24Bits@4');
+    FreeImage_ConvertTo32Bits := GetProcAddr('FreeImage_ConvertTo32Bits@4');
+    FreeImage_ColorQuantize := GetProcAddr('FreeImage_ColorQuantize@8');
+    FreeImage_ColorQuantizeEx := GetProcAddr('FreeImage_ColorQuantizeEx@20');
+    FreeImage_Threshold := GetProcAddr('FreeImage_Threshold@8');
+    FreeImage_Dither := GetProcAddr('FreeImage_Dither@8');
+    FreeImage_ConvertFromRawBits := GetProcAddr('FreeImage_ConvertFromRawBits@36');
+    FreeImage_ConvertFromRawBitsEx := GetProcAddr('FreeImage_ConvertFromRawBitsEx@44');
+    FreeImage_ConvertToRawBits := GetProcAddr('FreeImage_ConvertToRawBits@32');
+    FreeImage_ConvertToFloat := GetProcAddr('FreeImage_ConvertToFloat@4');
+    FreeImage_ConvertToRGBF := GetProcAddr('FreeImage_ConvertToRGBF@4');
+    FreeImage_ConvertToRGBAF := GetProcAddr('FreeImage_ConvertToRGBAF@4');
+    FreeImage_ConvertToUINT16 := GetProcAddr('FreeImage_ConvertToUINT16@4');
+    FreeImage_ConvertToRGB16 := GetProcAddr('FreeImage_ConvertToRGB16@4');
+    FreeImage_ConvertToRGBA16 := GetProcAddr('FreeImage_ConvertToRGBA16@4');
+    FreeImage_ConvertToStandardType := GetProcAddr('FreeImage_ConvertToStandardType@8');
+    FreeImage_ConvertToType := GetProcAddr('FreeImage_ConvertToType@12');
+    FreeImage_ToneMapping := GetProcAddr('FreeImage_ToneMapping@24');
+    FreeImage_TmoDrago03 := GetProcAddr('FreeImage_TmoDrago03@20');
+    FreeImage_TmoReinhard05 := GetProcAddr('FreeImage_TmoReinhard05@20');
+    FreeImage_TmoReinhard05Ex := GetProcAddr('FreeImage_TmoReinhard05Ex@36');
+    FreeImage_TmoFattal02 := GetProcAddr('FreeImage_TmoFattal02@20');
+    FreeImage_ZLibCompress := GetProcAddr('FreeImage_ZLibCompress@16');
+    FreeImage_ZLibUncompress := GetProcAddr('FreeImage_ZLibUncompress@16');
+    FreeImage_ZLibGZip := GetProcAddr('FreeImage_ZLibGZip@16');
+    FreeImage_ZLibGUnzip := GetProcAddr('FreeImage_ZLibGUnzip@16');
+    FreeImage_ZLibCRC32 := GetProcAddr('FreeImage_ZLibCRC32@12');
+    FreeImage_CreateTag := GetProcAddr('FreeImage_CreateTag@0');
+    FreeImage_DeleteTag := GetProcAddr('FreeImage_DeleteTag@4');
+    FreeImage_CloneTag := GetProcAddr('FreeImage_CloneTag@4');
+    FreeImage_GetTagKey := GetProcAddr('FreeImage_GetTagKey@4');
+    FreeImage_GetTagDescription := GetProcAddr('FreeImage_GetTagDescription@4');
+    FreeImage_GetTagID := GetProcAddr('FreeImage_GetTagID@4');
+    FreeImage_GetTagType := GetProcAddr('FreeImage_GetTagType@4');
+    FreeImage_GetTagCount := GetProcAddr('FreeImage_GetTagCount@4');
+    FreeImage_GetTagLength := GetProcAddr('FreeImage_GetTagLength@4');
+    FreeImage_GetTagValue := GetProcAddr('FreeImage_GetTagValue@4');
+    FreeImage_SetTagKey := GetProcAddr('FreeImage_SetTagKey@8');
+    FreeImage_SetTagDescription := GetProcAddr('FreeImage_SetTagDescription@8');
+    FreeImage_SetTagID := GetProcAddr('FreeImage_SetTagID@8');
+    FreeImage_SetTagType := GetProcAddr('FreeImage_SetTagType@8');
+    FreeImage_SetTagCount := GetProcAddr('FreeImage_SetTagCount@8');
+    FreeImage_SetTagLength := GetProcAddr('FreeImage_SetTagLength@8');
+    FreeImage_SetTagValue := GetProcAddr('FreeImage_SetTagValue@8');
+    FreeImage_FindFirstMetadata := GetProcAddr('FreeImage_FindFirstMetadata@12');
+    FreeImage_FindNextMetadata := GetProcAddr('FreeImage_FindNextMetadata@8');
+    FreeImage_FindCloseMetadata := GetProcAddr('FreeImage_FindCloseMetadata@4');
+    FreeImage_SetMetadata := GetProcAddr('FreeImage_SetMetadata@16');
+    FreeImage_GetMetadata := GetProcAddr('FreeImage_GetMetadata@16');
+    FreeImage_SetMetadataKeyValue := GetProcAddr('FreeImage_SetMetadataKeyValue@16');
+    FreeImage_GetMetadataCount := GetProcAddr('FreeImage_GetMetadataCount@8');
+    FreeImage_CloneMetadata := GetProcAddr('FreeImage_CloneMetadata@8');
+    FreeImage_TagToString := GetProcAddr('FreeImage_TagToString@12');
+
+//    FreeImage_JPEGTransform := GetProcAddr('FreeImage_JPEGTransform@16');
+//    FreeImage_JPEGTransformU := GetProcAddr('FreeImage_JPEGTransformU@16');
+//    FreeImage_JPEGCrop := GetProcAddr('FreeImage_JPEGCrop@24');
+//    FreeImage_JPEGCropU := GetProcAddr('FreeImage_JPEGCropU@24');
+//    FreeImage_JPEGTransformFromHandle := GetProcAddr('FreeImage_JPEGTransformFromHandle@40');
+//    FreeImage_JPEGTransformCombined := GetProcAddr('FreeImage_JPEGTransformCombined@32');
+//    FreeImage_JPEGTransformCombinedU := GetProcAddr('FreeImage_JPEGTransformCombinedU@32');
+//    FreeImage_JPEGTransformCombinedFromMemory := GetProcAddr('FreeImage_JPEGTransformCombinedFromMemory@32');
+
+//    FreeImage_RotateClassic := GetProcAddr('FreeImage_RotateClassic@12');
+
+    FreeImage_Rotate := GetProcAddr('FreeImage_Rotate@16');
+    FreeImage_RotateEx := GetProcAddr('FreeImage_RotateEx@48');
+    FreeImage_FlipHorizontal := GetProcAddr('FreeImage_FlipHorizontal@4');
+    FreeImage_FlipVertical := GetProcAddr('FreeImage_FlipVertical@4');
+    FreeImage_Rescale := GetProcAddr('FreeImage_Rescale@16');
+    FreeImage_MakeThumbnail := GetProcAddr('FreeImage_MakeThumbnail@12');
+    FreeImage_RescaleRect := GetProcAddr('FreeImage_RescaleRect@36');
+    FreeImage_AdjustCurve := GetProcAddr('FreeImage_AdjustCurve@12');
+    FreeImage_AdjustGamma := GetProcAddr('FreeImage_AdjustGamma@12');
+    FreeImage_AdjustBrightness := GetProcAddr('FreeImage_AdjustBrightness@12');
+    FreeImage_AdjustContrast := GetProcAddr('FreeImage_AdjustContrast@12');
+    FreeImage_Invert := GetProcAddr('FreeImage_Invert@4');
+    FreeImage_GetHistogram := GetProcAddr('FreeImage_GetHistogram@12');
+    FreeImage_GetAdjustColorsLookupTable := GetProcAddr('FreeImage_GetAdjustColorsLookupTable@32');
+    FreeImage_AdjustColors := GetProcAddr('FreeImage_AdjustColors@32');
+    FreeImage_ApplyColorMapping := GetProcAddr('FreeImage_ApplyColorMapping@24');
+    FreeImage_SwapColors := GetProcAddr('FreeImage_SwapColors@16');
+    FreeImage_ApplyPaletteIndexMapping := GetProcAddr('FreeImage_ApplyPaletteIndexMapping@20');
+    FreeImage_SwapPaletteIndices := GetProcAddr('FreeImage_SwapPaletteIndices@12');
+    FreeImage_GetChannel := GetProcAddr('FreeImage_GetChannel@8');
+    FreeImage_SetChannel := GetProcAddr('FreeImage_SetChannel@12');
+    FreeImage_GetComplexChannel := GetProcAddr('FreeImage_GetComplexChannel@8');
+    FreeImage_SetComplexChannel := GetProcAddr('FreeImage_SetComplexChannel@12');
+    FreeImage_Copy := GetProcAddr('FreeImage_Copy@20');
+    FreeImage_Paste := GetProcAddr('FreeImage_Paste@20');
+    FreeImage_CreateView := GetProcAddr('FreeImage_CreateView@20');
+    FreeImage_Composite := GetProcAddr('FreeImage_Composite@16');
+    FreeImage_PreMultiplyWithAlpha := GetProcAddr('FreeImage_PreMultiplyWithAlpha@4');
+    FreeImage_FillBackground := GetProcAddr('FreeImage_FillBackground@12');
+    FreeImage_EnlargeCanvas := GetProcAddr('FreeImage_EnlargeCanvas@28');
+    FreeImage_AllocateEx := GetProcAddr('FreeImage_AllocateEx@36');
+    FreeImage_AllocateExT := GetProcAddr('FreeImage_AllocateExT@40');
+    FreeImage_MultigridPoissonSolver := GetProcAddr('FreeImage_MultigridPoissonSolver@8');
+
+    GIsInitialized := True;
+  finally
+    GLock.Release;
+  end;
+end;
+
+procedure FinFreeImageLib;
+begin
+  if GHandle = 0 then begin
+    Exit;
+  end;
+
+  GLock.Acquire;
+  try
+    if GHandle <> 0 then begin
+      FreeLibrary(GHandle);
+      GHandle := 0;
+    end;
+
+    FreeImage_Initialise := nil;
+    FreeImage_DeInitialise := nil;
+    FreeImage_GetVersion := nil;
+    FreeImage_GetCopyrightMessage := nil;
+    FreeImage_SetOutputMessageStdCall := nil;
+    FreeImage_SetOutputMessage := nil;
+    FreeImage_Allocate := nil;
+    FreeImage_AllocateT := nil;
+    FreeImage_Clone := nil;
+    FreeImage_Unload := nil;
+    FreeImage_HasPixels := nil;
+    FreeImage_Load := nil;
+    FreeImage_LoadU := nil;
+    FreeImage_LoadFromHandle := nil;
+    FreeImage_Save := nil;
+    FreeImage_SaveU := nil;
+    FreeImage_SaveToHandle := nil;
+    FreeImage_OpenMemory := nil;
+    FreeImage_CloseMemory := nil;
+    FreeImage_LoadFromMemory := nil;
+    FreeImage_SaveToMemory := nil;
+    FreeImage_TellMemory := nil;
+    FreeImage_SeekMemory := nil;
+    FreeImage_AcquireMemory := nil;
+    FreeImage_ReadMemory := nil;
+    FreeImage_WriteMemory := nil;
+    FreeImage_LoadMultiBitmapFromMemory := nil;
+    FreeImage_SaveMultiBitmapToMemory := nil;
+    FreeImage_RegisterLocalPlugin := nil;
+    FreeImage_RegisterExternalPlugin := nil;
+    FreeImage_GetFIFCount := nil;
+    FreeImage_SetPluginEnabled := nil;
+    FreeImage_IsPluginEnabled := nil;
+    FreeImage_GetFIFFromFormat := nil;
+    FreeImage_GetFIFFromMime := nil;
+    FreeImage_GetFormatFromFIF := nil;
+    FreeImage_GetFIFExtensionList := nil;
+    FreeImage_GetFIFDescription := nil;
+    FreeImage_GetFIFRegExpr := nil;
+    FreeImage_GetFIFMimeType := nil;
+    FreeImage_GetFIFFromFilename := nil;
+    FreeImage_GetFIFFromFilenameU := nil;
+    FreeImage_FIFSupportsReading := nil;
+    FreeImage_FIFSupportsWriting := nil;
+    FreeImage_FIFSupportsExportBPP := nil;
+    FreeImage_FIFSupportsExportType := nil;
+    FreeImage_FIFSupportsICCProfiles := nil;
+    FreeImage_FIFSupportsNoPixels := nil;
+    FreeImage_OpenMultiBitmap := nil;
+    FreeImage_OpenMultiBitmapFromHandle := nil;
+    FreeImage_SaveMultiBitmapToHandle := nil;
+    FreeImage_CloseMultiBitmap := nil;
+    FreeImage_GetPageCount := nil;
+    FreeImage_AppendPage := nil;
+    FreeImage_InsertPage := nil;
+    FreeImage_DeletePage := nil;
+    FreeImage_LockPage := nil;
+    FreeImage_UnlockPage := nil;
+    FreeImage_MovePage := nil;
+    FreeImage_GetLockedPageNumbers := nil;
+    FreeImage_GetFileType := nil;
+    FreeImage_GetFileTypeU := nil;
+    FreeImage_GetFileTypeFromHandle := nil;
+    FreeImage_GetFileTypeFromMemory := nil;
+    FreeImage_GetImageType := nil;
+    FreeImage_IsLittleEndian := nil;
+    FreeImage_LookupX11Color := nil;
+    FreeImage_LookupSVGColor := nil;
+    FreeImage_GetBits := nil;
+    FreeImage_GetScanLine := nil;
+    FreeImage_GetPixelIndex := nil;
+    FreeImage_GetPixelColor := nil;
+    FreeImage_SetPixelIndex := nil;
+    FreeImage_SetPixelColor := nil;
+    FreeImage_GetColorsUsed := nil;
+    FreeImage_GetBPP := nil;
+    FreeImage_GetWidth := nil;
+    FreeImage_GetHeight := nil;
+    FreeImage_GetLine := nil;
+    FreeImage_GetPitch := nil;
+    FreeImage_GetDIBSize := nil;
+    FreeImage_GetMemorySize := nil;
+    FreeImage_GetPalette := nil;
+    FreeImage_GetDotsPerMeterX := nil;
+    FreeImage_GetDotsPerMeterY := nil;
+    FreeImage_SetDotsPerMeterX := nil;
+    FreeImage_SetDotsPerMeterY := nil;
+    FreeImage_GetInfoHeader := nil;
+    FreeImage_GetInfo := nil;
+    FreeImage_GetColorType := nil;
+    FreeImage_GetRedMask := nil;
+    FreeImage_GetGreenMask := nil;
+    FreeImage_GetBlueMask := nil;
+    FreeImage_GetTransparencyCount := nil;
+    FreeImage_GetTransparencyTable := nil;
+    FreeImage_SetTransparent := nil;
+    FreeImage_SetTransparencyTable := nil;
+    FreeImage_IsTransparent := nil;
+    FreeImage_SetTransparentIndex := nil;
+    FreeImage_GetTransparentIndex := nil;
+    FreeImage_HasBackgroundColor := nil;
+    FreeImage_GetBackgroundColor := nil;
+    FreeImage_SetBackgroundColor := nil;
+    FreeImage_GetThumbnail := nil;
+    FreeImage_SetThumbnail := nil;
+    FreeImage_GetICCProfile := nil;
+    FreeImage_ConvertLine1To4 := nil;
+    FreeImage_ConvertLine8To4 := nil;
+    FreeImage_ConvertLine16To4_555 := nil;
+    FreeImage_ConvertLine16To4_565 := nil;
+    FreeImage_ConvertLine24To4 := nil;
+    FreeImage_ConvertLine32To4 := nil;
+    FreeImage_ConvertLine1To8 := nil;
+    FreeImage_ConvertLine4To8 := nil;
+    FreeImage_ConvertLine16To8_555 := nil;
+    FreeImage_ConvertLine16To8_565 := nil;
+    FreeImage_ConvertLine24To8 := nil;
+    FreeImage_ConvertLine32To8 := nil;
+    FreeImage_ConvertLine1To16_555 := nil;
+    FreeImage_ConvertLine4To16_555 := nil;
+    FreeImage_ConvertLine8To16_555 := nil;
+    FreeImage_ConvertLine16_565_To16_555 := nil;
+    FreeImage_ConvertLine24To16_555 := nil;
+    FreeImage_ConvertLine32To16_555 := nil;
+    FreeImage_ConvertLine1To16_565 := nil;
+    FreeImage_ConvertLine4To16_565 := nil;
+    FreeImage_ConvertLine8To16_565 := nil;
+    FreeImage_ConvertLine16_555_To16_565 := nil;
+    FreeImage_ConvertLine24To16_565 := nil;
+    FreeImage_ConvertLine32To16_565 := nil;
+    FreeImage_ConvertLine1To24 := nil;
+    FreeImage_ConvertLine4To24 := nil;
+    FreeImage_ConvertLine8To24 := nil;
+    FreeImage_ConvertLine16To24_555 := nil;
+    FreeImage_ConvertLine16To24_565 := nil;
+    FreeImage_ConvertLine32To24 := nil;
+    FreeImage_ConvertLine1To32 := nil;
+    FreeImage_ConvertLine1To32MapTransparency := nil;
+    FreeImage_ConvertLine4To32 := nil;
+    FreeImage_ConvertLine4To32MapTransparency := nil;
+    FreeImage_ConvertLine8To32 := nil;
+    FreeImage_ConvertLine8To32MapTransparency := nil;
+    FreeImage_ConvertLine16To32_555 := nil;
+    FreeImage_ConvertLine16To32_565 := nil;
+    FreeImage_ConvertLine24To32 := nil;
+    FreeImage_ConvertTo4Bits := nil;
+    FreeImage_ConvertTo8Bits := nil;
+    FreeImage_ConvertToGreyscale := nil;
+    FreeImage_ConvertTo16Bits555 := nil;
+    FreeImage_ConvertTo16Bits565 := nil;
+    FreeImage_ConvertTo24Bits := nil;
+    FreeImage_ConvertTo32Bits := nil;
+    FreeImage_ColorQuantize := nil;
+    FreeImage_ColorQuantizeEx := nil;
+    FreeImage_Threshold := nil;
+    FreeImage_Dither := nil;
+    FreeImage_ConvertFromRawBits := nil;
+    FreeImage_ConvertFromRawBitsEx := nil;
+    FreeImage_ConvertToRawBits := nil;
+    FreeImage_ConvertToFloat := nil;
+    FreeImage_ConvertToRGBF := nil;
+    FreeImage_ConvertToRGBAF := nil;
+    FreeImage_ConvertToUINT16 := nil;
+    FreeImage_ConvertToRGB16 := nil;
+    FreeImage_ConvertToRGBA16 := nil;
+    FreeImage_ConvertToStandardType := nil;
+    FreeImage_ConvertToType := nil;
+    FreeImage_ToneMapping := nil;
+    FreeImage_TmoDrago03 := nil;
+    FreeImage_TmoReinhard05 := nil;
+    FreeImage_TmoReinhard05Ex := nil;
+    FreeImage_TmoFattal02 := nil;
+    FreeImage_ZLibCompress := nil;
+    FreeImage_ZLibUncompress := nil;
+    FreeImage_ZLibGZip := nil;
+    FreeImage_ZLibGUnzip := nil;
+    FreeImage_ZLibCRC32 := nil;
+    FreeImage_CreateTag := nil;
+    FreeImage_DeleteTag := nil;
+    FreeImage_CloneTag := nil;
+    FreeImage_GetTagKey := nil;
+    FreeImage_GetTagDescription := nil;
+    FreeImage_GetTagID := nil;
+    FreeImage_GetTagType := nil;
+    FreeImage_GetTagCount := nil;
+    FreeImage_GetTagLength := nil;
+    FreeImage_GetTagValue := nil;
+    FreeImage_SetTagKey := nil;
+    FreeImage_SetTagDescription := nil;
+    FreeImage_SetTagID := nil;
+    FreeImage_SetTagType := nil;
+    FreeImage_SetTagCount := nil;
+    FreeImage_SetTagLength := nil;
+    FreeImage_SetTagValue := nil;
+    FreeImage_FindFirstMetadata := nil;
+    FreeImage_FindNextMetadata := nil;
+    FreeImage_FindCloseMetadata := nil;
+    FreeImage_SetMetadata := nil;
+    FreeImage_GetMetadata := nil;
+    FreeImage_SetMetadataKeyValue := nil;
+    FreeImage_GetMetadataCount := nil;
+    FreeImage_CloneMetadata := nil;
+    FreeImage_TagToString := nil;
+
+//    FreeImage_JPEGTransform := nil;
+//    FreeImage_JPEGTransformU := nil;
+//    FreeImage_JPEGCrop := nil;
+//    FreeImage_JPEGCropU := nil;
+//    FreeImage_JPEGTransformFromHandle := nil;
+//    FreeImage_JPEGTransformCombined := nil;
+//    FreeImage_JPEGTransformCombinedU := nil;
+//    FreeImage_JPEGTransformCombinedFromMemory := nil;
+
+//    FreeImage_RotateClassic := nil;
+
+    FreeImage_Rotate := nil;
+    FreeImage_RotateEx := nil;
+    FreeImage_FlipHorizontal := nil;
+    FreeImage_FlipVertical := nil;
+    FreeImage_Rescale := nil;
+    FreeImage_MakeThumbnail := nil;
+    FreeImage_RescaleRect := nil;
+    FreeImage_AdjustCurve := nil;
+    FreeImage_AdjustGamma := nil;
+    FreeImage_AdjustBrightness := nil;
+    FreeImage_AdjustContrast := nil;
+    FreeImage_Invert := nil;
+    FreeImage_GetHistogram := nil;
+    FreeImage_GetAdjustColorsLookupTable := nil;
+    FreeImage_AdjustColors := nil;
+    FreeImage_ApplyColorMapping := nil;
+    FreeImage_SwapColors := nil;
+    FreeImage_ApplyPaletteIndexMapping := nil;
+    FreeImage_SwapPaletteIndices := nil;
+    FreeImage_GetChannel := nil;
+    FreeImage_SetChannel := nil;
+    FreeImage_GetComplexChannel := nil;
+    FreeImage_SetComplexChannel := nil;
+    FreeImage_Copy := nil;
+    FreeImage_Paste := nil;
+    FreeImage_CreateView := nil;
+    FreeImage_Composite := nil;
+    FreeImage_PreMultiplyWithAlpha := nil;
+    FreeImage_FillBackground := nil;
+    FreeImage_EnlargeCanvas := nil;
+    FreeImage_AllocateEx := nil;
+    FreeImage_AllocateExT := nil;
+    FreeImage_MultigridPoissonSolver := nil;
+
+    GIsInitialized := False;
+  finally
+    GLock.Release;
+  end;
+end;
+
+initialization
+  GLock := TCriticalSection.Create;
+
+finalization
+  FinFreeImageLib;
+  FreeAndNil(GLock);
 {$ENDIF}
 
 end.
