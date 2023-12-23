@@ -62,6 +62,7 @@ uses
   u_BaseInterfacedObject,
   u_ImageLineProvider,
   u_GeoFunc,
+  u_GlobalDllName,
   u_ResStrings;
 
 const
@@ -184,7 +185,7 @@ begin
 
     VDest := TFileStream.Create(AFileName, fmCreate);
     try
-      VPngWriter := TLibPngWriter.Create;
+      VPngWriter := TLibPngWriter.Create(GDllName.Png16);
       try
         VPngWriter.Write(
           VDest,

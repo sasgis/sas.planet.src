@@ -49,7 +49,7 @@ type
       const APaletteSize: Integer = 0;          // 1..256 (0 = no palette)
       const AGamma: Double = 0.45455            // 0..1
     );
-    constructor Create;
+    constructor Create(const ALibName: string);
   end;
 
 implementation
@@ -62,10 +62,10 @@ type
 
 { TLibPngWriter }
 
-constructor TLibPngWriter.Create;
+constructor TLibPngWriter.Create(const ALibName: string);
 begin
   inherited Create;
-  InitLibPng;
+  InitLibPng(ALibName);
 end;
 
 procedure TLibPngWriter.InitWriter(const AOutStream: TStream);

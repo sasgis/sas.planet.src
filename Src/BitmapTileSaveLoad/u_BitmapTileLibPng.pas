@@ -62,6 +62,7 @@ implementation
 uses
   LibPngWriter,
   i_Bitmap8Static,
+  u_GlobalDllName,
   u_BinaryDataByMemStream;
 
 type
@@ -133,7 +134,7 @@ begin
       VInfo.FLineSize := VInfo.FSize.X * (FBitsPerPixel div 8);
       VInfo.FLine := GetMemory(VInfo.FLineSize);
       try
-        VPng := TLibPngWriter.Create;
+        VPng := TLibPngWriter.Create(GDllName.Png16);
         try
           VPng.Write(
             VMemStream,

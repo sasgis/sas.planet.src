@@ -41,6 +41,7 @@ type
     Tiff: string;
     GeoTiff: string;
     Jpeg62: string;
+    Png16: string;
     FreeImage: string;
     Geodesic: string;
     MiniZip: string;
@@ -113,6 +114,7 @@ begin
     Self.Tiff := 'libtiff.dll';
     Self.GeoTiff := 'libgeotiff.dll';
     Self.Jpeg62 := 'jpeg62.dll';
+    Self.Png16 := 'libpng16.dll';
     Self.FreeImage := 'libfreeimage-3.dll'; // todo: rename back to the FreeImage.dll
     Self.Sqlite3 := 'sqlite3.dll';
     Self.Geodesic := 'geodesic.dll';
@@ -129,6 +131,7 @@ begin
     Self.Tiff := 'libtiff-6.dll';
     Self.GeoTiff := 'libgeotiff.dll';
     Self.Jpeg62 := 'libjpeg-62.dll';
+    Self.Png16 := 'libpng16-16.dll';
     Self.FreeImage := 'libfreeimage-3.dll';
     Self.Sqlite3 := 'libsqlite3-0.dll';
     Self.Geodesic := 'libproj-25.dll';

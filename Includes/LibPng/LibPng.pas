@@ -58,7 +58,7 @@ type
   png_uint_32 = Cardinal;
   png_int_32 = Longint;
 
-  png_size_t = png_uint_32;
+  png_size_t = NativeUInt;
   
   png_bytepp = ^png_bytep;
   png_bytep = ^png_byte;
@@ -130,7 +130,7 @@ png_create_write_struct: function(user_png_ver: png_charp;
  * and png_info_init() so that applications that want to use a shared
  * libpng don't have to be recompiled if png_info changes size.
  *)
-png_create_info_struct: function(png_ptr: png_structp ): png_infop; cdecl;
+png_create_info_struct: function(png_ptr: png_structp): png_infop; cdecl;
 
 (* Replace the default data output functions with a user supplied one(s).
  * If buffered output is not used, then output_flush_fn can be set to NULL.
@@ -200,8 +200,8 @@ png_set_PLTE: procedure(png_ptr: png_structp; info_ptr: png_infop;
 * graylevel to "trans_color"
 *)
 png_set_tRNS: procedure(png_ptr: png_structp; info_ptr: png_infop;
-    trans_alpha: png_const_bytep; num_trans: int;
-    trans_color: png_const_color_16p); cdecl;
+  trans_alpha: png_const_bytep; num_trans: int;
+  trans_color: png_const_color_16p); cdecl;
 
 // Return the user pointer associated with the I/O functions
 png_get_io_ptr: function(const png_ptr: png_structp): png_voidp; cdecl;
@@ -225,13 +225,13 @@ uses
   SyncObjs;
 
 var
-  gHandle: THandle = 0;
-  gLock: TCriticalSection = nil;
-  gIsInitialized: Boolean = False;
+  GHandle: THandle = 0;
+  GLock: TCriticalSection = nil;
+  GIsInitialized: Boolean = False;
 
 function GetProcAddr(const AProcName: PAnsiChar): Pointer;
 begin
-  Result := GetProcAddress(gHandle, AProcName);
+  Result := GetProcAddress(GHandle, AProcName);
   if Addr(Result) = nil then begin
     RaiseLastOSError;
   end;
@@ -239,21 +239,21 @@ end;
 
 procedure InitLibPng(const ALibName: string);
 begin
-  if gIsInitialized then begin
+  if GIsInitialized then begin
     Exit;
   end;
 
-  gLock.Acquire;
+  GLock.Acquire;
   try
-    if gIsInitialized then begin
+    if GIsInitialized then begin
       Exit;
     end;
 
-    if gHandle = 0 then begin
-      gHandle := LoadLibrary(PChar(ALibName));
+    if GHandle = 0 then begin
+      GHandle := LoadLibrary(PChar(ALibName));
     end;
 
-    if gHandle <> 0 then begin
+    if GHandle <> 0 then begin
       png_get_libpng_ver := GetProcAddr('png_get_libpng_ver');
       png_create_write_struct := GetProcAddr('png_create_write_struct');
       png_create_info_struct := GetProcAddr('png_create_info_struct');
@@ -278,21 +278,21 @@ begin
       RaiseLastOSError;
     end;
 
-    gIsInitialized := True;
+    GIsInitialized := True;
   finally
-    gLock.Release;
+    GLock.Release;
   end;
 end;
 
 procedure FinLibPng;
 begin
-  gLock.Acquire;
+  GLock.Acquire;
   try
-    gIsInitialized := False;
+    GIsInitialized := False;
 
-    if gHandle <> 0 then begin
-      FreeLibrary(gHandle);
-      gHandle := 0;
+    if GHandle <> 0 then begin
+      FreeLibrary(GHandle);
+      GHandle := 0;
     end;
 
     png_get_libpng_ver := nil;
@@ -316,16 +316,16 @@ begin
     png_get_image_width := nil;
     png_get_image_height := nil;
   finally
-    gLock.Release;
+    GLock.Release;
   end;
 end;
 
 initialization
-  gLock := TCriticalSection.Create;
+  GLock := TCriticalSection.Create;
 
 finalization
   FinLibPng;
-  FreeAndNil(gLock);
+  FreeAndNil(GLock);
 
 end.
 
