@@ -52,7 +52,7 @@ type
 
     procedure PrepareTileStorage(
       const AGeoTiffOptions: TGeoTiffOptions;
-      const AUseOverlays: Boolean;
+      const ATryDirectCopy: Boolean;
       const AMapType: IMapType
     );
 
@@ -83,7 +83,7 @@ type
   public
     constructor Create(
       const AGeoTiffOptions: TGeoTiffOptions;
-      const AUseOverlays: Boolean;
+      const ATryDirectCopy: Boolean;
       const AProjection: IProjection;
       const AProjectionSet: IProjectionSet;
       const AMapType: IMapType;
@@ -104,7 +104,7 @@ uses
 
 constructor TGeoTiffCombinerCustomParams.Create(
   const AGeoTiffOptions: TGeoTiffOptions;
-  const AUseOverlays: Boolean;
+  const ATryDirectCopy: Boolean;
   const AProjection: IProjection;
   const AProjectionSet: IProjectionSet;
   const AMapType: IMapType;
@@ -136,7 +136,7 @@ begin
     FBitmapTileProvider[I] := nil;
   end;
 
-  PrepareTileStorage(AGeoTiffOptions, AUseOverlays, AMapType);
+  PrepareTileStorage(AGeoTiffOptions, ATryDirectCopy, AMapType);
 end;
 
 procedure TGeoTiffCombinerCustomParams.PrepareProjection(
@@ -154,12 +154,13 @@ end;
 
 procedure TGeoTiffCombinerCustomParams.PrepareTileStorage(
   const AGeoTiffOptions: TGeoTiffOptions;
-  const AUseOverlays: Boolean;
+  const ATryDirectCopy: Boolean;
   const AMapType: IMapType
 );
 begin
-  if not AUseOverlays and
+  if ATryDirectCopy and
      AGeoTiffOptions.CopyRawJpegTiles and
+     (AGeoTiffOptions.CompressionType = gtcJpeg) and
      Assigned(AMapType) and
      IsJpegContentType(AMapType.ContentType) then
   begin

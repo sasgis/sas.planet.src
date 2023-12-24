@@ -384,13 +384,30 @@ function TfrMapCombine.GetCustomParams: IInterface;
     end;
   end;
 
+  function GetAllowDirectCopy: Boolean;
+  begin
+    Result :=
+      not GetUseMarks and
+      not GetUseGrids and
+      not GetUseFillingMap and
+      not GetUseRecolor and
+      not chkAddVisibleLayers.Checked;
+
+    Result := Result and not (
+      (FfrMapSelect.GetSelectedMapType <> nil) and (FfrLayerSelect.GetSelectedMapType <> nil)
+    );
+
+    Result := Result and
+      GetSelectedMap.ProjectionSet.IsProjectionFromThisSet(Self.GetProjection);
+  end;
+
 begin
   Result := nil;
   if (mcGeoTiff in FOptionsSet) or (mcGeoTiffTiled in FOptionsSet) then begin
     Result :=
       TGeoTiffCombinerCustomParams.Create(
         Self.GetCustomOptions.GeoTiffOptions,
-        GetUseMarks or GetUseGrids or GetUseFillingMap or GetUseRecolor,
+        GetAllowDirectCopy,
         Self.GetProjection,
         FfrProjectionSelect.GetSelectedProjection,
         GetSelectedMap,
