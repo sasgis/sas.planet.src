@@ -21,7 +21,7 @@
 
 unit u_GlobalDllName;
 
-{.$DEFINE FORCE_USE_WINXP_DLL} // todo: add new dll's pack
+{$DEFINE FORCE_USE_WINXP_DLL} // todo: add new dll's pack
 {.$DEFINE HANDLE_DELAYLOAD_ERRORS} // enable for dll's with delayed import (if any)
 
 interface
@@ -115,7 +115,7 @@ begin
     Self.GeoTiff := 'libgeotiff.dll';
     Self.Jpeg62 := 'jpeg62.dll';
     Self.Png16 := 'libpng16.dll';
-    Self.FreeImage := 'libfreeimage-3.dll'; // todo: rename back to the FreeImage.dll
+    Self.FreeImage := 'FreeImage.dll';
     Self.Sqlite3 := 'sqlite3.dll';
     Self.Geodesic := 'geodesic.dll';
     Self.MiniZip := 'libminizip.dll';
