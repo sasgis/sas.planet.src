@@ -21,7 +21,7 @@
 
 unit u_GlobalDllName;
 
-{$DEFINE FORCE_USE_WINXP_DLL} // todo: add new dll's pack
+{.$DEFINE FORCE_USE_WINXP_DLL}
 {.$DEFINE HANDLE_DELAYLOAD_ERRORS} // enable for dll's with delayed import (if any)
 
 interface
@@ -102,6 +102,9 @@ begin
   {$ENDIF}
 
   VAppPath := ExtractFilePath(ParamStr(0));
+
+  // Precompiled dll packs can be found here:
+  // https://github.com/sasgis/sas.planet.bin/releases
 
   if IsWinXP then begin
     VPath := VAppPath + 'libxp' + PathDelim;
