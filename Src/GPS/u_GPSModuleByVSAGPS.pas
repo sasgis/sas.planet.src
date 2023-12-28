@@ -1566,25 +1566,36 @@ procedure TGPSModuleByVSAGPS.GPSRecv_LowLevel(const AUnitIndex: Byte;
 {$ifend}
   end;
 
-  procedure AddLoggerPacket(const p: PAnsiChar);
+  procedure AddLoggerPacket(const p: Pointer; const ASize: DWORD);
   begin
-{$if defined(VSAGPS_AS_DLL)}
-    VSAGPS_AddLoggerPacket(FVSAGPS_LOGGER, p, StrLenA(p), nil);
-{$else}
-    FVSAGPS_Logger.AddPacket(p, StrLenA(p), nil);
-{$ifend}
+    {$if defined(VSAGPS_AS_DLL)}
+    VSAGPS_AddLoggerPacket(FVSAGPS_LOGGER, p, ASize, nil);
+    {$else}
+    FVSAGPS_Logger.AddPacket(p, ASize, nil);
+    {$ifend}
   end;
 
-  procedure InternalDumpByDevice;
-  var p: PAnsiChar;
+  procedure InternalDumpByDevice(const ACanUseStrLen: Boolean);
+  var
+    p: PAnsiChar;
+    VSize: DWORD;
+    VReserved: PDWORD;
   begin
-{$if defined(VSAGPS_AS_DLL)}
-    p := VSAGPS_SerializePacket(FVSAGPS_HANDLE, AUnitIndex, APacket, nil);
-{$else}
-    p := FVSAGPS_Object.SerializePacket(AUnitIndex, APacket);
-{$ifend}
+    VReserved := nil;
+    if not ACanUseStrLen then begin
+      VSize := 0;
+      VReserved := @VSize;
+    end;
+    {$if defined(VSAGPS_AS_DLL)}
+    p := VSAGPS_SerializePacket(FVSAGPS_HANDLE, AUnitIndex, APacket, VReserved);
+    {$else}
+    p := FVSAGPS_Object.SerializePacket(AUnitIndex, APacket, VReserved);
+    {$ifend}
     try
-      AddLoggerPacket(p);
+      if ACanUseStrLen then begin
+        VSize := StrLenA(p);
+      end;
+      AddLoggerPacket(p, VSize);
     finally
       VSAGPS_FreeMem(p);
     end;
@@ -1597,10 +1608,9 @@ begin
     if (0 <> (ADevType and (gdt_USB_Garmin or gdt_LocationAPI))) then begin
       // write full dump of binary garmin packets (with header about packet type)
       // location api packets too
-      InternalDumpByDevice;
+      InternalDumpByDevice(True);
     end else if (gdt_COM_NMEA0183=(ADevType and gdt_COM_NMEA0183)) then begin
-      // write full nmea packets like a strings
-      AddLoggerPacket(PAnsiChar(APacket));
+      InternalDumpByDevice(False);
     end;
   end;
 end;
