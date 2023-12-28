@@ -28,6 +28,8 @@ interface
 uses
   Windows,
   SysUtils,
+  UITypes,
+  Dialogs,
   i_GPSPositionFactory,
   i_GPSModuleByCOMPortSettings,
   i_GPSModuleByCOM,
@@ -185,8 +187,10 @@ uses
   DateUtils,
   Math,
   Classes,
+  gnugettext,
   vsagps_public_sysutils,
   t_GeoTypes,
+  u_InetFunc,
   u_ResStrings,
   u_ListenerByEvent;
 
@@ -514,7 +518,7 @@ end;
 procedure TGPSModuleByVSAGPS.Connect(const AConfig: IGPSModuleByCOMPortSettings;
                                      const ALogConfig: IGPSConfig);
 const
-  CFlyOnTrackCFG = 'vsagps_fly-on-track.cfg';
+  CFlyOnTrackCFG = 'ReplayTrack.txt';
 var
   VGPSOrigin: TGPSOrigin;
   VGPSDevType: DWORD;
@@ -541,6 +545,27 @@ var
     end;
   end;
 
+  procedure _OnLoadFlyOnTrackError;
+  var
+    VResult: Integer;
+  begin
+    VResult := MessageDlg(Format(_(
+      'There is no source for the Replay Track mode!' + #13#10 +
+      'Add some folder path(s) and/or file name(s) to' + #13#10 +
+      'the config file %s and try again.' + #13#10 +
+      #13#10 +
+      'Yes - to create and open config file in a text editor' + #13#10 +
+      'Close - to close this message'
+      ), [CFlyOnTrackCFG]), mtError, [mbYes, mbClose], 0
+    );
+    if VResult = mrYes then begin
+      with TFileStream.Create(CFlyOnTrackCFG, fmCreate) do begin
+        Free;
+      end;
+      OpenFileInDefaultProgram(CFlyOnTrackCFG);
+    end;
+  end;
+
 begin
   Assert(Assigned(AConfig));
   Assert(Assigned(ALogConfig));
@@ -560,8 +585,9 @@ begin
     VFlyOnTrackSource := '';
     if (gpsoFlyOnTrack = VGPSOrigin) then begin
       _LoadFlyOnTrackSource;
-      if (0 = Length(VFlyOnTrackSource)) then begin
-        raise Exception.Create(SAS_MSG_NoFlyOnTrackSource);
+      if Length(VFlyOnTrackSource) = 0 then begin
+        _OnLoadFlyOnTrackError;
+        Exit;
       end;
     end else begin
       // logger (create suspended)

@@ -60,7 +60,6 @@ ResourceString
   SAS_MSG_FileBeCreateLen = 'The tile size is equal to the existing one, skipping.';
   SAS_MSG_ProcessFilesComplete = 'The task is completed!';
   SAS_MSG_LoadComplete = 'Download completed';
-  SAS_MSG_NoFlyOnTrackSource = 'No source for Fly-on-Track mode';
   SAS_MSG_UnknownGPSOrigin = 'GPS origin misconfiguration: unknown mode %d';
   SAS_MSG_NoGPSdetected = 'No GPS receiver found';
 

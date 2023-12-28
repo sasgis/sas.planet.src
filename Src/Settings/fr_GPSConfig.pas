@@ -32,6 +32,7 @@ uses
   StdCtrls,
   Spin,
   ExtCtrls,
+  CheckLst,
   i_Listener,
   i_Notifier,
   i_NotifierTime,
@@ -48,20 +49,13 @@ uses
 type
   TfrGPSConfig = class(TFrame)
     pnlGPSLeft: TPanel;
-    flwpnlGpsPort: TFlowPanel;
+    pnlGpsPort: TPanel;
     Label4: TLabel;
     ComboBoxCOM: TComboBox;
     btnGPSAutodetectCOM: TButton;
     Label65: TLabel;
     ComboBoxBoudRate: TComboBox;
-    lbGPSDelimiter1: TLabel;
     btnGPSSwitch: TButton;
-    CB_GPSAutodetectCOMOnConnect: TCheckBox;
-    CB_GPSAutodetectCOMSerial: TCheckBox;
-    CB_GPSAutodetectCOMVirtual: TCheckBox;
-    CB_GPSAutodetectCOMBluetooth: TCheckBox;
-    CB_GPSAutodetectCOMUSBSer: TCheckBox;
-    CB_GPSAutodetectCOMOthers: TCheckBox;
     flwpnlGpsParams: TFlowPanel;
     Label6: TLabel;
     SE_ConnectionTimeout: TSpinEdit;
@@ -80,12 +74,16 @@ type
     pnlGpsRight: TPanel;
     GroupBox3: TGroupBox;
     rgConnectionType: TRadioGroup;
-    grpAutoDetect: TGroupBox;
     flwpnlComPort: TFlowPanel;
     flwpnlComPortSpeed: TFlowPanel;
     pnlComParams: TPanel;
+    chklstAutodetect: TCheckListBox;
+    chkEnableAutodetectComPort: TCheckBox;
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure btnGPSSwitchClick(Sender: TObject);
+    procedure rgConnectionTypeClick(Sender: TObject);
+    procedure chklstAutodetectClickCheck(Sender: TObject);
+    procedure chkEnableAutodetectComPortClick(Sender: TObject);
   private
     FGpsSystem: IGpsSystem;
     FGPSConfig: IGPSConfig;
@@ -93,7 +91,7 @@ type
     FGPSBehaviour: IMainFormBehaviourByGPSConfig;
 
     FAutodetecting: Boolean;
-    frGpsSatellites: TfrGpsSatellites;
+    FfrGpsSatellites: TfrGpsSatellites;
     FConnectListener: IListener;
     FDisconnectListener: IListener;
     procedure OnConnecting;
@@ -168,7 +166,7 @@ begin
   FGPSTrackConfig := AGPSTrackConfig;
   FGPSBehaviour := AGPSBehaviour;
 
-  FAutodetecting := FALSE;
+  FAutodetecting := False;
   FConnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, 1000, Self.OnConnecting);
   FDisconnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, 1000, Self.OnDisconnect);
 
@@ -176,7 +174,7 @@ begin
   if VSensorListEntity <> nil then begin
     VSensor := VSensorListEntity.Sensor;
     if Supports(VSensor, ISensorGPSSatellites, VSensorSatellites) then begin
-      frGpsSatellites :=
+      FfrGpsSatellites :=
         TfrGpsSatellites.Create(
           ALanguageManager,
           AGUISyncronizedTimerNotifier,
@@ -200,7 +198,7 @@ begin
     FGpsSystem.DisconnectedNotifier.Remove(FDisconnectListener);
   end;
   FGpsSystem := nil;
-  FreeAndNil(frGpsSatellites);
+  FreeAndNil(FfrGpsSatellites);
   inherited;
 end;
 
@@ -210,7 +208,27 @@ end;
 
 function TfrGPSConfig.CanClose: Boolean;
 begin
-  Result := (not FAutodetecting);
+  Result := not FAutodetecting;
+end;
+
+procedure TfrGPSConfig.chkEnableAutodetectComPortClick(Sender: TObject);
+begin
+  chklstAutodetect.Enabled := chkEnableAutodetectComPort.Checked;
+end;
+
+procedure TfrGPSConfig.chklstAutodetectClickCheck(Sender: TObject);
+var
+  I: Integer;
+begin
+  if chklstAutodetect.ItemIndex = 0 then begin
+    if chklstAutodetect.Checked[0] then begin
+      for I := 1 to chklstAutodetect.Count - 1 do begin
+        chklstAutodetect.Checked[I] := False;
+      end;
+    end;
+  end else begin
+    chklstAutodetect.Checked[0] := False;
+  end;
 end;
 
 procedure TfrGPSConfig.ApplyChanges;
@@ -251,7 +269,7 @@ begin
     FGPSConfig.ModuleConfig.BaudRate := StrToint(ComboBoxBoudRate.Text);
     FGPSConfig.WriteLog[ttPLT] := CB_GPSlogPLT.Checked;
     FGPSConfig.WriteLog[ttGPX] := CB_GPSlogGPX.Checked;
-    FGPSConfig.ModuleConfig.AutodetectCOMOnConnect := CB_GPSAutodetectCOMOnConnect.Checked;
+    FGPSConfig.ModuleConfig.AutodetectCOMOnConnect := chkEnableAutodetectComPort.Checked;
     FGPSConfig.ModuleConfig.AutodetectCOMFlags := Self.AutodetectCOMFlags;
   finally
     FGPSConfig.UnlockWrite;
@@ -260,13 +278,13 @@ end;
 
 procedure TfrGPSConfig.Init;
 var
+  I: Integer;
   VFlags: DWORD;
   VOptions: TCOMAutodetectOptions;
-  i: Integer;
 begin
   ComboBoxCOM.Items.Clear;
-  for i := 1 to 64 do begin
-    ComboBoxCOM.Items.Add('COM' + IntToStr(i));
+  for I := 1 to 64 do begin
+    ComboBoxCOM.Items.Add('COM' + IntToStr(I));
   end;
 
   FGPSTrackConfig.LockRead;
@@ -278,7 +296,7 @@ begin
   end;
   CBSensorsBarAutoShow.Checked := FGPSBehaviour.SensorsAutoShow;
 
-  frGpsSatellites.Parent := GroupBox3;
+  FfrGpsSatellites.Parent := GroupBox3;
   FGPSConfig.LockRead;
   try
     SE_ConnectionTimeout.Value := FGPSConfig.ModuleConfig.ConnectionTimeout;
@@ -298,21 +316,25 @@ begin
       gpsoFlyOnTrack: begin
         rgConnectionType.ItemIndex := 3;
       end;
-    else begin
+    else
       rgConnectionType.ItemIndex := 0;
     end;
-    end;
-    CB_GPSAutodetectCOMOnConnect.Checked := FGPSConfig.ModuleConfig.AutodetectCOMOnConnect;
+    chkEnableAutodetectComPort.Checked := FGPSConfig.ModuleConfig.AutodetectCOMOnConnect;
     VFlags := FGPSConfig.ModuleConfig.AutodetectCOMFlags;
   finally
     FGPSConfig.UnlockRead;
   end;
   DecodeCOMDeviceFlags(VFlags, @VOptions);
-  CB_GPSAutodetectCOMSerial.Checked := VOptions.CheckSerial;
-  CB_GPSAutodetectCOMVirtual.Checked := VOptions.CheckVirtual;
-  CB_GPSAutodetectCOMBluetooth.Checked := VOptions.CheckBthModem;
-  CB_GPSAutodetectCOMUSBSer.Checked := VOptions.CheckUSBSer;
-  CB_GPSAutodetectCOMOthers.Checked := VOptions.CheckOthers;
+
+  chklstAutodetect.Checked[0] := VFlags = cCOM_src_All;
+  chklstAutodetect.Checked[1] := VOptions.CheckBthModem;
+  chklstAutodetect.Checked[2] := VOptions.CheckUSBSer;
+  chklstAutodetect.Checked[3] := VOptions.CheckSerial;
+  chklstAutodetect.Checked[4] := VOptions.CheckVirtual;
+  chklstAutodetect.Checked[5] := VOptions.CheckOthers;
+
+  rgConnectionTypeClick(Self);
+  chklstAutodetectClickCheck(Self);
 end;
 
 procedure TfrGPSConfig.OnConnecting;
@@ -338,12 +360,16 @@ function TfrGPSConfig.AutodetectCOMFlags: DWORD;
 var
   VOptions: TCOMAutodetectOptions;
 begin
-  VOptions.CheckSerial := CB_GPSAutodetectCOMSerial.Checked;
-  VOptions.CheckVirtual := CB_GPSAutodetectCOMVirtual.Checked;
-  VOptions.CheckBthModem := CB_GPSAutodetectCOMBluetooth.Checked;
-  VOptions.CheckUSBSer := CB_GPSAutodetectCOMUSBSer.Checked;
-  VOptions.CheckOthers := CB_GPSAutodetectCOMOthers.Checked;
-  EncodeCOMDeviceFlags(@VOptions, Result);
+  if chklstAutodetect.Checked[0] then begin
+    Result := cCOM_src_All;
+  end else begin
+    VOptions.CheckBthModem := chklstAutodetect.Checked[1];
+    VOptions.CheckUSBSer := chklstAutodetect.Checked[2];
+    VOptions.CheckSerial := chklstAutodetect.Checked[3];
+    VOptions.CheckVirtual := chklstAutodetect.Checked[4];
+    VOptions.CheckOthers := chklstAutodetect.Checked[5];
+    EncodeCOMDeviceFlags(@VOptions, Result);
+  end;
 end;
 
 procedure TfrGPSConfig.btnGPSAutodetectCOMClick(Sender: TObject);
@@ -358,25 +384,25 @@ begin
   if FAutodetecting then begin
     Exit;
   end;
-  FAutodetecting := TRUE;
+  FAutodetecting := True;
   VObj := nil;
   try
     // temp. disable controls
-    btnGPSAutodetectCOM.Enabled := FALSE;
-    ComboBoxCOM.Enabled := FALSE;
-    btnGPSSwitch.Enabled := FALSE;
+    btnGPSAutodetectCOM.Enabled := False;
+    ComboBoxCOM.Enabled := False;
+    btnGPSSwitch.Enabled := False;
     // make objects to enum
     VObj := TCOMCheckerObject.Create;
     // flags (what to enum)
     VFlags := AutodetectCOMFlags;
     // set timeouts as for real connection
-    VObj.SetFullConnectionTimeout(SE_ConnectionTimeout.Value, TRUE);
+    VObj.SetFullConnectionTimeout(SE_ConnectionTimeout.Value, True);
     // set antifreeze handlers
     VObj.OnThreadFinished := Self.AutodetectAntiFreeze;
     VObj.OnThreadPending := Self.AutodetectAntiFreeze;
     // execute
-    VPortNumber := VObj.EnumExecute(nil, VCancelled, VFlags, FALSE);
-    if (VPortNumber >= 0) then begin
+    VPortNumber := VObj.EnumExecute(nil, VCancelled, VFlags, False);
+    if VPortNumber >= 0 then begin
       // port found
       // add new ports to combobox - not implemented yet
       // set first port
@@ -392,10 +418,10 @@ begin
     end;
   finally
     VObj.Free;
-    btnGPSAutodetectCOM.Enabled := TRUE;
-    ComboBoxCOM.Enabled := TRUE;
-    btnGPSSwitch.Enabled := TRUE;
-    FAutodetecting := FALSE;
+    btnGPSAutodetectCOM.Enabled := True;
+    ComboBoxCOM.Enabled := True;
+    btnGPSSwitch.Enabled := True;
+    FAutodetecting := False;
   end;
 end;
 
@@ -404,7 +430,13 @@ begin
   // save config
   ApplyChanges;
   // change state
-  FGPSConfig.GPSEnabled := (not FGPSConfig.GPSEnabled);
+  FGPSConfig.GPSEnabled := not FGPSConfig.GPSEnabled;
+end;
+
+procedure TfrGPSConfig.rgConnectionTypeClick(Sender: TObject);
+begin
+  SetControlEnabled(pnlComParams, rgConnectionType.ItemIndex = 0);
+  chklstAutodetect.Enabled := chkEnableAutodetectComPort.Enabled and chkEnableAutodetectComPort.Checked;
 end;
 
 procedure TfrGPSConfig.RefreshTranslation;
