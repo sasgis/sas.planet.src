@@ -17,11 +17,11 @@ object frGPSConfig: TfrGPSConfig
     Constraints.MinWidth = 405
     Padding.Right = 3
     TabOrder = 0
-    object pnlGpsPort: TPanel
+    object pnlGpsConfig: TPanel
       Left = 0
       Top = 0
       Width = 402
-      Height = 169
+      Height = 185
       Align = alTop
       BevelEdges = []
       BevelOuter = bvNone
@@ -49,7 +49,7 @@ object frGPSConfig: TfrGPSConfig
           'COM NMEA'
           'USB Garmin'
           'Location API'
-          'Replay Track(s)')
+          'Replay Track')
         TabOrder = 2
         OnClick = rgConnectionTypeClick
       end
@@ -57,7 +57,7 @@ object frGPSConfig: TfrGPSConfig
         Left = 156
         Top = 7
         Width = 261
-        Height = 178
+        Height = 162
         BevelOuter = bvNone
         BorderWidth = 2
         TabOrder = 0
@@ -144,41 +144,85 @@ object frGPSConfig: TfrGPSConfig
               '230400')
           end
         end
-        object chklstAutodetect: TCheckListBox
-          Left = 8
-          Top = 86
-          Width = 235
-          Height = 57
-          BorderStyle = bsNone
-          Color = clBtnFace
-          Columns = 2
-          CheckBoxPadding = 4
-          IntegralHeight = True
-          ItemHeight = 19
-          Items.Strings = (
-            'All sources'
-            'Bluetooth'
-            'USB Serial'
-            'COM'
-            'COM (Virtual)'
-            'Others')
+        object grpAutodetectComPort: TGroupBox
+          Left = 0
+          Top = 64
+          Width = 243
+          Height = 83
+          Caption = 'Autodetect port on connect'
           TabOrder = 2
-          OnClickCheck = chklstAutodetectClickCheck
+          object chkAutodetectAll: TCheckBox
+            Left = 8
+            Top = 16
+            Width = 122
+            Height = 17
+            Caption = 'All sources'
+            TabOrder = 0
+            OnClick = OnAutodetectItemClick
+          end
+          object chkAutodetectBluetooth: TCheckBox
+            Left = 8
+            Top = 39
+            Width = 97
+            Height = 17
+            Caption = 'Bluetooth'
+            TabOrder = 1
+            OnClick = OnAutodetectItemClick
+          end
+          object chkAutodetectUsb: TCheckBox
+            Left = 8
+            Top = 62
+            Width = 97
+            Height = 17
+            Caption = 'USB'
+            TabOrder = 2
+            OnClick = OnAutodetectItemClick
+          end
+          object chkAutodetectCom: TCheckBox
+            Left = 136
+            Top = 16
+            Width = 104
+            Height = 17
+            Caption = 'COM'
+            TabOrder = 3
+            OnClick = OnAutodetectItemClick
+          end
+          object chkAutodetectComVirtual: TCheckBox
+            Left = 136
+            Top = 39
+            Width = 104
+            Height = 17
+            Caption = 'COM Virtual'
+            TabOrder = 4
+            OnClick = OnAutodetectItemClick
+          end
+          object chkAutodetectOthers: TCheckBox
+            Left = 136
+            Top = 62
+            Width = 104
+            Height = 17
+            Caption = 'Others'
+            TabOrder = 5
+            OnClick = OnAutodetectItemClick
+          end
         end
-        object chkEnableAutodetectComPort: TCheckBox
-          Left = 8
-          Top = 63
-          Width = 235
-          Height = 17
-          Caption = 'Enable autodetect port on connection'
-          TabOrder = 3
-          OnClick = chkEnableAutodetectComPortClick
-        end
+      end
+      object chkUseReplayTrackFile: TCheckBox
+        Left = 6
+        Top = 160
+        Width = 393
+        Height = 17
+        Align = alCustom
+        Caption = 'Get list of tracks to replay from ReplayTrack.txt'
+        Checked = True
+        Enabled = False
+        State = cbChecked
+        TabOrder = 3
       end
     end
     object flwpnlGpsParams: TFlowPanel
       Left = 0
-      Top = 169
+      Top = 185
       Width = 402
       Height = 166
       Align = alTop
@@ -187,130 +231,342 @@ object frGPSConfig: TfrGPSConfig
       BorderWidth = 3
       FlowStyle = fsTopBottomLeftRight
       TabOrder = 1
-      object Label6: TLabel
-        Left = 3
-        Top = 3
-        Width = 114
-        Height = 15
-        Caption = 'Device timeout, (sec):'
-      end
-      object SE_ConnectionTimeout: TSpinEdit
-        Left = 3
-        Top = 18
-        Width = 57
-        Height = 24
-        MaxValue = 86400
-        MinValue = 1
-        TabOrder = 0
-        Value = 1
-      end
-      object Label11: TLabel
-        Left = 3
-        Top = 42
-        Width = 95
-        Height = 15
-        Caption = 'Refresh rate, (ms):'
-      end
-      object SpinEdit1: TSpinEdit
-        Left = 3
-        Top = 57
-        Width = 57
-        Height = 24
-        MaxValue = 3600000
-        MinValue = 100
-        TabOrder = 1
-        Value = 100
-      end
-      object Label20: TLabel
-        Left = 3
-        Top = 81
-        Width = 63
-        Height = 15
-        Caption = 'Track width:'
-      end
-      object SESizeTrack: TSpinEdit
-        Left = 3
-        Top = 96
-        Width = 57
-        Height = 24
-        MaxValue = 50
-        MinValue = 1
-        TabOrder = 2
-        Value = 50
-      end
-      object Label5: TLabel
-        Left = 3
-        Top = 120
-        Width = 182
-        Height = 15
-        Caption = 'Maximum number of track points:'
-      end
-      object SE_NumTrackPoints: TSpinEdit
-        Left = 3
-        Top = 135
-        Width = 73
-        Height = 24
-        MaxValue = 1000000
-        MinValue = 10
-        TabOrder = 3
-        Value = 10000
-      end
     end
-    object GB_GpsTrackSave: TGroupBox
-      Left = 0
-      Top = 335
-      Width = 402
-      Height = 42
-      Align = alTop
-      Caption = 'Autosave track to:'
+    object pgcGps: TPageControl
+      Left = 6
+      Top = 183
+      Width = 393
+      Height = 287
+      ActivePage = tsCommon
+      Align = alCustom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 2
-      object CB_GPSlogPLT: TCheckBox
-        AlignWithMargins = True
-        Left = 75
-        Top = 16
-        Width = 51
-        Height = 17
-        Caption = '.plt'
-        TabOrder = 1
+      object tsCommon: TTabSheet
+        Caption = 'Common'
+        object CBSensorsBarAutoShow: TCheckBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 118
+          Width = 379
+          Height = 17
+          Margins.Top = 6
+          Align = alTop
+          Caption = 'Auto show/hide sensors toolbar'
+          TabOrder = 0
+        end
+        object GB_GpsTrackSave: TGroupBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 67
+          Width = 379
+          Height = 42
+          Align = alTop
+          Caption = 'Autosave track to:'
+          TabOrder = 1
+          object CB_GPSlogPLT: TCheckBox
+            AlignWithMargins = True
+            Left = 75
+            Top = 16
+            Width = 51
+            Height = 17
+            Caption = '.plt'
+            TabOrder = 1
+          end
+          object CB_GPSlogNmea: TCheckBox
+            AlignWithMargins = True
+            Left = 132
+            Top = 16
+            Width = 168
+            Height = 17
+            Caption = '.nmea/.garmin/.locationapi'
+            TabOrder = 2
+          end
+          object CB_GPSlogGPX: TCheckBox
+            AlignWithMargins = True
+            Left = 11
+            Top = 16
+            Width = 51
+            Height = 17
+            Caption = '.gpx'
+            TabOrder = 0
+          end
+        end
+        object pnlConnectionTimeout: TPanel
+          AlignWithMargins = True
+          Left = 0
+          Top = 3
+          Width = 385
+          Height = 26
+          Margins.Left = 0
+          Margins.Right = 0
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
+          TabOrder = 2
+          object Label6: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 106
+            Height = 23
+            Align = alLeft
+            Caption = 'Device timeout, sec:'
+          end
+          object SE_ConnectionTimeout: TSpinEdit
+            Left = 112
+            Top = 0
+            Width = 57
+            Height = 26
+            Align = alLeft
+            MaxValue = 86400
+            MinValue = 1
+            TabOrder = 0
+            Value = 1
+          end
+        end
+        object pnlRefreshRate: TPanel
+          AlignWithMargins = True
+          Left = 0
+          Top = 35
+          Width = 385
+          Height = 26
+          Margins.Left = 0
+          Margins.Right = 0
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
+          TabOrder = 3
+          object Label11: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 87
+            Height = 23
+            Align = alLeft
+            Caption = 'Refresh rate, ms:'
+          end
+          object SpinEdit1: TSpinEdit
+            Left = 93
+            Top = 0
+            Width = 57
+            Height = 26
+            Align = alLeft
+            MaxValue = 3600000
+            MinValue = 100
+            TabOrder = 0
+            Value = 100
+          end
+        end
       end
-      object CB_GPSlogNmea: TCheckBox
-        AlignWithMargins = True
-        Left = 132
-        Top = 16
-        Width = 168
-        Height = 17
-        Caption = '.nmea/.garmin/.locationapi'
-        TabOrder = 2
-      end
-      object CB_GPSlogGPX: TCheckBox
-        AlignWithMargins = True
-        Left = 11
-        Top = 16
-        Width = 51
-        Height = 17
-        Caption = '.gpx'
-        TabOrder = 0
-      end
-    end
-    object pnlGpsSensors: TPanel
-      Left = 0
-      Top = 377
-      Width = 402
-      Height = 29
-      Align = alTop
-      AutoSize = True
-      BevelOuter = bvNone
-      BorderWidth = 3
-      TabOrder = 3
-      object CBSensorsBarAutoShow: TCheckBox
-        AlignWithMargins = True
-        Left = 6
-        Top = 6
-        Width = 390
-        Height = 17
-        Align = alTop
-        Caption = 'Auto show/hide sensors toolbar'
-        TabOrder = 0
+      object tsTrackAndMarker: TTabSheet
+        Caption = 'Marker and Track'
+        ImageIndex = 1
+        object grpGpsTrack: TGroupBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 154
+          Width = 379
+          Height = 81
+          Align = alTop
+          Caption = 'Track'
+          TabOrder = 0
+          object pnlTrackPoints: TPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 51
+            Width = 369
+            Height = 25
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 0
+            object Label5: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 198
+              Height = 19
+              Margins.Bottom = 3
+              Align = alLeft
+              Caption = 'Maximum number of points to show:'
+            end
+            object SE_NumTrackPoints: TSpinEdit
+              Left = 204
+              Top = 0
+              Width = 73
+              Height = 25
+              Align = alLeft
+              MaxValue = 1000000
+              MinValue = 10
+              TabOrder = 0
+              Value = 10000
+            end
+          end
+          object pnlTrackWidth: TPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 20
+            Width = 369
+            Height = 25
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 1
+            object Label20: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 35
+              Height = 19
+              Margins.Bottom = 3
+              Align = alLeft
+              Caption = 'Width:'
+            end
+            object SESizeTrack: TSpinEdit
+              Left = 41
+              Top = 0
+              Width = 57
+              Height = 25
+              Align = alLeft
+              MaxValue = 50
+              MinValue = 1
+              TabOrder = 0
+              Value = 50
+            end
+          end
+        end
+        object grpGpsMarker: TGroupBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 379
+          Height = 145
+          Align = alTop
+          Caption = 'Marker'
+          TabOrder = 1
+          object pnlMarkerColor: TPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 51
+            Width = 369
+            Height = 22
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 0
+            object lblGPSMarkerColor: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 65
+              Height = 19
+              Align = alLeft
+              Caption = 'Arrow color:'
+            end
+            object ColorBoxGPSstr: TColorBox
+              Left = 71
+              Top = 0
+              Width = 105
+              Height = 22
+              Align = alLeft
+              Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+              TabOrder = 0
+            end
+          end
+          object pnlMarkerPointerSize: TPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 20
+            Width = 369
+            Height = 25
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 1
+            object lblGPSMarkerSize: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 63
+              Height = 22
+              Align = alLeft
+              Caption = 'Pointer size:'
+            end
+            object SESizeStr: TSpinEdit
+              Left = 69
+              Top = 0
+              Width = 57
+              Height = 25
+              Align = alLeft
+              MaxValue = 150
+              MinValue = 10
+              TabOrder = 0
+              Value = 100
+            end
+          end
+          object pnlMarker2: TPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 79
+            Width = 369
+            Height = 25
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 2
+            object lblGPSMarkerRingsCount: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 90
+              Height = 22
+              Align = alLeft
+              Caption = 'Number of rings:'
+            end
+            object seGPSMarkerRingsCount: TSpinEdit
+              Left = 96
+              Top = 0
+              Width = 105
+              Height = 25
+              Align = alLeft
+              MaxValue = 20
+              MinValue = 0
+              TabOrder = 0
+              Value = 0
+            end
+          end
+          object pnlMarker3: TPanel
+            AlignWithMargins = True
+            Left = 5
+            Top = 110
+            Width = 369
+            Height = 24
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 3
+            object lblGPSMarkerRingRadius: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 79
+              Height = 21
+              Align = alLeft
+              Caption = 'Ring radius, m:'
+            end
+            object seGPSMarkerRingRadius: TSpinEdit
+              Left = 85
+              Top = 0
+              Width = 105
+              Height = 24
+              Align = alLeft
+              MaxValue = 20000
+              MinValue = 0
+              TabOrder = 0
+              Value = 0
+            end
+          end
+        end
       end
     end
   end

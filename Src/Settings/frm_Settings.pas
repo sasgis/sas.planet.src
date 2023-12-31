@@ -192,16 +192,6 @@ type
     pnlResizeTileMatrixDraft: TPanel;
     lblResizeTileMatrixDraft: TLabel;
     cbbResizeTileMatrixDraft: TComboBox;
-    tsGPSMarker: TTabSheet;
-    SESizeStr: TSpinEdit;
-    lblGPSMarkerSize: TLabel;
-    flwpnlGPSMarker: TFlowPanel;
-    ColorBoxGPSstr: TColorBox;
-    lblGPSMarkerColor: TLabel;
-    lblGPSMarkerRingsCount: TLabel;
-    seGPSMarkerRingsCount: TSpinEdit;
-    lblGPSMarkerRingRadius: TLabel;
-    seGPSMarkerRingRadius: TSpinEdit;
     lbDBMSCachePath: TLabel;
     flwpnl1: TFlowPanel;
     lbl1: TLabel;
@@ -438,6 +428,7 @@ begin
       GState.SkyMapDraw,
       FMainFormConfig.GPSBehaviour,
       FMainFormConfig.LayersConfig.GPSTrackConfig,
+      FMainFormConfig.LayersConfig.GPSMarker,
       GState.Config.GPSConfig
     );
   FfrCacheTypesList :=
@@ -760,16 +751,6 @@ begin
   GState.Config.TileReprojectResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbProjectionChange.ItemIndex];
   GState.Config.TileDownloadResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbDownloadResize.ItemIndex];
   GState.Config.TileMatrixDraftResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbResizeTileMatrixDraft.ItemIndex];
-
-  FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
-  try
-    FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
-    FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize := SESizeStr.Value;
-    FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count := seGPSMarkerRingsCount.Value;
-    FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance := seGPSMarkerRingRadius.Value;
-  finally
-    FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockWrite;
-  end;
 
   FMainFormConfig.ToolbarsLock.IsLock := CBlock_toolbars.Checked;
 
@@ -1128,16 +1109,6 @@ begin
 
   FfrCacheTypesList.IntCode := GState.CacheConfig.DefCache;
   edtDBMSCachePath.text := GState.CacheConfig.DBMSCachePath.Path;
-
-  FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
-  try
-    ColorBoxGPSstr.Selected := WinColor(FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor);
-    SESizeStr.Value := FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize;
-    seGPSMarkerRingsCount.Value := FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count;
-    seGPSMarkerRingRadius.Value := Trunc(FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance);
-  finally
-    FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
-  end;
 
   InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeMethod);
   cbbResizeMethod.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.ImageResamplerConfig.ActiveGUID);
