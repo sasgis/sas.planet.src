@@ -550,13 +550,12 @@ var
     VResult: Integer;
   begin
     VResult := MessageDlg(Format(_(
-      'There is no source for the Replay Track mode!' + #13#10 +
-      'Add some folder path(s) and/or file name(s) to' + #13#10 +
-      'the config file %s and try again.' + #13#10 +
+      'There is no source for the Replay Track!' + #13#10 +
+      'Add list of track files/paths to the %s and try again.' + #13#10 +
       #13#10 +
-      'Yes - to create and open config file in a text editor' + #13#10 +
+      'Yes - to create and edit %s' + #13#10 +
       'Close - to close this message'
-      ), [CFlyOnTrackCFG]), mtError, [mbYes, mbClose], 0
+      ), [CFlyOnTrackCFG, CFlyOnTrackCFG]), mtError, [mbYes, mbClose], 0
     );
     if VResult = mrYes then begin
       with TFileStream.Create(CFlyOnTrackCFG, fmCreate) do begin
@@ -1601,26 +1600,18 @@ procedure TGPSModuleByVSAGPS.GPSRecv_LowLevel(const AUnitIndex: Byte;
     {$ifend}
   end;
 
-  procedure InternalDumpByDevice(const ACanUseStrLen: Boolean);
+  procedure InternalDumpByDevice;
   var
-    p: PAnsiChar;
+    p: Pointer;
     VSize: DWORD;
-    VReserved: PDWORD;
   begin
-    VReserved := nil;
-    if not ACanUseStrLen then begin
-      VSize := 0;
-      VReserved := @VSize;
-    end;
+    VSize := 0;
     {$if defined(VSAGPS_AS_DLL)}
-    p := VSAGPS_SerializePacket(FVSAGPS_HANDLE, AUnitIndex, APacket, VReserved);
+    p := VSAGPS_SerializePacket(FVSAGPS_HANDLE, AUnitIndex, APacket, VSize, nil);
     {$else}
-    p := FVSAGPS_Object.SerializePacket(AUnitIndex, APacket, VReserved);
+    p := FVSAGPS_Object.SerializePacket(AUnitIndex, APacket, VSize, nil);
     {$ifend}
     try
-      if ACanUseStrLen then begin
-        VSize := StrLenA(p);
-      end;
       AddLoggerPacket(p, VSize);
     finally
       VSAGPS_FreeMem(p);
@@ -1634,9 +1625,10 @@ begin
     if (0 <> (ADevType and (gdt_USB_Garmin or gdt_LocationAPI))) then begin
       // write full dump of binary garmin packets (with header about packet type)
       // location api packets too
-      InternalDumpByDevice(True);
+      InternalDumpByDevice;
     end else if (gdt_COM_NMEA0183=(ADevType and gdt_COM_NMEA0183)) then begin
-      InternalDumpByDevice(False);
+      // write full dump of binary nmea packets
+      InternalDumpByDevice;
     end;
   end;
 end;
