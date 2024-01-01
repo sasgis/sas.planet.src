@@ -63,11 +63,10 @@ ResourceString
   SAS_MSG_UnknownGPSOrigin = 'GPS origin misconfiguration: unknown mode %d';
   SAS_MSG_NoGPSdetected = 'No GPS receiver found';
 
-  SAS_MSG_GarminMax1Mp =
-    'The number of JPEG files will exceed 100. If your' + #13#10 +
-    'navigation device split the image using' + #13#10 +
-    '"Manage Selection - Stitch" window' + #13#10 +
-    'and use resulting KMZ files separately';
+  SAS_MSG_GarminMaxTilesWarning =
+    'The number of JPEG tiles in KMZ file will exceed 100!' + #13#10 +
+    'If your navigation device won''t display the map,' +
+    'go back and split the image into parts (and use the resulting KMZ files separately).';
 
   SAS_MSG_HotKeyExists = 'Hotkey in use. Please select another one';
   SAS_MSG_CantGetTileFileName = 'This is not simple file storage. Tile''s file name does not exist.';

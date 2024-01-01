@@ -61,6 +61,7 @@ uses
   SysUtils,
   Classes,
   Types,
+  UITypes,
   Dialogs,
   Math,
   GR32,
@@ -315,10 +316,10 @@ constructor TBitmapMapCombinerFactoryKMZ.Create(
 begin
   inherited Create(
     Types.Point(0, 0),
-    Types.Point(10240, 10240),
+    Types.Point(MaxInt, MaxInt),
     stsUnicode,
     'kmz',
-    gettext_NoExtract('KMZ for Garmin (JPEG Overlays)'),
+    gettext_NoExtract('KMZ for Garmin (JPEG overlays)'),
     [mcQuality, mcKmzTileSize]
   );
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
@@ -361,14 +362,14 @@ begin
   end;
 
   if not Assigned(APolygon) then begin
-    Assert(False, _('Polygon isn''t selected'));
+    Assert(False, _('The Polygon is not selected!'));
     Result := False;
     Exit;
   end;
   VSplitCount := AParams.SplitCount;
   VProjection := (AParams as IRegionProcessParamsFrameTargetProjection).Projection;
   if not Assigned(VProjection) then begin
-    Assert(False, _('Projection isn''t selected'));
+    Assert(False, _('The Projection is not selected!'));
     Result := False;
     Exit;
   end;
@@ -387,8 +388,12 @@ begin
 
   VKmzImgesCount.X := ((VPixelSize.X - 1) div VKmzTileSize) + 1;
   VKmzImgesCount.Y := ((VPixelSize.Y - 1) div VKmzTileSize) + 1;
+
   if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
-    ShowMessage(SAS_MSG_GarminMax1Mp);
+    if MessageDlg(SAS_MSG_GarminMaxTilesWarning,  mtWarning, [mbOK, mbAbort], 0) = mrAbort then begin
+      Result := False;
+      Exit;
+    end;
   end;
 
   Result := True;
