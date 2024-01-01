@@ -32,7 +32,8 @@ type
     mcQuality,
     mcCompressionLevel,
     mcGeoTiff,
-    mcGeoTiffTiled
+    mcGeoTiffTiled,
+    mcKmzTileSize
   );
 
   TMapCombineOptionsSet = set of TMapCombineOptions;

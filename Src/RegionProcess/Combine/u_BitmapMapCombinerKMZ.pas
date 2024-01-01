@@ -90,6 +90,7 @@ type
   private
     FProgressUpdate: IBitmapCombineProgressUpdate;
     FQuality: Integer;
+    FTileInKmzSize: Integer;
     FBitmapFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -116,7 +117,8 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-      AQuality: Integer
+      const AQuality: Integer;
+      const ATileSize: Integer
     );
   end;
 
@@ -125,12 +127,14 @@ constructor TBitmapMapCombinerKMZ.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-  AQuality: Integer
+  const AQuality: Integer;
+  const ATileSize: Integer
 );
 begin
   inherited Create;
   FProgressUpdate := AProgressUpdate;
   FQuality := AQuality;
+  FTileInKmzSize := ATileSize;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapFactory := ABitmapFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
@@ -204,17 +208,17 @@ procedure TBitmapMapCombinerKMZ.SaveRect(
   const ACombinerCustomParams: IInterface
 );
 var
-  iWidth, iHeight: integer;
-  i, j: integer;
+  I, J: Integer;
+  VWidth, VHeight: Integer;
   VFileName: AnsiString;
-  kmlm: TMemoryStream;
+  VKmlStream: TMemoryStream;
   VLLRect: TDoubleRect;
   VStr: UTF8String;
   VNameInKmz: AnsiString;
-  nim: TPoint;
+  VNim: TPoint;
   VZip: IArchiveWriter;
   VPixelRect: TRect;
-  JPGSaver: IBitmapTileSaver;
+  VJpegSaver: IBitmapTileSaver;
   VKmzFileNameOnly: AnsiString;
   VCurrentPieceRect: TRect;
   VProjection: IProjection;
@@ -230,28 +234,33 @@ begin
   VProjection := AImageProvider.Projection;
   VCurrentPieceRect := AMapRect;
   VMapPieceSize := RectSize(VCurrentPieceRect);
-  nim.X := ((VMapPieceSize.X - 1) div 1024) + 1;
-  nim.Y := ((VMapPieceSize.Y - 1) div 1024) + 1;
+  VNim.X := ((VMapPieceSize.X - 1) div FTileInKmzSize) + 1;
+  VNim.Y := ((VMapPieceSize.Y - 1) div FTileInKmzSize) + 1;
   VTilesProcessed := 0;
-  VTilesToProcess := nim.X * nim.Y;
-  iWidth := VMapPieceSize.X div (nim.X);
-  iHeight := VMapPieceSize.y div (nim.Y);
+  VTilesToProcess := VNim.X * VNim.Y;
+  VWidth := VMapPieceSize.X div (VNim.X);
+  VHeight := VMapPieceSize.y div (VNim.Y);
 
-  JPGSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(FQuality);
+  VJpegSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(FQuality);
   VZip := FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(AFileName);
   VKmzFileNameOnly := 'part_';
-  kmlm := TMemoryStream.Create;
+  VKmlStream := TMemoryStream.Create;
   try
-    VStr := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + VKmzFileNameOnly + '</name>' + #13#10);
-    for i := 1 to nim.X do begin
-      for j := 1 to nim.Y do begin
+    VStr := AnsiToUTF8(
+      '<?xml version="1.0" encoding="UTF-8"?>' + #13#10 +
+      '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 +
+      '<Folder>' + #13#10 +
+      '<name>' + VKmzFileNameOnly + '</name>' + #13#10
+    );
+    for I := 1 to VNim.X do begin
+      for J := 1 to VNim.Y do begin
         if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-          break;
+          Break;
         end;
-        VPixelRect.Left := VCurrentPieceRect.Left + iWidth * (i - 1);
-        VPixelRect.Right := VCurrentPieceRect.Left + iWidth * i;
-        VPixelRect.Top := VCurrentPieceRect.Top + iHeight * (j - 1);
-        VPixelRect.Bottom := VCurrentPieceRect.Top + iHeight * j;
+        VPixelRect.Left := VCurrentPieceRect.Left + VWidth * (I - 1);
+        VPixelRect.Right := VCurrentPieceRect.Left + VWidth * I;
+        VPixelRect.Top := VCurrentPieceRect.Top + VHeight * (J - 1);
+        VPixelRect.Bottom := VCurrentPieceRect.Top + VHeight * J;
         VBitmapTile :=
           GetBitmapRect(
             AOperationID,
@@ -261,22 +270,22 @@ begin
           );
         if VBitmapTile <> nil then begin
           if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-            break;
+            Break;
           end;
-          VData := JPGSaver.Save(VBitmapTile);
+          VData := VJpegSaver.Save(VBitmapTile);
 
           if VData <> nil then begin
-            VFileName := VKmzFileNameOnly + IntToStrA(i) + '_' + IntToStrA(j) + '.jpg';
+            VFileName := VKmzFileNameOnly + IntToStrA(I) + '_' + IntToStrA(J) + '.jpg';
             VNameInKmz := 'files/' + VFileName;
-            VStr := VStr + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
-            VStr := VStr + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
+            VStr := VStr + AnsiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
+            VStr := VStr + AnsiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
             VLLRect := VProjection.PixelRect2LonLatRect(VPixelRect);
-            VStr := VStr + ansiToUTF8('<LatLonBox>' + #13#10);
-            VStr := VStr + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
-            VStr := VStr + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);
-            VStr := VStr + ansiToUTF8('<east>' + R2StrPoint(VLLRect.Right) + '</east>' + #13#10);
-            VStr := VStr + ansiToUTF8('<west>' + R2StrPoint(VLLRect.Left) + '</west>' + #13#10);
-            VStr := VStr + ansiToUTF8('</LatLonBox>' + #13#10 + '</GroundOverlay>' + #13#10);
+            VStr := VStr + AnsiToUTF8('<LatLonBox>' + #13#10);
+            VStr := VStr + AnsiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
+            VStr := VStr + AnsiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);
+            VStr := VStr + AnsiToUTF8('<east>' + R2StrPoint(VLLRect.Right) + '</east>' + #13#10);
+            VStr := VStr + AnsiToUTF8('<west>' + R2StrPoint(VLLRect.Left) + '</west>' + #13#10);
+            VStr := VStr + AnsiToUTF8('</LatLonBox>' + #13#10 + '</GroundOverlay>' + #13#10);
 
             VZip.AddFile(VData, VNameInKmz, Now);
           end;
@@ -285,14 +294,14 @@ begin
         FProgressUpdate.Update(VTilesProcessed / VTilesToProcess);
       end;
     end;
-    VStr := VStr + ansiToUTF8('</Folder>' + #13#10 + '</kml>');
-    kmlm.Write(VStr[1], length(VStr));
-    kmlm.Position := 0;
+    VStr := VStr + AnsiToUTF8('</Folder>' + #13#10 + '</kml>');
+    VKmlStream.WriteBuffer(VStr[1], Length(VStr));
+    VKmlStream.Position := 0;
 
-    VData := TBinaryDataByMemStream.CreateFromStream(kmlm);
+    VData := TBinaryDataByMemStream.CreateFromStream(VKmlStream);
     VZip.AddFile(VData, 'doc.kml', Now);
   finally
-    kmlm.Free;
+    VKmlStream.Free;
   end;
 end;
 
@@ -310,7 +319,7 @@ begin
     stsUnicode,
     'kmz',
     gettext_NoExtract('KMZ for Garmin (JPEG Overlays)'),
-    [mcQuality]
+    [mcQuality, mcKmzTileSize]
   );
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapFactory := ABitmapFactory;
@@ -328,7 +337,8 @@ begin
       FBitmapFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
-      AParams.CustomOptions.Quality
+      AParams.CustomOptions.Quality,
+      AParams.CustomOptions.KmzTileSize
     );
 end;
 
@@ -342,6 +352,7 @@ var
   VLonLatRect: TDoubleRect;
   VPixelRect: TRect;
   VPixelSize: TPoint;
+  VKmzTileSize: Integer;
   VKmzImgesCount: TPoint;
 begin
   Result := inherited Validate(AParams, APolygon);
@@ -372,8 +383,10 @@ begin
   VPixelSize.X := Trunc(VPixelSize.X / VSplitCount.X);
   VPixelSize.Y := Trunc(VPixelSize.Y / VSplitCount.Y);
 
-  VKmzImgesCount.X := ((VPixelSize.X - 1) div 1024) + 1;
-  VKmzImgesCount.Y := ((VPixelSize.Y - 1) div 1024) + 1;
+  VKmzTileSize := (AParams.CustomOptions as IMapCombineCustomOptions).KmzTileSize;
+
+  VKmzImgesCount.X := ((VPixelSize.X - 1) div VKmzTileSize) + 1;
+  VKmzImgesCount.Y := ((VPixelSize.Y - 1) div VKmzTileSize) + 1;
   if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
     ShowMessage(SAS_MSG_GarminMax1Mp);
   end;

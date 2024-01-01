@@ -58,6 +58,9 @@ type
     seThreadCount: TSpinEdit;
     flwpnlFormatOptions: TFlowPanel;
     btnFormatOptions: TTBXButton;
+    flwpnlKmzTileSize: TFlowPanel;
+    lblKmzTileSize: TLabel;
+    cbbKmzTileSize: TComboBox;
   private
     FOptionsSet: TMapCombineOptionsSet;
     FRoundToTileRect: Boolean;
@@ -71,6 +74,7 @@ type
     function GetIsSaveGeoRefInfoToExif: Boolean;
     function GetThreadCount: Integer;
     function GetIsSaveAlfa: Boolean;
+    function GetKmzTileSize: Integer;
     function GetGeoTiffOptions: TGeoTiffOptions;
     function GetRoundToTileRect: Boolean;
   protected
@@ -148,6 +152,11 @@ begin
     Self.Visible := True;
   end;
 
+  if mcKmzTileSize in AOptionsSet then begin
+    SetControlVisible(flwpnlKmzTileSize, True);
+    cbbKmzTileSize.ItemIndex := 2; // 1024x1024
+  end;
+
   if (mcGeoTiff in AOptionsSet) or (mcGeoTiffTiled in AOptionsSet) then begin
     SetControlVisible(flwpnlFormatOptions, True);
     FGeoTiffOptions := CDefaultGeoTiffOptions;
@@ -193,6 +202,11 @@ end;
 function TfrMapCombineCustomOptions.GetIsSaveGeoRefInfoToExif: Boolean;
 begin
   Result := chkSaveGeoRefInfoToJpegExif.Checked;
+end;
+
+function TfrMapCombineCustomOptions.GetKmzTileSize: Integer;
+begin
+  Result := (1 shl cbbKmzTileSize.ItemIndex) * 256;
 end;
 
 function TfrMapCombineCustomOptions.GetQuality: Integer;

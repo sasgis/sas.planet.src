@@ -5,10 +5,12 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
   Height = 169
   TabOrder = 0
   object flwpnlJpegQuality: TFlowPanel
+    AlignWithMargins = True
     Left = 0
-    Top = 34
-    Width = 385
+    Top = 37
+    Width = 382
     Height = 26
+    Margins.Left = 0
     Align = alTop
     AutoSize = True
     AutoWrap = False
@@ -18,12 +20,11 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     TabOrder = 2
     object lblJpgQulity: TLabel
       AlignWithMargins = True
-      Left = 1
+      Left = 3
       Top = 5
       Width = 54
       Height = 15
-      Margins.Left = 1
-      Margins.Right = 5
+      Margins.Bottom = 3
       Alignment = taRightJustify
       Caption = 'Quality, %'
       Layout = tlCenter
@@ -60,10 +61,12 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     TabOrder = 1
   end
   object flwpnlThreadCount: TFlowPanel
+    AlignWithMargins = True
     Left = 0
-    Top = 60
-    Width = 385
+    Top = 69
+    Width = 382
     Height = 26
+    Margins.Left = 0
     Align = alTop
     AutoSize = True
     AutoWrap = False
@@ -73,12 +76,11 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     TabOrder = 3
     object lblThreadCount: TLabel
       AlignWithMargins = True
-      Left = 1
+      Left = 3
       Top = 5
       Width = 73
       Height = 15
-      Margins.Left = 1
-      Margins.Right = 5
+      Margins.Bottom = 3
       Caption = 'Thread count:'
     end
     object seThreadCount: TSpinEdit
@@ -93,9 +95,10 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
     end
   end
   object flwpnlFormatOptions: TFlowPanel
-    Left = 0
-    Top = 86
-    Width = 385
+    AlignWithMargins = True
+    Left = 3
+    Top = 130
+    Width = 379
     Height = 28
     Align = alTop
     AutoSize = True
@@ -115,6 +118,44 @@ object frMapCombineCustomOptions: TfrMapCombineCustomOptions
       ImageIndex = 20
       Images = frmMain.MenusImageList
       TabOrder = 0
+    end
+  end
+  object flwpnlKmzTileSize: TFlowPanel
+    AlignWithMargins = True
+    Left = 0
+    Top = 101
+    Width = 382
+    Height = 23
+    Margins.Left = 0
+    Align = alTop
+    AutoSize = True
+    AutoWrap = False
+    BevelOuter = bvNone
+    TabOrder = 5
+    object lblKmzTileSize: TLabel
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 65
+      Height = 15
+      Caption = 'Tile size, pix:'
+    end
+    object cbbKmzTileSize: TComboBox
+      Left = 71
+      Top = 0
+      Width = 98
+      Height = 23
+      Style = csDropDownList
+      ItemIndex = 2
+      TabOrder = 0
+      Text = '1024x1024'
+      Items.Strings = (
+        '256x256'
+        '512x512'
+        '1024x1024'
+        '2048x2048'
+        '4096x4096'
+        '8192x8192')
     end
   end
 end

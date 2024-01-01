@@ -134,6 +134,9 @@ type
     function GetIsSaveAlfa: Boolean;
     property IsSaveAlfa: Boolean read GetIsSaveAlfa;
 
+    function GetKmzTileSize: Integer;
+    property KmzTileSize: Integer read GetKmzTileSize;
+
     function GetGeoTiffOptions: TGeoTiffOptions;
     property GeoTiffOptions: TGeoTiffOptions read GetGeoTiffOptions;
 
