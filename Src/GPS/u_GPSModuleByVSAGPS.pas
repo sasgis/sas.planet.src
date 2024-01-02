@@ -189,6 +189,9 @@ uses
   Classes,
   gnugettext,
   vsagps_public_sysutils,
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  vsagps_public_debugstring,
+{$ifend}
   t_GeoTypes,
   u_InetFunc,
   u_ResStrings,
@@ -696,7 +699,12 @@ begin
 {$ifend}
       begin
         // not connected
-        raise Exception.Create(SAS_MSG_NoGPSdetected);
+        MessageDlg(SAS_MSG_NoGPSdetected,  mtError, [mbOK], 0);
+        {$if defined(VSAGPS_AS_DLL)}
+        VSAGPS_Disconnect(FVSAGPS_HANDLE);
+        {$else}
+        FVSAGPS_Object.GPSDisconnect;
+        {$ifend}
       end;
     except
 {$if defined(VSAGPS_AS_DLL)}

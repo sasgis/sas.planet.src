@@ -4940,13 +4940,13 @@ end;
 
 procedure TfrmMain.GPSReceiverConnectError;
 begin
-  ShowMessage(SAS_ERR_PortOpen);
+  ShowMessage(SAS_ERR_GpsConnecting);
 end;
 
 procedure TfrmMain.GPSReceiverTimeout;
 begin
   actGpsConnect.Enabled := True;
-  ShowMessage(SAS_ERR_Communication);
+  ShowMessage(SAS_ERR_GpsCommunication);
 end;
 
 procedure TfrmMain.NMapStorageInfoClick(Sender: TObject);

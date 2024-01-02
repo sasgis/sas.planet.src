@@ -60,8 +60,11 @@ ResourceString
   SAS_MSG_FileBeCreateLen = 'The tile size is equal to the existing one, skipping.';
   SAS_MSG_ProcessFilesComplete = 'The task is completed!';
   SAS_MSG_LoadComplete = 'Download completed';
+
   SAS_MSG_UnknownGPSOrigin = 'GPS origin misconfiguration: unknown mode %d';
-  SAS_MSG_NoGPSdetected = 'No GPS receiver found';
+  SAS_MSG_NoGPSdetected = 'GPS receiver has not been found!';
+  SAS_ERR_GpsConnecting = 'An error occured when connecting to the GPS device!';
+  SAS_ERR_GpsCommunication = 'An error occured when communicating with the GPS device!';
 
   SAS_MSG_GarminMaxTilesWarning =
     'The number of JPEG tiles in KMZ file will exceed 100!' + #13#10 +
@@ -76,9 +79,7 @@ ResourceString
   SAS_ERR_Save = 'Error while saving!';
   SAS_ERR_Code = 'Error code:';
   SAS_ERR_NoMaps = 'Unable to load map(s)! Aborting...';
-  SAS_ERR_PortOpen = 'Error opening port!';
-  SAS_ERR_Communication = 'Error communicating with device';
-  SAS_ERR_UnablePposition = 'Unable to fix position';
+
   SAS_ERR_ParamsInput = 'Error in parameters!';
 
   SAS_ERR_LonLat1 =

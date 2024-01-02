@@ -33,6 +33,8 @@ uses
   StdCtrls,
   Spin,
   ExtCtrls,
+  UITypes,
+  Dialogs,
   i_Listener,
   i_Notifier,
   i_NotifierTime,
@@ -118,6 +120,7 @@ type
     FGPSBehaviour: IMainFormBehaviourByGPSConfig;
 
     FAutodetecting: Boolean;
+    FCancelAutodetect: Boolean;
     FfrGpsSatellites: TfrGpsSatellites;
     FConnectListener: IListener;
     FDisconnectListener: IListener;
@@ -201,6 +204,8 @@ begin
   FGPSTrackConfig := AGPSTrackConfig;
   FGPSMarkerConfig := AGPSMarkerConfig;
   FGPSBehaviour := AGPSBehaviour;
+
+  ComboBoxCOM.Items.Clear;
 
   FAutodetecting := False;
   FConnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, 1000, Self.OnConnecting);
@@ -303,15 +308,13 @@ end;
 
 procedure TfrGPSConfig.Init;
 var
-  I: Integer;
   VFlags: DWORD;
   VOptions: TCOMAutodetectOptions;
 begin
   chkAutodetectAll.Tag := CAutodetectComPortAllTag;
 
-  ComboBoxCOM.Items.Clear;
-  for I := 1 to 64 do begin
-    ComboBoxCOM.Items.Add('COM' + IntToStr(I));
+  if ComboBoxCOM.Items.Count = 0 then begin
+    GetAllComPortsList(ComboBoxCOM.Items, 0);
   end;
 
   FGPSTrackConfig.LockRead;
@@ -409,6 +412,7 @@ begin
   CB_GPSlogPLT.Enabled := False;
   CB_GPSlogNmea.Enabled := False;
   CB_GPSlogGPX.Enabled := False;
+  btnGPSAutodetectCOM.Enabled := False;
 end;
 
 procedure TfrGPSConfig.OnDisconnect;
@@ -416,11 +420,16 @@ begin
   CB_GPSlogPLT.Enabled := True;
   CB_GPSlogNmea.Enabled := True;
   CB_GPSlogGPX.Enabled := True;
+  btnGPSAutodetectCOM.Enabled := True;
 end;
 
 procedure TfrGPSConfig.AutodetectAntiFreeze(Sender, AThread: TObject);
 begin
   Application.ProcessMessages;
+  if FCancelAutodetect then begin
+    FCancelAutodetect := False;
+    (Sender as TCOMCheckerObject).EnumCancel(False);
+  end;
 end;
 
 function TfrGPSConfig.IsAutodetectComEnabled: Boolean;
@@ -447,20 +456,25 @@ end;
 procedure TfrGPSConfig.btnGPSAutodetectCOMClick(Sender: TObject);
 var
   VObj: TCOMCheckerObject;
-  VCancelled: Boolean;
+  VIsCancelled: Boolean;
   VFlags: DWORD;
   VPortName: String;
   VPortNumber: SmallInt;
   VPortIndex: Integer;
+  VOldHint: string;
 begin
   if FAutodetecting then begin
+    FCancelAutodetect := True;
     Exit;
   end;
   FAutodetecting := True;
+  FCancelAutodetect := False;
   VObj := nil;
   try
+    btnGPSAutodetectCOM.Caption := 'X';
+    VOldHint := btnGPSAutodetectCOM.Hint;
+    btnGPSAutodetectCOM.Hint := _('Cancel device port autodetection');
     // temp. disable controls
-    btnGPSAutodetectCOM.Enabled := False;
     ComboBoxCOM.Enabled := False;
     btnGPSSwitch.Enabled := False;
     // make objects to enum
@@ -473,13 +487,17 @@ begin
     VObj.OnThreadFinished := Self.AutodetectAntiFreeze;
     VObj.OnThreadPending := Self.AutodetectAntiFreeze;
     // execute
-    VPortNumber := VObj.EnumExecute(nil, VCancelled, VFlags, False);
+    VPortNumber := VObj.EnumExecute(nil, VIsCancelled, VFlags, False);
+    if VIsCancelled then begin
+      Exit;
+    end;
     if VPortNumber >= 0 then begin
       // port found
-      // add new ports to combobox - not implemented yet
-      // set first port
       VPortName := 'COM' + IntToStr(VPortNumber);
       VPortIndex := ComboBoxCOM.Items.IndexOf(VPortName);
+      if VPortIndex = -1 then begin
+        VPortIndex := ComboBoxCOM.Items.Add(VPortName);
+      end;
       if (VPortIndex <> ComboBoxCOM.ItemIndex) then begin
         // select new item
         ComboBoxCOM.ItemIndex := VPortIndex;
@@ -487,10 +505,14 @@ begin
           ComboBoxCOM.OnChange(ComboBoxCOM);
         end;
       end;
+      MessageDlg(Format(_('Device found on the %s port.'), [VPortName]),  mtInformation, [mbOK], 0);
+    end else begin
+      MessageDlg(_('No devices found!'),  mtInformation, [mbOK], 0);
     end;
   finally
     VObj.Free;
-    btnGPSAutodetectCOM.Enabled := True;
+    btnGPSAutodetectCOM.Caption := '?';
+    btnGPSAutodetectCOM.Hint := VOldHint;
     ComboBoxCOM.Enabled := True;
     btnGPSSwitch.Enabled := True;
     FAutodetecting := False;

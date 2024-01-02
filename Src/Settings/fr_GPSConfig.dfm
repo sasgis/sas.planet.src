@@ -93,7 +93,7 @@ object frGPSConfig: TfrGPSConfig
             Top = 0
             Width = 27
             Height = 21
-            Hint = 'Autodetect COM port'
+            Hint = 'Autodetect device COM port'
             Margins.Top = 0
             Caption = '?'
             TabOrder = 1
