@@ -163,7 +163,7 @@ begin
   FSignalBarsFontColor := clBlack32;
   FSignalBarMinHeight := 32;
   FSignalBarMinWidth := 4;
-  FSignalBarVertSpaces := 10;
+  FSignalBarVertSpaces := 16;
   FSignalBarMinHorizSpaces := 2;
 end;
 
