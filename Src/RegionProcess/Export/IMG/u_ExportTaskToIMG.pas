@@ -528,7 +528,6 @@ end;
 procedure TExportTaskToIMG.ClearTempFolder;
 var
   VFilesDeleted: Int64;
-  VSearchResult: Integer;
   VSearchRec: TSearchRec;
 begin
   if not FTask.FKeepTempFiles then begin
@@ -537,30 +536,28 @@ begin
 
     // Delete any files from the folder.
     VFilesDeleted := 0;
-    VSearchResult := FindFirst(FTempFolder + '*.*', faAnyFile, VSearchRec);
-      try
-        while VSearchResult = 0 do begin
-          if VSearchRec.Attr and faDirectory = 0 then begin
-            DeleteFile(FTempFolder + VSearchRec.Name);
-            inc(VFilesDeleted);
-            ProgressFormUpdateOnProgress(VFilesDeleted, FTilesToProcess);
-          end;
-
-          VSearchResult := FindNext(VSearchRec);
+    if FindFirst(FTempFolder + '*.*', faAnyFile, VSearchRec) = 0 then
+    try
+      repeat
+        if VSearchRec.Attr and faDirectory = 0 then begin
+          DeleteFile(FTempFolder + VSearchRec.Name);
+          inc(VFilesDeleted);
+          ProgressFormUpdateOnProgress(VFilesDeleted, FTilesToProcess);
         end;
-      finally
-        FindClose(VSearchRec);
-      end;
+      until FindNext(VSearchRec) <> 0;
+    finally
+      FindClose(VSearchRec);
     end;
+  end;
 
-    // Remove temp folder.
-    if not FTask.FKeepTempFiles then begin
-      try
-        RmDir(FTempFolder);
-      except
-        // It's not a big deal if we could not delete the folder.
-      end;
+  // Remove temp folder.
+  if not FTask.FKeepTempFiles then begin
+    try
+      RmDir(FTempFolder);
+    except
+      // It's not a big deal if we could not delete the folder.
     end;
+  end;
 end;
 
 procedure ClearVolumeInfo(var AVolumeInfo: TVolumeInfo);

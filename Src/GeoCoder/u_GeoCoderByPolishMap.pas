@@ -710,7 +710,8 @@ begin
     VMySearch := ReplaceStr(VMySearch, '  ', ' ');
   end;
   VList := TInterfaceListSimple.Create;
-  if FindFirst(FPath + '*.mp', faAnyFile, VSearchRec) = 0 then begin
+  if FindFirst(FPath + '*.mp', faAnyFile, VSearchRec) = 0 then
+  try
     repeat
       if (VSearchRec.Attr and faDirectory) = faDirectory then begin
         continue;
@@ -721,6 +722,8 @@ begin
         Exit;
       end;
     until FindNext(VSearchRec) <> 0;
+  finally
+    FindClose(VSearchRec);
   end;
   Result := VList;
 end;

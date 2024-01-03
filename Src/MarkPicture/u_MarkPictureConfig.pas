@@ -77,16 +77,15 @@ begin
 
   AList.Add(AnsiLowerCase(VPath));
 
-  if FindFirst(VPath + '*.*', faDirectory, VRec) = 0 then begin
-    try
-      repeat
-        if ((VRec.Attr and faDirectory) <> 0) and (VRec.Name <> '.') and (VRec.Name <> '..') then begin
-          GetFoldersList(VPath + VRec.Name, AList); // recursion
-        end;
-      until FindNext(VRec) <> 0;
-    finally
-      FindClose(VRec);
-    end;
+  if FindFirst(VPath + '*.*', faDirectory, VRec) = 0 then
+  try
+    repeat
+      if ((VRec.Attr and faDirectory) <> 0) and (VRec.Name <> '.') and (VRec.Name <> '..') then begin
+        GetFoldersList(VPath + VRec.Name, AList); // recursion
+      end;
+    until FindNext(VRec) <> 0;
+  finally
+    FindClose(VRec);
   end;
 end;
 

@@ -688,7 +688,8 @@ begin
   VList := TInterfaceListSimple.Create;
   VSearchDate := ParseDateTime(VMySearch, VTxtGpxDateTime);
 
-  if FindFirst(FPath + '*.gpx', faAnyFile, VSearchRec) = 0 then begin
+  if FindFirst(FPath + '*.gpx', faAnyFile, VSearchRec) = 0 then
+  try
     repeat
       if (VSearchRec.Attr and faDirectory) = faDirectory then begin
         Continue;
@@ -703,6 +704,8 @@ begin
         Exit;
       end;
     until FindNext(VSearchRec) <> 0;
+  finally
+    SysUtils.FindClose(VSearchRec);
   end;
   Result := VList;
 end;

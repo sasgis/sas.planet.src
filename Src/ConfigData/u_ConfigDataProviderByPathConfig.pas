@@ -247,21 +247,24 @@ var
   VList: TStringList;
   VExt: string;
   VFolder: string;
-  SearchRec: TSearchRec;
+  VSearchRec: TSearchRec;
 begin
   VList := TStringList.Create;
   try
     VFolder := IncludeTrailingPathDelimiter(FSourcePath.FullPath);
-    if FindFirst(VFolder + '*', faAnyFile, SearchRec) = 0 then begin
+    if FindFirst(VFolder + '*', faAnyFile, VSearchRec) = 0 then
+    try
       repeat
-        if (SearchRec.Attr and faDirectory) = faDirectory then begin
+        if (VSearchRec.Attr and faDirectory) = faDirectory then begin
           continue;
         end;
-        VExt := UpperCase(ExtractFileExt(SearchRec.Name));
+        VExt := UpperCase(ExtractFileExt(VSearchRec.Name));
         if (VExt = '.INI') or (VExt = '.TXT') then begin
-          VList.Add(SearchRec.Name);
+          VList.Add(VSearchRec.Name);
         end;
-      until FindNext(SearchRec) <> 0;
+      until FindNext(VSearchRec) <> 0;
+    finally
+      FindClose(VSearchRec);
     end;
     Result := TStringListStatic.CreateWithOwn(VList);
     VList := nil;
@@ -283,21 +286,24 @@ var
   VList: TStringList;
   VExt: string;
   VFolder: string;
-  SearchRec: TSearchRec;
+  VSearchRec: TSearchRec;
 begin
   VList := TStringList.Create;
   try
     VFolder := IncludeTrailingPathDelimiter(FSourcePath.FullPath);
-    if FindFirst(VFolder + '*', faAnyFile, SearchRec) = 0 then begin
+    if FindFirst(VFolder + '*', faAnyFile, VSearchRec) = 0 then
+    try
       repeat
-        if (SearchRec.Attr and faDirectory) = faDirectory then begin
-          continue;
+        if (VSearchRec.Attr and faDirectory) = faDirectory then begin
+          Continue;
         end;
-        VExt := UpperCase(ExtractFileExt(SearchRec.Name));
+        VExt := UpperCase(ExtractFileExt(VSearchRec.Name));
         if (VExt <> '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
-          VList.Add(SearchRec.Name);
+          VList.Add(VSearchRec.Name);
         end;
-      until FindNext(SearchRec) <> 0;
+      until FindNext(VSearchRec) <> 0;
+    finally
+      FindClose(VSearchRec);
     end;
     Result := TStringListStatic.CreateWithOwn(VList);
     VList := nil;

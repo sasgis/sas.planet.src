@@ -232,7 +232,7 @@ var
   VList: IInterfaceListSimple;
   vpath: string;
   Vcnt: Integer;
-  SearchRec: TSearchRec;
+  VSearchRec: TSearchRec;
   MySearch: string;
 begin
   Vcnt := 1;
@@ -241,17 +241,20 @@ begin
     MySearch := ReplaceStr(MySearch, '  ', ' ');
   end;
   VList := TInterfaceListSimple.Create;
-  if FindFirst(FPath + '*.txt', faAnyFile, SearchRec) = 0 then begin
+  if FindFirst(FPath + '*.txt', faAnyFile, VSearchRec) = 0 then
+  try
     repeat
-      if (SearchRec.Attr and faDirectory) = faDirectory then begin
+      if (VSearchRec.Attr and faDirectory) = faDirectory then begin
         Continue;
       end;
-      vpath := FPath + SearchRec.Name;
+      vpath := FPath + VSearchRec.Name;
       SearchInTXTFile(ACancelNotifier, AOperationID, Vpath, MySearch, vlist, Vcnt);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
-    until FindNext(SearchRec) <> 0;
+    until FindNext(VSearchRec) <> 0;
+  finally
+    FindClose(VSearchRec);
   end;
   Result := VList;
 end;

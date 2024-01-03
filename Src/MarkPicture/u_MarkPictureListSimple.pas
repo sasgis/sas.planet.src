@@ -95,27 +95,26 @@ var
   VPath: string;
 begin
   VPath := IncludeTrailingPathDelimiter(APath);
-  if FindFirst(VPath + cFileMask, faAnyFile - faDirectory, VRec) = 0 then begin
-    try
-      repeat
-        if AnsiPos(ExtractFileExt(VRec.Name), AMask) > 0 then begin
-          AList.Add(VPath + VRec.Name);
-        end;
-      until FindNext(VRec) <> 0;
-    finally
-      FindClose(VRec);
-    end;
+  if FindFirst(VPath + cFileMask, faAnyFile - faDirectory, VRec) = 0 then
+  try
+    repeat
+      if AnsiPos(ExtractFileExt(VRec.Name), AMask) > 0 then begin
+        AList.Add(VPath + VRec.Name);
+      end;
+    until FindNext(VRec) <> 0;
+  finally
+    FindClose(VRec);
   end;
-  if FindFirst(VPath + cFileMask, faDirectory, VRec) = 0 then begin
-    try
-      repeat
-        if ((VRec.Attr and faDirectory) <> 0) and (VRec.Name <> '.') and (VRec.Name <> '..') then begin
-          GetFilesList(VPath + VRec.Name, AMask, AList);
-        end; // recursion
-      until FindNext(VRec) <> 0;
-    finally
-      FindClose(VRec);
-    end;
+
+  if FindFirst(VPath + cFileMask, faDirectory, VRec) = 0 then
+  try
+    repeat
+      if ((VRec.Attr and faDirectory) <> 0) and (VRec.Name <> '.') and (VRec.Name <> '..') then begin
+        GetFilesList(VPath + VRec.Name, AMask, AList);
+      end; // recursion
+    until FindNext(VRec) <> 0;
+  finally
+    FindClose(VRec);
   end;
 end;
 
