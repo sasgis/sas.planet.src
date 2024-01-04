@@ -44,9 +44,10 @@ type
     FInited: array of Boolean;
     FZoom: Byte;
     FPolygon: IGeometryLonLatPolygon;
-  public
+  private
+    { IRegionProcessComplexFrame }
     procedure Init(
-      const AZoom: byte;
+      const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
     function GetActiveProvider: IRegionProcessProvider;
@@ -63,22 +64,25 @@ implementation
 
 {$R *.dfm}
 
-{ TfrDelete }
+{ TfrRegionProcessComplexPageControl }
 
 constructor TfrRegionProcessComplexPageControl.Create(
   const ALanguageManager: ILanguageManager;
   const AProviders: IInterfaceListStatic
 );
 var
-  i: Integer;
+  I: Integer;
   VExportProvider: IRegionProcessProvider;
   VTabSheet: TTabSheet;
 begin
   Assert(Assigned(AProviders));
+
   inherited Create(ALanguageManager);
+
   FProviders := AProviders;
-  for i := 0 to FProviders.Count - 1 do begin
-    VExportProvider := IRegionProcessProvider(FProviders.Items[i]);
+
+  for I := 0 to FProviders.Count - 1 do begin
+    VExportProvider := IRegionProcessProvider(FProviders.Items[I]);
     VTabSheet := TTabSheet.Create(PageControl);
     VTabSheet.Caption := VExportProvider.GetCaption;
     VTabSheet.PageControl := PageControl;
@@ -101,51 +105,51 @@ begin
 end;
 
 procedure TfrRegionProcessComplexPageControl.Init(
-  const AZoom: byte;
+  const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
 var
-  i: Integer;
+  I: Integer;
   VExportProvider: IRegionProcessProvider;
   VTabSheet: TTabSheet;
 begin
   FZoom := AZoom;
   FPolygon := APolygon;
-  for i := 0 to FProviders.Count - 1 do begin
-    FInited[i] := False;
+  for I := 0 to FProviders.Count - 1 do begin
+    FInited[I] := False;
   end;
-  i := PageControl.ActivePageIndex;
-  VExportProvider := IRegionProcessProvider(FProviders.Items[i]);
-  VTabSheet := PageControl.Pages[i];
+  I := PageControl.ActivePageIndex;
+  VExportProvider := IRegionProcessProvider(FProviders.Items[I]);
+  VTabSheet := PageControl.Pages[I];
   VExportProvider.Show(VTabSheet, AZoom, APolygon);
-  FInited[i] := True;
+  FInited[I] := True;
 end;
 
 procedure TfrRegionProcessComplexPageControl.PageControlChange(Sender: TObject);
 var
-  i: Integer;
+  I: Integer;
   VExportProvider: IRegionProcessProvider;
   VTabSheet: TTabSheet;
 begin
-  i := PageControl.ActivePageIndex;
-  if not FInited[i] then begin
-    VExportProvider := IRegionProcessProvider(FProviders.Items[i]);
-    VTabSheet := PageControl.Pages[i];
+  I := PageControl.ActivePageIndex;
+  if not FInited[I] then begin
+    VExportProvider := IRegionProcessProvider(FProviders.Items[I]);
+    VTabSheet := PageControl.Pages[I];
     VExportProvider.Show(VTabSheet, FZoom, FPolygon);
-    FInited[i] := True;
+    FInited[I] := True;
   end;
 end;
 
 procedure TfrRegionProcessComplexPageControl.RefreshTranslation;
 var
-  i: Integer;
+  I: Integer;
   VExportProvider: IRegionProcessProvider;
   VTabSheet: TTabSheet;
 begin
   inherited;
-  for i := 0 to FProviders.Count - 1 do begin
-    VExportProvider := IRegionProcessProvider(FProviders.Items[i]);
-    VTabSheet := PageControl.Pages[i];
+  for I := 0 to FProviders.Count - 1 do begin
+    VExportProvider := IRegionProcessProvider(FProviders.Items[I]);
+    VTabSheet := PageControl.Pages[I];
     VTabSheet.Caption := VExportProvider.GetCaption;
   end;
 end;

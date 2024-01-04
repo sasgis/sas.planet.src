@@ -40,7 +40,7 @@ type
   IRegionProcessComplexFrame = interface
     ['{A602A99B-3C61-44E8-8BA5-527D5590F0E5}']
     procedure Init(
-      const AZoom: byte;
+      const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
 
@@ -51,7 +51,7 @@ type
   IRegionProcessParamsFrameBase = interface
     ['{F5346D9B-766C-4B3B-AC4B-9AC71FF62F05}']
     procedure Init(
-      const AZoom: byte;
+      const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;

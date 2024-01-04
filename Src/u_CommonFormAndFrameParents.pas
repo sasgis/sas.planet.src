@@ -128,12 +128,12 @@ end;
 constructor TCommonFormParent.Create(AOwner: TComponent);
 begin
   inherited;
-  TranslateComponent(self);
+  TranslateComponent(Self);
 end;
 
 procedure TCommonFormParent.RefreshTranslation;
 begin
-  ReTranslateComponent(self);
+  ReTranslateComponent(Self);
 end;
 
 { TFrame }
@@ -142,7 +142,7 @@ constructor TCommonFrameParent.Create(const ALanguageManager: ILanguageManager);
 begin
   Assert(ALanguageManager <> nil);
   inherited Create(nil);
-  TranslateComponent(self);
+  TranslateComponent(Self);
   FLanguageManager := ALanguageManager;
   FLanguageChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
 end;
@@ -168,7 +168,7 @@ end;
 
 procedure TCommonFrameParent.RefreshTranslation;
 begin
-  ReTranslateComponent(self);
+  ReTranslateComponent(Self);
 end;
 
 { TFormWitghLanguageManager }
@@ -179,7 +179,7 @@ constructor TFormWitghLanguageManager.Create(
 begin
   Assert(ALanguageManager <> nil);
   inherited Create(nil);
-  TranslateComponent(self);
+  TranslateComponent(Self);
   FLanguageManager := ALanguageManager;
   FLanguageChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
 end;
@@ -205,7 +205,7 @@ end;
 
 procedure TFormWitghLanguageManager.RefreshTranslation;
 begin
-  ReTranslateComponent(self);
+  ReTranslateComponent(Self);
 end;
 
 end.

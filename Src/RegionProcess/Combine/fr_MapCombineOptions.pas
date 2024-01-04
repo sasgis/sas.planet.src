@@ -111,6 +111,8 @@ constructor TfrMapCombineCustomOptions.Create(
   const AOptionsSet: TMapCombineOptionsSet
 );
 begin
+  TP_Ignore(Self, 'cbbKmzTileSize.Items');
+
   inherited Create(ALanguageManager);
 
   SetControlVisible(Self, False);
