@@ -132,7 +132,7 @@ end;
 destructor TElevationProfilePresenterOnPanel.Destroy;
 begin
   RemoveTerrainConfigListener;
-  //FreeAndNil(FfrElevationProfile); // ???
+  FfrElevationProfile := nil; // will be destroyed by its parent
   inherited Destroy;
 end;
 

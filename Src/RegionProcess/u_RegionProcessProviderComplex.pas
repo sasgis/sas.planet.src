@@ -109,9 +109,8 @@ end;
 
 destructor TRegionProcessProviderComplex.Destroy;
 begin
-  FProviders := nil;
-  FreeAndNil(FFrame);
-  inherited;
+  FFrame := nil; // the frame will be destroyed by its parent
+  inherited Destroy;
 end;
 
 function TRegionProcessProviderComplex.CreateFrame: TFrame;
@@ -147,10 +146,8 @@ end;
 
 procedure TRegionProcessProviderComplex.Hide;
 begin
-  if FFrame <> nil then begin
-    if FFrame.Visible then begin
-      FFrame.Hide;
-    end;
+  if (FFrame <> nil) and FFrame.Visible then begin
+    FFrame.Hide;
   end;
 end;
 
@@ -164,10 +161,13 @@ var
 begin
   if FFrame = nil then begin
     FFrame := CreateFrame;
-    Assert(Supports(FFrame, IRegionProcessComplexFrame));
+    if not Supports(FFrame, IRegionProcessComplexFrame) then begin
+      FreeAndNil(FFrame);
+      Assert(False);
+    end;
   end;
   if FFrame <> nil then begin
-    FFrame.Parent := AParent;
+    FFrame.Parent := AParent; // Parent now Owns the Frame
     if not FFrame.Visible then begin
       FFrame.Show;
     end;

@@ -119,8 +119,8 @@ end;
 
 destructor TExportProviderAbstract.Destroy;
 begin
-  FreeAndNil(FFrame);
-  inherited;
+  FFrame := nil; // the frame will be destroyed by its parent
+  inherited Destroy;
 end;
 
 function TExportProviderAbstract.GetParamsFrame: IRegionProcessParamsFrameBase;
@@ -138,10 +138,8 @@ end;
 
 procedure TExportProviderAbstract.Hide;
 begin
-  if FFrame <> nil then begin
-    if FFrame.Visible then begin
-      FFrame.Hide;
-    end;
+  if (FFrame <> nil) and FFrame.Visible then begin
+    FFrame.Hide;
   end;
 end;
 
@@ -155,10 +153,13 @@ var
 begin
   if FFrame = nil then begin
     FFrame := CreateFrame;
-    Assert(Supports(FFrame, IRegionProcessParamsFrameBase));
+    if not Supports(FFrame, IRegionProcessParamsFrameBase) then begin
+      FreeAndNil(FFrame);
+      Assert(False);
+    end;
   end;
   if FFrame <> nil then begin
-    FFrame.Parent := AParent;
+    FFrame.Parent := AParent; // Parent now Owns the Frame
     if not FFrame.Visible then begin
       FFrame.Show;
     end;
