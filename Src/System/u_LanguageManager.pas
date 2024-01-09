@@ -215,7 +215,6 @@ begin
         VInstalledLanguages.Free;
       end;
       FList := TLanguageListStatic.Create(VCodes);
-
       VCurrentCode := DefaultInstance.GetCurrentLocaleName;
       if not FList.FindCode(VCurrentCode, VCurrentIndex) then begin
         VLangCodeID := VLanguagesEx.GNUGetTextID[VCurrentCode];
@@ -228,7 +227,8 @@ begin
       VLanguagesEx.Free;
     end;
   finally
-    VCodes.Free;
+
+    VCodes.Free;
   end;
 end;
 
