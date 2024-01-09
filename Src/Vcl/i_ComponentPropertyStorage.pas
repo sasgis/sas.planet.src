@@ -19,33 +19,35 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_RegionProcessProvider;
+unit i_ComponentPropertyStorage;
 
 interface
 
 uses
-  Controls,
-  i_GeometryLonLat;
+  Types,
+  Classes,
+  t_ComponentProperty;
 
 type
-  IRegionProcessProvider = interface
-    ['{14935473-1F97-4BCE-B208-A096B871EDE8}']
-    function GetCaption: string;
+  TComponentPropertyStorageCache = record
+    FNamePath: string;
+    FIgnoreNamePath: TStringDynArray;
+    FTemporaryNamePath: TStringDynArray;
+  end;
 
-    procedure Show(
-      const AParent: TWinControl;
-      const AZoom: Byte;
-      const APolygon: IGeometryLonLatPolygon
+  IComponentPropertyStorage = interface
+    ['{D161FB94-2629-4259-8DF5-DF55431F6C5C}']
+    procedure Save(
+      const AComponent: TComponent;
+      const AIgnore: TComponentDynArray;
+      const ATemporary: TComponentDynArray;
+      var ACache: TComponentPropertyStorageCache
     );
-
-    procedure Hide;
-
-    function Validate(
-      const APolygon: IGeometryLonLatPolygon
-    ): Boolean;
-
-    procedure StartProcess(
-      const APolygon: IGeometryLonLatPolygon
+    procedure Restore(
+      const AComponent: TComponent;
+      const AIgnore: TComponentDynArray;
+      const ATemporary: TComponentDynArray;
+      var ACache: TComponentPropertyStorageCache
     );
   end;
 

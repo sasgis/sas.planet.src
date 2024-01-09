@@ -19,36 +19,55 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_RegionProcessProvider;
+unit u_CheckListBoxExt;
 
 interface
 
 uses
-  Controls,
-  i_GeometryLonLat;
+  CheckLst;
 
 type
-  IRegionProcessProvider = interface
-    ['{14935473-1F97-4BCE-B208-A096B871EDE8}']
-    function GetCaption: string;
+  // TCheckListBox that can save/restore its items checked state (handle first 32 items only)
 
-    procedure Show(
-      const AParent: TWinControl;
-      const AZoom: Byte;
-      const APolygon: IGeometryLonLatPolygon
-    );
-
-    procedure Hide;
-
-    function Validate(
-      const APolygon: IGeometryLonLatPolygon
-    ): Boolean;
-
-    procedure StartProcess(
-      const APolygon: IGeometryLonLatPolygon
-    );
+  TCheckListBoxExt = class(TCheckListBox)
+  private
+    function GetCheckedBitMask: Integer;
+    procedure SetCheckedBitMask(const AValue: Integer);
+  public
+    property CheckedBitMask: Integer read GetCheckedBitMask write SetCheckedBitMask;
   end;
 
+  TCheckListBox = class(TCheckListBoxExt);
+
 implementation
+
+{ TCheckListBoxExt }
+
+function TCheckListBoxExt.GetCheckedBitMask: Integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to Self.Items.Count - 1 do begin
+    if Self.Checked[I] then begin
+      Result := Result or (1 shl I);
+    end;
+    if I = 31 then begin
+      Break;
+    end;
+  end;
+end;
+
+procedure TCheckListBoxExt.SetCheckedBitMask(const AValue: Integer);
+var
+  I: Integer;
+begin
+  for I := 0 to Self.Items.Count - 1 do begin
+    Self.Checked[I] := (AValue and (1 shl I)) > 0;
+    if I = 31 then begin
+      Break;
+    end;
+  end;
+end;
 
 end.

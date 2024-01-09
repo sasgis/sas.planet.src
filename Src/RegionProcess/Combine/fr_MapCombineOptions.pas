@@ -145,6 +145,7 @@ begin
     seJpgQuality.MinValue := 0;
     seJpgQuality.MaxValue := 9;
     seJpgQuality.Value := 6;
+    seJpgQuality.Name := 'seCompressionLevel';
     SetControlVisible(flwpnlJpegQuality, True);
     Self.Visible := True;
   end;
@@ -174,6 +175,10 @@ begin
   end;
 
   FRoundToTileRect := (mcGeoTiffTiled in AOptionsSet);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [btnFormatOptions, FfrmGeoTiffOptions], [], True, False, True, False
+  );
 end;
 
 procedure TfrMapCombineCustomOptions.UpdateFormatOptionsButton(const ACaption: string);

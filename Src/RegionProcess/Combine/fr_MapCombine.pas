@@ -54,6 +54,7 @@ uses
   fr_MapSelect,
   fr_MapCombineOptions,
   fr_ProjectionSelect,
+  u_CheckListBoxExt,
   u_CommonFormAndFrameParents;
 
 type
@@ -151,6 +152,8 @@ type
     function GetCustomOptions: IMapCombineCustomOptions;
     function GetAllowWrite(const AMapType: IMapType): Boolean;
   protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
+    procedure OnHide; override;
     procedure RefreshTranslation; override;
   public
     constructor Create(
@@ -220,6 +223,9 @@ constructor TfrMapCombine.Create(
   const ADefaultExt: string;
   const AFormatName: string
 );
+var
+  I: Integer;
+  VMapCalibration: IMapCalibration;
 begin
   Assert(AMinPartSize.X <= AMaxPartSize.X);
   Assert(AMinPartSize.Y <= AMaxPartSize.Y);
@@ -270,7 +276,26 @@ begin
 
   seSplitHor.OnChange := Self.OnSplitOptChange;
   seSplitVert.OnChange := Self.OnSplitOptChange;
-  OnSplitOptChange(Self);
+
+  cbbZoom.Items.BeginUpdate;
+  try
+    cbbZoom.Items.Clear;
+    for I := 1 to 24 do begin
+      cbbZoom.Items.Add(IntToStr(I));
+    end;
+  finally
+    cbbZoom.Items.EndUpdate;
+  end;
+
+  chklstPrTypes.Clear;
+  for I := 0 to FMapCalibrationList.Count - 1 do begin
+    VMapCalibration := FMapCalibrationList.Get(I);
+    chklstPrTypes.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
+  end;
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [cbbZoom], [grpSplit], True, False, True, False
+  );
 end;
 
 destructor TfrMapCombine.Destroy;
@@ -279,7 +304,23 @@ begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrLayerSelect);
   FreeAndNil(FfrProjectionSelect);
+
+  inherited Destroy;
+end;
+
+procedure TfrMapCombine.OnShow(const AIsFirstTime: Boolean);
+begin
   inherited;
+  if not FfrMapCombineOptions.Visible then begin
+    FfrMapCombineOptions.Visible := True;
+  end;
+  OnSplitOptChange(Self);
+end;
+
+procedure TfrMapCombine.OnHide;
+begin
+  inherited;
+  FfrMapCombineOptions.Visible := False;
 end;
 
 function TfrMapCombine.GetAllowWrite(const AMapType: IMapType): Boolean;
@@ -527,23 +568,9 @@ procedure TfrMapCombine.Init(
   const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
-var
-  I: Integer;
-  VMapCalibration: IMapCalibration;
 begin
-  FPolygLL := APolygon;
-
-  cbbZoom.Items.Clear;
-  for I := 1 to 24 do begin
-    cbbZoom.Items.Add(IntToStr(I));
-  end;
   cbbZoom.ItemIndex := AZoom;
-
-  chklstPrTypes.Clear;
-  for I := 0 to FMapCalibrationList.Count - 1 do begin
-    VMapCalibration := FMapCalibrationList.Get(I);
-    chklstPrTypes.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
-  end;
+  FPolygLL := APolygon;
 
   FfrMapSelect.Show(pnlMapFrame);
   FfrLayerSelect.Show(pnlLayerFrame);

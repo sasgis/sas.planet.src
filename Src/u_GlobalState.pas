@@ -108,6 +108,7 @@ uses
   i_GlobalCacheConfig,
   i_FavoriteMapSetConfig,
   i_InternalDomainUrlHandler,
+  i_ComponentPropertyStorage,
   u_GarbageCollectorThread,
   u_MapTypesMainList,
   u_IeEmbeddedProtocolRegistration;
@@ -210,6 +211,7 @@ type
     FAppEnum: IAppEnum;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
     FInternalDomainUrlHandler: IInternalDomainUrlHandler;
+    FComponentPropertyStorage: IComponentPropertyStorage;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -297,6 +299,7 @@ type
     property AppEnum: IAppEnum read FAppEnum;
     property FavoriteMapSetConfig: IFavoriteMapSetConfig read FFavoriteMapSetConfig;
     property InternalDomainUrlHandler: IInternalDomainUrlHandler read FInternalDomainUrlHandler;
+    property ComponentPropertyStorage: IComponentPropertyStorage read FComponentPropertyStorage;
 
     constructor Create(const AAppEnum: IAppEnum = nil);
     destructor Destroy; override;
@@ -429,6 +432,7 @@ uses
   u_CoordToStringConverterChangeable,
   u_ValueToStringConverterChangeable,
   u_InternalBrowserLastContent,
+  u_ComponentPropertyStorage,
   u_TileStorageTypeListSimple,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
@@ -484,6 +488,11 @@ begin
       FBaseConfigPath.FullPath,
       ExtractFileName(ParamStr(0)),
       HInstance
+    );
+
+  FComponentPropertyStorage :=
+    TComponentPropertyStorage.Create(
+      FBaseConfigPath.FullPath
     );
 
   VInternalDebugConfig.ReadConfig(FMainConfigProvider.GetSubItem('Debug'));

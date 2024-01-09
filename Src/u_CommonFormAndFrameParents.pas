@@ -28,14 +28,21 @@ uses
   Classes,
   Controls,
   Forms,
+  t_ComponentProperty,
+  i_ComponentPropertyState,
   i_Notifier,
   i_Listener,
   i_LanguageManager;
 
 type
   TBaseForm = class(TForm)
+  protected
+    FPropertyState: IComponentPropertyState;
+    procedure DoShow; override;
+    procedure DoHide; override;
   public
     procedure WMSetIcon(var Message: TWMSetIcon); message WM_SETICON;
+    destructor Destroy; override;
   end;
 
   TCommonFormParent = class(TBaseForm)
@@ -62,10 +69,15 @@ type
 
   TCommonFrameParent = class(Forms.TFrame)
   private
+    FWasShown: Boolean;
     FLanguageChangeListener: IListener;
     FLanguageManager: ILanguageManager;
     procedure OnLangChange;
+    procedure CMShowingChanged(var M: TMessage); message CM_SHOWINGCHANGED;
   protected
+    FPropertyState: IComponentPropertyState;
+    procedure OnShow(const AIsFirstTime: Boolean); virtual;
+    procedure OnHide; virtual;
     procedure RefreshTranslation; virtual;
   public
     procedure AfterConstruction; override;
@@ -78,10 +90,20 @@ type
 procedure SetControlVisible(const AControl: TControl; const AVisible: Boolean);
 procedure SetControlEnabled(const AControl: TControl; const AEnabled: Boolean);
 
+type
+  TComponentDynArray = t_ComponentProperty.TComponentDynArray;
+
+function CreateComponentPropertyState(
+  const AComponent: TComponent;
+  const AIgnore, ATemporary: TComponentDynArray;
+  const ASaveOnHide, ASaveOnFree, ARestoreOnShow, AIgnoreSecondaryRestoreCalls: Boolean
+): IComponentPropertyState;
+
 implementation
 
 uses
   gnugettext,
+  u_ComponentPropertyState,
   u_ListenerByEvent;
 
 procedure SetControlVisible(const AControl: TControl; const AVisible: Boolean);
@@ -114,7 +136,49 @@ begin
   AControl.Enabled := AEnabled;
 end;
 
+function CreateComponentPropertyState(
+  const AComponent: TComponent;
+  const AIgnore, ATemporary: TComponentDynArray;
+  const ASaveOnHide, ASaveOnFree, ARestoreOnShow, AIgnoreSecondaryRestoreCalls: Boolean
+): IComponentPropertyState;
+var
+  VOptions: TComponentPropertyStateOptions;
+begin
+  VOptions := [];
+
+  if ASaveOnHide then Include(VOptions, cpsoSaveOnHide);
+  if ASaveOnFree then Include(VOptions, cpsoSaveOnFree);
+  if ARestoreOnShow then Include(VOptions, cpsoRestoreOnShow);
+  if AIgnoreSecondaryRestoreCalls then Include(VOptions, cpsoIgnoreSecondaryRestoreCalls);
+
+  Result := TComponentPropertyState.Create(AComponent, AIgnore, ATemporary, VOptions);
+end;
+
 { TBaseForm }
+
+destructor TBaseForm.Destroy;
+begin
+  if Assigned(FPropertyState) and (cpsoSaveOnFree in FPropertyState.Options) then begin
+    FPropertyState.Save;
+  end;
+  inherited;
+end;
+
+procedure TBaseForm.DoShow;
+begin
+  if Assigned(FPropertyState) and (cpsoRestoreOnShow in FPropertyState.Options) then begin
+    FPropertyState.Restore;
+  end;
+  inherited;
+end;
+
+procedure TBaseForm.DoHide;
+begin
+  if Assigned(FPropertyState) and (cpsoSaveOnHide in FPropertyState.Options) then begin
+    FPropertyState.Save;
+  end;
+  inherited;
+end;
 
 procedure TBaseForm.WMSetIcon(var Message: TWMSetIcon);
 begin
@@ -159,11 +223,39 @@ begin
   if Assigned(FLanguageManager) and Assigned(FLanguageChangeListener) then begin
     FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
   end;
+  if Assigned(FPropertyState) and (cpsoSaveOnFree in FPropertyState.Options) then begin
+    FPropertyState.Save;
+  end;
 end;
 
 procedure TCommonFrameParent.OnLangChange;
 begin
   RefreshTranslation;
+end;
+
+procedure TCommonFrameParent.CMShowingChanged(var M: TMessage);
+begin
+  inherited;
+  if Showing then begin
+    OnShow(not FWasShown);
+    FWasShown := True;
+  end else begin
+    OnHide;
+  end;
+end;
+
+procedure TCommonFrameParent.OnShow(const AIsFirstTime: Boolean);
+begin
+  if Assigned(FPropertyState) and (cpsoRestoreOnShow in FPropertyState.Options) then begin
+    FPropertyState.Restore;
+  end;
+end;
+
+procedure TCommonFrameParent.OnHide;
+begin
+  if Assigned(FPropertyState) and (cpsoSaveOnHide in FPropertyState.Options) then begin
+    FPropertyState.Save;
+  end;
 end;
 
 procedure TCommonFrameParent.RefreshTranslation;

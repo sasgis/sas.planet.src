@@ -50,13 +50,16 @@ type
     FLabel: string;
     FZoom: Byte;
     FPolygon: IGeometryLonLatPolygon;
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
+    procedure OnHide; override;
   private
     { IRegionProcessComplexFrame }
     procedure Init(
       const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
-    function GetActiveProvider: IRegionProcessProvider;
+    function GetActiveProvider: IRegionProcessProvider; inline;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -64,7 +67,6 @@ type
       const AHeader: string;
       const ALabel: string
     ); reintroduce;
-    destructor Destroy; override;
     procedure RefreshTranslation; override;
   end;
 
@@ -109,18 +111,37 @@ begin
       VExportProvider := IRegionProcessProvider(FProviders.Items[I]);
       cbbOutputFormat.Items.Add(VExportProvider.GetCaption);
     end;
-    cbbOutputFormat.ItemIndex := 0;
     cbbOutputFormat.DropDownCount := cbbOutputFormat.Items.Count;
   finally
     cbbOutputFormat.Items.EndUpdate;
   end;
   Assert(cbbOutputFormat.Items.Count = FProviders.Count);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self,
+    [],    // ignored components
+    [],    // temp components
+    True,  // save on hide
+    False, // save on free
+    True,  // restore on show
+    True   // ignore secondary restore calls
+  );
 end;
 
-destructor TfrRegionProcessComplexComboBox.Destroy;
+procedure TfrRegionProcessComplexComboBox.OnShow(const AIsFirstTime: Boolean);
 begin
-  FProviders := nil;
   inherited;
+  if AIsFirstTime then begin
+    if cbbOutputFormat.ItemIndex < 0 then begin
+      cbbOutputFormat.ItemIndex := 0;
+    end;
+  end;
+end;
+
+procedure TfrRegionProcessComplexComboBox.OnHide;
+begin
+  inherited;
+  GetActiveProvider.Hide;
 end;
 
 function TfrRegionProcessComplexComboBox.GetActiveProvider: IRegionProcessProvider;
@@ -135,14 +156,11 @@ var
 begin
   for I := 0 to FProviders.Count - 1 do begin
     VExportProvider := IRegionProcessProvider(FProviders.Items[I]);
-    if VExportProvider <> nil then begin
-      if I = cbbOutputFormat.ItemIndex then begin
-        VExportProvider.Show(pnlContent, FZoom, FPolygon);
-      end else begin
-        VExportProvider.Hide;
-      end;
+    if (VExportProvider <> nil) and ( I <> cbbOutputFormat.ItemIndex) then begin
+      VExportProvider.Hide;
     end;
   end;
+  GetActiveProvider.Show(pnlContent, FZoom, FPolygon);
 end;
 
 procedure TfrRegionProcessComplexComboBox.RefreshTranslation;
@@ -173,15 +191,10 @@ procedure TfrRegionProcessComplexComboBox.Init(
   const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
-var
-  VIndex: Integer;
-  VExportProvider: IRegionProcessProvider;
 begin
   FZoom := AZoom;
   FPolygon := APolygon;
-  VIndex := cbbOutputFormat.ItemIndex;
-  VExportProvider := IRegionProcessProvider(FProviders.Items[VIndex]);
-  VExportProvider.Show(pnlContent, AZoom, APolygon);
+  GetActiveProvider.Show(pnlContent, AZoom, APolygon);
 end;
 
 end.

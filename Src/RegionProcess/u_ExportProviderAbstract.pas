@@ -50,8 +50,8 @@ type
   protected
     function GetCaption: string; virtual; abstract;
     procedure Show(
-      AParent: TWinControl;
-      AZoom: byte;
+      const AParent: TWinControl;
+      const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
     procedure Hide;
@@ -144,8 +144,8 @@ begin
 end;
 
 procedure TExportProviderAbstract.Show(
-  AParent: TWinControl;
-  AZoom: byte;
+  const AParent: TWinControl;
+  const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
 var

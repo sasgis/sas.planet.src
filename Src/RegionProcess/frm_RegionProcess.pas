@@ -97,25 +97,26 @@ uses
 
 type
   TfrmRegionProcess = class(TFormWitghLanguageManager, IRegionProcess, IRegionProcessFromFile)
-    Button1: TButton;
-    Button3: TButton;
-    SaveSelDialog: TSaveDialog;
+    btnStart: TButton;
+    btnCancel: TButton;
+    dlgSaveSelection: TSaveDialog;
     pnlBottomButtons: TPanel;
-    TBXOperationsToolbar: TTBXToolbar;
-    tbtmMark: TTBItem;
+    tbxtlbrOperations: TTBXToolbar;
+    tbtmSaveToFile: TTBItem;
     tbtmZoom: TTBItem;
-    tbtmSave: TTBItem;
+    tbtmSaveToMarksDb: TTBItem;
     tbtmCopyBbox: TTBItem;
-    TBXDontClose: TTBXToolbar;
+    tbxtlbrDontClose: TTBXToolbar;
     tbtmDontClose: TTBItem;
     pnlContent: TPanel;
-    procedure Button1Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure btnStartClick(Sender: TObject);
+    procedure btnCancelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure tbtmSaveClick(Sender: TObject);
+    procedure tbtmSaveToMarksDbClick(Sender: TObject);
     procedure tbtmZoomClick(Sender: TObject);
-    procedure tbtmMarkClick(Sender: TObject);
+    procedure tbtmSaveToFileClick(Sender: TObject);
     procedure tbtmCopyBboxClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FTileIteratorFactory: ITileIteratorFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -224,6 +225,7 @@ type
       const AViewConfig: IGlobalViewMainConfig
     ): IInterfaceListStatic;
   private
+    { IRegionProcess }
     procedure ProcessPolygon(
       const APolygon: IGeometryLonLatPolygon
     );
@@ -232,6 +234,7 @@ type
       const APolygon: IGeometryLonLatPolygon
     );
   private
+    { IRegionProcessFromFile }
     procedure LoadSelFromFile(
       const AFileName: string;
       out APolygon: IGeometryLonLatPolygon
@@ -480,13 +483,16 @@ begin
       ''
     );
 
+  FPropertyState := CreateComponentPropertyState(
+    Self, [tbxtlbrOperations], [], True, False, True, True
+  );
 end;
 
 destructor TfrmRegionProcess.Destroy;
 begin
   FProviderTilesDownload := nil;
   FProviderAll := nil;
-  inherited;
+  inherited Destroy;
 end;
 
 function TfrmRegionProcess.PrepareProviders(
@@ -1075,7 +1081,7 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.Button1Click(Sender: TObject);
+procedure TfrmRegionProcess.btnStartClick(Sender: TObject);
 var
   VResult: Boolean;
 begin
@@ -1085,7 +1091,7 @@ begin
   end;
   if VResult then begin
     if not tbtmDontClose.Checked then begin
-      close;
+      Close;
     end;
   end;
 end;
@@ -1095,12 +1101,17 @@ begin
   FProviderAll.Show(pnlContent, FZoom_rect, FPolygonLL);
 end;
 
-procedure TfrmRegionProcess.Button3Click(Sender: TObject);
+procedure TfrmRegionProcess.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  FProviderAll.Hide;
+end;
+
+procedure TfrmRegionProcess.btnCancelClick(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TfrmRegionProcess.tbtmMarkClick(Sender: TObject);
+procedure TfrmRegionProcess.tbtmSaveToFileClick(Sender: TObject);
 var
   VIniFile: TMemIniFile;
   VZoom: Byte;
@@ -1108,14 +1119,15 @@ var
   VHLGData: IConfigDataWriteProvider;
   VPolygonSection: IConfigDataWriteProvider;
 begin
-  if (SaveSelDialog.Execute) and (SaveSelDialog.FileName <> '') then begin
-    If FileExists(SaveSelDialog.FileName) then begin
-      DeleteFile(SaveSelDialog.FileName);
+  if (dlgSaveSelection.Execute) and (dlgSaveSelection.FileName <> '') then begin
+    dlgSaveSelection.InitialDir := ExtractFileDir(dlgSaveSelection.FileName);
+    if FileExists(dlgSaveSelection.FileName) then begin
+      DeleteFile(dlgSaveSelection.FileName);
     end;
     VZoom := FLastSelectionInfo.Zoom;
     VPolygon := FLastSelectionInfo.Polygon;
     if VPolygon <> nil then begin
-      VIniFile := TMemIniFile.Create(SaveSelDialog.FileName);
+      VIniFile := TMemIniFile.Create(dlgSaveSelection.FileName);
       try
         VHLGData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
         VIniFile := nil;
@@ -1139,7 +1151,7 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.tbtmSaveClick(Sender: TObject);
+procedure TfrmRegionProcess.tbtmSaveToMarksDbClick(Sender: TObject);
 begin
   if (FLastSelectionInfo.Polygon <> nil) then begin
     FMarkDBGUI.SaveMarkModal(nil, FLastSelectionInfo.Polygon);

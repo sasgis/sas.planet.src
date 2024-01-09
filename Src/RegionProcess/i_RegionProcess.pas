@@ -28,6 +28,7 @@ uses
 
 type
   IRegionProcess = interface
+    ['{825D4FA8-6FDD-4BB7-8D60-F7D4EEA3EB4D}']
     procedure ProcessPolygon(
       const APolygon: IGeometryLonLatPolygon
     );

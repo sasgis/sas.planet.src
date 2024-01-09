@@ -54,8 +54,8 @@ type
   private
     function GetCaption: string;
     procedure Show(
-      AParent: TWinControl;
-      AZoom: byte;
+      const AParent: TWinControl;
+      const AZoom: Byte;
       const APolygon: IGeometryLonLatPolygon
     );
     procedure Hide;
@@ -152,8 +152,8 @@ begin
 end;
 
 procedure TRegionProcessProviderComplex.Show(
-  AParent: TWinControl;
-  AZoom: byte;
+  const AParent: TWinControl;
+  const AZoom: Byte;
   const APolygon: IGeometryLonLatPolygon
 );
 var

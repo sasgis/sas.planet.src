@@ -173,7 +173,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
         Left = 5
         Top = 23
         Width = 351
-        Height = 17
+        Height = 15
         Margins.Top = 6
         Align = alTop
         BevelInner = bvNone
@@ -182,7 +182,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
         Color = clBtnFace
         Columns = 6
         IntegralHeight = True
-        ItemHeight = 17
+        ItemHeight = 15
         Items.Strings = (
           '2'
           '4'

@@ -11,6 +11,7 @@ object frmRegionProcess: TfrmRegionProcess
   PopupMode = pmExplicit
   Position = poMainFormCenter
   ShowHint = True
+  OnClose = FormClose
   OnShow = FormShow
   TextHeight = 15
   object pnlBottomButtons: TPanel
@@ -22,7 +23,7 @@ object frmRegionProcess: TfrmRegionProcess
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 0
-    object Button1: TButton
+    object btnStart: TButton
       AlignWithMargins = True
       Left = 438
       Top = 6
@@ -32,9 +33,9 @@ object frmRegionProcess: TfrmRegionProcess
       Caption = 'Start'
       Default = True
       TabOrder = 2
-      OnClick = Button1Click
+      OnClick = btnStartClick
     end
-    object Button3: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 519
       Top = 6
@@ -44,9 +45,9 @@ object frmRegionProcess: TfrmRegionProcess
       Cancel = True
       Caption = 'Cancel'
       TabOrder = 3
-      OnClick = Button3Click
+      OnClick = btnCancelClick
     end
-    object TBXOperationsToolbar: TTBXToolbar
+    object tbxtlbrOperations: TTBXToolbar
       AlignWithMargins = True
       Left = 329
       Top = 6
@@ -62,23 +63,23 @@ object frmRegionProcess: TfrmRegionProcess
         ImageIndex = 28
         OnClick = tbtmCopyBboxClick
       end
-      object tbtmSave: TTBItem
+      object tbtmSaveToMarksDb: TTBItem
         Hint = 'Store selection as Poligon'
         ImageIndex = 17
-        OnClick = tbtmSaveClick
+        OnClick = tbtmSaveToMarksDbClick
       end
       object tbtmZoom: TTBItem
         Hint = 'Fit to Screen'
         ImageIndex = 43
         OnClick = tbtmZoomClick
       end
-      object tbtmMark: TTBItem
+      object tbtmSaveToFile: TTBItem
         Hint = 'Save selection info to file'
         ImageIndex = 25
-        OnClick = tbtmMarkClick
+        OnClick = tbtmSaveToFileClick
       end
     end
-    object TBXDontClose: TTBXToolbar
+    object tbxtlbrDontClose: TTBXToolbar
       Left = 4
       Top = 6
       Width = 25
@@ -102,7 +103,7 @@ object frmRegionProcess: TfrmRegionProcess
     Align = alClient
     TabOrder = 1
   end
-  object SaveSelDialog: TSaveDialog
+  object dlgSaveSelection: TSaveDialog
     DefaultExt = '*.hlg'
     Filter = 'Selections|*.hlg'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
