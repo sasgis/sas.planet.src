@@ -31,7 +31,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Left = 3
         Top = 6
         Width = 108
-        Height = 13
+        Height = 15
         Margins.Left = 0
         Margins.Right = 0
         Align = alTop
@@ -49,13 +49,13 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object chklstZooms: TCheckListBox
         Left = 3
-        Top = 19
+        Top = 21
         Width = 108
-        Height = 126
-        OnClickCheck = chklstZoomsClickCheck
+        Height = 124
         Align = alClient
-        ItemHeight = 13
+        ItemHeight = 15
         TabOrder = 0
+        OnClickCheck = chklstZoomsClickCheck
       end
     end
     object pnlCenter: TPanel
@@ -73,8 +73,8 @@ object frTilesGenPrev: TfrTilesGenPrev
       object lblStat: TLabel
         Left = 10
         Top = 100
-        Width = 55
-        Height = 13
+        Width = 3
+        Height = 15
         Anchors = [akLeft, akTop, akRight]
       end
       object lblResampler: TLabel
@@ -85,6 +85,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Height = 13
         Margins.Left = 0
         Margins.Right = 0
+        Margins.Bottom = 3
         Align = alTop
         AutoSize = False
         Caption = 'Resize algorithm:'
@@ -92,7 +93,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       object Bevel1: TBevel
         AlignWithMargins = True
         Left = 3
-        Top = 45
+        Top = 50
         Width = 383
         Height = 3
         Margins.Left = 0
@@ -104,12 +105,11 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object cbbResampler: TComboBox
         Left = 3
-        Top = 19
+        Top = 22
         Width = 383
-        Height = 21
+        Height = 23
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 13
         ItemIndex = 0
         TabOrder = 0
         Text = 'Box'
@@ -131,7 +131,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       object chkReplace: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 51
+        Top = 56
         Width = 383
         Height = 17
         Margins.Left = 0
@@ -144,7 +144,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object chkSaveFullOnly: TCheckBox
         Left = 3
-        Top = 91
+        Top = 96
         Width = 383
         Height = 17
         Align = alTop
@@ -153,7 +153,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object chkFromPrevZoom: TCheckBox
         Left = 3
-        Top = 108
+        Top = 113
         Width = 383
         Height = 17
         Align = alTop
@@ -163,7 +163,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       end
       object pnlUsePrevTiles: TPanel
         Left = 3
-        Top = 68
+        Top = 73
         Width = 383
         Height = 23
         Align = alTop
@@ -230,8 +230,8 @@ object frTilesGenPrev: TfrTilesGenPrev
         AlignWithMargins = True
         Left = 4
         Top = 0
-        Width = 56
-        Height = 13
+        Width = 64
+        Height = 15
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
@@ -241,9 +241,8 @@ object frTilesGenPrev: TfrTilesGenPrev
         Left = 1
         Top = 14
         Width = 106
-        Height = 21
+        Height = 23
         Style = csDropDownList
-        ItemHeight = 13
         TabOrder = 0
         OnChange = cbbFromZoomChange
       end
@@ -261,10 +260,9 @@ object frTilesGenPrev: TfrTilesGenPrev
         Left = 0
         Top = 0
         Width = 387
-        Height = 13
+        Height = 15
         Align = alTop
         Caption = 'Map/Overlay layer:'
-        ExplicitWidth = 93
       end
     end
   end

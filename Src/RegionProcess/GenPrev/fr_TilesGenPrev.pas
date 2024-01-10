@@ -99,10 +99,8 @@ type
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FImageResamplerConfig: IImageResamplerConfig;
     FfrMapSelect: TfrMapSelect;
-    procedure InitResamplersList(
-      const AList: IImageResamplerFactoryList;
-      ABox: TComboBox
-    );
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
   private
     procedure Init(
       const AZoom: byte;
@@ -158,6 +156,9 @@ begin
       False,  // show disabled map
       GetAllowGenPrev
     );
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlMapSelect, pnlRight], [], True, False, True, True
+  )
 end;
 
 destructor TfrTilesGenPrev.Destroy;
@@ -327,39 +328,53 @@ begin
   end;
 end;
 
+procedure TfrTilesGenPrev.OnShow(const AIsFirstTime: Boolean);
+var
+  I: Integer;
+begin
+  if AIsFirstTime then begin
+    with cbbFromZoom.Items do begin
+      BeginUpdate;
+      Clear;
+      for I := 2 to 24 do begin
+        Add(IntToStr(I));
+      end;
+      EndUpdate;
+    end;
+
+    with cbbResampler.Items do begin
+      BeginUpdate;
+      Clear;
+      for I := 0 to FImageResamplerFactoryList.Count - 1 do begin
+        Add(FImageResamplerFactoryList.Captions[I]);
+      end;
+      EndUpdate;
+    end;
+    cbbResampler.DropDownCount := cbbResampler.Items.Count;
+  end;
+
+  inherited; // restore state
+
+  if AIsFirstTime then begin
+    if cbbResampler.ItemIndex < 0 then begin
+      cbbResampler.ItemIndex := FImageResamplerFactoryList.GetIndexByGUID(FImageResamplerConfig.ActiveGUID);
+    end;
+  end;
+end;
+
 procedure TfrTilesGenPrev.Init(
   const AZoom: byte;
   const APolygon: IGeometryLonLatPolygon
 );
-var
-  i: integer;
 begin
-  cbbFromZoom.Items.Clear;
-  for i := 2 to 24 do begin
-    cbbFromZoom.Items.Add(inttostr(i));
-  end;
   if AZoom > 0 then begin
     cbbFromZoom.ItemIndex := AZoom - 1;
   end else begin
     cbbFromZoom.ItemIndex := 0;
   end;
   cbbFromZoomChange(cbbFromZoom);
-  InitResamplersList(FImageResamplerFactoryList, cbbResampler);
-  cbbResampler.ItemIndex := FImageResamplerFactoryList.GetIndexByGUID(FImageResamplerConfig.ActiveGUID);
-  FfrMapSelect.Show(pnlFrame);
-end;
 
-procedure TfrTilesGenPrev.InitResamplersList(
-  const AList: IImageResamplerFactoryList;
-  ABox: TComboBox
-);
-var
-  i: Integer;
-begin
-  ABox.Items.Clear;
-  for i := 0 to AList.Count - 1 do begin
-    ABox.Items.Add(AList.Captions[i]);
-  end;
+  FfrMapSelect.Show(pnlFrame);
 end;
 
 function TfrTilesGenPrev.Validate: Boolean;
