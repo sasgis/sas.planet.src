@@ -61,6 +61,9 @@ type
     flwpnlKmzTileSize: TFlowPanel;
     lblKmzTileSize: TLabel;
     cbbKmzTileSize: TComboBox;
+    flwpnlCompressionLevel: TFlowPanel;
+    lblCompressionLevel: TLabel;
+    seCompressionLevel: TSpinEdit;
   private
     FOptionsSet: TMapCombineOptionsSet;
     FRoundToTileRect: Boolean;
@@ -132,21 +135,12 @@ begin
   end;
 
   if mcQuality in AOptionsSet then begin
-    lblJpgQulity.Caption := _('Quality, %');
-    seJpgQuality.MinValue := 0;
-    seJpgQuality.MaxValue := 100;
-    seJpgQuality.Value := 95;
     SetControlVisible(flwpnlJpegQuality, True);
     Self.Visible := True;
   end;
 
   if mcCompressionLevel in AOptionsSet then begin
-    lblJpgQulity.Caption := _('Compression Level:');
-    seJpgQuality.MinValue := 0;
-    seJpgQuality.MaxValue := 9;
-    seJpgQuality.Value := 6;
-    seJpgQuality.Name := 'seCompressionLevel';
-    SetControlVisible(flwpnlJpegQuality, True);
+    SetControlVisible(flwpnlCompressionLevel, True);
     Self.Visible := True;
   end;
 
@@ -218,7 +212,15 @@ end;
 
 function TfrMapCombineCustomOptions.GetQuality: Integer;
 begin
-  Result := seJpgQuality.Value;
+  if mcQuality in FOptionsSet then begin
+    Result := seJpgQuality.Value;
+  end else
+  if mcCompressionLevel in FOptionsSet then begin
+    Result := seCompressionLevel.Value;
+  end else begin
+    Assert(False);
+    Result := 0;
+  end;
 end;
 
 function TfrMapCombineCustomOptions.GetThreadCount: Integer;
