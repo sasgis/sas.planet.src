@@ -2,7 +2,7 @@ object frTilesDownload: TfrTilesDownload
   Left = 0
   Top = 0
   Width = 480
-  Height = 304
+  Height = 355
   Align = alClient
   Constraints.MinHeight = 200
   Constraints.MinWidth = 480
@@ -27,7 +27,7 @@ object frTilesDownload: TfrTilesDownload
     Left = 376
     Top = 22
     Width = 104
-    Height = 282
+    Height = 333
     Align = alRight
     Alignment = taLeftJustify
     BevelEdges = []
@@ -40,14 +40,10 @@ object frTilesDownload: TfrTilesDownload
     Left = 0
     Top = 22
     Width = 376
-    Height = 282
+    Height = 333
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 8
-    ExplicitTop = 3
-    ExplicitWidth = 469
-    ExplicitHeight = 305
     object pnlMapSelect: TPanel
       Left = 0
       Top = 0
@@ -58,18 +54,15 @@ object frTilesDownload: TfrTilesDownload
       BevelKind = bkTile
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 22
-      ExplicitWidth = 373
       object lblStat: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 44
+        Top = 45
         Width = 373
-        Height = 13
+        Height = 15
         Margins.Right = 0
         Align = alBottom
         Caption = '_'
-        ExplicitWidth = 6
       end
       object pnlFrame: TPanel
         Left = 0
@@ -79,16 +72,14 @@ object frTilesDownload: TfrTilesDownload
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 373
         object lblMapCaption: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 370
-          Height = 13
+          Height = 15
           Align = alTop
           Caption = 'Map/Overlay layer:'
-          ExplicitWidth = 93
         end
       end
     end
@@ -96,16 +87,15 @@ object frTilesDownload: TfrTilesDownload
       Left = 0
       Top = 62
       Width = 376
-      Height = 220
+      Height = 271
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 5
       TabOrder = 1
-      ExplicitTop = 0
       object lblSplitRegionHint: TLabel
         AlignWithMargins = True
         Left = 8
-        Top = 227
+        Top = 231
         Width = 360
         Height = 13
         Margins.Top = 0
@@ -116,7 +106,6 @@ object frTilesDownload: TfrTilesDownload
         Font.Name = 'Tahoma'
         Font.Style = [fsItalic]
         ParentFont = False
-        ExplicitWidth = 3
       end
       object chkReplace: TCheckBox
         Left = 5
@@ -168,14 +157,16 @@ object frTilesDownload: TfrTilesDownload
           BevelOuter = bvNone
           TabOrder = 1
           object lblReplaceOlder: TLabel
-            Left = 16
+            AlignWithMargins = True
+            Left = 17
             Top = 0
-            Width = 95
+            Width = 102
             Height = 22
+            Margins.Left = 1
+            Margins.Top = 0
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
-            ExplicitHeight = 13
           end
           object chkReplaceOlder: TCheckBox
             Left = 0
@@ -188,13 +179,13 @@ object frTilesDownload: TfrTilesDownload
             OnClick = chkReplaceOlderClick
           end
           object dtpReplaceOlderDate: TDateTimePicker
-            Left = 111
+            Left = 122
             Top = 0
             Width = 81
             Height = 22
             Align = alLeft
-            Date = 39513.436381111110000000
-            Time = 39513.436381111110000000
+            Date = 39513.000000000000000000
+            Time = 0.436381111110677000
             Enabled = False
             TabOrder = 1
           end
@@ -229,14 +220,16 @@ object frTilesDownload: TfrTilesDownload
           BevelOuter = bvNone
           TabOrder = 0
           object lblLoadIfTneOld: TLabel
-            Left = 16
+            AlignWithMargins = True
+            Left = 17
             Top = 0
-            Width = 95
+            Width = 102
             Height = 22
+            Margins.Left = 1
+            Margins.Top = 0
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
-            ExplicitHeight = 13
           end
           object chkLoadIfTneOld: TCheckBox
             Left = 0
@@ -249,13 +242,13 @@ object frTilesDownload: TfrTilesDownload
             OnClick = chkLoadIfTneOldClick
           end
           object dtpLoadIfTneOld: TDateTimePicker
-            Left = 111
+            Left = 122
             Top = 0
             Width = 81
             Height = 22
             Align = alLeft
-            Date = 39513.436381111110000000
-            Time = 39513.436381111110000000
+            Date = 39513.000000000000000000
+            Time = 0.436381111110677000
             Enabled = False
             TabOrder = 1
           end
@@ -263,9 +256,9 @@ object frTilesDownload: TfrTilesDownload
       end
       object flwpnlSplitRegionParams: TFlowPanel
         Left = 5
-        Top = 197
+        Top = 199
         Width = 366
-        Height = 30
+        Height = 32
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
@@ -285,21 +278,21 @@ object frTilesDownload: TfrTilesDownload
         end
         object lblSplitRegion: TLabel
           AlignWithMargins = True
-          Left = 17
+          Left = 18
           Top = 9
-          Width = 120
-          Height = 13
-          Margins.Left = 0
+          Width = 127
+          Height = 15
+          Margins.Left = 1
           Margins.Top = 7
           Caption = 'Split selection to, parts*:'
         end
         object sePartsCount: TSpinEdit
           AlignWithMargins = True
-          Left = 143
+          Left = 151
           Top = 5
           Width = 50
-          Height = 22
-          MaxValue = 24
+          Height = 24
+          MaxValue = 64
           MinValue = 2
           TabOrder = 1
           Value = 2
@@ -318,7 +311,7 @@ object frTilesDownload: TfrTilesDownload
         Left = 5
         Top = 141
         Width = 366
-        Height = 28
+        Height = 30
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
@@ -337,20 +330,20 @@ object frTilesDownload: TfrTilesDownload
         end
         object lblAutoSaveSession: TLabel
           AlignWithMargins = True
-          Left = 17
+          Left = 18
           Top = 7
-          Width = 111
-          Height = 13
-          Margins.Left = 0
+          Width = 120
+          Height = 15
+          Margins.Left = 1
           Margins.Top = 7
           Caption = 'Autosave session, min:'
         end
         object seAutosaveSession: TSpinEdit
           AlignWithMargins = True
-          Left = 134
+          Left = 144
           Top = 3
           Width = 50
-          Height = 22
+          Height = 24
           MaxValue = 999
           MinValue = 1
           TabOrder = 1
@@ -360,7 +353,7 @@ object frTilesDownload: TfrTilesDownload
       object pnlAutoSaveSessionPrefix: TFlowPanel
         AlignWithMargins = True
         Left = 20
-        Top = 169
+        Top = 171
         Width = 351
         Height = 28
         Margins.Left = 15
@@ -372,29 +365,32 @@ object frTilesDownload: TfrTilesDownload
         TabOrder = 7
         object chkSessionPrefix: TCheckBox
           AlignWithMargins = True
-          Left = 3
+          Left = 0
           Top = 3
-          Width = 14
+          Width = 17
           Height = 22
+          Margins.Left = 0
+          Margins.Right = 0
+          Margins.Bottom = 0
           TabOrder = 0
           OnClick = chkSessionPrefixClick
         end
         object lblSessionPrefix: TLabel
           AlignWithMargins = True
-          Left = 20
+          Left = 18
           Top = 7
-          Width = 80
-          Height = 13
-          Margins.Left = 0
+          Width = 87
+          Height = 15
+          Margins.Left = 1
           Margins.Top = 7
           Caption = 'File name prefix:'
         end
         object edtSessionPrefix: TEdit
           AlignWithMargins = True
-          Left = 106
+          Left = 111
           Top = 3
           Width = 130
-          Height = 21
+          Height = 23
           Hint = 'It'#39's allowed to use \ as a path delimiter'
           TabOrder = 1
         end

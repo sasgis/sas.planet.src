@@ -137,11 +137,15 @@ procedure InitPropDict(const ADict: TComponentPropertyStorage.TPropertiesByClass
 
 begin
   Add('TSaveDialog', ['InitialDir', 'FilterIndex']);
+
   Add('TTBItem', ['Checked']);
   Add('TCheckBox', ['Checked']);
   Add('TCheckListBox', ['CheckedBitMask']); // TCheckListBoxExt
+
   Add('TComboBox', ['ItemIndex']);
   Add('TPageControl', ['ActivePageIndex']);
+
+  Add('TEdit', ['Text']);
   Add('TSpinEdit', ['Value']);
 
   Add('TfrmRegionProcess', ['ClientHeight', 'ClientWidth']);

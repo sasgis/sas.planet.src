@@ -294,7 +294,7 @@ begin
   end;
 
   FPropertyState := CreateComponentPropertyState(
-    Self, [cbbZoom], [grpSplit], True, False, True, False
+    Self, [pnlMapSelect, pnlTargetFile], [pnlSplit], True, False, True, False
   );
 end;
 
@@ -333,6 +333,7 @@ begin
   dlgSaveTargetFile.DefaultExt := FDefaultExt;
   dlgSaveTargetFile.Filter := _(FFormatName) + ' | *.' + FDefaultExt;
   if dlgSaveTargetFile.Execute then begin
+    dlgSaveTargetFile.InitialDir := ExtractFileDir(dlgSaveTargetFile.FileName);
     edtTargetFile.Text := dlgSaveTargetFile.FileName;
   end;
 end;

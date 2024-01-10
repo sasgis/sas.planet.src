@@ -337,6 +337,10 @@ begin
   FDownloaderConfigNotifier := nil;
   FIsDownloaderConfigChanged := False;
 
+  FPropertyState := CreateComponentPropertyState(
+    Self, [dtpReplaceOlderDate, dtpLoadIfTneOld], [], True, False, True, True
+  );
+
   FTimer := TTimer.Create(Self);
   FTimer.Interval := 300;
   FTimer.OnTimer := Self.OnTimer;
