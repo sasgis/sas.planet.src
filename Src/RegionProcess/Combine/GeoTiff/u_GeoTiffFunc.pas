@@ -110,7 +110,7 @@ class function TGeoTiffFunc.IsValidOverviewValue(
   const AValue: Integer
 ): Boolean;
 begin
-  Result := IsPowerOfTwo(AValue);
+  Result := (AValue >= 2) and IsPowerOfTwo(AValue);
 end;
 
 end.

@@ -67,7 +67,6 @@ type
   private
     FOptionsSet: TMapCombineOptionsSet;
     FRoundToTileRect: Boolean;
-    FGeoTiffOptions: TGeoTiffOptions;
     FfrmGeoTiffOptions: TfrmGeoTiffOptions;
     procedure UpdateFormatOptionsButton(const ACaption: string = '');
     procedure OnGetGeoTiffOptionsClick(Sender: TObject);
@@ -115,6 +114,7 @@ constructor TfrMapCombineCustomOptions.Create(
 );
 begin
   TP_Ignore(Self, 'cbbKmzTileSize.Items');
+  TP_Ignore(Self, 'cbbKmzTileSize.Text');
 
   inherited Create(ALanguageManager);
 
@@ -156,13 +156,11 @@ begin
 
   if (mcGeoTiff in AOptionsSet) or (mcGeoTiffTiled in AOptionsSet) then begin
     SetControlVisible(flwpnlFormatOptions, True);
-    FGeoTiffOptions := CDefaultGeoTiffOptions;
     if mcGeoTiff in AOptionsSet then begin
-      FGeoTiffOptions.StorageType := gtstStripped;
+      FfrmGeoTiffOptions := TfrmGeoTiffOptionsStripped.Create(Self);
     end else begin
-      FGeoTiffOptions.StorageType := gtstTiled;
+      FfrmGeoTiffOptions := TfrmGeoTiffOptionsTiled.Create(Self);
     end;
-    FfrmGeoTiffOptions := TfrmGeoTiffOptions.Create(Self);
     btnFormatOptions.OnClick := Self.OnGetGeoTiffOptionsClick;
     UpdateFormatOptionsButton(FfrmGeoTiffOptions.Caption);
     Self.Visible := True;
@@ -171,7 +169,7 @@ begin
   FRoundToTileRect := (mcGeoTiffTiled in AOptionsSet);
 
   FPropertyState := CreateComponentPropertyState(
-    Self, [btnFormatOptions, FfrmGeoTiffOptions], [], True, False, True, False
+    Self, [btnFormatOptions], [], True, False, True, False
   );
 end;
 
@@ -192,7 +190,8 @@ end;
 
 function TfrMapCombineCustomOptions.GetGeoTiffOptions: TGeoTiffOptions;
 begin
-  Result := FGeoTiffOptions;
+  Assert(FfrmGeoTiffOptions <> nil);
+  Result := FfrmGeoTiffOptions.Options;
 end;
 
 function TfrMapCombineCustomOptions.GetIsSaveAlfa: Boolean;
@@ -230,7 +229,8 @@ end;
 
 procedure TfrMapCombineCustomOptions.OnGetGeoTiffOptionsClick(Sender: TObject);
 begin
-  FfrmGeoTiffOptions.ShowOptionsModal(FGeoTiffOptions);
+  Assert(FfrmGeoTiffOptions <> nil);
+  FfrmGeoTiffOptions.ShowModal;
 end;
 
 function TfrMapCombineCustomOptions.GetRoundToTileRect: Boolean;

@@ -13,6 +13,7 @@ object frmGeoTiffOptions: TfrmGeoTiffOptions
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poOwnerFormCenter
+  OnClose = FormClose
   TextHeight = 15
   object btnApply: TButton
     Left = 183

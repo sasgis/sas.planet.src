@@ -41,6 +41,7 @@ uses
   UITypes,
   t_GeoTIFF,
   i_LanguageManager,
+  u_CheckListBoxExt,
   u_CommonFormAndFrameParents;
 
 type
@@ -69,16 +70,44 @@ type
     procedure btnCancelClick(Sender: TObject);
     procedure cbbCompressionChange(Sender: TObject);
     procedure edtOverviewChange(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FIsTiled: Boolean;
-    FOptions: PGeoTiffOptions;
-    function GetOverview(out AOverview: TIntegerDynArray): Boolean;
+    FOptions: TGeoTiffOptions;
+    procedure OptionsToGui;
+    procedure GuiToOptions;
+    function GetOptions: TGeoTiffOptions;
+    function GetOverview(out AOverview: TIntegerDynArray; const ASilent: Boolean): Boolean;
+    procedure SetOverview(const AOverview: TIntegerDynArray);
   public
-    procedure ShowOptionsModal(
-      var AOptions: TGeoTiffOptions
-    );
+    function ShowModal: Integer; override;
+    property Options: TGeoTiffOptions read GetOptions;
+  public
+    constructor Create(
+      AOwner: TComponent;
+      const AGeoTiffStorageType: TGeoTiffStorageType
+    ); reintroduce;
+  end;
+
+  TfrmGeoTiffOptionsStripped = class(TfrmGeoTiffOptions)
+  public
     constructor Create(AOwner: TComponent); reintroduce;
   end;
+
+  TfrmGeoTiffOptionsTiled = class(TfrmGeoTiffOptions)
+  public
+    constructor Create(AOwner: TComponent); reintroduce;
+  end;
+
+implementation
+
+uses
+  Math,
+  StrUtils,
+  gnugettext,
+  u_GeoTiffFunc;
+
+{$R *.dfm}
 
 const
   CDefaultGeoTiffOptions: TGeoTiffOptions = (
@@ -92,46 +121,92 @@ const
     Overview: nil
   );
 
-implementation
-
-uses
-  gnugettext,
-  StrUtils,
-  u_GeoTiffFunc;
-
-{$R *.dfm}
-
 { TfrmGeoTiffOptions }
 
-constructor TfrmGeoTiffOptions.Create(AOwner: TComponent);
-begin
-  TP_Ignore(Self, 'cbbColorspace.Items');
-
-  inherited Create(AOwner);
-end;
-
-procedure TfrmGeoTiffOptions.ShowOptionsModal(
-  var AOptions: TGeoTiffOptions
+constructor TfrmGeoTiffOptions.Create(
+  AOwner: TComponent;
+  const AGeoTiffStorageType: TGeoTiffStorageType
 );
 begin
-  FOptions := @AOptions;
+  TP_Ignore(Self, 'cbbColorspace.Items');
+  TP_Ignore(Self, 'cbbColorspace.Text');
+
+  inherited Create(AOwner);
+
+  FOptions := CDefaultGeoTiffOptions;
+  FOptions.StorageType := AGeoTiffStorageType;
+
   FIsTiled := FOptions.StorageType = gtstTiled;
 
-  cbbFormat.ItemIndex := Integer(FOptions.FileFormatType);
-  cbbCompression.ItemIndex := Integer(FOptions.CompressionType);
+  if FIsTiled then begin
+    Self.Name := Self.Name + 'Tiled';
+  end else begin
+    Self.Name := Self.Name + 'Stripped';
+  end;
 
   pnlColorspace.Visible := True;
-  cbbColorspace.ItemIndex := Integer(FOptions.Colorspace);
-
   chkCopyRawJpeg.Visible := FIsTiled;
-  chkCopyRawJpeg.Checked := FOptions.CopyRawJpegTiles;
 
-  cbbCompressionChange(Self);
-
-  ShowModal;
+  OptionsToGui;
 end;
 
-function TfrmGeoTiffOptions.GetOverview(out AOverview: TIntegerDynArray): Boolean;
+function TfrmGeoTiffOptions.ShowModal: Integer;
+begin
+  cbbCompressionChange(Self);
+  GuiToOptions;
+  Result := inherited ShowModal;
+end;
+
+function TfrmGeoTiffOptions.GetOptions: TGeoTiffOptions;
+begin
+  GuiToOptions;
+  Result := FOptions;
+end;
+
+procedure TfrmGeoTiffOptions.SetOverview(const AOverview: TIntegerDynArray);
+const
+  CFixedOverviewItems = [2, 4, 8, 16, 32, 64];
+var
+  I: Integer;
+  VIndex: Integer;
+  VList: TStringList;
+  VIsCustomOverview: Boolean;
+begin
+  chklstOverview.CheckAll(cbUnchecked);
+  edtOverview.Text := '';
+
+  VIsCustomOverview := Length(AOverview) > chklstOverview.Count;
+  if not VIsCustomOverview then begin
+    for I := 0 to Length(AOverview) - 1 do begin
+      if not (AOverview[I] in CFixedOverviewItems) then begin
+        VIsCustomOverview := True;
+        Break;
+      end;
+    end;
+  end;
+
+  if not VIsCustomOverview then begin
+    for I := 0 to Length(AOverview) - 1 do begin
+      VIndex := Trunc(Log2(AOverview[I])) - 1;
+      Assert((VIndex >= 0) and (VIndex < chklstOverview.Count));
+      chklstOverview.Checked[VIndex] := True;
+    end;
+  end else begin
+    VList := TStringList.Create;
+    try
+      VList.Duplicates := dupIgnore;
+      for I := 0 to Length(AOverview) - 1 do begin
+        VList.Add(IntToStr(AOverview[I]));
+      end;
+      VList.Delimiter := ' ';
+      edtOverview.Text := VList.DelimitedText;
+    finally
+      VList.Free;
+    end;
+  end;
+end;
+
+function TfrmGeoTiffOptions.GetOverview(out AOverview: TIntegerDynArray; const ASilent: Boolean): Boolean;
 var
   I, J: Integer;
   VStrArr: TStringDynArray;
@@ -155,11 +230,15 @@ begin
   SetLength(AOverview, Length(VStrArr));
   for I := 0 to Length(VStrArr) - 1 do begin
     if not TryStrToInt(VStrArr[I], AOverview[I]) then begin
-      MessageDlg(Format(_('Invalid Overview level value: "%s"'), [VStrArr[I]]), mtError, [mbOK], 0);
+      if not ASilent then begin
+        MessageDlg(Format(_('Invalid Overview level value: "%s"'), [VStrArr[I]]), mtError, [mbOk], 0);
+      end;
       Exit;
     end;
     if not TGeoTiffFunc.IsValidOverviewValue(AOverview[I]) then begin
-      MessageDlg(Format(_('Given Overview level "%s" is not a power of 2!'), [VStrArr[I]]), mtError, [mbOK], 0);
+      if not ASilent then begin
+        MessageDlg(Format(_('Given Overview level "%s" is not a power of 2!'), [VStrArr[I]]), mtError, [mbOk], 0);
+      end;
       Exit;
     end;
   end;
@@ -167,15 +246,13 @@ begin
   Result := True;
 end;
 
-procedure TfrmGeoTiffOptions.btnApplyClick(Sender: TObject);
-var
-  VOverview: TIntegerDynArray;
+procedure TfrmGeoTiffOptions.GuiToOptions;
 begin
-  if not GetOverview(VOverview) then begin
-    Exit; // exit without closing window
+  if not GetOverview(FOptions.Overview, True) then begin
+    FOptions.Overview := nil; // ignore errors here
   end;
 
-  with FOptions^ do begin
+  with FOptions do begin
     FileFormatType := TGeoTiffFileFormat(cbbFormat.ItemIndex);
     CompressionType := TGeoTiffCompression(cbbCompression.ItemIndex);
 
@@ -184,20 +261,46 @@ begin
       gtcJpeg: FOptions.CompressionLevelJpeg := seCompressionLevel.Value;
     end;
 
-    Overview := VOverview;
     Colorspace := TGeoTiffColorspace(cbbColorspace.ItemIndex);
 
     if FIsTiled then begin
       CopyRawJpegTiles := chkCopyRawJpeg.Checked;
     end;
   end;
+end;
 
+procedure TfrmGeoTiffOptions.OptionsToGui;
+begin
+  cbbFormat.ItemIndex := Integer(FOptions.FileFormatType);
+  cbbCompression.ItemIndex := Integer(FOptions.CompressionType);
+  cbbColorspace.ItemIndex := Integer(FOptions.Colorspace);
+  chkCopyRawJpeg.Checked := FOptions.CopyRawJpegTiles;
+
+  SetOverview(FOptions.Overview);
+
+  cbbCompressionChange(Self);
+end;
+
+procedure TfrmGeoTiffOptions.btnApplyClick(Sender: TObject);
+var
+  VOverview: TIntegerDynArray;
+begin
+  if not GetOverview(VOverview, False) then begin
+    Exit; // show warning and exit without closing window
+  end;
+
+  GuiToOptions;
   Close;
 end;
 
 procedure TfrmGeoTiffOptions.btnCancelClick(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TfrmGeoTiffOptions.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  OptionsToGui;
 end;
 
 procedure TfrmGeoTiffOptions.cbbCompressionChange(Sender: TObject);
@@ -251,6 +354,20 @@ begin
   if not chklstOverview.Enabled then begin
     chklstOverview.ItemIndex := -1; // reset focus
   end;
+end;
+
+{ TfrmGeoTiffOptionsStripped }
+
+constructor TfrmGeoTiffOptionsStripped.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner, gtstStripped);
+end;
+
+{ TfrmGeoTiffOptionsTiled }
+
+constructor TfrmGeoTiffOptionsTiled.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner, gtstTiled);
 end;
 
 end.
