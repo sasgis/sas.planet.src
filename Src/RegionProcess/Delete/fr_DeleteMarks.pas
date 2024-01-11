@@ -74,6 +74,10 @@ uses
 constructor TfrDeleteMarks.Create(const ALanguageManager: ILanguageManager);
 begin
   inherited Create(ALanguageManager);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [], [], True, False, True, True
+  );
 end;
 
 function TfrDeleteMarks.DeleteHiddenMarks: Boolean;
@@ -107,7 +111,7 @@ function TfrDeleteMarks.Validate: Boolean;
 begin
   Result := chkPlacemarks.Checked or chkPaths.Checked or chkPolygons.Checked;
   if not Result then begin
-    ShowMessage(_('Please select at one placemark type'));
+    ShowMessage(_('Please select at least one type of placemark'));
   end;
 end;
 

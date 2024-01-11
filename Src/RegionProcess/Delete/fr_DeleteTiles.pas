@@ -74,6 +74,8 @@ type
     function CheckIsDeleteable(const AMapType: IMapType): boolean;
   private
     function GetPredicate: IPredicateByTileInfo;
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -109,6 +111,10 @@ begin
       true,  // show disabled map
       CheckIsDeleteable
     );
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlMapSelect], [], True, False, True, True
+  );
 end;
 
 destructor TfrDeleteTiles.Destroy;
@@ -182,15 +188,27 @@ procedure TfrDeleteTiles.Init(
   const AZoom: byte;
   const APolygon: IGeometryLonLatPolygon
 );
-var
-  i: integer;
 begin
-  cbbZoom.Items.Clear;
-  for i := 1 to 24 do begin
-    cbbZoom.Items.Add(inttostr(i));
-  end;
   cbbZoom.ItemIndex := AZoom;
   FfrMapSelect.Show(pnlFrame);
+end;
+
+procedure TfrDeleteTiles.OnShow(const AIsFirstTime: Boolean);
+var
+  I: Integer;
+begin
+  inherited;
+
+  if AIsFirstTime then begin
+    with cbbZoom.Items do begin
+      BeginUpdate;
+      Clear;
+      for I := 1 to 24 do begin
+        Add(IntToStr(I));
+      end;
+      EndUpdate;
+    end;
+  end;
 end;
 
 function TfrDeleteTiles.Validate: Boolean;

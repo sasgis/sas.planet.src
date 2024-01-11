@@ -143,6 +143,7 @@ begin
   Add('TCheckListBox', ['CheckedBitMask']); // TCheckListBoxExt
 
   Add('TComboBox', ['ItemIndex']);
+  Add('TRadioGroup', ['ItemIndex']);
   Add('TPageControl', ['ActivePageIndex']);
 
   Add('TEdit', ['Text']);
