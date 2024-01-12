@@ -53,7 +53,7 @@ object frExportToCE: TfrExportToCE
         Align = alCustom
         Caption = 'Map/Overlay layer:'
       end
-      object lVolSize: TLabel
+      object lblVolSize: TLabel
         Left = 271
         Top = 3
         Width = 112
@@ -61,7 +61,7 @@ object frExportToCE: TfrExportToCE
         Anchors = [akTop, akRight]
         Caption = 'Max volume size, Mb'
       end
-      object EMapName: TEdit
+      object edtMapName: TEdit
         Left = 111
         Top = 47
         Width = 259
@@ -69,7 +69,7 @@ object frExportToCE: TfrExportToCE
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
       end
-      object EComent: TEdit
+      object edtComent: TEdit
         Left = 111
         Top = 74
         Width = 259
@@ -77,7 +77,7 @@ object frExportToCE: TfrExportToCE
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 4
       end
-      object SaveRecoverInfo: TCheckBox
+      object chkSaveRecoverInfo: TCheckBox
         Left = 3
         Top = 101
         Width = 367
@@ -87,25 +87,25 @@ object frExportToCE: TfrExportToCE
         State = cbChecked
         TabOrder = 6
       end
-      object CComment: TCheckBox
+      object chkComment: TCheckBox
         Left = 3
         Top = 78
         Width = 102
         Height = 17
         Caption = 'Comment'
         TabOrder = 5
-        OnClick = CCommentClick
+        OnClick = chkCommentClick
       end
-      object CMapName: TCheckBox
+      object chkMapName: TCheckBox
         Left = 3
         Top = 51
         Width = 102
         Height = 17
         Caption = 'Map Name'
         TabOrder = 3
-        OnClick = CMapNameClick
+        OnClick = chkMapNameClick
       end
-      object cbbMaxVolSize: TSpinEdit
+      object seMaxVolSize: TSpinEdit
         Left = 271
         Top = 19
         Width = 99

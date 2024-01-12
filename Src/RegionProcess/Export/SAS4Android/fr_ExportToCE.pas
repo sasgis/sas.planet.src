@@ -68,18 +68,18 @@ type
     lblTargetPath: TLabel;
     edtTargetPath: TEdit;
     btnSelectTargetPath: TButton;
-    EMapName: TEdit;
-    EComent: TEdit;
-    SaveRecoverInfo: TCheckBox;
-    lVolSize: TLabel;
-    CComment: TCheckBox;
-    CMapName: TCheckBox;
-    cbbMaxVolSize: TSpinEdit;
+    edtMapName: TEdit;
+    edtComent: TEdit;
+    chkSaveRecoverInfo: TCheckBox;
+    lblVolSize: TLabel;
+    chkComment: TCheckBox;
+    chkMapName: TCheckBox;
+    seMaxVolSize: TSpinEdit;
     pnlMap: TPanel;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure MapChange(Sender: TObject);
-    procedure CMapNameClick(Sender: TObject);
-    procedure CCommentClick(Sender: TObject);
+    procedure chkMapNameClick(Sender: TObject);
+    procedure chkCommentClick(Sender: TObject);
   private
     FfrMapSelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
@@ -127,6 +127,7 @@ constructor TfrExportToCe.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
@@ -135,11 +136,16 @@ begin
       GetAllowExport
     );
   FfrMapSelect.OnMapChange := MapChange;
+
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop, edtComent, edtMapName], [], True, False, True, True
+  );
 end;
 
 destructor TfrExportToCE.Destroy;
@@ -168,16 +174,16 @@ end;
 
 procedure TfrExportToCE.SetMapName();
 begin
-  if CMapName.checked then begin
-    EMapName.enabled := true;
+  if chkMapName.checked then begin
+    edtMapName.enabled := true;
     if FfrMapSelect.GetSelectedMapType <> nil then begin
-      EMapName.text := FfrMapSelect.GetSelectedMapType.GUIConfig.Name.Value;
+      edtMapName.text := FfrMapSelect.GetSelectedMapType.GUIConfig.Name.Value;
     end else begin
-      EMapName.text := '';
+      edtMapName.text := '';
     end;
   end else begin
-    EMapName.Enabled := false;
-    EMapName.text := '';
+    edtMapName.Enabled := false;
+    edtMapName.text := '';
   end;
 end;
 
@@ -218,17 +224,17 @@ begin
   end;
 end;
 
-procedure TfrExportToCE.CCommentClick(Sender: TObject);
+procedure TfrExportToCE.chkCommentClick(Sender: TObject);
 begin
-  if CComment.checked then begin
-    EComent.enabled := true;
+  if chkComment.checked then begin
+    edtComent.enabled := true;
   end else begin
-    EComent.Enabled := false;
-    EComent.text := '';
+    edtComent.Enabled := false;
+    edtComent.text := '';
   end;
 end;
 
-procedure TfrExportToCE.CMapNameClick(Sender: TObject);
+procedure TfrExportToCE.chkMapNameClick(Sender: TObject);
 begin
   SetMapName();
 end;
@@ -237,22 +243,22 @@ function TfrExportToCE.GetComent: string;
 var
   VMapType: IMapType;
 begin
-  Result := EMapName.Text;
+  Result := edtMapName.Text;
   if Result <> '' then begin
     VMapType := GetMapType;
     Result := Guidtostring(VMapType.Zmp.GUID) + #13#10 + Result;
   end;
-  if EComent.Text <> '' then begin
+  if edtComent.Text <> '' then begin
     if Result <> '' then begin
       Result := Result + #13#10;
     end;
-    Result := Result + EComent.Text;
+    Result := Result + edtComent.Text;
   end;
 end;
 
 function TfrExportToCE.GetIsAddRecoverInfo: boolean;
 begin
-  Result := SaveRecoverInfo.Checked;
+  Result := chkSaveRecoverInfo.Checked;
 end;
 
 function TfrExportToCE.GetMapType: IMapType;
@@ -262,7 +268,7 @@ end;
 
 function TfrExportToCE.GetMaxSize: integer;
 begin
-  Result := cbbMaxVolSize.value;
+  Result := seMaxVolSize.value;
 end;
 
 function TfrExportToCE.GetPath: string;
@@ -289,11 +295,11 @@ end;
 
 procedure TfrExportToCE.Init;
 begin
-  if CComment.checked then begin
-    EComent.enabled := true;
+  if chkComment.checked then begin
+    edtComent.enabled := true;
   end else begin
-    EComent.Enabled := false;
-    EComent.text := '';
+    edtComent.Enabled := false;
+    edtComent.text := '';
   end;
   FfrMapSelect.Show(pnlMap);
   SetMapName();
