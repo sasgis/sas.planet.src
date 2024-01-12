@@ -74,7 +74,10 @@ type
     seCompression: TSpinEdit;
     procedure cbbImageFormatChange(Sender: TObject);
   private
+    seQuality: TSpinEdit;
+  private
     FOnChange: TNotifyEvent;
+    FSelectedFormat: TImageFormatType;
     FImageFormats: TImageFormatTypeSet;
     FIndexByImageFormat: array[TImageFormatType] of Integer;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -85,6 +88,9 @@ type
     function GetBitmapTileSaver(const AMap, AOverlay: IMapType): IBitmapTileSaver;
     function GetContentType(const AMap, AOverlay: IMapType): AnsiString;
     property SelectedFormat: TImageFormatType read GetSelectedFormat;
+  protected
+    procedure OnShow(const AIsFirsTime: Boolean); override;
+    procedure RefreshTranslation; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -93,7 +99,6 @@ type
       const ASelectedFormat: TImageFormatType = iftAuto;
       const AOnChange: TNotifyEvent = nil
     ); reintroduce;
-    procedure RefreshTranslation; override;
     procedure Show(AParent: TWinControl);
   end;
 
@@ -149,11 +154,26 @@ begin
 
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FImageFormats := AImageFormats;
+  FSelectedFormat := ASelectedFormat;
   FOnChange := AOnChange;
 
+  seQuality := TSpinEdit.Create(Self);
+  seQuality.Name := 'seQuality';
+  seQuality.Parent := pnlImageFormat;
+  seQuality.MinValue := 1;
+  seQuality.MaxValue := 100;
+  seQuality.Value := 75;
+  seQuality.Top := seCompression.Top;
+  seQuality.Left := seCompression.Left;
+  seQuality.Height := seCompression.Height;
+  seQuality.Width := seCompression.Width;
+  seQuality.TabOrder := seCompression.TabOrder;
+
   SetupUI;
-  SetSelectedFormat(ASelectedFormat);
-  cbbImageFormatChange(nil);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [], [], True, False, True, True
+  );
 end;
 
 procedure TfrImageFormatSelect.cbbImageFormatChange(Sender: TObject);
@@ -169,19 +189,15 @@ begin
 
   if VQuality then begin
     lblCompression.Caption := _('Quality:');
-    seCompression.MinValue := 1;
-    seCompression.MaxValue := 100;
-    seCompression.Value := 75;
   end else
   if VCompression then begin
     lblCompression.Caption := _('Compression:');
-    seCompression.MinValue := 0;
-    seCompression.MaxValue := 9;
-    seCompression.Value := 6;
   end;
 
-  seCompression.Visible := VQuality or VCompression;
-  lblCompression.Visible := seCompression.Visible;
+  seQuality.Visible := VQuality;
+  seCompression.Visible := VCompression;
+
+  lblCompression.Visible := VQuality or VCompression;
 
   if Assigned(FOnChange) then begin
     FOnChange(Self);
@@ -208,6 +224,18 @@ end;
 procedure TfrImageFormatSelect.Show(AParent: TWinControl);
 begin
   Self.Parent := AParent;
+end;
+
+procedure TfrImageFormatSelect.OnShow(const AIsFirsTime: Boolean);
+begin
+  inherited; // restore state
+
+  if AIsFirsTime then begin
+    if cbbImageFormat.ItemIndex < 0 then begin
+      SetSelectedFormat(FSelectedFormat);
+    end;
+    cbbImageFormatChange(nil);
+  end;
 end;
 
 procedure TfrImageFormatSelect.SetSelectedFormat(const AValue: TImageFormatType);
@@ -268,9 +296,19 @@ end;
 
 function TfrImageFormatSelect.GetBitmapTileSaver(const AMap, AOverlay: IMapType): IBitmapTileSaver;
 var
+  VValue: Integer;
   VFormat: TImageFormatType;
   VContentType: IContentTypeInfoBitmap;
 begin
+  if seQuality.Visible then begin
+    VValue := seQuality.Value;
+  end else
+  if seCompression.Visible then begin
+    VValue := seCompression.Value;
+  end else begin
+    VValue := 0;
+  end;
+
   VFormat := GetSelectedFormat;
   case VFormat of
     iftAuto: begin
@@ -283,11 +321,11 @@ begin
     end;
     iftBmp: Result := FBitmapTileSaveLoadFactory.CreateBmpSaver;
     iftGif: Result := FBitmapTileSaveLoadFactory.CreateGifSaver;
-    iftJpeg: Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(seCompression.Value);
-    iftPng8bpp: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, seCompression.Value);
-    iftPng24bpp: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, seCompression.Value);
-    iftPng32bpp: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, seCompression.Value);
-    iftWebp: Result := FBitmapTileSaveLoadFactory.CreateWebpSaver(seCompression.Value);
+    iftJpeg: Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(VValue);
+    iftPng8bpp: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, VValue);
+    iftPng24bpp: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, VValue);
+    iftPng32bpp: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, VValue);
+    iftWebp: Result := FBitmapTileSaveLoadFactory.CreateWebpSaver(VValue);
     iftWebpLossless: Result := FBitmapTileSaveLoadFactory.CreateWebpLosslessSaver;
   else
     raise Exception.CreateFmt('Unexpected TImageFormatType value: %d', [Integer(VFormat)]);

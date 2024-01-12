@@ -114,6 +114,10 @@ begin
   FOnChange := AOnChange;
 
   SetFilterOptions(AFilterOptions);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [], [], True, False, True, True
+  );
 end;
 
 procedure TfrCacheTypeList.Show(AParent: TWinControl);

@@ -33,10 +33,10 @@ object frImageFormatSelect: TfrImageFormatSelect
       Top = 19
       Width = 150
       Height = 24
-      MaxValue = 100
-      MinValue = 1
+      MaxValue = 9
+      MinValue = 0
       TabOrder = 1
-      Value = 75
+      Value = 6
     end
     object cbbImageFormat: TComboBox
       Left = 0

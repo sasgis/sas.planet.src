@@ -295,7 +295,7 @@ object frTilesCopy: TfrTilesCopy
       TabOrder = 0
     end
   end
-  object Panel1: TPanel
+  object pnlHeader: TPanel
     Left = 0
     Top = 0
     Width = 568

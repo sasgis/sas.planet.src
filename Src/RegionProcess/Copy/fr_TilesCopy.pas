@@ -129,7 +129,7 @@ type
     lblTargetPath: TLabel;
     btnSelectTargetPath: TButton;
     chkReplaseTarget: TCheckBox;
-    Panel1: TPanel;
+    pnlHeader: TPanel;
     chkSetTargetVersionTo: TCheckBox;
     edSetTargetVersionValue: TEdit;
     pnSetTargetVersionOptions: TPanel;
@@ -200,6 +200,9 @@ type
     function GetUseFillingMap: Boolean;
     function GetUseRecolor: Boolean;
     function GetUsePreciseCropping: Boolean;
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
+    procedure OnHide; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -266,6 +269,7 @@ begin
       [tsacAdd],
       Self.OnCacheTypeChange
     );
+  FfrCacheTypeList.IntCode := c_File_Cache_Id_SAS;
 
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
@@ -296,7 +300,9 @@ begin
       CImageFormatAll
     );
 
-  pcSource.ActivePageIndex := 0;
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop, chklstMaps, chkAllMaps], [], True, False, True, True
+  );
 end;
 
 destructor TfrTilesCopy.Destroy;
@@ -342,6 +348,27 @@ const
 begin
   chkSetTargetVersionTo.Enabled := Self.GetTargetCacheType in CVersionedTileStorageId;
   UpdateSetTargetVersionState;
+end;
+
+procedure TfrTilesCopy.OnShow(const AIsFirstTime: Boolean);
+begin
+  inherited;
+
+  if AIsFirstTime then begin
+    if pcSource.ActivePageIndex < 0 then begin
+      pcSource.ActivePageIndex := 0;
+    end;
+  end else begin
+    FfrCacheTypeList.Visible := True;
+    FfrImageFormatSelect.Visible := True;
+  end;
+end;
+
+procedure TfrTilesCopy.OnHide;
+begin
+  inherited;
+  FfrCacheTypeList.Hide;
+  FfrImageFormatSelect.Hide;
 end;
 
 procedure TfrTilesCopy.chkAddVisibleLayersClick(Sender: TObject);
@@ -594,8 +621,9 @@ begin
   FfrOverlaySelect.Show(pnlOverlay);
   FfrZoomsSelect.Show(pnlZoom);
   FfrCacheTypeList.Show(pnlCacheTypes);
-  FfrCacheTypeList.IntCode := c_File_Cache_Id_SAS;
   FfrImageFormatSelect.Show(pnlImageFormat);
+
+  OnCacheTypeChange(nil);
 
   VActiveMapGUID := FMainMapConfig.MainMapGUID;
   chklstMaps.Items.Clear;
