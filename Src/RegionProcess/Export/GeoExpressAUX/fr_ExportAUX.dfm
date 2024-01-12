@@ -2,7 +2,7 @@ object frExportAUX: TfrExportAUX
   Left = 0
   Top = 0
   Width = 400
-  Height = 90
+  Height = 148
   Align = alClient
   Constraints.MinHeight = 90
   Constraints.MinWidth = 400
@@ -13,7 +13,7 @@ object frExportAUX: TfrExportAUX
     Left = 0
     Top = 27
     Width = 400
-    Height = 63
+    Height = 121
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1

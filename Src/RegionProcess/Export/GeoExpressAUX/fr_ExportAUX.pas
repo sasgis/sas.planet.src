@@ -97,6 +97,7 @@ constructor TfrExportAUX.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
@@ -104,6 +105,10 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop, pnlCenter], [], True, False, True, True
+  );
 end;
 
 destructor TfrExportAUX.Destroy;
@@ -115,6 +120,7 @@ end;
 procedure TfrExportAUX.btnSelectTargetFileClick(Sender: TObject);
 begin
   if dlgTargetFileSelect.Execute then begin
+    dlgTargetFileSelect.InitialDir := ExtractFileDir(dlgTargetFileSelect.FileName);
     edtTargetFile.Text := dlgTargetFileSelect.FileName;
   end;
 end;
