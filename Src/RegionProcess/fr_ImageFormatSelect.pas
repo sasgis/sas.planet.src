@@ -199,7 +199,7 @@ begin
 
   lblCompression.Visible := VQuality or VCompression;
 
-  if Assigned(FOnChange) then begin
+  if Assigned(Sender) and Assigned(FOnChange) then begin
     FOnChange(Self);
   end;
 end;

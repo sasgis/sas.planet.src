@@ -162,6 +162,9 @@ type
     function GetUseFillingMap: Boolean;
     function GetUseRecolor: Boolean;
     function GetUsePreciseCropping: Boolean;
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
+    procedure OnHide; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -245,11 +248,9 @@ begin
   FContentTypeManager := AContentTypeManager;
   FActiveMapsList := AActiveMapsList;
 
-  chkAddVisibleLayers.OnClick := Self.OnForceExtractTilesChange;
-  chkAddVisibleOverlays.OnClick := Self.OnForceExtractTilesChange;
-  chkUseRecolor.OnClick := Self.OnForceExtractTilesChange;
-  chkPreciseCropping.OnClick := Self.OnForceExtractTilesChange;
-  chkUsePrevZoom.OnClick := Self.OnForceExtractTilesChange;
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop], [], True, False, True, True
+  );
 end;
 
 destructor TfrExportKml.Destroy;
@@ -259,6 +260,28 @@ begin
   FreeAndNil(FfrCacheTypeList);
   FreeAndNil(FfrImageFormatSelect);
   inherited Destroy;
+end;
+
+procedure TfrExportKml.OnHide;
+begin
+  inherited;
+  FfrCacheTypeList.Hide;
+  FfrImageFormatSelect.Hide;
+end;
+
+procedure TfrExportKml.OnShow(const AIsFirstTime: Boolean);
+begin
+  inherited;
+  if AIsFirstTime then begin
+    chkAddVisibleLayers.OnClick := Self.OnForceExtractTilesChange;
+    chkAddVisibleOverlays.OnClick := Self.OnForceExtractTilesChange;
+    chkUseRecolor.OnClick := Self.OnForceExtractTilesChange;
+    chkPreciseCropping.OnClick := Self.OnForceExtractTilesChange;
+    chkUsePrevZoom.OnClick := Self.OnForceExtractTilesChange;
+  end else begin
+    FfrCacheTypeList.Visible := True;
+    FfrImageFormatSelect.Visible := True;
+  end;
 end;
 
 procedure TfrExportKml.OnChangeNotify(Sender: TObject);
