@@ -85,7 +85,7 @@ type
     lblMap: TLabel;
     dlgSaveSQLite: TSaveDialog;
     pnlMap: TPanel;
-    PnlZoom: TPanel;
+    pnlZoom: TPanel;
     chkDirectTilesCopy: TCheckBox;
     lblOverlay: TLabel;
     pnlOverlay: TPanel;
@@ -124,6 +124,9 @@ type
     function GetBitmapTileSaver: IBitmapTileSaver;
     procedure OnDirectTilesCopyChange(const AEnableDirectCopy: Boolean);
     procedure OnMapChange(Sender: TObject);
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
+    procedure OnHide; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -139,8 +142,8 @@ type
 implementation
 
 uses
-  gnugettext,
   Graphics,
+  gnugettext,
   c_CoordConverter,
   i_MapVersionRequest,
   i_ContentTypeInfo,
@@ -158,14 +161,21 @@ constructor TfrExportRMapsSQLite.Create(
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AModType: TRMapsSQLiteModType
 );
+const
+  CFrameName: array[TRMapsSQLiteModType] of string = (
+    'frExportRMaps', 'frExportOsmAnd', 'frExportLocus'
+  );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
+
   inherited Create(ALanguageManager);
 
   FActiveMapsList := AActiveMapsList;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FModType := AModType;
+
+  Self.Name := CFrameName[AModType];
 
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
@@ -199,6 +209,10 @@ begin
       iftAuto,
       Self.OnImageFormatChange
     );
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop, pnlZoom], [], True, False, True, True
+  );
 end;
 
 destructor TfrExportRMapsSQLite.Destroy;
@@ -208,6 +222,20 @@ begin
   FreeAndNil(FfrZoomsSelect);
   FreeAndNil(FfrImageFormatSelect);
   inherited;
+end;
+
+procedure TfrExportRMapsSQLite.OnHide;
+begin
+  inherited;
+  FfrImageFormatSelect.Hide;
+end;
+
+procedure TfrExportRMapsSQLite.OnShow(const AIsFirstTime: Boolean);
+begin
+  inherited;
+  if not AIsFirstTime then begin
+    FfrImageFormatSelect.Visible := True;
+  end;
 end;
 
 procedure TfrExportRMapsSQLite.OnImageFormatChange(Sender: TObject);
@@ -283,6 +311,7 @@ end;
 procedure TfrExportRMapsSQLite.btnSelectTargetFileClick(Sender: TObject);
 begin
   if dlgSaveSQLite.Execute then begin
+    dlgSaveSQLite.InitialDir := ExtractFileDir(dlgSaveSQLite.FileName);
     edtTargetFile.Text := dlgSaveSQLite.FileName;
   end;
 end;
