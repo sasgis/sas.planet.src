@@ -2,7 +2,7 @@ object frExportRMP: TfrExportRMP
   Left = 0
   Top = 0
   Width = 451
-  Height = 304
+  Height = 345
   Align = alClient
   Constraints.MinHeight = 230
   Constraints.MinWidth = 451
@@ -13,7 +13,7 @@ object frExportRMP: TfrExportRMP
     Left = 0
     Top = 27
     Width = 451
-    Height = 277
+    Height = 318
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
@@ -21,7 +21,7 @@ object frExportRMP: TfrExportRMP
       Left = 0
       Top = 0
       Width = 368
-      Height = 277
+      Height = 318
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -155,11 +155,11 @@ object frExportRMP: TfrExportRMP
         TabOrder = 4
       end
     end
-    object PnlZoom: TPanel
+    object pnlZoom: TPanel
       Left = 368
       Top = 0
       Width = 83
-      Height = 277
+      Height = 318
       Align = alRight
       BevelOuter = bvNone
       BiDiMode = bdLeftToRight
@@ -215,7 +215,7 @@ object frExportRMP: TfrExportRMP
     DefaultExt = 'rmp'
     Filter = 'rmp|*.rmp'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 416
-    Top = 272
+    Left = 328
+    Top = 288
   end
 end

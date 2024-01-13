@@ -88,7 +88,7 @@ type
     pnlMain: TPanel;
     lblMap: TLabel;
     pnlMap: TPanel;
-    PnlZoom: TPanel;
+    pnlZoom: TPanel;
     lblOverlay: TLabel;
     pnlOverlay: TPanel;
     pnlImageFormat: TPanel;
@@ -198,6 +198,10 @@ begin
   FfrZoomsSelect.Init(0, 23);
   FfrZoomsSelect.DisableZoom(0);
   FfrZoomsSelect.DisableZoom(1);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop, pnlZoom], [], True, False, True, True
+  );
 end;
 
 destructor TfrExportRMP.Destroy;
@@ -216,6 +220,7 @@ end;
 procedure TfrExportRMP.btnSelectTargetFileClick(Sender: TObject);
 begin
   if dlgSaveTo.Execute then begin
+    dlgSaveTo.InitialDir := ExtractFileDir(dlgSaveTo.FileName);
     edtTargetFile.Text := dlgSaveTo.FileName;
   end;
 end;
