@@ -49,7 +49,7 @@ object frExportToFileCont: TfrExportToFileCont
         Align = alTop
         Caption = 'Export selection to format:'
       end
-      object pnlFrame: TPanel
+      object pnlMap: TPanel
         Left = 3
         Top = 3
         Width = 370

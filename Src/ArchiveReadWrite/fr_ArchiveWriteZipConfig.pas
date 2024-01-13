@@ -52,6 +52,8 @@ type
     { IArchiveWriteConfigFrame }
     function GetWriteConfig: IArchiveWriteConfig;
     procedure Reset(const AWriteConfig: IArchiveWriteConfig);
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager
@@ -89,16 +91,30 @@ begin
   cbbCompressLevel.Items.Add( _('Normal') );
   cbbCompressLevel.Items.Add( _('Best') );
 
-  cbbCompressLevel.ItemIndex := 0; // Store
-
   for I := 0 to Length(cCompressMethodStr) - 1 do begin
     cbbCompressMethod.Items.Add(cCompressMethodStr[I]);
   end;
 
-  cbbCompressLevelChange(Self);
-
   for I := 0 to Length(cVolumeSizeStr) - 1 do begin
     cbbVolumeSize.Items.Add(cVolumeSizeStr[I]);
+  end;
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [], [], True, False, True, True
+  );
+
+  // ToDo:
+  // FPropertyState.Add('cbbVolumeSize', 'Text');
+end;
+
+procedure TfrArchiveWriteZipConfig.OnShow(const AIsFirstTime: Boolean);
+begin
+  inherited;
+  if AIsFirstTime then begin
+    if cbbCompressLevel.ItemIndex < 0 then begin
+      cbbCompressLevel.ItemIndex := 0; // Store
+    end;
+    cbbCompressLevelChange(Self);
   end;
 end;
 
@@ -106,7 +122,9 @@ procedure TfrArchiveWriteZipConfig.cbbCompressLevelChange(Sender: TObject);
 begin
   cbbCompressMethod.Enabled := cbbCompressLevel.ItemIndex > 0;
   if cbbCompressMethod.Enabled then begin
-    cbbCompressMethod.ItemIndex := 0;
+    if cbbCompressMethod.ItemIndex < 0 then begin
+      cbbCompressMethod.ItemIndex := 0; // Deflate
+    end;
   end else begin
     cbbCompressMethod.ItemIndex := -1;
   end;

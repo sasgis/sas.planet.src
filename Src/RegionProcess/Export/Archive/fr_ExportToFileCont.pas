@@ -75,7 +75,7 @@ type
     btnSelectTargetFile: TButton;
     dlgSaveTargetFile: TSaveDialog;
     lblNamesType: TLabel;
-    pnlFrame: TPanel;
+    pnlMap: TPanel;
     pnlCacheTypes: TPanel;
     pnlArchiveWriteConfig: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
@@ -98,6 +98,9 @@ type
     function GetNameGenerator: ITileFileNameGenerator;
     function GetAllowExport(const AMapType: IMapType): boolean;
     function GetArchiveWriteConfig: IArchiveWriteConfig;
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
+    procedure OnHide; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -131,9 +134,12 @@ constructor TfrExportToFileCont.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
   FTileNameGeneratorList := ATileNameGeneratorList;
+
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
+
   FfrCacheTypeList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
@@ -142,6 +148,7 @@ begin
       [tstcInSeparateFiles],
       [tsacAdd]
     );
+
   FfrMapSelect :=
     AMapSelectFrameBuilder.Build(
       mfAll, // show maps and layers
@@ -149,6 +156,7 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
       ALanguageManager
@@ -159,6 +167,10 @@ begin
   if FfrArchiveWriterConfig <> nil then begin
     FfrArchiveWriterConfig.Parent := pnlArchiveWriteConfig;
   end;
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop, pnlMap, pnlZoom], [], True, False, True, True
+  );
 end;
 
 destructor TfrExportToFileCont.Destroy;
@@ -170,9 +182,30 @@ begin
   inherited;
 end;
 
+procedure TfrExportToFileCont.OnHide;
+begin
+  inherited;
+  FfrCacheTypeList.Hide;
+  if FfrArchiveWriterConfig <> nil then begin
+    FfrArchiveWriterConfig.Hide;
+  end;
+end;
+
+procedure TfrExportToFileCont.OnShow(const AIsFirstTime: Boolean);
+begin
+  inherited;
+  if not AIsFirstTime then begin
+    FfrCacheTypeList.Visible := True;
+    if FfrArchiveWriterConfig <> nil then begin
+      FfrArchiveWriterConfig.Visible := True;
+    end;
+  end;
+end;
+
 procedure TfrExportToFileCont.btnSelectTargetFileClick(Sender: TObject);
 begin
   if dlgSaveTargetFile.Execute then begin
+    dlgSaveTargetFile.InitialDir := ExtractFileDir(dlgSaveTargetFile.FileName);
     edtTargetFile.Text := dlgSaveTargetFile.FileName;
   end;
 end;
@@ -212,7 +245,7 @@ end;
 
 procedure TfrExportToFileCont.Init;
 begin
-  FfrMapSelect.Show(pnlFrame);
+  FfrMapSelect.Show(pnlMap);
   FfrZoomsSelect.Show(pnlZoom);
   FfrCacheTypeList.Show(pnlCacheTypes);
 end;
