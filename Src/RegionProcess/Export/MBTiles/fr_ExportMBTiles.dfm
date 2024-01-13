@@ -160,7 +160,7 @@ object frExportMBTiles: TfrExportMBTiles
         TabOrder = 5
       end
     end
-    object PnlZoom: TPanel
+    object pnlZoom: TPanel
       Left = 467
       Top = 0
       Width = 83

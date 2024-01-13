@@ -92,7 +92,7 @@ type
     pnlMain: TPanel;
     lblMap: TLabel;
     pnlMap: TPanel;
-    PnlZoom: TPanel;
+    pnlZoom: TPanel;
     lblOverlay: TLabel;
     pnlOverlay: TPanel;
     pnlImageFormat: TPanel;
@@ -138,6 +138,9 @@ type
     function GetIsLayer: Boolean;
     function GetMakeTileMillCompatibility: Boolean;
     procedure GetBitmapTileSaver(out ASaver: IBitmapTileSaver; out AFormat: string);
+  protected
+    procedure OnShow(const AIsFirstTime: Boolean); override;
+    procedure OnHide; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -231,6 +234,10 @@ begin
       FBitmapTileSaveLoadFactory,
       [iftAuto, iftJpeg, iftPng8bpp, iftPng24bpp, iftPng32bpp]
     );
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop, pnlZoom], [], True, False, True, True
+  );
 end;
 
 destructor TfrExportMBTiles.Destroy;
@@ -242,6 +249,20 @@ begin
   inherited;
 end;
 
+procedure TfrExportMBTiles.OnHide;
+begin
+  inherited;
+  FfrImageFormatSelect.Hide;
+end;
+
+procedure TfrExportMBTiles.OnShow(const AIsFirstTime: Boolean);
+begin
+  inherited;
+  if not AIsFirstTime then begin
+    FfrImageFormatSelect.Visible := True;
+  end;
+end;
+
 procedure TfrExportMBTiles.chkAddVisibleLayersClick(Sender: TObject);
 begin
   FfrOverlaySelect.SetEnabled(not chkAddVisibleLayers.Checked);
@@ -250,6 +271,7 @@ end;
 procedure TfrExportMBTiles.btnSelectTargetFileClick(Sender: TObject);
 begin
   if dlgSaveTo.Execute then begin
+    dlgSaveTo.InitialDir := ExtractFileDir(dlgSaveTo.FileName);
     edtTargetFile.Text := dlgSaveTo.FileName;
   end;
 end;
