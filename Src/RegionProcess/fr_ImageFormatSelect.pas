@@ -84,8 +84,10 @@ type
     procedure SetupUI;
     function GetSelectedFormat: TImageFormatType;
     procedure SetSelectedFormat(const AValue: TImageFormatType);
+    function IsSupportedContentType(const AContentType: IContentTypeInfoBitmap): Boolean;
   public
-    function GetBitmapTileSaver(const AMap, AOverlay: IMapType): IBitmapTileSaver;
+    function GetBitmapTileSaver(const AMap, AOverlay: IMapType): IBitmapTileSaver; overload;
+    function GetBitmapTileSaver(const AFormat: TImageFormatType): IBitmapTileSaver; overload;
     function GetContentType(const AMap, AOverlay: IMapType): AnsiString;
     property SelectedFormat: TImageFormatType read GetSelectedFormat;
   protected
@@ -286,7 +288,7 @@ begin
     Result := CImageFormatContentType[VFormat];
   end else begin
     VContentType := GetContentTypeInfo(AMap, AOverlay);
-    if VContentType <> nil then begin
+    if IsSupportedContentType(VContentType) then begin
       Result := VContentType.GetContentType;
     end else begin
       Result := '';
@@ -294,12 +296,55 @@ begin
   end;
 end;
 
+function TfrImageFormatSelect.IsSupportedContentType(const AContentType: IContentTypeInfoBitmap): Boolean;
+var
+  I: TImageFormatType;
+  VContentTypeStr: AnsiString;
+begin
+  Result := False;
+  if AContentType = nil then begin
+    Exit;
+  end;
+
+  VContentTypeStr := LowerCase(AContentType.GetContentType);
+  for I := Low(TImageFormatType) to High(TImageFormatType) do begin
+    if (I <> iftAuto) and (I in FImageFormats) then begin
+      if VContentTypeStr = CImageFormatContentType[I] then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
+
 function TfrImageFormatSelect.GetBitmapTileSaver(const AMap, AOverlay: IMapType): IBitmapTileSaver;
 var
-  VValue: Integer;
   VFormat: TImageFormatType;
   VContentType: IContentTypeInfoBitmap;
 begin
+  VFormat := GetSelectedFormat;
+  if VFormat = iftAuto then begin
+    VContentType := GetContentTypeInfo(AMap, AOverlay);
+    if IsSupportedContentType(VContentType) then begin
+      Result := VContentType.GetSaver;
+    end else begin
+      Result := nil;
+    end;
+  end else begin
+    Result := GetBitmapTileSaver(VFormat);
+  end;
+end;
+
+function TfrImageFormatSelect.GetBitmapTileSaver(const AFormat: TImageFormatType): IBitmapTileSaver;
+var
+  VValue: Integer;
+begin
+  if (AFormat = iftAuto) or not (AFormat in FImageFormats) then begin
+    Result := nil;
+    Assert(False);
+    Exit;
+  end;
+
   if seQuality.Visible then begin
     VValue := seQuality.Value;
   end else
@@ -309,16 +354,7 @@ begin
     VValue := 0;
   end;
 
-  VFormat := GetSelectedFormat;
-  case VFormat of
-    iftAuto: begin
-      VContentType := GetContentTypeInfo(AMap, AOverlay);
-      if VContentType <> nil then begin
-        Result := VContentType.GetSaver;
-      end else begin
-        Result := nil;
-      end;
-    end;
+  case AFormat of
     iftBmp: Result := FBitmapTileSaveLoadFactory.CreateBmpSaver;
     iftGif: Result := FBitmapTileSaveLoadFactory.CreateGifSaver;
     iftJpeg: Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(VValue);
@@ -328,7 +364,7 @@ begin
     iftWebp: Result := FBitmapTileSaveLoadFactory.CreateWebpSaver(VValue);
     iftWebpLossless: Result := FBitmapTileSaveLoadFactory.CreateWebpLosslessSaver;
   else
-    raise Exception.CreateFmt('Unexpected TImageFormatType value: %d', [Integer(VFormat)]);
+    raise Exception.CreateFmt('Unexpected TImageFormatType value: %d', [Integer(AFormat)]);
   end;
 end;
 

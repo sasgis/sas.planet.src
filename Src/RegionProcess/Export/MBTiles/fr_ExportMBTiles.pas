@@ -44,6 +44,7 @@ uses
   i_MapTypeListChangeable,
   fr_MapSelect,
   fr_ZoomsSelect,
+  fr_ImageFormatSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -95,12 +96,6 @@ type
     lblOverlay: TLabel;
     pnlOverlay: TPanel;
     pnlImageFormat: TPanel;
-    seJpgQuality: TSpinEdit;
-    lblJpgQulity: TLabel;
-    cbbImageFormat: TComboBox;
-    lblImageFormat: TLabel;
-    seCompression: TSpinEdit;
-    lblCompression: TLabel;
     chkUsePrevZoom: TCheckBox;
     chkUseXYZScheme: TCheckBox;
     lblName: TLabel;
@@ -113,7 +108,6 @@ type
     chkAddVisibleLayers: TCheckBox;
     chkMakeTileMillStruct: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
-    procedure cbbImageFormatChange(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
   private
     FLastPath: string;
@@ -123,6 +117,7 @@ type
     FfrMapSelect: TfrMapSelect;
     FfrOverlaySelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
+    FfrImageFormatSelect: TfrImageFormatSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -229,6 +224,13 @@ begin
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+
+  FfrImageFormatSelect :=
+    TfrImageFormatSelect.Create(
+      ALanguageManager,
+      FBitmapTileSaveLoadFactory,
+      [iftAuto, iftJpeg, iftPng8bpp, iftPng24bpp, iftPng32bpp]
+    );
 end;
 
 destructor TfrExportMBTiles.Destroy;
@@ -236,20 +238,8 @@ begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrOverlaySelect);
   FreeAndNil(FfrZoomsSelect);
+  FreeAndNil(FfrImageFormatSelect);
   inherited;
-end;
-
-procedure TfrExportMBTiles.cbbImageFormatChange(Sender: TObject);
-var
-  VValue: Boolean;
-begin
-  VValue := not (cbbImageFormat.ItemIndex = 0) and cbbImageFormat.Enabled;
-
-  lblJpgQulity.Enabled := VValue;
-  seJpgQuality.Enabled := VValue;
-
-  lblCompression.Enabled := VValue;
-  seCompression.Enabled := VValue;
 end;
 
 procedure TfrExportMBTiles.chkAddVisibleLayersClick(Sender: TObject);
@@ -346,7 +336,7 @@ begin
   end else if not Assigned(VMap) and Assigned(VLayer) then begin
     Result := _IsValidMap(VLayer);
   end;
-  Result := Result and (cbbImageFormat.ItemIndex = 0);
+  Result := Result and (FfrImageFormatSelect.SelectedFormat = iftAuto);
 end;
 
 function TfrExportMBTiles.GetZoomArray: TByteDynArray;
@@ -398,64 +388,37 @@ begin
 end;
 
 procedure TfrExportMBTiles.GetBitmapTileSaver(out ASaver: IBitmapTileSaver; out AFormat: string);
-
 const
   cJPG = 'jpg';
   cPNG = 'png';
-
-  function _GetSaver(const AMap: IMapType; const AIsLayer: Boolean): IBitmapTileSaver;
-  var
-    VContentType: TMBTilesContentType;
-    VContentTypeInfo: IContentTypeInfoBitmap;
-  begin
-    Result := nil;
-    if Assigned(AMap) then begin
-      if Supports(AMap.ContentType, IContentTypeInfoBitmap, VContentTypeInfo) then begin
-        VContentType := GetMBTilesContentType(VContentTypeInfo);
-        if (VContentType in [ctPNG, ctJPG]) then begin
-          Result := VContentTypeInfo.GetSaver;
-          if VContentType = ctPNG then begin
-            AFormat := cPNG;
-          end else begin
-            AFormat := cJPG;
-          end;
-        end else begin
-          if AIsLayer then begin
-            Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, seCompression.Value);
-            AFormat := cPNG;
-          end else begin
-            Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(seJpgQuality.Value);
-            AFormat := cJPG;
-          end;
-        end;
-      end;
-    end;
-  end;
-
+var
+  VMap: IMapType;
+  VContentType: AnsiString;
 begin
-  ASaver := nil;
+  VMap := Self.GetMapType;
+
+  ASaver := FfrImageFormatSelect.GetBitmapTileSaver(VMap, nil);
   AFormat := '';
-  if cbbImageFormat.ItemIndex = 0 then begin
-    ASaver := _GetSaver(FfrMapSelect.GetSelectedMapType, False);
-    if not Assigned(ASaver) then begin
-      ASaver := _GetSaver(FfrOverlaySelect.GetSelectedMapType, True);
+
+  if ASaver <> nil then begin
+    VContentType := FfrImageFormatSelect.GetContentType(VMap, nil);
+    if IsJpegContentType(VContentType) then begin
+      AFormat := cJPG;
+    end else
+    if IsPngContentType(VContentType) then begin
+      AFormat := cPNG;
+    end else begin
+      raise Exception.Create('Unexpected ContentType: ' + VContentType);
     end;
   end else begin
-    case cbbImageFormat.ItemIndex of
-      1: ASaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(seJpgQuality.Value);
-      2: ASaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, seCompression.Value);
-      3: ASaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, seCompression.Value);
-      4: ASaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, seCompression.Value);
+    Assert(FfrImageFormatSelect.SelectedFormat = iftAuto);
+    if FfrMapSelect.GetSelectedMapType <> nil then begin
+      ASaver := FfrImageFormatSelect.GetBitmapTileSaver(iftJpeg);
+      AFormat := cJPG;
+    end else begin
+      ASaver := FfrImageFormatSelect.GetBitmapTileSaver(iftPng32bpp);
+      AFormat := cPNG;
     end;
-    case cbbImageFormat.ItemIndex of
-      1: AFormat := cJPG;
-      2..4: AFormat := cPNG;
-    end;
-  end;
-  if not Assigned(ASaver) then begin
-    Assert(False, 'Unexpected result!');
-    ASaver := FBitmapTileSaveLoadFactory.CreateJpegSaver;
-    AFormat := cJPG;
   end;
 end;
 
@@ -464,8 +427,7 @@ begin
   FfrMapSelect.Show(pnlMap);
   FfrOverlaySelect.Show(pnlOverlay);
   FfrZoomsSelect.Show(pnlZoom);
-  cbbImageFormat.ItemIndex := 0; // Auto
-  cbbImageFormatChange(Self);
+  FfrImageFormatSelect.Show(pnlImageFormat);
 end;
 
 function TfrExportMBTiles.Validate: Boolean;
