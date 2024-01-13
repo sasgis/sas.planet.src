@@ -200,6 +200,7 @@ begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrOverlaySelect);
   FreeAndNil(FfrZoomsSelect);
+  FreeAndNil(FfrImageFormatSelect);
   inherited;
 end;
 
@@ -355,6 +356,15 @@ end;
 function TfrExportOruxMapsSQLite.GetBitmapTileSaver: IBitmapTileSaver;
 begin
   Result := FfrImageFormatSelect.GetBitmapTileSaver(Self.GetMapType, nil);
+
+  if Result = nil then begin
+    Assert(FfrImageFormatSelect.SelectedFormat = iftAuto);
+    if FfrMapSelect.GetSelectedMapType <> nil then begin
+      Result := FfrImageFormatSelect.GetBitmapTileSaver(iftJpeg);
+    end else begin
+      Result := FfrImageFormatSelect.GetBitmapTileSaver(iftPng32bpp);
+    end;
+  end;
 end;
 
 procedure TfrExportOruxMapsSQLite.Init;
