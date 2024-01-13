@@ -45,6 +45,7 @@ uses
   i_MapTypeListChangeable,
   fr_MapSelect,
   fr_ZoomsSelect,
+  fr_ImageFormatSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -89,17 +90,10 @@ type
     lblOverlay: TLabel;
     pnlOverlay: TPanel;
     pnlImageFormat: TPanel;
-    seJpgQuality: TSpinEdit;
-    lblJpgQulity: TLabel;
-    cbbImageFormat: TComboBox;
-    lblImageFormat: TLabel;
-    seCompression: TSpinEdit;
-    lblCompression: TLabel;
     chkUsePrevZoom: TCheckBox;
     chkAddVisibleLayers: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkDirectTilesCopyClick(Sender: TObject);
-    procedure cbbImageFormatChange(Sender: TObject);
     procedure chkUsePrevZoomClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
   private
@@ -109,7 +103,9 @@ type
     FfrMapSelect: TfrMapSelect;
     FfrOverlaySelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
+    FfrImageFormatSelect: TfrImageFormatSelect;
     FModType: TRMapsSQLiteModType;
+    procedure OnImageFormatChange(Sender: TObject);
   private
     procedure Init(
       const AZoom: byte;
@@ -194,6 +190,15 @@ begin
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+
+  FfrImageFormatSelect :=
+    TfrImageFormatSelect.Create(
+      ALanguageManager,
+      FBitmapTileSaveLoadFactory,
+      [iftAuto, iftBmp, iftGif, iftJpeg, iftPng8bpp, iftPng24bpp, iftPng32bpp],
+      iftAuto,
+      Self.OnImageFormatChange
+    );
 end;
 
 destructor TfrExportRMapsSQLite.Destroy;
@@ -201,21 +206,12 @@ begin
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrOverlaySelect);
   FreeAndNil(FfrZoomsSelect);
+  FreeAndNil(FfrImageFormatSelect);
   inherited;
 end;
 
-procedure TfrExportRMapsSQLite.cbbImageFormatChange(Sender: TObject);
-var
-  VValue: Boolean;
+procedure TfrExportRMapsSQLite.OnImageFormatChange(Sender: TObject);
 begin
-  VValue := not (cbbImageFormat.ItemIndex = 0) and cbbImageFormat.Enabled;
-
-  lblJpgQulity.Enabled := VValue;
-  seJpgQuality.Enabled := VValue;
-
-  lblCompression.Enabled := VValue;
-  seCompression.Enabled := VValue;
-
   if GetDirectTilesCopy then begin
     chkDirectTilesCopy.Font.Style := [fsBold];
   end else begin
@@ -245,8 +241,7 @@ begin
     chkUsePrevZoom.Enabled := VItemEnabled;
     chkAddVisibleLayers.Enabled := VItemEnabled;
 
-    lblImageFormat.Enabled := VItemEnabled;
-    cbbImageFormat.Enabled := VItemEnabled;
+    SetControlEnabled(FfrImageFormatSelect, VItemEnabled);
   end else begin
     FfrOverlaySelect.cbbMap.Enabled := not chkAddVisibleLayers.Checked;
     FfrMapSelect.cbbMap.Enabled := True;
@@ -254,11 +249,8 @@ begin
     chkUsePrevZoom.Enabled := True;
     chkAddVisibleLayers.Enabled := True;
 
-    lblImageFormat.Enabled := VItemEnabled or (cbbImageFormat.ItemIndex = 0);
-    cbbImageFormat.Enabled := VItemEnabled or (cbbImageFormat.ItemIndex = 0);
+    SetControlEnabled(FfrImageFormatSelect, VItemEnabled or (FfrImageFormatSelect.SelectedFormat = iftAuto));
   end;
-
-  cbbImageFormatChange(cbbImageFormat);
 
   if AEnableDirectCopy then begin
     chkDirectTilesCopy.Font.Style := [fsBold];
@@ -359,7 +351,7 @@ begin
     if not Assigned(VMap) and Assigned(VLayer) then begin
       Result := IsSupportedEpsg(VLayer);
     end;
-    Result := Result and (cbbImageFormat.ItemIndex = 0);
+    Result := Result and (FfrImageFormatSelect.SelectedFormat = iftAuto);
   end;
 end;
 
@@ -412,38 +404,16 @@ begin
 end;
 
 function TfrExportRMapsSQLite.GetBitmapTileSaver: IBitmapTileSaver;
-
-  function _GetSaver(const AMap: IMapType): IBitmapTileSaver;
-  var
-    VContentType: IContentTypeInfoBitmap;
-  begin
-    Result := nil;
-    if Assigned(AMap) then begin
-      if Supports(AMap.ContentType, IContentTypeInfoBitmap, VContentType) then begin
-        Result := VContentType.GetSaver;
-      end;
-    end;
-  end;
-
 begin
-  if cbbImageFormat.ItemIndex = 0 then begin
-    Result := _GetSaver(FfrMapSelect.GetSelectedMapType);
-    if not Assigned(Result) then begin
-      Result := _GetSaver(FfrOverlaySelect.GetSelectedMapType);
+  Result := FfrImageFormatSelect.GetBitmapTileSaver(Self.GetMapType, nil);
+
+  if Result = nil then begin
+    Assert(FfrImageFormatSelect.SelectedFormat = iftAuto);
+    if FfrMapSelect.GetSelectedMapType <> nil then begin
+      Result := FfrImageFormatSelect.GetBitmapTileSaver(iftJpeg);
+    end else begin
+      Result := FfrImageFormatSelect.GetBitmapTileSaver(iftPng32bpp);
     end;
-  end else begin
-    case cbbImageFormat.ItemIndex of
-      1: Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(seJpgQuality.Value);
-      2: Result := FBitmapTileSaveLoadFactory.CreateBmpSaver;
-      3: Result := FBitmapTileSaveLoadFactory.CreateGifSaver;
-      4: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, seCompression.Value);
-      5: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, seCompression.Value);
-      6: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, seCompression.Value);
-    end;
-  end;
-  if not Assigned(Result) then begin
-    Assert(False, 'Unexpected result!');
-    Result := FBitmapTileSaveLoadFactory.CreateJpegSaver;
   end;
 end;
 
@@ -452,7 +422,7 @@ begin
   FfrMapSelect.Show(pnlMap);
   FfrOverlaySelect.Show(pnlOverlay);
   FfrZoomsSelect.Show(pnlZoom);
-  cbbImageFormat.ItemIndex := 0; // Auto
+  FfrImageFormatSelect.Show(pnlImageFormat);
   OnDirectTilesCopyChange(GetDirectTilesCopy);
 end;
 

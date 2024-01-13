@@ -2,7 +2,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
   Left = 0
   Top = 0
   Width = 550
-  Height = 304
+  Height = 336
   Align = alClient
   Constraints.MinHeight = 230
   Constraints.MinWidth = 550
@@ -13,7 +13,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
     Left = 0
     Top = 27
     Width = 550
-    Height = 277
+    Height = 309
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
@@ -21,7 +21,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       Left = 0
       Top = 0
       Width = 467
-      Height = 277
+      Height = 309
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -105,67 +105,6 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 7
-        object lblJpgQulity: TLabel
-          Left = 156
-          Top = 6
-          Width = 95
-          Height = 15
-          Caption = 'Quality (for JPEG):'
-          Layout = tlCenter
-        end
-        object lblImageFormat: TLabel
-          Left = 0
-          Top = 6
-          Width = 75
-          Height = 15
-          Caption = 'Image format:'
-          Layout = tlCenter
-        end
-        object lblCompression: TLabel
-          Left = 312
-          Top = 6
-          Width = 126
-          Height = 15
-          Caption = 'Compression (for PNG):'
-          Layout = tlCenter
-        end
-        object seJpgQuality: TSpinEdit
-          Left = 156
-          Top = 22
-          Width = 150
-          Height = 24
-          MaxValue = 100
-          MinValue = 1
-          TabOrder = 1
-          Value = 75
-        end
-        object cbbImageFormat: TComboBox
-          Left = 0
-          Top = 22
-          Width = 150
-          Height = 23
-          Style = csDropDownList
-          TabOrder = 0
-          OnChange = cbbImageFormatChange
-          Items.Strings = (
-            'Auto'
-            'JPEG'
-            'BMP'
-            'GIF'
-            'PNG (Indexed Colors)'
-            'PNG (TrueColor)'
-            'PNG (TrueColor + Alpha)')
-        end
-        object seCompression: TSpinEdit
-          Left = 312
-          Top = 22
-          Width = 150
-          Height = 24
-          MaxValue = 9
-          MinValue = 0
-          TabOrder = 2
-          Value = 2
-        end
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
@@ -192,7 +131,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       Left = 467
       Top = 0
       Width = 83
-      Height = 277
+      Height = 309
       Align = alRight
       BevelOuter = bvNone
       BiDiMode = bdLeftToRight
