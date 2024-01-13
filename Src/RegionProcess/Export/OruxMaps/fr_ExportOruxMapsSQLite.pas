@@ -45,6 +45,7 @@ uses
   i_MapTypeListChangeable,
   fr_MapSelect,
   fr_ZoomsSelect,
+  fr_ImageFormatSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -82,17 +83,10 @@ type
     lblOverlay: TLabel;
     pnlOverlay: TPanel;
     pnlImageFormat: TPanel;
-    seJpgQuality: TSpinEdit;
-    lblJpgQulity: TLabel;
-    cbbImageFormat: TComboBox;
-    lblImageFormat: TLabel;
-    seCompression: TSpinEdit;
-    lblCompression: TLabel;
     chkUsePrevZoom: TCheckBox;
     chkStoreBlankTiles: TCheckBox;
     chkAddVisibleLayers: TCheckBox;
     procedure btnSelectTargetPathClick(Sender: TObject);
-    procedure cbbImageFormatChange(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
   private
     FLastPath: string;
@@ -102,6 +96,7 @@ type
     FfrMapSelect: TfrMapSelect;
     FfrOverlaySelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
+    FfrImageFormatSelect: TfrImageFormatSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -184,6 +179,13 @@ begin
       ALanguageManager
     );
   FfrZoomsSelect.Init(0, 23);
+
+  FfrImageFormatSelect :=
+    TfrImageFormatSelect.Create(
+      ALanguageManager,
+      FBitmapTileSaveLoadFactory,
+      [iftAuto, iftJpeg, iftPng8bpp, iftPng24bpp, iftPng32bpp]
+    );
 end;
 
 destructor TfrExportOruxMapsSQLite.Destroy;
@@ -192,19 +194,6 @@ begin
   FreeAndNil(FfrOverlaySelect);
   FreeAndNil(FfrZoomsSelect);
   inherited;
-end;
-
-procedure TfrExportOruxMapsSQLite.cbbImageFormatChange(Sender: TObject);
-var
-  VValue: Boolean;
-begin
-  VValue := not (cbbImageFormat.ItemIndex = 0) and cbbImageFormat.Enabled;
-
-  lblJpgQulity.Enabled := VValue;
-  seJpgQuality.Enabled := VValue;
-
-  lblCompression.Enabled := VValue;
-  seCompression.Enabled := VValue;
 end;
 
 procedure TfrExportOruxMapsSQLite.chkAddVisibleLayersClick(Sender: TObject);
@@ -291,7 +280,7 @@ begin
   end else if not Assigned(VMap) and Assigned(VLayer) then begin
     Result := _IsValidMap(VLayer);
   end;
-  Result := Result and (cbbImageFormat.ItemIndex = 0);
+  Result := Result and (FfrImageFormatSelect.SelectedFormat = iftAuto);
 end;
 
 function TfrExportOruxMapsSQLite.GetZoomArray: TByteDynArray;
@@ -343,37 +332,8 @@ begin
 end;
 
 function TfrExportOruxMapsSQLite.GetBitmapTileSaver: IBitmapTileSaver;
-
-  function _GetSaver(const AMap: IMapType): IBitmapTileSaver;
-  var
-    VContentType: IContentTypeInfoBitmap;
-  begin
-    Result := nil;
-    if Assigned(AMap) then begin
-      if Supports(AMap.ContentType, IContentTypeInfoBitmap, VContentType) then begin
-        Result := VContentType.GetSaver;
-      end;
-    end;
-  end;
-
 begin
-  if cbbImageFormat.ItemIndex = 0 then begin
-    Result := _GetSaver(FfrMapSelect.GetSelectedMapType);
-    if not Assigned(Result) then begin
-      Result := _GetSaver(FfrOverlaySelect.GetSelectedMapType);
-    end;
-  end else begin
-    case cbbImageFormat.ItemIndex of
-      1: Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(seJpgQuality.Value);
-      2: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, seCompression.Value);
-      3: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, seCompression.Value);
-      4: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, seCompression.Value);
-    end;
-  end;
-  if not Assigned(Result) then begin
-    Assert(False, 'Unexpected result!');
-    Result := FBitmapTileSaveLoadFactory.CreateJpegSaver;
-  end;
+  Result := FfrImageFormatSelect.GetBitmapTileSaver(Self.GetMapType, nil);
 end;
 
 procedure TfrExportOruxMapsSQLite.Init;
@@ -381,8 +341,7 @@ begin
   FfrMapSelect.Show(pnlMap);
   FfrOverlaySelect.Show(pnlOverlay);
   FfrZoomsSelect.Show(pnlZoom);
-  cbbImageFormat.ItemIndex := 0; // Auto
-  cbbImageFormatChange(Self);
+  FfrImageFormatSelect.Show(pnlImageFormat);
 end;
 
 function TfrExportOruxMapsSQLite.Validate: Boolean;

@@ -73,67 +73,6 @@ object frExportOruxMapsSQLite: TfrExportOruxMapsSQLite
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 5
-        object lblJpgQulity: TLabel
-          Left = 156
-          Top = 6
-          Width = 95
-          Height = 15
-          Caption = 'Quality (for JPEG):'
-          Layout = tlCenter
-        end
-        object lblImageFormat: TLabel
-          Left = 0
-          Top = 6
-          Width = 75
-          Height = 15
-          Caption = 'Image format:'
-          Layout = tlCenter
-        end
-        object lblCompression: TLabel
-          Left = 312
-          Top = 6
-          Width = 126
-          Height = 15
-          Caption = 'Compression (for PNG):'
-          Layout = tlCenter
-        end
-        object seJpgQuality: TSpinEdit
-          Left = 156
-          Top = 22
-          Width = 150
-          Height = 24
-          MaxValue = 100
-          MinValue = 1
-          TabOrder = 1
-          Value = 75
-        end
-        object cbbImageFormat: TComboBox
-          Left = 0
-          Top = 22
-          Width = 150
-          Height = 23
-          Style = csDropDownList
-          ItemIndex = 0
-          TabOrder = 0
-          Text = 'Auto'
-          OnChange = cbbImageFormatChange
-          Items.Strings = (
-            'Auto'
-            'JPEG'
-            'PNG (Indexed Colors)'
-            'PNG (TrueColor)'
-            'PNG (TrueColor + Alpha)')
-        end
-        object seCompression: TSpinEdit
-          Left = 312
-          Top = 22
-          Width = 150
-          Height = 24
-          MaxValue = 9
-          MinValue = 0
-          TabOrder = 2
-          Value = 2
-        end
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
