@@ -107,7 +107,8 @@ type
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  u_ContentTypeFunc;
 
 {$R *.dfm}
 
@@ -298,21 +299,30 @@ end;
 
 function TfrImageFormatSelect.IsSupportedContentType(const AContentType: IContentTypeInfoBitmap): Boolean;
 var
-  I: TImageFormatType;
-  VContentTypeStr: AnsiString;
+  VContentType: AnsiString;
 begin
   Result := False;
-  if AContentType = nil then begin
-    Exit;
-  end;
-
-  VContentTypeStr := LowerCase(AContentType.GetContentType);
-  for I := Low(TImageFormatType) to High(TImageFormatType) do begin
-    if (I <> iftAuto) and (I in FImageFormats) then begin
-      if VContentTypeStr = CImageFormatContentType[I] then begin
-        Result := True;
-        Break;
-      end;
+  if AContentType <> nil then begin
+    VContentType := AContentType.GetContentType;
+    if IsJpegContentType(VContentType) then begin
+      Result := iftJpeg in FImageFormats;
+    end else
+    if IsPngContentType(VContentType) then begin
+      Result :=
+        (iftPng8bpp in FImageFormats) or
+        (iftPng24bpp in FImageFormats) or
+        (iftPng32bpp in FImageFormats);
+    end else
+    if IsBmpContentType(VContentType) then begin
+      Result := iftBmp in FImageFormats;
+    end else
+    if IsGifContentType(VContentType) then begin
+      Result := iftGif in FImageFormats;
+    end else
+    if IsWebpContentType(VContentType) then begin
+      Result :=
+        (iftWebp in FImageFormats) or
+        (iftWebpLossless in FImageFormats);
     end;
   end;
 end;

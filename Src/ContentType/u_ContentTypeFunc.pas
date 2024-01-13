@@ -26,6 +26,15 @@ interface
 uses
   i_ContentTypeInfo;
 
+function IsBmpContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean; overload; inline;
+function IsBmpContentType(const AContentType: AnsiString): Boolean; overload;
+
+function IsGifContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean; overload; inline;
+function IsGifContentType(const AContentType: AnsiString): Boolean; overload;
+
+function IsWebpContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean; overload; inline;
+function IsWebpContentType(const AContentType: AnsiString): Boolean; overload;
+
 function IsJpegContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean; overload; inline;
 function IsJpegContentType(const AContentType: AnsiString): Boolean; overload;
 
@@ -36,6 +45,36 @@ implementation
 
 uses
   u_AnsiStr;
+
+function IsBmpContentType(const AContentType: AnsiString): Boolean;
+begin
+  Result := SameTextA(AContentType, 'image/bmp');
+end;
+
+function IsBmpContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean;
+begin
+  Result := IsBmpContentType(AContentTypeInfo.GetContentType);
+end;
+
+function IsGifContentType(const AContentType: AnsiString): Boolean;
+begin
+  Result := SameTextA(AContentType, 'image/gif');
+end;
+
+function IsGifContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean;
+begin
+  Result := IsGifContentType(AContentTypeInfo.GetContentType);
+end;
+
+function IsWebpContentType(const AContentType: AnsiString): Boolean;
+begin
+  Result := SameTextA(AContentType, 'image/webp');
+end;
+
+function IsWebpContentType(const AContentTypeInfo: IContentTypeInfoBasic): Boolean;
+begin
+  Result := IsWebpContentType(AContentTypeInfo.GetContentType);
+end;
 
 function IsJpegContentType(const AContentType: AnsiString): Boolean;
 begin
