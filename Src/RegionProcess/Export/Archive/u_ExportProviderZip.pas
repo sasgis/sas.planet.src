@@ -25,6 +25,7 @@ interface
 
 uses
   Forms,
+  t_ExportToFileCont,
   i_LanguageManager,
   i_GeometryLonLat,
   i_TileIteratorFactory,
@@ -115,6 +116,7 @@ begin
       FTileStorageTypeList,
       'Zip |*.zip',
       'zip',
+      eidZip,
       VWriteConfigFrame
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));

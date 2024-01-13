@@ -25,6 +25,7 @@ interface
 
 uses
   Forms,
+  t_ExportToFileCont,
   i_LanguageManager,
   i_GeometryLonLat,
   i_TileIteratorFactory,
@@ -108,7 +109,8 @@ begin
       FTileNameGenerator,
       FTileStorageTypeList,
       'Tar |*.tar',
-      'tar'
+      'tar',
+      eidTar
     );
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));

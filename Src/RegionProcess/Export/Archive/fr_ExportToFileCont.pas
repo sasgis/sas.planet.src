@@ -33,6 +33,7 @@ uses
   StdCtrls,
   ExtCtrls,
   UITypes,
+  t_ExportToFileCont,
   i_LanguageManager,
   i_GeometryLonLat,
   i_MapType,
@@ -109,6 +110,7 @@ type
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AFileFilters: string;
       const AFileExtDefault: string;
+      const AExportTypeId: TExportToFileContId;
       const AArchiveWriterConfigFrame: TFrame = nil
     ); reintroduce;
     destructor Destroy; override;
@@ -130,10 +132,17 @@ constructor TfrExportToFileCont.Create(
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AFileFilters: string;
   const AFileExtDefault: string;
+  const AExportTypeId: TExportToFileContId;
   const AArchiveWriterConfigFrame: TFrame
 );
+const
+  CFrameName: array[TExportToFileContId] of string = (
+    'frExportToZip', 'frExportToTar'
+  );
 begin
   inherited Create(ALanguageManager);
+
+  Self.Name := CFrameName[AExportTypeId];
 
   FTileNameGeneratorList := ATileNameGeneratorList;
 

@@ -1042,6 +1042,7 @@ uses
   u_ProviderTilesDownload in 'Src\RegionProcess\Download\u_ProviderTilesDownload.pas',
   u_ThreadDownloadTiles in 'Src\RegionProcess\Download\u_ThreadDownloadTiles.pas',
   fr_ExportToFileCont in 'Src\RegionProcess\Export\Archive\fr_ExportToFileCont.pas' {frExportToFileCont: TFrame},
+  t_ExportToFileCont in 'Src\RegionProcess\Export\Archive\t_ExportToFileCont.pas',
   u_ExportProviderTar in 'Src\RegionProcess\Export\Archive\u_ExportProviderTar.pas',
   u_ExportProviderZip in 'Src\RegionProcess\Export\Archive\u_ExportProviderZip.pas',
   u_ExportTaskToArchive in 'Src\RegionProcess\Export\Archive\u_ExportTaskToArchive.pas',
