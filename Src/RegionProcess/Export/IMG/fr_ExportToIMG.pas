@@ -127,8 +127,8 @@ type
     chkKeepTempFiles: TCheckBox;
     pnlGMTTop: TPanel;
     lblWebSite: TLabel;
-    LMapCompilerPath: TLabel;
-    LLicenseFile: TLabel;
+    pnlCompilerPath: TPanel;
+    pnlLicensePath: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure edtMapCompilePathChange(Sender: TObject);
     procedure edtMapCompilerLicensePathChange(Sender: TObject);
@@ -199,7 +199,7 @@ uses
 const
   DefaultSASZooms    = '6,7,8,9,10,11,12,13,14,15,16,17,18';
   DefJPEGCompression = 95;
-  cGMapToolHP = 'http://www.gmaptool.eu/en/content/windows-setup';
+  cGMapToolHP = 'https://www.gmaptool.eu/en/content/windows-setup';
 
 function GenerateMapId: LongWord;
 const
@@ -256,7 +256,8 @@ begin
     );
 
   cbbMapFormat.ItemIndex := 2;
-  lblWebSite.Caption := cGMapToolHP;
+  lblWebSite.Caption := 'GMapTool';
+  lblWebSite.Hint := cGMapToolHP;
 
   // Trying to autodetect the code page.
   VIndex := -1;
@@ -289,28 +290,6 @@ begin
   FreeAndNil(FfrMapSelect);
 
   inherited;
-end;
-
-procedure ExchangeItems(
-  lv: TListView;
-  const i, j: Integer
-);
-var
-  tempLI: TListItem;
-begin
-  lv.Items.BeginUpdate;
-  try
-    tempLI := TListItem.Create(lv.Items);
-    try
-      tempLI.Assign(lv.Items.Item[i]);
-      lv.Items.Item[i].Assign(lv.Items.Item[j]);
-      lv.Items.Item[j].Assign(tempLI);
-    finally
-      tempLI.Free;
-    end;
-  finally
-    lv.Items.EndUpdate
-  end;
 end;
 
 procedure TfrExportToIMG.SetSASZooms(const Str: String);
