@@ -61,6 +61,7 @@ uses
   i_VectorItemTreeImporterList,
   i_AppearanceOfMarkFactory,
   i_MarksGUIConfig,
+  i_MarksExplorerConfig,
   i_MarkFactory,
   i_MarkFactoryConfig,
   i_MarkPicture,
@@ -82,6 +83,7 @@ type
     FMarkSystem: IMarkSystem;
     FMarkFactoryConfig: IMarkFactoryConfig;
     FMarksGUIConfig: IMarksGUIConfig;
+    FMarksExplorerConfig: IMarksExplorerConfig;
     FVectorDataFactory: IVectorDataFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -202,6 +204,7 @@ type
       const AMediaPath: IPathConfig;
       const AMarkFactoryConfig: IMarkFactoryConfig;
       const AMarksGUIConfig: IMarksGUIConfig;
+      const AMarksExplorerConfig: IMarksExplorerConfig;
       const AMarkPictureList: IMarkPictureList;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
@@ -252,6 +255,7 @@ constructor TMarkDbGUIHelper.Create(
   const AMediaPath: IPathConfig;
   const AMarkFactoryConfig: IMarkFactoryConfig;
   const AMarksGUIConfig: IMarksGUIConfig;
+  const AMarksExplorerConfig: IMarksExplorerConfig;
   const AMarkPictureList: IMarkPictureList;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
@@ -281,6 +285,7 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FMarkFactoryConfig := AMarkFactoryConfig;
   FMarksGUIConfig := AMarksGUIConfig;
+  FMarksExplorerConfig := AMarksExplorerConfig;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FCoordToStringConverter := ACoordToStringConverter;
   FImporterList := AImporterList;
@@ -359,12 +364,16 @@ begin
     );
 
   FExportDialog := TSaveDialog.Create(nil);
-  FExportDialog.Name := 'ExportDialog';
+  FExportDialog.Name := 'dlgExportMarks';
   FExportDialog.Options := [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing];
+  FExportDialog.InitialDir := FMarksExplorerConfig.ExportDialogConfig.InitialDir;
+  FExportDialog.FilterIndex := FMarksExplorerConfig.ExportDialogConfig.FilterIndex;
 
   FImportDialog := TOpenDialog.Create(nil);
-  FImportDialog.Name := 'ImportDialog';
+  FImportDialog.Name := 'dlgImportMarks';
   FImportDialog.Options := [ofAllowMultiSelect, ofEnableSizing];
+  FImportDialog.InitialDir := FMarksExplorerConfig.ImportDialogConfig.InitialDir;
+  FImportDialog.FilterIndex := FMarksExplorerConfig.ImportDialogConfig.FilterIndex;
 end;
 
 destructor TMarkDbGUIHelper.Destroy;
@@ -680,6 +689,8 @@ begin
     PrepareExportDialog(VExporterList);
     FExportDialog.FileName := VFileName;
     if FExportDialog.Execute then begin
+      FMarksExplorerConfig.ExportDialogConfig.InitialDir := ExtractFileDir(FExportDialog.FileName);
+      FMarksExplorerConfig.ExportDialogConfig.FilterIndex := FExportDialog.FilterIndex;
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
         VExporterItem := GetActiveExporter(VExporterList);
@@ -847,19 +858,19 @@ end;
 
 procedure TMarkDbGUIHelper.PrepareImportDialog(const AImporterList: IVectorItemTreeImporterListStatic);
 var
+  I: Integer;
   VSelectedFilter: Integer;
   VFilterStr: string;
-  i: Integer;
   VItem: IVectorItemTreeImporterListItem;
   VAllMasks: string;
 begin
   VSelectedFilter := FImportDialog.FilterIndex;
   VFilterStr := '';
   VAllMasks := '';
-  for i := 0 to AImporterList.Count - 1 do begin
-    VItem := AImporterList.Items[i];
+  for I := 0 to AImporterList.Count - 1 do begin
+    VItem := AImporterList.Items[I];
     VFilterStr := VFilterStr + '|' + VItem.Name + ' (*.' + VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
-    if i > 0 then begin
+    if I > 0 then begin
       VAllMasks := VAllMasks + ';';
     end;
     VAllMasks := VAllMasks + '*.' + VItem.DefaultExt;
@@ -890,7 +901,9 @@ begin
   Result := nil;
   VList := FImporterList.GetStatic;
   PrepareImportDialog(VList);
-  if (FImportDialog.Execute(ParentWnd)) then begin
+  if FImportDialog.Execute(ParentWnd) then begin
+    FMarksExplorerConfig.ImportDialogConfig.InitialDir := ExtractFileDir(FImportDialog.FileName);
+    FMarksExplorerConfig.ImportDialogConfig.FilterIndex := FImportDialog.FilterIndex;
     VStrings := FImportDialog.Files;
     if Assigned(VStrings) and (VStrings.Count > 0) then begin
       Result := TStringListStatic.CreateByStrings(VStrings);

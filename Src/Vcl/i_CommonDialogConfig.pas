@@ -19,39 +19,23 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_MarksExplorerConfig;
+unit i_CommonDialogConfig;
 
 interface
 
 uses
-  Classes,
-  i_ConfigDataElement,
-  i_CommonDialogConfig,
-  i_WindowPositionConfig;
+  i_ConfigDataElement;
 
 type
-  IMarksExplorerConfig = interface(IConfigDataElement)
-    ['{19EA0E1B-137F-41B2-865A-8654D3A72094}']
-    function GetWindowPositionConfig: IWindowPositionConfig;
-    property WindowPositionConfig: IWindowPositionConfig read GetWindowPositionConfig;
+  ICommonDialogConfig = interface(IConfigDataElement)
+    ['{1A73B6FA-097D-48BE-86A4-AF1AB10E5253}']
+    function GetInitialDir: string;
+    procedure SetInitialDir(const AValue: string);
+    property InitialDir: string read GetInitialDir write SetInitialDir;
 
-    function GetImportDialogConfig: ICommonDialogConfig;
-    property ImportDialogConfig: ICommonDialogConfig read GetImportDialogConfig;
-
-    function GetExportDialogConfig: ICommonDialogConfig;
-    property ExportDialogConfig: ICommonDialogConfig read GetExportDialogConfig;
-
-    function GetCategoriesWidth: Integer;
-    procedure SetCategoriesWidth(const AValue: Integer);
-    property CategoriesWidth: Integer read GetCategoriesWidth write SetCategoriesWidth;
-
-    function GetExpandedCategories: string;
-    procedure SetExpandedCategories(const AValue: string);
-    property ExpandedCategories: string read GetExpandedCategories write SetExpandedCategories;
-
-    function GetSelectedCategory: string;
-    procedure SetSelectedCategory(const AValue: string);
-    property SelectedCategory: string read GetSelectedCategory write SetSelectedCategory;
+    function GetFilterIndex: Integer;
+    procedure SetFilterIndex(const AValue: Integer);
+    property FilterIndex: Integer read GetFilterIndex write SetFilterIndex;
   end;
 
 implementation

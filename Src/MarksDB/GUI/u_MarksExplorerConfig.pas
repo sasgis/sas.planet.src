@@ -28,6 +28,7 @@ uses
   i_ConfigDataWriteProvider,
   u_ConfigDataElementBase,
   i_MarksExplorerConfig,
+  i_CommonDialogConfig,
   i_WindowPositionConfig;
 
 type
@@ -36,6 +37,8 @@ type
     FCategoriesWidth: Integer;
     FSelectedCategory: string;
     FExpandedCategories: string;
+    FImportDialogConfig: ICommonDialogConfig;
+    FExportDialogConfig: ICommonDialogConfig;
     FWindowPositionConfig: IWindowPositionConfig;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -49,6 +52,8 @@ type
     function GetSelectedCategory: string;
     procedure SetSelectedCategory(const AValue: string);
     function GetWindowPositionConfig: IWindowPositionConfig;
+    function GetImportDialogConfig: ICommonDialogConfig;
+    function GetExportDialogConfig: ICommonDialogConfig;
   public
     constructor Create;
   end;
@@ -56,6 +61,7 @@ type
 implementation
 
 uses
+  u_CommonDialogConfig,
   u_WindowPositionConfig;
 
 { TMarksExplorerConfig }
@@ -67,6 +73,8 @@ begin
   FSelectedCategory := '';
   FExpandedCategories := '';
   FWindowPositionConfig := TWindowPositionConfig.Create;
+  FImportDialogConfig := TCommonDialogConfig.Create;
+  FExportDialogConfig := TCommonDialogConfig.Create;
 end;
 
 procedure TMarksExplorerConfig.DoReadConfig(
@@ -76,6 +84,8 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FWindowPositionConfig.ReadConfig(AConfigData);
+    FImportDialogConfig.ReadConfig(AConfigData.GetSubItem('ImportDialog'));
+    FExportDialogConfig.ReadConfig(AConfigData.GetSubItem('ExportDialog'));
     FCategoriesWidth := AConfigData.ReadInteger('CategoriesWidth', 0);
     FExpandedCategories := AConfigData.ReadString('ExpandedCategories', '');
     FSelectedCategory := AConfigData.ReadString('SelectedCategory', '');
@@ -90,6 +100,8 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FWindowPositionConfig.WriteConfig(AConfigData);
+    FImportDialogConfig.WriteConfig(AConfigData.GetOrCreateSubItem('ImportDialog'));
+    FExportDialogConfig.WriteConfig(AConfigData.GetOrCreateSubItem('ExportDialog'));
     AConfigData.WriteInteger('CategoriesWidth', FCategoriesWidth);
     AConfigData.WriteString('ExpandedCategories', FExpandedCategories);
     AConfigData.WriteString('SelectedCategory', FSelectedCategory);
@@ -134,6 +146,26 @@ begin
   LockRead;
   try
     Result := FExpandedCategories;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMarksExplorerConfig.GetExportDialogConfig: ICommonDialogConfig;
+begin
+  LockRead;
+  try
+    Result := FExportDialogConfig;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMarksExplorerConfig.GetImportDialogConfig: ICommonDialogConfig;
+begin
+  LockRead;
+  try
+    Result := FImportDialogConfig;
   finally
     UnlockRead;
   end;

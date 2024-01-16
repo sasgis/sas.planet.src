@@ -1356,6 +1356,7 @@ begin
       GState.Config.MediaDataPath,
       GState.Config.MarksFactoryConfig,
       GState.Config.MarksGUIConfig,
+      FConfig.MarksExplorerConfig,
       GState.MarkPictureList,
       GState.AppearanceOfMarkFactory,
       GState.MarksDb,
