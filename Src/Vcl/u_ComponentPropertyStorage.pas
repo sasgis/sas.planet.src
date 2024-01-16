@@ -136,6 +136,7 @@ procedure InitPropDict(const ADict: TComponentPropertyStorage.TPropertiesByClass
   end;
 
 begin
+  Add('TOpenDialog', ['InitialDir', 'FilterIndex']);
   Add('TSaveDialog', ['InitialDir', 'FilterIndex']);
 
   Add('TTBItem', ['Checked']);
@@ -150,6 +151,7 @@ begin
   Add('TSpinEdit', ['Value']);
 
   Add('TfrmRegionProcess', ['ClientHeight', 'ClientWidth']);
+  Add('TfrmCacheManager', ['ClientHeight', 'ClientWidth']);
 end;
 
 { TComponentPropertyStorage }

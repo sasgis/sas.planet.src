@@ -6,13 +6,12 @@ object frmCacheManager: TfrmCacheManager
   ClientWidth = 572
   Color = clBtnFace
   ParentFont = True
-  OldCreateOrder = False
   PopupMode = pmExplicit
   Position = poMainFormCenter
+  OnClose = FormClose
   OnShow = FormShow
-  PixelsPerInch = 96
-  TextHeight = 13
-  object PageControl1: TPageControl
+  TextHeight = 15
+  object pgcMain: TPageControl
     Left = 0
     Top = 0
     Width = 572
@@ -25,7 +24,7 @@ object frmCacheManager: TfrmCacheManager
       object grpSrc: TGroupBox
         Left = 2
         Top = 0
-        Width = 559
+        Width = 555
         Height = 185
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
@@ -34,29 +33,29 @@ object frmCacheManager: TfrmCacheManager
         object lblPath: TLabel
           Left = 11
           Top = 42
-          Width = 26
-          Height = 13
+          Width = 27
+          Height = 15
           Caption = 'Path:'
         end
         object lblCacheType: TLabel
           Left = 11
           Top = 86
-          Width = 38
-          Height = 13
+          Width = 41
+          Height = 15
           Caption = 'Format:'
         end
         object lblDefExtension: TLabel
           Left = 176
           Top = 86
-          Width = 51
-          Height = 13
+          Width = 54
+          Height = 15
           Caption = 'Extension:'
         end
         object edtPath: TEdit
           Left = 11
           Top = 59
-          Width = 516
-          Height = 21
+          Width = 512
+          Height = 23
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 2
@@ -86,7 +85,7 @@ object frmCacheManager: TfrmCacheManager
           TabOrder = 6
         end
         object btnSelectSrcPath: TButton
-          Left = 533
+          Left = 529
           Top = 58
           Width = 21
           Height = 19
@@ -107,8 +106,8 @@ object frmCacheManager: TfrmCacheManager
         object edtSourceVersion: TEdit
           Left = 11
           Top = 155
-          Width = 536
-          Height = 21
+          Width = 532
+          Height = 23
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 8
@@ -117,13 +116,11 @@ object frmCacheManager: TfrmCacheManager
           Left = 11
           Top = 16
           Width = 158
-          Height = 21
+          Height = 23
           Style = csDropDownList
-          ItemHeight = 13
           ItemIndex = 1
           TabOrder = 0
           Text = 'Folder'
-          OnChange = cbbSourceTypeChange
           Items.Strings = (
             'Archive'
             'Folder')
@@ -132,16 +129,15 @@ object frmCacheManager: TfrmCacheManager
           Left = 176
           Top = 104
           Width = 97
-          Height = 21
+          Height = 23
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 3
         end
       end
       object grpDestCache: TGroupBox
         Left = 3
         Top = 192
-        Width = 559
+        Width = 555
         Height = 185
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
@@ -150,22 +146,22 @@ object frmCacheManager: TfrmCacheManager
         object lblDestPath: TLabel
           Left = 10
           Top = 40
-          Width = 26
-          Height = 13
+          Width = 27
+          Height = 15
           Caption = 'Path:'
         end
         object lblDestFormat: TLabel
           Left = 10
           Top = 86
-          Width = 38
-          Height = 13
+          Width = 41
+          Height = 15
           Caption = 'Format:'
         end
         object edtDestPath: TEdit
           Left = 10
           Top = 59
-          Width = 516
-          Height = 21
+          Width = 512
+          Height = 23
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 1
@@ -187,7 +183,7 @@ object frmCacheManager: TfrmCacheManager
           TabOrder = 4
         end
         object btnSelectDestPath: TButton
-          Left = 532
+          Left = 528
           Top = 59
           Width = 21
           Height = 19
@@ -208,8 +204,8 @@ object frmCacheManager: TfrmCacheManager
         object edtDestVersion: TEdit
           Left = 10
           Top = 155
-          Width = 535
-          Height = 21
+          Width = 531
+          Height = 23
           Align = alCustom
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 6
@@ -218,13 +214,11 @@ object frmCacheManager: TfrmCacheManager
           Left = 10
           Top = 16
           Width = 159
-          Height = 21
+          Height = 23
           Style = csDropDownList
-          ItemHeight = 13
           ItemIndex = 2
           TabOrder = 0
           Text = 'Folder'
-          OnChange = cbbDestTypeChange
           Items.Strings = (
             'Archive (zip)'
             'Archive (tar)'
@@ -268,7 +262,7 @@ object frmCacheManager: TfrmCacheManager
       TabOrder = 1
       OnClick = btnStartClick
     end
-    object btnCansel: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 491
       Top = 6
@@ -278,9 +272,9 @@ object frmCacheManager: TfrmCacheManager
       Cancel = True
       Caption = 'Cancel'
       TabOrder = 2
-      OnClick = btnCanselClick
+      OnClick = btnCancelClick
     end
-    object TBXDontClose: TTBXToolbar
+    object tbxtlbrDontClose: TTBXToolbar
       Left = 4
       Top = 6
       Width = 25

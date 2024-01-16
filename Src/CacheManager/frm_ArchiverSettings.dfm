@@ -11,10 +11,9 @@ object frmArchiverSettings: TfrmArchiverSettings
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poOwnerFormCenter
+  OnClose = FormClose
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
     AlignWithMargins = True
@@ -25,10 +24,6 @@ object frmArchiverSettings: TfrmArchiverSettings
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 369
-    ExplicitHeight = 49
   end
   object pnlBottom: TPanel
     AlignWithMargins = True
@@ -40,11 +35,8 @@ object frmArchiverSettings: TfrmArchiverSettings
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 0
-    ExplicitTop = 132
-    ExplicitWidth = 369
     object btnApply: TButton
-      Left = 184
+      Left = 176
       Top = 3
       Width = 75
       Height = 25
@@ -53,10 +45,9 @@ object frmArchiverSettings: TfrmArchiverSettings
       Caption = 'Apply'
       TabOrder = 0
       OnClick = btnApplyClick
-      ExplicitLeft = 215
     end
     object btnCancel: TButton
-      Left = 263
+      Left = 255
       Top = 3
       Width = 75
       Height = 25
@@ -65,7 +56,6 @@ object frmArchiverSettings: TfrmArchiverSettings
       Caption = 'Cancel'
       TabOrder = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 294
     end
   end
 end

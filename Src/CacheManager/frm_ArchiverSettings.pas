@@ -49,6 +49,7 @@ type
     procedure btnApplyClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FWriterConfig: IArchiveWriteConfig;
     FfrArchiveWriteZipConfig: TfrArchiveWriteZipConfig;
@@ -74,19 +75,34 @@ constructor TfrmArchiverSettings.Create(
 );
 begin
   inherited Create(AOwner);
+
   FfrArchiveWriteZipConfig := TfrArchiveWriteZipConfig.Create(ALanguageManager);
   FfrArchiveWriteZipConfig.Parent := pnlMain;
+
+  FWriterConfig := nil;
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [], [], True, False, True, True
+  );
 end;
 
 destructor TfrmArchiverSettings.Destroy;
 begin
-  FfrArchiveWriteZipConfig.Free;
+  FreeAndNil(FfrArchiveWriteZipConfig);
   inherited;
+end;
+
+procedure TfrmArchiverSettings.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  FfrArchiveWriteZipConfig.Hide;
 end;
 
 procedure TfrmArchiverSettings.FormShow(Sender: TObject);
 begin
-  (FfrArchiveWriteZipConfig as IArchiveWriteConfigFrame).Reset(FWriterConfig);
+  if FWriterConfig <> nil then begin
+    (FfrArchiveWriteZipConfig as IArchiveWriteConfigFrame).Reset(FWriterConfig);
+  end;
+  FfrArchiveWriteZipConfig.Show;
 end;
 
 procedure TfrmArchiverSettings.btnApplyClick(Sender: TObject);

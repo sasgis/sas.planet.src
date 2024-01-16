@@ -24,6 +24,8 @@ unit c_CacheTypeCodes;
 interface
 
 const
+  c_File_Cache_Id_INVALID = -1;
+
   c_File_Cache_Id_DEFAULT = 0; // subst only
 
   // File system based caches

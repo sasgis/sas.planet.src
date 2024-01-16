@@ -72,6 +72,7 @@ type
     );
   public
     procedure Show(AParent: TWinControl);
+    function TrySetIntCode(const AValue: Integer): Boolean;
     function GetIntCode: Integer;
     procedure SetIntCode(const AValue: Integer);
     property IntCode: Integer read GetIntCode write SetIntCode;
@@ -205,7 +206,11 @@ var
   I: Integer;
 begin
   I := cbbCacheType.ItemIndex;
-  Result := Integer(cbbCacheType.Items.Objects[I]);
+  if I >= 0 then begin
+    Result := Integer(cbbCacheType.Items.Objects[I]);
+  end else begin
+    Result := c_File_Cache_Id_INVALID;
+  end;
 end;
 
 procedure TfrCacheTypeList.SetFilterOptions(
@@ -217,24 +222,32 @@ begin
   FillItems(FTileStorageTypeList, FWithDefaultItem);
 end;
 
-procedure TfrCacheTypeList.SetIntCode(const AValue: Integer);
+function TfrCacheTypeList.TrySetIntCode(const AValue: Integer): Boolean;
 var
   I: Integer;
   VCode: Integer;
-  VFound: Boolean;
 begin
-  VFound := False;
+  Result := False;
+  if AValue = c_File_Cache_Id_INVALID then begin
+    Exit;
+  end;
   for I := 0 to cbbCacheType.Items.Count - 1 do begin
     VCode := Integer(cbbCacheType.Items.Objects[I]);
     if VCode = AValue then begin
       cbbCacheType.ItemIndex := I;
-      VFound := True;
+      Result := True;
       Break;
     end;
   end;
-  Assert(VFound);
-  if Assigned(FOnChange) and VFound then begin
+  if Result and Assigned(FOnChange) then begin
     FOnChange(Self);
+  end;
+end;
+
+procedure TfrCacheTypeList.SetIntCode(const AValue: Integer);
+begin
+  if not TrySetIntCode(AValue) then begin
+    Assert(False);
   end;
 end;
 

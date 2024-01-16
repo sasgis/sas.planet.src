@@ -65,11 +65,11 @@ uses
 
 type
   TfrmCacheManager = class(TFormWitghLanguageManager)
-    PageControl1: TPageControl;
+    pgcMain: TPageControl;
     tsConverter: TTabSheet;
     pnlBottomButtons: TPanel;
     btnStart: TButton;
-    btnCansel: TButton;
+    btnCancel: TButton;
     grpSrc: TGroupBox;
     lblPath: TLabel;
     edtPath: TEdit;
@@ -90,7 +90,7 @@ type
     edtSourceVersion: TEdit;
     chkReplaceDestVersion: TCheckBox;
     edtDestVersion: TEdit;
-    TBXDontClose: TTBXToolbar;
+    tbxtlbrDontClose: TTBXToolbar;
     tbtmDontClose: TTBItem;
     cbbSourceType: TComboBox;
     dlgOpenFile: TOpenDialog;
@@ -101,11 +101,10 @@ type
     procedure btnStartClick(Sender: TObject);
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
-    procedure btnCanselClick(Sender: TObject);
+    procedure btnCancelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure cbbSourceTypeChange(Sender: TObject);
-    procedure cbbDestTypeChange(Sender: TObject);
     procedure btnArchiveWriterConfigClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     type
       TSrcType = (stArchive, stFolder);
@@ -131,6 +130,8 @@ type
     FfrSrcCacheTypesList: TfrCacheTypeList;
     FfrDestCacheTypesList: TfrCacheTypeList;
     FfrmArchiverSettings: TfrmArchiverSettings;
+    procedure OnSourceTypeChange(Sender: TObject);
+    procedure OnDestTypeChange(Sender: TObject);
     procedure PrepareExtList;
     procedure ProcessCacheConverter;
     function CreateSimpleTileStorage(
@@ -263,12 +264,13 @@ begin
   cbbSourceType.ItemIndex := 1; // Folder
   cbbDestType.ItemIndex := 2; // Folder
 
-  cbbSourceTypeChange(nil);
-  cbbDestTypeChange(nil);
-
   PrepareExtList;
 
   FfrmArchiverSettings := TfrmArchiverSettings.Create(Self, ALanguageManager);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [], [], True, False, True, True
+  );
 end;
 
 destructor TfrmCacheManager.Destroy;
@@ -279,10 +281,25 @@ begin
   inherited;
 end;
 
+procedure TfrmCacheManager.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  FfrSrcCacheTypesList.Hide;
+  FfrDestCacheTypesList.Hide;
+end;
+
 procedure TfrmCacheManager.FormShow(Sender: TObject);
 begin
+  cbbSourceType.OnChange := Self.OnSourceTypeChange;
+  cbbDestType.OnChange := Self.OnDestTypeChange;
+
+  OnSourceTypeChange(nil);
+  OnDestTypeChange(nil);
+
   FfrSrcCacheTypesList.Show(pnlCacheTypes);
+  FfrSrcCacheTypesList.Visible := True;
+
   FfrDestCacheTypesList.Show(pnlDestCacheTypes);
+  FfrDestCacheTypesList.Visible := True;
 end;
 
 procedure TfrmCacheManager.PrepareExtList;
@@ -434,11 +451,16 @@ begin
       dlgOpenFile.Filter := 'zip|*.zip|tar|*.tar';
       dlgOpenFile.DefaultExt := '*.zip';
       if dlgOpenFile.Execute then begin
+        dlgOpenFile.InitialDir := ExtractFileDir(dlgOpenFile.FileName);
         edtPath.Text := dlgOpenFile.FileName;
       end;
     end;
     stFolder: begin
+      if VPath = '' then begin
+        VPath := IncludeTrailingPathDelimiter(dlgOpenFile.InitialDir);
+      end;
       if SelectDirectory('', '', VPath) then begin
+        dlgOpenFile.InitialDir := ExcludeTrailingBackslash(VPath);
         edtPath.Text := IncludeTrailingPathDelimiter(VPath);
       end;
     end;
@@ -460,13 +482,18 @@ begin
       dlgSaveFile.DefaultExt := '*.tar';
     end;
     dtFolder: begin
+      if VPath = '' then begin
+        VPath := IncludeTrailingBackslash(dlgSaveFile.InitialDir);
+      end;
       if SelectDirectory('', '', VPath) then begin
+        dlgSaveFile.InitialDir := ExcludeTrailingBackslash(VPath);
         edtDestPath.Text := IncludeTrailingPathDelimiter(VPath);
       end;
     end;
   end;
   if FDestType in [dtArchiveZip, dtArchiveTar] then begin
     if dlgSaveFile.Execute then begin
+      dlgSaveFile.InitialDir := ExtractFileDir(dlgSaveFile.FileName);
       edtDestPath.Text := dlgSaveFile.FileName;
     end;
   end;
@@ -518,7 +545,7 @@ procedure TfrmCacheManager.btnStartClick(Sender: TObject);
   end;
 
 begin
-  if PageControl1.ActivePageIndex = 0 then begin
+  if pgcMain.ActivePageIndex = 0 then begin
     if IsValidInputForCacheConverter then begin
       ProcessCacheConverter;
     end else begin
@@ -530,13 +557,16 @@ begin
   end;
 end;
 
-procedure TfrmCacheManager.btnCanselClick(Sender: TObject);
+procedure TfrmCacheManager.btnCancelClick(Sender: TObject);
 begin
   Self.Close;
 end;
 
-procedure TfrmCacheManager.cbbSourceTypeChange(Sender: TObject);
+procedure TfrmCacheManager.OnSourceTypeChange(Sender: TObject);
+var
+  VOldIntCode: Integer;
 begin
+  VOldIntCode := FfrSrcCacheTypesList.IntCode;
   case cbbSourceType.ItemIndex of
     0: begin
       FSrcType := stArchive;
@@ -554,12 +584,19 @@ begin
   else
     Assert(False);
   end;
-  edtPath.Text := '';
-  FfrSrcCacheTypesList.cbbCacheType.ItemIndex := -1;
+  if Assigned(Sender) then begin
+    edtPath.Text := '';
+  end;
+  if not FfrSrcCacheTypesList.TrySetIntCode(VOldIntCode) then begin
+    FfrSrcCacheTypesList.cbbCacheType.ItemIndex := -1;
+  end;
 end;
 
-procedure TfrmCacheManager.cbbDestTypeChange(Sender: TObject);
+procedure TfrmCacheManager.OnDestTypeChange(Sender: TObject);
+var
+  VOldIntCode: Integer;
 begin
+  VOldIntCode := FfrDestCacheTypesList.IntCode;
   case cbbDestType.ItemIndex of
     0: begin
       FDestType := dtArchiveZip;
@@ -586,8 +623,12 @@ begin
     chkOverwrite.Enabled := False;
     FfrDestCacheTypesList.FilterOptions := [tstcInSeparateFiles];
   end;
-  edtDestPath.Text := '';
-  FfrDestCacheTypesList.cbbCacheType.ItemIndex := -1;
+  if Assigned(Sender) then begin
+    edtDestPath.Text := '';
+  end;
+  if not FfrDestCacheTypesList.TrySetIntCode(VOldIntCode) then begin
+    FfrDestCacheTypesList.cbbCacheType.ItemIndex := -1;
+  end;
 end;
 
 procedure TfrmCacheManager.btnArchiveWriterConfigClick(Sender: TObject);
