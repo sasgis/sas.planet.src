@@ -103,8 +103,7 @@ begin
     Self, [], [], True, False, True, True
   );
 
-  // ToDo:
-  // FPropertyState.Add('cbbVolumeSize', 'Text');
+  FPropertyState.Include('cbbVolumeSize', ['Text']);
 end;
 
 procedure TfrArchiveWriteZipConfig.OnShow(const AIsFirstTime: Boolean);

@@ -33,6 +33,7 @@ interface
 
 uses
   Types,
+  Forms,
   Classes,
   StrUtils,
   Rtti,
@@ -61,24 +62,31 @@ type
     procedure WriteLog(const AText: string);
     {$ENDIF}
     procedure BuildConfigDataProviders(const AIniFileName: string);
-    function GetClassPropertiesToSave(const AClassName: string): TStringDynArray; inline;
+
+    function GetComponentPropertiesToSave(
+      const AComponent: TComponent;
+      const AFilter: ICustomPropertiesFilter
+    ): TStringDynArray;
 
     procedure DoSaveProperties(
       const AComponent: TComponent;
       const ANamePath: string;
-      const AIsTemporary: Boolean
+      const AIsTemporary: Boolean;
+      const AFilter: ICustomPropertiesFilter
     );
     procedure DoRestoreProperties(
       const AComponent: TComponent;
       const ANamePath: string;
-      const AIsTemporary: Boolean
+      const AIsTemporary: Boolean;
+      const AFilter: ICustomPropertiesFilter
     );
     procedure DoProcessComponent(
       const AWorkerType: TWorkerType;
       const AComponent: TComponent;
       const AIgnore: TComponentDynArray;
       const ATemporary: TComponentDynArray;
-      var ACache: TComponentPropertyStorageCache
+      var ACache: TComponentPropertyStorageCache;
+      const AFilter: ICustomPropertiesFilter
     );
   private
     class function BuildNamePath(const AParent, AChild: string): string; static; inline;
@@ -105,13 +113,15 @@ type
       const AComponent: TComponent;
       const AIgnore: TComponentDynArray;
       const ATemporary: TComponentDynArray;
-      var ACache: TComponentPropertyStorageCache
+      var ACache: TComponentPropertyStorageCache;
+      const AFilter: ICustomPropertiesFilter = nil
     );
     procedure Restore(
       const AComponent: TComponent;
       const AIgnore: TComponentDynArray;
       const ATemporary: TComponentDynArray;
-      var ACache: TComponentPropertyStorageCache
+      var ACache: TComponentPropertyStorageCache;
+      const AFilter: ICustomPropertiesFilter = nil
     );
   public
     constructor Create(const ABasePath: string);
@@ -150,8 +160,7 @@ begin
   Add('TEdit', ['Text']);
   Add('TSpinEdit', ['Value']);
 
-  Add('TfrmRegionProcess', ['ClientHeight', 'ClientWidth']);
-  Add('TfrmCacheManager', ['ClientHeight', 'ClientWidth']);
+  Add('TForm', ['ClientHeight', 'ClientWidth']);
 end;
 
 { TComponentPropertyStorage }
@@ -225,10 +234,23 @@ begin
   FConfigDataWriteProviderTemp := CreateProvider('');
 end;
 
-function TComponentPropertyStorage.GetClassPropertiesToSave(const AClassName: string): TStringDynArray;
+function TComponentPropertyStorage.GetComponentPropertiesToSave(
+  const AComponent: TComponent;
+  const AFilter: ICustomPropertiesFilter
+): TStringDynArray;
+var
+  VClassName: string;
 begin
-  if not FPropertiesByClassName.TryGetValue(LowerCase(AClassName), Result) then begin
+  if AComponent is TForm then begin
+    VClassName := 'TForm';
+  end else begin
+    VClassName := AComponent.ClassName;
+  end;
+  if not FPropertiesByClassName.TryGetValue(LowerCase(VClassName), Result) then begin
     Result := nil;
+  end;
+  if AFilter <> nil then begin
+    AFilter.Process(AComponent, Result);
   end;
 end;
 
@@ -247,7 +269,8 @@ end;
 procedure TComponentPropertyStorage.DoSaveProperties(
   const AComponent: TComponent;
   const ANamePath: string;
-  const AIsTemporary: Boolean
+  const AIsTemporary: Boolean;
+  const AFilter: ICustomPropertiesFilter
 );
 
   procedure PrepareWriteProvider(var AProvider: IConfigDataWriteProvider);
@@ -274,7 +297,7 @@ begin
 
   VProvider := nil;
 
-  VPropArr := GetClassPropertiesToSave(AComponent.ClassName);
+  VPropArr := GetComponentPropertiesToSave(AComponent, AFilter);
   if Length(VPropArr) = 0 then begin
     Exit;
   end;
@@ -313,7 +336,8 @@ end;
 procedure TComponentPropertyStorage.DoRestoreProperties(
   const AComponent: TComponent;
   const ANamePath: string;
-  const AIsTemporary: Boolean
+  const AIsTemporary: Boolean;
+  const AFilter: ICustomPropertiesFilter
 );
 
   function PrepareReadProvider(var AProvider: IConfigDataProvider): Boolean;
@@ -345,7 +369,7 @@ begin
 
   VProvider := nil;
 
-  VPropArr := GetClassPropertiesToSave(AComponent.ClassName);
+  VPropArr := GetComponentPropertiesToSave(AComponent, AFilter);
   if Length(VPropArr) = 0 then begin
     Exit;
   end;
@@ -456,7 +480,8 @@ procedure TComponentPropertyStorage.DoProcessComponent(
   const AComponent: TComponent;
   const AIgnore: TComponentDynArray;
   const ATemporary: TComponentDynArray;
-  var ACache: TComponentPropertyStorageCache
+  var ACache: TComponentPropertyStorageCache;
+  const AFilter: ICustomPropertiesFilter
 );
 
   procedure ProcessChilds(const AChild: TComponent; const AParentNamePath: string);
@@ -482,9 +507,9 @@ procedure TComponentPropertyStorage.DoProcessComponent(
       if not VIsIgnore then begin
         VIsTemp := IsComponentInList(VComponent, VNamePath, ATemporary, ACache.FTemporaryNamePath);
         if AWorkerType = wtRestore then begin
-          DoRestoreProperties(VComponent, VNamePath, VIsTemp);
+          DoRestoreProperties(VComponent, VNamePath, VIsTemp, AFilter);
         end else begin
-          DoSaveProperties(VComponent, VNamePath, VIsTemp);
+          DoSaveProperties(VComponent, VNamePath, VIsTemp, AFilter);
         end;
         ProcessChilds(VComponent, VNamePath); // recursion
       end;
@@ -520,9 +545,9 @@ begin
   VIsTemp := IsComponentInList(AComponent, ACache.FNamePath, ATemporary, ACache.FTemporaryNamePath);
 
   if AWorkerType = wtRestore then begin
-    DoRestoreProperties(AComponent, ACache.FNamePath, VIsTemp);
+    DoRestoreProperties(AComponent, ACache.FNamePath, VIsTemp, AFilter);
   end else begin
-    DoSaveProperties(AComponent, ACache.FNamePath, VIsTemp);
+    DoSaveProperties(AComponent, ACache.FNamePath, VIsTemp, AFilter);
   end;
 
   ProcessChilds(AComponent, ACache.FNamePath);
@@ -542,7 +567,8 @@ procedure TComponentPropertyStorage.Save(
   const AComponent: TComponent;
   const AIgnore: TComponentDynArray;
   const ATemporary: TComponentDynArray;
-  var ACache: TComponentPropertyStorageCache
+  var ACache: TComponentPropertyStorageCache;
+  const AFilter: ICustomPropertiesFilter
 );
 begin
   if AComponent = nil then begin
@@ -550,14 +576,15 @@ begin
     Exit;
   end;
 
-  DoProcessComponent(wtSave, AComponent, AIgnore, ATemporary, ACache);
+  DoProcessComponent(wtSave, AComponent, AIgnore, ATemporary, ACache, AFilter);
 end;
 
 procedure TComponentPropertyStorage.Restore(
   const AComponent: TComponent;
   const AIgnore: TComponentDynArray;
   const ATemporary: TComponentDynArray;
-  var ACache: TComponentPropertyStorageCache
+  var ACache: TComponentPropertyStorageCache;
+  const AFilter: ICustomPropertiesFilter
 );
 begin
   if AComponent = nil then begin
@@ -565,7 +592,7 @@ begin
     Exit;
   end;
 
-  DoProcessComponent(wtRestore, AComponent, AIgnore, ATemporary, ACache);
+  DoProcessComponent(wtRestore, AComponent, AIgnore, ATemporary, ACache, AFilter);
 end;
 
 end.

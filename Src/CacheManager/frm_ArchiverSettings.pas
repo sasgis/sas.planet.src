@@ -81,9 +81,12 @@ begin
 
   FWriterConfig := nil;
 
-  FPropertyState := CreateComponentPropertyState(
-    Self, [], [], True, False, True, True
-  );
+  if AOwner = nil then begin
+    FPropertyState := CreateComponentPropertyState(
+      Self, [], [], True, False, True, True
+    );
+    FPropertyState.ExcludeAll(Self.Name);
+  end;
 end;
 
 destructor TfrmArchiverSettings.Destroy;

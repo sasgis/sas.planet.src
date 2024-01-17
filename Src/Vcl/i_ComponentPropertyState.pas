@@ -24,6 +24,7 @@ unit i_ComponentPropertyState;
 interface
 
 uses
+  Types,
   t_ComponentProperty;
 
 type
@@ -31,6 +32,10 @@ type
     ['{0CA728CC-A021-418E-97F7-ECE8F72F80CE}']
     procedure Save;
     procedure Restore;
+
+    procedure Include(const AComponentName: string; const AProperties: TStringDynArray);
+    procedure Exclude(const AComponentName: string; const AProperties: TStringDynArray);
+    procedure ExcludeAll(const AComponentName: string);
 
     function GetOptions: TComponentPropertyStateOptions;
     property Options: TComponentPropertyStateOptions read GetOptions;

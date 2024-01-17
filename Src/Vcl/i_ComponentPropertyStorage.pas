@@ -35,19 +35,29 @@ type
     FTemporaryNamePath: TStringDynArray;
   end;
 
+  ICustomPropertiesFilter = interface
+    ['{FB2AEA04-83FC-4038-A290-ADEB9F986D46}']
+    procedure Process(
+      const AComponent: TComponent;
+      var AProperties: TStringDynArray
+    );
+  end;
+
   IComponentPropertyStorage = interface
     ['{D161FB94-2629-4259-8DF5-DF55431F6C5C}']
     procedure Save(
       const AComponent: TComponent;
       const AIgnore: TComponentDynArray;
       const ATemporary: TComponentDynArray;
-      var ACache: TComponentPropertyStorageCache
+      var ACache: TComponentPropertyStorageCache;
+      const AFilter: ICustomPropertiesFilter = nil
     );
     procedure Restore(
       const AComponent: TComponent;
       const AIgnore: TComponentDynArray;
       const ATemporary: TComponentDynArray;
-      var ACache: TComponentPropertyStorageCache
+      var ACache: TComponentPropertyStorageCache;
+      const AFilter: ICustomPropertiesFilter = nil
     );
   end;
 

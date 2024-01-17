@@ -171,6 +171,9 @@ begin
   FPropertyState := CreateComponentPropertyState(
     Self, [btnFormatOptions], [], True, False, True, False
   );
+  if FfrmGeoTiffOptions <> nil then begin
+    FPropertyState.ExcludeAll(FfrmGeoTiffOptions.Name);
+  end;
 end;
 
 procedure TfrMapCombineCustomOptions.UpdateFormatOptionsButton(const ACaption: string);

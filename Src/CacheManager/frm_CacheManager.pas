@@ -261,16 +261,21 @@ begin
       [tsacAdd]
     );
 
-  cbbSourceType.ItemIndex := 1; // Folder
-  cbbDestType.ItemIndex := 2; // Folder
-
-  PrepareExtList;
-
-  FfrmArchiverSettings := TfrmArchiverSettings.Create(Self, ALanguageManager);
+  FfrmArchiverSettings :=
+    TfrmArchiverSettings.Create(
+      Self,
+      ALanguageManager
+    );
 
   FPropertyState := CreateComponentPropertyState(
     Self, [], [], True, False, True, True
   );
+  FPropertyState.ExcludeAll(FfrmArchiverSettings.Name);
+
+  cbbSourceType.ItemIndex := 1; // Folder
+  cbbDestType.ItemIndex := 2; // Folder
+
+  PrepareExtList;
 end;
 
 destructor TfrmCacheManager.Destroy;
