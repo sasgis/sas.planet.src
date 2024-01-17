@@ -251,6 +251,9 @@ begin
           if VTilesProcessed mod 100 = 0 then begin
             ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
+          if VTilesProcessed mod 10000 = 0 then begin
+            FSQLiteStorage.CommitAndBeginTran;
+          end;
         end;
       end;
     end;

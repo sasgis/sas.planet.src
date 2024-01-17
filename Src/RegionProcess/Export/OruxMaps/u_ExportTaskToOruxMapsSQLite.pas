@@ -290,17 +290,15 @@ begin
           if VTilesProcessed mod 100 = 0 then begin
             ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
+          if VTilesProcessed mod 10000 = 0 then begin
+            FSQLite3Db.Commit;
+            FSQLite3Db.BeginTran;
+          end;
         end;
       end;
     end;
   finally
     CloseSQLiteStorage;
-    for I := 0 to Length(FZooms) - 1 do begin
-      VTileIterators[I] := nil;
-      VProjectedPolygons[I] := nil;
-    end;
-    VTileIterators := nil;
-    VProjectedPolygons := nil;
   end;
 end;
 
@@ -426,11 +424,14 @@ begin
   FSQLite3DB.SetExclusiveLockingMode;
   FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
   FSQLite3DB.ExecSQL('PRAGMA journal_mode=OFF');
+
+  FSQLite3Db.BeginTran;
 end;
 
 procedure TExportTaskToOruxMapsSQLite.CloseSQLiteStorage;
 begin
   if FSQLite3DB.Opened then begin
+    FSQLite3DB.Commit;
     FSQLite3DB.Close;
   end;
 end;

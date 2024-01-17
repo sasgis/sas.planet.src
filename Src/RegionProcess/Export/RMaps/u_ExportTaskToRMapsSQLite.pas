@@ -252,6 +252,10 @@ begin
           if VTilesProcessed mod 100 = 0 then begin
             ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
+          if VTilesProcessed mod 10000 = 0 then begin
+            FSQLite3Db.Commit;
+            FSQLite3Db.BeginTran;
+          end;
         end;
       end;
     end;
@@ -358,6 +362,7 @@ begin
 
   FSQLite3DB.SetExclusiveLockingMode;
   FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
+  FSQLite3DB.ExecSQL('PRAGMA journal_mode=OFF');
 
   // открываем транзакцию для пущей скорости
   FSQLite3DB.BeginTran;

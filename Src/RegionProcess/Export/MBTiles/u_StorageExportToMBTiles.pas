@@ -61,7 +61,7 @@ type
     function KeyValToStr(
       const AKey, AValue: string;
       const ASep: Char = cKeyValSep
-    ): string;
+    ): string; inline;
 
     function GetBoundsStr(const ALonLatRect: TDoubleRect): string;
 
@@ -95,6 +95,8 @@ type
     ); virtual; abstract;
 
     procedure Close;
+
+    procedure CommitAndBeginTran;
   end;
 
   TSQLiteStorageMBTilesBaseClass = class of TSQLiteStorageMBTilesBase;
@@ -200,6 +202,14 @@ begin
   end;
 end;
 
+procedure TSQLiteStorageMBTilesBase.CommitAndBeginTran;
+begin
+  if FSQLite3DB.Opened then begin
+    FSQLite3Db.Commit;
+    FSQLite3Db.BeginTran;
+  end;
+end;
+
 function TSQLiteStorageMBTilesBase.KeyValToStr(
   const AKey, AValue: string;
   const ASep: Char
@@ -232,7 +242,7 @@ begin
     end;
     FSQLite3DB.Commit;
   except
-    FSQLite3DB.Rollback;
+    //FSQLite3DB.Rollback; // journal_mode = OFF
     raise;
   end;
 end;
@@ -287,6 +297,7 @@ begin
 
   FSQLite3DB.SetExclusiveLockingMode;
   FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
+  FSQLite3DB.ExecSQL('PRAGMA journal_mode=OFF');
 
   for I := Low(ATablesDDL) to High(ATablesDDL) do begin
     FSQLite3DB.ExecSQL(ATablesDDL[I]);
@@ -337,7 +348,7 @@ begin
     // 1.2
     VMetadata.Add( KeyValToStr('attribution', FAttribution) );
 
-    // additional fiels from TileJSON standart
+    // additional fields from TileJSON standart
     // https://github.com/mapbox/tilejson-spec/tree/master/2.1.0
 
     VMetadata.Add( KeyValToStr('scheme', FScheme) );
