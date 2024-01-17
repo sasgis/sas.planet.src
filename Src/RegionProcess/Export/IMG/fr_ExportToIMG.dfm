@@ -56,17 +56,17 @@ object frExportToIMG: TfrExportToIMG
       OnClick = btnSelectTargetFileClick
     end
   end
-  object PageControl1: TPageControl
+  object pgcMain: TPageControl
     Left = 0
     Top = 27
     Width = 552
     Height = 418
-    ActivePage = Settings
+    ActivePage = tsSettings
     Align = alClient
     DoubleBuffered = False
     ParentDoubleBuffered = False
     TabOrder = 1
-    object Map: TTabSheet
+    object tsMap: TTabSheet
       Caption = 'Map'
       object pnlListMaps: TPanel
         Left = 0
@@ -331,10 +331,10 @@ object frExportToIMG: TfrExportToIMG
         end
       end
     end
-    object Settings: TTabSheet
+    object tsSettings: TTabSheet
       Caption = 'Settings'
       ImageIndex = 1
-      object PnlSettings: TPanel
+      object pnlSettings: TPanel
         Left = 0
         Top = 0
         Width = 544
@@ -446,7 +446,7 @@ object frExportToIMG: TfrExportToIMG
           TabOrder = 4
           Text = '36'
         end
-        object TBXGenerateId: TTBXToolbar
+        object tbxtlbrGenerateId: TTBXToolbar
           Left = 516
           Top = 62
           Width = 25
@@ -457,10 +457,10 @@ object frExportToIMG: TfrExportToIMG
           ShowHint = True
           ShrinkMode = tbsmWrap
           TabOrder = 3
-          object TBGenerateId: TTBItem
+          object tbtmGenerateId: TTBItem
             Hint = 'Generate'
             ImageIndex = 40
-            OnClick = TBGenerateIdClick
+            OnClick = tbtmGenerateIdClick
           end
         end
         object cbbCodePage: TComboBox

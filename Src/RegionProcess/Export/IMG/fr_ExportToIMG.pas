@@ -68,9 +68,9 @@ type
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
     dlgSaveTargetFile: TSaveDialog;
-    PageControl1: TPageControl;
-    Map: TTabSheet;
-    Settings: TTabSheet;
+    pgcMain: TPageControl;
+    tsMap: TTabSheet;
+    tsSettings: TTabSheet;
     edtDrawOrder: TSpinEdit;
     lblMapFormat: TLabel;
     lblDrawOrder: TLabel;
@@ -80,7 +80,7 @@ type
     lblMapName: TLabel;
     edtMapName: TEdit;
     lblMap: TLabel;
-    PnlSettings: TPanel;
+    pnlSettings: TPanel;
     cbbMapFormat: TComboBox;
     chkUseRecolor: TCheckBox;
     edtMapCompilerPath: TEdit;
@@ -108,8 +108,8 @@ type
     TBXEdit: TTBXToolbar;
     TBEdit: TTBItem;
     TBReset: TTBItem;
-    TBXGenerateId: TTBXToolbar;
-    TBGenerateId: TTBItem;
+    tbxtlbrGenerateId: TTBXToolbar;
+    tbtmGenerateId: TTBItem;
     pnlGMT: TPanel;
     lblGMTPath: TLabel;
     edtGMTPath: TEdit;
@@ -152,7 +152,7 @@ type
       Data: Integer; var Compare: Integer);
     procedure MapListCustomDrawItem(Sender: TCustomListView; Item: TListItem;
       State: TCustomDrawState; var DefaultDraw: Boolean);
-    procedure TBGenerateIdClick(Sender: TObject);
+    procedure tbtmGenerateIdClick(Sender: TObject);
     procedure ZoomGarminDblClick(Sender: TObject);
     procedure lblWebSiteClick(Sender: TObject);
   private
@@ -284,6 +284,10 @@ begin
 
   SetSASZooms(CDefaultSasZooms);
   SetSASZooms(FExportToIMGConfig.SASZoomList);
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [pnlTop, tsMap, pnlCompiler, pnlLicense, pnlGMT, edtMapID, tbtmGenerateId], [], True, False, True, True
+  );
 end;
 
 destructor TfrExportToIMG.Destroy;
@@ -316,7 +320,7 @@ begin
   end;
 end;
 
-procedure TfrExportToIMG.TBGenerateIdClick(Sender: TObject);
+procedure TfrExportToIMG.tbtmGenerateIdClick(Sender: TObject);
 begin
   edtMapId.Text := IntToHex(GenerateMapId, 8);
 end;
@@ -345,6 +349,7 @@ end;
 procedure TfrExportToIMG.btnSelectTargetFileClick(Sender: TObject);
 begin
   if dlgSaveTargetFile.Execute then begin
+    dlgSaveTargetFile.InitialDir := ExtractFileDir(dlgSaveTargetFile.FileName);
     edtTargetFile.Text := dlgSaveTargetFile.FileName;
   end;
 end;
@@ -352,6 +357,7 @@ end;
 procedure TfrExportToIMG.btnSetGMTPathClick(Sender: TObject);
 begin
   if dlgSetGMTPath.Execute then begin
+    dlgSetGMTPath.InitialDir := ExtractFileDir(dlgSetGMTPath.FileName);
     edtGMTPath.Text := dlgSetGMTPath.FileName;
   end;
 end;
@@ -359,6 +365,7 @@ end;
 procedure TfrExportToIMG.btnSetMapCompilerLicensePathClick(Sender: TObject);
 begin
   if dlgSetMapCompilerLicensePath.Execute then begin
+    dlgSetMapCompilerLicensePath.InitialDir := ExtractFileDir(dlgSetMapCompilerLicensePath.FileName);
     edtMapCompilerLicensePath.Text := dlgSetMapCompilerLicensePath.FileName;
   end;
 end;
@@ -366,6 +373,7 @@ end;
 procedure TfrExportToIMG.btnSetMapCompilerPathClick(Sender: TObject);
 begin
   if dlgSetMapCompilerPath.Execute then begin
+    dlgSetMapCompilerPath.InitialDir := ExtractFileDir(dlgSetMapCompilerPath.FileName);
     edtMapCompilerPath.Text := dlgSetMapCompilerPath.FileName;
   end;
 end;
@@ -499,7 +507,7 @@ begin
 
   if MapList.Items.Count = 0 then begin
     ShowMessage(_('Empty map list. Please add the layers to export!'));
-    PageControl1.ActivePage := Map;    
+    pgcMain.ActivePage := tsMap;
     exit;
   end;
 
@@ -511,14 +519,14 @@ begin
 
   if not FileExists(edtMapCompilerPath.Text) then begin
     ShowMessage(_('MPC compiler path is not set or incorrect!'));
-    PageControl1.ActivePage := Settings;
+    pgcMain.ActivePage := tsSettings;
     edtMapCompilerPath.SetFocus;
     exit;
   end;
 
   if not FileExists(edtGMTPath.Text) then begin
     ShowMessage(_('GMT tool path is not set or incorrect!'));
-    PageControl1.ActivePage := Settings;
+    pgcMain.ActivePage := tsSettings;
     edtGMTPath.SetFocus;
     exit;
   end;
