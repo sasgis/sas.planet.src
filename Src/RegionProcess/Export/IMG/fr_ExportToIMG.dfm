@@ -61,7 +61,10 @@ object frExportToIMG: TfrExportToIMG
     Top = 27
     Width = 552
     Height = 418
+    ActivePage = Settings
     Align = alClient
+    DoubleBuffered = False
+    ParentDoubleBuffered = False
     TabOrder = 1
     object Map: TTabSheet
       Caption = 'Map'
@@ -372,9 +375,9 @@ object frExportToIMG: TfrExportToIMG
         object lblVolumeSize: TLabel
           Left = 3
           Top = 92
-          Width = 63
+          Width = 87
           Height = 15
-          Caption = 'Volume Size'
+          Caption = 'Volume Size, MB'
         end
         object lblCodePage: TLabel
           Left = 3
@@ -382,6 +385,13 @@ object frExportToIMG: TfrExportToIMG
           Width = 84
           Height = 15
           Caption = 'Map Code Page'
+        end
+        object lblCompression: TLabel
+          Left = 321
+          Top = 92
+          Width = 66
+          Height = 15
+          Caption = 'JPEG Quality'
         end
         object edtMapID: TEdit
           Left = 436
@@ -418,12 +428,12 @@ object frExportToIMG: TfrExportToIMG
         end
         object chkUseRecolor: TCheckBox
           Left = 3
-          Top = 115
+          Top = 118
           Width = 538
           Height = 17
           Align = alCustom
           Caption = 'Use postprocessing settings'
-          TabOrder = 7
+          TabOrder = 6
         end
         object edtMapSeries: TMaskEdit
           Left = 113
@@ -453,14 +463,6 @@ object frExportToIMG: TfrExportToIMG
             OnClick = TBGenerateIdClick
           end
         end
-        object edtVolumeSize: TEdit
-          Left = 113
-          Top = 88
-          Width = 184
-          Height = 21
-          TabOrder = 6
-          Text = '$79999999'
-        end
         object cbbCodePage: TComboBox
           Left = 113
           Top = 4
@@ -486,12 +488,32 @@ object frExportToIMG: TfrExportToIMG
         end
         object chkKeepTempFiles: TCheckBox
           Left = 3
-          Top = 138
+          Top = 141
           Width = 538
           Height = 17
           Align = alCustom
           Caption = 'Keep temporarily files'
+          TabOrder = 7
+        end
+        object seVolumeSize: TSpinEdit
+          Left = 113
+          Top = 88
+          Width = 184
+          Height = 24
+          MaxValue = 4096
+          MinValue = 1
           TabOrder = 8
+          Value = 1945
+        end
+        object seJpegQuality: TSpinEdit
+          Left = 436
+          Top = 88
+          Width = 74
+          Height = 24
+          MaxValue = 100
+          MinValue = 1
+          TabOrder = 9
+          Value = 95
         end
       end
       object pnlLicense: TPanel

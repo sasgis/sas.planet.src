@@ -121,7 +121,6 @@ type
     pnlCompiler: TPanel;
     pnlMapName: TPanel;
     lblVolumeSize: TLabel;
-    edtVolumeSize: TEdit;
     lblCodePage: TLabel;
     cbbCodePage: TComboBox;
     chkKeepTempFiles: TCheckBox;
@@ -129,6 +128,9 @@ type
     lblWebSite: TLabel;
     pnlCompilerPath: TPanel;
     pnlLicensePath: TPanel;
+    seVolumeSize: TSpinEdit;
+    seJpegQuality: TSpinEdit;
+    lblCompression: TLabel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure edtMapCompilePathChange(Sender: TObject);
     procedure edtMapCompilerLicensePathChange(Sender: TObject);
@@ -197,9 +199,8 @@ uses
 {$R *.dfm}
 
 const
-  DefaultSASZooms    = '6,7,8,9,10,11,12,13,14,15,16,17,18';
-  DefJPEGCompression = 95;
-  cGMapToolHP = 'https://www.gmaptool.eu/en/content/windows-setup';
+  CDefaultSasZooms = '6,7,8,9,10,11,12,13,14,15,16,17,18';
+  CGMapToolHomepage = 'https://www.gmaptool.eu/en/content/windows-setup';
 
 function GenerateMapId: LongWord;
 const
@@ -257,7 +258,7 @@ begin
 
   cbbMapFormat.ItemIndex := 2;
   lblWebSite.Caption := 'GMapTool';
-  lblWebSite.Hint := cGMapToolHP;
+  lblWebSite.Hint := CGMapToolHomepage;
 
   // Trying to autodetect the code page.
   VIndex := -1;
@@ -281,14 +282,13 @@ begin
   tbSettings.Checked := FExportToIMGConfig.ZoomOptionsVisible;
   tbSettingsClick(Self);
 
-  SetSASZooms(DefaultSASZooms);
+  SetSASZooms(CDefaultSasZooms);
   SetSASZooms(FExportToIMGConfig.SASZoomList);
 end;
 
 destructor TfrExportToIMG.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
-
   inherited;
 end;
 
@@ -309,7 +309,7 @@ begin
       lstSasZooms.Items.Assign(StrList);
       lstSasZooms.ItemIndex := OldIndex;
 
-      TBReset.Enabled := Str <> DefaultSASZooms;
+      TBReset.Enabled := Str <> CDefaultSasZooms;
     end;
   finally
     StrList.Free;
@@ -323,8 +323,8 @@ end;
 
 procedure TfrExportToIMG.TBResetClick(Sender: TObject);
 begin
-  SetSasZooms(DefaultSASZooms);
-  FExportToIMGConfig.SASZoomList := DefaultSASZooms;
+  SetSasZooms(CDefaultSasZooms);
+  FExportToIMGConfig.SASZoomList := CDefaultSasZooms;
 end;
 
 procedure TfrExportToIMG.edtMapCompilePathChange(Sender: TObject);
@@ -423,7 +423,7 @@ end;
 procedure TfrExportToIMG.MapListCompare(Sender: TObject; Item1,
   Item2: TListItem; Data: Integer; var Compare: Integer);
 begin
-  Compare := Integer(Item1.SubItems.Objects[1]) - Integer(Item2.SubItems.Objects[1]); 
+  Compare := Integer(Item1.SubItems.Objects[1]) - Integer(Item2.SubItems.Objects[1]);
 end;
 
 procedure TfrExportToIMG.MapListCustomDrawItem(Sender: TCustomListView;
@@ -454,7 +454,7 @@ end;
 
 procedure TfrExportToIMG.lblWebSiteClick(Sender: TObject);
 begin
-  OpenUrlInBrowser(cGMapToolHP);
+  OpenUrlInBrowser(CGMapToolHomepage);
 end;
 
 procedure TfrExportToIMG.lstSasZoomsClick(Sender: TObject);
@@ -475,7 +475,7 @@ begin
       lstSasZooms.Items.Objects[lstSasZooms.ItemIndex] := TObject(i);
       Str := lstSasZooms.Items.CommaText;
       FExportToIMGConfig.SASZoomList := lstSasZooms.Items.CommaText;
-      TBReset.Enabled := Str <> DefaultSASZooms;
+      TBReset.Enabled := Str <> CDefaultSasZooms;
     end;
   except
   end;
@@ -583,8 +583,8 @@ begin
   Result.FMapSeries := StrToInt(edtMapSeries.Text);
   Result.FMapID := StrToInt('$' + edtMapID.Text);
   Result.FUseRecolor := chkUseRecolor.Checked;
-  Result.FBitmapTileSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(DefJPEGCompression);
-  Result.FVolumeSize := StrToInt(edtVolumeSize.Text);
+  Result.FBitmapTileSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(seJpegQuality.Value);
+  Result.FVolumeSize := Cardinal(seVolumeSize.Value) * 1024 * 1024; // in bytes
   Result.FKeepTempFiles := chkKeepTempFiles.Checked;
 
   Result.FMapCompilerPath := edtMapCompilerPath.Text;
