@@ -25,32 +25,43 @@ interface
 
 uses
   SysUtils,
-  clipper,
+  Clipper,
+  Clipper.Core,
+  Clipper.Engine,
   t_GeoTypes,
   i_Datum,
   i_GeometryLonLat,
   i_GeometryLonLatFactory;
 
 type
+  TClipperPoint = Clipper.TPoint64;
+  PClipperPoint = ^TClipperPoint;
+
+  TClipperPath = Clipper.TPath64;
+  TClipperPaths = Clipper.TPaths64;
+
+  TClipperPolyTree = Clipper.Engine.TPolyTree64;
+  TClipperPolyNode = Clipper.Engine.TPolyPath64;
+
   TLonLatPolygonGenerator = class
+  private const
+    CIntToDoubleCoeff = Clipper.Core.MaxCoord div (180 * 4);
   private
     FDatum: IDatum;
     FRadius: Double;
 
-    FIntToDoubleCoeff: Int64;
-
-    FPattern: TPath;
-    FPatternPoint: TIntPoint;
+    FPattern: TClipperPath;
+    FPatternPoint: TClipperPoint;
     FMaxPatternDiff: Int64;
 
-    FMaxPointDiff: TIntPoint;
+    FMaxPointDiff: TClipperPoint;
 
     procedure GeneratePolygonBySingleLine(
       const ALine: IGeometryLonLatSingleLine;
       const ABuilder: IGeometryLonLatPolygonBuilder
     );
-    procedure MakePattern(const APoint: TIntPoint); inline;
-    function Minkowski(const APath: TPath; const AIsClosed: Boolean): TPaths;
+    procedure MakePattern(const APoint: TClipperPoint); inline;
+    function Minkowski(const APath: TClipperPath; const AIsClosed: Boolean): TClipperPaths;
   public
     function Generate(
       const ABuilder: IGeometryLonLatPolygonBuilder;
@@ -89,10 +100,8 @@ begin
   FDatum := ADatum;
   FRadius := ARadius;
 
-  FIntToDoubleCoeff := clipper.LoRange div (180 * 4);
-
   SetLength(FPattern, cPatternLen);
-  FMaxPatternDiff := Round(0.5 * FIntToDoubleCoeff); // 0.5 degree
+  FMaxPatternDiff := Round(0.5 * CIntToDoubleCoeff); // 0.5 degree
 
   if Supports(ALine, IGeometryLonLatSingleLine, VLineSingle) then begin
     GeneratePolygonBySingleLine(VLineSingle, ABuilder);
@@ -106,7 +115,7 @@ begin
 end;
 
 procedure TLonLatPolygonGenerator.MakePattern(
-  const APoint: TIntPoint
+  const APoint: TClipperPoint
 );
 var
   I: Integer;
@@ -114,8 +123,8 @@ var
 begin
   FPatternPoint := APoint;
 
-  VPatternPoint.X := APoint.X / FIntToDoubleCoeff;
-  VPatternPoint.Y := APoint.Y / FIntToDoubleCoeff;
+  VPatternPoint.X := APoint.X / CIntToDoubleCoeff;
+  VPatternPoint.Y := APoint.Y / CIntToDoubleCoeff;
 
   for I := 0 to cPatternLen - 1 do begin
     VPoint :=
@@ -125,27 +134,27 @@ begin
         FRadius
       );
 
-    FPattern[I].X := Round(VPoint.X * FIntToDoubleCoeff) - FPatternPoint.X;
-    FPattern[I].Y := Round(VPoint.Y * FIntToDoubleCoeff) - FPatternPoint.Y;
+    FPattern[I].X := Round(VPoint.X * CIntToDoubleCoeff) - FPatternPoint.X;
+    FPattern[I].Y := Round(VPoint.Y * CIntToDoubleCoeff) - FPatternPoint.Y;
   end;
 
   VPoint := FDatum.CalcFinishPosition(VPatternPoint, 90, FRadius * cNearestPointRadiusCoeff);
-  FMaxPointDiff.X := Abs(Round(VPoint.X * FIntToDoubleCoeff) - FPatternPoint.X);
+  FMaxPointDiff.X := Abs(Round(VPoint.X * CIntToDoubleCoeff) - FPatternPoint.X);
 
   VPoint := FDatum.CalcFinishPosition(VPatternPoint, 0, FRadius * cNearestPointRadiusCoeff);
-  FMaxPointDiff.Y := Abs(Round(VPoint.Y * FIntToDoubleCoeff) - FPatternPoint.Y);
+  FMaxPointDiff.Y := Abs(Round(VPoint.Y * CIntToDoubleCoeff) - FPatternPoint.Y);
 end;
 
 function TLonLatPolygonGenerator.Minkowski(
-  const APath: TPath;
+  const APath: TClipperPath;
   const AIsClosed: Boolean
-): TPaths;
+): TClipperPaths;
 var
   I, J, K: Integer;
-  VPrevPoint: PIntPoint;
+  VPrevPoint: PClipperPoint;
   VDelta, VPathLen: Integer;
-  VQuad: TPath;
-  VTmp: TPaths;
+  VQuad: TClipperPath;
+  VTmp: TClipperPaths;
 begin
   MakePattern(APath[0]);
 
@@ -190,7 +199,7 @@ begin
       VQuad[1] := VTmp[(I+1) mod K][J mod cPatternLen];
       VQuad[2] := VTmp[(I+1) mod K][(J+1) mod cPatternLen];
       VQuad[3] := VTmp[I mod K][(J+1) mod cPatternLen];
-      if not Orientation(VQuad) then begin
+      if not IsPositive(VQuad) then begin
         VQuad := ReversePath(VQuad);
       end;
       Result[I*cPatternLen + J] := Copy(VQuad, 0, 4);
@@ -203,7 +212,7 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
   const ABuilder: IGeometryLonLatPolygonBuilder
 );
 
-  function _PathToSinglePolygon(const APath: TPath): IDoublePoints;
+  function _PathToSinglePolygon(const APath: TClipperPath): IDoublePoints;
   var
     I: Integer;
     VCount: Integer;
@@ -212,18 +221,18 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
     VCount := Length(APath);
     GetMem(VPointsArray, VCount * SizeOf(TDoublePoint));
     for I := 0 to VCount - 1 do begin
-      VPointsArray[I].X := APath[I].X / FIntToDoubleCoeff;
-      VPointsArray[I].Y := APath[I].Y / FIntToDoubleCoeff;
+      VPointsArray[I].X := APath[I].X / CIntToDoubleCoeff;
+      VPointsArray[I].Y := APath[I].Y / CIntToDoubleCoeff;
     end;
     Result := TDoublePoints.CreateWithOwn(VPointsArray, nil, VCount);
   end;
 
-  procedure _ProcessNode(const ANode: TPolyNode);
+  procedure _ProcessNode(const ANode: TClipperPolyNode);
   var
     I: Integer;
     VSinglePoly: IDoublePoints;
   begin
-    VSinglePoly := _PathToSinglePolygon(ANode.Contour);
+    VSinglePoly := _PathToSinglePolygon(ANode.Polygon);
     if Assigned(VSinglePoly) then begin
       if ANode.IsHole then begin
         ABuilder.AddHole(VSinglePoly);
@@ -231,17 +240,18 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
         ABuilder.AddOuter(VSinglePoly);
       end;
     end;
-    for I := 0 to ANode.ChildCount - 1 do begin
-      _ProcessNode(ANode.Childs[I]);
+    for I := 0 to ANode.Count - 1 do begin
+      _ProcessNode(ANode.Child[I]);
     end;
   end;
 
 var
   I: Integer;
-  VPath: TPath;
-  VPaths: TPaths;
+  VPath: TClipperPath;
+  VPaths: TClipperPaths;
+  VOpenPaths: TClipperPaths;
   VClipper: TClipper;
-  VPolyTree: TPolyTree;
+  VPolyTree: TClipperPolyTree;
 begin
   if (ALine = nil) or (ALine.Count <= 1) then begin
     Exit;
@@ -249,25 +259,24 @@ begin
 
   SetLength(VPath, ALine.Count);
   for I := 0 to ALine.Count - 1 do begin
-    VPath[I].X := Round(ALine.Points[I].X * FIntToDoubleCoeff);
-    VPath[I].Y := Round(ALine.Points[I].Y * FIntToDoubleCoeff);
+    VPath[I].X := Round(ALine.Points[I].X * CIntToDoubleCoeff);
+    VPath[I].Y := Round(ALine.Points[I].Y * CIntToDoubleCoeff);
   end;
 
   VPaths := Minkowski(VPath, False);
 
   VClipper := TClipper.Create;
   try
-    if VClipper.AddPaths(VPaths, ptSubject, True) then begin
-      VPolyTree := TPolyTree.Create;
-      try
-        if VClipper.Execute(ctUnion, VPolyTree, pftNonZero) then begin
-          for I := 0 to VPolyTree.ChildCount - 1 do begin
-            _ProcessNode(VPolyTree.Childs[I]);
-          end;
+    VClipper.AddSubject(VPaths);
+    VPolyTree := TClipperPolyTree.Create;
+    try
+      if VClipper.Execute(ctUnion, frNonZero, VPolyTree, VOpenPaths) then begin
+        for I := 0 to VPolyTree.Count - 1 do begin
+          _ProcessNode(VPolyTree.Child[I]);
         end;
-      finally
-        VPolyTree.Free;
       end;
+    finally
+      VPolyTree.Free;
     end;
   finally
     VClipper.Free;

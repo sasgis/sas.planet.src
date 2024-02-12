@@ -24,7 +24,9 @@ unit u_MergePolygonsProcessor;
 interface
 
 uses
-  clipper,
+  Clipper,
+  Clipper.Core,
+  Clipper.Engine,
   t_MergePolygonsProcessor,
   i_MergePolygonsProgress,
   i_Timer,
@@ -38,7 +40,18 @@ uses
   i_NotifierOperation;
 
 type
+  TClipperPoint = Clipper.TPoint64;
+  PClipperPoint = ^TClipperPoint;
+
+  TClipperPath = Clipper.TPath64;
+  TClipperPaths = Clipper.TPaths64;
+
+  TClipperPolyTree = Clipper.Engine.TPolyTree64;
+  TClipperPolyNode = Clipper.Engine.TPolyPath64;
+
   TMergePolygonsProcessor = class
+  private const
+    CIntToDoubleCoeff = Clipper.Core.MaxCoord div (180 * 4);
   private
     FItems: TMergePolygonsItemArray;
     FOperation: TMergeOperation;
@@ -52,7 +65,6 @@ type
     FCancelListener: IListener;
     FCancelNotifier: INotifierOperation;
     FMergePolygonsProgress: IMergePolygonsProgress;
-    FIntToDoubleCoeff: Int64;
   private
     procedure OnExecute(
       AOperationID: Integer;
@@ -69,21 +81,21 @@ type
     procedure AbortOperation;
   private
     // clipper lib helpers
-    function GetPaths(const AIndex: Integer): TPaths;
-    function GetSubjPoly: TPaths;
-    function GetClipPoly: TPaths;
+    function GetPaths(const AIndex: Integer): TClipperPaths;
+    function GetSubjPoly: TClipperPaths;
+    function GetClipPoly: TClipperPaths;
     procedure ProcessClipperNode(
-      const ANode: TPolyNode;
+      const ANode: TClipperPolyNode;
       const AMultiPolygonBuilder: IGeometryLonLatPolygonBuilder
     );
     function MultiPolygonToClipperPaths(
       const APolygon: IGeometryLonLatMultiPolygon
-    ): TPaths;
+    ): TClipperPaths;
     function SinglePolygonToClipperPaths(
       const APolygon: IGeometryLonLatSinglePolygon
-    ): TPaths;
+    ): TClipperPaths;
     function ClipperPathToSinglePolygon(
-      const APath: TPath
+      const APath: TClipperPath
     ): IDoublePoints;
     function GetClipType(
       const AMergeOperation: TMergeOperation
@@ -123,24 +135,14 @@ uses
 type
   EMergePolygonsProcessorError = class(Exception);
 
-{.$DEFINE MAX_PRECISION}
-
 function MakePathsUnion(
   AClipper: TClipper;
-  ASubj, AClip: TPaths
-): TPaths; inline;
+  ASubj, AClip: TClipperPaths
+): TClipperPaths; inline;
 begin
-  if not AClipper.AddPaths(ASubj, ptSubject, True) then begin
-    raise EMergePolygonsProcessorError.Create(
-      'MakePathsUnion: Add subject FAIL!'
-    );
-  end;
-  if not AClipper.AddPaths(AClip, ptClip, True) then begin
-    raise EMergePolygonsProcessorError.Create(
-      'MakePathsUnion: Add clip FAIL!'
-    );
-  end;
-  if not AClipper.Execute(ctUnion, Result) then begin
+  AClipper.AddSubject(ASubj);
+  AClipper.AddClip(AClip);
+  if not AClipper.Execute(ctUnion, frEvenOdd, Result) then begin
     raise EMergePolygonsProcessorError.Create(
       'MakePathsUnion: Clipper Exec FAIL!'
     );
@@ -174,15 +176,6 @@ begin
 
   FTimer := MakeTimerByQueryPerformanceCounter;
   FBackgroundTask := nil;
-
-  Assert(SizeOf(clipper.cInt) = SizeOf(Int64));
-
-  // Coeff for Double <-> Int64 coversions
-  {$IFNDEF MAX_PRECISION}
-  FIntToDoubleCoeff := clipper.LoRange div (180 * 4); // fastes
-  {$ELSE}
-  FIntToDoubleCoeff := clipper.HiRange div (180 * 4); // big integer math
-  {$ENDIF}
 end;
 
 destructor TMergePolygonsProcessor.Destroy;
@@ -322,39 +315,31 @@ function TMergePolygonsProcessor.ProcessLogicOperation(
 var
   I: Integer;
   VClipper: TClipper;
-  VPolyTree: TPolyTree;
+  VPolyTree: TClipperPolyTree;
+  VOpenPaths: TClipperPaths;
   VMultiPolygonBuilder: IGeometryLonLatPolygonBuilder;
 begin
   Result := nil;
 
   VClipper := TClipper.Create;
   try
-    if not VClipper.AddPaths(GetSubjPoly, ptSubject, True) then begin
-      raise EMergePolygonsProcessorError.Create(
-        'ProcessLogicOperation: Add subject FAIL!'
-      );
-    end;
-
-    if not VClipper.AddPaths(GetClipPoly, ptClip, True) then begin
-      raise EMergePolygonsProcessorError.Create(
-        'ProcessLogicOperation: Add clip FAIL!'
-      );
-    end;
+    VClipper.AddSubject(GetSubjPoly);
+    VClipper.AddClip(GetClipPoly);
 
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Exit;
     end;
 
-    VPolyTree := TPolyTree.Create;
+    VPolyTree := TClipperPolyTree.Create;
     try
-      if VClipper.Execute(GetClipType(FOperation), VPolyTree) then begin
+      if VClipper.Execute(GetClipType(FOperation), frEvenOdd, VPolyTree, VOpenPaths) then begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Exit;
         end;
 
         VMultiPolygonBuilder := FVectorGeometryLonLatFactory.MakePolygonBuilder;
-        for I := 0 to VPolyTree.ChildCount - 1 do begin
-          ProcessClipperNode(VPolyTree.Childs[I], VMultiPolygonBuilder);
+        for I := 0 to VPolyTree.Count - 1 do begin
+          ProcessClipperNode(VPolyTree.Child[I], VMultiPolygonBuilder);
         end;
 
         Result := VMultiPolygonBuilder.MakeStaticAndClear;
@@ -371,7 +356,7 @@ begin
   end;
 end;
 
-function TMergePolygonsProcessor.GetPaths(const AIndex: Integer): TPaths;
+function TMergePolygonsProcessor.GetPaths(const AIndex: Integer): TClipperPaths;
 begin
   if Assigned(FItems[AIndex].SinglePolygon) then begin
     Result := SinglePolygonToClipperPaths(FItems[AIndex].SinglePolygon);
@@ -380,15 +365,15 @@ begin
   end;
 end;
 
-function TMergePolygonsProcessor.GetSubjPoly: TPaths;
+function TMergePolygonsProcessor.GetSubjPoly: TClipperPaths;
 begin
   Result := GetPaths(0);
 end;
 
-function TMergePolygonsProcessor.GetClipPoly: TPaths;
+function TMergePolygonsProcessor.GetClipPoly: TClipperPaths;
 var
   I: Integer;
-  VPaths: TPaths;
+  VPaths: TClipperPaths;
   VClipper: TClipper;
 begin
   // Make Union of all clip's: (((clip1 OR clip2) OR clip3) OR clip4)...
@@ -415,7 +400,7 @@ begin
 end;
 
 procedure TMergePolygonsProcessor.ProcessClipperNode(
-  const ANode: TPolyNode;
+  const ANode: TClipperPolyNode;
   const AMultiPolygonBuilder: IGeometryLonLatPolygonBuilder
 );
 var
@@ -423,20 +408,20 @@ var
   VSinglePoly: IDoublePoints;
 begin
   if ANode.IsHole then begin
-    VSinglePoly := ClipperPathToSinglePolygon(ANode.Contour);
+    VSinglePoly := ClipperPathToSinglePolygon(ANode.Polygon);
     if Assigned(VSinglePoly) then begin
       AMultiPolygonBuilder.AddHole(VSinglePoly);
       Inc(FHolesCount);
     end;
   end else begin
-    VSinglePoly := ClipperPathToSinglePolygon(ANode.Contour);
+    VSinglePoly := ClipperPathToSinglePolygon(ANode.Polygon);
     if Assigned(VSinglePoly) then begin
       AMultiPolygonBuilder.AddOuter(VSinglePoly);
       Inc(FPolyCount);
     end;
   end;
-  for I := 0 to ANode.ChildCount - 1 do begin
-    ProcessClipperNode(ANode.Childs[I], AMultiPolygonBuilder);
+  for I := 0 to ANode.Count - 1 do begin
+    ProcessClipperNode(ANode.Child[I], AMultiPolygonBuilder);
   end;
 end;
 
@@ -458,10 +443,10 @@ end;
 
 function TMergePolygonsProcessor.MultiPolygonToClipperPaths(
   const APolygon: IGeometryLonLatMultiPolygon
-): TPaths;
+): TClipperPaths;
 var
   I: Integer;
-  VPaths: TPaths;
+  VPaths: TClipperPaths;
   VClipper: TClipper;
 begin
   // Make Union of all polygons in multipoligon
@@ -489,58 +474,48 @@ end;
 
 function TMergePolygonsProcessor.SinglePolygonToClipperPaths(
   const APolygon: IGeometryLonLatSinglePolygon
-): TPaths;
+): TClipperPaths;
 var
   I, J, K: Integer;
-  VPath: TPath;
-  VPaths: TPaths;
+  VPath: TClipperPath;
   VPoints: PDoublePointArray;
   VBorder: IGeometryLonLatContour;
 begin
-  SetLength(VPaths, 1 + APolygon.HoleCount);
+  SetLength(Result, 1 + APolygon.HoleCount);
 
   // outer border
   K := 0;
   VBorder := APolygon.OuterBorder;
-  SetLength(VPaths[K], VBorder.Count);
-  VPath := VPaths[K];
+  SetLength(Result[K], VBorder.Count);
+  VPath := Result[K];
   VPoints := VBorder.Points;
   for I := 0 to VBorder.Count - 1 do begin
-    VPath[I].X := Round(VPoints[I].X * FIntToDoubleCoeff);
-    VPath[I].Y := Round(VPoints[I].Y * FIntToDoubleCoeff);
+    VPath[I].X := Round(VPoints[I].X * CIntToDoubleCoeff);
+    VPath[I].Y := Round(VPoints[I].Y * CIntToDoubleCoeff);
   end;
-  if not Orientation(VPath) then begin
-    VPaths[K] := ReversePath(VPath);
+  if not IsPositive(VPath) then begin
+    Result[K] := ReversePath(VPath);
   end;
 
   // holes
   for J := 0 to APolygon.HoleCount - 1 do begin
     K := J + 1;
     VBorder := APolygon.HoleBorder[J];
-    SetLength(VPaths[K], VBorder.Count);
-    VPath := VPaths[K];
+    SetLength(Result[K], VBorder.Count);
+    VPath := Result[K];
     VPoints := VBorder.Points;
     for I := 0 to VBorder.Count - 1 do begin
-      VPath[I].X := Round(VPoints[I].X * FIntToDoubleCoeff);
-      VPath[I].Y := Round(VPoints[I].Y * FIntToDoubleCoeff);
+      VPath[I].X := Round(VPoints[I].X * CIntToDoubleCoeff);
+      VPath[I].Y := Round(VPoints[I].Y * CIntToDoubleCoeff);
     end;
-    if Orientation(VPath) then begin
-      VPaths[K] := ReversePath(VPath);
+    if IsPositive(VPath) then begin
+      Result[K] := ReversePath(VPath);
     end;
-  end;
-
-  // Convert a self-intersecting polygon into a simple polygon
-  Result := SimplifyPolygons(VPaths);
-
-  if Length(Result) = 0 then begin
-    raise EMergePolygonsProcessorError.Create(
-      'SinglePolygonToClipperPaths: Empty result!'
-    );
   end;
 end;
 
 function TMergePolygonsProcessor.ClipperPathToSinglePolygon(
-  const APath: TPath
+  const APath: TClipperPath
 ): IDoublePoints;
 var
   I: Integer;
@@ -550,8 +525,8 @@ begin
   VCount := Length(APath);
   GetMem(VPointsArray, VCount * SizeOf(TDoublePoint));
   for I := 0 to VCount - 1 do begin
-    VPointsArray[I].X := APath[I].X / FIntToDoubleCoeff;
-    VPointsArray[I].Y := APath[I].Y / FIntToDoubleCoeff;
+    VPointsArray[I].X := APath[I].X / CIntToDoubleCoeff;
+    VPointsArray[I].Y := APath[I].Y / CIntToDoubleCoeff;
   end;
   Result := TDoublePoints.CreateWithOwn(VPointsArray, nil, VCount);
 end;
