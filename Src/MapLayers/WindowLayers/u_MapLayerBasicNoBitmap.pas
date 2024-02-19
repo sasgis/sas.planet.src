@@ -142,7 +142,13 @@ begin
   if VLocalConverter <> nil then begin
     VCounterContext := FOnPaintCounter.StartOperation;
     try
-      PaintLayer(Buffer, VLocalConverter);
+      if FVisible then begin
+        PaintLayer(Buffer, VLocalConverter);
+      end else begin
+        // initialize full redraw
+        // workaround for: https://www.sasgis.org/mantis/view.php?id=3884
+        Buffer.Changed;
+      end;
     finally
       FOnPaintCounter.FinishOperation(VCounterContext);
     end;
@@ -208,14 +214,11 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   if FNeedRedrawFlag.CheckFlagAndReset then begin
-    if FVisible then begin
-      FNeedRedrawFlag.CheckFlagAndReset;
-      VCounterContext := FRedrawCounter.StartOperation;
-      try
-        FLayer.Changed;
-      finally
-        FRedrawCounter.FinishOperation(VCounterContext);
-      end;
+    VCounterContext := FRedrawCounter.StartOperation;
+    try
+      FLayer.Changed;
+    finally
+      FRedrawCounter.FinishOperation(VCounterContext);
     end;
   end;
 end;
