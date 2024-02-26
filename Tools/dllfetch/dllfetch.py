@@ -218,7 +218,7 @@ def main():
         for source_path in found:
             source_dir, source_name = os.path.split(source_path)
             print('>', source_name)
-            shutil.copy(source_path, args.target_dir)
+            shutil.copy2(source_path, args.target_dir)
 
     print('\nDone!')
 
