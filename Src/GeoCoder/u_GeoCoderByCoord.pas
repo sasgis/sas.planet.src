@@ -44,7 +44,7 @@ type
   private
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FProjectionSet: IProjectionSet;
-    FProjectionType3785: IProjectionType;
+    FProjectionType3857: IProjectionType;
     FProjectionType3395: IProjectionType;
     FProjectionType4326: IProjectionType;
     Procedure PosStr2List(
@@ -563,7 +563,7 @@ begin
     VPoint.Y := VDLat;
     Test2Coord(APos1, Apos2, VPoint, '', Alist);
 
-    TestMetersCoord(APos1, Apos2, VPoint, FProjectionType3785, Alist);
+    TestMetersCoord(APos1, Apos2, VPoint, FProjectionType3857, Alist);
     TestMetersCoord(APos1, Apos2, VPoint, FProjectionType3395, Alist);
     TestMetersCoord(APos1, Apos2, VPoint, FProjectionType4326, Alist);
   end;
@@ -580,14 +580,14 @@ begin
   FCoordToStringConverter := ACoordToStringConverter;
   FProjectionSet := AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
-  FProjectionType3785 := AProjectionSetFactory.GetProjectionSetByCode(
-    3785, 1
+  FProjectionType3857 := AProjectionSetFactory.GetProjectionSetByCode(
+    CGoogleProjectionEPSG, 1
   ).Zooms[0].ProjectionType;
   FProjectionType3395 := AProjectionSetFactory.GetProjectionSetByCode(
-    3395, 1
+    CYandexProjectionEPSG, 1
   ).Zooms[0].ProjectionType;
   FProjectionType4326 := AProjectionSetFactory.GetProjectionSetByCode(
-    4326, 1
+    CGELonLatProjectionEPSG, 1
   ).Zooms[0].ProjectionType;
 end;
 

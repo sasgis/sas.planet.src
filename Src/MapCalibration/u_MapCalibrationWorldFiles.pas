@@ -70,15 +70,39 @@ uses
   Classes,
   SysUtils,
   gnugettext,
+  c_CoordConverter,
   u_CalcWFileParams,
   u_GeoToStrFunc;
 
-function GetProj(
-  const AProjection: IProjection
-): UTF8String;
+function GetProj(const AProjection: IProjection): UTF8String;
 begin
-  case AProjection.ProjectionType.GetProjectionEPSG of
-    3785: begin
+  case AProjection.ProjectionType.ProjectionEPSG of
+    CGoogleProjectionEPSG: begin
+      Result :=
+        'PROJCS["WGS 84 / Pseudo-Mercator",' + #13#10 +
+        'GEOGCS["WGS 84",' + #13#10 +
+        'DATUM["WGS_1984",' + #13#10 +
+        'SPHEROID["WGS 84",6378137,298.257223563,' + #13#10 +
+        'AUTHORITY["EPSG","7030"]],' + #13#10 +
+        'AUTHORITY["EPSG","6326"]],' + #13#10 +
+        'PRIMEM["Greenwich",0,' + #13#10 +
+        'AUTHORITY["EPSG","8901"]],' + #13#10 +
+        'UNIT["degree",0.0174532925199433,' + #13#10 +
+        'AUTHORITY["EPSG","9122"]],' + #13#10 +
+        'AUTHORITY["EPSG","4326"]],' + #13#10 +
+        'PROJECTION["Mercator_1SP"],' + #13#10 +
+        'PARAMETER["central_meridian",0],' + #13#10 +
+        'PARAMETER["scale_factor",1],' + #13#10 +
+        'PARAMETER["false_easting",0],' + #13#10 +
+        'PARAMETER["false_northing",0],' + #13#10 +
+        'UNIT["metre",1,' + #13#10 +
+        'AUTHORITY["EPSG","9001"]],' + #13#10 +
+        'AXIS["Easting",EAST],' + #13#10 +
+        'AXIS["Northing",NORTH],' + #13#10 +
+        'EXTENSION["PROJ4","+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs"],' + #13#10 +
+        'AUTHORITY["EPSG","3857"]]';
+    end;
+    CGoogleProjectionEPSG_Old: begin
       Result :=
         'PROJCS["Popular Visualisation CRS / Mercator",' + #13#10 +
         'GEOGCS["Popular Visualisation CRS",' + #13#10 +
@@ -119,7 +143,7 @@ begin
         'UNIT["Meter",1],' + #13#10 +
         'AUTHORITY["EPSG","53004"]]';
     end;
-    3395: begin
+    CYandexProjectionEPSG: begin
       Result :=
         'PROJCS["WGS 84 / World Mercator",' + #13#10 +
         'GEOGCS["WGS 84",' + #13#10 +
@@ -143,7 +167,7 @@ begin
         'AXIS["Easting",EAST],' + #13#10 +
         'AXIS["Northing",NORTH]]';
     end;
-    4326: begin
+    CGELonLatProjectionEPSG: begin
       Result :=
         'GEOGCS["WGS 84",' + #13#10 +
         'DATUM["WGS_1984",' + #13#10 +
@@ -156,9 +180,9 @@ begin
         'AUTHORITY["EPSG","9122"]],' + #13#10 +
         'AUTHORITY["EPSG","4326"]]';
     end;
-  else begin
+  else
+    Assert(False, 'Unexpected projection EPSG code: ' + IntToStr(AProjection.ProjectionType.ProjectionEPSG));
     Result := '';
-  end;
   end;
 end;
 
