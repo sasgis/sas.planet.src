@@ -24,7 +24,6 @@ unit u_CmdLineArgProcessorHelpers;
 interface
 
 uses
-  GR32,
   Types,
   Classes,
   t_GeoTypes,
@@ -39,8 +38,6 @@ uses
   i_AppearanceOfMarkFactory,
   i_AppearanceOfVectorItem,
   i_VectorItemTreeImporterList,
-  u_GlobalState,
-  u_AppearanceOfMarkPoint,
   u_MarkDbGUIHelper;
 
 function GetLonLat(
@@ -74,14 +71,9 @@ function GetGUID(
 procedure ProcessImportPlacemark(
   const AStr: string;
   const AMarkSystem: IMarkSystem;
-  const AGeometryLonLatFactory: IGeometryLonLatFactory
-);
-
-procedure ProcessImportPlacemarkWithIcon(
-  const AStr: string;
-  const AMarkSystem: IMarkSystem;
   const AGeometryLonLatFactory: IGeometryLonLatFactory;
-  AHasIcon: Boolean
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AHasIcon: Boolean
 );
 
 procedure ProcessOpenFiles(
@@ -104,7 +96,6 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  Math,
   RegExpr,
   i_NotifierOperation,
   i_ImportConfig,
@@ -120,7 +111,6 @@ uses
   i_Appearance,
   i_JpegWithExifImportConfig,
   u_JpegWithExifImportConfig,
-  u_GeoFunc,
   u_GeoToStrFunc,
   u_ImportConfig,
   u_NotifierOperation,
@@ -283,18 +273,9 @@ end;
 procedure ProcessImportPlacemark(
   const AStr: string;
   const AMarkSystem: IMarkSystem;
-  const AGeometryLonLatFactory: IGeometryLonLatFactory
-);
-begin
-  ProcessImportPlacemarkWithIcon(
-    AStr, AMarkSystem, AGeometryLonLatFactory, False);
-end;
-
-procedure ProcessImportPlacemarkWithIcon(
-  const AStr: string;
-  const AMarkSystem: IMarkSystem;
   const AGeometryLonLatFactory: IGeometryLonLatFactory;
-  AHasIcon: Boolean
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AHasIcon: Boolean
 );
 const
   cSep = ';';
@@ -362,7 +343,7 @@ begin
         VDefaultAppearance := VConfig.PointTemplateConfig.DefaultTemplate.Appearance;
         if Supports(VDefaultAppearance, IAppearancePointCaption, VAppearanceCaption) then begin
           if Supports(VDefaultAppearance, IAppearancePointIcon, VAppearanceIcon) then begin
-            VAppearance := GState.AppearanceOfMarkFactory.CreatePointAppearance(
+            VAppearance := AAppearanceOfMarkFactory.CreatePointAppearance(
               VAppearanceCaption.TextColor,
               VAppearanceCaption.TextBgColor,
               VAppearanceCaption.FontSize,

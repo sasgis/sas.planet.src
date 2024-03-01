@@ -85,7 +85,6 @@ implementation
 
 uses
   SysUtils,
-  StrUtils,
   ArgumentParser,
   t_GeoTypes,
   i_StringListStatic,
@@ -291,13 +290,12 @@ begin
 
       if VParseResult.HasArgument('insert-placemark') then begin
         VStrValue := VParseResult.GetValue('insert-placemark');
-        ProcessImportPlacemark(VStrValue, FMarkSystem, FGeometryLonLatFactory);
+        ProcessImportPlacemark(VStrValue, FMarkSystem, FGeometryLonLatFactory, FAppearanceOfMarkFactory, False);
       end;
 
       if VParseResult.HasArgument('insert-placemark-with-icon') then begin
         VStrValue := VParseResult.GetValue('insert-placemark-with-icon');
-        ProcessImportPlacemarkWithIcon(
-          VStrValue, FMarkSystem, FGeometryLonLatFactory, True);
+        ProcessImportPlacemark(VStrValue, FMarkSystem, FGeometryLonLatFactory, FAppearanceOfMarkFactory, True);
       end;
 
       VStartSlsPaused := not VParseResult.HasArgument('sls-autostart');
