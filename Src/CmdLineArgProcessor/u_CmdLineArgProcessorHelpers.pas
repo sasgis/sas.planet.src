@@ -24,9 +24,11 @@ unit u_CmdLineArgProcessorHelpers;
 interface
 
 uses
+  GR32,
   Types,
   Classes,
   t_GeoTypes,
+  i_MarkPicture,
   i_MarkSystem,
   i_MapViewGoto,
   i_ProjectionType,
@@ -35,7 +37,10 @@ uses
   i_StringListStatic,
   i_GeometryLonLatFactory,
   i_AppearanceOfMarkFactory,
+  i_AppearanceOfVectorItem,
   i_VectorItemTreeImporterList,
+  u_GlobalState,
+  u_AppearanceOfMarkPoint,
   u_MarkDbGUIHelper;
 
 function GetLonLat(
@@ -70,6 +75,13 @@ procedure ProcessImportPlacemark(
   const AStr: string;
   const AMarkSystem: IMarkSystem;
   const AGeometryLonLatFactory: IGeometryLonLatFactory
+);
+
+procedure ProcessImportPlacemarkWithIcon(
+  const AStr: string;
+  const AMarkSystem: IMarkSystem;
+  const AGeometryLonLatFactory: IGeometryLonLatFactory;
+  AHasIcon: Boolean
 );
 
 procedure ProcessOpenFiles(
@@ -273,6 +285,17 @@ procedure ProcessImportPlacemark(
   const AMarkSystem: IMarkSystem;
   const AGeometryLonLatFactory: IGeometryLonLatFactory
 );
+begin
+  ProcessImportPlacemarkWithIcon(
+    AStr, AMarkSystem, AGeometryLonLatFactory, False);
+end;
+
+procedure ProcessImportPlacemarkWithIcon(
+  const AStr: string;
+  const AMarkSystem: IMarkSystem;
+  const AGeometryLonLatFactory: IGeometryLonLatFactory;
+  AHasIcon: Boolean
+);
 const
   cSep = ';';
 var
@@ -282,8 +305,13 @@ var
   VDesc: string;
   VLonLat: TDoublePoint;
   VConfig: IMarkFactoryConfig;
-  VPointTemplate: IMarkTemplatePoint;
   VMark: IVectorDataItem;
+  VPic: IMarkPicture;
+  VPicName: string;
+  VAppearance: IAppearance;
+  VDefaultAppearance: IAppearance;
+  VAppearanceCaption: IAppearancePointCaption;
+  VAppearanceIcon: IAppearancePointIcon;
 begin
   Assert(AMarkSystem <> nil);
   Assert(AGeometryLonLatFactory <> nil);
@@ -298,6 +326,23 @@ begin
       VCoords := AnsiString(Copy(AStr, I, J-I));
       if StrToLonLat(VCoords, VLonLat) then begin
         Inc(J);
+        VPic := AMarkSystem.MarkDb.Factory.MarkPictureList.GetDefaultPicture;
+        VPicName := VPic.GetName;
+
+        if AHasIcon then begin
+          I := PosEx(cSep, AStr, J);
+          if I > 0 then begin
+            VPicName := Copy(AStr, J, I-J);
+            VPicName := GetUnquotedStr(VPicName);
+            J := I + 1;
+          end else if J <= Length(AStr) then begin
+            VPicName := Copy(AStr, J, Length(AStr)-J+1);
+            VPicName := GetUnquotedStr(VPicName);
+            J := Length(AStr) + 1;
+          end else begin
+            J := Length(AStr) + 1;
+          end;
+        end;
         I := Length(AStr);
         if J <= I then begin
           VDesc := Copy(AStr, J, I-J+1);
@@ -307,18 +352,36 @@ begin
         end;
 
         VConfig := AMarkSystem.MarkDb.Factory.Config;
-        VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
 
-        VMark :=
-          AMarkSystem.MarkDb.Factory.CreateMark(
-            AGeometryLonLatFactory.CreateLonLatPoint(VLonLat),
-            VName,
-            VDesc,
-            GetTempCategory(AMarkSystem.CategoryDB),
-            VPointTemplate.Appearance
-          );
+        VPic := AMarkSystem.MarkDb.Factory.MarkPictureList.FindByName(VPicName);
+        if not Assigned(VPic) then begin
+          VPic := AMarkSystem.MarkDb.Factory.MarkPictureList.GetDefaultPicture;
+          VPicName := VPic.GetName;
+        end;
 
-        AMarkSystem.MarkDb.UpdateMark(nil, VMark);
+        VDefaultAppearance := VConfig.PointTemplateConfig.DefaultTemplate.Appearance;
+        if Supports(VDefaultAppearance, IAppearancePointCaption, VAppearanceCaption) then begin
+          if Supports(VDefaultAppearance, IAppearancePointIcon, VAppearanceIcon) then begin
+            VAppearance := GState.AppearanceOfMarkFactory.CreatePointAppearance(
+              VAppearanceCaption.TextColor,
+              VAppearanceCaption.TextBgColor,
+              VAppearanceCaption.FontSize,
+              VPicName,
+              VPic,
+              VAppearanceIcon.MarkerSize
+            );
+            VMark :=
+              AMarkSystem.MarkDb.Factory.CreateMark(
+                AGeometryLonLatFactory.CreateLonLatPoint(VLonLat),
+                VName,
+                VDesc,
+                GetTempCategory(AMarkSystem.CategoryDB),
+                VAppearance
+              );
+
+            AMarkSystem.MarkDb.UpdateMark(nil, VMark);
+          end;
+        end;
       end;
     end;
   end;

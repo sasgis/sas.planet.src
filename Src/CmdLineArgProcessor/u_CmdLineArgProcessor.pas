@@ -228,6 +228,7 @@ begin
     VParser.AddArgument('--navigate', saStore);         // --navigate=({lon},{lat})
     VParser.AddArgument('--show-placemarks', saStore);  // --show-placemarks={0/1}
     VParser.AddArgument('--insert-placemark', saStore); // --insert-placemark="{name}";({lon},{lat});"{desc}"
+    VParser.AddArgument('--insert-placemark-with-icon', saStore); // --insert-placemark-with-icon="{name}";({lon},{lat});"{icon}";"{desc}"
     VParser.AddArgument('--sls-autostart', saBool);     // --sls-autostart
 
     VParseResult := VParser.ParseArgs(AList);
@@ -291,6 +292,12 @@ begin
       if VParseResult.HasArgument('insert-placemark') then begin
         VStrValue := VParseResult.GetValue('insert-placemark');
         ProcessImportPlacemark(VStrValue, FMarkSystem, FGeometryLonLatFactory);
+      end;
+
+      if VParseResult.HasArgument('insert-placemark-with-icon') then begin
+        VStrValue := VParseResult.GetValue('insert-placemark-with-icon');
+        ProcessImportPlacemarkWithIcon(
+          VStrValue, FMarkSystem, FGeometryLonLatFactory, True);
       end;
 
       VStartSlsPaused := not VParseResult.HasArgument('sls-autostart');
