@@ -1,20 +1,11 @@
 {$IFDEF RELEASE}
 
   {$DEFINE USE_FAST_MM}
-  {$IF CompilerVersion >= 24.0} // XE3 and later
-    {$DEFINE USE_FAST_MM_5}
-  {$ELSE}
-    {$DEFINE USE_FAST_MM_4}
-  {$IFEND}
   
   {$IFNDEF WIN64} 
     {$DEFINE USE_FAST_MOVE}
   {$ENDIF}
   
-  {$IFNDEF UNICODE}
-    {$DEFINE USE_FAST_CODE}
-  {$ENDIF}
-
 {$ENDIF}
 
 {$IFDEF USE_FAST_MM}
