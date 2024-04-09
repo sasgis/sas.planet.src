@@ -61,8 +61,6 @@ constructor TVectorTileMatrix.Create(
   const ATileRect: ITileRect;
   const AItems: IInterfaceListStatic
 );
-var
-  VItemsCount: Integer;
 begin
   Assert(Assigned(AItems));
   Assert(Assigned(ATileRect));
@@ -79,8 +77,7 @@ begin
   if FTileCount.Y < 0 then begin
     FTileCount.Y := 0;
   end;
-  VItemsCount := FTileCount.X * FTileCount.Y;
-  Assert(VItemsCount = AItems.Count);
+  Assert(FTileCount.X * FTileCount.Y = AItems.Count);
 end;
 
 function TVectorTileMatrix.GetElementByTile(

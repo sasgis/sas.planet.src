@@ -64,7 +64,6 @@ constructor TBitmapTileMatrix.Create(
   const AItems: IInterfaceListStatic
 );
 var
-  VItemsCount: Integer;
   VTileRect: TRect;
 begin
   Assert(Assigned(AItems));
@@ -83,8 +82,7 @@ begin
   if FTileCount.Y < 0 then begin
     FTileCount.Y := 0;
   end;
-  VItemsCount := FTileCount.X * FTileCount.Y;
-  Assert(VItemsCount = AItems.Count);
+  Assert(FTileCount.X * FTileCount.Y = AItems.Count);
 end;
 
 function TBitmapTileMatrix.GetElementByTile(

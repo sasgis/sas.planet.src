@@ -357,7 +357,6 @@ var
   VFreeBitmap: TFreeWinBitmap;
   VCounterContext: TInternalPerformanceCounterContext;
   VPalette: PRGBQUAD;
-  VPaletteSize: Integer;
   VSize: TPoint;
   VData: PByte;
   VBitmap8: IBitmap8Static;
@@ -375,8 +374,7 @@ begin
       if Assigned(VBitmap8) then begin
         VFreeBitmap := TFreeWinBitmap.Create(FIT_BITMAP, VSize.X, VSize.Y, 8);
         try
-          VScanLineSize := VFreeBitmap.GetScanWidth;
-          Assert(VScanLineSize >= VSize.X);
+          Assert(VFreeBitmap.GetScanWidth >= VSize.X);
           VScanLineSize := VSize.X;
           VData := VBitmap8.Data;
           for I := 0 to VSize.Y - 1 do begin
@@ -389,9 +387,7 @@ begin
           end;
 
           VPalette := VFreeBitmap.GetPalette;
-          VPaletteSize := VFreeBitmap.GetPaletteSize div SizeOf(RGBQUAD);
-
-          Assert(VPaletteSize = 256);
+          Assert(VFreeBitmap.GetPaletteSize div SizeOf(RGBQUAD) = 256);
 
           if not VFreeBitmap.GetFileBkColor(VBkColor) then begin
             VBkColor.rgbBlue := 0;
