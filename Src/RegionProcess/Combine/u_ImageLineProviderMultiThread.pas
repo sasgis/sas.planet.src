@@ -345,7 +345,7 @@ begin
     VSourceLine := @ABitmap.Data[VCopyRectAtSource.Left + (i + VCopyRectAtSource.Top) * VTileSize.X];
     PreparePixleLine(
       VSourceLine,
-      Pointer(Cardinal(FPreparedData[i + VCopyRectAtTarget.Top]) + Cardinal(VCopyRectAtTarget.Left * FBytesPerPixel)),
+      Pointer(UIntPtr(FPreparedData[i + VCopyRectAtTarget.Top]) + NativeUInt(VCopyRectAtTarget.Left * FBytesPerPixel)),
       VCopyRectSize.X
     );
   end;

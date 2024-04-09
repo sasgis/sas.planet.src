@@ -315,8 +315,8 @@ function TWikimapiaKmlSimpleParser.parse(
   const AList: IVectorItemSubsetBuilder
 ): boolean;
 var
-  position, PosStartPlace, PosTag1, PosTag2, PosTag3, PosEndPlace, sLen: integer;
-  sStart: Cardinal;
+  position, PosStartPlace, PosTag1, PosTag2, PosTag3, PosEndPlace, sLen: NativeUInt;
+  sStart: UIntPtr;
   VName: string;
   VDescription: string;
   VItem: IVectorDataItem;
@@ -324,45 +324,45 @@ var
 begin
   result := true;
   sLen := Length(buffer);
-  sStart := Cardinal(@buffer[1]);
+  sStart := UIntPtr(@buffer[1]);
   position := 1;
   PosStartPlace := 1;
   PosEndPlace := 1;
   VPointsAggregator := TDoublePointsAggregator.Create;
   While (position > 0) and (PosStartPlace > 0) and (PosEndPlace > 0) and (result) do begin
     try
-      PosStartPlace := Cardinal(FBMSrchPlacemark.Search(@buffer[position], sLen - position + 1)) - sStart + 1;
+      PosStartPlace := UIntPtr(FBMSrchPlacemark.Search(@buffer[position], sLen - position + 1)) - sStart + 1;
       if PosStartPlace > 0 then begin
-        PosEndPlace := Cardinal(FBMSrchPlacemarkE.Search(@buffer[PosStartPlace], sLen - PosStartPlace + 1)) - sStart + 1;
+        PosEndPlace := UIntPtr(FBMSrchPlacemarkE.Search(@buffer[PosStartPlace], sLen - PosStartPlace + 1)) - sStart + 1;
         if PosEndPlace > 0 then begin
           VName := '';
-          position := Cardinal(FBMSrchId.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
-          PosTag1 := Cardinal(FBMSrchName.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
+          position := UIntPtr(FBMSrchId.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
+          PosTag1 := UIntPtr(FBMSrchName.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
           if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-            PosTag2 := Cardinal(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
+            PosTag2 := UIntPtr(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
             if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-              PosTag3 := Cardinal(FBMSrchNameE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
+              PosTag3 := UIntPtr(FBMSrchNameE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
               if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
                 VName := parseName(Copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1)));
               end;
             end;
           end;
           VDescription := '';
-          PosTag1 := Cardinal(FBMSrchDesc.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
+          PosTag1 := UIntPtr(FBMSrchDesc.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
           if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-            PosTag2 := Cardinal(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
+            PosTag2 := UIntPtr(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
             if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-              PosTag3 := Cardinal(FBMSrchDescE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
+              PosTag3 := UIntPtr(FBMSrchDescE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
               if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
                 VDescription := parseDescription(copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1)));
               end;
             end;
           end;
-          PosTag1 := Cardinal(FBMSrchCoord.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
+          PosTag1 := UIntPtr(FBMSrchCoord.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
           if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-            PosTag2 := Cardinal(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
+            PosTag2 := UIntPtr(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
             if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-              PosTag3 := Cardinal(FBMSrchCoordE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
+              PosTag3 := UIntPtr(FBMSrchCoordE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
               if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
                 VPointsAggregator.Clear;
                 Result := parseCoordinates(@buffer[PosTag2 + 1], PosTag3 - (PosTag2 + 1), VPointsAggregator);

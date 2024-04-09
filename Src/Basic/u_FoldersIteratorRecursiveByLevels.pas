@@ -114,7 +114,7 @@ begin
   if FFolderNamesList.Count > 0 then begin
     Result := True;
     AFileName := FFolderNamesList.Strings[0];
-    ProcessAddSubFolders(AFileName, Integer(FFolderNamesList.Objects[0]));
+    ProcessAddSubFolders(AFileName, NativeInt(FFolderNamesList.Objects[0]));
     FFolderNamesList.Delete(0);
   end;
 end;

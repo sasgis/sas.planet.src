@@ -129,7 +129,7 @@ type
 
 const
   FIDLL = {$IFDEF MSWINDOWS}
-            {$IFDEF USE_MINGW_DLL}'libfreeimage-3.dll'{$ELSE}'FreeImage.dll';{$ENDIF}
+            {$IFDEF USE_MINGW_DLL}'libfreeimage-3.dll';{$ELSE}'FreeImage.dll';{$ENDIF}
           {$ENDIF}
           {$IFDEF LINUX}'libfreeimage.so';{$ENDIF}
           {$IFDEF MACOS}'libfreeimage.dylib';{$ENDIF}
@@ -2191,8 +2191,15 @@ var
   function GetProcAddr(const AProcName: string): Pointer;
   var
     VName: string;
+    VProcName: string;
   begin
-    VName := VNamePrefix + AProcName;
+    VProcName := AProcName;
+    {$IFDEF WIN64}
+    if Pos('@', AProcName) > 0 then begin
+      VProcName := Copy(VProcName, 1, Pos('@', VProcName) - 1);
+    end;
+    {$ENDIF}
+    VName := VNamePrefix + VProcName;
     Result := GetProcAddress(GHandle, PChar(VName));
     if Result = nil then begin
       if VRetryNamePrefix then begin

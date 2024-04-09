@@ -244,7 +244,7 @@ begin
       end;
       Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
       VMemStream := nil;
-      Assert(PByte(Integer(Result.Buffer) + (Result.Size - 1))^ = $D9); // JPEG_EOI
+      Assert(PByte(UIntPtr(Result.Buffer) + NativeUInt(Result.Size) - 1)^ = $D9); // JPEG_EOI
     finally
       VMemStream.Free;
     end;

@@ -95,7 +95,7 @@ begin
 
   FMutex := DoCreateMutex(cMutexUniqName);
 
-  FMapping := CreateFileMapping(Cardinal(-1), nil, PAGE_READWRITE, 0, SizeOf(FSharedInfo), cMappingUniqName);
+  FMapping := CreateFileMapping(INVALID_HANDLE_VALUE, nil, PAGE_READWRITE, 0, SizeOf(FSharedInfo), cMappingUniqName);
   if FMapping <> 0 then begin
     FSharedInfo := MapViewOfFile(FMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
   end else begin

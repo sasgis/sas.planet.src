@@ -1040,20 +1040,19 @@ type
   end;
 var
   x, y, ix, iy: integer;
-  x1, x2, x3: integer;
+  x1, x2, x3: Cardinal;
 
   xscale, yscale: single;
   iRed, iGrn, iBlu, iRatio: Longword;
-  p, c1, c2, c3, c4, c5: TRGB24;
+  c1, c2, c3, c4, c5: TRGB24;
   pt, pt1: PRGB24;
-  iSrc, iDst, s1: integer;
-  i, j, r, g, b, tmpY: integer;
+  iSrc, iDst: Cardinal;
+  r, g, b: integer;
 
-  RowDest, RowSource, RowSourceStart: integer;
+  RowDest, RowSource, RowSourceStart, s1: UIntPtr;
   w, h: Integer;
-  dxmin, dymin: integer;
-  ny1, ny2, ny3: integer;
-  dx, dy: integer;
+  ny1, ny2, ny3: NativeUInt;
+  dx, dy: Cardinal;
   lutX, lutY: array of integer;
 
   SrcBmp, DestBmp: PFIBITMAP;
@@ -1113,8 +1112,8 @@ begin
 
   Dec(w);
   Dec(h);
-  RowDest := integer(FreeImage_GetScanLine(DestBmp, 0));
-  RowSourceStart := integer(FreeImage_GetScanLine(SrcBmp, 0));
+  RowDest := UIntPtr(FreeImage_GetScanLine(DestBmp, 0));
+  RowSourceStart := UIntPtr(FreeImage_GetScanLine(SrcBmp, 0));
   RowSource := RowSourceStart;
 
   for y := 0 to h do
@@ -1157,9 +1156,9 @@ begin
   if FreeImage_GetHeight(DestBmp) >= 3 then
   // Sharpening...
   begin
-    s1 := integer(FreeImage_GetScanLine(DestBmp, 0));
-    iDst := integer(FreeImage_GetScanLine(DestBmp, 1)) - s1;
-    ny1 := Integer(s1);
+    s1 := UIntPtr(FreeImage_GetScanLine(DestBmp, 0));
+    iDst := UIntPtr(FreeImage_GetScanLine(DestBmp, 1)) - s1;
+    ny1 := NativeUInt(s1);
     ny2 := ny1 + iDst;
     ny3 := ny2 + iDst;
     for y := 1 to FreeImage_GetHeight(DestBmp) - 2 do

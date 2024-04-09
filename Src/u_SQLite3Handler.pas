@@ -213,7 +213,7 @@ end;
 
 function LocalSQLiteBusyHandler(ptr: Pointer; count: Integer): Integer; cdecl;
 begin
-  if (count < Integer(ptr)) then begin
+  if count < NativeInt(ptr) then begin
     // repeat
     Sleep(1);
     Result := 1;
