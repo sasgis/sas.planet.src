@@ -51,6 +51,7 @@ implementation
 
 uses
   Math,
+  i_Bitmap32Static,
   u_BitmapFunc,
   u_GeoFunc;
 

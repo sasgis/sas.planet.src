@@ -211,17 +211,14 @@ begin
     VResampler := TKernelResampler.Create;
     try
       VResampler.Kernel := TLanczosKernel.Create;
-      GR32_Resamplers.StretchTransferZ(
+      StretchTransferFull(
         FScaledBitmap,
         FScaledBitmap.BoundsRect,
-        FScaledBitmap.ClipRect,
+        Point(VTmp.Width, VTmp.Height),
         VTmp.Bits,
-        FIconSize.X,
-        FIconSize.Y,
-        Bounds(0, 0, FIconSize.X, FIconSize.Y),
         VResampler,
-        dmBlend,
-        cmBlend,
+        TDrawMode.dmBlend,
+        TCombineMode.cmBlend,
         255,
         0
       );

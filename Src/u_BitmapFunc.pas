@@ -23,6 +23,8 @@ unit u_BitmapFunc;
 
 interface
 
+{.$DEFINE USE_GR32_UPSTREAM}
+
 uses
   GR32,
   i_Bitmap32Static;
@@ -41,7 +43,19 @@ procedure StretchTransferFull(
     ACombineMode: TCombineMode = cmMerge;
     AMasterAlpha: Cardinal = 255;
     AOuterColor: TColor32 = 0
-  );
+  ); overload;
+
+procedure StretchTransferFull(
+    ADst: TCustomBitmap32;
+    const ADstRect: TRect;
+    const ASourceSize: TPoint;
+    const ASourceData: PColor32Array;    
+    AResampler: TCustomResampler;
+    ACombineOp: TDrawMode;
+    ACombineMode: TCombineMode = cmMerge;
+    AMasterAlpha: Cardinal = 255;
+    AOuterColor: TColor32 = 0
+  ); overload;
 
 procedure StretchTransfer(
     ADst: TCustomBitmap32;
@@ -64,7 +78,7 @@ procedure BlockTransferFull(
     ACombineMode: TCombineMode = cmMerge;
     AMasterAlpha: Cardinal = 255;
     AOuterColor: TColor32 = 0
-  ); overload;
+  ); inline; overload;
 
 procedure BlockTransferFull(
     ADst: TCustomBitmap32;
@@ -100,8 +114,42 @@ implementation
 uses
   Types,
   Math,
+  {$IFDEF USE_GR32_UPSTREAM}
+  SysUtils,
+  u_Synchronizer,
+  {$ENDIF}
   GR32_LowLevel,
   GR32_Resamplers;
+
+{$IFDEF USE_GR32_UPSTREAM}
+type
+  TBitmap32Pool = class
+  private
+    FLock: IReadWriteSync;
+    FCount: Integer;
+    FCapacity: Integer;
+    FItems: array [0..255] of TCustomBitmap32;
+    procedure Clear;
+  public
+    function Pop(
+      const ASourceData: PColor32Array;
+      const ASourceSize: TPoint;
+      const ACombineMode: TCombineMode;
+      const AMasterAlpha: Cardinal;
+      const AOuterColor: TColor32
+    ): TCustomBitmap32;
+
+    procedure Push(
+      const ABitmap: TCustomBitmap32
+    );
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+var
+  GBitmap32Pool: TBitmap32Pool;
+{$ENDIF}
 
 procedure AssignStaticToBitmap32(
   ADst: TCustomBitmap32;
@@ -125,6 +173,28 @@ procedure StretchTransferFull(
   AMasterAlpha: Cardinal = 255;
   AOuterColor: TColor32 = 0
 );
+{$IFDEF USE_GR32_UPSTREAM}
+var
+  VSize: TPoint;
+  VSrc: TCustomBitmap32;
+begin
+  VSize := ASource.Size;
+  VSrc := GBitmap32Pool.Pop(ASource.Data, VSize, ACombineMode, AMasterAlpha, AOuterColor);
+  try
+    GR32_Resamplers.StretchTransfer(
+      ADst,
+      ADstRect,
+      ADst.ClipRect,
+      VSrc,
+      Bounds(0, 0, VSize.X, VSize.Y),
+      AResampler,
+      ACombineOp
+    );
+  finally
+    GBitmap32Pool.Push(VSrc);
+  end;
+end;
+{$ELSE}
 var
   VSize: TPoint;
 begin
@@ -144,6 +214,56 @@ begin
     AOuterColor
   );
 end;
+{$ENDIF}
+
+procedure StretchTransferFull(
+  ADst: TCustomBitmap32;
+  const ADstRect: TRect;
+  const ASourceSize: TPoint;
+  const ASourceData: PColor32Array;
+  AResampler: TCustomResampler;
+  ACombineOp: TDrawMode;
+  ACombineMode: TCombineMode = cmMerge;
+  AMasterAlpha: Cardinal = 255;
+  AOuterColor: TColor32 = 0
+);
+{$IFDEF USE_GR32_UPSTREAM}
+var
+  VSrc: TCustomBitmap32;
+begin
+  VSrc := GBitmap32Pool.Pop(ASourceData, ASourceSize, ACombineMode, AMasterAlpha, AOuterColor);
+  try
+    GR32_Resamplers.StretchTransfer(
+      ADst,
+      ADstRect,
+      ADst.ClipRect,
+      VSrc,
+      Bounds(0, 0, ASourceSize.X, ASourceSize.Y),
+      AResampler,
+      ACombineOp
+    );
+  finally
+    GBitmap32Pool.Push(VSrc);
+  end;
+end;
+{$ELSE}
+begin
+  GR32_Resamplers.StretchTransferZ(
+    ADst,
+    ADstRect,
+    ADst.ClipRect,
+    ASourceData,
+    ASourceSize.X,
+    ASourceSize.Y,
+    Bounds(0, 0, ASourceSize.X, ASourceSize.Y),
+    AResampler,
+    ACombineOp,
+    ACombineMode,
+    AMasterAlpha,
+    AOuterColor
+  );
+end;
+{$ENDIF}
 
 procedure StretchTransfer(
   ADst: TCustomBitmap32;
@@ -156,6 +276,26 @@ procedure StretchTransfer(
   AMasterAlpha: Cardinal;
   AOuterColor: TColor32
 );
+{$IFDEF USE_GR32_UPSTREAM}
+var
+  VSrc: TCustomBitmap32;
+begin
+  VSrc := GBitmap32Pool.Pop(ASource.Data, ASource.Size, ACombineMode, AMasterAlpha, AOuterColor);
+  try
+    GR32_Resamplers.StretchTransfer(
+      ADst,
+      ADstRect,
+      ADst.ClipRect,
+      VSrc,
+      ASrcRect,
+      AResampler,
+      ACombineOp
+    );
+  finally
+    GBitmap32Pool.Push(VSrc);
+  end;
+end;
+{$ELSE}
 var
   VSize: TPoint;
 begin
@@ -175,6 +315,7 @@ begin
     AOuterColor
   );
 end;
+{$ENDIF}
 
 procedure BlockTransferFull(
   ADst: TCustomBitmap32;
@@ -211,6 +352,26 @@ procedure BlockTransferFull(
   AMasterAlpha: Cardinal = 255;
   AOuterColor: TColor32 = 0
 ); overload;
+{$IFDEF USE_GR32_UPSTREAM}
+var
+  VSrc: TCustomBitmap32;
+begin
+  VSrc := GBitmap32Pool.Pop(ASourceData, ASourceSize, ACombineMode, AMasterAlpha, AOuterColor);
+  try
+    GR32_Resamplers.BlockTransfer(
+      ADst,
+      ADstX,
+      ADstY,
+      ADst.ClipRect,
+      VSrc,
+      Bounds(0, 0, ASourceSize.X, ASourceSize.Y),
+      ACombineOp
+    );
+  finally
+    GBitmap32Pool.Push(VSrc);
+  end;
+end;
+{$ELSE}
 begin
   GR32_Resamplers.BlockTransferZ(
     ADst,
@@ -227,6 +388,7 @@ begin
     AOuterColor
   );
 end;
+{$ENDIF}
 
 procedure BlockTransfer(
   ADst: TCustomBitmap32;
@@ -239,6 +401,26 @@ procedure BlockTransfer(
   AMasterAlpha: Cardinal;
   AOuterColor: TColor32
 );
+{$IFDEF USE_GR32_UPSTREAM}
+var
+  VSrc: TCustomBitmap32;
+begin
+  VSrc := GBitmap32Pool.Pop(ASource.Data, ASource.Size, ACombineMode, AMasterAlpha, AOuterColor);
+  try
+    GR32_Resamplers.BlockTransfer(
+      ADst,
+      ADstX,
+      ADstY,
+      ADst.ClipRect,
+      VSrc,
+      ASrcRect,
+      ACombineOp
+    );
+  finally
+    GBitmap32Pool.Push(VSrc);
+  end;
+end;
+{$ELSE}
 var
   VSize: TPoint;
 begin
@@ -258,6 +440,7 @@ begin
     AOuterColor
   );
 end;
+{$ENDIF}
 
 procedure CopyBitmap32StaticToBitmap32(
   const ASourceBitmap: IBitmap32Static;
@@ -298,5 +481,120 @@ begin
     end;
   end;
 end;
+
+{$IFDEF USE_GR32_UPSTREAM}
+
+type
+  TStaticBackend = class(TCustomBackend)
+  private
+    FData: PColor32Array;
+  protected
+    procedure InitializeSurface(NewWidth, NewHeight: Integer; ClearBuffer: Boolean); override;
+    procedure FinalizeSurface; override;
+  public
+    property Data: PColor32Array read FData write FData;
+  end;
+
+{ TStaticBackend }
+
+procedure TStaticBackend.InitializeSurface(NewWidth, NewHeight: Integer; ClearBuffer: Boolean);
+begin
+  FBits := FData;
+end;
+
+procedure TStaticBackend.FinalizeSurface;
+begin
+  FBits := nil;
+end;
+
+{ TBitmap32ObjectPool }
+
+constructor TBitmap32Pool.Create;
+begin
+  inherited Create;
+  FCount := 0;
+  FCapacity := Length(FItems);
+  FLock := GSync.SyncVariable.Make(Self.ClassName);
+end;
+
+destructor TBitmap32Pool.Destroy;
+begin
+  Clear;
+  inherited Destroy;
+end;
+
+procedure TBitmap32Pool.Clear;
+var
+  I: Integer;
+begin
+  FLock.BeginWrite;
+  try
+    for I := 0 to FCount - 1 do begin
+      FItems[I].Free;
+    end;
+    FCount := 0;
+  finally
+    FLock.EndWrite;
+  end;
+end;
+
+function TBitmap32Pool.Pop(
+  const ASourceData: PColor32Array;
+  const ASourceSize: TPoint;
+  const ACombineMode: TCombineMode;
+  const AMasterAlpha: Cardinal;
+  const AOuterColor: TColor32
+): TCustomBitmap32;
+begin
+  FLock.BeginWrite;
+  try
+    if FCount > 0 then begin
+      Dec(FCount);
+      Result := FItems[FCount];
+    end else begin
+      Result := nil;
+    end;
+  finally
+    FLock.EndWrite;
+  end;
+
+  if Result = nil then begin
+    Result := TCustomBitmap32.Create(TStaticBackend);
+  end;
+
+  TStaticBackend(Result.Backend).Data := ASourceData;
+  Result.SetSize(ASourceSize.X, ASourceSize.Y);
+  Result.CombineMode := ACombineMode;
+  Result.MasterAlpha := AMasterAlpha;
+  Result.OuterColor := AOuterColor;
+end;
+
+procedure TBitmap32Pool.Push(
+  const ABitmap: TCustomBitmap32
+);
+begin
+  ABitmap.SetSize(0, 0);
+  TStaticBackend(ABitmap.Backend).Data := nil;
+
+  FLock.BeginWrite;
+  try
+    if FCount < FCapacity then begin
+      FItems[FCount] := ABitmap;
+      Inc(FCount);
+    end else begin
+      ABitmap.Free;
+    end;
+  finally
+    FLock.EndWrite;
+  end;
+end;
+
+initialization
+  GBitmap32Pool := TBitmap32Pool.Create;
+
+finalization
+  FreeAndNil(GBitmap32Pool);
+  
+{$ENDIF}
 
 end.

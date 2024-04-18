@@ -338,13 +338,11 @@ begin
     end;
   end;
 
-  BlockTransferZ(
+  BlockTransfer(
     ATargetBitmap,
     X, Y,
     ATargetBitmap.ClipRect,
-    FTmpBitmap.Bits,
-    FTmpBitmap.Width,
-    FTmpBitmap.Height,
+    FTmpBitmap,
     FTmpBitmap.BoundsRect,
     dmOpaque
   );
