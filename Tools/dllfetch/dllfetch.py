@@ -11,7 +11,7 @@ DLL_REGEX = re.compile(r"DLL Name:\s*(\S+)")
 
 SYSTEM_DLL = ["msvcrt.dll", "kernel32.dll", "user32.dll", "oleaut32.dll",
               "ntdll.dll", "advapi32.dll", "ws2_32.dll", "bcrypt.dll",
-              "userenv.dll", "shell32.dll"]
+              "userenv.dll", "shell32.dll", "crypt32.dll", "wldap32.dll"]
 
 
 def check_file(filename):
@@ -131,7 +131,8 @@ class DependencyChecker:
             self._dirs = dirs
         else:
             self._dirs = ['/']
-        self._ignore_files = ignore_files
+        if ignore_files:
+            self._ignore_files = ignore_files
 
     def run(self):
         if not os.path.isfile(self._filename):
