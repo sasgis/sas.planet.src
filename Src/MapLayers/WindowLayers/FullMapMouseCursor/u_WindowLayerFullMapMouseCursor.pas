@@ -126,39 +126,12 @@ end;
 procedure TWindowLayerFullMapMouseCursor.OnTimerEvent;
 var
   VPos: TPoint;
-  VRect: TRect;
-  VViewRect: TRect;
-  VLocalConverter: ILocalCoordConverter;
 begin
   if Visible then begin
     VPos := FMouseState.CurentPos;
-    VLocalConverter := FLocalConverter.GetStatic;
-    VViewRect := VLocalConverter.GetLocalRect;
     if (VPos.X <> FLastPos.X) or (VPos.Y <> FLastPos.Y) then begin
-      VRect.Left := VViewRect.Left;
-      VRect.Top := FLastPos.Y - 1;
-      VRect.Right := VViewRect.Right;
-      VRect.Bottom := FLastPos.Y + 1;
-      Layer.Changed(VRect);
-
-      VRect.Left := FLastPos.X - 1;
-      VRect.Top := VViewRect.Top;
-      VRect.Right := FLastPos.X + 1;
-      VRect.Bottom := VViewRect.Bottom;
-      Layer.Changed(VRect);
-
-      VRect.Left := VViewRect.Left;
-      VRect.Top := VPos.Y - 1;
-      VRect.Right := VViewRect.Right;
-      VRect.Bottom := VPos.Y + 1;
-      Layer.Changed(VRect);
-
-      VRect.Left := VPos.X - 1;
-      VRect.Top := VViewRect.Top;
-      VRect.Right := VPos.X + 1;
-      VRect.Bottom := VViewRect.Bottom;
       FLastPos := VPos;
-      Layer.Changed(VRect);
+      Layer.Changed;
     end;
   end;
 end;
@@ -171,8 +144,14 @@ begin
   inherited;
   VPos := FLastPos;
   VColor := FConfig.LineColor;
-  ABuffer.VertLineS(VPos.X, 0, ABuffer.Height, VColor);
-  ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, VColor);
+
+  ABuffer.BeginUpdate;
+  try
+    ABuffer.VertLineS(VPos.X, 0, ABuffer.Height, VColor);
+    ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, VColor);
+  finally
+    ABuffer.EndUpdate;
+  end;
 end;
 
 procedure TWindowLayerFullMapMouseCursor.StartThreads;

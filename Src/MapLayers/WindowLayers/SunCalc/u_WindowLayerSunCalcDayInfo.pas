@@ -24,6 +24,7 @@ unit u_WindowLayerSunCalcDayInfo;
 interface
 
 uses
+  Types,
   GR32,
   GR32_Polygons,
   GR32_Transforms,
@@ -73,21 +74,20 @@ begin
 
     // Draw day curve
     for I := 0 to Length(VDayPoints) - 1 do begin
-      ThickPolyLine(ABuffer, VDayPoints[I], FShapesColors.DayPolyLineColor);
+      ThickPolyLine(ABuffer, VDayPoints[I], FShapesColors.DayPolyLineColor, 4);
     end;
 
     // Draw rise line
     if VRisePoint.X > 0 then begin
-      ThickLine(ABuffer, VCenter, VRisePoint, FShapesColors.DaySunriseLineColor, 6);
+      ThickLine(ABuffer, VCenter, VRisePoint, FShapesColors.DaySunriseLineColor, 4);
     end;
 
     // Draw set line
     if VSetPoint.X > 0 then begin
-      ThickLine(ABuffer, VCenter, VSetPoint, FShapesColors.DaySunsetLineColor, 6);
+      ThickLine(ABuffer, VCenter, VSetPoint, FShapesColors.DaySunsetLineColor, 4);
     end;
   finally
     ABuffer.EndUpdate;
-    ABuffer.Changed;
   end;
 end;
 

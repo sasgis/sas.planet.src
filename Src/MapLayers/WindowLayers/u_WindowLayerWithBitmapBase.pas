@@ -166,7 +166,7 @@ begin
   end;
   if FNeedUpdateLayerLocationFlag.CheckFlagAndReset then begin
     VLocation := GetNewLayerLocation;
-    if not EqualRect(VLocation, FLayer.Location) then begin
+    if not GR32.EqualRect(VLocation, FLayer.Location) then begin
       DoUpdateLayerLocation(VLocation);
     end;
   end;

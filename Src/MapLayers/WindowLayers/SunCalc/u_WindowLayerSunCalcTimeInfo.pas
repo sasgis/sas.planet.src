@@ -145,7 +145,7 @@ begin
 
     // Draw line to the current position
     if (VCurrentPos.X > 0) and (VCurrentPos.Y > 0) then begin
-      ThickLine(ABuffer, VCenter, VCurrentPos, FShapesColors.DayLineColor, 6);
+      ThickLine(ABuffer, VCenter, VCurrentPos, FShapesColors.DayLineColor, 4);
 
       // Draw marker
       if FSunCalcConfig.IsRealTime then begin
@@ -162,7 +162,6 @@ begin
     end;
   finally
     ABuffer.EndUpdate;
-    ABuffer.Changed;
   end;
 end;
 

@@ -24,6 +24,7 @@ unit u_MarkerDrawableComplex;
 interface
 
 uses
+  Types,
   GR32,
   t_GeoTypes,
   i_MarkerDrawable,
@@ -77,9 +78,10 @@ begin
 end;
 
 function TMarkerDrawableComplex.GetBoundsForPosition(
-  const APosition: TDoublePoint): TRect;
+  const APosition: TDoublePoint
+): TRect;
 begin
-  UnionRect(
+  GR32.UnionRect(
     Result,
     FMarkerFirst.GetBoundsForPosition(APosition),
     FMarkerSecond.GetBoundsForPosition(APosition)

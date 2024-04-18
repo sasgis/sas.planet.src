@@ -31,20 +31,21 @@ procedure ThickLine(
   const AStart, AEnd: TFloatPoint;
   const AColor: TColor32;
   const AWidth: Integer
-);
+); inline;
 
 procedure ThickPolyLine(
   ABitmap: TBitmap32;
   const APoints: TArrayOfFloatPoint;
-  const AColor: TColor32
-); inline;
+  const AColor: TColor32;
+  const AWidth: Integer
+);
 
 implementation
 
 uses
   Types,
-  GR32_Math,
-  GR32_Polygons;
+  GR32_Polygons,
+  GR32_VectorUtils;
 
 procedure ThickLine(
   ABitmap: TBitmap32;
@@ -53,39 +54,32 @@ procedure ThickLine(
   const AWidth: Integer
 );
 var
-  I: Integer;
-  P1, P2: TPoint;
-  VPolygon: TArrayOfFloatPoint;
+  VLine: TArrayOfFloatPoint;
 begin
-  I := AWidth div 2;
+  SetLength(VLine, 2);
 
-  P1 := GR32.Point(AStart);
-  P2 := GR32.Point(AEnd);
+  VLine[0] := AStart;
+  VLine[1] := AEnd;
 
-  SetLength(VPolygon, 4);
-
-  VPolygon[0] := FloatPoint(P1.X - I, P1.Y);
-  VPolygon[1] := FloatPoint(P1.X + I, P1.Y);
-  VPolygon[2] := FloatPoint(P2.X + I, P2.Y);
-  VPolygon[3] := FloatPoint(P2.X - I, P2.Y);
-
-  PolygonFS(ABitmap, VPolygon, AColor);
-
-  VPolygon[0] := FloatPoint(P1.X, P1.Y + I);
-  VPolygon[1] := FloatPoint(P1.X, P1.Y - I);
-  VPolygon[2] := FloatPoint(P2.X, P2.Y - I);
-  VPolygon[3] := FloatPoint(P2.X, P2.Y + I);
-
-  PolygonFS(ABitmap, VPolygon, AColor);
+  ThickPolyLine(ABitmap, VLine, AColor, AWidth);
 end;
 
 procedure ThickPolyLine(
   ABitmap: TBitmap32;
   const APoints: TArrayOfFloatPoint;
-  const AColor: TColor32
+  const AColor: TColor32;
+  const AWidth: Integer
 );
+var
+  VPoly: TArrayOfFloatPoint;
 begin
-  PolylineFS(ABitmap, APoints, AColor, False, 4);
+  VPoly := BuildPolyLine(APoints, AWidth);
+
+  if not ABitmap.MeasuringMode then begin
+    PolygonFS(ABitmap, VPoly, AColor);
+  end;
+
+  ABitmap.Changed(MakeRect(PolygonBounds(VPoly), rrOutside));
 end;
 
 end.
