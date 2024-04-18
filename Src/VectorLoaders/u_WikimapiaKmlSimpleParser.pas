@@ -315,7 +315,7 @@ function TWikimapiaKmlSimpleParser.parse(
   const AList: IVectorItemSubsetBuilder
 ): boolean;
 var
-  position, PosStartPlace, PosTag1, PosTag2, PosTag3, PosEndPlace, sLen: NativeUInt;
+  position, PosStartPlace, PosTag1, PosTag2, PosTag3, PosEndPlace, sLen: NativeInt;
   sStart: UIntPtr;
   VName: string;
   VDescription: string;
