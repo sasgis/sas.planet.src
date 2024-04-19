@@ -93,7 +93,6 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
     FPosition.ChangeNotifier
   );
-
 end;
 
 procedure TMiniMapLayerTopBorder.DoUpdateBitmapDraw;

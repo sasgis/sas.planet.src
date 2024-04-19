@@ -86,7 +86,7 @@ uses
   u_BitmapFunc,
   u_ListenerByEvent;
 
-{ TMiniMapLayerPlusButton }
+{ TMiniMapLayerMinusButton }
 
 constructor TMiniMapLayerMinusButton.Create(
   const APerfList: IInternalPerformanceCounterList;

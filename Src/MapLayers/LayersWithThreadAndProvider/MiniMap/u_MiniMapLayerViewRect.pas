@@ -116,7 +116,7 @@ uses
   u_ListenerTime,
   u_GeoFunc;
 
-{ TMiniMapLayerTopBorder }
+{ TMiniMapLayerViewRect }
 
 constructor TMiniMapLayerViewRect.Create(
   const APerfList: IInternalPerformanceCounterList;

@@ -62,7 +62,6 @@ type
       Shift: TShiftState;
       X, Y: Integer
     );
-
   protected
     function GetNewBitmapSize: TPoint; override;
     procedure DoUpdateLayerVisibility; override;
