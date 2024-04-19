@@ -139,7 +139,7 @@ begin
   FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimer, 10),
+    TListenerTimeCheck.Create(Self.OnTimer, 25),
     ATimerNoifier
   );
   LinksList.Add(
