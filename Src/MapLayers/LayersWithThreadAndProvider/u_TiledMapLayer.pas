@@ -205,24 +205,25 @@ var
   VTileMatrix: IBitmapTileMatrix;
   VTileIterator: ITileIterator;
   VTile: TPoint;
-  VDstRect: TRect;
   VShownId: THashValue;
-  VMapRect: TRect;
   VBitmap: IBitmap32Static;
   VReadyId: THashValue;
+  VIsChanged: Boolean;
 begin
+  VIsChanged := False;
   if FTileMatrixChangeFlag.CheckFlagAndReset then begin
     VTileMatrix := FTileMatrix.GetStatic;
     if Assigned(VTileMatrix) then begin
       if not FLayer.Visible then begin
         FLayer.Visible := True;
+        VIsChanged := True;
       end;
       VLocalConverter := FView.GetStatic;
       if Assigned(VLocalConverter) then begin
         if not VLocalConverter.GetIsSameConverter(FLastPaintConverter) then begin
-          FLayer.Location := FloatRect(VLocalConverter.GetLocalRect);
-          FLayer.Changed(VLocalConverter.GetLocalRect);
           FShownIdMatrix.SetRectWithReset(VTileMatrix.TileRect, 0);
+          FLayer.Location := FloatRect(VLocalConverter.GetLocalRect); // SetLocation calls Changed automatically
+          VIsChanged := False;
         end else begin
           if VLocalConverter.Projection.IsSame(VTileMatrix.TileRect.Projection) then begin
             VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
@@ -235,10 +236,8 @@ begin
                 VReadyId := CFakeHashValue;
               end;
               if VReadyId <> VShownId then begin
-                VMapRect := VLocalConverter.Projection.TilePos2PixelRect(VTile);
-                VDstRect := VLocalConverter.MapRect2LocalRect(VMapRect, rrClosest);
                 FShownIdMatrix.Tiles[VTile] := VReadyId;
-                FLayer.Changed(VDstRect);
+                VIsChanged := True;
               end;
             end;
           end;
@@ -248,8 +247,12 @@ begin
     end else begin
       if FLayer.Visible then begin
         FLayer.Visible := False;
+        VIsChanged := True;
       end;
     end;
+  end;
+  if VIsChanged then begin
+    FLayer.Changed;
   end;
 end;
 
