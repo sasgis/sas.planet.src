@@ -49,7 +49,7 @@ procedure StretchTransferFull(
     ADst: TCustomBitmap32;
     const ADstRect: TRect;
     const ASourceSize: TPoint;
-    const ASourceData: PColor32Array;    
+    const ASourceData: PColor32Array;
     AResampler: TCustomResampler;
     ACombineOp: TDrawMode;
     ACombineMode: TCombineMode = cmMerge;
@@ -115,6 +115,7 @@ uses
   Types,
   Math,
   {$IFDEF USE_GR32_UPSTREAM}
+  Classes,
   SysUtils,
   u_Synchronizer,
   {$ENDIF}
@@ -129,6 +130,8 @@ type
     FCount: Integer;
     FCapacity: Integer;
     FItems: array [0..255] of TCustomBitmap32;
+    FMainThreadItem: TCustomBitmap32;
+    class function IsMainThread: Boolean; static; inline;
     procedure Clear;
   public
     function Pop(
@@ -483,7 +486,6 @@ begin
 end;
 
 {$IFDEF USE_GR32_UPSTREAM}
-
 type
   TStaticBackend = class(TCustomBackend)
   private
@@ -514,12 +516,14 @@ begin
   inherited Create;
   FCount := 0;
   FCapacity := Length(FItems);
+  FMainThreadItem := TCustomBitmap32.Create(TStaticBackend);
   FLock := GSync.SyncVariable.Make(Self.ClassName);
 end;
 
 destructor TBitmap32Pool.Destroy;
 begin
   Clear;
+  FreeAndNil(FMainThreadItem);
   inherited Destroy;
 end;
 
@@ -546,20 +550,23 @@ function TBitmap32Pool.Pop(
   const AOuterColor: TColor32
 ): TCustomBitmap32;
 begin
-  FLock.BeginWrite;
-  try
-    if FCount > 0 then begin
-      Dec(FCount);
-      Result := FItems[FCount];
-    end else begin
-      Result := nil;
+  if IsMainThread then begin
+    Result := FMainThreadItem;
+  end else begin
+    FLock.BeginWrite;
+    try
+      if FCount > 0 then begin
+        Dec(FCount);
+        Result := FItems[FCount];
+      end else begin
+        Result := nil;
+      end;
+    finally
+      FLock.EndWrite;
     end;
-  finally
-    FLock.EndWrite;
-  end;
-
-  if Result = nil then begin
-    Result := TCustomBitmap32.Create(TStaticBackend);
+    if Result = nil then begin
+      Result := TCustomBitmap32.Create(TStaticBackend);
+    end;
   end;
 
   TStaticBackend(Result.Backend).Data := ASourceData;
@@ -576,6 +583,10 @@ begin
   ABitmap.SetSize(0, 0);
   TStaticBackend(ABitmap.Backend).Data := nil;
 
+  if ABitmap = FMainThreadItem then begin
+    Exit;
+  end;
+
   FLock.BeginWrite;
   try
     if FCount < FCapacity then begin
@@ -589,12 +600,16 @@ begin
   end;
 end;
 
+class function TBitmap32Pool.IsMainThread: Boolean;
+begin
+  Result := TThread.Current.ThreadID = MainThreadID;
+end;
+
 initialization
   GBitmap32Pool := TBitmap32Pool.Create;
 
 finalization
   FreeAndNil(GBitmap32Pool);
-  
 {$ENDIF}
 
 end.
