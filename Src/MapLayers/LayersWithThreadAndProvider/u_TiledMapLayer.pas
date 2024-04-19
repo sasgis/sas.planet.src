@@ -216,14 +216,13 @@ begin
     if Assigned(VTileMatrix) then begin
       if not FLayer.Visible then begin
         FLayer.Visible := True;
-        VIsChanged := True;
       end;
       VLocalConverter := FView.GetStatic;
       if Assigned(VLocalConverter) then begin
         if not VLocalConverter.GetIsSameConverter(FLastPaintConverter) then begin
           FShownIdMatrix.SetRectWithReset(VTileMatrix.TileRect, 0);
-          FLayer.Location := FloatRect(VLocalConverter.GetLocalRect); // SetLocation calls Changed automatically
-          VIsChanged := False;
+          FLayer.Location := FloatRect(VLocalConverter.GetLocalRect);
+          VIsChanged := True;
         end else begin
           if VLocalConverter.Projection.IsSame(VTileMatrix.TileRect.Projection) then begin
             VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
@@ -247,7 +246,6 @@ begin
     end else begin
       if FLayer.Visible then begin
         FLayer.Visible := False;
-        VIsChanged := True;
       end;
     end;
   end;
