@@ -108,7 +108,7 @@ begin
     FMainFormState.ChangeNotifier
   );
   LinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimerEvent, 10),
+    TListenerTimeCheck.Create(Self.OnTimerEvent, 25),
     ATimerNoifier
   );
 end;
