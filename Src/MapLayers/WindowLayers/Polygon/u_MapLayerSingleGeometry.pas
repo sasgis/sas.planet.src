@@ -26,6 +26,7 @@ interface
 uses
   GR32,
   GR32_Image,
+  GR32_Polygons,
   i_NotifierOperation,
   i_SimpleFlag,
   i_LocalCoordConverter,
@@ -60,6 +61,7 @@ type
     FDrawable: IProjectedDrawableElement;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
+    FForceMapRedraw: Boolean;
   protected
     property Factory: IGeometryProjectedFactory read FVectorGeometryProjectedFactory;
     property PreparedPointsAggreagtor: IDoublePointsAggregator read FPreparedPointsAggreagtor;
@@ -84,7 +86,8 @@ type
       const AView: ILocalCoordConverterChangeable;
       const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AConfig: IConfigDataElement
+      const AConfig: IConfigDataElement;
+      const AForceMapRedraw: Boolean
     );
   end;
 
@@ -114,7 +117,8 @@ type
       const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AConfig: ILineLayerConfig;
-      const ASource: IGeometryLonLatLineChangeable
+      const ASource: IGeometryLonLatLineChangeable;
+      const AForceMapRedraw: Boolean = False
     );
   end;
 
@@ -145,7 +149,8 @@ type
       const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AConfig: IPolygonLayerConfig;
-      const ASource: IGeometryLonLatPolygonChangeable
+      const ASource: IGeometryLonLatPolygonChangeable;
+      const AForceMapRedraw: Boolean = False
     );
   end;
 
@@ -173,7 +178,8 @@ constructor TMapLayerSingleGeometryBase.Create(
   const AView: ILocalCoordConverterChangeable;
   const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AConfig: IConfigDataElement
+  const AConfig: IConfigDataElement;
+  const AForceMapRedraw: Boolean
 );
 begin
   Assert(Assigned(AVectorGeometryProjectedFactory));
@@ -200,6 +206,7 @@ begin
     FConfig.GetChangeNotifier
   );
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
+  FForceMapRedraw := AForceMapRedraw;
 end;
 
 procedure TMapLayerSingleGeometryBase.MarkSourceChanged;
@@ -263,6 +270,9 @@ begin
     VCounterContext := FDrawDrawableCounter.StartOperation;
     try
       FDrawable.Draw(ABuffer, ALocalConverter);
+      if FForceMapRedraw then begin
+        ABuffer.Changed;
+      end;
     finally
       FDrawDrawableCounter.FinishOperation(VCounterContext);
     end;
@@ -285,7 +295,8 @@ constructor TMapLayerSingleLine.Create(
   const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AConfig: ILineLayerConfig;
-  const ASource: IGeometryLonLatLineChangeable
+  const ASource: IGeometryLonLatLineChangeable;
+  const AForceMapRedraw: Boolean
 );
 begin
   Assert(Assigned(ASource));
@@ -297,7 +308,8 @@ begin
     AView,
     ATileRectForShow,
     AVectorGeometryProjectedFactory,
-    AConfig
+    AConfig,
+    AForceMapRedraw
   );
   FSource := ASource;
   FConfig := AConfig;
@@ -400,7 +412,8 @@ constructor TMapLayerSinglePolygon.Create(
   const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AConfig: IPolygonLayerConfig;
-  const ASource: IGeometryLonLatPolygonChangeable
+  const ASource: IGeometryLonLatPolygonChangeable;
+  const AForceMapRedraw: Boolean
 );
 begin
   Assert(Assigned(ASource));
@@ -412,7 +425,8 @@ begin
     AView,
     ATileRectForShow,
     AVectorGeometryProjectedFactory,
-    AConfig
+    AConfig,
+    AForceMapRedraw
   );
   FConfig := AConfig;
   FSource := ASource;

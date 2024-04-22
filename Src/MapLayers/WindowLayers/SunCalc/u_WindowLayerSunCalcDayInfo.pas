@@ -88,6 +88,7 @@ begin
     end;
   finally
     ABuffer.EndUpdate;
+    ABuffer.Changed;
   end;
 end;
 

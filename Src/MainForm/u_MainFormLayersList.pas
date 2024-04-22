@@ -1090,7 +1090,8 @@ constructor TMainFormLayersList.Create(
         ATileRectForShow,
         AVectorGeometryProjectedFactory,
         ALayersConfig.CalcCircleLayerConfig.PolygonConfig,
-        VGeometryChangeableByPolygonEdit.PolygonChangeable
+        VGeometryChangeableByPolygonEdit.PolygonChangeable,
+        True
       );
     ALayersList.Add(VLayer);
 
@@ -1562,7 +1563,8 @@ constructor TMainFormLayersList.Create(
         AParentMap,
         AViewPortState.View,
         ASelectionRect,
-        ALayersConfig.SelectionRectLayerConfig
+        ALayersConfig.SelectionRectLayerConfig,
+        True
       );
     ALayersList.Add(VLayer);
   end;

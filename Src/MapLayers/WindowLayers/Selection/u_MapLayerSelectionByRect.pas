@@ -44,6 +44,8 @@ type
     FFillColor: TColor32;
     FBorderColor: TColor32;
 
+    FForceMapRedraw: Boolean;
+
     procedure OnSelectionChange;
     procedure OnConfigChange;
   protected
@@ -60,7 +62,8 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const ASelection: ISelectionRect;
-      const AConfig: ISelectionRectLayerConfig
+      const AConfig: ISelectionRectLayerConfig;
+      const AForceMapRedraw: Boolean
     );
   end;
 
@@ -84,7 +87,8 @@ constructor TMapLayerSelectionByRect.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const ASelection: ISelectionRect;
-  const AConfig: ISelectionRectLayerConfig
+  const AConfig: ISelectionRectLayerConfig;
+  const AForceMapRedraw: Boolean
 );
 begin
   Assert(Assigned(AConfig));
@@ -98,6 +102,7 @@ begin
   );
   FConfig := AConfig;
   FSelection := ASelection;
+  FForceMapRedraw := AForceMapRedraw;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -160,27 +165,35 @@ begin
       ALocalConverter.MapRectFloat2LocalRectFloat(VSelectedPixels),
       rrToTopLeft
     );
-  ABuffer.FillRectTS(
-    VDrawRect.Left,
-    VDrawRect.Top,
-    VDrawRect.Right,
-    VDrawRect.Bottom,
-    FFillColor
-  );
-  ABuffer.FrameRectTS(
-    VDrawRect.Left,
-    VDrawRect.Top,
-    VDrawRect.Right,
-    VDrawRect.Bottom,
-    FBorderColor
-  );
-  ABuffer.FrameRectTS(
-    VDrawRect.Left - 1,
-    VDrawRect.Top - 1,
-    VDrawRect.Right + 1,
-    VDrawRect.Bottom + 1,
-    FBorderColor
-  );
+  ABuffer.BeginUpdate;
+  try
+    ABuffer.FillRectTS(
+      VDrawRect.Left,
+      VDrawRect.Top,
+      VDrawRect.Right,
+      VDrawRect.Bottom,
+      FFillColor
+    );
+    ABuffer.FrameRectTS(
+      VDrawRect.Left,
+      VDrawRect.Top,
+      VDrawRect.Right,
+      VDrawRect.Bottom,
+      FBorderColor
+    );
+    ABuffer.FrameRectTS(
+      VDrawRect.Left - 1,
+      VDrawRect.Top - 1,
+      VDrawRect.Right + 1,
+      VDrawRect.Bottom + 1,
+      FBorderColor
+    );
+  finally
+    ABuffer.EndUpdate;
+  end;
+  if FForceMapRedraw then begin
+    ABuffer.Changed;
+  end;
 end;
 
 procedure TMapLayerSelectionByRect.StartThreads;
