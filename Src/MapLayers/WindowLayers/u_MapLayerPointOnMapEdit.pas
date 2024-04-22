@@ -52,7 +52,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
+      const AParentMap: TImage32;
       const ALocalConverter: ILocalCoordConverterChangeable;
       const AMarker: IMarkerDrawableChangeable;
       const APointOnMap: IPointOnMapEdit
@@ -75,7 +75,7 @@ constructor TMapLayerPointOnMapEdit.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
+  const AParentMap: TImage32;
   const ALocalConverter: ILocalCoordConverterChangeable;
   const AMarker: IMarkerDrawableChangeable;
   const APointOnMap: IPointOnMapEdit
@@ -87,6 +87,7 @@ begin
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
+    AParentMap,
     TCustomLayer.Create(AParentMap.Layers)
   );
   FPointOnMap := APointOnMap;

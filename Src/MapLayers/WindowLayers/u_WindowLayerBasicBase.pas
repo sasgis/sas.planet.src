@@ -27,6 +27,7 @@ uses
   Types,
   SysUtils,
   GR32,
+  GR32_Image,
   GR32_Layers,
   i_NotifierOperation,
   i_SimpleFlag,
@@ -36,6 +37,8 @@ uses
 type
   TWindowLayerBasicBase = class(TWindowLayerAbstract)
   private
+    FParentMap: TImage32;
+    FOnAreaChange: TAreaChangedEvent;
     FLayer: TCustomLayer;
     FVisible: Boolean;
     FNeedUpdateLayerVisibilityFlag: ISimpleFlag;
@@ -47,6 +50,11 @@ type
     procedure OnPaintLayer(
       Sender: TObject;
       Buffer: TBitmap32
+    );
+    procedure OnAreaChanged(
+      Sender: TObject;
+      const Area: TRect;
+      const Info: Cardinal
     );
   protected
     procedure StartThreads; override;
@@ -66,7 +74,8 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      ALayer: TCustomLayer
+      const AParentMap: TImage32;
+      const ALayer: TCustomLayer
     );
   end;
 
@@ -81,13 +90,15 @@ constructor TWindowLayerBasicBase.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  ALayer: TCustomLayer
+  const AParentMap: TImage32;
+  const ALayer: TCustomLayer
 );
 begin
   inherited Create(
     AAppStartedNotifier,
     AAppClosingNotifier
   );
+  FParentMap := AParentMap;
   FLayer := ALayer;
   FLayer.Visible := False;
   FLayer.MouseEvents := False;
@@ -142,9 +153,21 @@ begin
   end;
   VCounterContext := VCounter.StartOperation;
   try
+    FOnAreaChange := Buffer.OnAreaChanged;
+    Buffer.OnAreaChanged := Self.OnAreaChanged;
     PaintLayer(Buffer);
   finally
+    Buffer.OnAreaChanged := FOnAreaChange;
     VCounter.FinishOperation(VCounterContext);
+  end;
+end;
+
+procedure TWindowLayerBasicBase.OnAreaChanged(Sender: TObject;
+  const Area: TRect; const Info: Cardinal);
+begin
+  FParentMap.Invalidate;
+  if Assigned(FOnAreaChange) then begin
+    FOnAreaChange(Sender, Area, Info);
   end;
 end;
 

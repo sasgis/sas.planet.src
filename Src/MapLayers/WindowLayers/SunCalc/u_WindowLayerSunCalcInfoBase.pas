@@ -112,6 +112,7 @@ begin
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
+    AParentMap,
     TCustomLayer.Create(AParentMap.Layers)
   );
 

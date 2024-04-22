@@ -55,7 +55,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
+      const AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AMarkerChangeable: IMarkerDrawableChangeable;
       const AConfig: ICenterScaleConfig
@@ -76,7 +76,7 @@ constructor TWindowLayerCenterScale.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
+  const AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AMarkerChangeable: IMarkerDrawableChangeable;
   const AConfig: ICenterScaleConfig
@@ -86,6 +86,7 @@ begin
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
+    AParentMap,
     TCustomLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;

@@ -37,6 +37,8 @@ uses
 type
   TMapLayerBasicNoBitmap = class(TWindowLayerAbstract)
   private
+    FParentMap: TImage32;
+    FOnAreaChange: TAreaChangedEvent;
     FView: ILocalCoordConverterChangeable;
     FVisible: Boolean;
     FLayer: TCustomLayer;
@@ -47,6 +49,11 @@ type
     procedure OnPaintLayer(
       Sender: TObject;
       Buffer: TBitmap32
+    );
+    procedure OnAreaChanged(
+      Sender: TObject;
+      const Area: TRect;
+      const Info: Cardinal
     );
     procedure OnViewChange;
     procedure RedrawIfNeed;
@@ -76,7 +83,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
+      const AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable
     );
     destructor Destroy; override;
@@ -94,7 +101,7 @@ constructor TMapLayerBasicNoBitmap.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
+  const AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable
 );
 begin
@@ -102,7 +109,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier
   );
-
+  FParentMap := AParentMap;
   FView := AView;
   FLayer := TCustomLayer.Create(AParentMap.Layers);
   FRedrawCounter := APerfList.CreateAndAddNewCounter('Redraw');
@@ -143,6 +150,8 @@ begin
     VCounterContext := FOnPaintCounter.StartOperation;
     try
       if FVisible then begin
+        FOnAreaChange := Buffer.OnAreaChanged;
+        Buffer.OnAreaChanged := Self.OnAreaChanged;
         PaintLayer(Buffer, VLocalConverter);
       end else begin
         // initialize full redraw
@@ -150,8 +159,18 @@ begin
         Buffer.Changed;
       end;
     finally
+      Buffer.OnAreaChanged := FOnAreaChange;
       FOnPaintCounter.FinishOperation(VCounterContext);
     end;
+  end;
+end;
+
+procedure TMapLayerBasicNoBitmap.OnAreaChanged(Sender: TObject;
+  const Area: TRect; const Info: Cardinal);
+begin
+  FParentMap.Invalidate;
+  if Assigned(FOnAreaChange) then begin
+    FOnAreaChange(Sender, Area, Info);
   end;
 end;
 

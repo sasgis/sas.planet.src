@@ -58,7 +58,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
+      const AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
       const ATimerNoifier: INotifierTime;
@@ -80,7 +80,7 @@ constructor TWindowLayerFullMapMouseCursor.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
+  const AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
   const ATimerNoifier: INotifierTime;
@@ -92,6 +92,7 @@ begin
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
+    AParentMap,
     TCustomLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;

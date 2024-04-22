@@ -58,7 +58,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
+      const AParentMap: TImage32;
       const ATimerNoifier: INotifierTime;
       const ALocalConverter: ILocalCoordConverterChangeable;
       const AMarkerChangeable: IMarkerDrawableChangeable;
@@ -85,7 +85,7 @@ constructor TMapLayerGotoMarker.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
+  const AParentMap: TImage32;
   const ATimerNoifier: INotifierTime;
   const ALocalConverter: ILocalCoordConverterChangeable;
   const AMarkerChangeable: IMarkerDrawableChangeable;
@@ -99,6 +99,7 @@ begin
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
+    AParentMap,
     TCustomLayer.Create(AParentMap.Layers)
   );
   FLocalConverter := ALocalConverter;
