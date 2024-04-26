@@ -33,6 +33,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
+  i_MainFormState,
   i_MarkerDrawable,
   i_MapViewGoto,
   i_LocalCoordConverter,
@@ -41,13 +42,20 @@ uses
 type
   TMapLayerGpsTrackGoToMarker = class(TWindowLayerBasicBase)
   private
+    FMainFormState: IMainFormState;
     FMapViewGoTo: IMapViewGoTo;
     FMarkerChangeable: IMarkerDrawableChangeable;
     FLocalConverter: ILocalCoordConverterChangeable;
 
+    FPos: TDoublePoint;
+    FIsPosValid: Boolean;
+
+    function GetGotoPos(out APos: TDoublePoint): Boolean;
+
     procedure OnGoToChange;
     procedure OnPosChange;
   protected
+    procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
@@ -57,6 +65,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AParentMap: TImage32;
       const ALocalConverter: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const AMarkerChangeable: IMarkerDrawableChangeable;
       const AMapViewGoTo: IMapViewGoTo
     );
@@ -77,6 +86,7 @@ constructor TMapLayerGpsTrackGoToMarker.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AParentMap: TImage32;
   const ALocalConverter: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const AMarkerChangeable: IMarkerDrawableChangeable;
   const AMapViewGoTo: IMapViewGoTo
 );
@@ -90,12 +100,13 @@ begin
   );
 
   FLocalConverter := ALocalConverter;
+  FMainFormState := AMainFormState;
   FMarkerChangeable := AMarkerChangeable;
   FMapViewGoTo := AMapViewGoTo;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnGoToChange),
-    FMapViewGoTo.GetChangeNotifier
+    FMapViewGoTo.ChangeNotifier
   );
 
   LinksList.Add(
@@ -128,21 +139,16 @@ begin
   end;
 end;
 
-procedure TMapLayerGpsTrackGoToMarker.PaintLayer(
-  ABuffer: TBitmap32
-);
+function TMapLayerGpsTrackGoToMarker.GetGotoPos(out APos: TDoublePoint): Boolean;
 var
-  VLocalConverter: ILocalCoordConverter;
   VGotoPos: IGotoPosStatic;
-  VMarker: IMarkerDrawable;
   VGotoLonLat: TDoublePoint;
-  VFixedOnView: TDoublePoint;
+  VLocalConverter: ILocalCoordConverter;
   VProjectionType: IProjectionType;
 begin
-  inherited;
+  Result := False;
 
   VGotoPos := FMapViewGoTo.LastGotoPos;
-
   if VGotoPos = nil then begin
     Exit;
   end;
@@ -152,10 +158,43 @@ begin
     VLocalConverter := FLocalConverter.GetStatic;
     VProjectionType := VLocalConverter.Projection.ProjectionType;
     VProjectionType.ValidateLonLatPos(VGotoLonLat);
-    VFixedOnView := VLocalConverter.LonLat2LocalPixelFloat(VGotoLonLat);
+    APos := VLocalConverter.LonLat2LocalPixelFloat(VGotoLonLat);
+    Result := True;
+  end;
+end;
 
+procedure TMapLayerGpsTrackGoToMarker.InvalidateLayer;
+var
+  VMarker: IMarkerDrawable;
+begin
+  if Visible then begin
+    if FMainFormState.IsMapMoving then begin
+      FIsPosValid := GetGotoPos(FPos);
+      DoInvalidateFull;
+    end else begin
+      VMarker := FMarkerChangeable.GetStatic;
+      if FIsPosValid then begin
+        FIsPosValid := False;
+        DoInvalidateRect(VMarker.GetBoundsForPosition(FPos)); // erase old
+      end;
+
+      FIsPosValid := GetGotoPos(FPos);
+      if FIsPosValid then begin
+        DoInvalidateRect(VMarker.GetBoundsForPosition(FPos)); // draw new
+      end;
+    end;
+  end else begin
+    FIsPosValid := False;
+  end;
+end;
+
+procedure TMapLayerGpsTrackGoToMarker.PaintLayer(ABuffer: TBitmap32);
+var
+  VMarker: IMarkerDrawable;
+begin
+  if FIsPosValid then begin
     VMarker := FMarkerChangeable.GetStatic;
-    VMarker.DrawToBitmap(ABuffer, VFixedOnView);
+    VMarker.DrawToBitmap(ABuffer, FPos);
   end;
 end;
 

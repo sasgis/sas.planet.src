@@ -33,6 +33,7 @@ uses
 type
   TWindowLayerSunCalcDayInfo = class(TWindowLayerSunCalcInfoBase)
   protected
+    procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
   public
     procedure AfterConstruction; override;
@@ -51,6 +52,11 @@ begin
   FRepaintOnDayChange := True;
   FRepaintOnTimeChange := False;
   FRepaintOnLocationChange := True;
+end;
+
+procedure TWindowLayerSunCalcDayInfo.InvalidateLayer;
+begin
+  DoInvalidateFull;
 end;
 
 procedure TWindowLayerSunCalcDayInfo.PaintLayer(ABuffer: TBitmap32);
@@ -88,7 +94,6 @@ begin
     end;
   finally
     ABuffer.EndUpdate;
-    ABuffer.Changed;
   end;
 end;
 

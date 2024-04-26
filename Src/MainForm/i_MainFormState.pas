@@ -43,8 +43,12 @@ type
   IMainFormState = interface(IChangeable)
     ['{0CB21E1F-BBFC-4517-A328-40F36E6C1457}']
     function GetState: TStateEnum;
-    procedure SetState(AValue: TStateEnum);
+    procedure SetState(const AValue: TStateEnum);
     property State: TStateEnum read GetState write SetState;
+
+    function GetIsMapMoving: Boolean;
+    procedure SetIsMapMoving(const AValue: Boolean);
+    property IsMapMoving: Boolean read GetIsMapMoving write SetIsMapMoving;
   end;
 
 implementation

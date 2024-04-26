@@ -29,6 +29,7 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
+  i_MainFormState,
   i_MarkerDrawable,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
@@ -38,13 +39,19 @@ uses
 type
   TMapLayerPointOnMapEdit = class(TWindowLayerBasicBase)
   private
+    FMainFormState: IMainFormState;
     FLocalConverter: ILocalCoordConverterChangeable;
     FPointOnMap: IPointOnMapEdit;
     FMarker: IMarkerDrawableChangeable;
 
+    FPos: TDoublePoint;
+    FIsPosValid: Boolean;
+    function GetGotoPos(out APos: TDoublePoint): Boolean;
+
     procedure OnPointChange;
     procedure OnPosChange;
   protected
+    procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
@@ -54,6 +61,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AParentMap: TImage32;
       const ALocalConverter: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const AMarker: IMarkerDrawableChangeable;
       const APointOnMap: IPointOnMapEdit
     );
@@ -77,6 +85,7 @@ constructor TMapLayerPointOnMapEdit.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AParentMap: TImage32;
   const ALocalConverter: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const AMarker: IMarkerDrawableChangeable;
   const APointOnMap: IPointOnMapEdit
 );
@@ -90,20 +99,22 @@ begin
     AParentMap,
     TCustomLayer.Create(AParentMap.Layers)
   );
+
   FPointOnMap := APointOnMap;
   FLocalConverter := ALocalConverter;
+  FMainFormState := AMainFormState;
   FMarker := AMarker;
 
   VListener := TNotifyNoMmgEventListener.Create(Self.OnPointChange);
   LinksList.Add(
     VListener,
-    FPointOnMap.GetChangeNotifier
+    FPointOnMap.ChangeNotifier
   );
-
   LinksList.Add(
     VListener,
     FMarker.ChangeNotifier
   );
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
     FLocalConverter.ChangeNotifier
@@ -134,23 +145,55 @@ begin
   end;
 end;
 
-procedure TMapLayerPointOnMapEdit.PaintLayer(ABuffer: TBitmap32);
+function TMapLayerPointOnMapEdit.GetGotoPos(out APos: TDoublePoint): Boolean;
 var
   VLocalConverter: ILocalCoordConverter;
   VProjectionType: IProjectionType;
-  VMarker: IMarkerDrawable;
   VLonLat: TDoublePoint;
-  VFixedOnView: TDoublePoint;
 begin
-  inherited;
+  Result := False;
   VLocalConverter := FLocalConverter.GetStatic;
   VLonLat := FPointOnMap.Point;
   if not PointIsEmpty(VLonLat) then begin
     VProjectionType := VLocalConverter.Projection.ProjectionType;
     VProjectionType.ValidateLonLatPos(VLonLat);
+    APos := VLocalConverter.LonLat2LocalPixelFloat(VLonLat);
+    Result := True;
+  end;
+end;
+
+procedure TMapLayerPointOnMapEdit.InvalidateLayer;
+var
+  VMarker: IMarkerDrawable;
+begin
+  if Visible then begin
+    if FMainFormState.IsMapMoving then begin
+      FIsPosValid := GetGotoPos(FPos);
+      DoInvalidateFull;
+    end else begin
+      VMarker := FMarker.GetStatic;
+      if FIsPosValid then begin
+        FIsPosValid := False;
+        DoInvalidateRect(VMarker.GetBoundsForPosition(FPos)); // erase old
+      end;
+
+      FIsPosValid := GetGotoPos(FPos);
+      if FIsPosValid then begin
+        DoInvalidateRect(VMarker.GetBoundsForPosition(FPos)); // draw new
+      end;
+    end;
+  end else begin
+    FIsPosValid := False;
+  end;
+end;
+
+procedure TMapLayerPointOnMapEdit.PaintLayer(ABuffer: TBitmap32);
+var
+  VMarker: IMarkerDrawable;
+begin
+  if FIsPosValid then begin
     VMarker := FMarker.GetStatic;
-    VFixedOnView := VLocalConverter.LonLat2LocalPixelFloat(VLonLat);
-    VMarker.DrawToBitmap(ABuffer, VFixedOnView);
+    VMarker.DrawToBitmap(ABuffer, FPos);
   end;
 end;
 

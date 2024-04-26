@@ -922,7 +922,6 @@ type
     FElevationMetaWriter: IElevationMetaWriter;
     FElevationProfilePresenter: IElevationProfilePresenter;
 
-    FMapMoving: Boolean;
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
     FMapMoveAnimtion: Boolean;
@@ -931,7 +930,9 @@ type
     FEditMarkPoint: IVectorDataItem;
     FEditMarkLine: IVectorDataItem;
     FEditMarkPoly: IVectorDataItem;
+
     FState: IMainFormState;
+    FStateValueOld: TStateEnum;
 
     FUrlProviderBing: IUrlByCoordProvider;
     FUrlProviderKosmosnimki: IUrlByCoordProvider;
@@ -1289,7 +1290,6 @@ begin
   FStartedNormal := False;
   movepoint := False;
   FMapZoomAnimtion := False;
-  FMapMoving := False;
   FTimer := GState.Timer;
   FLinksList := TListenerNotifierLinksList.Create;
   FState := TMainFormState.Create;
@@ -2882,10 +2882,19 @@ var
   VIsRoutingVisible: Boolean;
 begin
   VNewState := FState.State;
+
+  if VNewState = FStateValueOld then begin
+    // ignore notifications from IsMapMoving value chanage
+    Exit;
+  end;
+
+  FStateValueOld := VNewState;
+
   if VNewState <> ao_select_rect then begin
     FSelectionRect.Reset;
   end;
   FRouteComment := '';
+
   actMoveMap.Checked := VNewState = ao_movemap;
   actDistanceCalculation.Checked := VNewState = ao_calc_line;
   actCircleCalculation.Checked := VNewState = ao_calc_circle;
@@ -3664,7 +3673,7 @@ var
   VScaleFinish: Double;
   VScaleStart: Double;
 begin
-  if (FMapZoomAnimtion) or (FMapMoving) or (ANewZoom > 23) then begin
+  if (FMapZoomAnimtion) or (FState.IsMapMoving) or (ANewZoom > 23) then begin
     exit;
   end;
   FMapZoomAnimtion := True;
@@ -4675,7 +4684,10 @@ begin
         end;
       end;
     end;
-    FMapMoving := False;
+    if FState.IsMapMoving then begin
+      Assert(False, 'How come IsMapMoving = True?');
+      FState.IsMapMoving := False;
+    end;
     FViewPortState.ChangeMapPixelToVisualPoint(r);
   end;
 end;
@@ -4875,7 +4887,7 @@ begin
     Exit;
   end;
 
-  if not ((FMapMoving) or (FMapZoomAnimtion)) then begin
+  if not ((FState.IsMapMoving) or (FMapZoomAnimtion)) then begin
     FConfig.GPSBehaviour.LockRead;
     try
       VMapMove := FConfig.GPSBehaviour.MapMove;
@@ -5080,7 +5092,7 @@ begin
     end;
     exit;
   end;
-  if FMapMoving then begin
+  if FState.IsMapMoving then begin
     exit;
   end;
 
@@ -5095,7 +5107,7 @@ begin
     end;
     map.PopupMenu := MainPopupMenu;
   end else begin
-    FMapMoving := True;
+    FState.IsMapMoving := True;
     FMapMovingButton := Button;
     FMoveByMouseStartPoint := Point(X, Y);
     FSelectedMark := nil;
@@ -5206,8 +5218,8 @@ begin
     exit;
   end;
 
-  if FMapMoving and (FMapMovingButton = Button) then begin
-    FMapMoving := False;
+  if FState.IsMapMoving and (FMapMovingButton = Button) then begin
+    FState.IsMapMoving := False;
     VMapMoving := True;
   end else begin
     VMapMoving := False;
@@ -5396,7 +5408,7 @@ begin
   VLastMouseMove := FMouseState.CurentPos;
   FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
   VMousePos := FMouseState.CurentPos;
-  if not FMapMoving then begin
+  if not FState.IsMapMoving then begin
     if (Layer <> nil) then begin
       exit;
     end;
@@ -5481,7 +5493,7 @@ begin
     exit;
   end;
 
-  if FMapMoving then begin
+  if FState.IsMapMoving then begin
     VMouseMoveDelta := Point(FMoveByMouseStartPoint.X - VMousePos.X, FMoveByMouseStartPoint.Y - VMousePos.Y);
     FMoveByMouseStartPoint := VMousePos;
     FViewPortState.ChangeMapPixelByLocalDelta(DoublePoint(VMouseMoveDelta));
@@ -5495,7 +5507,7 @@ begin
   end;
   FShowActivHint := False;
   if (not FMapMoveAnimtion) and
-    (not FMapMoving) and
+    (not FState.IsMapMoving) and
     ((VMousePos.x <> VLastMouseMove.X) or (VMousePos.y <> VLastMouseMove.y)) and
     (FConfig.MainConfig.ShowHintOnMarks) and
     ((not FConfig.MainConfig.ShowHintOnlyInMapMoveMode) or (FState.State = ao_movemap)) and
@@ -7202,7 +7214,6 @@ begin
       VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
       FState.State := ao_movemap;
       FRegionProcess.ProcessPolygon(VPolygon);
-      VPolygon := nil;
     end else begin
       FState.State := ao_movemap;
     end;
@@ -7563,28 +7574,32 @@ begin
   VProvType := VSunCalcConfig.DataProviderType;
   VIsVisible := VSunCalcConfig.Visible;
 
-  if VIsVisible then begin
-    if VProvType = ACalcType then begin
-      // hide
-      FSunCalcProvider.Reset;
-      VSunCalcConfig.Visible := False;
-      VSunCalcConfig.IsRealTime := False;
+  VSunCalcConfig.StopNotify;
+  try
+    if VIsVisible then begin
+      if VProvType = ACalcType then begin
+        // hide
+        FSunCalcProvider.Reset;
+        VSunCalcConfig.Visible := False;
+        VSunCalcConfig.IsRealTime := False;
+      end else begin
+        // switch provider
+        VSunCalcConfig.DataProviderType := ACalcType;
+      end;
     end else begin
-      // switch provider
+      FSunCalcProvider.StopNotify;
+      try
+        FSunCalcProvider.LocalDateTime := Now;
+        FSunCalcProvider.Location := FViewPortState.View.GetStatic.GetCenterLonLat;
+      finally
+        FSunCalcProvider.StartNotify;
+      end;
       VSunCalcConfig.DataProviderType := ACalcType;
+      VSunCalcConfig.Visible := True;
+      VSunCalcConfig.IsRealTime := True;
     end;
-  end else begin
-    // show
-    FSunCalcProvider.StopNotify;
-    try
-      FSunCalcProvider.LocalDateTime := Now;
-      FSunCalcProvider.Location := FViewPortState.View.GetStatic.GetCenterLonLat;
-    finally
-      FSunCalcProvider.StartNotify;
-    end;
-    VSunCalcConfig.DataProviderType := ACalcType;
-    VSunCalcConfig.Visible := True;
-    VSunCalcConfig.IsRealTime := True;
+  finally
+    VSunCalcConfig.StartNotify;
   end;
 end;
 

@@ -38,6 +38,7 @@ type
     end;
     procedure DrawCaption(ABuffer: TBitmap32; const ACurrentPosition: TPoint);
   protected
+    procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
   public
     procedure AfterConstruction; override;
@@ -127,6 +128,11 @@ begin
   end;
 end;
 
+procedure TWindowLayerSunCalcTimeInfo.InvalidateLayer;
+begin
+  DoInvalidateFull;
+end;
+
 procedure TWindowLayerSunCalcTimeInfo.PaintLayer(ABuffer: TBitmap32);
 var
   VCenter: TFloatPoint;
@@ -162,7 +168,6 @@ begin
     end;
   finally
     ABuffer.EndUpdate;
-    ABuffer.Changed;
   end;
 end;
 

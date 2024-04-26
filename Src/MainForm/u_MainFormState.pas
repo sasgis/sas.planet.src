@@ -23,6 +23,10 @@ unit u_MainFormState;
 
 interface
 
+{$IFDEF DEBUG}
+  {.$DEFINE ENABLE_STATE_LOGGING}
+{$ENDIF}
+
 uses
   i_MainFormState,
   u_ChangeableBase;
@@ -31,9 +35,17 @@ type
   TMainFormState = class(TChangeableBase, IMainFormState)
   private
     FState: TStateEnum;
+    FIsMapMoving: Boolean;
+    {$IFDEF ENABLE_STATE_LOGGING}
+    procedure LogChanges;
+    {$ENDIF}
   private
+    { IMainFormState }
     function GetState: TStateEnum;
-    procedure SetState(AValue: TStateEnum);
+    procedure SetState(const AValue: TStateEnum);
+
+    function GetIsMapMoving: Boolean;
+    procedure SetIsMapMoving(const AValue: Boolean);
   public
     constructor Create;
   end;
@@ -41,6 +53,10 @@ type
 implementation
 
 uses
+  {$IFDEF ENABLE_STATE_LOGGING}
+  Windows,
+  SysUtils,
+  {$ENDIF}
   u_Synchronizer;
 
 { TMainFormState }
@@ -51,17 +67,60 @@ begin
   FState := ao_movemap;
 end;
 
+function TMainFormState.GetIsMapMoving: Boolean;
+begin
+  Result := FIsMapMoving;
+end;
+
 function TMainFormState.GetState: TStateEnum;
 begin
   Result := FState;
 end;
 
-procedure TMainFormState.SetState(AValue: TStateEnum);
+procedure TMainFormState.SetIsMapMoving(const AValue: Boolean);
+begin
+  if FIsMapMoving <> AValue then begin
+    FIsMapMoving := AValue;
+    DoChangeNotify;
+
+    {$IFDEF ENABLE_STATE_LOGGING}
+    LogChanges;
+    {$ENDIF}
+  end;
+end;
+
+procedure TMainFormState.SetState(const AValue: TStateEnum);
 begin
   if FState <> AValue then begin
     FState := AValue;
     DoChangeNotify;
+
+    {$IFDEF ENABLE_STATE_LOGGING}
+    LogChanges;
+    {$ENDIF}
   end;
 end;
+
+{$IFDEF ENABLE_STATE_LOGGING}
+procedure TMainFormState.LogChanges;
+const
+  cStateId: array [TStateEnum] of string = (
+    'ao_movemap',
+    'ao_edit_point',
+    'ao_edit_line',
+    'ao_edit_poly',
+    'ao_calc_line',
+    'ao_calc_circle',
+    'ao_select_rect',
+    'ao_select_poly',
+    'ao_select_line'
+  );
+begin
+  OutputDebugString(PChar(
+    'State: ' + cStateId[FState] + '; ' +
+    'IsMapMoving: ' + BoolToStr(FIsMapMoving, True)
+  ));
+end;
+{$ENDIF}
 
 end.

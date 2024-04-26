@@ -1781,6 +1781,7 @@ begin
       AParentMap,
       AGUISyncronizedTimerNotifier,
       AViewPortState.View,
+      AMainFormState,
       VMarkerChangeable,
       AMapGoto,
       ALayersConfig.GotoLayerConfig
@@ -1813,6 +1814,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      AMainFormState,
       VMarkerChangeable,
       AGpsTrackGoTo
     );
@@ -1893,6 +1895,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      AMainFormState,
       VMarkerChangeable,
       APointOnMapEdit
     );

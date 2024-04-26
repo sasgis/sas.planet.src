@@ -24,6 +24,7 @@ unit u_WindowLayerFullMapMouseCursor;
 interface
 
 uses
+  Types,
   GR32,
   GR32_Image,
   i_Notifier,
@@ -45,13 +46,14 @@ type
     FMainFormState: IMainFormState;
     FMouseState: IMouseState;
 
-    FLastPos: TPoint;
+    FPos: TPoint;
+    FIsPosValid: Boolean;
+
     procedure OnConfigChange;
     procedure OnTimerEvent;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32
-    ); override;
+    procedure InvalidateLayer; override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -125,31 +127,64 @@ begin
 end;
 
 procedure TWindowLayerFullMapMouseCursor.OnTimerEvent;
-var
-  VPos: TPoint;
 begin
   if Visible then begin
+    InvalidateLayer;
+  end;
+end;
+
+procedure TWindowLayerFullMapMouseCursor.InvalidateLayer;
+
+  procedure InvalidateCross(const AViewRect: TRect);
+  begin
+    // Vertical
+    DoInvalidateRect(Rect(FPos.X, AViewRect.Top, FPos.X + 1, AViewRect.Bottom));
+    // Horizontal
+    DoInvalidateRect(Rect(AViewRect.Left, FPos.Y, AViewRect.Right, FPos.Y + 1));
+  end;
+
+var
+  VPos: TPoint;
+  VViewRect: TRect;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := FLocalConverter.GetStatic;
+  VViewRect := VLocalConverter.GetLocalRect;
+  if Visible then begin
     VPos := FMouseState.CurentPos;
-    if (VPos.X <> FLastPos.X) or (VPos.Y <> FLastPos.Y) then begin
-      FLastPos := VPos;
-      Layer.Changed;
+    if not FIsPosValid then begin
+      FPos := VPos;
+      FIsPosValid := True;
+      InvalidateCross(VViewRect); // draw
+    end else
+    if (VPos.X <> FPos.X) or (VPos.Y <> FPos.Y) then begin
+      FIsPosValid := False;
+      InvalidateCross(VViewRect); // erase
+
+      FPos := VPos;
+
+      FIsPosValid := True;
+      InvalidateCross(VViewRect); // draw
     end;
+  end else begin
+    FIsPosValid := False;
   end;
 end;
 
 procedure TWindowLayerFullMapMouseCursor.PaintLayer(ABuffer: TBitmap32);
 var
-  VPos: TPoint;
   VColor: TColor32;
 begin
-  inherited;
-  VPos := FLastPos;
+  if not FIsPosValid then begin
+    Exit;
+  end;
+
   VColor := FConfig.LineColor;
 
   ABuffer.BeginUpdate;
   try
-    ABuffer.VertLineS(VPos.X, 0, ABuffer.Height, VColor);
-    ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, VColor);
+    ABuffer.VertLineS(FPos.X, 0, ABuffer.Height, VColor);
+    ABuffer.HorzLineS(0, FPos.Y, ABuffer.Width, VColor);
   finally
     ABuffer.EndUpdate;
   end;

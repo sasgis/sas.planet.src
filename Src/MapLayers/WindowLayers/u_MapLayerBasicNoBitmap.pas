@@ -38,7 +38,6 @@ type
   TMapLayerBasicNoBitmap = class(TWindowLayerAbstract)
   private
     FParentMap: TImage32;
-    FOnAreaChange: TAreaChangedEvent;
     FView: ILocalCoordConverterChangeable;
     FVisible: Boolean;
     FLayer: TCustomLayer;
@@ -50,17 +49,15 @@ type
       Sender: TObject;
       Buffer: TBitmap32
     );
-    procedure OnAreaChanged(
-      Sender: TObject;
-      const Area: TRect;
-      const Info: Cardinal
-    );
     procedure OnViewChange;
     procedure RedrawIfNeed;
 
     function GetVisible: Boolean;
     procedure SetVisible(const Value: Boolean);
   protected
+    procedure DoInvalidateFull;
+    procedure DoInvalidateRect(const ARect: TRect);
+
     procedure SetNeedRedraw;
 
     procedure Show;
@@ -68,6 +65,7 @@ type
     procedure Hide;
     procedure DoHide; virtual;
 
+    procedure InvalidateLayer; virtual; //abstract; // todo
     procedure PaintLayer(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter
@@ -137,6 +135,21 @@ begin
   RedrawIfNeed;
 end;
 
+procedure TMapLayerBasicNoBitmap.DoInvalidateFull;
+begin
+  FParentMap.ForceFullInvalidate;
+end;
+
+procedure TMapLayerBasicNoBitmap.DoInvalidateRect(const ARect: TRect);
+begin
+  FParentMap.Invalidate(ARect);
+end;
+
+procedure TMapLayerBasicNoBitmap.InvalidateLayer;
+begin
+  DoInvalidateFull; // todo
+end;
+
 procedure TMapLayerBasicNoBitmap.OnPaintLayer(
   Sender: TObject;
   Buffer: TBitmap32
@@ -150,27 +163,11 @@ begin
     VCounterContext := FOnPaintCounter.StartOperation;
     try
       if FVisible then begin
-        FOnAreaChange := Buffer.OnAreaChanged;
-        Buffer.OnAreaChanged := Self.OnAreaChanged;
         PaintLayer(Buffer, VLocalConverter);
-      end else begin
-        // initialize full redraw
-        // workaround for: https://www.sasgis.org/mantis/view.php?id=3884
-        Buffer.Changed;
       end;
     finally
-      Buffer.OnAreaChanged := FOnAreaChange;
       FOnPaintCounter.FinishOperation(VCounterContext);
     end;
-  end;
-end;
-
-procedure TMapLayerBasicNoBitmap.OnAreaChanged(Sender: TObject;
-  const Area: TRect; const Info: Cardinal);
-begin
-  FParentMap.Invalidate;
-  if Assigned(FOnAreaChange) then begin
-    FOnAreaChange(Sender, Area, Info);
   end;
 end;
 
@@ -235,7 +232,7 @@ begin
   if FNeedRedrawFlag.CheckFlagAndReset then begin
     VCounterContext := FRedrawCounter.StartOperation;
     try
-      FLayer.Changed;
+      InvalidateLayer;
     finally
       FRedrawCounter.FinishOperation(VCounterContext);
     end;

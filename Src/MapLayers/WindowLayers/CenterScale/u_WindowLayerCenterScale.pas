@@ -45,9 +45,13 @@ type
 
     FLastFixedPoint: TDoublePoint;
 
+    FRect: TRect;
+    FIsRectValid: Boolean;
+
     procedure OnConfigChange;
     procedure OnPosChange;
   protected
+    procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
@@ -114,18 +118,6 @@ begin
   end;
 end;
 
-procedure TWindowLayerCenterScale.PaintLayer(ABuffer: TBitmap32);
-var
-  VMarker: IMarkerDrawable;
-  VFixedPoint: TDoublePoint;
-begin
-  VMarker := FMarkerChangeable.GetStatic;
-  if VMarker <> nil then begin
-    VFixedPoint := RectCenter(FPosition.GetStatic.GetLocalRect);
-    VMarker.DrawToBitmap(ABuffer, VFixedPoint);
-  end;
-end;
-
 procedure TWindowLayerCenterScale.OnPosChange;
 var
   VNewFixedPoint: TDoublePoint;
@@ -141,6 +133,38 @@ begin
         ViewUpdateUnlock;
       end;
     end;
+  end;
+end;
+
+procedure TWindowLayerCenterScale.InvalidateLayer;
+var
+  VMarker: IMarkerDrawable;
+  VCenter: TDoublePoint;
+begin
+  if Visible then begin
+    if FIsRectValid then begin
+      FIsRectValid := False;
+      DoInvalidateRect(FRect); // erase old
+    end;
+
+    VCenter := RectCenter(FPosition.GetStatic.GetLocalRect);
+    VMarker := FMarkerChangeable.GetStatic;
+    FRect := VMarker.GetBoundsForPosition(VCenter);
+
+    FIsRectValid := True;
+    DoInvalidateRect(FRect); // draw new
+  end else begin
+    FIsRectValid := False;
+  end;
+end;
+
+procedure TWindowLayerCenterScale.PaintLayer(ABuffer: TBitmap32);
+var
+  VMarker: IMarkerDrawable;
+begin
+  if FIsRectValid then begin
+    VMarker := FMarkerChangeable.GetStatic;
+    VMarker.DrawToBitmap(ABuffer, RectCenter(FRect));
   end;
 end;
 

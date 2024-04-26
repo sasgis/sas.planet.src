@@ -38,7 +38,6 @@ type
   TWindowLayerBasicBase = class(TWindowLayerAbstract)
   private
     FParentMap: TImage32;
-    FOnAreaChange: TAreaChangedEvent;
     FLayer: TCustomLayer;
     FVisible: Boolean;
     FNeedUpdateLayerVisibilityFlag: ISimpleFlag;
@@ -51,20 +50,20 @@ type
       Sender: TObject;
       Buffer: TBitmap32
     );
-    procedure OnAreaChanged(
-      Sender: TObject;
-      const Area: TRect;
-      const Info: Cardinal
-    );
   protected
     procedure StartThreads; override;
     procedure DoViewUpdate; override;
   protected
+    procedure DoInvalidateFull;
+    procedure DoInvalidateRect(const ARect: TRect);
+
     procedure SetNeedUpdateLayerVisibility;
     procedure DoUpdateLayerVisibility; virtual;
+
     procedure SetNeedFullRepaintLayer;
     procedure DoFullRepaintLayer; virtual;
 
+    procedure InvalidateLayer; virtual; abstract;
     procedure PaintLayer(ABuffer: TBitmap32); virtual; abstract;
 
     property Layer: TCustomLayer read FLayer;
@@ -98,7 +97,9 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier
   );
+
   FParentMap := AParentMap;
+
   FLayer := ALayer;
   FLayer.Visible := False;
   FLayer.MouseEvents := False;
@@ -110,9 +111,19 @@ begin
   FOnMeasuringPaintCounter := APerfList.CreateAndAddNewCounter('OnMeasuringPaint');
 end;
 
+procedure TWindowLayerBasicBase.DoInvalidateFull;
+begin
+  FParentMap.ForceFullInvalidate;
+end;
+
+procedure TWindowLayerBasicBase.DoInvalidateRect(const ARect: TRect);
+begin
+  FParentMap.Invalidate(ARect);
+end;
+
 procedure TWindowLayerBasicBase.DoFullRepaintLayer;
 begin
-  FLayer.Changed;
+  InvalidateLayer;
 end;
 
 procedure TWindowLayerBasicBase.DoUpdateLayerVisibility;
@@ -153,21 +164,9 @@ begin
   end;
   VCounterContext := VCounter.StartOperation;
   try
-    FOnAreaChange := Buffer.OnAreaChanged;
-    Buffer.OnAreaChanged := Self.OnAreaChanged;
     PaintLayer(Buffer);
   finally
-    Buffer.OnAreaChanged := FOnAreaChange;
     VCounter.FinishOperation(VCounterContext);
-  end;
-end;
-
-procedure TWindowLayerBasicBase.OnAreaChanged(Sender: TObject;
-  const Area: TRect; const Info: Cardinal);
-begin
-  FParentMap.Invalidate;
-  if Assigned(FOnAreaChange) then begin
-    FOnAreaChange(Sender, Area, Info);
   end;
 end;
 
