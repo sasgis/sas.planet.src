@@ -43,13 +43,12 @@ type
     FNeedUpdateLayerVisibilityFlag: ISimpleFlag;
     FNeedFullRepaintLayerFlag: ISimpleFlag;
 
+    FOnInvalidateCounter: IInternalPerformanceCounter;
     FOnPaintCounter: IInternalPerformanceCounter;
     FOnMeasuringPaintCounter: IInternalPerformanceCounter;
+
     procedure SetVisible(const Value: Boolean);
-    procedure OnPaintLayer(
-      Sender: TObject;
-      Buffer: TBitmap32
-    );
+    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
   protected
     procedure StartThreads; override;
     procedure DoViewUpdate; override;
@@ -107,6 +106,7 @@ begin
   FNeedUpdateLayerVisibilityFlag := TSimpleFlagWithInterlock.Create;
   FNeedFullRepaintLayerFlag := TSimpleFlagWithInterlock.Create;
 
+  FOnInvalidateCounter := APerfList.CreateAndAddNewCounter('OnInvalidate');
   FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
   FOnMeasuringPaintCounter := APerfList.CreateAndAddNewCounter('OnMeasuringPaint');
 end;
@@ -122,8 +122,15 @@ begin
 end;
 
 procedure TWindowLayerBasicBase.DoFullRepaintLayer;
+var
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  InvalidateLayer;
+  VCounterContext := FOnInvalidateCounter.StartOperation;
+  try
+    InvalidateLayer;
+  finally
+    FOnInvalidateCounter.FinishOperation(VCounterContext);
+  end;
 end;
 
 procedure TWindowLayerBasicBase.DoUpdateLayerVisibility;

@@ -43,12 +43,11 @@ type
     FLayer: TCustomLayer;
 
     FNeedRedrawFlag: ISimpleFlag;
-    FRedrawCounter: IInternalPerformanceCounter;
+
+    FOnInvalidateCounter: IInternalPerformanceCounter;
     FOnPaintCounter: IInternalPerformanceCounter;
-    procedure OnPaintLayer(
-      Sender: TObject;
-      Buffer: TBitmap32
-    );
+
+    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
     procedure OnViewChange;
     procedure RedrawIfNeed;
 
@@ -110,13 +109,15 @@ begin
   FParentMap := AParentMap;
   FView := AView;
   FLayer := TCustomLayer.Create(AParentMap.Layers);
-  FRedrawCounter := APerfList.CreateAndAddNewCounter('Redraw');
 
-  FLayer.MouseEvents := false;
-  FLayer.Visible := false;
+  FLayer.MouseEvents := False;
+  FLayer.Visible := False;
   FVisible := False;
   FNeedRedrawFlag := TSimpleFlagWithInterlock.Create;
+
+  FOnInvalidateCounter := APerfList.CreateAndAddNewCounter('OnInvalidate');
   FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewChange),
     View.ChangeNotifier
@@ -230,11 +231,11 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   if FNeedRedrawFlag.CheckFlagAndReset then begin
-    VCounterContext := FRedrawCounter.StartOperation;
+    VCounterContext := FOnInvalidateCounter.StartOperation;
     try
       InvalidateLayer;
     finally
-      FRedrawCounter.FinishOperation(VCounterContext);
+      FOnInvalidateCounter.FinishOperation(VCounterContext);
     end;
   end;
 end;
