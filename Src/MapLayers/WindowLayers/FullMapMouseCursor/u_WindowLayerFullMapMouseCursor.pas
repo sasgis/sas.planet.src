@@ -127,9 +127,19 @@ begin
 end;
 
 procedure TWindowLayerFullMapMouseCursor.OnTimerEvent;
+var
+  VPos: TPoint;
 begin
   if Visible then begin
-    InvalidateLayer;
+    VPos := FMouseState.CurentPos;
+    if not FIsPosValid or (VPos.X <> FPos.X) or (VPos.Y <> FPos.Y) then begin
+      ViewUpdateLock;
+      try
+        SetNeedFullRepaintLayer;
+      finally
+        ViewUpdateUnlock;
+      end;
+    end;
   end;
 end;
 
