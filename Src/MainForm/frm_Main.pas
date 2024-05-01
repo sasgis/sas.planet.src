@@ -615,6 +615,8 @@ type
     tbxitmElevationProfile: TTBXItem;
     actViewBordersVisible: TAction;
     tbxMainWindowBordersVisible: TTBXItem;
+    tbitmFullMapMouseCursor: TTBXItem;
+    actViewFullMapMouseCursorVisible: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -769,6 +771,8 @@ type
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
     procedure tbxitmElevationProfileClick(Sender: TObject);
     procedure tbxFillingMapClick(Sender: TObject);
+    procedure tbxYandexWeatherClick(Sender: TObject);
+
     procedure actSelectByRectExecute(Sender: TObject);
     procedure actSelectByPolygonExecute(Sender: TObject);
     procedure actSelectByLineExecute(Sender: TObject);
@@ -847,7 +851,6 @@ type
     procedure actCircleCalculationExecute(Sender: TObject);
     procedure actViewSunCalcExecute(Sender: TObject);
     procedure actViewMoonCalcExecute(Sender: TObject);
-    procedure tbxYandexWeatherClick(Sender: TObject);
     procedure actConfigUsePrevForVectorLayersExecute(Sender: TObject);
     procedure actMarksEditSnapToMarkersExecute(Sender: TObject);
     procedure actMarksEditDeleteGeometryPointExecute(Sender: TObject);
@@ -867,6 +870,7 @@ type
     procedure actMarkSaveAsSeparateSegmentsExecute(Sender: TObject);
     procedure actEditPathRouteCalcUndoExecute(Sender: TObject);
     procedure actViewBordersVisibleExecute(Sender: TObject);
+    procedure actViewFullMapMouseCursorVisibleExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -1956,6 +1960,10 @@ begin
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
+      FConfig.LayersConfig.FullMapMouseCursorLayerConfig.ChangeNotifier
+    );
+    FLinksList.Add(
+      VMapLayersVsibleChangeListener,
       FConfig.LayersConfig.LastSelectionLayerConfig.ChangeNotifier
     );
 
@@ -2783,6 +2791,7 @@ begin
   if VIsVisible then begin
     //ToDo: Change TopMargin in LicenseLayer (TWindowLayerLicenseList)
   end;
+  actViewFullMapMouseCursorVisible.Checked := FConfig.LayersConfig.FullMapMouseCursorLayerConfig.Enabled;
   actConfigStatusBarVisible.Checked := FConfig.LayersConfig.StatBar.Visible;
   if actConfigStatusBarVisible.Checked then begin
     FConfig.LayersConfig.ScaleLineConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
@@ -7437,6 +7446,12 @@ end;
 procedure TfrmMain.actViewFillingMapMarkUnexistingExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmUnexisting;
+end;
+
+procedure TfrmMain.actViewFullMapMouseCursorVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.FullMapMouseCursorLayerConfig.Enabled :=
+    not FConfig.LayersConfig.FullMapMouseCursorLayerConfig.Enabled;
 end;
 
 procedure TfrmMain.actViewFullScreenExecute(Sender: TObject);

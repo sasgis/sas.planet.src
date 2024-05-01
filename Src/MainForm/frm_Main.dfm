@@ -621,6 +621,10 @@ object frmMain: TfrmMain
           Action = actConfigPreviousSelectionVisible
           Images = MenusImageList
         end
+        object tbitmFullMapMouseCursor: TTBXItem
+          Action = actViewFullMapMouseCursorVisible
+          Images = MenusImageList
+        end
         object tbitmNavigationArrow: TTBXItem
           Action = actViewNavigation
           Images = MenusImageList
@@ -4434,6 +4438,11 @@ object frmMain: TfrmMain
       ImageIndex = 77
       ShortCut = 16392
       OnExecute = actEditPathRouteCalcUndoExecute
+    end
+    object actViewFullMapMouseCursorVisible: TAction
+      Category = 'View'
+      Caption = 'Full Map Cursor'
+      OnExecute = actViewFullMapMouseCursorVisibleExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu
