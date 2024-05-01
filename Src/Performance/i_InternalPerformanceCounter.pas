@@ -51,6 +51,9 @@ type
 
     function GetMinTime: TDateTime;
     property MinTime: TDateTime read GetMinTime;
+
+    function GetLastTime: TDateTime;
+    property LastTime: TDateTime read GetLastTime;
   end;
 
   IInternalPerformanceCounter = interface

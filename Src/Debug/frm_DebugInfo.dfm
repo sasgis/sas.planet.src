@@ -20,18 +20,18 @@ object frmDebugInfo: TfrmDebugInfo
     Width = 792
     Height = 508
     Align = alClient
-    ColCount = 9
+    ColCount = 10
     DefaultColWidth = 80
     DefaultRowHeight = 20
     FixedColor = clWindow
     FixedCols = 0
+    RowCount = 2
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goColSizing, goRowSelect]
     PopupMenu = pmFiltering
     TabOrder = 1
-    ExplicitTop = 0
-    ExplicitHeight = 537
     ColWidths = (
       338
+      80
       80
       80
       80
@@ -64,8 +64,6 @@ object frmDebugInfo: TfrmDebugInfo
       Font.Style = []
       ParentFont = False
       Layout = tlCenter
-      ExplicitWidth = 38
-      ExplicitHeight = 13
     end
     object btnRefresh: TButton
       AlignWithMargins = True
@@ -175,7 +173,7 @@ object frmDebugInfo: TfrmDebugInfo
       Top = 5
       Width = 95
       Height = 17
-      Caption = 'Filter by Class'
+      Caption = 'Filter by Class:'
       TabOrder = 0
       OnClick = chkFilterByClassClick
     end
@@ -187,6 +185,7 @@ object frmDebugInfo: TfrmDebugInfo
       Align = alCustom
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
+      OnChange = edtFilterChange
     end
   end
   object tmrRefresh: TTimer

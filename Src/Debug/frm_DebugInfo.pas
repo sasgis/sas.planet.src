@@ -87,6 +87,7 @@ type
     procedure SortByClick(Sender: TObject);
     procedure chkFilterByClassClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure edtFilterChange(Sender: TObject);
   private
     FDebugInfoSubSystem: IDebugInfoSubSystem;
     FPrevStateList: IIDInterfaceList;
@@ -114,7 +115,7 @@ type
     procedure SortDataForGrid;
 
     procedure PrepareGridHeader;
-    function GetGridLinesText(const ATop, ABottom: Integer): String;
+    function GetGridLinesText(const ATop, ABottom: Integer): string;
   public
     constructor Create(
       AOwner: TComponent;
@@ -139,12 +140,12 @@ const
   cIniFileName = 'DebugInfo.ini';
   cIniFileSection = 'Main';
 
-function _DoubleToStr(const AValue: Double): String;
+function _DoubleToStr(const AValue: Double): string;
 begin
   Result := FloatToStrF(AValue, ffFixed, 20, 8);
 end;
 
-function _TimeToStr(const ATime: TDateTime): String;
+function _TimeToStr(const ATime: TDateTime): string;
 begin
   Result := FormatDateTime('nn:ss.zzz', ATime);
 end;
@@ -173,9 +174,15 @@ begin
   inherited;
 end;
 
+procedure TfrmDebugInfo.edtFilterChange(Sender: TObject);
+begin
+  chkFilterByClass.Checked := edtFilter.Text <> '';
+  chkFilterByClassClick(nil);
+end;
+
 procedure TfrmDebugInfo.btnCopyToClipboardClick(Sender: TObject);
 var
-  VText: String;
+  VText: string;
 begin
   VText := GetGridLinesText(sgrdDebugInfo.Selection.Top, sgrdDebugInfo.Selection.Bottom);
   CopyStringToClipboard(Handle, VText);
@@ -188,8 +195,8 @@ end;
 
 procedure TfrmDebugInfo.btnResetClick(Sender: TObject);
 var
+  I: Integer;
   VList: IInterfaceListStatic;
-  i: Integer;
   VItem: IInternalPerformanceCounterStaticData;
 begin
   sgrdDebugInfo.RowCount := 2;
@@ -197,8 +204,8 @@ begin
   VList := FDebugInfoSubSystem.GetStaticDataList;
   FPrevStateList.Clear;
   if Assigned(VList) then begin
-    for i := 0 to VList.Count - 1 do begin
-      VItem := IInternalPerformanceCounterStaticData(VList[i]);
+    for I := 0 to VList.Count - 1 do begin
+      VItem := IInternalPerformanceCounterStaticData(VList[I]);
       FPrevStateList.Add(VItem.Id, VItem);
     end;
   end;
@@ -207,8 +214,8 @@ end;
 
 procedure TfrmDebugInfo.btnSaveToFileClick(Sender: TObject);
 var
-  VText, VFileName: String;
-  VSL: TStringList;
+  VText, VFileName: string;
+  VList: TStringList;
 begin
   VFileName := '';
   VText := GetGridLinesText(0, sgrdDebugInfo.RowCount - 1);
@@ -223,13 +230,13 @@ begin
     end;
   end;
 
-  if (0 < Length(VFileName)) then begin
-    VSL := TStringList.Create;
+  if Length(VFileName) > 0 then begin
+    VList := TStringList.Create;
     try
-      VSL.Text := VText;
-      VSL.SaveToFile(VFileName);
+      VList.Text := VText;
+      VList.SaveToFile(VFileName);
     finally
-      VSL.Free;
+      VList.Free;
     end;
   end;
 end;
@@ -273,36 +280,35 @@ begin
   SaveSettings;
 end;
 
-function TfrmDebugInfo.GetGridLinesText(const ATop, ABottom: Integer): String;
+function TfrmDebugInfo.GetGridLinesText(const ATop, ABottom: Integer): string;
 
   procedure _AddLine(const AIndex: Integer);
   var
-    S: String;
+    VStr: string;
   begin
-    if (0 < Length(Result)) then begin
+    if Length(Result) > 0 then begin
       Result := Result + #13#10;
     end;
 
-    S := sgrdDebugInfo.Rows[AIndex].Text;
-    S := StringReplace(S, #13, Chr(VK_TAB), [rfReplaceAll]);
-    S := StringReplace(S, #10, Chr(VK_TAB), [rfReplaceAll]);
-    Result := Result + S;
+    VStr := sgrdDebugInfo.Rows[AIndex].Text;
+    VStr := StringReplace(VStr, #13, Chr(VK_TAB), [rfReplaceAll]);
+    VStr := StringReplace(VStr, #10, Chr(VK_TAB), [rfReplaceAll]);
+    Result := Result + VStr;
   end;
 
 var
-  i: Integer;
+  I: Integer;
   VAddCurrent: Boolean;
-
 begin
-  VAddCurrent := TRUE;
+  VAddCurrent := True;
   Result := '';
 
-  for i := ATop to ABottom do begin
-    if (i = sgrdDebugInfo.Row) then begin
-      VAddCurrent := FALSE;
+  for I := ATop to ABottom do begin
+    if I = sgrdDebugInfo.Row then begin
+      VAddCurrent := False;
     end;
 
-    _AddLine(i);
+    _AddLine(I);
   end;
 
   if VAddCurrent then begin
@@ -337,12 +343,12 @@ end;
 procedure TfrmDebugInfo.pmiCountIsGreaterOrEqualClick(Sender: TObject);
 var
   VRow: Integer;
-  VText: String;
+  VText: string;
 begin
   VRow := GetPopupRow;
-  if (VRow >= 0) then begin
+  if VRow >= 0 then begin
     try
-    // get Count value
+      // get Count value
       VText := sgrdDebugInfo.Cells[1, VRow];
       if TryStrToInt(VText, VRow) then begin
         FMenuFiltering_MinimumCount := VRow;
@@ -350,6 +356,7 @@ begin
         UpdateMenuFiltering;
       end;
     except
+      //
     end;
   end;
 
@@ -368,15 +375,15 @@ end;
 procedure TfrmDebugInfo.pmiTotalIsGreaterOrEqualClick(Sender: TObject);
 var
   VRow, VInt: Integer;
-  VText: String;
+  VText: string;
   VValue: Double;
 begin
   VRow := GetPopupRow;
-  if (VRow >= 0) then begin
+  if VRow >= 0 then begin
     try
-    // get Total value ('nn:ss.zzz')
+      // get Total value ('nn:ss.zzz')
       VText := sgrdDebugInfo.Cells[5, VRow];
-    // get before ':'
+      // get before ':'
       VRow := Pos(':', VText);
       if (VRow > 0) then begin
         VInt := StrToInt(Copy(VText, 1, VRow - 1));
@@ -391,6 +398,7 @@ begin
         UpdateMenuFiltering;
       end;
     except
+      //
     end;
   end;
 
@@ -417,6 +425,7 @@ begin
   sgrdDebugInfo.Cells[6, 0] := 'UI Time total';
   sgrdDebugInfo.Cells[7, 0] := 'Time max, s';
   sgrdDebugInfo.Cells[8, 0] := 'Time min, s';
+  sgrdDebugInfo.Cells[9, 0] := 'Time last, s';
 end;
 
 procedure TfrmDebugInfo.tmrRefreshTimer(Sender: TObject);
@@ -454,7 +463,7 @@ procedure TfrmDebugInfo.SortDataForGrid;
 var
   VSortMeasureInteger: array of Integer;
   VSortMeasureDouble: array of Double;
-  i: Integer;
+  I: Integer;
   VPrevData, VCurrData: IInternalPerformanceCounterStaticData;
   VId: Integer;
   VValueInteger: Integer;
@@ -471,8 +480,8 @@ begin
     end else begin
       SetLength(VSortMeasureDouble, FCurrStateList.Count);
     end;
-    for i := 0 to FCurrStateList.Count - 1 do begin
-      VCurrData := IInternalPerformanceCounterStaticData(FCurrStateList.Items[i]);
+    for I := 0 to FCurrStateList.Count - 1 do begin
+      VCurrData := IInternalPerformanceCounterStaticData(FCurrStateList.Items[I]);
       VId := VCurrData.Id;
       VPrevData := IInternalPerformanceCounterStaticData(FPrevStateList.GetByID(VId));
       if FSortIndex in [1, 2, 3] then begin
@@ -492,15 +501,16 @@ begin
         end;
       end;
       if FSortIndex in [1, 4] then begin
-        VSortMeasureInteger[i] := -VValueInteger;
-      end else if FSortIndex in [2, 5] then begin
+        VSortMeasureInteger[I] := -VValueInteger;
+      end else
+      if FSortIndex in [2, 5] then begin
         if VValueInteger <> 0 then begin
-          VSortMeasureDouble[i] := -VValueDouble / VValueInteger;
+          VSortMeasureDouble[I] := -VValueDouble / VValueInteger;
         end else begin
-          VSortMeasureDouble[i] := 0;
+          VSortMeasureDouble[I] := 0;
         end;
       end else begin
-        VSortMeasureDouble[i] := -VValueDouble;
+        VSortMeasureDouble[I] := -VValueDouble;
       end;
     end;
     if FSortIndex in [1, 4] then begin
@@ -513,12 +523,12 @@ end;
 
 procedure TfrmDebugInfo.UpdateGrid;
 var
-  VCurrStaticData: IInterfaceListStatic;
-  i: Integer;
+  I: Integer;
   VLastRow: Integer;
-  VName: string;
-  VPrevData, VCurrData: IInternalPerformanceCounterStaticData;
   VId: Integer;
+  VName: string;
+  VCurrStaticData: IInterfaceListStatic;
+  VPrevData, VCurrData: IInternalPerformanceCounterStaticData;
 begin
   sgrdDebugInfo.Perform(WM_SETREDRAW, 0, 0);
   try
@@ -533,8 +543,8 @@ begin
     SortDataForGrid;
 
     VLastRow := sgrdDebugInfo.FixedRows;
-    for i := 0 to FCurrStateList.Count - 1 do begin
-      VCurrData := IInternalPerformanceCounterStaticData(FCurrStateList.Items[i]);
+    for I := 0 to FCurrStateList.Count - 1 do begin
+      VCurrData := IInternalPerformanceCounterStaticData(FCurrStateList.Items[I]);
       VName := VCurrData.Name;
       VId := VCurrData.Id;
       VPrevData := IInternalPerformanceCounterStaticData(FPrevStateList.GetByID(VId));
@@ -543,7 +553,12 @@ begin
       end;
     end;
     if VLastRow < sgrdDebugInfo.RowCount then begin
-      sgrdDebugInfo.RowCount := VLastRow;
+      if VLastRow = sgrdDebugInfo.FixedRows then begin
+        sgrdDebugInfo.RowCount := VLastRow + 1;
+        sgrdDebugInfo.Rows[VLastRow].Clear;
+      end else begin
+        sgrdDebugInfo.RowCount := VLastRow;
+      end;
     end;
   finally
     sgrdDebugInfo.Perform(WM_SETREDRAW, 1, 0);
@@ -566,6 +581,7 @@ var
   VTimeInMain: TDateTime;
   VMax: TDateTime;
   VMin: TDateTime;
+  VLast: TDateTime;
   VAvgTime: Extended;
 begin
   Result := False;
@@ -590,6 +606,7 @@ begin
     VTimeInMain := ACurrData.TotalTimeInMain;
     VMax := ACurrData.MaxTime;
     VMin := ACurrData.MinTime;
+    VLast := ACurrData.LastTime;
   end else begin
     VCount := 0;
     VTime := 0;
@@ -597,6 +614,7 @@ begin
     VTimeInMain := 0;
     VMax := 0;
     VMin := 0;
+    VLast := 0;
   end;
 
   if APrevData <> nil then begin
@@ -630,6 +648,7 @@ begin
           end;
           sgrdDebugInfo.Cells[7, ARow] := _DoubleToStr(VMax * 24 * 60 * 60);
           sgrdDebugInfo.Cells[8, ARow] := _DoubleToStr(VMin * 24 * 60 * 60);
+          sgrdDebugInfo.Cells[9, ARow] := _DoubleToStr(VLast * 24 * 60 * 60);
         end else begin
           sgrdDebugInfo.Cells[1, ARow] := '';
           sgrdDebugInfo.Cells[2, ARow] := '';
@@ -639,6 +658,7 @@ begin
           sgrdDebugInfo.Cells[6, ARow] := '';
           sgrdDebugInfo.Cells[7, ARow] := '';
           sgrdDebugInfo.Cells[8, ARow] := '';
+          sgrdDebugInfo.Cells[9, ARow] := '';
         end;
         Result := True;
       end;

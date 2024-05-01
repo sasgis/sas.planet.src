@@ -37,6 +37,7 @@ type
     FTotalTimeInMain: TDateTime;
     FMaxTime: TDateTime;
     FMinTime: TDateTime;
+    FLastTime: TDateTime;
   private
     function GetId: Integer;
     function GetName: string;
@@ -46,16 +47,18 @@ type
     function GetTotalTimeInMain: TDateTime;
     function GetMaxTime: TDateTime;
     function GetMinTime: TDateTime;
+    function GetLastTime: TDateTime;
   public
     constructor Create(
-      AId: Integer;
+      const AId: Integer;
       const AName: string;
-      ACounter: Cardinal;
+      const ACounter: Cardinal;
       const ATotalTime: TDateTime;
       const ACounterInMain: Cardinal;
       const ATotalTimeInMain: TDateTime;
       const AMaxTime: TDateTime;
-      const AMinTime: TDateTime
+      const AMinTime: TDateTime;
+      const ALastTime: TDateTime
     );
   end;
 
@@ -64,14 +67,15 @@ implementation
 { TInternalPerformanceCounterStaticData }
 
 constructor TInternalPerformanceCounterStaticData.Create(
-  AId: Integer;
+  const AId: Integer;
   const AName: string;
-  ACounter: Cardinal;
+  const ACounter: Cardinal;
   const ATotalTime: TDateTime;
   const ACounterInMain: Cardinal;
   const ATotalTimeInMain: TDateTime;
   const AMaxTime: TDateTime;
-  const AMinTime: TDateTime
+  const AMinTime: TDateTime;
+  const ALastTime: TDateTime
 );
 begin
   inherited Create;
@@ -83,6 +87,7 @@ begin
   FTotalTimeInMain := ATotalTimeInMain;
   FMaxTime := AMaxTime;
   FMinTime := AMinTime;
+  FLastTime := ALastTime;
 end;
 
 function TInternalPerformanceCounterStaticData.GetCounter: Cardinal;
@@ -123,6 +128,11 @@ end;
 function TInternalPerformanceCounterStaticData.GetMinTime: TDateTime;
 begin
   Result := FMinTime;
+end;
+
+function TInternalPerformanceCounterStaticData.GetLastTime: TDateTime;
+begin
+  Result := FLastTime;
 end;
 
 end.

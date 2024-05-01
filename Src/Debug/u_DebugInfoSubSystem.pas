@@ -87,8 +87,8 @@ end;
 
 function TDebugInfoSubSystem.GetStaticDataList: IInterfaceListStatic;
 var
+  I: Integer;
   VList: IInterfaceListSimple;
-  i: Integer;
   VItem: IInternalPerformanceCounter;
 begin
   Result := nil;
@@ -97,8 +97,8 @@ begin
     VList.Capacity := FList.Count;
     FListCS.BeginRead;
     try
-      for i := 0 to FList.Count - 1 do begin
-        VItem := IInternalPerformanceCounter(FList[i]);
+      for I := 0 to FList.Count - 1 do begin
+        VItem := IInternalPerformanceCounter(FList[I]);
         VList.Add(VItem.GetStaticData);
       end;
     finally

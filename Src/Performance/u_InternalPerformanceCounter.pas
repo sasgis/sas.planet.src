@@ -37,10 +37,14 @@ type
 
     FCounter: Cardinal;
     FTotal: Int64;
+
     FCounterInMain: Cardinal;
     FTotalInMain: Int64;
+
     FMin: Int64;
     FMax: Int64;
+    FLast: Int64;
+
     FFreq: Int64;
   private
     function StartOperation: TInternalPerformanceCounterContext;
@@ -94,28 +98,25 @@ begin
   FTotalInMain := 0;
   FMin := $7FFFFFFFFFFFFFF;
   FMax := 0;
+  FLast := 0;
   FFreq := FTimer.Freq;
 end;
 
 procedure TInternalPerformanceCounter.FinishOperation(const AContext: TInternalPerformanceCounterContext);
-var
-  VCounter, VOperationCounter: Int64;
 begin
   if AContext <> 0 then begin
-    VCounter := FTimer.CurrentTime;
-    // accumulate
     Inc(FCounter);
-    VOperationCounter := VCounter - AContext;
-    FTotal := FTotal + VOperationCounter;
+    FLast := FTimer.CurrentTime - AContext;
+    Inc(FTotal, FLast);
     if GetCurrentThreadId = FMainThreadID then begin
       Inc(FCounterInMain);
-      FTotalInMain := FTotalInMain + VOperationCounter;
+      Inc(FTotalInMain, FLast);
     end;
-    if VOperationCounter > FMax then begin
-      FMax := VOperationCounter;
+    if FLast > FMax then begin
+      FMax := FLast;
     end;
-    if VOperationCounter < FMin then begin
-      FMin := VOperationCounter;
+    if FLast < FMin then begin
+      FMin := FLast;
     end;
   end;
 end;
@@ -126,17 +127,20 @@ var
   VTotalTimeInMain: Double;
   VMaxTime: Double;
   VMinTime: Double;
+  VLastTime: Double;
 begin
   if (FFreq = 0) or (FTotal = 0) then begin
     VTotalTime := 0;
     VTotalTimeInMain := 0;
     VMaxTime := 0;
     VMinTime := 0;
+    VLastTime := 0;
   end else begin
     VTotalTime := FTotal / FFreq / 24 / 60 / 60;
     VTotalTimeInMain := FTotalInMain / FFreq / 24 / 60 / 60;
     VMaxTime := FMax / FFreq / 24 / 60 / 60;
     VMinTime := FMin / FFreq / 24 / 60 / 60;
+    VLastTime := FLast / FFreq / 24 / 60 / 60;
   end;
   Result :=
     TInternalPerformanceCounterStaticData.Create(
@@ -147,7 +151,8 @@ begin
       FCounterInMain,
       VTotalTimeInMain,
       VMaxTime,
-      VMinTime
+      VMinTime,
+      VLastTime
     );
 end;
 
