@@ -421,22 +421,54 @@ begin
     VZoom := -1;
   end;
 
-  VLonLat := CEmptyDoublePoint;
   if chkCoords.Checked then begin
-    if FfrLonLat.Validate then begin
-      VLonLat := FfrLonLat.LonLat;
-    end else begin
+    if not FfrLonLat.Validate then begin
       Exit;
     end;
+    VLonLat := FfrLonLat.LonLat;
+  end else begin
+    VLonLat := CEmptyDoublePoint;
   end;
 
-  if (VZoom = -1) and PointIsEmpty(VLonLat) and
-    IsEqualGUID(VBaseMap, CGUID_Zero) and (VLayers = nil) then begin
+  if
+    (VZoom = -1) and
+    PointIsEmpty(VLonLat) and
+    IsEqualGUID(VBaseMap, CGUID_Zero) and
+    (VLayers = nil) then
+  begin
     MessageDlg(
       _('Please, select zoom/coordinates or at least one Layer or Map first!'),
       mtError, [mbOK], 0
     );
     Exit;
+  end;
+
+  if FMapSetItem = nil then begin
+    FMapSetItem := FFavoriteMapSetConfig.GetByName(VName);
+    if FMapSetItem <> nil then begin
+      case
+        MessageDlg(
+          _('An entry with the same name already exists!' + #13#10 +
+            'Do you want to update it instead of adding a new one?'),
+          mtConfirmation, [mbYes, mbNo, mbCancel], 0
+        )
+      of
+        mrYes: begin
+          // update existing
+        end;
+        mrNo: begin
+          // add a new one
+          FMapSetItem := nil;
+        end;
+        mrCancel: begin
+          // let the user change it
+          FMapSetItem := nil;
+          Exit;
+        end;
+      else
+        Assert(False);
+      end;
+    end;
   end;
 
   if FMapSetItem = nil then begin

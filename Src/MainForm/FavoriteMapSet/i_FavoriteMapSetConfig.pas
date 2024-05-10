@@ -38,6 +38,7 @@ type
     property Count: Integer read GetCount;
 
     function GetByID(const AID: TGUID): IFavoriteMapSetItemStatic;
+    function GetByName(const AName: string): IFavoriteMapSetItemStatic;
 
     function Delete(const AID: TGUID): Boolean;
 

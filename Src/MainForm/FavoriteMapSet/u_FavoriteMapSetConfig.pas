@@ -39,11 +39,13 @@ type
   TFavoriteMapSetConfig = class(TConfigDataElementBase, IFavoriteMapSetConfig)
   private
     FItems: IInterfaceListSimple;
-    function _FindItemIndex(const AID: TGUID): Integer;
+    function _FindItemIndex(const AID: TGUID): Integer; overload;
+    function _FindItemIndex(const AName: string): Integer; overload;
   private
     { IFavoriteMapSetConfig }
     function GetCount: Integer;
     function GetByID(const AID: TGUID): IFavoriteMapSetItemStatic;
+    function GetByName(const AName: string): IFavoriteMapSetItemStatic;
     function Delete(const AID: TGUID): Boolean;
     function Add(
       const ABaseMap: TGUID;
@@ -111,6 +113,23 @@ begin
   end;
 end;
 
+function TFavoriteMapSetConfig._FindItemIndex(const AName: string): Integer;
+var
+  I: Integer;
+  VName: string;
+  VItem: IFavoriteMapSetItemStatic;
+begin
+  Result := -1;
+  VName := AnsiLowerCase(AName);
+  for I := 0 to FItems.Count - 1 do begin
+    VItem := IFavoriteMapSetItemStatic(FItems[I]);
+    if VName = AnsiLowerCase(VItem.Name) then begin
+      Result := I;
+      Break;
+    end;
+  end;
+end;
+
 function TFavoriteMapSetConfig.GetCount: Integer;
 begin
   LockRead;
@@ -138,6 +157,23 @@ begin
   LockRead;
   try
     I := _FindItemIndex(AID);
+    if I >= 0 then begin
+      Result := IFavoriteMapSetItemStatic(FItems[I]);
+    end else begin
+      Result := nil;
+    end;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TFavoriteMapSetConfig.GetByName(const AName: string): IFavoriteMapSetItemStatic;
+var
+  I: Integer;
+begin
+  LockRead;
+  try
+    I := _FindItemIndex(AName);
     if I >= 0 then begin
       Result := IFavoriteMapSetItemStatic(FItems[I]);
     end else begin
