@@ -5,9 +5,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
   Height = 438
   Align = alClient
   TabOrder = 0
-  ExplicitTop = 3
-  ExplicitWidth = 0
-  ExplicitHeight = 0
   object spl1: TSplitter
     Left = 0
     Top = 229
@@ -15,8 +12,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Height = 3
     Cursor = crVSplit
     Align = alBottom
-    ExplicitTop = -9
-    ExplicitWidth = 563
   end
   object pnlRightButtons: TPanel
     Left = 524
@@ -26,8 +21,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Align = alRight
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 363
-    ExplicitHeight = 216
     object btnEdit: TButton
       AlignWithMargins = True
       Left = 3
@@ -38,9 +31,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Caption = 'Edit'
       TabOrder = 4
       OnClick = btnEditClick
-      ExplicitLeft = 6
-      ExplicitTop = 51
-      ExplicitWidth = 135
     end
     object btnAdd: TButton
       AlignWithMargins = True
@@ -52,8 +42,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Caption = 'Add'
       TabOrder = 2
       OnClick = btnAddClick
-      ExplicitTop = 43
-      ExplicitWidth = 132
     end
     object btnDelete: TButton
       AlignWithMargins = True
@@ -65,8 +53,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Caption = 'Delete'
       TabOrder = 3
       OnClick = btnDeleteClick
-      ExplicitTop = 25
-      ExplicitWidth = 135
     end
     object btnUp: TButton
       AlignWithMargins = True
@@ -78,7 +64,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Caption = 'Move Up'
       TabOrder = 0
       OnClick = btnUpClick
-      ExplicitWidth = 138
     end
     object btnDown: TButton
       AlignWithMargins = True
@@ -90,8 +75,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Caption = 'Move Down'
       TabOrder = 1
       OnClick = btnDownClick
-      ExplicitTop = 15
-      ExplicitWidth = 132
     end
     object btnSwitchOn: TButton
       AlignWithMargins = True
@@ -103,9 +86,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       Caption = 'Apply'
       TabOrder = 5
       OnClick = btnSwitchOnClick
-      ExplicitLeft = 24
-      ExplicitTop = 168
-      ExplicitWidth = 75
     end
   end
   object pnlBottom: TPanel
@@ -116,7 +96,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitWidth = 420
     object lvInfo: TListView
       AlignWithMargins = True
       Left = 3
@@ -139,9 +118,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       RowSelect = True
       TabOrder = 0
       ViewStyle = vsReport
-      ExplicitTop = 6
-      ExplicitWidth = 458
-      ExplicitHeight = 156
     end
   end
   object pnlMapSets: TPanel
@@ -152,10 +128,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 32
-    ExplicitTop = 72
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object lvMapSets: TListView
       AlignWithMargins = True
       Left = 3
@@ -180,7 +152,6 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
       ViewStyle = vsReport
       OnClick = lvMapSetsClick
       OnDblClick = lvMapSetsDblClick
-      ExplicitWidth = 313
     end
   end
   object chkEditByDblClick: TCheckBox
@@ -195,8 +166,5 @@ object frFavoriteMapSetManager: TfrFavoriteMapSetManager
     Checked = True
     State = cbChecked
     TabOrder = 3
-    ExplicitLeft = 16
-    ExplicitTop = 375
-    ExplicitWidth = 420
   end
 end

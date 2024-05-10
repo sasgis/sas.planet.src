@@ -6885,7 +6885,7 @@ end;
 
 procedure TfrmMain.actFavoriteManageExecute(Sender: TObject);
 begin
-  FfrmFavoriteMapSetManager.ShowModal;
+  FfrmFavoriteMapSetManager.Show;
 end;
 
 procedure TfrmMain.actFileOpenExecute(Sender: TObject);

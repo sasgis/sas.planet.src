@@ -38,6 +38,7 @@ uses
   fr_FavoriteMapSetManager,
   frm_FavoriteMapSetEditor,
   i_MapTypeSet,
+  i_Listener,
   i_LanguageManager,
   i_FavoriteMapSetConfig,
   i_FavoriteMapSetHelper,
@@ -47,14 +48,15 @@ uses
 type
   TfrmFavoriteMapSetManager = class(TFormWitghLanguageManager)
     pnlBottomButtons: TPanel;
-    btnOk: TButton;
+    btnClose: TButton;
     pnlMapSets: TPanel;
-    procedure btnOkClick(Sender: TObject);
+    procedure btnCloseClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure FormHide(Sender: TObject);
   private
     FfrFavoriteMapSetManager: TfrFavoriteMapSetManager;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
+    FConfigChangeListener: IListener;
+    procedure OnConfigChange;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -70,6 +72,9 @@ type
 
 implementation
 
+uses
+  u_ListenerByEvent;
+
 {$R *.dfm}
 
 { TfrmFavoriteMapSetManager }
@@ -84,7 +89,12 @@ constructor TfrmFavoriteMapSetManager.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
   FFavoriteMapSetConfig := AFavoriteMapSetConfig;
+
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FFavoriteMapSetConfig.ChangeNotifier.Add(FConfigChangeListener);
+
   FfrFavoriteMapSetManager :=
     TfrFavoriteMapSetManager.Create(
       ALanguageManager,
@@ -94,29 +104,41 @@ begin
       AFavoriteMapSetHelper,
       AFavoriteMapSetEditor
     );
+  FfrFavoriteMapSetManager.Parent := pnlMapSets;
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [], [], True, False, True, True
+  );
+  FPropertyState.Include(Self.Name, ['Top', 'Left']); // ToDo: restore form position
 end;
 
 destructor TfrmFavoriteMapSetManager.Destroy;
 begin
+  if FFavoriteMapSetConfig <> nil then begin
+    FFavoriteMapSetConfig.ChangeNotifier.Remove(FConfigChangeListener);
+    FFavoriteMapSetConfig := nil;
+  end;
+  if Assigned(FfrFavoriteMapSetManager) then begin
+    FfrFavoriteMapSetManager.Hide; // autosave state
+  end;
   FreeAndNil(FfrFavoriteMapSetManager);
   inherited Destroy;
 end;
 
-procedure TfrmFavoriteMapSetManager.FormHide(Sender: TObject);
-begin
-  FFavoriteMapSetConfig.StartNotify;
-end;
-
 procedure TfrmFavoriteMapSetManager.FormShow(Sender: TObject);
 begin
-  FFavoriteMapSetConfig.StopNotify;
-  FfrFavoriteMapSetManager.Parent := pnlMapSets;
   FfrFavoriteMapSetManager.Init;
 end;
 
-procedure TfrmFavoriteMapSetManager.btnOkClick(Sender: TObject);
+procedure TfrmFavoriteMapSetManager.OnConfigChange;
 begin
-  FfrFavoriteMapSetManager.ApplyChanges;
+  if Self.Visible then begin
+    FfrFavoriteMapSetManager.Init;
+  end;
+end;
+
+procedure TfrmFavoriteMapSetManager.btnCloseClick(Sender: TObject);
+begin
   Close;
 end;
 

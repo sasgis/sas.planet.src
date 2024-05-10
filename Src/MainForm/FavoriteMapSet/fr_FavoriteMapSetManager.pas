@@ -122,15 +122,22 @@ constructor TfrFavoriteMapSetManager.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
   FMapsSet := AMapsSet;
   FCoordToStringConverter := ACoordToStringConverter;
   FFavoriteMapSetConfig := AFavoriteMapSetConfig;
   FFavoriteMapSetHelper := AFavoriteMapSetHelper;
   FFavoriteMapSetEditor := AFavoriteMapSetEditor;
+
   lvMapSets.DoubleBuffered := True;
   lvMapSets.OnCustomDrawItem := Self.CustomDrawItem;
+
   lvInfo.DoubleBuffered := True;
   lvInfo.OnCustomDrawItem := Self.CustomDrawItem;
+
+  FPropertyState := CreateComponentPropertyState(
+    Self, [], [], True, False, True, True
+  );
 end;
 
 destructor TfrFavoriteMapSetManager.Destroy;

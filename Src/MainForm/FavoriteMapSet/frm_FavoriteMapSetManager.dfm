@@ -12,7 +12,6 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
-  OnHide = FormHide
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -24,19 +23,17 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    object btnOk: TButton
+    object btnClose: TButton
       AlignWithMargins = True
       Left = 554
       Top = 3
       Width = 75
       Height = 25
       Align = alRight
-      Caption = 'Ok'
+      Caption = 'Close'
       Default = True
-      ModalResult = 1
       TabOrder = 0
-      OnClick = btnOkClick
-      ExplicitLeft = 473
+      OnClick = btnCloseClick
     end
   end
   object pnlMapSets: TPanel
