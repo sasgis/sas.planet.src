@@ -24,11 +24,15 @@ unit u_WindowLayerSunCalcYearInfo;
 interface
 
 uses
+  Types,
   GR32,
   u_WindowLayerSunCalcInfoBase;
 
 type
   TWindowLayerSunCalcYearInfo = class(TWindowLayerSunCalcInfoBase)
+  private
+    FIsPointsValid: Boolean;
+    FCircle, FMaxAlt, FMinAlt, FPoly: TArrayOfFloatPoint;
   protected
     procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
@@ -40,7 +44,7 @@ implementation
 
 uses
   GR32_Polygons,
-  i_SunCalcConfig;
+  u_GR32Func;
 
 { TWindowLayerSunCalcYearInfo }
 
@@ -53,44 +57,54 @@ begin
 end;
 
 procedure TWindowLayerSunCalcYearInfo.InvalidateLayer;
+var
+  VRect: TFloatRect;
 begin
-  DoInvalidateFull;
+  FIsPointsValid := Visible and FShapesGenerator.IsIntersectScreenRect;
+
+  if FIsPointsValid then begin
+    FShapesGenerator.ValidateCache;
+    FShapesGenerator.GetCirclePoints(FCircle);
+    FShapesGenerator.GetMinMaxAltitudePoints(FMinAlt, FMaxAlt, FPoly);
+
+    VRect := Rect(0, 0, 0, 0);
+
+    UpdateRectByArrayOfFloatPoint(VRect, FCircle);
+    UpdateRectByArrayOfFloatPoint(VRect, FMinAlt);
+    UpdateRectByArrayOfFloatPoint(VRect, FMaxAlt);
+    UpdateRectByArrayOfFloatPoint(VRect, FPoly);
+
+    DoInvalidateRect(MakeRect(VRect));
+  end;
 end;
 
 procedure TWindowLayerSunCalcYearInfo.PaintLayer(ABuffer: TBitmap32);
-var
-  VCircle, VMaxAlt, VMinAlt, VPoly: TArrayOfFloatPoint;
 begin
-  if not FShapesGenerator.IsIntersectScreenRect then begin
+  if not FIsPointsValid then begin
     Exit;
   end;
 
   ABuffer.BeginUpdate;
   try
-    FShapesGenerator.ValidateCache;
-
-    // Background circle
-    FShapesGenerator.GetCirclePoints(VCircle);
-    if Length(VCircle) > 0 then begin
-      PolylineFS(ABuffer, VCircle, FShapesColors.YearCircleColor, True);
+    // Draw background circle
+    if Length(FCircle) > 0 then begin
+      PolylineFS(ABuffer, FCircle, FShapesColors.YearCircleColor, True);
     end;
 
-    // Min/Max altitude
-    FShapesGenerator.GetMinMaxAltitudePoints(VMinAlt, VMaxAlt, VPoly);
-
-    if Length(VMinAlt) > 0 then begin
-      PolylineFS(ABuffer, VMinAlt, FShapesColors.YearPolyLinesColor, False);
+    // Draw minimum altitude
+    if Length(FMinAlt) > 0 then begin
+      PolylineFS(ABuffer, FMinAlt, FShapesColors.YearPolyLinesColor, False);
     end;
 
-    if Length(VMaxAlt) > 0 then begin
-      PolylineFS(ABuffer, VMaxAlt, FShapesColors.YearPolyLinesColor, False);
+    // Draw maximum altitude
+    if Length(FMaxAlt) > 0 then begin
+      PolylineFS(ABuffer, FMaxAlt, FShapesColors.YearPolyLinesColor, False);
     end;
 
-    // Draw transparent polygon betwen min and max altitude curves
-    if Length(VPoly) > 0 then begin
-      PolygonFS(ABuffer, VPoly, FShapesColors.YearPolygonFillColor);
+    // Draw a transparent polygon between the minimum and maximum altitude curves
+    if Length(FPoly) > 0 then begin
+      PolygonFS(ABuffer, FPoly, FShapesColors.YearPolygonFillColor);
     end;
-
   finally
     ABuffer.EndUpdate;
   end;
