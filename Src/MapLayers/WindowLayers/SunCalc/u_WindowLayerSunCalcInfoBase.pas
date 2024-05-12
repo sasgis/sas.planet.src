@@ -30,6 +30,7 @@ uses
   t_SunCalcConfig,
   i_NotifierTime,
   i_NotifierOperation,
+  i_MainFormState,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_SunCalcShapesGenerator,
@@ -50,6 +51,7 @@ type
     FSunCalcDataProvider: ISunCalcDataProvider;
 
     FLocalCoordConverter: ILocalCoordConverterChangeable;
+    FMainFormState: IMainFormState;
 
     FFont: TSunCalcFontInfo;
     FColor: TSunCalcDetailsPanelColors;
@@ -75,6 +77,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AParentMap: TImage32;
       const ALocalCoordConverter: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ASunCalcConfig: ISunCalcConfig;
       const ASunCalcProvider: ISunCalcProvider;
       const ATimerNoifier: INotifierTime = nil
@@ -101,6 +104,7 @@ constructor TWindowLayerSunCalcInfoBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AParentMap: TImage32;
   const ALocalCoordConverter: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ASunCalcConfig: ISunCalcConfig;
   const ASunCalcProvider: ISunCalcProvider;
   const ATimerNoifier: INotifierTime
@@ -117,6 +121,7 @@ begin
   );
 
   FLocalCoordConverter := ALocalCoordConverter;
+  FMainFormState := AMainFormState;
   FSunCalcConfig := ASunCalcConfig;
   FSunCalcProvider := ASunCalcProvider;
 

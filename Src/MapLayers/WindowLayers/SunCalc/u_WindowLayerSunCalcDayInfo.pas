@@ -31,7 +31,8 @@ uses
 type
   TWindowLayerSunCalcDayInfo = class(TWindowLayerSunCalcInfoBase)
   private
-    FIsPointsValid: Boolean;
+    FIsValid: Boolean;
+    FRect: TRect;
     FDayPoints: TArrayOfArrayOfFloatPoint;
     FRisePoint: TFloatPoint;
     FSetPoint: TFloatPoint;
@@ -63,26 +64,40 @@ end;
 
 procedure TWindowLayerSunCalcDayInfo.InvalidateLayer;
 var
-  VRect: TRect;
   VRectF: TFloatRect;
 begin
-  FIsPointsValid := Visible and FShapesGenerator.IsIntersectScreenRect;
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
 
-  if FIsPointsValid then begin
+  FIsValid := Visible and FShapesGenerator.IsIntersectScreenRect;
+
+  if FIsValid then begin
     FShapesGenerator.ValidateCache;
     FShapesGenerator.GetDayInfoPoints(FDayPoints, FRisePoint, FSetPoint, FCenterPoint);
 
-    VRectF := Rect(0, 0, 0, 0);
+    VRectF := FloatRect(FCenterPoint, FCenterPoint);
 
-    UpdateRectByFloatPoint(VRectF, FRisePoint);
-    UpdateRectByFloatPoint(VRectF, FSetPoint);
-    UpdateRectByFloatPoint(VRectF, FCenterPoint);
+    if FRisePoint.X > 0 then begin
+      UpdateRectByFloatPoint(VRectF, FRisePoint);
+    end;
+
+    if FSetPoint.X > 0 then begin
+      UpdateRectByFloatPoint(VRectF, FSetPoint);
+    end;
+
     UpdateRectByArrayOfArrayOfFloatPoint(VRectF, FDayPoints);
 
-    VRect := MakeRect(VRectF);
-    GR32.InflateRect(VRect, CLineWidth, CLineWidth);
+    FRect := MakeRect(VRectF, GR32.TRectRounding.rrOutside);
+    GR32.InflateRect(FRect, CLineWidth, CLineWidth);
 
-    DoInvalidateRect(VRect);
+    // draw
+    if FMainFormState.IsMapMoving then begin
+      DoInvalidateFull;
+    end else begin
+      DoInvalidateRect(FRect);
+    end;
   end;
 end;
 
@@ -90,7 +105,7 @@ procedure TWindowLayerSunCalcDayInfo.PaintLayer(ABuffer: TBitmap32);
 var
   I: Integer;
 begin
-  if not FIsPointsValid then begin
+  if not FIsValid then begin
     Exit;
   end;
 

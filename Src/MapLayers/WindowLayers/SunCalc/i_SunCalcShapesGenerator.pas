@@ -69,6 +69,8 @@ type
       out APos: TFloatPoint;
       out ACenter: TFloatPoint
     );
+
+    function GetCalcCenter: TFloatPoint;
   end;
 
 implementation

@@ -68,7 +68,6 @@ type
 
     FLocalCoordConverter: ILocalCoordConverterChangeable;
   private
-    function CalcCenter: TFloatPoint;
     function IsValidSate: Boolean; inline;
 
     function GetPointPosition(
@@ -85,6 +84,8 @@ type
       const AStartOfTheDay: TDateTime;
       const AEndOfTheDay: TDateTime
     );
+
+    procedure UpdateCalcCenter;
   private
     { ISunCalcShapesGenerator }
     procedure ValidateCache;
@@ -124,6 +125,8 @@ type
       out APos: TFloatPoint;
       out ACenter: TFloatPoint
     );
+
+    function GetCalcCenter: TFloatPoint;
   public
     constructor Create(
       const ALocalCoordConverter: ILocalCoordConverterChangeable;
@@ -611,7 +614,7 @@ procedure TSunCalcShapesGenerator.SetLocation(const ALonLat: TDoublePoint);
 begin
   if not DoublePointsEqual(FLocation, ALonLat) then begin
     FLocation := ALonLat;
-    FCenter := CalcCenter;
+    UpdateCalcCenter;
 
     FIsCirclePointsValid := False;
     FIsAltitudePointsValid := False;
@@ -622,15 +625,16 @@ end;
 
 procedure TSunCalcShapesGenerator.ValidateCache;
 var
-  VCenter: TFloatPoint;
+  VOldCenter: TFloatPoint;
 begin
   if not IsValidSate then begin
     Exit;
   end;
 
-  VCenter := CalcCenter;
-  if not IsSameFloatPoint(FCenter, VCenter) then begin
-    FCenter := VCenter;
+  VOldCenter := FCenter;
+  UpdateCalcCenter;
+
+  if not IsSameFloatPoint(FCenter, VOldCenter) then begin
     FIsCirclePointsValid := False;
     FIsAltitudePointsValid := False;
     FIsDayInfoPointsValid := False;
@@ -670,7 +674,7 @@ begin
     not IsNan(FCenter.X) and not IsNan(FCenter.Y);
 end;
 
-function TSunCalcShapesGenerator.CalcCenter: TFloatPoint;
+procedure TSunCalcShapesGenerator.UpdateCalcCenter;
 var
   VPoint: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
@@ -678,7 +682,12 @@ begin
   Assert(not PointIsEmpty(FLocation));
   VLocalConverter := FLocalCoordConverter.GetStatic;
   VPoint := VLocalConverter.LonLat2LocalPixelFloat(FLocation);
-  Result := FloatPoint(VPoint.X, VPoint.Y);
+  FCenter := FloatPoint(VPoint.X, VPoint.Y);
+end;
+
+function TSunCalcShapesGenerator.GetCalcCenter: TFloatPoint;
+begin
+  Result := FCenter;
 end;
 
 end.

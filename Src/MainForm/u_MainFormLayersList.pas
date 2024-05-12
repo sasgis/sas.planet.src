@@ -2035,6 +2035,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      AMainFormState,
       ASunCalcConfig,
       ASunCalcProvider
     );
@@ -2049,6 +2050,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      AMainFormState,
       ASunCalcConfig,
       ASunCalcProvider
     );
@@ -2063,6 +2065,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      AMainFormState,
       ASunCalcConfig,
       ASunCalcProvider,
       AGUISyncronizedTimerNotifier

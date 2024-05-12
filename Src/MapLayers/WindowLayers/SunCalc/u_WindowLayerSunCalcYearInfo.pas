@@ -31,7 +31,8 @@ uses
 type
   TWindowLayerSunCalcYearInfo = class(TWindowLayerSunCalcInfoBase)
   private
-    FIsPointsValid: Boolean;
+    FIsValid: Boolean;
+    FRect: TRect;
     FCircle, FMaxAlt, FMinAlt, FPoly: TArrayOfFloatPoint;
   protected
     procedure InvalidateLayer; override;
@@ -59,28 +60,42 @@ end;
 procedure TWindowLayerSunCalcYearInfo.InvalidateLayer;
 var
   VRect: TFloatRect;
+  VCenter: TFloatPoint;
 begin
-  FIsPointsValid := Visible and FShapesGenerator.IsIntersectScreenRect;
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
 
-  if FIsPointsValid then begin
+  FIsValid := Visible and FShapesGenerator.IsIntersectScreenRect;
+
+  if FIsValid then begin
     FShapesGenerator.ValidateCache;
     FShapesGenerator.GetCirclePoints(FCircle);
     FShapesGenerator.GetMinMaxAltitudePoints(FMinAlt, FMaxAlt, FPoly);
 
-    VRect := Rect(0, 0, 0, 0);
+    VCenter := FShapesGenerator.GetCalcCenter;
+    VRect := FloatRect(VCenter, VCenter);
 
     UpdateRectByArrayOfFloatPoint(VRect, FCircle);
     UpdateRectByArrayOfFloatPoint(VRect, FMinAlt);
     UpdateRectByArrayOfFloatPoint(VRect, FMaxAlt);
     UpdateRectByArrayOfFloatPoint(VRect, FPoly);
 
-    DoInvalidateRect(MakeRect(VRect));
+    FRect := MakeRect(VRect, GR32.TRectRounding.rrOutside);
+
+    // draw
+    if FMainFormState.IsMapMoving then begin
+      DoInvalidateFull;
+    end else begin
+      DoInvalidateRect(FRect);
+    end;
   end;
 end;
 
 procedure TWindowLayerSunCalcYearInfo.PaintLayer(ABuffer: TBitmap32);
 begin
-  if not FIsPointsValid then begin
+  if not FIsValid then begin
     Exit;
   end;
 

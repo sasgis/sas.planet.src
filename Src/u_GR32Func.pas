@@ -45,10 +45,10 @@ begin
   if ARect.Right < APoint.X then begin
     ARect.Right := APoint.X;
   end;
-  if ARect.Top < APoint.Y then begin
+  if ARect.Top > APoint.Y then begin
     ARect.Top := APoint.Y;
   end;
-  if ARect.Bottom > APoint.Y then begin
+  if ARect.Bottom < APoint.Y then begin
     ARect.Bottom := APoint.Y;
   end;
 end;
