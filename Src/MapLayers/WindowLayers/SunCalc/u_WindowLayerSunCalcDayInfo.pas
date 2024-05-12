@@ -26,12 +26,16 @@ interface
 uses
   Types,
   GR32,
-  GR32_Polygons,
-  GR32_Transforms,
   u_WindowLayerSunCalcInfoBase;
 
 type
   TWindowLayerSunCalcDayInfo = class(TWindowLayerSunCalcInfoBase)
+  private
+    FIsPointsValid: Boolean;
+    FDayPoints: TArrayOfArrayOfFloatPoint;
+    FRisePoint: TFloatPoint;
+    FSetPoint: TFloatPoint;
+    FCenterPoint: TFloatPoint;
   protected
     procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
@@ -42,7 +46,10 @@ type
 implementation
 
 uses
-  u_SunCalcDrawTools;
+  u_GR32Func;
+
+const
+  CLineWidth = 4;
 
 { TWindowLayerSunCalcDayInfo }
 
@@ -55,42 +62,53 @@ begin
 end;
 
 procedure TWindowLayerSunCalcDayInfo.InvalidateLayer;
+var
+  VRect: TRect;
+  VRectF: TFloatRect;
 begin
-  DoInvalidateFull;
+  FIsPointsValid := Visible and FShapesGenerator.IsIntersectScreenRect;
+
+  if FIsPointsValid then begin
+    FShapesGenerator.ValidateCache;
+    FShapesGenerator.GetDayInfoPoints(FDayPoints, FRisePoint, FSetPoint, FCenterPoint);
+
+    VRectF := Rect(0, 0, 0, 0);
+
+    UpdateRectByFloatPoint(VRectF, FRisePoint);
+    UpdateRectByFloatPoint(VRectF, FSetPoint);
+    UpdateRectByFloatPoint(VRectF, FCenterPoint);
+    UpdateRectByArrayOfArrayOfFloatPoint(VRectF, FDayPoints);
+
+    VRect := MakeRect(VRectF);
+    GR32.InflateRect(VRect, CLineWidth, CLineWidth);
+
+    DoInvalidateRect(VRect);
+  end;
 end;
 
 procedure TWindowLayerSunCalcDayInfo.PaintLayer(ABuffer: TBitmap32);
 var
   I: Integer;
-  VDayPoints: TArrayOfArrayOfFloatPoint;
-  VRisePoint: TFloatPoint;
-  VSetPoint: TFloatPoint;
-  VCenter: TFloatPoint;
 begin
-  if not FShapesGenerator.IsIntersectScreenRect then begin
+  if not FIsPointsValid then begin
     Exit;
   end;
 
   ABuffer.BeginUpdate;
   try
-    FShapesGenerator.ValidateCache;
-
-    // Day info
-    FShapesGenerator.GetDayInfoPoints(VDayPoints, VRisePoint, VSetPoint, VCenter);
-
     // Draw day curve
-    for I := 0 to Length(VDayPoints) - 1 do begin
-      ThickPolyLine(ABuffer, VDayPoints[I], FShapesColors.DayPolyLineColor, 4);
+    for I := 0 to Length(FDayPoints) - 1 do begin
+      DrawThickPolyLine(ABuffer, FDayPoints[I], FShapesColors.DayPolyLineColor, CLineWidth);
     end;
 
-    // Draw rise line
-    if VRisePoint.X > 0 then begin
-      ThickLine(ABuffer, VCenter, VRisePoint, FShapesColors.DaySunriseLineColor, 4);
+    // Draw sun rise line
+    if FRisePoint.X > 0 then begin
+      DrawThickLine(ABuffer, FCenterPoint, FRisePoint, FShapesColors.DaySunriseLineColor, CLineWidth);
     end;
 
-    // Draw set line
-    if VSetPoint.X > 0 then begin
-      ThickLine(ABuffer, VCenter, VSetPoint, FShapesColors.DaySunsetLineColor, 4);
+    // Draw sun set line
+    if FSetPoint.X > 0 then begin
+      DrawThickLine(ABuffer, FCenterPoint, FSetPoint, FShapesColors.DaySunsetLineColor, CLineWidth);
     end;
   finally
     ABuffer.EndUpdate;

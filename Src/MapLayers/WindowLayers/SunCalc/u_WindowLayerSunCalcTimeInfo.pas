@@ -54,7 +54,7 @@ uses
   t_SunCalcDataProvider,
   i_SunCalcDataProvider,
   u_GeoFunc,
-  u_SunCalcDrawTools;
+  u_GR32Func;
 
 resourcestring
   rsAzimuth = 'Azimuth';
@@ -151,7 +151,7 @@ begin
 
     // Draw line to the current position
     if (VCurrentPos.X > 0) and (VCurrentPos.Y > 0) then begin
-      ThickLine(ABuffer, VCenter, VCurrentPos, FShapesColors.DayLineColor, 4);
+      DrawThickLine(ABuffer, VCenter, VCurrentPos, FShapesColors.DayLineColor, 4);
 
       // Draw marker
       if FSunCalcConfig.IsRealTime then begin

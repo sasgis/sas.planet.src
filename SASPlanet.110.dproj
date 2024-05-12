@@ -1615,7 +1615,6 @@
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderChangeable.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderMoon.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderSun.pas"/>
-        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDrawTools.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcProvider.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcShapesGenerator.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcDayInfo.pas"/>
@@ -2667,6 +2666,7 @@
         <DCCReference Include="Src\u_AnsiStr.pas"/>
         <DCCReference Include="Src\u_BitmapFunc.pas"/>
         <DCCReference Include="Src\u_FileSystemFunc.pas"/>
+        <DCCReference Include="Src\u_GR32Func.pas"/>
         <DCCReference Include="Src\u_GeoFunc.pas"/>
         <DCCReference Include="Src\u_GeoToStrFunc.pas"/>
         <DCCReference Include="Src\u_GlobalAppConfig.pas"/>
