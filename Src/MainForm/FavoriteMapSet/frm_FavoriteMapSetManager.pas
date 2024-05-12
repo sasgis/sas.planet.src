@@ -52,11 +52,13 @@ type
     pnlMapSets: TPanel;
     procedure btnCloseClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormHide(Sender: TObject);
   private
     FfrFavoriteMapSetManager: TfrFavoriteMapSetManager;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
     FConfigChangeListener: IListener;
     procedure OnConfigChange;
+    procedure RestoreState;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -65,7 +67,6 @@ type
       const AFavoriteMapSetConfig: IFavoriteMapSetConfig;
       const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
       const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor
-
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -107,9 +108,11 @@ begin
   FfrFavoriteMapSetManager.Parent := pnlMapSets;
 
   FPropertyState := CreateComponentPropertyState(
-    Self, [], [], True, False, True, True
+    Self, [], [], True, False, False, True
   );
-  FPropertyState.Include(Self.Name, ['Top', 'Left']); // ToDo: restore form position
+  FPropertyState.Include(Self.Name, ['Top', 'Left']);
+
+  RestoreState;
 end;
 
 destructor TfrmFavoriteMapSetManager.Destroy;
@@ -118,16 +121,37 @@ begin
     FFavoriteMapSetConfig.ChangeNotifier.Remove(FConfigChangeListener);
     FFavoriteMapSetConfig := nil;
   end;
-  if Assigned(FfrFavoriteMapSetManager) then begin
-    FfrFavoriteMapSetManager.Hide; // autosave state
-  end;
   FreeAndNil(FfrFavoriteMapSetManager);
   inherited Destroy;
+end;
+
+procedure TfrmFavoriteMapSetManager.RestoreState;
+var
+  VRect: TRect;
+begin
+  FPropertyState.Restore;
+
+  if (Self.Top <> 0) and (Self.Left <> 0) then begin
+    VRect := Self.BoundsRect;
+    UpdateRectByMonitors(VRect);
+    if not EqualRect(VRect, Self.BoundsRect) then begin
+      Self.BoundsRect := VRect;
+    end;
+    Self.Position := poDesigned;
+  end else begin
+    Self.Position := poMainFormCenter;
+  end;
+end;
+
+procedure TfrmFavoriteMapSetManager.FormHide(Sender: TObject);
+begin
+  FfrFavoriteMapSetManager.Hide;
 end;
 
 procedure TfrmFavoriteMapSetManager.FormShow(Sender: TObject);
 begin
   FfrFavoriteMapSetManager.Init;
+  FfrFavoriteMapSetManager.Show;
 end;
 
 procedure TfrmFavoriteMapSetManager.OnConfigChange;

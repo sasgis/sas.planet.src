@@ -11,7 +11,8 @@ object frmFavoriteMapSetManager: TfrmFavoriteMapSetManager
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poDesigned
+  OnHide = FormHide
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

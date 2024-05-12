@@ -24,6 +24,7 @@ unit u_CommonFormAndFrameParents;
 interface
 
 uses
+  Types,
   Messages,
   Classes,
   Controls,
@@ -99,6 +100,8 @@ function CreateComponentPropertyState(
   const ASaveOnHide, ASaveOnFree, ARestoreOnShow, AIgnoreSecondaryRestoreCalls: Boolean
 ): IComponentPropertyState;
 
+procedure UpdateRectByMonitors(var ARect: TRect);
+
 implementation
 
 uses
@@ -152,6 +155,27 @@ begin
   if AIgnoreSecondaryRestoreCalls then Include(VOptions, cpsoIgnoreSecondaryRestoreCalls);
 
   Result := TComponentPropertyState.Create(AComponent, AIgnore, ATemporary, VOptions);
+end;
+
+procedure UpdateRectByMonitors(var ARect: TRect);
+var
+  I: Integer;
+  VTmp: TRect;
+  VMonitor: TMonitor;
+begin
+  for I := 0 to Screen.MonitorCount - 1 do begin
+    VMonitor := Screen.Monitors[I];
+    if IntersectRect(VTmp, ARect, VMonitor.WorkareaRect) then begin
+      Exit;
+    end;
+  end;
+
+  VTmp := ARect;
+  VMonitor := Screen.MonitorFromRect(ARect, mdNearest);
+
+  ARect.TopLeft := VMonitor.WorkareaRect.TopLeft;
+  ARect.Right := ARect.Left + (VTmp.Right - VTmp.Left);
+  ARect.Bottom := ARect.Top + (VTmp.Bottom - VTmp.Top);
 end;
 
 { TBaseForm }

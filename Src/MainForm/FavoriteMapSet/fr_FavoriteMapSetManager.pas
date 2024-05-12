@@ -45,6 +45,7 @@ uses
   i_FavoriteMapSetConfig,
   i_FavoriteMapSetHelper,
   i_FavoriteMapSetItemStatic,
+  u_ListViewExt,
   u_CommonFormAndFrameParents;
 
 type

@@ -1156,25 +1156,6 @@ begin
 end;
 
 procedure TfrmMarksExplorer.OnConfigChange;
-  function UpdateRectByMonitors(ARect: TRect): TRect;
-  var
-    i: Integer;
-    VIntersectRect: TRect;
-    VMonitor: TMonitor;
-  begin
-    Result := ARect;
-    for i := 0 to Screen.MonitorCount - 1 do begin
-      VMonitor := Screen.Monitors[i];
-      if IntersectRect(VIntersectRect, ARect, VMonitor.WorkareaRect) then begin
-        Exit;
-      end;
-    end;
-    VMonitor := Screen.MonitorFromRect(ARect, mdNearest);
-    Result.TopLeft := VMonitor.WorkareaRect.TopLeft;
-    Result.Right := Result.Left + (ARect.Right - ARect.Left);
-    Result.Bottom := Result.Top + (ARect.Bottom - ARect.Top);
-  end;
-
 var
   VRect: TRect;
 begin
@@ -1182,7 +1163,7 @@ begin
   if EqualRect(BoundsRect, VRect) then begin
     Exit;
   end;
-  VRect := UpdateRectByMonitors(VRect);
+  UpdateRectByMonitors(VRect);
   if EqualRect(BoundsRect, VRect) then begin
     Exit;
   end;

@@ -160,6 +160,8 @@ begin
   Add('TEdit', ['Text']);
   Add('TSpinEdit', ['Value']);
 
+  Add('TListView', ['ColumnsWidth']); // TListViewExt
+
   Add('TForm', ['ClientHeight', 'ClientWidth']);
 end;
 
