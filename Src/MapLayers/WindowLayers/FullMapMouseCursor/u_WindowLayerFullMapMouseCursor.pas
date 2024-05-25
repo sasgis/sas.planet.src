@@ -148,9 +148,9 @@ procedure TWindowLayerFullMapMouseCursor.InvalidateLayer;
   procedure InvalidateCross(const AViewRect: TRect);
   begin
     // Vertical
-    DoInvalidateRect(Rect(FPos.X, AViewRect.Top, FPos.X + 1, AViewRect.Bottom));
+    DoInvalidateRect(MakeRect(FPos.X, AViewRect.Top, FPos.X + 1, AViewRect.Bottom));
     // Horizontal
-    DoInvalidateRect(Rect(AViewRect.Left, FPos.Y, AViewRect.Right, FPos.Y + 1));
+    DoInvalidateRect(MakeRect(AViewRect.Left, FPos.Y, AViewRect.Right, FPos.Y + 1));
   end;
 
 var
@@ -193,8 +193,13 @@ begin
 
   ABuffer.BeginUpdate;
   try
-    ABuffer.VertLineS(FPos.X, 0, ABuffer.Height, VColor);
-    ABuffer.HorzLineS(0, FPos.Y, ABuffer.Width, VColor);
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(MakeRect(FPos.X, 0, FPos.X + 1, ABuffer.Height));
+      ABuffer.Changed(MakeRect(0, FPos.Y, ABuffer.Width, FPos.Y + 1));
+    end else begin
+      ABuffer.VertLineS(FPos.X, 0, ABuffer.Height, VColor);
+      ABuffer.HorzLineS(0, FPos.Y, ABuffer.Width, VColor);
+    end;
   finally
     ABuffer.EndUpdate;
   end;
