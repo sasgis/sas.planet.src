@@ -62,6 +62,8 @@ type
     FCirclesLonLat: IGeometryLonLatPolygon;
     FCirclesProjected: IProjectedDrawableElement;
 
+    FLocalConverter: ILocalCoordConverter;
+
     function GetLonLatCirclesByPoint(
       const APos: TDoublePoint;
       const ADatum: IDatum;
@@ -75,10 +77,8 @@ type
     procedure OnConfigChange;
     procedure OnTimer;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -240,10 +240,13 @@ begin
   end;
 end;
 
-procedure TMapLayerGPSMarkerRings.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerGPSMarkerRings.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerGPSMarkerRings.PaintLayer(ABuffer: TBitmap32);
 var
   VLonLat: TDoublePoint;
   VConfig: IMarkerRingsConfigStatic;
@@ -266,12 +269,12 @@ begin
     FGPSPosCS.EndRead;
   end;
   if VDrawable <> nil then begin
-    if not VDrawable.Projection.IsSame(ALocalConverter.Projection) then begin
+    if not VDrawable.Projection.IsSame(FLocalConverter.Projection) then begin
       VDrawable := nil;
     end;
   end;
   if VCirclesLonLat = nil then begin
-    VCirclesLonLat := GetLonLatCirclesByPoint(VLonLat, ALocalConverter.Projection.ProjectionType.Datum, VConfig);
+    VCirclesLonLat := GetLonLatCirclesByPoint(VLonLat, FLocalConverter.Projection.ProjectionType.Datum, VConfig);
   end;
   if VCirclesLonLat = nil then begin
     Exit;
@@ -285,10 +288,10 @@ begin
     FGPSPosCS.EndWrite
   end;
   if VDrawable = nil then begin
-    VCirclesProjected := GetProjectedCirclesByLonLat(VCirclesLonLat, ALocalConverter.Projection);
+    VCirclesProjected := GetProjectedCirclesByLonLat(VCirclesLonLat, FLocalConverter.Projection);
     VDrawable :=
       TProjectedDrawableElementByPolygonSimpleEdge.Create(
-        ALocalConverter.Projection,
+        FLocalConverter.Projection,
         VCirclesProjected,
         clRed32
       );
@@ -304,7 +307,7 @@ begin
   finally
     FGPSPosCS.EndWrite
   end;
-  VDrawable.Draw(ABuffer, ALocalConverter);
+  VDrawable.Draw(ABuffer, FLocalConverter);
 end;
 
 end.

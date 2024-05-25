@@ -46,10 +46,10 @@ type
 
     FOnInvalidateCounter: IInternalPerformanceCounter;
     FOnPaintCounter: IInternalPerformanceCounter;
+    FOnMeasuringPaintCounter: IInternalPerformanceCounter;
 
-    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+    procedure OnPaintLayer(Sender: TObject; ABuffer: TBitmap32);
     procedure OnViewChange;
-    procedure RedrawIfNeed;
 
     function GetVisible: Boolean;
     procedure SetVisible(const Value: Boolean);
@@ -64,11 +64,8 @@ type
     procedure Hide;
     procedure DoHide; virtual;
 
-    procedure InvalidateLayer; virtual; //abstract; // todo
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); virtual; abstract;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); virtual; abstract;
+    procedure PaintLayer(ABuffer: TBitmap32); virtual; abstract;
 
     property Visible: Boolean read GetVisible write SetVisible;
     property View: ILocalCoordConverterChangeable read FView;
@@ -117,6 +114,7 @@ begin
 
   FOnInvalidateCounter := APerfList.CreateAndAddNewCounter('OnInvalidate');
   FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
+  FOnMeasuringPaintCounter := APerfList.CreateAndAddNewCounter('OnMeasuringPaint');
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewChange),
@@ -130,12 +128,6 @@ begin
   inherited;
 end;
 
-procedure TMapLayerBasicNoBitmap.DoViewUpdate;
-begin
-  inherited;
-  RedrawIfNeed;
-end;
-
 procedure TMapLayerBasicNoBitmap.DoInvalidateFull;
 begin
   FParentMap.ForceFullInvalidate;
@@ -146,41 +138,52 @@ begin
   FParentMap.Invalidate(ARect);
 end;
 
-procedure TMapLayerBasicNoBitmap.InvalidateLayer;
-begin
-  DoInvalidateFull; // todo
-end;
-
-procedure TMapLayerBasicNoBitmap.OnPaintLayer(
-  Sender: TObject;
-  Buffer: TBitmap32
-);
+procedure TMapLayerBasicNoBitmap.DoViewUpdate;
 var
   VLocalConverter: ILocalCoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VLocalConverter := View.GetStatic;
-  if VLocalConverter <> nil then begin
-    VCounterContext := FOnPaintCounter.StartOperation;
-    try
-      if FVisible then begin
-        PaintLayer(Buffer, VLocalConverter);
+  if FNeedRedrawFlag.CheckFlagAndReset then begin
+    VLocalConverter := View.GetStatic;
+    if VLocalConverter <> nil then begin
+      VCounterContext := FOnInvalidateCounter.StartOperation;
+      try
+        InvalidateLayer(VLocalConverter);
+      finally
+        FOnInvalidateCounter.FinishOperation(VCounterContext);
       end;
-    finally
-      FOnPaintCounter.FinishOperation(VCounterContext);
     end;
+  end;
+end;
+
+procedure TMapLayerBasicNoBitmap.OnPaintLayer(Sender: TObject; ABuffer: TBitmap32);
+var
+  VCounter: IInternalPerformanceCounter;
+  VCounterContext: TInternalPerformanceCounterContext;
+begin
+  if ABuffer.MeasuringMode then begin
+    VCounter := FOnMeasuringPaintCounter;
+  end else begin
+    VCounter := FOnPaintCounter;
+  end;
+  VCounterContext := VCounter.StartOperation;
+  try
+    if FVisible then begin
+      PaintLayer(ABuffer);
+    end;
+  finally
+    VCounter.FinishOperation(VCounterContext);
   end;
 end;
 
 procedure TMapLayerBasicNoBitmap.OnViewChange;
 begin
-  SetNeedRedraw;
-end;
-
-procedure TMapLayerBasicNoBitmap.StartThreads;
-begin
-  inherited;
-  FLayer.OnPaint := OnPaintLayer;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 procedure TMapLayerBasicNoBitmap.Hide;
@@ -226,17 +229,12 @@ begin
   Result := FVisible;
 end;
 
-procedure TMapLayerBasicNoBitmap.RedrawIfNeed;
-var
-  VCounterContext: TInternalPerformanceCounterContext;
+procedure TMapLayerBasicNoBitmap.SetVisible(const Value: Boolean);
 begin
-  if FNeedRedrawFlag.CheckFlagAndReset then begin
-    VCounterContext := FOnInvalidateCounter.StartOperation;
-    try
-      InvalidateLayer;
-    finally
-      FOnInvalidateCounter.FinishOperation(VCounterContext);
-    end;
+  if Value then begin
+    Show;
+  end else begin
+    Hide;
   end;
 end;
 
@@ -245,13 +243,10 @@ begin
   FNeedRedrawFlag.SetFlag;
 end;
 
-procedure TMapLayerBasicNoBitmap.SetVisible(const Value: Boolean);
+procedure TMapLayerBasicNoBitmap.StartThreads;
 begin
-  if Value then begin
-    Show;
-  end else begin
-    Hide;
-  end;
+  inherited;
+  FLayer.OnPaint := OnPaintLayer;
 end;
 
 end.

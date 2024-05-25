@@ -46,13 +46,13 @@ type
 
     FForceMapRedraw: Boolean;
 
+    FLocalConverter: ILocalCoordConverter;
+
     procedure OnSelectionChange;
     procedure OnConfigChange;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -146,23 +146,26 @@ begin
   end;
 end;
 
-procedure TMapLayerSelectionByRect.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerSelectionByRect.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerSelectionByRect.PaintLayer(ABuffer: TBitmap32);
 var
   VDrawRect: TRect;
   VSelectedLonLat: TDoubleRect;
   VSelectedPixels: TDoubleRect;
   VProjection: IProjection;
 begin
-  VProjection := ALocalConverter.Projection;
+  VProjection := FLocalConverter.Projection;
   VSelectedLonLat := FSelection.GetRect;
   VProjection.ProjectionType.ValidateLonLatRect(VSelectedLonLat);
   VSelectedPixels := VProjection.LonLatRect2PixelRectFloat(VSelectedLonLat);
   VDrawRect :=
     RectFromDoubleRect(
-      ALocalConverter.MapRectFloat2LocalRectFloat(VSelectedPixels),
+      FLocalConverter.MapRectFloat2LocalRectFloat(VSelectedPixels),
       rrToTopLeft
     );
   ABuffer.BeginUpdate;

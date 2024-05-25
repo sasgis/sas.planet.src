@@ -47,6 +47,9 @@ type
     FCircleOnMapEdit: ICircleOnMapEdit;
     FTempBitmap: TBitmap32;
     FLine: ILonLatPathWithSelected;
+
+    FLocalConverter: ILocalCoordConverter;
+
     procedure DrawPointText(
       ABuffer: TBitmap32;
       const ABitmapSize: TPoint;
@@ -61,10 +64,8 @@ type
     procedure OnConfigChange;
     procedure OnLineChange;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -198,10 +199,13 @@ begin
   end;
 end;
 
-procedure TMapLayerCalcCircleCaptions.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerCalcCircleCaptions.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerCalcCircleCaptions.PaintLayer(ABuffer: TBitmap32);
 var
   VConfig: IPointCaptionsLayerConfigStatic;
   VProjection: IProjection;
@@ -230,17 +234,17 @@ begin
     Inc(VPoints);
     VLonLat := VPoints[0];
 
-    VProjection := ALocalConverter.Projection;
+    VProjection := FLocalConverter.Projection;
     VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
     VPosOnMap := VProjection.LonLat2PixelPosFloat(VLonLat);
-    VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
+    VPosOnBitmap := FLocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
 
     VValueConverter := FValueToStringConverter.GetStatic;
     VText := SAS_STR_Radius + ': ' + VValueConverter.DistConvert(FCircleOnMapEdit.Radius);
 
     VTextSize := FTempBitmap.TextExtent(VText);
 
-    VLocalRect := ALocalConverter.GetLocalRect;
+    VLocalRect := FLocalConverter.GetLocalRect;
     VBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
     VBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
 

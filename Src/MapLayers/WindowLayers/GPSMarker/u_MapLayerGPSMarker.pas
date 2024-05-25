@@ -55,14 +55,14 @@ type
     FStopped: Boolean;
     FDirectionAngle: Double;
 
+    FLocalConverter: ILocalCoordConverter;
+
     procedure GPSReceiverReceive;
     procedure OnConfigChange;
     procedure OnTimer;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -194,10 +194,13 @@ begin
   end;
 end;
 
-procedure TMapLayerGPSMarker.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerGPSMarker.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32);
 var
   VFixedOnView: TDoublePoint;
   VPositionLonLat: TDoublePoint;
@@ -213,7 +216,7 @@ begin
     FPositionCS.EndRead;
   end;
   if not PointIsEmpty(FPositionLonLat) then begin
-    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FPositionLonLat);
+    VFixedOnView := FLocalConverter.LonLat2LocalPixelFloat(FPositionLonLat);
     if VStopped then begin
       FStopedMarkerChangeable.GetStatic.DrawToBitmap(ABuffer, VFixedOnView);
     end else begin

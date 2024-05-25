@@ -60,6 +60,8 @@ type
     FDistStrings: TStringList;
     FTextSizeArray: TArrayOfPoint;
 
+    FLocalConverter: ILocalCoordConverter;
+
     procedure DrawPointText(
       ABuffer: TBitmap32;
       const ABitmapSize: TPoint;
@@ -101,10 +103,8 @@ type
       out ATextSizeArray: TArrayOfPoint
     );
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -256,10 +256,13 @@ begin
   end;
 end;
 
-procedure TMapLayerCalcLineCaptions.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerCalcLineCaptions.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerCalcLineCaptions.PaintLayer(ABuffer: TBitmap32);
 var
   I: Integer;
   VConfig: IPointCaptionsLayerConfigStatic;
@@ -287,13 +290,13 @@ begin
     if (VProjection = nil) or (VPoints = nil) then begin
       VNeedUpdatePoints := True;
     end else begin
-      if not VProjection.IsSame(ALocalConverter.Projection) then begin
+      if not VProjection.IsSame(FLocalConverter.Projection) then begin
         VNeedUpdatePoints := True;
       end;
     end;
   end;
   if VNeedUpdatePoints then begin
-    VProjection := ALocalConverter.Projection;
+    VProjection := FLocalConverter.Projection;
     PreparePoints(VProjection, VPoints, VDistStringsNew, VTextSizeArray);
     FProjectedPoints := VPoints;
     FProjection := VProjection;
@@ -309,7 +312,7 @@ begin
   end;
 
   if VPoints.Count > 0 then begin
-    VLocalRect := ALocalConverter.GetLocalRect;
+    VLocalRect := FLocalConverter.GetLocalRect;
     VBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
     VBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
     if VConfig.ShowIntermediateDist or VConfig.ShowDistIncrement then begin
@@ -318,7 +321,7 @@ begin
         VTextSize.cx := VTextSizeArray[I].X;
         VTextSize.cy := VTextSizeArray[I].Y;
         VPosOnMap := VPoints.Points[I];
-        VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
+        VPosOnBitmap := FLocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
         DrawPointText(
           ABuffer,
           VBitmapSize,
@@ -337,7 +340,7 @@ begin
     VTextSize.cx := VTextSizeArray[I].X;
     VTextSize.cy := VTextSizeArray[I].Y;
     VPosOnMap := VPoints.Points[I];
-    VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
+    VPosOnBitmap := FLocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
     DrawPointText(
       ABuffer,
       VBitmapSize,

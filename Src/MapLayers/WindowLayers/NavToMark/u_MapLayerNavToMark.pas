@@ -46,13 +46,14 @@ type
     FReachedMarkerChangeable: IMarkerDrawableChangeable;
 
     FMarkPoint: TDoublePoint;
+
+    FLocalConverter: ILocalCoordConverter;
+
     procedure OnNavToPointChange;
     procedure OnConfigChange;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -141,10 +142,13 @@ begin
   end;
 end;
 
-procedure TMapLayerNavToMark.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerNavToMark.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerNavToMark.PaintLayer(ABuffer: TBitmap32);
 var
   VLonLat: TDoublePoint;
   VMarkMapPos: TDoublePoint;
@@ -157,8 +161,8 @@ var
   VAngle: Double;
   VFixedOnView: TDoublePoint;
 begin
-  VProjection := ALocalConverter.Projection;
-  VScreenCenterMapPos := ALocalConverter.GetCenterMapPixelFloat;
+  VProjection := FLocalConverter.Projection;
+  VScreenCenterMapPos := FLocalConverter.GetCenterMapPixelFloat;
   VLonLat := FMarkPoint;
   VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
   VMarkMapPos := VProjection.LonLat2PixelPosFloat(VLonLat);
@@ -167,14 +171,14 @@ begin
   VDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
   VCrossDist := FConfig.CrossDistInPixels;
   if VDistInPixel < VCrossDist then begin
-    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+    VFixedOnView := FLocalConverter.LonLat2LocalPixelFloat(VLonLat);
     FReachedMarkerChangeable.GetStatic.DrawToBitmap(ABuffer, VFixedOnView);
   end else begin
     VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
     VDeltaNormed.Y := VDelta.Y / VDistInPixel * VCrossDist;
     VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
     VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
-    VFixedOnView := ALocalConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
+    VFixedOnView := FLocalConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
     VAngle := ArcSin(VDelta.X / VDistInPixel) / Pi * 180;
     if VDelta.Y > 0 then begin
       VAngle := 180 - VAngle;

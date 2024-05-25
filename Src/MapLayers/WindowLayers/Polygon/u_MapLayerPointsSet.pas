@@ -50,15 +50,16 @@ type
     FProjection: IProjection;
     FLonLatPointsPrepared: IGeometryLonLatMultiPoint;
     FProjectedPoints: IGeometryProjectedMultiPoint;
+
+    FLocalConverter: ILocalCoordConverter;
+
     procedure OnConfigChange;
   protected
     procedure ChangedSource;
     procedure OnSourceChange;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -152,10 +153,13 @@ begin
   end;
 end;
 
-procedure TMapLayerPointsSet.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerPointsSet.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerPointsSet.PaintLayer(ABuffer: TBitmap32);
 var
   VProjection: IProjection;
   VNeedUpdatePoints: Boolean;
@@ -185,9 +189,9 @@ begin
   end;
 
   VProjection := FProjection;
-  if not ALocalConverter.Projection.IsSame(VProjection) then begin
+  if not FLocalConverter.Projection.IsSame(VProjection) then begin
     VNeedUpdatePoints := True;
-    VProjection := ALocalConverter.Projection;
+    VProjection := FLocalConverter.Projection;
     FProjection := VProjection;
   end;
 
@@ -201,13 +205,13 @@ begin
   VProjectedPoints := FProjectedPoints;
 
   if Assigned(VProjectedPoints) then begin
-    VViewRect := ALocalConverter.GetRectInMapPixelFloat;
+    VViewRect := FLocalConverter.GetRectInMapPixelFloat;
     if IsIntersecProjectedRect(VViewRect, VProjectedPoints.Bounds) then begin
       VPointMarker := FPointMarker.GetStatic;
       VEnum := VProjectedPoints.GetEnum;
       while VEnum.Next(VPosOnMap) do begin
         if PixelPointInRect(VPosOnMap, VViewRect) then begin
-          VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
+          VPosOnBitmap := FLocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
           VPointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
         end;
       end;

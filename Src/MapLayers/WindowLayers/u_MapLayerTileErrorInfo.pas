@@ -56,6 +56,8 @@ type
     FHideAfterTime: Cardinal;
     FMarker: IMarkerDrawable;
 
+    FLocalConverter: ILocalCoordConverter;
+
     procedure OnTimer;
     procedure OnErrorRecive;
     function CreateMarkerByError(
@@ -63,10 +65,8 @@ type
       const AErrorInfo: ITileErrorInfo
     ): IMarkerDrawable;
   protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure DoHide; override;
   public
     constructor Create(
@@ -249,13 +249,15 @@ begin
       ViewUpdateUnlock;
     end;
   end;
-
 end;
 
-procedure TMapLayerTileErrorInfo.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerTileErrorInfo.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerTileErrorInfo.PaintLayer(ABuffer: TBitmap32);
 var
   VMarker: IMarkerDrawable;
   VFixedOnView: TDoublePoint;
@@ -282,16 +284,16 @@ begin
     VTile := VErrorInfo.Tile;
     VProjection.ValidateTilePosStrict(VTile, True);
     VFixedLonLat := VProjection.PixelPosFloat2LonLat(RectCenter(VProjection.TilePos2PixelRect(VTile)));
-    ALocalConverter.Projection.ProjectionType.ValidateLonLatPos(VFixedLonLat);
-    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
-    if PixelPointInRect(VFixedOnView, DoubleRect(ALocalConverter.GetLocalRect)) then begin
+    FLocalConverter.Projection.ProjectionType.ValidateLonLatPos(VFixedLonLat);
+    VFixedOnView := FLocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
+    if PixelPointInRect(VFixedOnView, DoubleRect(FLocalConverter.GetLocalRect)) then begin
       VMarker := FMarker;
       if VMarker = nil then begin
         VMarker := CreateMarkerByError(VMapType, FErrorInfo);
       end;
       FMarker := VMarker;
       if VMarker <> nil then begin
-        VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
+        VFixedOnView := FLocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
         VMarker.DrawToBitmap(ABuffer, VFixedOnView);
       end;
     end;

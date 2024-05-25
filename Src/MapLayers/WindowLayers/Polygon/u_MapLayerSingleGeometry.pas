@@ -62,6 +62,8 @@ type
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FForceMapRedraw: Boolean;
+
+    FLocalConverter: ILocalCoordConverter;
   protected
     property Factory: IGeometryProjectedFactory read FVectorGeometryProjectedFactory;
     property PreparedPointsAggreagtor: IDoublePointsAggregator read FPreparedPointsAggreagtor;
@@ -69,10 +71,8 @@ type
     procedure OnConfigChange;
     procedure DoConfigChange; virtual; abstract;
     procedure StartThreads; override;
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); override;
+    procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     function PrepareDrawable(
       const AProjection: IProjection;
       const AMapRect: TRect
@@ -230,10 +230,13 @@ begin
   end;
 end;
 
-procedure TMapLayerSingleGeometryBase.PaintLayer(
-  ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TMapLayerSingleGeometryBase.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+  DoInvalidateFull; // ToDo
+end;
+
+procedure TMapLayerSingleGeometryBase.PaintLayer(ABuffer: TBitmap32);
 var
   VCounterContext: TInternalPerformanceCounterContext;
   VTileRect: ITileRect;
@@ -242,7 +245,7 @@ var
   VSourceChanged: Boolean;
 begin
   inherited;
-  Assert(Assigned(ALocalConverter));
+  Assert(Assigned(FLocalConverter));
   VSourceChanged := FSourceChanged.CheckFlagAndReset;
   if not VSourceChanged then begin
     if not Assigned(FFrawableTileRect) then begin
@@ -269,7 +272,7 @@ begin
   if Assigned(FDrawable) then begin
     VCounterContext := FDrawDrawableCounter.StartOperation;
     try
-      FDrawable.Draw(ABuffer, ALocalConverter);
+      FDrawable.Draw(ABuffer, FLocalConverter);
       if FForceMapRedraw then begin
         ABuffer.Changed;
       end;
