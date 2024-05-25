@@ -42,7 +42,10 @@ type
 
   TMarkerDrawableSimpleAbstract = class(TMarkerDrawableSimpleBaseAbstract, IMarkerDrawable)
   protected
-    function GetBoundsForPosition(const APosition: TDoublePoint): TRect; virtual; abstract;
+    function GetBoundsForPosition(
+      const APosition: TDoublePoint
+    ): TRect; virtual; abstract;
+
     function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
@@ -53,6 +56,11 @@ type
 
   TMarkerDrawableWithDirectionSimpleAbstract = class(TMarkerDrawableSimpleBaseAbstract, IMarkerDrawableWithDirection)
   protected
+    function GetBoundsForPosition(
+      const APosition: TDoublePoint;
+      const AAngle: Double
+    ): TRect; virtual; abstract;
+
     function DrawToBitmapWithDirection(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint;
@@ -68,7 +76,8 @@ implementation
 { TMarkerDrawableSimpleBaseAbstract }
 
 constructor TMarkerDrawableSimpleBaseAbstract.Create(
-  const AConfig: IMarkerSimpleConfigStatic);
+  const AConfig: IMarkerSimpleConfigStatic
+);
 begin
   inherited Create;
   FConfig := AConfig;

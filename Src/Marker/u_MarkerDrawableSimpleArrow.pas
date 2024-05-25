@@ -31,6 +31,11 @@ uses
 type
   TMarkerDrawableSimpleArrow = class(TMarkerDrawableWithDirectionSimpleAbstract)
   protected
+    function GetBoundsForPosition(
+      const APosition: TDoublePoint;
+      const AAngle: Double
+    ): TRect; override;
+
     function DrawToBitmapWithDirection(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint;
@@ -49,6 +54,24 @@ uses
 
 { TMarkerDrawableSimpleArrow }
 
+function TMarkerDrawableSimpleArrow.GetBoundsForPosition(
+  const APosition: TDoublePoint;
+  const AAngle: Double
+): TRect;
+var
+  VHalfSize: Double;
+  VTargetDoubleRect: TDoubleRect;
+begin
+  VHalfSize := Config.MarkerSize / 2;
+
+  VTargetDoubleRect.Left := APosition.X - VHalfSize;
+  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
+  VTargetDoubleRect.Right := APosition.X + VHalfSize;
+  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
+
+  Result := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
+end;
+
 function TMarkerDrawableSimpleArrow.DrawToBitmapWithDirection(
   ABitmap: TCustomBitmap32;
   const APosition: TDoublePoint;
@@ -60,17 +83,12 @@ var
   VHalfSize: Double;
   VWidth: Double;
   VTargetRect: TRect;
-  VTargetDoubleRect: TDoubleRect;
 begin
   VHalfSize := Config.MarkerSize / 2;
   VWidth := Config.MarkerSize / 3;
 
-  VTargetDoubleRect.Left := APosition.X - VHalfSize;
-  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
-  VTargetDoubleRect.Right := APosition.X + VHalfSize;
-  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
+  VTargetRect := GetBoundsForPosition(APosition, AAngle);
 
-  VTargetRect := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
   Types.IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
   if Types.IsRectEmpty(VTargetRect) then begin
     Result := False;

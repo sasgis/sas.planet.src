@@ -51,6 +51,12 @@ type
       const APosition: TDoublePoint
     );
   private
+    { IMarkerDrawableWithDirection }
+    function GetBoundsForPosition(
+      const APosition: TDoublePoint;
+      const AAngle: Double
+    ): TRect;
+
     function DrawToBitmapWithDirection(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint;
@@ -80,7 +86,6 @@ uses
 
 const
   CAngleDelta = 1.0;
-
 
 { TMarkerDrawableWithDirectionByBitmapMarker }
 
@@ -127,26 +132,11 @@ function TMarkerDrawableWithDirectionByBitmapMarker.DrawToBitmapWithDirection(
   const AAngle: Double
 ): Boolean;
 var
+  VTargetRect: TRect;
   VCachedMarker: IBitmapMarkerWithDirection;
   VMarkerToDraw: IBitmapMarkerWithDirection;
-  VSourceSize: TPoint;
-  VAnchorPoint: TDoublePoint;
-  VHalfSize: Double;
-  VTargetRect: TRect;
-  VTargetDoubleRect: TDoubleRect;
 begin
-  VSourceSize := FMarker.Size;
-  VAnchorPoint := FMarker.AnchorPoint;
-  VHalfSize :=
-    Min(
-      Min(VAnchorPoint.X + VAnchorPoint.Y, VSourceSize.X - VAnchorPoint.X + VAnchorPoint.Y),
-      Min(VAnchorPoint.X + VSourceSize.Y - VAnchorPoint.Y, VSourceSize.X - VAnchorPoint.X + VSourceSize.Y - VAnchorPoint.Y)
-    );
-  VTargetDoubleRect.Left := APosition.X - VHalfSize;
-  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
-  VTargetDoubleRect.Right := APosition.X + VHalfSize;
-  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
-  VTargetRect := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
+  VTargetRect := GetBoundsForPosition(APosition, AAngle);
 
   Types.IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
   if Types.IsRectEmpty(VTargetRect) then begin
@@ -191,6 +181,33 @@ begin
     DrawToBitmap(VMarkerToDraw, ABitmap, APosition);
   end;
   Result := True;
+end;
+
+function TMarkerDrawableWithDirectionByBitmapMarker.GetBoundsForPosition(
+  const APosition: TDoublePoint;
+  const AAngle: Double
+): TRect;
+var
+  VSourceSize: TPoint;
+  VAnchorPoint: TDoublePoint;
+  VHalfSize: Double;
+  VTargetDoubleRect: TDoubleRect;
+begin
+  VSourceSize := FMarker.Size;
+  VAnchorPoint := FMarker.AnchorPoint;
+
+  VHalfSize :=
+    Min(
+      Min(VAnchorPoint.X + VAnchorPoint.Y, VSourceSize.X - VAnchorPoint.X + VAnchorPoint.Y),
+      Min(VAnchorPoint.X + VSourceSize.Y - VAnchorPoint.Y, VSourceSize.X - VAnchorPoint.X + VSourceSize.Y - VAnchorPoint.Y)
+    );
+
+  VTargetDoubleRect.Left := APosition.X - VHalfSize;
+  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
+  VTargetDoubleRect.Right := APosition.X + VHalfSize;
+  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
+
+  Result := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
 end;
 
 function TMarkerDrawableWithDirectionByBitmapMarker.ModifyMarkerWithRotation(

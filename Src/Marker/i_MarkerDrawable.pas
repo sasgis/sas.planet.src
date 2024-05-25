@@ -31,7 +31,10 @@ uses
 type
   IMarkerDrawable = interface
     ['{91E8968F-8563-4ED0-8774-AF844F8CA8B9}']
-    function GetBoundsForPosition(const APosition: TDoublePoint): TRect;
+    function GetBoundsForPosition(
+      const APosition: TDoublePoint
+    ): TRect;
+
     function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
@@ -45,6 +48,11 @@ type
 
   IMarkerDrawableWithDirection = interface
     ['{76C743DE-86B4-4EF2-9451-DB22A90B8628}']
+    function GetBoundsForPosition(
+      const APosition: TDoublePoint;
+      const AAngle: Double
+    ): TRect;
+
     function DrawToBitmapWithDirection(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint;

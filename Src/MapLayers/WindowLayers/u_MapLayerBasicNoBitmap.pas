@@ -180,7 +180,9 @@ procedure TMapLayerBasicNoBitmap.OnViewChange;
 begin
   ViewUpdateLock;
   try
-    SetNeedRedraw;
+    if FVisible then begin
+      SetNeedRedraw;
+    end;
   finally
     ViewUpdateUnlock;
   end;

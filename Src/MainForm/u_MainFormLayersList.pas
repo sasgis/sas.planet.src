@@ -1843,6 +1843,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      AMainFormState,
       ANavToPoint,
       VMarkerWithDirectionChangeable,
       VMarkerChangeable,

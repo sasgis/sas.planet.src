@@ -35,19 +35,27 @@ uses
   i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
   i_MarkerDrawable,
+  i_MainFormState,
   u_MapLayerBasicNoBitmap;
 
 type
   TMapLayerNavToMark = class(TMapLayerBasicNoBitmap)
   private
+    FMainFormState: IMainFormState;
     FConfig: IMapLayerNavToPointMarkerConfig;
     FNavToPoint: INavigationToPoint;
     FArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
     FReachedMarkerChangeable: IMarkerDrawableChangeable;
 
-    FMarkPoint: TDoublePoint;
+    FRect: TRect;
+    FArrowMarker: IMarkerDrawableWithDirection;
+    FReachedMarker: IMarkerDrawable;
+    FMarkerPos: TDoublePoint;
+    FMarkerAngle: Double;
+    FIsReached: Boolean;
+    FIsValid: Boolean;
 
-    FLocalConverter: ILocalCoordConverter;
+    FMarkPoint: TDoublePoint;
 
     procedure OnNavToPointChange;
     procedure OnConfigChange;
@@ -62,6 +70,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ANavToPoint: INavigationToPoint;
       const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
       const AReachedMarkerChangeable: IMarkerDrawableChangeable;
@@ -84,6 +93,7 @@ constructor TMapLayerNavToMark.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ANavToPoint: INavigationToPoint;
   const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
   const AReachedMarkerChangeable: IMarkerDrawableChangeable;
@@ -97,26 +107,31 @@ begin
     AParentMap,
     AView
   );
+
+  FMainFormState := AMainFormState;
   FNavToPoint := ANavToPoint;
   FArrowMarkerChangeable := AArrowMarkerChangeable;
   FReachedMarkerChangeable := AReachedMarkerChangeable;
   FConfig := AConfig;
 
+  FArrowMarker := FArrowMarkerChangeable.GetStatic;
+  FReachedMarker := FReachedMarkerChangeable.GetStatic;
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FConfig.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FArrowMarkerChangeable.GetChangeNotifier
+    FArrowMarkerChangeable.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FReachedMarkerChangeable.GetChangeNotifier
+    FReachedMarkerChangeable.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnNavToPointChange),
-    FNavToPoint.GetChangeNotifier
+    FNavToPoint.ChangeNotifier
   );
 end;
 
@@ -124,6 +139,8 @@ procedure TMapLayerNavToMark.OnConfigChange;
 begin
   ViewUpdateLock;
   try
+    FArrowMarker := FArrowMarkerChangeable.GetStatic;
+    FReachedMarker := FReachedMarkerChangeable.GetStatic;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -134,21 +151,15 @@ procedure TMapLayerNavToMark.OnNavToPointChange;
 begin
   ViewUpdateLock;
   try
-    SetNeedRedraw;
-    FMarkPoint := FNavToPoint.LonLat;
     Visible := FNavToPoint.IsActive;
+    FMarkPoint := FNavToPoint.LonLat;
+    SetNeedRedraw;
   finally
     ViewUpdateUnlock;
   end;
 end;
 
 procedure TMapLayerNavToMark.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
-begin
-  FLocalConverter := ALocalConverter;
-  DoInvalidateFull; // ToDo
-end;
-
-procedure TMapLayerNavToMark.PaintLayer(ABuffer: TBitmap32);
 var
   VLonLat: TDoublePoint;
   VMarkMapPos: TDoublePoint;
@@ -158,11 +169,14 @@ var
   VProjection: IProjection;
   VCrossDist: Double;
   VDistInPixel: Double;
-  VAngle: Double;
-  VFixedOnView: TDoublePoint;
 begin
-  VProjection := FLocalConverter.Projection;
-  VScreenCenterMapPos := FLocalConverter.GetCenterMapPixelFloat;
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
+  VProjection := ALocalConverter.Projection;
+  VScreenCenterMapPos := ALocalConverter.GetCenterMapPixelFloat;
   VLonLat := FMarkPoint;
   VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
   VMarkMapPos := VProjection.LonLat2PixelPosFloat(VLonLat);
@@ -170,20 +184,45 @@ begin
   VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;
   VDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
   VCrossDist := FConfig.CrossDistInPixels;
-  if VDistInPixel < VCrossDist then begin
-    VFixedOnView := FLocalConverter.LonLat2LocalPixelFloat(VLonLat);
-    FReachedMarkerChangeable.GetStatic.DrawToBitmap(ABuffer, VFixedOnView);
+
+  FIsReached := VDistInPixel < VCrossDist;
+
+  if FIsReached then begin
+    FMarkerPos := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+    FRect := FReachedMarker.GetBoundsForPosition(FMarkerPos);
   end else begin
     VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
     VDeltaNormed.Y := VDelta.Y / VDistInPixel * VCrossDist;
     VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
     VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
-    VFixedOnView := FLocalConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
-    VAngle := ArcSin(VDelta.X / VDistInPixel) / Pi * 180;
+    FMarkerPos := ALocalConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
+    FMarkerAngle := ArcSin(VDelta.X / VDistInPixel) / Pi * 180;
     if VDelta.Y > 0 then begin
-      VAngle := 180 - VAngle;
+      FMarkerAngle := 180 - FMarkerAngle;
     end;
-    FArrowMarkerChangeable.GetStatic.DrawToBitmapWithDirection(ABuffer, VFixedOnView, VAngle);
+    FRect := FArrowMarker.GetBoundsForPosition(FMarkerPos, FMarkerAngle);
+  end;
+
+  FIsValid := True;
+  if FMainFormState.IsMapMoving then begin
+    DoInvalidateFull;
+  end else begin
+    DoInvalidateRect(FRect); // draw
+  end;
+end;
+
+procedure TMapLayerNavToMark.PaintLayer(ABuffer: TBitmap32);
+begin
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
+    end else begin
+      if FIsReached then begin
+        FReachedMarker.DrawToBitmap(ABuffer, FMarkerPos);
+      end else begin
+        FArrowMarker.DrawToBitmapWithDirection(ABuffer, FMarkerPos, FMarkerAngle);
+      end;
+    end;
   end;
 end;
 
