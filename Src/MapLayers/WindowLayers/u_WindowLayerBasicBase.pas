@@ -48,7 +48,7 @@ type
     FOnMeasuringPaintCounter: IInternalPerformanceCounter;
 
     procedure SetVisible(const Value: Boolean);
-    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+    procedure OnPaintLayer(Sender: TObject; ABuffer: TBitmap32);
   protected
     procedure StartThreads; override;
     procedure DoViewUpdate; override;
@@ -156,22 +156,21 @@ begin
   end;
 end;
 
-procedure TWindowLayerBasicBase.OnPaintLayer(
-  Sender: TObject;
-  Buffer: TBitmap32
-);
+procedure TWindowLayerBasicBase.OnPaintLayer(Sender: TObject; ABuffer: TBitmap32);
 var
   VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  if Buffer.MeasuringMode then begin
+  if ABuffer.MeasuringMode then begin
     VCounter := FOnMeasuringPaintCounter;
   end else begin
     VCounter := FOnPaintCounter;
   end;
   VCounterContext := VCounter.StartOperation;
   try
-    PaintLayer(Buffer);
+    if FVisible then begin
+      PaintLayer(ABuffer);
+    end;
   finally
     VCounter.FinishOperation(VCounterContext);
   end;

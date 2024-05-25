@@ -109,6 +109,11 @@ begin
     Exit;
   end;
 
+  if ABuffer.MeasuringMode then begin
+    ABuffer.Changed(FRect);
+    Exit;
+  end;
+
   ABuffer.BeginUpdate;
   try
     // Draw day curve
