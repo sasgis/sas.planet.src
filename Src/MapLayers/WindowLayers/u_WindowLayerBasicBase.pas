@@ -168,9 +168,7 @@ begin
   end;
   VCounterContext := VCounter.StartOperation;
   try
-    if FVisible then begin
-      PaintLayer(ABuffer);
-    end;
+    PaintLayer(ABuffer);
   finally
     VCounter.FinishOperation(VCounterContext);
   end;
