@@ -27,10 +27,8 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_FullMapMouseCursorLayerConfig,
@@ -47,7 +45,7 @@ type
     FMouseState: IMouseState;
 
     FPos: TPoint;
-    FIsPosValid: Boolean;
+    FIsValid: Boolean;
 
     procedure OnConfigChange;
     procedure OnTimerEvent;
@@ -73,6 +71,7 @@ implementation
 
 uses
   GR32_Layers,
+  i_LocalCoordConverter,
   u_ListenerTime,
   u_ListenerByEvent;
 
@@ -132,7 +131,7 @@ var
 begin
   if Visible then begin
     VPos := FMouseState.CurentPos;
-    if not FIsPosValid or (VPos.X <> FPos.X) or (VPos.Y <> FPos.Y) then begin
+    if not FIsValid or (VPos.X <> FPos.X) or (VPos.Y <> FPos.Y) then begin
       ViewUpdateLock;
       try
         SetNeedFullRepaintLayer;
@@ -154,30 +153,21 @@ procedure TWindowLayerFullMapMouseCursor.InvalidateLayer;
   end;
 
 var
-  VPos: TPoint;
   VViewRect: TRect;
   VLocalConverter: ILocalCoordConverter;
 begin
   VLocalConverter := FLocalConverter.GetStatic;
   VViewRect := VLocalConverter.GetLocalRect;
+
+  if FIsValid then begin
+    FIsValid := False;
+    InvalidateCross(VViewRect); // erase
+  end;
+
   if Visible then begin
-    VPos := FMouseState.CurentPos;
-    if not FIsPosValid then begin
-      FPos := VPos;
-      FIsPosValid := True;
-      InvalidateCross(VViewRect); // draw
-    end else
-    if (VPos.X <> FPos.X) or (VPos.Y <> FPos.Y) then begin
-      FIsPosValid := False;
-      InvalidateCross(VViewRect); // erase
-
-      FPos := VPos;
-
-      FIsPosValid := True;
-      InvalidateCross(VViewRect); // draw
-    end;
-  end else begin
-    FIsPosValid := False;
+    FIsValid := True;
+    FPos := FMouseState.CurentPos;
+    InvalidateCross(VViewRect); // draw
   end;
 end;
 
@@ -185,11 +175,9 @@ procedure TWindowLayerFullMapMouseCursor.PaintLayer(ABuffer: TBitmap32);
 var
   VColor: TColor32;
 begin
-  if not FIsPosValid then begin
+  if not FIsValid then begin
     Exit;
   end;
-
-  VColor := FConfig.LineColor;
 
   ABuffer.BeginUpdate;
   try
@@ -197,6 +185,7 @@ begin
       ABuffer.Changed(MakeRect(FPos.X, 0, FPos.X + 1, ABuffer.Height));
       ABuffer.Changed(MakeRect(0, FPos.Y, ABuffer.Width, FPos.Y + 1));
     end else begin
+      VColor := FConfig.LineColor;
       ABuffer.VertLineS(FPos.X, 0, ABuffer.Height, VColor);
       ABuffer.HorzLineS(0, FPos.Y, ABuffer.Width, VColor);
     end;

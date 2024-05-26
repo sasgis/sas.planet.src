@@ -47,7 +47,7 @@ type
     FOnPaintCounter: IInternalPerformanceCounter;
     FOnMeasuringPaintCounter: IInternalPerformanceCounter;
 
-    procedure SetVisible(const Value: Boolean);
+    procedure SetVisible(const AValue: Boolean);
     procedure OnPaintLayer(Sender: TObject; ABuffer: TBitmap32);
   protected
     procedure StartThreads; override;
@@ -144,15 +144,11 @@ begin
   if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
     if FLayer.Visible <> FVisible then begin
       DoUpdateLayerVisibility;
-      if Visible then begin
-        SetNeedFullRepaintLayer;
-      end;
+      SetNeedFullRepaintLayer;
     end;
   end;
   if FNeedFullRepaintLayerFlag.CheckFlagAndReset then begin
-    if FVisible then begin
-      DoFullRepaintLayer;
-    end;
+    DoFullRepaintLayer;
   end;
 end;
 
@@ -168,7 +164,9 @@ begin
   end;
   VCounterContext := VCounter.StartOperation;
   try
-    PaintLayer(ABuffer);
+    if FVisible then begin
+      PaintLayer(ABuffer);
+    end;
   finally
     VCounter.FinishOperation(VCounterContext);
   end;
@@ -184,11 +182,11 @@ begin
   FNeedUpdateLayerVisibilityFlag.SetFlag;
 end;
 
-procedure TWindowLayerBasicBase.SetVisible(const Value: Boolean);
+procedure TWindowLayerBasicBase.SetVisible(const AValue: Boolean);
 begin
   ViewUpdateLock;
   try
-    FVisible := Value;
+    FVisible := AValue;
     SetNeedUpdateLayerVisibility;
   finally
     ViewUpdateUnlock;

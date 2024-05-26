@@ -29,14 +29,12 @@ uses
   GR32_Image,
   GR32_Layers,
   t_GeoTypes,
-  i_Notifier,
   i_NotifierOperation,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_MainFormState,
   i_MarkerDrawable,
   i_MapViewGoto,
-  i_LocalCoordConverter,
   u_WindowLayerBasicBase;
 
 type
@@ -44,15 +42,17 @@ type
   private
     FMainFormState: IMainFormState;
     FMapViewGoTo: IMapViewGoTo;
+    FMarker: IMarkerDrawable;
     FMarkerChangeable: IMarkerDrawableChangeable;
     FLocalConverter: ILocalCoordConverterChangeable;
 
     FPos: TDoublePoint;
-    FIsPosValid: Boolean;
+    FRect: TRect;
+    FIsValid: Boolean;
 
     function GetGotoPos(out APos: TDoublePoint): Boolean;
 
-    procedure OnGoToChange;
+    procedure OnConfigChange;
     procedure OnPosChange;
   protected
     procedure InvalidateLayer; override;
@@ -75,6 +75,8 @@ implementation
 
 uses
   i_ProjectionType,
+  i_Listener,
+  i_LocalCoordConverter,
   u_ListenerByEvent,
   u_GeoFunc;
 
@@ -90,6 +92,8 @@ constructor TMapLayerGpsTrackGoToMarker.Create(
   const AMarkerChangeable: IMarkerDrawableChangeable;
   const AMapViewGoTo: IMapViewGoTo
 );
+var
+  VListener: IListener;
 begin
   inherited Create(
     APerfList,
@@ -104,9 +108,16 @@ begin
   FMarkerChangeable := AMarkerChangeable;
   FMapViewGoTo := AMapViewGoTo;
 
+  FMarker := FMarkerChangeable.GetStatic;
+
+  VListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnGoToChange),
+    VListener,
     FMapViewGoTo.ChangeNotifier
+  );
+  LinksList.Add(
+    VListener,
+    FMarkerChangeable.ChangeNotifier
   );
 
   LinksList.Add(
@@ -115,13 +126,16 @@ begin
   );
 end;
 
-procedure TMapLayerGpsTrackGoToMarker.OnGoToChange;
+procedure TMapLayerGpsTrackGoToMarker.OnConfigChange;
+var
+  VPos: IGotoPosStatic;
 begin
   ViewUpdateLock;
   try
-    Visible :=
-      (FMapViewGoTo.LastGotoPos <> nil) and
-      not PointIsEmpty(FMapViewGoTo.LastGotoPos.LonLat);
+    FMarker := FMarkerChangeable.GetStatic;
+
+    VPos := FMapViewGoTo.LastGotoPos;
+    Visible := (VPos <> nil) and not PointIsEmpty(VPos.LonLat);
 
     SetNeedFullRepaintLayer;
   finally
@@ -131,11 +145,13 @@ end;
 
 procedure TMapLayerGpsTrackGoToMarker.OnPosChange;
 begin
-  ViewUpdateLock;
-  try
-    SetNeedFullRepaintLayer;
-  finally
-    ViewUpdateUnlock;
+  if Visible then begin
+    ViewUpdateLock;
+    try
+      SetNeedFullRepaintLayer;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 
@@ -147,61 +163,55 @@ var
   VProjectionType: IProjectionType;
 begin
   Result := False;
-
   VGotoPos := FMapViewGoTo.LastGotoPos;
-  if VGotoPos = nil then begin
-    Exit;
-  end;
-
-  VGotoLonLat := VGotoPos.LonLat;
-  if Visible and not PointIsEmpty(VGotoLonLat) then begin
-    VLocalConverter := FLocalConverter.GetStatic;
-    VProjectionType := VLocalConverter.Projection.ProjectionType;
-    VProjectionType.ValidateLonLatPos(VGotoLonLat);
-    APos := VLocalConverter.LonLat2LocalPixelFloat(VGotoLonLat);
-    Result := True;
+  if VGotoPos <> nil then begin
+    VGotoLonLat := VGotoPos.LonLat;
+    if not PointIsEmpty(VGotoLonLat) then begin
+      VLocalConverter := FLocalConverter.GetStatic;
+      VProjectionType := VLocalConverter.Projection.ProjectionType;
+      VProjectionType.ValidateLonLatPos(VGotoLonLat);
+      APos := VLocalConverter.LonLat2LocalPixelFloat(VGotoLonLat);
+      Result := True;
+    end;
   end;
 end;
 
 procedure TMapLayerGpsTrackGoToMarker.InvalidateLayer;
-var
-  VMarker: IMarkerDrawable;
 begin
-  if Visible then begin
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
+  FIsValid := Visible and GetGotoPos(FPos);
+
+  if FIsValid then begin
+    FRect := FMarker.GetBoundsForPosition(FPos);
+
+    // draw
     if FMainFormState.IsMapMoving then begin
-      FIsPosValid := GetGotoPos(FPos);
       DoInvalidateFull;
     end else begin
-      VMarker := FMarkerChangeable.GetStatic;
-      if FIsPosValid then begin
-        FIsPosValid := False;
-        DoInvalidateRect(VMarker.GetBoundsForPosition(FPos)); // erase old
-      end;
-
-      FIsPosValid := GetGotoPos(FPos);
-      if FIsPosValid then begin
-        DoInvalidateRect(VMarker.GetBoundsForPosition(FPos)); // draw new
-      end;
+      DoInvalidateRect(FRect);
     end;
-  end else begin
-    FIsPosValid := False;
   end;
 end;
 
 procedure TMapLayerGpsTrackGoToMarker.PaintLayer(ABuffer: TBitmap32);
-var
-  VMarker: IMarkerDrawable;
 begin
-  if FIsPosValid then begin
-    VMarker := FMarkerChangeable.GetStatic;
-    VMarker.DrawToBitmap(ABuffer, FPos);
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
+    end else begin
+      FMarker.DrawToBitmap(ABuffer, FPos);
+    end;
   end;
 end;
 
 procedure TMapLayerGpsTrackGoToMarker.StartThreads;
 begin
   inherited;
-  OnGoToChange;
+  OnConfigChange;
 end;
 
 end.

@@ -42,12 +42,15 @@ type
     FMainFormState: IMainFormState;
     FLocalConverter: ILocalCoordConverterChangeable;
     FPointOnMap: IPointOnMapEdit;
-    FMarker: IMarkerDrawableChangeable;
+    FMarkerChangeable: IMarkerDrawableChangeable;
+    FMarker: IMarkerDrawable;
 
     FPos: TDoublePoint;
-    FIsPosValid: Boolean;
+    FRect: TRect;
+    FIsValid: Boolean;
     function GetGotoPos(out APos: TDoublePoint): Boolean;
 
+    procedure OnMarkerChange;
     procedure OnPointChange;
     procedure OnPosChange;
   protected
@@ -89,8 +92,6 @@ constructor TMapLayerPointOnMapEdit.Create(
   const AMarker: IMarkerDrawableChangeable;
   const APointOnMap: IPointOnMapEdit
 );
-var
-  VListener: IListener;
 begin
   inherited Create(
     APerfList,
@@ -103,32 +104,42 @@ begin
   FPointOnMap := APointOnMap;
   FLocalConverter := ALocalConverter;
   FMainFormState := AMainFormState;
-  FMarker := AMarker;
+  FMarkerChangeable := AMarker;
 
-  VListener := TNotifyNoMmgEventListener.Create(Self.OnPointChange);
+  FMarker := FMarkerChangeable.GetStatic;
+
   LinksList.Add(
-    VListener,
+    TNotifyNoMmgEventListener.Create(Self.OnMarkerChange),
+    FMarkerChangeable.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnPointChange),
     FPointOnMap.ChangeNotifier
   );
-  LinksList.Add(
-    VListener,
-    FMarker.ChangeNotifier
-  );
-
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
     FLocalConverter.ChangeNotifier
   );
 end;
 
-procedure TMapLayerPointOnMapEdit.OnPointChange;
-var
-  VPoint: TDoublePoint;
+procedure TMapLayerPointOnMapEdit.OnMarkerChange;
 begin
-  VPoint := FPointOnMap.Point;
+  FMarker := FMarkerChangeable.GetStatic;
+  if Visible then begin
+    ViewUpdateLock;
+    try
+      SetNeedFullRepaintLayer;
+    finally
+      ViewUpdateUnlock;
+    end;
+  end;
+end;
+
+procedure TMapLayerPointOnMapEdit.OnPointChange;
+begin
   ViewUpdateLock;
   try
-    Visible := not PointIsEmpty(VPoint);
+    Visible := not PointIsEmpty(FPointOnMap.Point);
     SetNeedFullRepaintLayer;
   finally
     ViewUpdateUnlock;
@@ -137,11 +148,13 @@ end;
 
 procedure TMapLayerPointOnMapEdit.OnPosChange;
 begin
-  ViewUpdateLock;
-  try
-    SetNeedFullRepaintLayer;
-  finally
-    ViewUpdateUnlock;
+  if Visible then begin
+    ViewUpdateLock;
+    try
+      SetNeedFullRepaintLayer;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 
@@ -163,37 +176,34 @@ begin
 end;
 
 procedure TMapLayerPointOnMapEdit.InvalidateLayer;
-var
-  VMarker: IMarkerDrawable;
 begin
-  if Visible then begin
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
+  FIsValid := Visible and GetGotoPos(FPos);
+
+  if FIsValid then begin
+    FRect := FMarker.GetBoundsForPosition(FPos);
+
+    // draw
     if FMainFormState.IsMapMoving then begin
-      FIsPosValid := GetGotoPos(FPos);
       DoInvalidateFull;
     end else begin
-      VMarker := FMarker.GetStatic;
-      if FIsPosValid then begin
-        FIsPosValid := False;
-        DoInvalidateRect(VMarker.GetBoundsForPosition(FPos)); // erase old
-      end;
-
-      FIsPosValid := GetGotoPos(FPos);
-      if FIsPosValid then begin
-        DoInvalidateRect(VMarker.GetBoundsForPosition(FPos)); // draw new
-      end;
+      DoInvalidateRect(FRect);
     end;
-  end else begin
-    FIsPosValid := False;
   end;
 end;
 
 procedure TMapLayerPointOnMapEdit.PaintLayer(ABuffer: TBitmap32);
-var
-  VMarker: IMarkerDrawable;
 begin
-  if FIsPosValid then begin
-    VMarker := FMarker.GetStatic;
-    VMarker.DrawToBitmap(ABuffer, FPos);
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
+    end else begin
+      FMarker.DrawToBitmap(ABuffer, FPos);
+    end;
   end;
 end;
 

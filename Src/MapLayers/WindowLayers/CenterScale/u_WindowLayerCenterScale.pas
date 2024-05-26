@@ -30,7 +30,6 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_MarkerDrawable,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_CenterScaleConfig,
@@ -40,15 +39,17 @@ type
   TWindowLayerCenterScale = class(TWindowLayerBasicBase)
   private
     FConfig: ICenterScaleConfig;
+    FMarker: IMarkerDrawable;
     FMarkerChangeable: IMarkerDrawableChangeable;
     FPosition: ILocalCoordConverterChangeable;
 
     FLastFixedPoint: TDoublePoint;
 
     FRect: TRect;
-    FIsRectValid: Boolean;
+    FIsValid: Boolean;
 
     procedure OnConfigChange;
+    procedure OnMarkerChange;
     procedure OnPosChange;
   protected
     procedure InvalidateLayer; override;
@@ -93,14 +94,21 @@ begin
     AParentMap,
     TCustomLayer.Create(AParentMap.Layers)
   );
+
   FConfig := AConfig;
   FPosition := APosition;
   FMarkerChangeable := AMarkerChangeable;
+
+  FMarker := FMarkerChangeable.GetStatic;
   FLastFixedPoint := CEmptyDoublePoint;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnMarkerChange),
+    FMarkerChangeable.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
@@ -113,8 +121,22 @@ begin
   ViewUpdateLock;
   try
     Visible := FConfig.Visible;
+    SetNeedFullRepaintLayer;
   finally
     ViewUpdateUnlock;
+  end;
+end;
+
+procedure TWindowLayerCenterScale.OnMarkerChange;
+begin
+  FMarker := FMarkerChangeable.GetStatic;
+  if Visible then begin
+    ViewUpdateLock;
+    try
+      SetNeedFullRepaintLayer;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 
@@ -138,33 +160,29 @@ end;
 
 procedure TWindowLayerCenterScale.InvalidateLayer;
 var
-  VMarker: IMarkerDrawable;
   VCenter: TDoublePoint;
 begin
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
   if Visible then begin
-    if FIsRectValid then begin
-      FIsRectValid := False;
-      DoInvalidateRect(FRect); // erase old
-    end;
-
+    FIsValid := True;
     VCenter := RectCenter(FPosition.GetStatic.GetLocalRect);
-    VMarker := FMarkerChangeable.GetStatic;
-    FRect := VMarker.GetBoundsForPosition(VCenter);
-
-    FIsRectValid := True;
-    DoInvalidateRect(FRect); // draw new
-  end else begin
-    FIsRectValid := False;
+    FRect := FMarker.GetBoundsForPosition(VCenter);
+    DoInvalidateRect(FRect); // draw
   end;
 end;
 
 procedure TWindowLayerCenterScale.PaintLayer(ABuffer: TBitmap32);
-var
-  VMarker: IMarkerDrawable;
 begin
-  if FIsRectValid then begin
-    VMarker := FMarkerChangeable.GetStatic;
-    VMarker.DrawToBitmap(ABuffer, RectCenter(FRect));
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
+    end else begin
+      FMarker.DrawToBitmap(ABuffer, RectCenter(FRect));
+    end;
   end;
 end;
 
