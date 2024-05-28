@@ -1580,6 +1580,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         ASelectionRect,
         ALayersConfig.SelectionRectLayerConfig,
         True
