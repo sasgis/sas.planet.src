@@ -42,6 +42,7 @@ type
     FColor: TColor32;
   private
     function GetProjection: IProjection;
+    function GetBounds(const ALocalConverter: ILocalCoordConverter): TRect;
     procedure Draw(
       ABitmap: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter
@@ -64,12 +65,13 @@ type
     FCachedPoints: TArrayOfArrayOfFloatPoint;
   protected
     function GetProjection: IProjection;
-    function PreparePoints(const ALocalCoordConverter: ILocalCoordConverter): TArrayOfArrayOfFloatPoint;
+    function GetBounds(const ALocalConverter: ILocalCoordConverter): TRect;
+    function PreparePoints(const ALocalConverter: ILocalCoordConverter): TArrayOfArrayOfFloatPoint;
   public
     constructor Create(
       const AProjection: IProjection;
       const AMapPixelAtLocalZero: TPoint;
-      APoints: TArrayOfArrayOfFloatPoint
+      const APoints: TArrayOfArrayOfFloatPoint
     );
   end;
 
@@ -80,13 +82,13 @@ type
   private
     procedure Draw(
       ABitmap: TCustomBitmap32;
-      const ALocalCoordConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     );
   public
     constructor Create(
       const AProjection: IProjection;
       const AMapPixelAtLocalZero: TPoint;
-      APoints: TArrayOfArrayOfFloatPoint;
+      const APoints: TArrayOfArrayOfFloatPoint;
       const AClosed: Boolean;
       const AColor: TColor32
     );
@@ -98,7 +100,7 @@ type
   private
     procedure Draw(
       ABitmap: TCustomBitmap32;
-      const ALocalCoordConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     );
   public
     constructor Create(
@@ -115,9 +117,10 @@ type
     FList: IInterfaceListStatic;
   private
     function GetProjection: IProjection;
+    function GetBounds(const ALocalConverter: ILocalCoordConverter): TRect;
     procedure Draw(
       ABitmap: TCustomBitmap32;
-      const ALocalCoordConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     );
   public
     constructor Create(
@@ -129,6 +132,8 @@ type
 implementation
 
 uses
+  Types,
+  Math,
   SysUtils,
   GR32_Math,
   GR32_VectorUtils,
@@ -155,11 +160,11 @@ procedure TProjectedDrawableElementByPolygonSimpleEdge.Draw(
   const ALocalConverter: ILocalCoordConverter
 );
 var
+  I: Integer;
   VDrawRect: TDoubleRect;
   VPolygon: TArrayOfArrayOfFloatPoint;
   VPathPoints: TArrayOfFloatPoint;
   VIntersectRect: TDoubleRect;
-  i: integer;
   VProjectedMultiLine: IGeometryProjectedMultiPolygon;
   VProjectedSingleLine: IGeometryProjectedSinglePolygon;
 begin
@@ -172,8 +177,8 @@ begin
           PolyPolylineFS(ABitmap, VPolygon, FColor, True);
         end;
       end else if Supports(FSource, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
-        for i := 0 to VProjectedMultiLine.Count - 1 do begin
-          VProjectedSingleLine := VProjectedMultiLine.Item[i];
+        for I := 0 to VProjectedMultiLine.Count - 1 do begin
+          VProjectedSingleLine := VProjectedMultiLine.Item[I];
           VPolygon := ProjectedPolygon2ArrayOfArray(VProjectedSingleLine, ALocalConverter.GetRectInMapPixel, VPathPoints);
           if Assigned(VPolygon) then begin
             PolyPolylineFS(ABitmap, VPolygon, FColor, True);
@@ -182,6 +187,23 @@ begin
       end;
     end;
   end;
+end;
+
+function TProjectedDrawableElementByPolygonSimpleEdge.GetBounds(
+  const ALocalConverter: ILocalCoordConverter
+): TRect;
+var
+  VViewRect: TDoubleRect;
+  VIntersectRect: TDoubleRect;
+begin
+  VViewRect := ALocalConverter.GetRectInMapPixelFloat;
+  if IntersecProjectedRect(VIntersectRect, VViewRect, FSource.Bounds) then begin
+    if DoubleRectsEqual(VIntersectRect, FSource.Bounds) or FSource.IsRectIntersectBorder(VViewRect) then begin
+      Result := RectFromDoubleRect(ALocalConverter.MapRectFloat2LocalRectFloat(VIntersectRect), rrOutside);
+      Exit;
+    end;
+  end;
+  Result := MakeRect(0, 0, 0, 0);
 end;
 
 function TProjectedDrawableElementByPolygonSimpleEdge.GetProjection: IProjection;
@@ -194,15 +216,28 @@ end;
 constructor TDrawableBaseByPoints.Create(
   const AProjection: IProjection;
   const AMapPixelAtLocalZero: TPoint;
-  APoints: TArrayOfArrayOfFloatPoint
+  const APoints: TArrayOfArrayOfFloatPoint
 );
 begin
   Assert(Assigned(AProjection));
   inherited Create;
+
   FProjection := AProjection;
   FPoints := APoints;
 
-  FBaseRelativeRect := FProjection.PixelRectFloat2RelativeRect(DoubleRect(AMapPixelAtLocalZero.X, AMapPixelAtLocalZero.Y, AMapPixelAtLocalZero.X + 1, AMapPixelAtLocalZero.Y + 1));
+  FBaseRelativeRect := FProjection.PixelRectFloat2RelativeRect(
+    DoubleRect(AMapPixelAtLocalZero.X, AMapPixelAtLocalZero.Y, AMapPixelAtLocalZero.X + 1, AMapPixelAtLocalZero.Y + 1)
+  );
+end;
+
+function TDrawableBaseByPoints.GetBounds(
+  const ALocalConverter: ILocalCoordConverter
+): TRect;
+var
+  VPoints: TArrayOfArrayOfFloatPoint;
+begin
+  VPoints := PreparePoints(ALocalConverter);
+  Result := MakeRect(PolyPolygonBounds(VPoints), GR32.rrOutside);
 end;
 
 function TDrawableBaseByPoints.GetProjection: IProjection;
@@ -211,22 +246,33 @@ begin
 end;
 
 function TDrawableBaseByPoints.PreparePoints(
-  const ALocalCoordConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter
 ): TArrayOfArrayOfFloatPoint;
 var
   VTranslateDelta: TDoublePoint;
   VTargetRect: TDoubleRect;
   VScale: TDoublePoint;
 begin
-  Assert(Assigned(ALocalCoordConverter));
-  Assert(ALocalCoordConverter.Projection.ProjectionType.IsSame(FProjection.ProjectionType));
-  if not Assigned(ALocalCoordConverter) then Exit;
-  if ALocalCoordConverter.GetIsSameConverter(FCachedForLocalCoordConverter) then begin
+  Assert(Assigned(ALocalConverter));
+  Assert(ALocalConverter.Projection.ProjectionType.IsSame(FProjection.ProjectionType));
+
+  if not Assigned(ALocalConverter) then begin
+    Result := nil;
+    Exit;
+  end;
+
+  if ALocalConverter.GetIsSameConverter(FCachedForLocalCoordConverter) then begin
     Result := FCachedPoints;
     Exit;
   end;
+
   FCachedPoints := FPoints;
-  VTargetRect := ALocalCoordConverter.MapRectFloat2LocalRectFloat(ALocalCoordConverter.Projection.RelativeRect2PixelRectFloat(FBaseRelativeRect));
+
+  VTargetRect :=
+    ALocalConverter.MapRectFloat2LocalRectFloat(
+      ALocalConverter.Projection.RelativeRect2PixelRectFloat(FBaseRelativeRect)
+    );
+
   VScale := RectSize(VTargetRect);
   if (VScale.X <> 1.0) or (VScale.Y <> 1.0) then begin
     FCachedPoints := ScalePolyPolygon(FCachedPoints, VScale.X, VScale.Y);
@@ -236,7 +282,7 @@ begin
   if (Abs(VTranslateDelta.X) > 0.0001) or (Abs(VTranslateDelta.Y) > 0.0001) then begin
     FCachedPoints := TranslatePolyPolygon(FCachedPoints, VTranslateDelta.X, VTranslateDelta.Y);
   end;
-  FCachedForLocalCoordConverter := ALocalCoordConverter;
+  FCachedForLocalCoordConverter := ALocalConverter;
   Result := FCachedPoints;
 end;
 
@@ -245,7 +291,7 @@ end;
 constructor TDrawableSimpleLine.Create(
   const AProjection: IProjection;
   const AMapPixelAtLocalZero: TPoint;
-  APoints: TArrayOfArrayOfFloatPoint;
+  const APoints: TArrayOfArrayOfFloatPoint;
   const AClosed: Boolean;
   const AColor: TColor32
 );
@@ -257,12 +303,12 @@ end;
 
 procedure TDrawableSimpleLine.Draw(
   ABitmap: TCustomBitmap32;
-  const ALocalCoordConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   VPoints: TArrayOfArrayOfFloatPoint;
 begin
-  VPoints := PreparePoints(ALocalCoordConverter);
+  VPoints := PreparePoints(ALocalConverter);
   PolyPolylineFS(ABitmap, VPoints, FColor, FClosed);
 end;
 
@@ -281,12 +327,12 @@ end;
 
 procedure TDrawablePolygonFill.Draw(
   ABitmap: TCustomBitmap32;
-  const ALocalCoordConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   VPoints: TArrayOfArrayOfFloatPoint;
 begin
-  VPoints := PreparePoints(ALocalCoordConverter);
+  VPoints := PreparePoints(ALocalConverter);
   PolyPolygonFS(ABitmap, VPoints, FColor, pfWinding);
 end;
 
@@ -307,15 +353,33 @@ end;
 
 procedure TDrawableByList.Draw(
   ABitmap: TCustomBitmap32;
-  const ALocalCoordConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter
 );
 var
-  i: Integer;
+  I: Integer;
   VItem: IProjectedDrawableElement;
 begin
-  for i := 0 to FList.Count - 1 do begin
-    VItem := IProjectedDrawableElement(FList.Items[i]);
-    VItem.Draw(ABitmap, ALocalCoordConverter);
+  for I := 0 to FList.Count - 1 do begin
+    VItem := IProjectedDrawableElement(FList.Items[I]);
+    VItem.Draw(ABitmap, ALocalConverter);
+  end;
+end;
+
+function TDrawableByList.GetBounds(
+  const ALocalConverter: ILocalCoordConverter
+): TRect;
+var
+  I: Integer;
+  VItem: IProjectedDrawableElement;
+begin
+  Result := MakeRect(0, 0, 0, 0);
+  for I := 0 to FList.Count - 1 do begin
+    VItem := IProjectedDrawableElement(FList.Items[I]);
+    if GR32.IsRectEmpty(Result) then begin
+      Result := VItem.GetBounds(ALocalConverter);
+    end else begin
+      GR32.UnionRect(Result, Result, VItem.GetBounds(ALocalConverter));
+    end;
   end;
 end;
 

@@ -27,6 +27,7 @@ uses
   GR32,
   GR32_Image,
   GR32_Polygons,
+  i_MainFormState,
   i_NotifierOperation,
   i_SimpleFlag,
   i_LocalCoordConverter,
@@ -49,6 +50,7 @@ uses
 type
   TMapLayerSingleGeometryBase = class(TMapLayerBasicNoBitmap)
   private
+    FMainFormState: IMainFormState;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FConfig: IConfigDataElement;
     FTileRectForShow: ITileRectChangeable;
@@ -57,11 +59,14 @@ type
     FDrawDrawableCounter: IInternalPerformanceCounter;
 
     FSourceChanged: ISimpleFlag;
-    FFrawableTileRect: ITileRect;
+    FDrawableTileRect: ITileRect;
     FDrawable: IProjectedDrawableElement;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FForceMapRedraw: Boolean;
+
+    FIsValid: Boolean;
+    FRect: TRect;
 
     FLocalConverter: ILocalCoordConverter;
   protected
@@ -84,6 +89,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AConfig: IConfigDataElement;
@@ -114,6 +120,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AConfig: ILineLayerConfig;
@@ -146,6 +153,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ATileRectForShow: ITileRectChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AConfig: IPolygonLayerConfig;
@@ -168,7 +176,7 @@ uses
   u_ProjectedDrawableElementByPolygon,
   u_GeometryFunc;
 
-{ TLineLayerBase }
+{ TMapLayerSingleGeometryBase }
 
 constructor TMapLayerSingleGeometryBase.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -176,6 +184,7 @@ constructor TMapLayerSingleGeometryBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AConfig: IConfigDataElement;
@@ -185,6 +194,7 @@ begin
   Assert(Assigned(AVectorGeometryProjectedFactory));
   Assert(Assigned(AConfig));
   Assert(Assigned(ATileRectForShow));
+
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -192,6 +202,8 @@ begin
     AParentMap,
     AView
   );
+
+  FMainFormState := AMainFormState;
   FConfig := AConfig;
   FTileRectForShow := ATileRectForShow;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -231,33 +243,38 @@ begin
 end;
 
 procedure TMapLayerSingleGeometryBase.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
-begin
-  FLocalConverter := ALocalConverter;
-  DoInvalidateFull; // ToDo
-end;
-
-procedure TMapLayerSingleGeometryBase.PaintLayer(ABuffer: TBitmap32);
 var
-  VCounterContext: TInternalPerformanceCounterContext;
   VTileRect: ITileRect;
   VProjection: IProjection;
   VPixelRect: TRect;
   VSourceChanged: Boolean;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  inherited;
-  Assert(Assigned(FLocalConverter));
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
+  if not Visible then begin
+    Exit;
+  end;
+
+  FLocalConverter := ALocalConverter;
+
   VSourceChanged := FSourceChanged.CheckFlagAndReset;
   if not VSourceChanged then begin
-    if not Assigned(FFrawableTileRect) then begin
-      VSourceChanged := true;
-    end;
-  end;
-  VTileRect := FTileRectForShow.GetStatic;
-  if not VSourceChanged then begin
-    if not FFrawableTileRect.IsEqual(VTileRect) then begin
+    if not Assigned(FDrawableTileRect) then begin
       VSourceChanged := True;
     end;
   end;
+
+  VTileRect := FTileRectForShow.GetStatic;
+  if not VSourceChanged then begin
+    if not FDrawableTileRect.IsEqual(VTileRect) then begin
+      VSourceChanged := True;
+    end;
+  end;
+
   if VSourceChanged then begin
     VProjection := VTileRect.Projection;
     VPixelRect := VProjection.TileRect2PixelRect(VTileRect.Rect);
@@ -267,18 +284,46 @@ begin
     finally
       FPrepareDrawableCounter.FinishOperation(VCounterContext);
     end;
-    FFrawableTileRect := VTileRect;
+    FDrawableTileRect := VTileRect;
   end;
-  if Assigned(FDrawable) then begin
-    VCounterContext := FDrawDrawableCounter.StartOperation;
-    try
-      FDrawable.Draw(ABuffer, FLocalConverter);
-      if FForceMapRedraw then begin
-        ABuffer.Changed;
-      end;
-    finally
-      FDrawDrawableCounter.FinishOperation(VCounterContext);
+
+  FIsValid := FDrawable <> nil;
+
+  if FIsValid then begin
+    FRect := FDrawable.GetBounds(FLocalConverter);
+
+    if GR32.IsRectEmpty(FRect) then begin
+      FIsValid := False;
+      Exit;
     end;
+
+    // draw
+    if FForceMapRedraw or FMainFormState.IsMapMoving then begin
+      DoInvalidateFull;
+    end else begin
+      DoInvalidateRect(FRect);
+    end;
+  end;
+end;
+
+procedure TMapLayerSingleGeometryBase.PaintLayer(ABuffer: TBitmap32);
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+begin
+  if not FIsValid then begin
+    Exit;
+  end;
+
+  if ABuffer.MeasuringMode then begin
+    ABuffer.Changed(FRect);
+    Exit;
+  end;
+
+  VCounterContext := FDrawDrawableCounter.StartOperation;
+  try
+    FDrawable.Draw(ABuffer, FLocalConverter);
+  finally
+    FDrawDrawableCounter.FinishOperation(VCounterContext);
   end;
 end;
 
@@ -295,6 +340,7 @@ constructor TMapLayerSingleLine.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AConfig: ILineLayerConfig;
@@ -309,6 +355,7 @@ begin
     AAppClosingNotifier,
     AParentMap,
     AView,
+    AMainFormState,
     ATileRectForShow,
     AVectorGeometryProjectedFactory,
     AConfig,
@@ -400,9 +447,7 @@ begin
       Result := TDrawablePolygonFill.Create(AProjection, AMapRect.TopLeft, BuildPolyPolyLine(VPolygon, False, FLineWidth), FLineColor);
     end;
   end;
-
 end;
-
 
 { TMapLayerSinglePolygon }
 
@@ -412,6 +457,7 @@ constructor TMapLayerSinglePolygon.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ATileRectForShow: ITileRectChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AConfig: IPolygonLayerConfig;
@@ -426,6 +472,7 @@ begin
     AAppClosingNotifier,
     AParentMap,
     AView,
+    AMainFormState,
     ATileRectForShow,
     AVectorGeometryProjectedFactory,
     AConfig,
@@ -516,37 +563,40 @@ function TMapLayerSinglePolygon.PrepareDrawable(
   const AMapRect: TRect
 ): IProjectedDrawableElement;
 var
+  I: Integer;
   VLonLatLine: IGeometryLonLatPolygon;
   VProjectedLine: IGeometryProjectedPolygon;
   VDrawableList: IInterfaceListSimple;
   VSinglePolygon: IGeometryProjectedSinglePolygon;
   VMultiPolygon: IGeometryProjectedMultiPolygon;
-  i: Integer;
 begin
   Result := nil;
   if ((AlphaComponent(FLineColor) = 0) or (FLineWidth < 1)) and (AlphaComponent(FFillColor) = 0) then begin
     Exit;
   end;
-    VLonLatLine := FSource.GetStatic;
+
+  VLonLatLine := FSource.GetStatic;
   if not Assigned(VLonLatLine) then begin
     Exit;
   end;
-    VProjectedLine :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        AProjection,
-        VLonLatLine,
-        FPreparedPointsAggreagtor
-      );
+
+  VProjectedLine :=
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+      AProjection,
+      VLonLatLine,
+      FPreparedPointsAggreagtor
+    );
   if not Assigned(VProjectedLine) then begin
     Exit;
   end;
+
   VDrawableList := TInterfaceListSimple.Create;
 
   if Supports(VProjectedLine, IGeometryProjectedSinglePolygon, VSinglePolygon) then begin
     PrepareFillAndBorder(FLineColor, FLineWidth, FFillColor, VSinglePolygon, AProjection, AMapRect, VDrawableList);
   end else if Supports(VProjectedLine, IGeometryProjectedMultiPolygon, VMultiPolygon) then begin
-    for i := 0 to VMultiPolygon.Count - 1 do begin
-      VSinglePolygon := VMultiPolygon.Item[i];
+    for I := 0 to VMultiPolygon.Count - 1 do begin
+      VSinglePolygon := VMultiPolygon.Item[I];
       PrepareFillAndBorder(FLineColor, FLineWidth, FFillColor, VSinglePolygon, AProjection, AMapRect, VDrawableList);
     end;
   end;

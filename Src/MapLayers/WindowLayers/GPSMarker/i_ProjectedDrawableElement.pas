@@ -34,6 +34,10 @@ type
     function GetProjection: IProjection;
     property Projection: IProjection read GetProjection;
 
+    function GetBounds(
+      const ALocalConverter: ILocalCoordConverter
+    ): TRect;
+
     procedure Draw(
       ABitmap: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter
