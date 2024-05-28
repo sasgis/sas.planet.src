@@ -188,24 +188,39 @@ function TMarkerDrawableWithDirectionByBitmapMarker.GetBoundsForPosition(
   const AAngle: Double
 ): TRect;
 var
+  X, Y: Double;
+  VVertex: TDoublePoint;
   VSourceSize: TPoint;
   VAnchorPoint: TDoublePoint;
-  VHalfSize: Double;
+  VRadius: Double;
   VTargetDoubleRect: TDoubleRect;
 begin
   VSourceSize := FMarker.Size;
   VAnchorPoint := FMarker.AnchorPoint;
 
-  VHalfSize :=
-    Min(
-      Min(VAnchorPoint.X + VAnchorPoint.Y, VSourceSize.X - VAnchorPoint.X + VAnchorPoint.Y),
-      Min(VAnchorPoint.X + VSourceSize.Y - VAnchorPoint.Y, VSourceSize.X - VAnchorPoint.X + VSourceSize.Y - VAnchorPoint.Y)
-    );
+  // 1. Find a rectangle's furthest vertex from anchor
+  if VSourceSize.X - VAnchorPoint.X > VAnchorPoint.X then begin
+    VVertex.X := VSourceSize.X;
+  end else begin
+    VVertex.X := 0;
+  end;
 
-  VTargetDoubleRect.Left := APosition.X - VHalfSize;
-  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
-  VTargetDoubleRect.Right := APosition.X + VHalfSize;
-  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
+  if VSourceSize.Y - VAnchorPoint.Y > VAnchorPoint.Y then begin
+    VVertex.Y := VSourceSize.Y;
+  end else begin
+    VVertex.Y := 0;
+  end;
+
+  // 2. Find distance between anchor and furthest vertex => radius of rotation
+  X := VAnchorPoint.X - VVertex.X;
+  Y := VAnchorPoint.Y - VVertex.Y;
+  VRadius := Sqrt(X * X + Y * Y);
+
+  // 3. Calculate the bounding rectangle
+  VTargetDoubleRect.Left := APosition.X - VRadius;
+  VTargetDoubleRect.Top := APosition.Y - VRadius;
+  VTargetDoubleRect.Right := APosition.X + VRadius;
+  VTargetDoubleRect.Bottom := APosition.Y + VRadius;
 
   Result := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
 end;

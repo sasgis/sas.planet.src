@@ -58,16 +58,19 @@ function TMarkerDrawableSimpleArrow.GetBoundsForPosition(
   const APosition: TDoublePoint;
   const AAngle: Double
 ): TRect;
+const
+  CInverseSqrtOfTwo = 1 / 1.4142135623730950488; // 1 / sqrt(2)
 var
-  VHalfSize: Double;
+  VRadius: Double;
   VTargetDoubleRect: TDoubleRect;
 begin
-  VHalfSize := Config.MarkerSize / 2;
+  // radius of the circle surrounding the square
+  VRadius := Config.MarkerSize * CInverseSqrtOfTwo;
 
-  VTargetDoubleRect.Left := APosition.X - VHalfSize;
-  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
-  VTargetDoubleRect.Right := APosition.X + VHalfSize;
-  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
+  VTargetDoubleRect.Left := APosition.X - VRadius;
+  VTargetDoubleRect.Top := APosition.Y - VRadius;
+  VTargetDoubleRect.Right := APosition.X + VRadius;
+  VTargetDoubleRect.Bottom := APosition.Y + VRadius;
 
   Result := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
 end;
