@@ -104,12 +104,12 @@ begin
       VTransform := TAffineTransformation.Create;
       try
         VTransform.Rotate(APosition.X, APosition.Y, -AAngle);
-          SetLength(VPolygon, 3);
-          VPolygon[0] := VTransform.Transform(FloatPoint(APosition.X, APosition.Y - VHalfSize));
-          VPolygon[1] := VTransform.Transform(FloatPoint(APosition.X - VWidth, APosition.Y + VHalfSize));
-          VPolygon[2] := VTransform.Transform(FloatPoint(APosition.X + VWidth, APosition.Y + VHalfSize));
-          PolygonFS(ABitmap, VPolygon, Config.MarkerColor);
-          PolylineFS(ABitmap, VPolygon, Config.BorderColor, True);
+        SetLength(VPolygon, 3);
+        VPolygon[0] := VTransform.Transform(FloatPoint(APosition.X, APosition.Y - VHalfSize));
+        VPolygon[1] := VTransform.Transform(FloatPoint(APosition.X - VWidth, APosition.Y + VHalfSize));
+        VPolygon[2] := VTransform.Transform(FloatPoint(APosition.X + VWidth, APosition.Y + VHalfSize));
+        PolygonFS(ABitmap, VPolygon, Config.MarkerColor);
+        PolylineFS(ABitmap, VPolygon, Config.BorderColor, True);
       finally
         VTransform.Free;
       end;

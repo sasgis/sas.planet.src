@@ -175,6 +175,10 @@ begin
     DoInvalidateRect(FRect); // erase
   end;
 
+  if not Visible then begin
+    Exit;
+  end;
+
   VProjection := ALocalConverter.Projection;
   VScreenCenterMapPos := ALocalConverter.GetCenterMapPixelFloat;
   VLonLat := FMarkPoint;
