@@ -1005,6 +1005,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.OtherPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
@@ -1020,6 +1021,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.FirstPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker)
@@ -1035,6 +1037,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.ActivePointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker)
@@ -1130,6 +1133,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.OtherPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.NormalPointMarker)
@@ -1145,6 +1149,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.FirstPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.FirstPointMarker)
@@ -1160,6 +1165,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.ActivePointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.ActivePointMarker)
@@ -1226,6 +1232,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.OtherPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
@@ -1241,6 +1248,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.FirstPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker)
@@ -1256,6 +1264,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.ActivePointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker)
@@ -1322,6 +1331,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPolygonEdit.OtherPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
@@ -1337,6 +1347,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPolygonEdit.FirstPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker)
@@ -1352,6 +1363,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker)
@@ -1404,6 +1416,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPolygonEdit.OtherPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
@@ -1419,6 +1432,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPolygonEdit.FirstPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker)
@@ -1434,6 +1448,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker)
@@ -1509,6 +1524,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.OtherPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
@@ -1524,6 +1540,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.FirstPointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker)
@@ -1539,6 +1556,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AVectorGeometryProjectedFactory,
         VGeometryChangeableByPathEdit.ActivePointsChangeable,
         TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker)

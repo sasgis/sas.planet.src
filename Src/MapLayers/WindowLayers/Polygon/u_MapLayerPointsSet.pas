@@ -26,12 +26,12 @@ interface
 uses
   GR32,
   GR32_Image,
-  t_GeoTypes,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_Projection,
+  i_MainFormState,
   i_MarkerDrawable,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
@@ -42,8 +42,10 @@ uses
 type
   TMapLayerPointsSet = class(TMapLayerBasicNoBitmap)
   private
+    FMainFormState: IMainFormState;
     FGeometryProjectedFactory: IGeometryProjectedFactory;
-    FPointMarker: IMarkerDrawableChangeable;
+    FPointMarker: IMarkerDrawable;
+    FPointMarkerChangeable: IMarkerDrawableChangeable;
     FSource: IGeometryLonLatMultiPointChangeable;
 
     FNeedUpdatePoints: Boolean;
@@ -51,11 +53,11 @@ type
     FLonLatPointsPrepared: IGeometryLonLatMultiPoint;
     FProjectedPoints: IGeometryProjectedMultiPoint;
 
+    FIsValid: Boolean;
+    FRect: TRect;
     FLocalConverter: ILocalCoordConverter;
 
-    procedure OnConfigChange;
-  protected
-    procedure ChangedSource;
+    procedure OnMarkerChange;
     procedure OnSourceChange;
   protected
     procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
@@ -68,17 +70,19 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const AGeometryProjectedFactory: IGeometryProjectedFactory;
       const ASource: IGeometryLonLatMultiPointChangeable;
-      const APointMarker: IMarkerDrawableChangeable
+      const APointMarkerChangeable: IMarkerDrawableChangeable
     );
   end;
 
 implementation
 
 uses
-  SysUtils,
-  i_Listener,
+  Types,
+  Math,
+  t_GeoTypes,
   i_EnumDoublePoint,
   u_GeoFunc,
   u_ListenerByEvent;
@@ -90,16 +94,16 @@ constructor TMapLayerPointsSet.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const AGeometryProjectedFactory: IGeometryProjectedFactory;
   const ASource: IGeometryLonLatMultiPointChangeable;
-  const APointMarker: IMarkerDrawableChangeable
+  const APointMarkerChangeable: IMarkerDrawableChangeable
 );
-var
-  VListener: IListener;
 begin
   Assert(Assigned(AGeometryProjectedFactory));
   Assert(Assigned(ASource));
-  Assert(Assigned(APointMarker));
+  Assert(Assigned(APointMarkerChangeable));
+
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -107,14 +111,15 @@ begin
     AParentMap,
     AView
   );
+
+  FMainFormState := AMainFormState;
   FGeometryProjectedFactory := AGeometryProjectedFactory;
   FSource := ASource;
-  FPointMarker := APointMarker;
+  FPointMarkerChangeable := APointMarkerChangeable;
 
-  VListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   LinksList.Add(
-    VListener,
-    FPointMarker.GetChangeNotifier
+    TNotifyNoMmgEventListener.Create(Self.OnMarkerChange),
+    FPointMarkerChangeable.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSourceChange),
@@ -122,18 +127,16 @@ begin
   );
 end;
 
-procedure TMapLayerPointsSet.ChangedSource;
+procedure TMapLayerPointsSet.OnMarkerChange;
 begin
-  FNeedUpdatePoints := True;
-end;
-
-procedure TMapLayerPointsSet.OnConfigChange;
-begin
-  ViewUpdateLock;
-  try
-    SetNeedRedraw
-  finally
-    ViewUpdateUnlock;
+  FPointMarker := FPointMarkerChangeable.GetStatic;
+  if Visible then begin
+    ViewUpdateLock;
+    try
+      SetNeedRedraw;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 
@@ -142,36 +145,36 @@ begin
   ViewUpdateLock;
   try
     if Assigned(FSource.GetStatic) then begin
-      SetNeedRedraw;
       Show;
     end else begin
       Hide;
     end;
-    ChangedSource;
+    FNeedUpdatePoints := True;
+    SetNeedRedraw;
   finally
     ViewUpdateUnlock;
   end;
 end;
 
 procedure TMapLayerPointsSet.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
-begin
-  FLocalConverter := ALocalConverter;
-  DoInvalidateFull; // ToDo
-end;
-
-procedure TMapLayerPointsSet.PaintLayer(ABuffer: TBitmap32);
 var
   VProjection: IProjection;
   VNeedUpdatePoints: Boolean;
   VViewRect: TDoubleRect;
-  VPosOnMap: TDoublePoint;
-  VPosOnBitmap: TDoublePoint;
-  VPointMarker: IMarkerDrawable;
   VPoints: IGeometryLonLatMultiPoint;
   VProjectedPoints: IGeometryProjectedMultiPoint;
-  VEnum: IEnumProjectedPoint;
 begin
-  inherited;
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
+  if not Visible then begin
+    Exit;
+  end;
+
+  FLocalConverter := ALocalConverter;
+
   VNeedUpdatePoints := FNeedUpdatePoints;
   if VNeedUpdatePoints then begin
     VPoints := FSource.GetStatic;
@@ -206,13 +209,37 @@ begin
 
   if Assigned(VProjectedPoints) then begin
     VViewRect := FLocalConverter.GetRectInMapPixelFloat;
-    if IsIntersecProjectedRect(VViewRect, VProjectedPoints.Bounds) then begin
-      VPointMarker := FPointMarker.GetStatic;
-      VEnum := VProjectedPoints.GetEnum;
+    FIsValid := IsIntersecProjectedRect(VViewRect, VProjectedPoints.Bounds);
+    if FIsValid then begin
+      FRect := RectFromDoubleRect(VProjectedPoints.Bounds, rrOutside);
+
+      // draw
+      if FMainFormState.IsMapMoving then begin
+        DoInvalidateFull;
+      end else begin
+        DoInvalidateRect(FRect);
+      end;
+    end;
+  end;
+end;
+
+procedure TMapLayerPointsSet.PaintLayer(ABuffer: TBitmap32);
+var
+  VViewRect: TDoubleRect;
+  VPosOnMap: TDoublePoint;
+  VPosOnBitmap: TDoublePoint;
+  VEnum: IEnumProjectedPoint;
+begin
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
+    end else begin
+      VEnum := FProjectedPoints.GetEnum;
+      VViewRect := FLocalConverter.GetRectInMapPixelFloat;
       while VEnum.Next(VPosOnMap) do begin
         if PixelPointInRect(VPosOnMap, VViewRect) then begin
           VPosOnBitmap := FLocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
-          VPointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
+          FPointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
         end;
       end;
     end;
@@ -222,7 +249,7 @@ end;
 procedure TMapLayerPointsSet.StartThreads;
 begin
   inherited;
-  OnConfigChange;
+  OnMarkerChange;
 end;
 
 end.
