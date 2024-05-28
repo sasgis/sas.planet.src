@@ -84,12 +84,14 @@ begin
 end;
 
 function TMarkerDrawableSimpleSquare.GetBoundsForPosition(
-  const APosition: TDoublePoint): TRect;
+  const APosition: TDoublePoint
+): TRect;
 var
   VHalfSize: Double;
   VTargetDoubleRect: TDoubleRect;
 begin
   VHalfSize := Config.MarkerSize / 2;
+
   VTargetDoubleRect.Left := APosition.X - VHalfSize;
   VTargetDoubleRect.Top := APosition.Y - VHalfSize;
   VTargetDoubleRect.Right := APosition.X + VHalfSize;
