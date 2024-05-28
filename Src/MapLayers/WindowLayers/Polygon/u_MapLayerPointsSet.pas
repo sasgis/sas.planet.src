@@ -158,6 +158,7 @@ end;
 
 procedure TMapLayerPointsSet.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
 var
+  VPointSize: TPoint;
   VProjection: IProjection;
   VNeedUpdatePoints: Boolean;
   VViewRect: TDoubleRect;
@@ -211,8 +212,16 @@ begin
     VViewRect := FLocalConverter.GetRectInMapPixelFloat;
     FIsValid := IsIntersecProjectedRect(VViewRect, VProjectedPoints.Bounds);
     if FIsValid then begin
-      FRect := RectFromDoubleRect(VProjectedPoints.Bounds, rrOutside);
-
+      FRect := RectFromDoubleRect(
+        FLocalConverter.MapRectFloat2LocalRectFloat(VProjectedPoints.Bounds),
+        rrOutside
+      );
+      VPointSize := RectSize(
+        FPointMarker.GetBoundsForPosition(
+          FLocalConverter.MapPixelFloat2LocalPixelFloat(FLocalConverter.GetCenterMapPixelFloat)
+        )
+      );
+      GR32.InflateRect(FRect, VPointSize.X, VPointSize.Y);
       // draw
       if FMainFormState.IsMapMoving then begin
         DoInvalidateFull;
