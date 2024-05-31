@@ -200,6 +200,7 @@ begin
   if IntersecProjectedRect(VIntersectRect, VViewRect, FSource.Bounds) then begin
     if DoubleRectsEqual(VIntersectRect, FSource.Bounds) or FSource.IsRectIntersectBorder(VViewRect) then begin
       Result := RectFromDoubleRect(ALocalConverter.MapRectFloat2LocalRectFloat(VIntersectRect), rrOutside);
+      GR32.InflateRect(Result, 10, 10); // Delta from ProjectedLine2ArrayOfArray()
       Exit;
     end;
   end;

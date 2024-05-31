@@ -24,11 +24,9 @@ unit u_MapLayerGPSMarkerRings;
 interface
 
 uses
-  SysUtils,
   GR32,
   GR32_Image,
   t_GeoTypes,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   i_Datum,
@@ -44,25 +42,29 @@ uses
   i_GeometryProjectedFactory,
   i_GeometryLonLatFactory,
   i_GPSRecorder,
+  i_MainFormState,
   u_MapLayerBasicNoBitmap;
 
 type
   TMapLayerGPSMarkerRings = class(TMapLayerBasicNoBitmap)
   private
+    FMainFormState: IMainFormState;
     FConfig: IMarkerRingsConfig;
-    FGPSRecorder: IGPSRecorder;
+    FGpsRecorder: IGPSRecorder;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FPolygonBuilder: IGeometryLonLatPolygonBuilder;
 
     FGpsPosChangeFlag: ISimpleFlag;
-
-    FGPSPosCS: IReadWriteSync;
-    FGPSPosLonLat: TDoublePoint;
-    FCirclesLonLat: IGeometryLonLatPolygon;
-    FCirclesProjected: IProjectedDrawableElement;
+    FConfigStatic: IMarkerRingsConfigStatic;
 
     FLocalConverter: ILocalCoordConverter;
+
+    FIsValid: Boolean;
+    FRect: TRect;
+    FLonLatPos: TDoublePoint;
+    FCirclesLonLat: IGeometryLonLatPolygon;
+    FCirclesDrawable: IProjectedDrawableElement;
 
     function GetLonLatCirclesByPoint(
       const APos: TDoublePoint;
@@ -73,12 +75,14 @@ type
       const ASource: IGeometryLonLatPolygon;
       const AProjection: IProjection
     ): IGeometryProjectedPolygon;
-    procedure GPSReceiverReceive;
+
+    procedure OnGpsPosChange;
     procedure OnConfigChange;
     procedure OnTimer;
   protected
     procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
+    procedure StartThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -86,6 +90,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ATimerNoifier: INotifierTime;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -97,11 +102,10 @@ type
 implementation
 
 uses
+  Types,
   Math,
-  GR32_Polygons,
   i_GPS,
   u_GeoFunc,
-  u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_ListenerTime,
   u_ListenerByEvent,
@@ -114,6 +118,7 @@ constructor TMapLayerGPSMarkerRings.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ATimerNoifier: INotifierTime;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -128,26 +133,27 @@ begin
     AParentMap,
     AView
   );
+
+  FMainFormState := AMainFormState;
   FConfig := AConfig;
-  FGPSRecorder := AGPSRecorder;
+  FGpsRecorder := AGPSRecorder;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FPolygonBuilder := FVectorGeometryLonLatFactory.MakePolygonBuilder;
 
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
-  FGPSPosCS := GSync.SyncVariable.Make(Self.ClassName);
 
   LinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimer, 500),
+    TListenerTimeCheck.Create(Self.OnTimer, 200),
     ATimerNoifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FConfig.ChangeNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
-    FGPSRecorder.GetChangeNotifier
+    TNotifyNoMmgEventListener.Create(Self.OnGpsPosChange),
+    FGpsRecorder.ChangeNotifier
   );
 end;
 
@@ -157,14 +163,14 @@ function TMapLayerGPSMarkerRings.GetLonLatCirclesByPoint(
   const AConfig: IMarkerRingsConfigStatic
 ): IGeometryLonLatPolygon;
 var
-  i: Integer;
+  I: Integer;
   VDist: Double;
-  VPolygon: IGeometryLonLatSinglePolygon;
   VStep: Double;
+  VPolygon: IGeometryLonLatSinglePolygon;
 begin
   VStep := AConfig.StepDistance;
-  for i := 1 to AConfig.Count do begin
-    VDist := VStep * i;
+  for I := 1 to AConfig.Count do begin
+    VDist := VStep * I;
     VPolygon :=
       FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
         ADatum,
@@ -181,56 +187,54 @@ function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(
   const AProjection: IProjection
 ): IGeometryProjectedPolygon;
 begin
-  Result := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(AProjection, ASource);
+  Result :=
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+      AProjection,
+      ASource
+    );
 end;
 
-procedure TMapLayerGPSMarkerRings.GPSReceiverReceive;
+procedure TMapLayerGPSMarkerRings.OnGpsPosChange;
 begin
   FGpsPosChangeFlag.SetFlag;
 end;
 
 procedure TMapLayerGPSMarkerRings.OnConfigChange;
 begin
-  ViewUpdateLock;
-  try
-    FGPSPosCS.BeginWrite;
+  FCirclesLonLat := nil;
+  FCirclesDrawable := nil;
+  FConfigStatic := FConfig.GetStatic;
+
+  if Visible then begin
+    ViewUpdateLock;
     try
-      FCirclesLonLat := nil;
-      FCirclesProjected := nil;
+      SetNeedRedraw;
     finally
-      FGPSPosCS.EndWrite;
+      ViewUpdateUnlock;
     end;
-    SetNeedRedraw;
-  finally
-    ViewUpdateUnlock;
   end;
 end;
 
 procedure TMapLayerGPSMarkerRings.OnTimer;
 var
-  VGPSPosition: IGPSPosition;
   VLonLat: TDoublePoint;
+  VGPSPosition: IGPSPosition;
 begin
-  if FGpsPosChangeFlag.CheckFlagAndReset then begin
+  if (FConfigStatic.Count > 0) and FGpsPosChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
     try
-      VGPSPosition := FGPSRecorder.CurrentPosition;
-      if (not VGPSPosition.PositionOK) then begin
+      VGPSPosition := FGpsRecorder.CurrentPosition;
+      if not VGPSPosition.PositionOK then begin
         // no position
         Hide;
       end else begin
         // ok
         VLonLat := VGPSPosition.LonLat;
-        FGPSPosCS.BeginWrite;
-        try
-          if not DoublePointsEqual(FGPSPosLonLat, VLonLat) then begin
-            FGPSPosLonLat := VLonLat;
-            FCirclesLonLat := nil;
-            FCirclesProjected := nil;
-            SetNeedRedraw;
-          end;
-        finally
-          FGPSPosCS.EndWrite;
+        if not DoublePointsEqual(FLonLatPos, VLonLat) then begin
+          FLonLatPos := VLonLat;
+          FCirclesLonLat := nil;
+          FCirclesDrawable := nil;
+          SetNeedRedraw;
         end;
         Show;
       end;
@@ -241,73 +245,82 @@ begin
 end;
 
 procedure TMapLayerGPSMarkerRings.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
-begin
-  FLocalConverter := ALocalConverter;
-  DoInvalidateFull; // ToDo
-end;
-
-procedure TMapLayerGPSMarkerRings.PaintLayer(ABuffer: TBitmap32);
 var
-  VLonLat: TDoublePoint;
-  VConfig: IMarkerRingsConfigStatic;
-  VCirclesLonLat: IGeometryLonLatPolygon;
   VCirclesProjected: IGeometryProjectedPolygon;
-  VDrawable: IProjectedDrawableElement;
 begin
-  inherited;
-  VConfig := FConfig.GetStatic;
-  if VConfig.Count <= 0 then begin
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
+  if not Visible then begin
     Exit;
   end;
 
-  FGPSPosCS.BeginRead;
-  try
-    VLonLat := FGPSPosLonLat;
-    VCirclesLonLat := FCirclesLonLat;
-    VDrawable := FCirclesProjected;
-  finally
-    FGPSPosCS.EndRead;
-  end;
-  if VDrawable <> nil then begin
-    if not VDrawable.Projection.IsSame(FLocalConverter.Projection) then begin
-      VDrawable := nil;
+  FLocalConverter := ALocalConverter;
+
+  if FCirclesDrawable <> nil then begin
+    if not FCirclesDrawable.Projection.IsSame(FLocalConverter.Projection) then begin
+      FCirclesDrawable := nil;
     end;
   end;
-  if VCirclesLonLat = nil then begin
-    VCirclesLonLat := GetLonLatCirclesByPoint(VLonLat, FLocalConverter.Projection.ProjectionType.Datum, VConfig);
-  end;
-  if VCirclesLonLat = nil then begin
-    Exit;
-  end;
-  FGPSPosCS.BeginWrite;
-  try
-    if DoublePointsEqual(VLonLat, FGPSPosLonLat) then begin
-      FCirclesLonLat := VCirclesLonLat;
+
+  if FCirclesLonLat = nil then begin
+    FCirclesLonLat :=
+      GetLonLatCirclesByPoint(
+        FLonLatPos,
+        FLocalConverter.Projection.ProjectionType.Datum,
+        FConfigStatic
+      );
+    if FCirclesLonLat = nil then begin
+      Exit;
     end;
-  finally
-    FGPSPosCS.EndWrite
   end;
-  if VDrawable = nil then begin
-    VCirclesProjected := GetProjectedCirclesByLonLat(VCirclesLonLat, FLocalConverter.Projection);
-    VDrawable :=
+
+  if FCirclesDrawable = nil then begin
+    VCirclesProjected :=
+      GetProjectedCirclesByLonLat(
+        FCirclesLonLat,
+        FLocalConverter.Projection
+      );
+    FCirclesDrawable :=
       TProjectedDrawableElementByPolygonSimpleEdge.Create(
         FLocalConverter.Projection,
         VCirclesProjected,
         clRed32
       );
   end;
-  if VDrawable = nil then begin
-    Exit;
-  end;
-  FGPSPosCS.BeginWrite;
-  try
-    if DoublePointsEqual(VLonLat, FGPSPosLonLat) then begin
-      FCirclesProjected := VDrawable;
+
+  if FCirclesDrawable <> nil then begin
+    FRect := FCirclesDrawable.GetBounds(FLocalConverter);
+    FIsValid := not GR32.IsRectEmpty(FRect);
+    if not FIsValid then begin
+      Exit;
     end;
-  finally
-    FGPSPosCS.EndWrite
+    // draw
+    if FMainFormState.IsMapMoving then begin
+      DoInvalidateFull;
+    end else begin
+      DoInvalidateRect(FRect);
+    end;
   end;
-  VDrawable.Draw(ABuffer, FLocalConverter);
+end;
+
+procedure TMapLayerGPSMarkerRings.PaintLayer(ABuffer: TBitmap32);
+begin
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
+    end else begin
+      FCirclesDrawable.Draw(ABuffer, FLocalConverter);
+    end;
+  end;
+end;
+
+procedure TMapLayerGPSMarkerRings.StartThreads;
+begin
+  inherited;
+  OnConfigChange;
 end;
 
 end.

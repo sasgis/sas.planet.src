@@ -24,17 +24,16 @@ unit u_MapLayerGPSMarker;
 interface
 
 uses
-  SysUtils,
   GR32,
   GR32_Image,
   t_GeoTypes,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_SimpleFlag,
+  i_MainFormState,
   i_MarkerDrawable,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
@@ -43,21 +42,25 @@ uses
 type
   TMapLayerGPSMarker = class(TMapLayerBasicNoBitmap)
   private
+    FMainFormState: IMainFormState;
     FConfig: IMapLayerGPSMarkerConfig;
-    FGPSRecorder: IGPSRecorder;
+    FGpsRecorder: IGPSRecorder;
     FArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
     FStopedMarkerChangeable: IMarkerDrawableChangeable;
 
     FGpsPosChangeFlag: ISimpleFlag;
 
-    FPositionCS: IReadWriteSync;
-    FPositionLonLat: TDoublePoint;
-    FStopped: Boolean;
-    FDirectionAngle: Double;
+    FArrowMarker: IMarkerDrawableWithDirection;
+    FStopedMarker: IMarkerDrawable;
 
-    FLocalConverter: ILocalCoordConverter;
+    FIsValid: Boolean;
+    FRect: TRect;
+    FLonLatPos: TDoublePoint;
+    FMarkerPos: TDoublePoint;
+    FIsStopped: Boolean;
+    FDirection: Double;
 
-    procedure GPSReceiverReceive;
+    procedure OnGpsPosChange;
     procedure OnConfigChange;
     procedure OnTimer;
   protected
@@ -71,6 +74,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ATimerNoifier: INotifierTime;
       const AConfig: IMapLayerGPSMarkerConfig;
       const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
@@ -85,7 +89,6 @@ uses
   Math,
   i_GPS,
   u_GeoFunc,
-  u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_ListenerTime,
   u_ListenerByEvent;
@@ -98,6 +101,7 @@ constructor TMapLayerGPSMarker.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ATimerNoifier: INotifierTime;
   const AConfig: IMapLayerGPSMarkerConfig;
   const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
@@ -112,13 +116,14 @@ begin
     AParentMap,
     AView
   );
+
+  FMainFormState := AMainFormState;
   FConfig := AConfig;
-  FGPSRecorder := AGPSRecorder;
+  FGpsRecorder := AGPSRecorder;
   FArrowMarkerChangeable := AArrowMarkerChangeable;
   FStopedMarkerChangeable := AStopedMarkerChangeable;
 
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
-  FPositionCS := GSync.SyncVariable.Make(Self.ClassName);
 
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 200),
@@ -126,34 +131,38 @@ begin
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FConfig.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FArrowMarkerChangeable.GetChangeNotifier
+    FArrowMarkerChangeable.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FStopedMarkerChangeable.GetChangeNotifier
+    FStopedMarkerChangeable.ChangeNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
-    FGPSRecorder.GetChangeNotifier
+    TNotifyNoMmgEventListener.Create(Self.OnGpsPosChange),
+    FGpsRecorder.ChangeNotifier
   );
 end;
 
-procedure TMapLayerGPSMarker.GPSReceiverReceive;
+procedure TMapLayerGPSMarker.OnGpsPosChange;
 begin
   FGpsPosChangeFlag.SetFlag;
 end;
 
 procedure TMapLayerGPSMarker.OnConfigChange;
 begin
-  ViewUpdateLock;
-  try
-    SetNeedRedraw;
-  finally
-    ViewUpdateUnlock;
+  FStopedMarker := FStopedMarkerChangeable.GetStatic;
+  FArrowMarker := FArrowMarkerChangeable.GetStatic;
+  if Visible then begin
+    ViewUpdateLock;
+    try
+      SetNeedRedraw;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 
@@ -164,26 +173,21 @@ begin
   if FGpsPosChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
     try
-      VGPSPosition := FGPSRecorder.CurrentPosition;
-      if (not VGPSPosition.PositionOK) then begin
+      VGPSPosition := FGpsRecorder.CurrentPosition;
+      if not VGPSPosition.PositionOK then begin
         // no position
         Hide;
       end else begin
         // ok
-        FPositionCS.BeginWrite;
-        try
-          FPositionLonLat := VGPSPosition.LonLat;
-          FStopped := not VGPSPosition.SpeedOK;
-          if not FStopped then begin
-            FStopped := VGPSPosition.Speed_KMH <= FConfig.MinMoveSpeed;
-          end;
-          if not FStopped then begin
-            FDirectionAngle := VGPSPosition.Heading;
-          end else begin
-            FDirectionAngle := 0;
-          end;
-        finally
-          FPositionCS.EndWrite;
+        FLonLatPos := VGPSPosition.LonLat;
+        FIsStopped := not VGPSPosition.SpeedOK;
+        if not FIsStopped then begin
+          FIsStopped := VGPSPosition.Speed_KMH <= FConfig.MinMoveSpeed;
+        end;
+        if not FIsStopped then begin
+          FDirection := VGPSPosition.Heading;
+        end else begin
+          FDirection := 0;
         end;
         Show;
         SetNeedRedraw;
@@ -196,31 +200,41 @@ end;
 
 procedure TMapLayerGPSMarker.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
 begin
-  FLocalConverter := ALocalConverter;
-  DoInvalidateFull; // ToDo
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
+  FIsValid := Visible and not PointIsEmpty(FLonLatPos);
+
+  if FIsValid then begin
+    FMarkerPos := ALocalConverter.LonLat2LocalPixelFloat(FLonLatPos);
+    if FIsStopped then begin
+      FRect := FStopedMarker.GetBoundsForPosition(FMarkerPos);
+    end else begin
+      FRect := FArrowMarker.GetBoundsForPosition(FMarkerPos, FDirection);
+    end;
+
+    // draw
+    if FMainFormState.IsMapMoving then begin
+      DoInvalidateFull;
+    end else begin
+      DoInvalidateRect(FRect);
+    end;
+  end;
 end;
 
 procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32);
-var
-  VFixedOnView: TDoublePoint;
-  VPositionLonLat: TDoublePoint;
-  VStopped: Boolean;
-  VDirection: Double;
 begin
-  FPositionCS.BeginRead;
-  try
-    VPositionLonLat := FPositionLonLat;
-    VStopped := FStopped;
-    VDirection := FDirectionAngle;
-  finally
-    FPositionCS.EndRead;
-  end;
-  if not PointIsEmpty(FPositionLonLat) then begin
-    VFixedOnView := FLocalConverter.LonLat2LocalPixelFloat(FPositionLonLat);
-    if VStopped then begin
-      FStopedMarkerChangeable.GetStatic.DrawToBitmap(ABuffer, VFixedOnView);
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
     end else begin
-      FArrowMarkerChangeable.GetStatic.DrawToBitmapWithDirection(ABuffer, VFixedOnView, VDirection);
+      if FIsStopped then begin
+        FStopedMarker.DrawToBitmap(ABuffer, FMarkerPos);
+      end else begin
+        FArrowMarker.DrawToBitmapWithDirection(ABuffer, FMarkerPos, FDirection);
+      end;
     end;
   end;
 end;
