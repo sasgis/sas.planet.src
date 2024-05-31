@@ -114,9 +114,6 @@ begin
   FReachedMarkerChangeable := AReachedMarkerChangeable;
   FConfig := AConfig;
 
-  FArrowMarker := FArrowMarkerChangeable.GetStatic;
-  FReachedMarker := FReachedMarkerChangeable.GetStatic;
-
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.ChangeNotifier
@@ -137,13 +134,15 @@ end;
 
 procedure TMapLayerNavToMark.OnConfigChange;
 begin
-  ViewUpdateLock;
-  try
-    FArrowMarker := FArrowMarkerChangeable.GetStatic;
-    FReachedMarker := FReachedMarkerChangeable.GetStatic;
-    SetNeedRedraw;
-  finally
-    ViewUpdateUnlock;
+  FArrowMarker := FArrowMarkerChangeable.GetStatic;
+  FReachedMarker := FReachedMarkerChangeable.GetStatic;
+  if Visible then begin
+    ViewUpdateLock;
+    try
+      SetNeedRedraw;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 
@@ -233,7 +232,13 @@ end;
 procedure TMapLayerNavToMark.StartThreads;
 begin
   inherited;
-  OnNavToPointChange;
+  ViewUpdateLock;
+  try
+    OnConfigChange;
+    OnNavToPointChange;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 end.

@@ -286,9 +286,14 @@ end;
 procedure TWindowLayerSunCalcInfoBase.StartThreads;
 begin
   inherited;
-  OnSunCalcConfigChange;
-  OnSunCalcProviderChange;
-  OnSunCalcDataProviderChange;
+  ViewUpdateLock;
+  try
+    OnSunCalcConfigChange;
+    OnSunCalcProviderChange;
+    OnSunCalcDataProviderChange;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 end.
