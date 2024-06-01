@@ -1643,6 +1643,7 @@
         <DCCReference Include="Src\MapLayers\u_KmlLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_MainFormLayersConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_MainMapLayerConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\u_MapCaptionDrawable.pas"/>
         <DCCReference Include="Src\MapLayers\u_MarkPolyLineLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_MarkPolygonLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_PointCaptionsLayerConfig.pas"/>
@@ -2563,6 +2564,7 @@
         <DCCReference Include="Src\Vcl\u_CommonFormAndFrameParents.pas"/>
         <DCCReference Include="Src\Vcl\u_ComponentPropertyState.pas"/>
         <DCCReference Include="Src\Vcl\u_ComponentPropertyStorage.pas"/>
+        <DCCReference Include="Src\Vcl\u_ListViewExt.pas"/>
         <DCCReference Include="Src\Vcl\u_WindowPositionConfig.pas"/>
         <DCCReference Include="Src\VectorLoaders\i_XmlVectorObjects.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_CsvParser.pas"/>
@@ -2724,7 +2726,6 @@
         <DCCReference Include="Src\u_TreeChangeableBase.pas"/>
         <DCCReference Include="Src\u_UsedMarksConfig.pas"/>
         <DCCReference Include="Src\u_UsedMarksConfigStatic.pas"/>
-        <DCCReference Include="Src\Vcl\u_ListViewExt.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

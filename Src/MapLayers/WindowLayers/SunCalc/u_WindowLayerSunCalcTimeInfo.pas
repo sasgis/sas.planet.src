@@ -26,30 +26,17 @@ interface
 uses
   Types,
   GR32,
-  t_SunCalcConfig,
+  u_MapCaptionDrawable,
   u_WindowLayerSunCalcInfoBase;
 
 type
-  TSunCalcTimeInfoCaption = class
-  private
-    FText: string;
-    FBitmap: TBitmap32;
-  public
-    procedure SetText(const AText: string; const AFont: TSunCalcFontInfo; const ABgColor: TColor32);
-    function GetBoundsForPosition(const APosition: TPoint): TRect;
-    procedure DrawToBitmap(ABuffer: TBitmap32; const APosition: TPoint);
- public
-    constructor Create;
-    destructor Destroy; override;
-  end;
-
   TWindowLayerSunCalcTimeInfo = class(TWindowLayerSunCalcInfoBase)
   private
     FIsValid: Boolean;
     FRect: TRect;
     FCenter: TFloatPoint;
     FCurrentPos: TFloatPoint;
-    FCaption: TSunCalcTimeInfoCaption;
+    FCaption: TMapCaptionDrawable;
   protected
     procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
@@ -84,7 +71,7 @@ begin
   FRepaintOnDayChange := True;
   FRepaintOnTimeChange := True;
   FRepaintOnLocationChange := True;
-  FCaption := TSunCalcTimeInfoCaption.Create;
+  FCaption := TMapCaptionDrawable.Create;
 end;
 
 destructor TWindowLayerSunCalcTimeInfo.Destroy;
@@ -125,7 +112,7 @@ begin
       VAltitude := Format('%.2f°', [RadToDeg(VSunPos.Altitude)]);
       VText := Format('%s: %s; %s: %s', [rsAltitude, VAltitude, rsAzimuth, VAzimuth]);
 
-      FCaption.SetText(VText, FFont, FColor.BgColor);
+      FCaption.SetText(VText, FFont.FontName, FFont.FontSize, FFont.TextColor, FColor.BgColor);
 
       VRect := FloatRect(FCaption.GetBoundsForPosition(GR32.Point(FCurrentPos)));
       UpdateRectByFloatPoint(VRect, FCenter);
@@ -186,74 +173,6 @@ begin
   finally
     ABuffer.EndUpdate;
   end;
-end;
-
-{ TSunCalcTimeInfoCaption }
-
-constructor TSunCalcTimeInfoCaption.Create;
-begin
-  inherited Create;
-  FText := '';
-  FBitmap := nil;
-end;
-
-destructor TSunCalcTimeInfoCaption.Destroy;
-begin
-  FreeAndNil(FBitmap);
-  inherited Destroy;
-end;
-
-function TSunCalcTimeInfoCaption.GetBoundsForPosition(const APosition: TPoint): TRect;
-begin
-  if FText <> '' then begin
-    Result.Left := APosition.X + 12;
-    Result.Top := APosition.Y;
-    Result.Right := Result.Left + FBitmap.Width;
-    Result.Bottom := Result.Top + FBitmap.Height;
-  end else begin
-    Result := Rect(APosition.X, APosition.Y, APosition.X, APosition.Y);
-    Assert(False);
-  end;
-end;
-
-procedure TSunCalcTimeInfoCaption.DrawToBitmap(ABuffer: TBitmap32; const APosition: TPoint);
-var
-  VRect: TRect;
-begin
-  VRect := GetBoundsForPosition(APosition);
-
-  if ABuffer.MeasuringMode then begin
-    ABuffer.Changed(VRect);
-  end else begin
-    FBitmap.DrawTo(ABuffer, VRect.Left, VRect.Top);
-  end;
-end;
-
-procedure TSunCalcTimeInfoCaption.SetText(const AText: string; const AFont: TSunCalcFontInfo; const ABgColor: TColor32);
-var
-  VTextSize: TSize;
-begin
-  if FText = AText then begin
-    Exit;
-  end;
-
-  FText := AText;
-
-  if not Assigned(FBitmap) then begin
-    FBitmap := TBitmap32.Create;
-  end;
-
-  FBitmap.Font.Size := AFont.FontSize;
-  FBitmap.Font.Name := AFont.FontName;
-  FBitmap.Font.Color := WinColor(AFont.TextColor);
-
-  VTextSize := FBitmap.TextExtent(FText);
-
-  FBitmap.SetSize(VTextSize.cx + 8, VTextSize.cy + 4);
-
-  FBitmap.Clear(ABgColor);
-  FBitmap.RenderText(4, 2, FText, 0, AFont.TextColor);
-  FBitmap.DrawMode := dmBlend;
 end;
 
 end.

@@ -641,6 +641,7 @@ uses
   u_KmlLayerConfig in 'Src\MapLayers\u_KmlLayerConfig.pas',
   u_MainFormLayersConfig in 'Src\MapLayers\u_MainFormLayersConfig.pas',
   u_MainMapLayerConfig in 'Src\MapLayers\u_MainMapLayerConfig.pas',
+  u_MapCaptionDrawable in 'Src\MapLayers\u_MapCaptionDrawable.pas',
   u_MarkPolyLineLayerConfig in 'Src\MapLayers\u_MarkPolyLineLayerConfig.pas',
   u_MarkPolygonLayerConfig in 'Src\MapLayers\u_MarkPolygonLayerConfig.pas',
   u_PointCaptionsLayerConfig in 'Src\MapLayers\u_PointCaptionsLayerConfig.pas',

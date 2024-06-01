@@ -37,30 +37,26 @@ uses
   i_Projection,
   i_ValueToStringConverter,
   i_PointCaptionsLayerConfig,
+  i_MainFormState,
+  u_MapCaptionDrawable,
   u_MapLayerBasicNoBitmap;
 
 type
   TMapLayerCalcCircleCaptions = class(TMapLayerBasicNoBitmap)
   private
+    FMainFormState: IMainFormState;
     FConfig: IPointCaptionsLayerConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FCircleOnMapEdit: ICircleOnMapEdit;
-    FTempBitmap: TBitmap32;
+
     FLine: ILonLatPathWithSelected;
 
-    FLocalConverter: ILocalCoordConverter;
+    FIsValid: Boolean;
+    FRect: TRect;
+    FPos: TPoint;
 
-    procedure DrawPointText(
-      ABuffer: TBitmap32;
-      const ABitmapSize: TPoint;
-      const AText: string;
-      const ATextSize: TSize;
-      const APosOnBitmap: TDoublePoint;
-      const AFontSize: Integer;
-      const AFontName: string;
-      const ATextBGColor: TColor32;
-      const ATextColor: TColor32
-    );
+    FCaption: TMapCaptionDrawable;
+
     procedure OnConfigChange;
     procedure OnLineChange;
   protected
@@ -74,6 +70,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ACircleOnMapEdit: ICircleOnMapEdit;
       const AConfig: IPointCaptionsLayerConfig;
       const AValueToStringConverter: IValueToStringConverterChangeable
@@ -84,8 +81,10 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   i_ProjectionType,
+  u_GeoFunc,
   u_ListenerByEvent,  
   u_ResStrings;
 
@@ -97,6 +96,7 @@ constructor TMapLayerCalcCircleCaptions.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ACircleOnMapEdit: ICircleOnMapEdit;
   const AConfig: IPointCaptionsLayerConfig;
   const AValueToStringConverter: IValueToStringConverterChangeable
@@ -109,74 +109,39 @@ begin
     AParentMap,
     AView
   );
+
+  FMainFormState := AMainFormState;
   FConfig := AConfig;
   FValueToStringConverter := AValueToStringConverter;
   FCircleOnMapEdit := ACircleOnMapEdit;
 
+  FCaption := TMapCaptionDrawable.Create;
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FConfig.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FValueToStringConverter.GetChangeNotifier
+    FValueToStringConverter.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLineChange),
-    FCircleOnMapEdit.GetChangeNotifier
+    FCircleOnMapEdit.ChangeNotifier
   );
-  FTempBitmap := TBitmap32.Create;
 end;
 
 destructor TMapLayerCalcCircleCaptions.Destroy;
 begin
-  FreeAndNil(FTempBitmap);
-  inherited;
-end;
-
-procedure TMapLayerCalcCircleCaptions.DrawPointText(
-  ABuffer: TBitmap32;
-  const ABitmapSize: TPoint;
-  const AText: string;
-  const ATextSize: TSize;
-  const APosOnBitmap: TDoublePoint;
-  const AFontSize: Integer;
-  const AFontName: string;
-  const ATextBGColor: TColor32;
-  const ATextColor: TColor32
-);
-var
-  VRect: TRect;
-begin
-  if (APosOnBitmap.X > 0) and (APosOnBitmap.X < ABitmapSize.X) and
-     (APosOnBitmap.Y > 0) and (APosOnBitmap.Y < ABitmapSize.Y)
-  then begin
-    VRect.Left := Trunc(APosOnBitmap.X + 12);
-    VRect.Top := Trunc(APosOnBitmap.Y);
-    VRect.Right := VRect.Left + ATextSize.cx + 4;
-    VRect.Bottom := VRect.Top + ATextSize.cy + 4;
-    if ABuffer.MeasuringMode then begin
-      ABuffer.Changed(VRect);
-    end else begin
-      ABuffer.FillRectTS(VRect, ATextBGColor);
-      ABuffer.Font.Size := AFontSize;
-      ABuffer.Font.Name := AFontName;
-      ABuffer.Font.Color := WinColor(ATextColor);
-      ABuffer.Textout(VRect.Left + 2, VRect.Top + 2, AText);
-    end;
-  end;
+  FreeAndNil(FCaption);
+  inherited Destroy;
 end;
 
 procedure TMapLayerCalcCircleCaptions.OnConfigChange;
-var
-  VConfig: IPointCaptionsLayerConfigStatic;
 begin
   ViewUpdateLock;
   try
-    VConfig := FConfig.GetStatic;
-    FTempBitmap.Font.Size := VConfig.LastPointFontSize;
-    FTempBitmap.Font.Name := VConfig.FontName;
-    Visible := VConfig.Visible and Assigned(FLine);
+    Visible := FConfig.Visible and Assigned(FLine);
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -200,67 +165,79 @@ begin
 end;
 
 procedure TMapLayerCalcCircleCaptions.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
-begin
-  FLocalConverter := ALocalConverter;
-  DoInvalidateFull; // ToDo
-end;
-
-procedure TMapLayerCalcCircleCaptions.PaintLayer(ABuffer: TBitmap32);
 var
   VConfig: IPointCaptionsLayerConfigStatic;
   VProjection: IProjection;
   VPoints: PDoublePointArray;
-  VLocalRect: TRect;
-  VBitmapSize: TPoint;
   VPosOnMap: TDoublePoint;
   VPosOnBitmap: TDoublePoint;
   VText: string;
-  VTextSize: TSize;
   VLine: IGeometryLonLatSingleLine;
   VLonLat: TDoublePoint;
   VValueConverter: IValueToStringConverter;
   VLonLatPath: ILonLatPathWithSelected;
 begin
-  inherited;
-
-  VLonLatPath := FLine;
-  if (VLonLatPath = nil) or (VLonLatPath.Count <= 1) then begin
-    Exit;
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
   end;
 
-  if Supports(VLonLatPath.Geometry, IGeometryLonLatSingleLine, VLine) then begin
+  VLonLatPath := FLine;
+
+  FIsValid :=
+    Visible and
+    (VLonLatPath <> nil) and
+    (VLonLatPath.Count > 1) and
+    Supports(VLonLatPath.Geometry, IGeometryLonLatSingleLine, VLine);
+
+  if FIsValid then begin
+    VValueConverter := FValueToStringConverter.GetStatic;
+    VText := SAS_STR_Radius + ': ' + VValueConverter.DistConvert(FCircleOnMapEdit.Radius);
+
+    VConfig := FConfig.GetStatic;
+
+    FCaption.SetText(
+      VText,
+      VConfig.FontName,
+      VConfig.LastPointFontSize,
+      VConfig.TextColor,
+      VConfig.TextBGColor
+    );
 
     VPoints := VLine.Points;
     Inc(VPoints);
     VLonLat := VPoints[0];
 
-    VProjection := FLocalConverter.Projection;
+    VProjection := ALocalConverter.Projection;
     VProjection.ProjectionType.ValidateLonLatPos(VLonLat);
     VPosOnMap := VProjection.LonLat2PixelPosFloat(VLonLat);
-    VPosOnBitmap := FLocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
+    VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
 
-    VValueConverter := FValueToStringConverter.GetStatic;
-    VText := SAS_STR_Radius + ': ' + VValueConverter.DistConvert(FCircleOnMapEdit.Radius);
+    FPos:= PointFromDoublePoint(VPosOnBitmap, prToTopLeft);
+    FRect := FCaption.GetBoundsForPosition(FPos);
 
-    VTextSize := FTempBitmap.TextExtent(VText);
+    FIsValid := not GR32.IsRectEmpty(FRect);
+    if not FIsValid then begin
+      Exit;
+    end;
 
-    VLocalRect := FLocalConverter.GetLocalRect;
-    VBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
-    VBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
+    // draw
+    if FMainFormState.IsMapMoving then begin
+      DoInvalidateFull;
+    end else begin
+      DoInvalidateRect(FRect);
+    end;
+  end;
+end;
 
-    VConfig := FConfig.GetStatic;
-
-    DrawPointText(
-      ABuffer,
-      VBitmapSize,
-      VText,
-      VTextSize,
-      VPosOnBitmap,
-      VConfig.LastPointFontSize,
-      VConfig.FontName,
-      VConfig.TextBGColor,
-      VConfig.TextColor
-    );
+procedure TMapLayerCalcCircleCaptions.PaintLayer(ABuffer: TBitmap32);
+begin
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
+    end else begin
+      FCaption.DrawToBitmap(ABuffer, FPos);
+    end;
   end;
 end;
 

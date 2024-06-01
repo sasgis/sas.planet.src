@@ -1188,6 +1188,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         ACircleOnMapEdit,
         ALayersConfig.CalcCircleLayerConfig.CaptionConfig,
         AValueToStringConverter
