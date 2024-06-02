@@ -1058,6 +1058,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         ACalcLinePath,
         ALayersConfig.CalcLineLayerConfig.CaptionConfig,
         AValueToStringConverter
@@ -1289,6 +1290,7 @@ constructor TMainFormLayersList.Create(
         AAppClosingNotifier,
         AParentMap,
         AViewPortState.View,
+        AMainFormState,
         AEditLinePath,
         ALayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
         AValueToStringConverter

@@ -27,6 +27,7 @@ uses
   Types,
   Classes,
   SysUtils,
+  Contnrs,
   GR32,
   GR32_Image,
   t_GeoTypes,
@@ -41,66 +42,59 @@ uses
   i_DoublePointsAggregator,
   i_ValueToStringConverter,
   i_PointCaptionsLayerConfig,
+  i_MainFormState,
+  u_MapCaptionDrawable,
   u_MapLayerBasicNoBitmap;
 
 type
   TMapLayerCalcLineCaptions = class(TMapLayerBasicNoBitmap)
   private
+    FMainFormState: IMainFormState;
     FConfig: IPointCaptionsLayerConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FLineOnMapEdit: IPathOnMapEdit;
 
-    FTempBitmap: TBitmap32;
-    FTempLastPointBitmap: TBitmap32;
-
     FLine: ILonLatPathWithSelected;
     FNeedUpdatePoints: Boolean;
     FProjection: IProjection;
-    FProjectedPoints: IDoublePointsAggregator;
-    FDistStrings: TStringList;
-    FTextSizeArray: TArrayOfPoint;
+    FPoints: IDoublePointsAggregator;
+    FPointsText: TStringDynArray;
 
-    FLocalConverter: ILocalCoordConverter;
+    FIsValid: Boolean;
+    FRect: TRect;
+    FPos: TArrayOfPoint;
+    FCaptions: TObjectList;
+    FPointsCount: Integer;
 
-    procedure DrawPointText(
-      ABuffer: TBitmap32;
-      const ABitmapSize: TPoint;
-      const AText: string;
-      const ATextSize: TSize;
-      const APosOnBitmap: TDoublePoint;
-      const AFontSize: Integer;
-      const AFontName: string;
-      const ATextBGColor: TColor32;
-      const ATextColor: TColor32
-    );
+    function GetCaption(
+      const AIndex: Integer;
+      const ACreateIfNotExists: Boolean
+    ): TMapCaptionDrawable;
+
     procedure OnConfigChange;
     procedure OnLineChange;
+
     procedure _PrepareSingleLine(
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatSingleLine;
       const AProjection: IProjection;
       const AIsFinalize: Boolean;
-      var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
       var ALastStartAzimuth: Double;
       var ATotalDist: Double;
-      var ADistStrings: TStringList
+      var APointsText: TStringDynArray
     );
     procedure _PrepareGeometry(
       const AValueConverter: IValueToStringConverter;
       const ALine: IGeometryLonLatLine;
       const AProjection: IProjection;
-      var ATextSizeArray: TArrayOfPoint;
       var AProjectedPoints: IDoublePointsAggregator;
-      var ADistStrings: TStringList
+      var APointsText: TStringDynArray
     );
-  protected
-    procedure ChangedSource;
     procedure PreparePoints(
       const AProjection: IProjection;
       out AProjectedPoints: IDoublePointsAggregator;
-      out ADistStrings: TStringList;
-      out ATextSizeArray: TArrayOfPoint
+      var APointsText: TStringDynArray
     );
   protected
     procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
@@ -113,6 +107,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: IPointCaptionsLayerConfig;
       const AValueToStringConverter: IValueToStringConverterChangeable
@@ -123,7 +118,9 @@ type
 implementation
 
 uses
+  Math,
   i_ProjectionType,
+  u_GeoFunc,
   u_ListenerByEvent,
   u_DoublePointsAggregator,
   u_ResStrings;
@@ -143,6 +140,7 @@ constructor TMapLayerCalcLineCaptions.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: IPointCaptionsLayerConfig;
   const AValueToStringConverter: IValueToStringConverterChangeable
@@ -155,84 +153,58 @@ begin
     AParentMap,
     AView
   );
+
+  FMainFormState := AMainFormState;
   FConfig := AConfig;
   FValueToStringConverter := AValueToStringConverter;
   FLineOnMapEdit := ALineOnMapEdit;
 
+  FCaptions := TObjectList.Create(True);
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FConfig.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FValueToStringConverter.GetChangeNotifier
+    FValueToStringConverter.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLineChange),
-    FLineOnMapEdit.GetChangeNotifier
+    FLineOnMapEdit.ChangeNotifier
   );
-  FTempBitmap := TBitmap32.Create;
-  FTempLastPointBitmap := TBitmap32.Create;
 end;
 
 destructor TMapLayerCalcLineCaptions.Destroy;
 begin
-  FreeAndNil(FDistStrings);
-  FreeAndNil(FTempBitmap);
-  FreeAndNil(FTempLastPointBitmap);
-  inherited;
+  FreeAndNil(FCaptions);
+  inherited Destroy;
 end;
 
-procedure TMapLayerCalcLineCaptions.ChangedSource;
+function TMapLayerCalcLineCaptions.GetCaption(
+  const AIndex: Integer;
+  const ACreateIfNotExists: Boolean
+): TMapCaptionDrawable;
 begin
-  FNeedUpdatePoints := True;
-end;
-
-procedure TMapLayerCalcLineCaptions.DrawPointText(
-  ABuffer: TBitmap32;
-  const ABitmapSize: TPoint;
-  const AText: string;
-  const ATextSize: TSize;
-  const APosOnBitmap: TDoublePoint;
-  const AFontSize: Integer;
-  const AFontName: string;
-  const ATextBGColor: TColor32;
-  const ATextColor: TColor32
-);
-var
-  VRect: TRect;
-begin
-  if (APosOnBitmap.X > 0) and (APosOnBitmap.X < ABitmapSize.X) and
-     (APosOnBitmap.Y > 0) and (APosOnBitmap.Y < ABitmapSize.Y)
-  then begin
-    VRect.Left := Trunc(APosOnBitmap.X + 12);
-    VRect.Top := Trunc(APosOnBitmap.Y);
-    VRect.Right := VRect.Left + ATextSize.cx + 4;
-    VRect.Bottom := VRect.Top + ATextSize.cy + 4;
-    if ABuffer.MeasuringMode then begin
-      ABuffer.Changed(VRect);
-    end else begin
-      ABuffer.FillRectTS(VRect, ATextBGColor);
-      ABuffer.Font.Size := AFontSize;
-      ABuffer.Font.Name := AFontName;
-      ABuffer.Font.Color := WinColor(ATextColor);
-      ABuffer.Textout(VRect.Left + 2, VRect.Top + 2, AText);
-    end;
+  if FCaptions.Count > AIndex then begin
+    Result := TMapCaptionDrawable(FCaptions.Items[AIndex]);
+  end else
+  if ACreateIfNotExists then begin
+    Result := TMapCaptionDrawable.Create;
+    FCaptions.Add(Result);
+  end else begin
+    raise Exception.CreateFmt(
+      Self.ClassName + ': Caption index out of range (%d of %d)', [AIndex, FCaptions.Count]
+    );
   end;
 end;
 
 procedure TMapLayerCalcLineCaptions.OnConfigChange;
-var
-  VConfig: IPointCaptionsLayerConfigStatic;
 begin
   ViewUpdateLock;
   try
-    VConfig := FConfig.GetStatic;
-    FTempBitmap.Font.Size := VConfig.FontSize;
-    FTempBitmap.Font.Name := VConfig.FontName;
-    FTempLastPointBitmap.Font.Size := VConfig.LastPointFontSize;
-    FTempLastPointBitmap.Font.Name := VConfig.FontName;
-    Visible := VConfig.Visible and Assigned(FLine);
+    FNeedUpdatePoints := True;
+    Visible := FConfig.Visible and Assigned(FLine);
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -243,115 +215,150 @@ procedure TMapLayerCalcLineCaptions.OnLineChange;
 begin
   ViewUpdateLock;
   try
+    FNeedUpdatePoints := True;
     FLine := FLineOnMapEdit.Path;
-    if Assigned(FLine) then begin
-      SetNeedRedraw;
-      Visible := FConfig.Visible;
-    end else begin
-      Hide;
-    end;
-    ChangedSource;
+    Visible := FConfig.Visible and Assigned(FLine);
+    SetNeedRedraw;
   finally
     ViewUpdateUnlock;
   end;
 end;
 
 procedure TMapLayerCalcLineCaptions.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
+var
+  I: Integer;
+  VConfig: IPointCaptionsLayerConfigStatic;
+  VNeedUpdatePoints: Boolean;
+  VPosOnMap: TDoublePoint;
+  VPosOnBitmap: TDoublePoint;
+  VCaption: TMapCaptionDrawable;
+  VIndex: Integer;
+  VLastPointIndex: Integer;
+  VRect: TRect;
+  VLocalRect: TRect;
+  VFontSize: Integer;
 begin
-  FLocalConverter := ALocalConverter;
-  DoInvalidateFull; // ToDo
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
+  end;
+
+  if not Visible then begin
+    Exit;
+  end;
+
+  VNeedUpdatePoints :=
+    FNeedUpdatePoints or
+    (FProjection = nil) or
+    (FPoints = nil) or
+    (FPointsText = nil) or
+    not FProjection.IsSame(ALocalConverter.Projection);
+
+  if VNeedUpdatePoints then begin
+    FProjection := ALocalConverter.Projection;
+    PreparePoints(FProjection, FPoints, FPointsText);
+    FNeedUpdatePoints := False;
+  end;
+
+  if (FPoints <> nil) and (FPoints.Count > 0) then begin
+    Assert(Length(FPointsText) >= FPoints.Count);
+
+    VConfig := FConfig.GetStatic;
+    VLocalRect := ALocalConverter.GetLocalRect;
+    FRect := GR32.MakeRect(0, 0, 0, 0);
+
+    if Length(FPos) < FPoints.Count then begin
+      SetLength(FPos, FPoints.Count);
+    end;
+
+    VIndex := 0;
+    VLastPointIndex := FPoints.Count - 1;
+
+    for I := 0 to FPoints.Count - 1 do begin
+
+      if FPointsText[I] = '' then begin
+        // there is no caption for the current point
+        Continue;
+      end;
+
+      VPosOnMap := FPoints.Points[I];
+      VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
+      FPos[VIndex] := PointFromDoublePoint(VPosOnBitmap, prToTopLeft);
+
+      if not GR32.PtInRect(VLocalRect, FPos[VIndex]) then begin
+        // current point is out of the screen
+        Continue;
+      end;
+
+      if I = VLastPointIndex then begin
+        VFontSize := VConfig.LastPointFontSize;
+      end else begin
+        VFontSize := VConfig.FontSize;
+      end;
+
+      VCaption := GetCaption(VIndex, True);
+
+      VCaption.SetText(
+        FPointsText[I],
+        VConfig.TextBGColor,
+        VConfig.FontName,
+        VFontSize,
+        VConfig.TextColor
+      );
+
+      VRect := VCaption.GetBoundsForPosition(FPos[VIndex]);
+
+      if GR32.IsRectEmpty(VRect) or not GR32.IntersectRect(VRect, VRect, VLocalRect) then begin
+        Continue;
+      end;
+
+      if not GR32.IsRectEmpty(FRect) then begin
+        GR32.UnionRect(FRect, FRect, VRect);
+      end else begin
+        FRect := VRect;
+      end;
+
+      Inc(VIndex);
+    end;
+
+    FPointsCount := VIndex;
+
+    FIsValid := (FPointsCount > 0) and not GR32.IsRectEmpty(FRect);
+    if not FIsValid then begin
+      Exit;
+    end;
+
+    // draw
+    if FMainFormState.IsMapMoving then begin
+      DoInvalidateFull;
+    end else begin
+      DoInvalidateRect(FRect);
+    end;
+  end;
 end;
 
 procedure TMapLayerCalcLineCaptions.PaintLayer(ABuffer: TBitmap32);
 var
   I: Integer;
-  VConfig: IPointCaptionsLayerConfigStatic;
-  VProjection: IProjection;
-  VPoints: IDoublePointsAggregator;
-  VDistStrings: TStringList;
-  VDistStringsNew: TStringList;
-  VTextSizeArray: TArrayOfPoint;
-  VNeedUpdatePoints: Boolean;
-  VLocalRect: TRect;
-  VBitmapSize: TPoint;
-  VPosOnMap: TDoublePoint;
-  VPosOnBitmap: TDoublePoint;
-  VText: string;
-  VTextSize: TSize;
+  VCaption: TMapCaptionDrawable;
 begin
-  inherited;
-  VConfig := FConfig.GetStatic;
-  VProjection := FProjection;
-  VPoints := FProjectedPoints;
-  VTextSizeArray := FTextSizeArray;
-  VDistStrings := FDistStrings;
-  VNeedUpdatePoints := FNeedUpdatePoints;
-  if not VNeedUpdatePoints then begin
-    if (VProjection = nil) or (VPoints = nil) then begin
-      VNeedUpdatePoints := True;
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
     end else begin
-      if not VProjection.IsSame(FLocalConverter.Projection) then begin
-        VNeedUpdatePoints := True;
+      Assert(FCaptions.Count >= FPointsCount);
+      Assert(Length(FPos) >= FPointsCount);
+
+      ABuffer.BeginUpdate;
+      try
+        for I := 0 to FPointsCount - 1 do begin
+          VCaption := GetCaption(I, False);
+          VCaption.DrawToBitmap(ABuffer, FPos[I]);
+        end;
+      finally
+        ABuffer.EndUpdate;
       end;
     end;
-  end;
-  if VNeedUpdatePoints then begin
-    VProjection := FLocalConverter.Projection;
-    PreparePoints(VProjection, VPoints, VDistStringsNew, VTextSizeArray);
-    FProjectedPoints := VPoints;
-    FProjection := VProjection;
-    FTextSizeArray := VTextSizeArray;
-    FDistStrings := VDistStringsNew;
-    FNeedUpdatePoints := False;
-    VDistStrings.Free;
-    VDistStrings := VDistStringsNew;
-  end;
-
-  if (VPoints = nil) or (FDistStrings = nil) or (FTextSizeArray = nil) then begin
-    Exit;
-  end;
-
-  if VPoints.Count > 0 then begin
-    VLocalRect := FLocalConverter.GetLocalRect;
-    VBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
-    VBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
-    if VConfig.ShowIntermediateDist or VConfig.ShowDistIncrement then begin
-      for I := 0 to VPoints.Count - 2 do begin
-        VText := VDistStrings[I];
-        VTextSize.cx := VTextSizeArray[I].X;
-        VTextSize.cy := VTextSizeArray[I].Y;
-        VPosOnMap := VPoints.Points[I];
-        VPosOnBitmap := FLocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
-        DrawPointText(
-          ABuffer,
-          VBitmapSize,
-          VText,
-          VTextSize,
-          VPosOnBitmap,
-          VConfig.FontSize,
-          VConfig.FontName,
-          VConfig.TextBGColor,
-          VConfig.TextColor
-        );
-      end;
-    end;
-    I := VPoints.Count - 1;
-    VText := VDistStrings[I];
-    VTextSize.cx := VTextSizeArray[I].X;
-    VTextSize.cy := VTextSizeArray[I].Y;
-    VPosOnMap := VPoints.Points[I];
-    VPosOnBitmap := FLocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
-    DrawPointText(
-      ABuffer,
-      VBitmapSize,
-      VText,
-      VTextSize,
-      VPosOnBitmap,
-      VConfig.LastPointFontSize,
-      VConfig.FontName,
-      VConfig.TextBGColor,
-      VConfig.TextColor
-    );
   end;
 end;
 
@@ -360,10 +367,9 @@ procedure TMapLayerCalcLineCaptions._PrepareSingleLine(
   const ALine: IGeometryLonLatSingleLine;
   const AProjection: IProjection;
   const AIsFinalize: Boolean;
-  var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
   var ALastStartAzimuth, ATotalDist: Double;
-  var ADistStrings: TStringList
+  var APointsText: TStringDynArray
 );
 type
   TTextItemInfo = record
@@ -384,11 +390,10 @@ var
   VPrevLonLat: TDoublePoint;
   VPrevProjected: TDoublePoint;
   VText: string;
-  VTextSize: TSize;
   VProjectionType: IProjectionType;
   VDatum: IDatum;
-  VBitmap: array[Boolean] of TBitmap32;
   VTextItems: array [0..2] of TTextItemInfo;
+  VPointIndex: Integer;
 begin
   VCount := ALine.Count;
   VPoints := ALine.Points;
@@ -397,9 +402,11 @@ begin
     Exit;
   end;
 
-  if Length(ATextSizeArray) < AProjectedPoints.Count + VCount then begin
-    SetLength(ATextSizeArray, AProjectedPoints.Count + VCount);
+  if Length(APointsText) < AProjectedPoints.Count + VCount then begin
+    SetLength(APointsText, AProjectedPoints.Count + VCount);
   end;
+
+  VPointIndex := AProjectedPoints.Count;
 
   VProjectionType := AProjection.ProjectionType;
   VDatum := VProjectionType.Datum;
@@ -412,9 +419,6 @@ begin
   VTextItems[0].Enabled := FConfig.ShowIntermediateDist;
   VTextItems[1].Enabled := FConfig.ShowDistIncrement;
   VTextItems[2].Enabled := FConfig.ShowAzimuth;
-
-  VBitmap[False] := FTempBitmap;
-  VBitmap[True] := FTempLastPointBitmap;
 
   for I := 1 to VCount - 1 do begin
     VCurrLonLat := VPoints[I];
@@ -476,11 +480,9 @@ begin
     end;
 
     VText := VTextItems[0].Text + VTextItems[1].Text + VTextItems[2].Text;
-    ADistStrings.Add(VText);
 
-    VTextSize := VBitmap[VIsLastPoint].TextExtent(VText);
-    ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
-    ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
+    APointsText[VPointIndex] := VText;
+    Inc(VPointIndex);
   end;
 end;
 
@@ -488,9 +490,8 @@ procedure TMapLayerCalcLineCaptions._PrepareGeometry(
   const AValueConverter: IValueToStringConverter;
   const ALine: IGeometryLonLatLine;
   const AProjection: IProjection;
-  var ATextSizeArray: TArrayOfPoint;
   var AProjectedPoints: IDoublePointsAggregator;
-  var ADistStrings: TStringList
+  var APointsText: TStringDynArray
 );
 var
   I: Integer;
@@ -507,24 +508,23 @@ begin
       VSingleLine,
       AProjection,
       True,
-      ATextSizeArray,
       AProjectedPoints,
       VLastStartAzimuth,
       VTotalDist,
-      ADistStrings
+      APointsText
     );
-  end else if Supports(ALine, IGeometryLonLatMultiLine, VMultiLine) then begin
+  end else
+  if Supports(ALine, IGeometryLonLatMultiLine, VMultiLine) then begin
     for I := 0 to VMultiLine.Count - 1 do begin
       _PrepareSingleLine(
         AValueConverter,
         VMultiLine.Item[I],
         AProjection,
         (I = VMultiLine.Count - 1),
-        ATextSizeArray,
         AProjectedPoints,
         VLastStartAzimuth,
         VTotalDist,
-        ADistStrings
+        APointsText
       );
     end;
   end else begin
@@ -535,30 +535,26 @@ end;
 procedure TMapLayerCalcLineCaptions.PreparePoints(
   const AProjection: IProjection;
   out AProjectedPoints: IDoublePointsAggregator;
-  out ADistStrings: TStringList;
-  out ATextSizeArray: TArrayOfPoint
+  var APointsText: TStringDynArray
 );
 var
   VLine: ILonLatPathWithSelected;
   VValueConverter: IValueToStringConverter;
 begin
-  AProjectedPoints := nil;
-  ADistStrings := nil;
-  FTextSizeArray := nil;
   VLine := FLine;
   if VLine <> nil then begin
     VValueConverter := FValueToStringConverter.GetStatic;
-    ADistStrings := TStringList.Create;
     AProjectedPoints := TDoublePointsAggregator.Create;
     _PrepareGeometry(
       VValueConverter,
       VLine.Geometry,
       AProjection,
-      ATextSizeArray,
       AProjectedPoints,
-      ADistStrings
+      APointsText
     );
-    SetLength(ATextSizeArray, AProjectedPoints.Count);
+  end else begin
+    AProjectedPoints := nil;
+    APointsText := nil;
   end;
 end;
 

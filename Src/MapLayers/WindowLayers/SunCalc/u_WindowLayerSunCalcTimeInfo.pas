@@ -112,7 +112,7 @@ begin
       VAltitude := Format('%.2f°', [RadToDeg(VSunPos.Altitude)]);
       VText := Format('%s: %s; %s: %s', [rsAltitude, VAltitude, rsAzimuth, VAzimuth]);
 
-      FCaption.SetText(VText, FFont.FontName, FFont.FontSize, FFont.TextColor, FColor.BgColor);
+      FCaption.SetText(VText, FColor.BgColor, FFont.FontName, FFont.FontSize, FFont.TextColor);
 
       VRect := FloatRect(FCaption.GetBoundsForPosition(GR32.Point(FCurrentPos)));
       UpdateRectByFloatPoint(VRect, FCenter);

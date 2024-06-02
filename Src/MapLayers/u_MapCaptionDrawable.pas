@@ -25,42 +25,63 @@ interface
 
 uses
   Types,
+  UITypes,
   GR32;
 
 type
+  // Set AUseTextout = True if you need TFontQuality other then fqAntialiased or fqNonAntialiased
+
   TMapCaptionDrawable = class
+  private const
+    CDefaultFontQuality = TFontQuality.fqNonAntialiased;
   private
     FText: string;
     FBitmap: TBitmap32;
+    FTextSize: TSize;
+    FBgColor: TColor32;
+    FUseTextout: Boolean;
+    function GetBitmapWidth: Integer; inline;
+    function GetBitmapHeight: Integer; inline;
   public
     procedure SetText(
       const AText: string;
+      const ABgColor: TColor32;
       const AFontName: string;
       const AFontSize: Integer;
       const AFontColor: TColor32;
-      const ABgColor: TColor32;
-      const AAntiAlias: Boolean = False
+      const AFontQuality: TFontQuality = CDefaultFontQuality
     );
     function GetBoundsForPosition(const APosition: TPoint): TRect;
     procedure DrawToBitmap(ABuffer: TBitmap32; const APosition: TPoint);
- public
-    constructor Create;
+  public
+    constructor Create(
+      const AUseTextout: Boolean = False
+    );
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  Windows,
   SysUtils,
   Graphics;
 
+const
+  CBorderSize = 2;
+  CLeftOffset = 12;
+
 { TMapCaptionDrawable }
 
-constructor TMapCaptionDrawable.Create;
+constructor TMapCaptionDrawable.Create(
+  const AUseTextout: Boolean
+);
 begin
   inherited Create;
   FText := '';
   FBitmap := nil;
+  FTextSize := TSize.Create(0, 0); // record initialization
+  FUseTextout := AUseTextout;
 end;
 
 destructor TMapCaptionDrawable.Destroy;
@@ -69,25 +90,33 @@ begin
   inherited Destroy;
 end;
 
+function TMapCaptionDrawable.GetBitmapWidth: Integer;
+begin
+  Result := FTextSize.cx + CBorderSize * 2;
+end;
+
+function TMapCaptionDrawable.GetBitmapHeight: Integer;
+begin
+  Result:= FTextSize.cy + CBorderSize * 2;
+end;
+
 procedure TMapCaptionDrawable.SetText(
   const AText: string;
+  const ABgColor: TColor32;
   const AFontName: string;
   const AFontSize: Integer;
   const AFontColor: TColor32;
-  const ABgColor: TColor32;
-  const AAntiAlias: Boolean
+  const AFontQuality: TFontQuality
 );
-const
-  CBorderSize = 2; // pixels
 var
   VFont: TFont;
-  VTextSize: TSize;
 begin
   if FText = AText then begin
     Exit;
   end;
 
   FText := AText;
+  FBgColor := ABgColor;
 
   if not Assigned(FBitmap) then begin
     FBitmap := TBitmap32.Create;
@@ -98,30 +127,27 @@ begin
   VFont.Size := AFontSize;
   VFont.Name := AFontName;
   VFont.Color := WinColor(AFontColor);
+  VFont.Quality := AFontQuality;
 
   FBitmap.Font := VFont;
 
-  VTextSize := FBitmap.TextExtent(FText);
+  FTextSize := FBitmap.TextExtent(FText);
 
-  FBitmap.SetSize(
-    VTextSize.cx + CBorderSize * 2,
-    VTextSize.cy + CBorderSize * 2
-  );
-
-  FBitmap.Clear(ABgColor);
-  FBitmap.RenderText(CBorderSize, CBorderSize, FText, AFontColor, AAntiAlias);
-  FBitmap.DrawMode := dmBlend;
+  if not FUseTextout then begin
+    FBitmap.SetSize(GetBitmapWidth, GetBitmapHeight);
+    FBitmap.Clear(FBgColor);
+    FBitmap.RenderText(CBorderSize, CBorderSize, FText, AFontColor, AFontQuality = fqAntialiased);
+    FBitmap.DrawMode := dmBlend;
+  end;
 end;
 
 function TMapCaptionDrawable.GetBoundsForPosition(const APosition: TPoint): TRect;
-const
-  CLeftOffset = 12; // pixels
 begin
   if FText <> '' then begin
     Result.Left := APosition.X + CLeftOffset;
     Result.Top := APosition.Y;
-    Result.Right := Result.Left + FBitmap.Width;
-    Result.Bottom := Result.Top + FBitmap.Height;
+    Result.Right := Result.Left + GetBitmapWidth;
+    Result.Bottom := Result.Top + GetBitmapHeight;
   end else begin
     Result := Rect(APosition.X, APosition.Y, APosition.X, APosition.Y);
     Assert(False);
@@ -136,7 +162,18 @@ begin
   if ABuffer.MeasuringMode then begin
     ABuffer.Changed(VRect);
   end else begin
-    FBitmap.DrawTo(ABuffer, VRect.Left, VRect.Top);
+    if FUseTextout then begin
+      ABuffer.BeginUpdate;
+      try
+        ABuffer.FillRectTS(VRect, FBgColor);
+        ABuffer.Font := FBitmap.Font;
+        ABuffer.Textout(VRect.Left + CBorderSize, VRect.Top + CBorderSize, FText);
+      finally
+        ABuffer.EndUpdate;
+      end;
+    end else begin
+      FBitmap.DrawTo(ABuffer, VRect.Left, VRect.Top);
+    end;
   end;
 end;
 

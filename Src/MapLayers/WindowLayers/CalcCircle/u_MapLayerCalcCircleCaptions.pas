@@ -198,10 +198,10 @@ begin
 
     FCaption.SetText(
       VText,
+      VConfig.TextBGColor,
       VConfig.FontName,
       VConfig.LastPointFontSize,
-      VConfig.TextColor,
-      VConfig.TextBGColor
+      VConfig.TextColor
     );
 
     VPoints := VLine.Points;
