@@ -207,10 +207,12 @@ begin
   end;
 
   FIsValid := True;
+
+  // draw
   if FMainFormState.IsMapMoving then begin
     DoInvalidateFull;
   end else begin
-    DoInvalidateRect(FRect); // draw
+    DoInvalidateRect(FRect);
   end;
 end;
 
