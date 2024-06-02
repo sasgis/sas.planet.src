@@ -41,29 +41,33 @@ uses
   i_TileErrorLogProviedrStuped,
   i_MapType,
   i_MapTypeSet,
+  i_MainFormState,
   u_MapLayerBasicNoBitmap;
 
 type
   TMapLayerTileErrorInfo = class(TMapLayerBasicNoBitmap)
   private
+    FMainFormState: IMainFormState;
     FLogProvider: ITileErrorLogProviedrStuped;
     FBitmapFactory: IBitmap32StaticFactory;
     FMapsSet: IMapTypeSet;
     FNeedUpdateFlag: ISimpleFlag;
 
     FErrorInfo: ITileErrorInfo;
-    FErrorInfoCS: IReadWriteSync;
     FHideAfterTime: Cardinal;
     FMarker: IMarkerDrawable;
 
-    FLocalConverter: ILocalCoordConverter;
+    FIsValid: Boolean;
+    FRect: TRect;
+    FPos: TDoublePoint;
 
-    procedure OnTimer;
-    procedure OnErrorRecive;
     function CreateMarkerByError(
       const AMapType: IMapType;
       const AErrorInfo: ITileErrorInfo
     ): IMarkerDrawable;
+
+    procedure OnTimer;
+    procedure OnErrorRecive;
   protected
     procedure InvalidateLayer(const ALocalConverter: ILocalCoordConverter); override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
@@ -75,10 +79,11 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMainFormState: IMainFormState;
       const AMapsSet: IMapTypeSet;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ALogProvider: ITileErrorLogProviedrStuped;
-      const ATimerNoifier: INotifierTime
+      const AGuiSyncronizedTimerNotifier: INotifierTime
     );
   end;
 
@@ -96,8 +101,7 @@ uses
   u_Synchronizer,
   u_GeoFunc;
 
-
-{ TTileErrorInfoLayer }
+{ TMapLayerTileErrorInfo }
 
 constructor TMapLayerTileErrorInfo.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -105,10 +109,11 @@ constructor TMapLayerTileErrorInfo.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMainFormState: IMainFormState;
   const AMapsSet: IMapTypeSet;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ALogProvider: ITileErrorLogProviedrStuped;
-  const ATimerNoifier: INotifierTime
+  const AGuiSyncronizedTimerNotifier: INotifierTime
 );
 begin
   inherited Create(
@@ -118,12 +123,14 @@ begin
     AParentMap,
     AView
   );
+
+  FMainFormState := AMainFormState;
   FLogProvider := ALogProvider;
   FMapsSet := AMapsSet;
   FBitmapFactory := ABitmapFactory;
+
   FErrorInfo := nil;
   FNeedUpdateFlag := TSimpleFlagWithInterlock.Create;
-  FErrorInfoCS := GSync.SyncVariable.Make(Self.ClassName);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnErrorRecive),
@@ -131,7 +138,7 @@ begin
   );
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 1000),
-    ATimerNoifier
+    AGuiSyncronizedTimerNotifier
   );
 end;
 
@@ -147,7 +154,6 @@ var
   VBitmap: TBitmap32;
   VBitmapStatic: IBitmap32Static;
 begin
-  inherited;
   Result := nil;
   if AErrorInfo <> nil then begin
     VBitmap := TBitmap32.Create;
@@ -167,8 +173,8 @@ begin
         VBitmap.SetSize(VSize.X, VSize.Y);
         VBitmap.Clear(0);
 
-        VBitmap.RenderText((VSize.X - VMapNameSize.cx) div 2, 10, VText, 0, clBlack32);
-        VBitmap.RenderText((VSize.X - VMessageSize.cx) div 2, 30 + VMapNameSize.cy, AErrorInfo.ErrorText, 0, clBlack32);
+        VBitmap.RenderText((VSize.X - VMapNameSize.cx) div 2, 10, VText, clBlack32, False);
+        VBitmap.RenderText((VSize.X - VMessageSize.cx) div 2, 30 + VMapNameSize.cy, AErrorInfo.ErrorText, clBlack32, False);
       end else begin
         VMessageSize := VBitmap.TextExtent(AErrorInfo.ErrorText);
         VSize.X := VMessageSize.cx + 20;
@@ -177,7 +183,7 @@ begin
         VBitmap.SetSize(VSize.X, VSize.Y);
         VBitmap.Clear(0);
 
-        VBitmap.RenderText((VSize.X - VMessageSize.cx) div 2, 10, AErrorInfo.ErrorText, 0, clBlack32);
+        VBitmap.RenderText((VSize.X - VMessageSize.cx) div 2, 10, AErrorInfo.ErrorText, clBlack32, False);
       end;
       VBitmapStatic := FBitmapFactory.Build(VSize, VBitmap.Bits);
     finally
@@ -189,7 +195,7 @@ end;
 
 procedure TMapLayerTileErrorInfo.DoHide;
 begin
-  inherited;
+  inherited DoHide;
   FHideAfterTime := 0;
   FErrorInfo := nil;
   FMarker := nil;
@@ -211,35 +217,25 @@ begin
     VErrorInfo := FLogProvider.GetLastErrorInfo;
   end;
   if VErrorInfo <> nil then begin
-    VCurrTime := GetTickCount;
     ViewUpdateLock;
     try
-      FErrorInfoCS.BeginWrite;
-      try
-        FErrorInfo := VErrorInfo;
-        FHideAfterTime := VCurrTime + 10000;
-      finally
-        FErrorInfoCS.EndWrite;
-      end;
+      FErrorInfo := VErrorInfo;
+      FHideAfterTime := GetTickCount + 10000;
       SetNeedRedraw;
       Show;
     finally
       ViewUpdateUnlock;
     end;
-  end else begin
-    VCurrTime := GetTickCount;
-    VNeedHide := False;
+  end else
+  if Visible then begin
     ViewUpdateLock;
     try
-      FErrorInfoCS.BeginWrite;
-      try
-        if (FHideAfterTime = 0) or (FErrorInfo = nil) or (VCurrTime >= FHideAfterTime) then begin
-          VNeedHide := True;
-          FHideAfterTime := 0;
-          FErrorInfo := nil;
-        end;
-      finally
-        FErrorInfoCS.EndWrite;
+      VCurrTime := GetTickCount;
+      VNeedHide := False;
+      if (FHideAfterTime = 0) or (FErrorInfo = nil) or (VCurrTime >= FHideAfterTime) then begin
+        VNeedHide := True;
+        FHideAfterTime := 0;
+        FErrorInfo := nil;
       end;
       if VNeedHide then begin
         FMarker := nil;
@@ -252,50 +248,65 @@ begin
 end;
 
 procedure TMapLayerTileErrorInfo.InvalidateLayer(const ALocalConverter: ILocalCoordConverter);
-begin
-  FLocalConverter := ALocalConverter;
-  DoInvalidateFull; // ToDo
-end;
-
-procedure TMapLayerTileErrorInfo.PaintLayer(ABuffer: TBitmap32);
 var
-  VMarker: IMarkerDrawable;
   VFixedOnView: TDoublePoint;
-  VErrorInfo: ITileErrorInfo;
   VProjection: IProjection;
   VGUID: TGUID;
   VMapType: IMapType;
   VTile: TPoint;
   VFixedLonLat: TDoublePoint;
 begin
-  FErrorInfoCS.BeginRead;
-  try
-    VErrorInfo := FErrorInfo;
-  finally
-    FErrorInfoCS.EndRead;
+  if FIsValid then begin
+    FIsValid := False;
+    DoInvalidateRect(FRect); // erase
   end;
+
+  if not Visible then begin
+    Exit;
+  end;
+
   if FErrorInfo <> nil then begin
-    VGUID := VErrorInfo.MapTypeGUID;
+    VGUID := FErrorInfo.MapTypeGUID;
     VMapType := nil;
     if not IsEqualGUID(VGUID, CGUID_Zero) then begin
       VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
     end;
-    VProjection := VMapType.ProjectionSet.Zooms[VErrorInfo.Zoom];
-    VTile := VErrorInfo.Tile;
+    VProjection := VMapType.ProjectionSet.Zooms[FErrorInfo.Zoom];
+    VTile := FErrorInfo.Tile;
     VProjection.ValidateTilePosStrict(VTile, True);
     VFixedLonLat := VProjection.PixelPosFloat2LonLat(RectCenter(VProjection.TilePos2PixelRect(VTile)));
-    FLocalConverter.Projection.ProjectionType.ValidateLonLatPos(VFixedLonLat);
-    VFixedOnView := FLocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
-    if PixelPointInRect(VFixedOnView, DoubleRect(FLocalConverter.GetLocalRect)) then begin
-      VMarker := FMarker;
-      if VMarker = nil then begin
-        VMarker := CreateMarkerByError(VMapType, FErrorInfo);
+    ALocalConverter.Projection.ProjectionType.ValidateLonLatPos(VFixedLonLat);
+    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
+    if PixelPointInRect(VFixedOnView, DoubleRect(ALocalConverter.GetLocalRect)) then begin
+      if FMarker = nil then begin
+        FMarker := CreateMarkerByError(VMapType, FErrorInfo);
       end;
-      FMarker := VMarker;
-      if VMarker <> nil then begin
-        VFixedOnView := FLocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
-        VMarker.DrawToBitmap(ABuffer, VFixedOnView);
+      if FMarker <> nil then begin
+        FPos := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
+        FRect := FMarker.GetBoundsForPosition(FPos);
+        FIsValid := not GR32.IsRectEmpty(FRect);
+        if not FIsValid then begin
+          Exit;
+        end;
+
+        // draw
+        if FMainFormState.IsMapMoving then begin
+          DoInvalidateFull;
+        end else begin
+          DoInvalidateRect(FRect);
+        end;
       end;
+    end;
+  end;
+end;
+
+procedure TMapLayerTileErrorInfo.PaintLayer(ABuffer: TBitmap32);
+begin
+  if FIsValid then begin
+    if ABuffer.MeasuringMode then begin
+      ABuffer.Changed(FRect);
+    end else begin
+      FMarker.DrawToBitmap(ABuffer, FPos);
     end;
   end;
 end;

@@ -1897,6 +1897,7 @@ begin
       AAppClosingNotifier,
       AParentMap,
       AViewPortState.View,
+      AMainFormState,
       AMainMapState.AllMapsSet,
       ABitmap32StaticFactory,
       ATileErrorLogProvider,
