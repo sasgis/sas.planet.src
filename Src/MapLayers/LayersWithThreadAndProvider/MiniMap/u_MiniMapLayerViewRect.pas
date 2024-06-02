@@ -100,7 +100,7 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const APosition: ILocalCoordConverterChangeable;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const APopupMenu: IPopUp;
       const ALocationConfig: IMiniMapLayerLocationConfig
     );
@@ -124,7 +124,7 @@ constructor TMiniMapLayerViewRect.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const APosition: ILocalCoordConverterChangeable;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const APopupMenu: IPopUp;
   const ALocationConfig: IMiniMapLayerLocationConfig
 );
@@ -165,7 +165,7 @@ begin
   );
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 100),
-    ATimerNoifier
+    AGuiSyncronizedTimerNotifier
   );
 end;
 

@@ -51,7 +51,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const AConfig: IMapLayerGPSTrackConfig;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AGPSRecorder: IGpsTrackRecorder
@@ -70,14 +70,14 @@ uses
 
 constructor TBitmapLayerProviderChangeableForGpsTrack.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const AConfig: IMapLayerGPSTrackConfig;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AGPSRecorder: IGpsTrackRecorder
 );
 begin
   Assert(Assigned(APerfList));
-  Assert(Assigned(ATimerNoifier));
+  Assert(Assigned(AGuiSyncronizedTimerNotifier));
   Assert(Assigned(AConfig));
   Assert(Assigned(AGPSRecorder));
   Assert(Assigned(ABitmap32StaticFactory));
@@ -95,7 +95,7 @@ begin
   );
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 1000),
-    ATimerNoifier
+    AGuiSyncronizedTimerNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnGPSRecorderChange),

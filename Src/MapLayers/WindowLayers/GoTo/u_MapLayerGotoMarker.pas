@@ -68,7 +68,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       const AParentMap: TImage32;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const ALocalConverter: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
       const AMarkerChangeable: IMarkerDrawableChangeable;
@@ -97,7 +97,7 @@ constructor TMapLayerGotoMarker.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   const AParentMap: TImage32;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const ALocalConverter: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
   const AMarkerChangeable: IMarkerDrawableChangeable;
@@ -139,7 +139,7 @@ begin
 
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 1000),
-    ATimerNoifier
+    AGuiSyncronizedTimerNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),

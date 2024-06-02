@@ -104,7 +104,7 @@ type
     procedure UpdateTimeLineWidth(const ABitmapWidth: Integer); inline;
 
     procedure OnPosChange;
-    procedure OnTimerEvent;
+    procedure OnTimer;
     procedure OnSunCalcConfigChange; virtual; abstract;
     procedure OnSunCalcProviderChange;
     procedure OnSunCalcDataProviderChange;
@@ -143,7 +143,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AMouseState: IMouseState;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const ALocalCoordConverter: ILocalCoordConverterChangeable;
       const ASunCalcConfig: ISunCalcConfig;
       const ASunCalcProvider: ISunCalcProvider;
@@ -171,7 +171,7 @@ constructor TWindowLayerSunCalcTimeLineBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AMouseState: IMouseState;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const ALocalCoordConverter: ILocalCoordConverterChangeable;
   const ASunCalcConfig: ISunCalcConfig;
   const ASunCalcProvider: ISunCalcProvider;
@@ -221,8 +221,8 @@ begin
   );
 
   LinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimerEvent, 100),
-    ATimerNoifier
+    TListenerTimeCheck.Create(Self.OnTimer, 100),
+    AGuiSyncronizedTimerNotifier
   );
 
   FFont.FontName := '';
@@ -586,7 +586,7 @@ begin
     (VMousePos.Y >= VMarkerRect.Top) and (VMousePos.Y <= VMarkerRect.Bottom);
 end;
 
-procedure TWindowLayerSunCalcTimeLineBase.OnTimerEvent;
+procedure TWindowLayerSunCalcTimeLineBase.OnTimer;
 var
   VIsMouseAboveMarker: Boolean;
   VIsShowMarkerCaption: Boolean;

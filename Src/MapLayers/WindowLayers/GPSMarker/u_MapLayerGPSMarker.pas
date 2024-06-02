@@ -75,7 +75,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const AConfig: IMapLayerGPSMarkerConfig;
       const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
       const AStopedMarkerChangeable: IMarkerDrawableChangeable;
@@ -102,7 +102,7 @@ constructor TMapLayerGPSMarker.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const AConfig: IMapLayerGPSMarkerConfig;
   const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
   const AStopedMarkerChangeable: IMarkerDrawableChangeable;
@@ -127,7 +127,7 @@ begin
 
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 200),
-    ATimerNoifier
+    AGuiSyncronizedTimerNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),

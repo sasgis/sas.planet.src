@@ -48,7 +48,7 @@ type
     FIsValid: Boolean;
 
     procedure OnConfigChange;
-    procedure OnTimerEvent;
+    procedure OnTimer;
   protected
     procedure InvalidateLayer; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
@@ -61,7 +61,7 @@ type
       const AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const AMouseState: IMouseState;
       const AConfig: IFullMapMouseCursorLayerConfig
     );
@@ -84,7 +84,7 @@ constructor TWindowLayerFullMapMouseCursor.Create(
   const AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const AMouseState: IMouseState;
   const AConfig: IFullMapMouseCursorLayerConfig
 );
@@ -110,8 +110,8 @@ begin
     FMainFormState.ChangeNotifier
   );
   LinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimerEvent, 25),
-    ATimerNoifier
+    TListenerTimeCheck.Create(Self.OnTimer, 25),
+    AGuiSyncronizedTimerNotifier
   );
 end;
 
@@ -125,7 +125,7 @@ begin
   end;
 end;
 
-procedure TWindowLayerFullMapMouseCursor.OnTimerEvent;
+procedure TWindowLayerFullMapMouseCursor.OnTimer;
 var
   VPos: TPoint;
 begin

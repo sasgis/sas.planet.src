@@ -91,7 +91,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AConfig: IMarkerRingsConfig;
@@ -119,7 +119,7 @@ constructor TMapLayerGPSMarkerRings.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AConfig: IMarkerRingsConfig;
@@ -145,7 +145,7 @@ begin
 
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 200),
-    ATimerNoifier
+    AGuiSyncronizedTimerNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),

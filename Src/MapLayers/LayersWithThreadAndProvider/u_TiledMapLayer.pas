@@ -81,7 +81,7 @@ type
       const AHashFunction: IHashFunction;
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrix: IBitmapTileMatrixChangeable;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const ADebugName: string
     );
   end;
@@ -115,7 +115,7 @@ constructor TTiledMapLayer.Create(
   const AHashFunction: IHashFunction;
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrix: IBitmapTileMatrixChangeable;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const ADebugName: string
 );
 begin
@@ -140,7 +140,7 @@ begin
 
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 25),
-    ATimerNoifier
+    AGuiSyncronizedTimerNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnScaleChange),

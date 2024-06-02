@@ -80,7 +80,7 @@ type
       const AMainFormState: IMainFormState;
       const ASunCalcConfig: ISunCalcConfig;
       const ASunCalcProvider: ISunCalcProvider;
-      const ATimerNoifier: INotifierTime = nil
+      const AGuiSyncronizedTimerNotifier: INotifierTime = nil
     );
   end;
 
@@ -107,7 +107,7 @@ constructor TWindowLayerSunCalcInfoBase.Create(
   const AMainFormState: IMainFormState;
   const ASunCalcConfig: ISunCalcConfig;
   const ASunCalcProvider: ISunCalcProvider;
-  const ATimerNoifier: INotifierTime
+  const AGuiSyncronizedTimerNotifier: INotifierTime
 );
 begin
   Assert(ASunCalcProvider <> nil);
@@ -155,10 +155,10 @@ begin
     FLocalCoordConverter.ChangeNotifier
   );
 
-  if ATimerNoifier <> nil then begin
+  if AGuiSyncronizedTimerNotifier <> nil then begin
     LinksList.Add(
       TListenerTimeCheck.Create(Self.OnTimer, 5000),
-      ATimerNoifier
+      AGuiSyncronizedTimerNotifier
     );
   end;
 

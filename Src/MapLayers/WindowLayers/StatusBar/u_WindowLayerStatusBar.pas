@@ -94,7 +94,7 @@ type
     FPrevItemsInfo: TStatusBarItems;
     FIsNeedForceRedraw: Boolean;
     procedure OnConfigChange;
-    procedure OnTimerEvent;
+    procedure OnTimer;
     procedure OnPosChange;
     procedure OnMouseDown(
       Sender: TObject;
@@ -123,7 +123,7 @@ type
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMouseState: IMouseState;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const ATerrainProviderList: ITerrainProviderList;
       const ATerrainConfig: ITerrainConfig;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -162,7 +162,7 @@ constructor TWindowLayerStatusBar.Create(
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMouseState: IMouseState;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const ATerrainProviderList: ITerrainProviderList;
   const ATerrainConfig: ITerrainConfig;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -201,8 +201,8 @@ begin
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimerEvent, FConfig.MinUpdateTickCount),
-    ATimerNoifier
+    TListenerTimeCheck.Create(Self.OnTimer, FConfig.MinUpdateTickCount),
+    AGuiSyncronizedTimerNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
@@ -301,7 +301,7 @@ begin
   end;
 end;
 
-procedure TWindowLayerStatusBar.OnTimerEvent;
+procedure TWindowLayerStatusBar.OnTimer;
 begin
   ViewUpdateLock;
   try

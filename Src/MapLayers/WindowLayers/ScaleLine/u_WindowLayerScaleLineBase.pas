@@ -78,7 +78,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
-      const ATimerNoifier: INotifierTime;
+      const AGuiSyncronizedTimerNotifier: INotifierTime;
       const APopupMenu: IPopUp;
       const AConfig: IScaleLineConfig
     );
@@ -103,7 +103,7 @@ constructor TWindowLayerScaleLineBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
-  const ATimerNoifier: INotifierTime;
+  const AGuiSyncronizedTimerNotifier: INotifierTime;
   const APopupMenu: IPopUp;
   const AConfig: IScaleLineConfig
 );
@@ -129,7 +129,7 @@ begin
   );
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 100),
-    ATimerNoifier
+    AGuiSyncronizedTimerNotifier
   );
 
   Layer.AlphaHit := True;
