@@ -32,25 +32,31 @@ type
     ['{BD5C5719-02CB-4364-A670-B1DD75A5BAEE}']
     function GetIsFullScreen: Boolean;
     property IsFullScreen: Boolean read GetIsFullScreen;
+
     procedure ToggleFullScreen;
     procedure SetFullScreen;
     procedure SetNoFullScreen;
 
     function GetIsMaximized: Boolean;
     property IsMaximized: Boolean read GetIsMaximized;
+
     procedure SetMaximized;
     procedure SetNormalWindow;
 
     function GetIsMinimized: Boolean;
-    procedure SetMinimized;
-    procedure SetNotMinimized;
     property IsMinimized: Boolean read GetIsMinimized;
 
+    procedure SetMinimized;
+    procedure SetNotMinimized;
+
     function GetIsBordersVisible: Boolean;
+    property IsBordersVisible: Boolean read GetIsBordersVisible;
+
     procedure ToggleBordersVisible;
 
     function GetBoundsRect: TRect;
     property BoundsRect: TRect read GetBoundsRect;
+
     procedure SetWindowPosition(const ARect: TRect);
   end;
 

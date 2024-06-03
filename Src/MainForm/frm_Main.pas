@@ -884,7 +884,6 @@ type
     FStickToGrid: IStickToGrid;
     FSensorList: ISensorList;
     FCenterToGPSDelta: TDoublePoint;
-    FShowActivHint: boolean;
     FHintWindow: THintWindow;
     FKeyMovingHandler: IMessageHandler;
     FMouseHandler: IMouseHandler;
@@ -1045,6 +1044,7 @@ type
     procedure OnPathProvidesChange;
     procedure OnNavToMarkChange;
     procedure OnMarkEditConfigsChange;
+
     procedure DoMessageEvent(
       var Msg: TMsg;
       var Handled: Boolean
@@ -1117,10 +1117,11 @@ type
       const AList: IVectorItemSubset;
       const ALocalConverter: ILocalCoordConverter
     ): IVectorDataItem;
-    function AddToHint(
-      const AHint: string;
-      const AMark: IVectorDataItem
-    ): string;
+
+    procedure ShowMapHintWindow(const AHintText: string);
+    procedure HideMapHintWindow;
+    function MakeMapHintText(const AItems: IVectorItemSubset): string;
+
     function FindItems(
       const AVisualConverter: ILocalCoordConverter;
       const ALocalPoint: TPoint
@@ -3042,6 +3043,7 @@ end;
 
 procedure TfrmMain.OnBeforeViewChange;
 begin
+  HideMapHintWindow;
   map.BeginUpdate;
 end;
 
@@ -4858,10 +4860,7 @@ end;
 
 procedure TfrmMain.mapMouseLeave(Sender: TObject);
 begin
-  if (FHintWindow <> nil) then begin
-    FHintWindow.ReleaseHandle;
-    FreeAndNil(FHintWindow);
-  end;
+  HideMapHintWindow;
 end;
 
 procedure TfrmMain.GPSReceiverDisconnect;
@@ -5009,10 +5008,8 @@ var
   VVectorItems: IVectorItemSubset;
   VMagnetPoint: TDoublePoint;
 begin
-  if (FHintWindow <> nil) then begin
-    FHintWindow.ReleaseHandle;
-    FreeAndNil(FHintWindow);
-  end;
+  HideMapHintWindow;
+
   if (Layer <> nil) then begin
     exit;
   end;
@@ -5378,23 +5375,6 @@ procedure TfrmMain.mapMouseMove(
   AX, AY: Integer;
   Layer: TCustomLayer
 );
-var
-  hintrect: TRect;
-  VProjection: IProjection;
-  VLonLat: TDoublePoint;
-  VItemFound: IVectorDataItem;
-  VItemHint: string;
-  VLocalConverter: ILocalCoordConverter;
-  VMouseMapPoint: TDoublePoint;
-  VMouseMoveDelta: TPoint;
-  VLastMouseMove: TPoint;
-  VMousePos: TPoint;
-  VVectorItem: IVectorDataItem;
-  VMagnetPoint: TDoublePoint;
-  VVectorItems: IVectorItemSubset;
-  VEnumUnknown: IEnumUnknown;
-  VMark: IVectorDataItem;
-  i: integer;
 
   function _AllowShowHint: Boolean;
   var
@@ -5403,7 +5383,7 @@ var
   begin
     // do not capture focus on mouse hovering
     hf := GetForegroundWindow;
-    if (Self.HandleAllocated and (Self.Handle = hf)) then begin
+    if Self.HandleAllocated and (Self.Handle = hf) then begin
       // foreground
       Result := True;
     end else begin
@@ -5413,33 +5393,45 @@ var
     end;
   end;
 
+var
+  VProjection: IProjection;
+  VLonLat: TDoublePoint;
+  VHintText: string;
+  VLocalConverter: ILocalCoordConverter;
+  VMouseMapPoint: TDoublePoint;
+  VMouseMoveDelta: TPoint;
+  VMousePosPrev: TPoint;
+  VMousePos: TPoint;
+  VVectorItem: IVectorDataItem;
+  VMagnetPoint: TDoublePoint;
+  VVectorItems: IVectorItemSubset;
 begin
-  VLastMouseMove := FMouseState.CurentPos;
+  VMousePosPrev := FMouseState.CurentPos;
   FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
   VMousePos := FMouseState.CurentPos;
   if not FState.IsMapMoving then begin
-    if (Layer <> nil) then begin
-      exit;
+    if Layer <> nil then begin
+      Exit;
     end;
   end;
-  if (FMapZoomAnimtion) or (ssDouble in Shift) then begin
-    exit;
+  if FMapZoomAnimtion or (ssDouble in Shift) then begin
+    Exit;
   end;
   VLocalConverter := FViewPortState.View.GetStatic;
   VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  if (FLineOnMapEdit <> nil) and (movepoint) then begin
+  if (FLineOnMapEdit <> nil) and movepoint then begin
     VMagnetPoint := CEmptyDoublePoint;
     if FConfig.MainConfig.MagnetDraw then begin
-      if (ssShift in Shift) then begin
+      if ssShift in Shift then begin
         VMagnetPoint := FStickToGrid.PointStick(VLocalConverter.Projection, VLonLat);
       end;
 
       VVectorItem := nil;
       VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, VMousePos);
-      if ((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
+      if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
         VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
       end;
       if VVectorItem <> nil then begin
@@ -5456,40 +5448,40 @@ begin
       end;
     end;
     FLineOnMapEdit.MoveActivePoint(VLonLat);
-    exit;
+    Exit;
   end;
   if (FState.State = ao_edit_point) and movepoint then begin
     FPointOnMapEdit.Point := VLonLat;
   end;
-  if (FState.State = ao_select_rect) then begin
+  if FState.State = ao_select_rect then begin
     if not FSelectionRect.IsEmpty then begin
       FSelectionRect.SetNextPoint(VLonLat, Shift);
     end;
   end;
 
-  if FWinPosition.GetIsFullScreen or not FWinPosition.GetIsBordersVisible then begin
-    if VMousePos.y < 10 then begin
+  if FWinPosition.IsFullScreen or not FWinPosition.IsBordersVisible then begin
+    if VMousePos.Y < 10 then begin
       TBDock.Parent := map;
       TBDock.Visible := True;
     end else begin
       TBDock.Visible := False;
       TBDock.Parent := Self;
     end;
-    if VMousePos.x < 10 then begin
+    if VMousePos.X < 10 then begin
       TBDockLeft.Parent := map;
       TBDockLeft.Visible := True;
     end else begin
       TBDockLeft.Visible := False;
       TBDockLeft.Parent := Self;
     end;
-    if VMousePos.y > Map.Height - 10 then begin
+    if VMousePos.Y > Map.Height - 10 then begin
       TBDockBottom.Parent := map;
       TBDockBottom.Visible := True;
     end else begin
       TBDockBottom.Visible := False;
       TBDockBottom.Parent := Self;
     end;
-    if VMousePos.x > Map.Width - 10 then begin
+    if VMousePos.X > Map.Width - 10 then begin
       TBDockRight.Parent := map;
       TBDockRight.Visible := True;
     end else begin
@@ -5499,7 +5491,7 @@ begin
   end;
 
   if FMapZoomAnimtion then begin
-    exit;
+    Exit;
   end;
 
   if FState.IsMapMoving then begin
@@ -5508,69 +5500,70 @@ begin
     FViewPortState.ChangeMapPixelByLocalDelta(DoublePoint(VMouseMoveDelta));
   end;
 
-  if (not FShowActivHint) then begin
-    if (FHintWindow <> nil) then begin
-      FHintWindow.ReleaseHandle;
-      FreeAndNil(FHintWindow);
-    end;
-  end;
-  FShowActivHint := False;
+  // Hint
   if (not FMapMoveAnimtion) and
     (not FState.IsMapMoving) and
-    ((VMousePos.x <> VLastMouseMove.X) or (VMousePos.y <> VLastMouseMove.y)) and
+    ((VMousePos.X <> VMousePosPrev.X) or (VMousePos.Y <> VMousePosPrev.Y)) and
     (FConfig.MainConfig.ShowHintOnMarks) and
     ((not FConfig.MainConfig.ShowHintOnlyInMapMoveMode) or (FState.State = ao_movemap)) and
-    _AllowShowHint then begin
-    // show hint
-    VItemFound := nil;
-
+    _AllowShowHint
+  then begin
     VVectorItems := FindItems(VLocalConverter, VMousePos);
-    if VVectorItems <> nil then begin
-      if VVectorItems.Count > 0 then begin
-        VEnumUnknown := VVectorItems.GetEnum;
-        while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
-          VItemHint := addToHint(VItemHint, VMark);
-        end;
-      end;
-    end;
-
-    if VItemHint <> '' then begin
-      if map.Cursor = crDefault then begin
-        map.Cursor := crHandPoint;
-      end;
-      if FHintWindow <> nil then begin
-        FHintWindow.ReleaseHandle;
-      end;
-      if VItemHint <> '' then begin
-        if FHintWindow = nil then begin
-          FHintWindow := THintWindow.Create(Self);
-          FHintWindow.Brush.Color := clInfoBk;
-        end;
-        hintrect := FHintWindow.CalcHintRect(Screen.Width, VItemHint, nil);
-        FHintWindow.ActivateHint(
-          Bounds(Mouse.CursorPos.x + 13, Mouse.CursorPos.y - 13, abs(hintrect.Right - hintrect.Left), abs(hintrect.Top - hintrect.Bottom)),
-          VItemHint
-        );
-        FHintWindow.Repaint;
-      end;
-      FShowActivHint := True;
+    VHintText := MakeMapHintText(VVectorItems);
+    if VHintText <> '' then begin
+      ShowMapHintWindow(VHintText);
     end else begin
-      if map.Cursor = crHandPoint then begin
-        map.Cursor := crDefault;
-      end;
+      HideMapHintWindow;
     end;
   end;
 end;
 
-function TfrmMain.AddToHint(
-  const AHint: string;
-  const AMark: IVectorDataItem
-): string;
+procedure TfrmMain.ShowMapHintWindow(const AHintText: string);
+var
+  VHintRect: TRect;
 begin
-  if AHint = '' then begin
-    Result := AHint + AMark.getHintText;
-  end else begin
-    Result := AHint + #13#10'----------------'#13#10 + AMark.GetHintText;
+  Assert(AHintText <> '');
+  if map.Cursor = crDefault then begin
+    map.Cursor := crHandPoint;
+  end;
+  if FHintWindow = nil then begin
+    FHintWindow := THintWindow.Create(Self);
+    FHintWindow.Brush.Color := clInfoBk;
+  end;
+  VHintRect := FHintWindow.CalcHintRect(Screen.Width, AHintText, nil);
+  FHintWindow.ActivateHint(
+    Bounds(Mouse.CursorPos.X + 13, Mouse.CursorPos.Y - 13, Abs(VHintRect.Right - VHintRect.Left), Abs(VHintRect.Top - VHintRect.Bottom)),
+    AHintText
+  );
+  FHintWindow.Repaint;
+end;
+
+procedure TfrmMain.HideMapHintWindow;
+begin
+  if FHintWindow <> nil then begin
+    FHintWindow.ReleaseHandle;
+    FreeAndNil(FHintWindow);
+    if map.Cursor = crHandPoint then begin
+      map.Cursor := crDefault;
+    end;
+  end;
+end;
+
+function TfrmMain.MakeMapHintText(const AItems: IVectorItemSubset): string;
+const
+  CSep = #13#10'----------------'#13#10;
+var
+  I: Integer;
+begin
+  Result := '';
+  if AItems <> nil then begin
+    for I := 0 to AItems.Count - 1 do begin
+      if Result = '' then begin
+        Result := AItems[I].GetHintText;
+      end else begin
+        Result := Result + CSep + AItems[I].GetHintText;
+      end;
+    end;
   end;
 end;
 
