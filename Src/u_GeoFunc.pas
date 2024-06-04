@@ -28,58 +28,58 @@ uses
   Math,
   t_GeoTypes;
 
-  function CalcAngleDelta(const ADerg1, ADegr2: Double): Double; inline;
-
-  function PointFromDoublePoint(const APoint: TDoublePoint; ARounding: TPointRounding): TPoint; inline;
-  function RectFromDoubleRect(const ARect: TDoubleRect; ARounding: TRectRounding): TRect; inline;
-  function DoublePoint(const APoint: TPoint): TDoublePoint; overload; inline;
-  function DoublePoint(const X, Y: Double): TDoublePoint; overload; inline;
-  function DoubleRect(const ARect: TRect): TDoubleRect; overload; inline;
-  function DoubleRect(const ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload; inline;
-  function DoubleRect(const ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload; inline;
-  function RectCenter(const ARect: TRect): TDoublePoint; overload; inline;
-  function RectCenter(const ARect: TDoubleRect): TDoublePoint; overload; inline;
-  function RectSize(const ARect: TRect): TPoint; overload; inline;
-  function RectSize(const ARect: TDoubleRect): TDoublePoint; overload; inline;
-
-  function PointMove(const APoint: TPoint; const APointDelta: TPoint): TPoint; overload; inline;
-  function PointMove(const APoint: TDoublePoint; const APointDelta: TPoint): TDoublePoint; overload; inline;
-  function PointMove(const APoint: TDoublePoint; const APointDelta: TDoublePoint): TDoublePoint; overload; inline;
-
-  function RectMove(const ARect: TRect; const APointDelta: TPoint): TRect; overload; inline;
-  function RectMove(const ARect: TDoubleRect; const APointDelta: TPoint): TDoubleRect; overload; inline;
-  function RectMove(const ARect: TDoubleRect; const APointDelta: TDoublePoint): TDoubleRect; overload; inline;
-
-  function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean; inline;
-  function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean; inline;
-  function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
-  function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
-  procedure UpdateLonLatMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint); inline;
-  procedure UpdateProjectedMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint); inline;
-  function LonLatMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect; inline;
-  function ProjectedMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect; inline;
-
-  function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean; inline;
-  function IsLonLatRectEmpty(const Rect: TDoubleRect): Boolean; inline;
-  function IsProjectedRectEmpty(const Rect: TDoubleRect): Boolean; inline;
-  function IntersecLonLatRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean; inline;
-  function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean; inline;
-  function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean; inline;
-  function IsIntersecProjectedRect(const R1, R2: TDoubleRect): Boolean; inline;
-
-  function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean; inline;
-  function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean; inline;
-  function IsPointsEqual(const P1, P2: TPoint): Boolean; inline;
-
-  function PointIsEmpty(const APoint: TDoublePoint): Boolean; inline;
-
-  function GetActualGshSCale(AScale: Integer; AZoom:Byte): Integer;
-  function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
-
-  function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
-
 const
-  CEmptyDoublePoint: TDoublePoint = (X: NAN; Y: NAN);
+  CEmptyDoublePoint: TDoublePoint = (X: NaN; Y: NaN);
+
+function CalcAngleDelta(const ADegr1, ADegr2: Double): Double; inline;
+
+function PointFromDoublePoint(const APoint: TDoublePoint; ARounding: TPointRounding): TPoint; inline;
+function RectFromDoubleRect(const ARect: TDoubleRect; ARounding: TRectRounding): TRect; inline;
+function DoublePoint(const APoint: TPoint): TDoublePoint; overload; inline;
+function DoublePoint(const X, Y: Double): TDoublePoint; overload; inline;
+function DoubleRect(const ARect: TRect): TDoubleRect; overload; inline;
+function DoubleRect(const ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload; inline;
+function DoubleRect(const ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload; inline;
+function RectCenter(const ARect: TRect): TDoublePoint; overload; inline;
+function RectCenter(const ARect: TDoubleRect): TDoublePoint; overload; inline;
+function RectSize(const ARect: TRect): TPoint; overload; inline;
+function RectSize(const ARect: TDoubleRect): TDoublePoint; overload; inline;
+
+function PointMove(const APoint: TPoint; const APointDelta: TPoint): TPoint; overload; inline;
+function PointMove(const APoint: TDoublePoint; const APointDelta: TPoint): TDoublePoint; overload; inline;
+function PointMove(const APoint: TDoublePoint; const APointDelta: TDoublePoint): TDoublePoint; overload; inline;
+
+function RectMove(const ARect: TRect; const APointDelta: TPoint): TRect; overload; inline;
+function RectMove(const ARect: TDoubleRect; const APointDelta: TPoint): TDoubleRect; overload; inline;
+function RectMove(const ARect: TDoubleRect; const APointDelta: TDoublePoint): TDoubleRect; overload; inline;
+
+function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean; inline;
+function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean; inline;
+function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
+function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect; inline;
+procedure UpdateLonLatMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint); inline;
+procedure UpdateProjectedMBRByPoint(var ARect: TDoubleRect; const APoint: TDoublePoint); inline;
+function LonLatMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect; inline;
+function ProjectedMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect; inline;
+
+function IsDoubleRectEmpty(const ARect: TDoubleRect): Boolean; inline;
+function IsLonLatRectEmpty(const ARect: TDoubleRect): Boolean; inline;
+function IsProjectedRectEmpty(const ARect: TDoubleRect): Boolean; inline;
+function IntersecLonLatRect(out ARect: TDoubleRect; const R1, R2: TDoubleRect): Boolean; inline;
+function IntersecProjectedRect(out ARect: TDoubleRect; const R1, R2: TDoubleRect): Boolean; inline;
+function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean; inline;
+function IsIntersecProjectedRect(const R1, R2: TDoubleRect): Boolean; inline;
+
+function DoublePointsEqual(const P1, P2: TDoublePoint): Boolean; inline;
+function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean; inline;
+function IsPointsEqual(const P1, P2: TPoint): Boolean; inline;
+
+function PointIsEmpty(const APoint: TDoublePoint): Boolean; inline;
+
+function GetActualGshSCale(AScale: Integer; AZoom:Byte): Integer;
+function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
+
+function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
 
 implementation
 
@@ -161,9 +161,9 @@ begin
   end;
 end;
 
-function CalcAngleDelta(const ADerg1, ADegr2: Double): Double;
+function CalcAngleDelta(const ADegr1, ADegr2: Double): Double;
 begin
-  Result := ADerg1 - ADegr2;
+  Result := ADegr1 - ADegr2;
   if (Result > 360) or (Result < 360) then begin
     Result := Result - Trunc(Result / 360.0) * 360.0;
   end;
@@ -174,18 +174,18 @@ begin
   end;
 end;
 
-function DoublePointsEqual(const p1,p2:TDoublePoint):boolean;
+function DoublePointsEqual(const P1, P2: TDoublePoint):boolean;
 var
   VP1Empty: Boolean;
   VP2Empty: Boolean;
 begin
-  VP1Empty := IsNan(p1.x) or IsNan(p1.Y);
-  VP2Empty := IsNan(p2.x) or IsNan(p2.Y);
+  VP1Empty := IsNan(P1.X) or IsNan(P1.Y);
+  VP2Empty := IsNan(P2.X) or IsNan(P2.Y);
   if VP1Empty and VP2Empty then begin
     Result := True;
   end else begin
     if not VP1Empty and not VP2Empty then begin
-      Result := (p1.x=p2.X)and(p1.y=p2.y);
+      Result := (P1.X = P2.X) and (P1.Y = P2.Y);
     end else begin
       Result := False;
     end;
@@ -203,34 +203,32 @@ end;
 
 function IsPointsEqual(const P1, P2: TPoint): Boolean;
 begin
-  Result :=
-    (P1.X = P2.X) and
-    (P1.Y = P2.Y);
+  Result := (P1.X = P2.X) and (P1.Y = P2.Y);
 end;
 
-function GetActualGshSCale(AScale: Integer; AZoom:Byte): Integer;
+function GetActualGshSCale(AScale: Integer; AZoom: Byte): Integer;
 begin
   if AScale < 0 then begin
-    if Azoom <=7 then Result :=  1000000
-    else
     case AZoom of
-      8: Result :=  500000;
-      9: Result :=  200000;
-      10: Result :=  100000;
-      11: Result :=  50000;
-      12: Result :=  25000;
-      13: Result :=  10000;
-      14: Result :=  5000;
+      0..7: Result := 1000000;
+      8:  Result := 500000;
+      9:  Result := 200000;
+      10: Result := 100000;
+      11: Result := 50000;
+      12: Result := 25000;
+      13: Result := 10000;
+      14: Result := 5000;
     else
-      Result :=  2500;
+      Result := 2500;
     end;
-  end else
-  Result := AScale;
+  end else begin
+    Result := AScale;
+  end;
 end;
 
 function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
 begin
-  case GetActualGshSCale(AScale,AZoom) of
+  case GetActualGshSCale(AScale, AZoom) of
     1000000: begin Result.X:=6; Result.Y:=4; end;
      500000: begin Result.X:=3; Result.Y:=2; end;
      200000: begin Result.X:=1; Result.Y:=0.66666666666666666666666666666667; end;
@@ -246,35 +244,38 @@ end;
 
 function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
 begin
-
-if AScale > 1000000000 then begin Result.X:=10; Result.Y:=10; end;
- Result.X := abs(AScale/100000000);
-
- if AScale <0 then
-  if AZoom <>0 then begin
-   case AZoom of
-    1..6:  Result.X := 10;
-    7 : Result.X := 5;
-    8 : Result.X := 2;
-    9 : Result.X := 1;
-    10 : Result.X := 30/60;
-    11 : Result.X := 20/60;
-    12 : Result.X := 10/60;
-    13 : Result.X := 5/60;
-    14 : Result.X := 2/60;
-    15 : Result.X := 1/60;
-    16 : Result.X := 30/3600;
-    17 : Result.X := 20/3600;
-    18 : Result.X := 10/3600;
-    19 : Result.X := 5/3600;
-    20 : Result.X := 2/3600;
-    21 : Result.X := 1/3600;
-    22 : Result.X := 30/216000;
-    23 : Result.X := 20/216000;
-    else Result.X := 0;
-   end;
+  if AScale > 1000000000 then begin
+    Result.X := 10;
+    Result.Y := 10;
   end;
- Result.Y := Result.X;
+  Result.X := Abs(AScale/100000000);
+  if AScale < 0 then begin
+    if AZoom <> 0 then begin
+      case AZoom of
+        1..6: Result.X := 10;
+        7:  Result.X := 5;
+        8:  Result.X := 2;
+        9:  Result.X := 1;
+        10: Result.X := 30/60;
+        11: Result.X := 20/60;
+        12: Result.X := 10/60;
+        13: Result.X := 5/60;
+        14: Result.X := 2/60;
+        15: Result.X := 1/60;
+        16: Result.X := 30/3600;
+        17: Result.X := 20/3600;
+        18: Result.X := 10/3600;
+        19: Result.X := 5/3600;
+        20: Result.X := 2/3600;
+        21: Result.X := 1/3600;
+        22: Result.X := 30/216000;
+        23: Result.X := 20/216000;
+      else
+        Result.X := 0;
+      end;
+    end;
+  end;
+  Result.Y := Result.X;
 end;
 
 function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
@@ -345,43 +346,46 @@ end;
 
 function LonLatMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect;
 var
-  i: Integer;
+  I: Integer;
 begin
   Assert(Assigned(APoints));
   Assert(ACount > 0);
   if ACount > 0 then begin
     Result.TopLeft := APoints[0];
     Result.BottomRight := Result.TopLeft;
-    for i := 1 to ACount - 1 do begin
-      UpdateLonLatMBRByPoint(Result, APoints[i]);
+    for I := 1 to ACount - 1 do begin
+      UpdateLonLatMBRByPoint(Result, APoints[I]);
     end;
   end;
 end;
 
 function ProjectedMBRByPoints(const APoints: PDoublePointArray; const ACount: Integer): TDoubleRect;
 var
-  i: Integer;
+  I: Integer;
 begin
   Assert(Assigned(APoints));
   Assert(ACount > 0);
   if ACount > 0 then begin
     Result.TopLeft := APoints[0];
     Result.BottomRight := Result.TopLeft;
-    for i := 1 to ACount - 1 do begin
-      UpdateProjectedMBRByPoint(Result, APoints[i]);
+    for I := 1 to ACount - 1 do begin
+      UpdateProjectedMBRByPoint(Result, APoints[I]);
     end;
   end;
 end;
 
 function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
 begin
-  result:=(APoint.X<=ARect.Right)and(APoint.X>=ARect.Left)and
-          (APoint.Y<=ARect.Top)and(APoint.Y>=ARect.Bottom);
+  Result :=
+    (APoint.X <= ARect.Right) and
+    (APoint.X >= ARect.Left) and
+    (APoint.Y <= ARect.Top) and
+    (APoint.Y >= ARect.Bottom);
 end;
 
 function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
 begin
-  result:=(APoint.X<=ARect.Right)and(APoint.X>=ARect.Left)and
+  Result:=(APoint.X<=ARect.Right)and(APoint.X>=ARect.Left)and
           (APoint.Y>=ARect.Top)and(APoint.Y<=ARect.Bottom);
 end;
 
@@ -486,30 +490,30 @@ begin
   Result.Bottom := ARect.Bottom - APointDelta.Y;
 end;
 
-function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
+function IsDoubleRectEmpty(const ARect: TDoubleRect): Boolean;
 begin
-  Result := (Rect.Right <= Rect.Left) or (Rect.Bottom <= Rect.Top);
+  Result := (ARect.Right <= ARect.Left) or (ARect.Bottom <= ARect.Top);
 end;
 
-function IsLonLatRectEmpty(const Rect: TDoubleRect): Boolean;
+function IsLonLatRectEmpty(const ARect: TDoubleRect): Boolean;
 begin
-  Result := (Rect.Right <= Rect.Left) or (Rect.Bottom >= Rect.Top);
+  Result := (ARect.Right <= ARect.Left) or (ARect.Bottom >= ARect.Top);
 end;
 
-function IsProjectedRectEmpty(const Rect: TDoubleRect): Boolean;
+function IsProjectedRectEmpty(const ARect: TDoubleRect): Boolean;
 begin
-  Result := (Rect.Right <= Rect.Left) or (Rect.Bottom <= Rect.Top);
+  Result := (ARect.Right <= ARect.Left) or (ARect.Bottom <= ARect.Top);
 end;
 
-function IntersecLonLatRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+function IntersecLonLatRect(out ARect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 begin
-  Rect := R1;
-  if R2.Left > R1.Left then Rect.Left := R2.Left;
-  if R2.Top < R1.Top then Rect.Top := R2.Top;
-  if R2.Right < R1.Right then Rect.Right := R2.Right;
-  if R2.Bottom > R1.Bottom then Rect.Bottom := R2.Bottom;
-  Result := not IsLonLatRectEmpty(Rect);
-  if not Result then FillChar(Rect, SizeOf(Rect), 0);
+  ARect := R1;
+  if R2.Left > R1.Left then ARect.Left := R2.Left;
+  if R2.Top < R1.Top then ARect.Top := R2.Top;
+  if R2.Right < R1.Right then ARect.Right := R2.Right;
+  if R2.Bottom > R1.Bottom then ARect.Bottom := R2.Bottom;
+  Result := not IsLonLatRectEmpty(ARect);
+  if not Result then FillChar(ARect, SizeOf(ARect), 0);
 end;
 
 function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean;
@@ -521,16 +525,16 @@ begin
     (R1.Bottom <= R2.Top);
 end;
 
-function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+function IntersecProjectedRect(out ARect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 begin
-  Rect := R1;
-  if R2.Left > R1.Left then Rect.Left := R2.Left;
-  if R2.Top > R1.Top then Rect.Top := R2.Top;
-  if R2.Right < R1.Right then Rect.Right := R2.Right;
-  if R2.Bottom < R1.Bottom then Rect.Bottom := R2.Bottom;
-  Result := not IsProjectedRectEmpty(Rect);
+  ARect := R1;
+  if R2.Left > R1.Left then ARect.Left := R2.Left;
+  if R2.Top > R1.Top then ARect.Top := R2.Top;
+  if R2.Right < R1.Right then ARect.Right := R2.Right;
+  if R2.Bottom < R1.Bottom then ARect.Bottom := R2.Bottom;
+  Result := not IsProjectedRectEmpty(ARect);
   if not Result then begin
-    FillChar(Rect, SizeOf(Rect), 0);
+    FillChar(ARect, SizeOf(ARect), 0);
   end;
 end;
 

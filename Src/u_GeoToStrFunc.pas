@@ -28,8 +28,8 @@ uses
   t_GeoTypes,
   u_AnsiStr;
 
-function RoundEx(const chislo: Double; const Precision: Integer): string; inline;
-function RoundExAnsi(const chislo: Double; const Precision: Integer): AnsiString;
+function RoundEx(const ANumber: Double; const APrecision: Integer): string; inline;
+function RoundExAnsi(const ANumber: Double; const APrecision: Integer): AnsiString;
 
 function R2StrPoint(const r: Double): string; inline;
 function R2AnsiStrPoint(const r: Double): AnsiString;
@@ -38,8 +38,8 @@ function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; APrec:
 function str2r(const AStrValue: string): Double;
 
 // forced with point
-function StrPointToFloat(const S: String): Double; inline;
-function TryStrPointToFloat(const S: String; out AValue: Double): Boolean; inline;
+function StrPointToFloat(const S: string): Double; inline;
+function TryStrPointToFloat(const S: string; out AValue: Double): Boolean; inline;
 
 type
   TGeoToStrFunc = record
@@ -53,29 +53,31 @@ implementation
 uses
   Math;
 
-function RoundEx(const chislo: Double; const Precision: Integer): string;
+function RoundEx(const ANumber: Double; const APrecision: Integer): string;
 begin
-  if IsNan(chislo) then
-    Result := '-'
-  else
-    Result := FloatToStrF(chislo, ffFixed, 18, Precision, TGeoToStrFunc.FFormatSettings);
+  if IsNan(ANumber) then begin
+    Result := '-';
+  end else begin
+    Result := FloatToStrF(ANumber, ffFixed, 18, APrecision, TGeoToStrFunc.FFormatSettings);
+  end;
 end;
 
-function RoundExAnsi(const chislo: Double; const Precision: Integer): AnsiString;
+function RoundExAnsi(const ANumber: Double; const APrecision: Integer): AnsiString;
 begin
-  if IsNan(chislo) then
-    Result := '-'
-  else
-    Result := FloatToStrFA(chislo, ffFixed, 18, Precision, TGeoToStrFunc.FFormatSettingsA);
+  if IsNan(ANumber) then begin
+    Result := '-';
+  end else begin
+    Result := FloatToStrFA(ANumber, ffFixed, 18, APrecision, TGeoToStrFunc.FFormatSettingsA);
+  end;
 end;
 
 function str2r(const AStrValue: string): Double;
 var
-  VPos: integer;
-  VFormatSettings : TFormatSettings;
+  VPos: Integer;
+  VFormatSettings: TFormatSettings;
 begin
   if Length(AStrValue) = 0 then begin
-    Result := 0
+    Result := 0;
   end else begin
     VPos := System.Pos(',', AStrValue);
     if VPos > 0 then begin
@@ -92,12 +94,12 @@ begin
   end;
 end;
 
-function StrPointToFloat(const S: String): Double;
+function StrPointToFloat(const S: string): Double;
 begin
   Result := StrToFloat(S, TGeoToStrFunc.FFormatSettings);
 end;
 
-function TryStrPointToFloat(const S: String; out AValue: Double): Boolean;
+function TryStrPointToFloat(const S: string; out AValue: Double): Boolean;
 begin
   Result := TryStrToFloat(S, AValue, TGeoToStrFunc.FFormatSettings);
 end;
@@ -128,7 +130,7 @@ var
   begin
     Result :=
       ((VLon div Round(6/divr*APrec)) mod modl)+
-      (Abs(integer(ALonLat.Y>0)*(modl-1)-((VLat div Round(4/divr*APrec)) mod modl)))*modl;
+      (Abs(Integer(ALonLat.Y>0)*(modl-1)-((VLat div Round(4/divr*APrec)) mod modl)))*modl;
   end;
 
   function AChr(const AValue: Integer): AnsiChar;

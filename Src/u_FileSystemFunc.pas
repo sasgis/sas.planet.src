@@ -60,19 +60,19 @@ end;
 
 function GetDiskFree(const ADrive: Char): Int64;
 var
-  lpFreeBytesAvailableToCaller,
-  lpTotalNumberOfBytes,
-  lpTotalNumberOfFreeBytes : TLargeInteger;
+  VFreeBytesAvailableToCaller,
+  VTotalNumberOfBytes,
+  VTotalNumberOfFreeBytes: TLargeInteger;
 begin
   if
     GetDiskFreeSpaceEx(
       PChar(ADrive + ':\'),
-      lpFreeBytesAvailableToCaller,
-      lpTotalNumberOfBytes,
-      @lpTotalNumberOfFreeBytes
+      VFreeBytesAvailableToCaller,
+      VTotalNumberOfBytes,
+      @VTotalNumberOfFreeBytes
     )
   then
-    Result := lpTotalNumberOfFreeBytes
+    Result := VTotalNumberOfFreeBytes
   else
     Result := -1;
 end;
