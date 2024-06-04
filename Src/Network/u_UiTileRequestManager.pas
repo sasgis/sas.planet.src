@@ -501,7 +501,9 @@ begin
       FTaskArrayLock.Release;
     end;
 
-    Assert(VResult);
+    if not VResult then begin
+      Assert(False);
+    end;
   finally
     ReleaseSemaphore(FConcurrentCoutLimiter, 1, nil);
   end;

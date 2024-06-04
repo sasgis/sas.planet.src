@@ -577,7 +577,9 @@ begin
       VFileStream.Seek(FDataStartOffset, soFromBeginning);
       VCount := VFileStream.Size - FDataStartOffset;
       I := CopyFrom(VFileStream, FStream, VCount);
-      Assert(I = VCount);
+      if I <> VCount then begin
+        Assert(False);
+      end;
     finally
       FreeAndNil(VFileStream);
     end;

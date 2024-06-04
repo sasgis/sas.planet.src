@@ -164,7 +164,9 @@ begin
   try
     VListenerIndex := FListenerList.Add(AListener);
     VNotifierIndex := FNotifierList.Add(ANotifier);
-    Assert(VListenerIndex = VNotifierIndex);
+    if VListenerIndex <> VNotifierIndex then begin
+      Assert(False);
+    end;
     if FLinksActive then begin
       ActivateLink(VListenerIndex);
     end;
@@ -185,7 +187,9 @@ begin
   try
     VListenerIndex := FListenerList.Add(AListener);
     VNotifierIndex := FNotifierList.Add(ANotifier);
-    Assert(VListenerIndex = VNotifierIndex);
+    if VListenerIndex <> VNotifierIndex then begin
+      Assert(False);
+    end;
     if FLinksActive then begin
       ActivateLink(VListenerIndex);
     end;
