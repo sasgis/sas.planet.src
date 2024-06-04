@@ -152,7 +152,10 @@ begin
   {$ENDIF}
   FEnvCS.Acquire;
   try
-    VPath := RelativeToAbsolutePath(FFullBaseCachePath, AEnvRootPath);
+    VPath := AEnvRootPath;
+    if IsRelativePath(VPath) then begin
+      VPath := RelativeToAbsolutePath(FFullBaseCachePath, VPath);
+    end;
     VPath := LowerCase(IncludeTrailingPathDelimiter(VPath));
     for I := 0 to FEnvList.Count - 1 do begin
       VEnv := FEnvList.Items[I] as IBerkeleyDBEnvironment;
