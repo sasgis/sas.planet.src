@@ -23,9 +23,6 @@ unit u_FileSystemFunc;
 
 interface
 
-{$IF CompilerVersion < 23}
-function IsRelativePath(const Path: string): Boolean; inline;
-{$IFEND}
 function RelativeToAbsolutePath(const ABasePath, ARelativePath: string): string;
 function GetDiskFree(const ADrive: Char): Int64;
 function ReplaceIllegalFileNameChars(const AFileName: string): string;
@@ -37,17 +34,6 @@ uses
   Windows,
   SysUtils,
   ShLwApi;
-
-{$IF CompilerVersion < 23}
-function IsRelativePath(const Path: string): Boolean; inline;
-var
-  L: Integer;
-begin
-  L := Length(Path);
-  Result := (L > 0) and (Path[1] <> PathDelim)
-    {$IFDEF MSWINDOWS}and (L > 1) and (Path[2] <> ':'){$ENDIF MSWINDOWS};
-end;
-{$IFEND}
 
 function RelativeToAbsolutePath(const ABasePath, ARelativePath: string): string;
 begin
