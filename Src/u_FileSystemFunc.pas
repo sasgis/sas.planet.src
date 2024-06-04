@@ -26,7 +26,7 @@ interface
 {$IF CompilerVersion < 23}
 function IsRelativePath(const Path: string): Boolean; inline;
 {$IFEND}
-function GetFullPath(const ABasePath, ARelativePath: string): string;
+function RelativeToAbsolutePath(const ABasePath, ARelativePath: string): string;
 function GetDiskFree(const ADrive: Char): Int64;
 function ReplaceIllegalFileNameChars(const AFileName: string): string;
 function IsValidFileName(const AFileName: string): Boolean;
@@ -49,12 +49,13 @@ begin
 end;
 {$IFEND}
 
-function GetFullPath(const ABasePath, ARelativePath: string): string;
+function RelativeToAbsolutePath(const ABasePath, ARelativePath: string): string;
 begin
   SetLength(Result, MAX_PATH);
-  PathCombine(@Result[1], PChar(ExtractFilePath(ABasePath)), PChar(ARelativePath));
-  SetLength(Result, LStrLen(PChar(Result)));
-  Result := IncludeTrailingPathDelimiter(Result);
+  if PathCombine(PChar(Result), PChar(ExtractFilePath(ABasePath)), PChar(ARelativePath)) = nil then begin
+    RaiseLastOSError;
+  end;
+  SetLength(Result, StrLen(PChar(Result)));
 end;
 
 function GetDiskFree(const ADrive: Char): Int64;

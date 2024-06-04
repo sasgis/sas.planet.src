@@ -148,7 +148,8 @@ begin
   end else if StartsText('.\TerrainData\', FBaseFolder) then begin
     FBaseFolder := StringReplace(FBaseFolder, '.\TerrainData\', FDefaultPath, [rfIgnoreCase]);
   end else if StartsText('.', FBaseFolder) then begin
-    FBaseFolder := LowerCase(GetFullPath(FDefaultPath, FBaseFolder));
+    FBaseFolder := RelativeToAbsolutePath(FDefaultPath, FBaseFolder);
+    FBaseFolder := LowerCase(IncludeTrailingPathDelimiter(FBaseFolder));
   end else begin
     // it's absolute path
   end;

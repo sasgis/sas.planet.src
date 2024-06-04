@@ -189,17 +189,17 @@ procedure TMarkSystemImplORMClientProvider.BuildSQLite3Client;
       end;
       VPath := ExtractFilePath(AFileName);
       if VPath = '' then begin
-        VPath := IncludeTrailingPathDelimiter(ABasePath);
+        VPath := ABasePath;
       end else begin
         if IsRelativePath(VPath) then begin
-          VPath := GetFullPath(ABasePath, VPath);
+          VPath := RelativeToAbsolutePath(ABasePath, VPath);
         end;
       end;
     end else begin
       VName := cDefSQLite3DbFileName;
-      VPath := IncludeTrailingPathDelimiter(ABasePath);
+      VPath := ABasePath;
     end;
-    Result := VPath + VName;
+    Result := IncludeTrailingPathDelimiter(VPath) + VName;
   end;
 
 var

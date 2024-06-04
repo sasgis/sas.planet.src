@@ -70,7 +70,7 @@ implementation
 
 uses
   SysUtils,
-  ShLwApi,
+  u_FileSystemFunc,
   u_ListenerByEvent;
 
 { TPathConfig }
@@ -174,7 +174,7 @@ end;
 
 function TPathConfig.IsRelativePath(const APath: string): Boolean;
 begin
-  Result := PathIsRelative(PChar(APath));
+  Result := SysUtils.IsRelativePath(APath);
 end;
 
 procedure TPathConfig.OnBasePathChange;
@@ -242,13 +242,6 @@ begin
 end;
 
 procedure TPathConfig._UpdateFullPath;
-  function RelativeToAbsolutePath(const ABasePath, ARelativePath: string): string;
-  begin
-    SetLength(Result, MAX_PATH);
-    PathCombine(@Result[1], PChar(ABasePath), PChar(ARelativePath));
-    SetLength(Result, StrLen(PChar(Result)));
-  end;
-
 var
   VBasePath: string;
   VPath: string;

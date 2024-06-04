@@ -740,15 +740,15 @@ begin
       VArchiveType := atTar;
     end;
     dtFolder: begin
-      VDestPath := IncludeTrailingPathDelimiter(VDestPath);
       if FfrDestCacheTypesList.IntCode <> c_File_Cache_Id_DBMS then begin
         if IsRelativePath(VDestPath) then begin
-          VDestPath := GetFullPath(FBaseApplicationPath.FullPath, VDestPath)
+          VDestPath := RelativeToAbsolutePath(FBaseApplicationPath.FullPath, VDestPath);
         end;
         if not ForceDirectories(VDestPath) then begin
           RaiseLastOSError;
         end;
       end;
+      VDestPath := IncludeTrailingPathDelimiter(VDestPath);
     end;
   else
     Assert(False);

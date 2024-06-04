@@ -167,16 +167,18 @@ begin
 
     VPath := ExtractFilePath(AImplConfig.FileName);
     if VPath = '' then begin
-      VPath := IncludeTrailingPathDelimiter(ABasePath);
+      VPath := ABasePath;
     end else begin
       if IsRelativePath(VPath) then begin
-        VPath := GetFullPath(ABasePath, VPath);
+        VPath := RelativeToAbsolutePath(ABasePath, VPath);
       end;
     end;
   end else begin
     VName := 'marks.sml';
-    VPath := IncludeTrailingPathDelimiter(ABasePath);
+    VPath := ABasePath;
   end;
+
+  VPath := IncludeTrailingPathDelimiter(VPath);
 
   VCategoryFileName := VPath + 'Category' + VName;
   VCategoryStream := PrepareStream(VCategoryFileName, VState);
