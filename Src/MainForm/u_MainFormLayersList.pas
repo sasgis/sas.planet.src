@@ -677,7 +677,7 @@ constructor TMainFormLayersList.Create(
         AHashFunction,
         ABitmap32StaticFactory,
         Max(Max(VVectorOversizeRect.Left, VVectorOversizeRect.Right), Max(VVectorOversizeRect.Top, VVectorOversizeRect.Bottom)),
-        1,
+        True,
         ALayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.FontName
       );
     VMarkerProviderForVectorItem :=

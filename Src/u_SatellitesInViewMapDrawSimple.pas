@@ -323,7 +323,7 @@ var
       if AUpper then begin
         VTextPos.Y := VTextPos.Y - VTextSize.cy;
       end; // - 1;
-      ABitmap.RenderText(VTextPos.X, VTextPos.Y, AText, 4, AColor32);
+      ABitmap.RenderText(VTextPos.X, VTextPos.Y, AText, AColor32, True);
     end;
 
   begin
@@ -502,9 +502,9 @@ begin
             VTextSize := ABitmap.TextExtent(VText);
             VTextPos.X := Trunc(VSatPos.X - VTextSize.cx / 2);
             VTextPos.Y := Trunc(VSatPos.Y - VTextSize.cy / 2);
-            ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, FSkyMapGridColor);
+            ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, FSkyMapGridColor, True);
           end;
-          PolylineFS(ABitmap, VPoints, FSkyMapGridColor, true);
+          PolylineFS(ABitmap, VPoints, FSkyMapGridColor, True);
         end;
       end;
     end;

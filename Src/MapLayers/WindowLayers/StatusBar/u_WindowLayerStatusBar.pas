@@ -89,7 +89,6 @@ type
     FMinUpdate: Cardinal;
     FBgColor: TColor32;
     FTextColor: TColor32;
-    FAALevel: Integer;
     FItemsInfo: TStatusBarItems;
     FPrevItemsInfo: TStatusBarItems;
     FIsNeedForceRedraw: Boolean;
@@ -275,7 +274,6 @@ begin
       FBgColor := FConfig.BgColor;
       FTextColor := FConfig.TextColor;
       VVisible := FConfig.Visible;
-      FAALevel := 0;
     finally
       FConfig.UnlockRead;
     end;
@@ -344,7 +342,7 @@ procedure TWindowLayerStatusBar.DoUpdateBitmapDraw;
     const ADrawLine: Boolean
   );
   begin
-    Layer.Bitmap.RenderText(AOffset.X, AOffset.Y, AText, FAALevel, FTextColor);
+    Layer.Bitmap.RenderText(AOffset.X, AOffset.Y, AText, FTextColor, False);
     if ADrawLine then begin
       Layer.Bitmap.VertLineS(AOffset.X - 10, 0, Layer.Bitmap.Height, SetAlpha(clBlack32, 125));
     end;

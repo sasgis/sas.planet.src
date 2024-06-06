@@ -412,7 +412,7 @@ begin
           FHashFunction,
           FBitmapFactory,
           512,
-          1,
+          True,
           FMarksDrawConfig.CaptionDrawConfig.FontName
         );
       VIconProvider :=

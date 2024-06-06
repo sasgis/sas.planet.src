@@ -104,7 +104,7 @@ begin
     VFontHight := Abs(Layer.Bitmap.Font.Height);
     for i := 0 to VRowsCount - 1 do begin
       VString := VStrings.Items[i];
-      Layer.Bitmap.RenderText(5, VFontHight * i + 5, VString, 0, clWhite32);
+      Layer.Bitmap.RenderText(5, VFontHight * i + 5, VString, clWhite32, False);
     end;
   end;
 end;

@@ -328,13 +328,13 @@ var
 begin
   VBitmap := TBitmap32.Create;
   try
-    VNameDef := copy(IntToStr(Apnum), 1, 2);
+    VNameDef := Copy(IntToStr(Apnum), 1, 2);
     VBitmap.SetSize(32, 32);
     VBitmap.Clear(clLightGray32);
     VTextSize := VBitmap.TextExtent(VNameDef);
     VPos.X := (VBitmap.Width - VTextSize.cx) div 2;
     VPos.Y := (VBitmap.Height - VTextSize.cy) div 2;
-    VBitmap.RenderText(VPos.X, VPos.Y, VNameDef, 2, clBlack32);
+    VBitmap.RenderText(VPos.X, VPos.Y, VNameDef, clBlack32, True);
     Result :=
       ABitmapFactory.Build(
         Types.Point(VBitmap.Width, VBitmap.Height),

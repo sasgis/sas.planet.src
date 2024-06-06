@@ -308,7 +308,7 @@ begin
 
     VTextRec.Bitmap.Clear(FColors.BgColor);
 
-    VTextRec.Bitmap.RenderText(0, 0, VTextRec.Text, 0, FFont.TextColor);
+    VTextRec.Bitmap.RenderText(0, 0, VTextRec.Text, FFont.TextColor, False);
     VTextRec.Bitmap.DrawMode := dmOpaque;
   end;
 

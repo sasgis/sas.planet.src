@@ -201,11 +201,11 @@ begin
 
       VTextSize := FBitmap.TextExtent(VListNameLat);
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
-      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListNameLat, 0, FColor);
+      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListNameLat, FColor, False);
 // **************************************************
       VTextSize := FBitmap.TextExtent(VListNameLon);
       VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left) + 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
-      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListNameLon, 0, FColor);
+      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListNameLon, FColor, False);
     end;
   end;
 end;

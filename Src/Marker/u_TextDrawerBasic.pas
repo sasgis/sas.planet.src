@@ -41,7 +41,7 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FHashFunction: IHashFunction;
     FMaxSize: Integer;
-    FALevel: Integer;
+    FAntiAliased: Boolean;
 
     FSync: IReadWriteSync;
     FCache: IHashInterfaceCache;
@@ -74,7 +74,7 @@ type
       const AHashFunction: IHashFunction;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AMaxSize: Integer;
-      const AALevel: Integer;
+      const AAntiAliased: Boolean;
       const AFontName: string
     );
     destructor Destroy; override;
@@ -108,7 +108,7 @@ constructor TTextDrawerBasic.Create(
   const AHashFunction: IHashFunction;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AMaxSize: Integer;
-  const AALevel: Integer;
+  const AAntiAliased: Boolean;
   const AFontName: string
 );
 begin
@@ -119,7 +119,7 @@ begin
   FHashFunction := AHashFunction;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FMaxSize := AMaxSize;
-  FALevel := AALevel;
+  FAntiAliased := AAntiAliased;
 
   FCache :=
     THashInterfaceCache2Q.Create(
@@ -189,11 +189,11 @@ begin
     FBitmapWithText.SetSize(VTextSize.cx + 2, VTextSize.cy + 2);
     if ASolidBgDraw then begin
       FBitmapWithText.Clear(ATextBgColor);
-      FBitmapWithText.RenderText(2, 2, AText, FALevel, SetAlpha(ATextColor, 255));
+      FBitmapWithText.RenderText(2, 2, AText, SetAlpha(ATextColor, 255), FAntiAliased);
     end else begin
       FBitmapWithText.Clear(0);
-      FBitmapWithText.RenderText(2, 2, AText, FALevel, SetAlpha(ATextBgColor, 255));
-      FBitmapWithText.RenderText(1, 1, AText, FALevel, SetAlpha(ATextColor, 255));
+      FBitmapWithText.RenderText(2, 2, AText, SetAlpha(ATextBgColor, 255), FAntiAliased);
+      FBitmapWithText.RenderText(1, 1, AText, SetAlpha(ATextColor, 255), FAntiAliased);
     end;
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try

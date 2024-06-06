@@ -190,7 +190,7 @@ begin
       VLocalRectOfCell := RectMove(VMapRectOfCell, AMapRect.TopLeft);
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalCellCenter.Y - VTextSize.cy));
-      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
+      FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, FColor, False);
     end;
   end;
 end;

@@ -313,7 +313,7 @@ begin
       VTextSize := VBitmap.TextExtent(FRenderedText[I].Text);
       VBitmap.SetSize(VTextSize.cx, VTextSize.cy);
 
-      VBitmap.RenderText(0, 0, FRenderedText[I].Text, 0, FFont.TextColor);
+      VBitmap.RenderText(0, 0, FRenderedText[I].Text, FFont.TextColor, False);
       VBitmap.DrawMode := dmBlend;
     end;
 
@@ -373,7 +373,7 @@ begin
       );
 
       FMarkerRenderedText.Clear(FMarkerCaptionFont.BgColor);
-      FMarkerRenderedText.RenderText(4, 0, ACaptionText, 0, FMarkerCaptionFont.TextColor);
+      FMarkerRenderedText.RenderText(4, 0, ACaptionText, FMarkerCaptionFont.TextColor, False);
 
       FMarkerCaptionText := ACaptionText;
 

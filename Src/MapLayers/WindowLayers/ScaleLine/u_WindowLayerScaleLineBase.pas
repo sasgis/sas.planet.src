@@ -114,9 +114,15 @@ begin
     AAppClosingNotifier,
     TBitmapLayer.Create(AParentMap.Layers)
   );
+
   FConfig := AConfig;
   FView := AView;
   FPopupMenu := APopupMenu;
+
+  Layer.AlphaHit := True;
+  Layer.OnMouseDown := OnMouseDown;
+
+  FTmpBitmap := TBitmap32.Create;
   FLayerChangeFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
@@ -131,16 +137,6 @@ begin
     TListenerTimeCheck.Create(Self.OnTimer, 100),
     AGuiSyncronizedTimerNotifier
   );
-
-  Layer.AlphaHit := True;
-  Layer.OnMouseDown := OnMouseDown;
-
-  Layer.Bitmap.Font.Name := FConfig.FontName;
-  Layer.Bitmap.Font.Size := FConfig.FontSize;
-
-  FTmpBitmap := TBitmap32.Create;
-  FTmpBitmap.Font := Layer.Bitmap.Font;
-  FTmpBitmap.Font.Size := Layer.Bitmap.Font.Size;
 end;
 
 destructor TWindowLayerScaleLineBase.Destroy;
@@ -224,6 +220,9 @@ procedure TWindowLayerScaleLineBase.OnConfigChange;
 var
   VVisible: Boolean;
 begin
+  FTmpBitmap.Font.Name := FConfig.FontName;
+  FTmpBitmap.Font.Size := FConfig.FontSize;
+
   ViewUpdateLock;
   try
     VVisible := GetNewVisibility;
@@ -328,7 +327,7 @@ begin
   FTmpBitmap.SetSize(VSize.cx + 4, VSize.cy + 4);
 
   FTmpBitmap.Clear(cBackGroundColor);
-  FTmpBitmap.RenderText(2, 2, AText, 0, ATextColor);
+  FTmpBitmap.RenderText(2, 2, AText, ATextColor, False);
 
   for I := 1 to FTmpBitmap.Width - 2 do begin
     for J := 1 to FTmpBitmap.Height - 2 do begin

@@ -25,7 +25,6 @@ interface
 
 uses
   Types,
-  SysUtils,
   GR32,
   GR32_Image,
   GR32_Layers,
