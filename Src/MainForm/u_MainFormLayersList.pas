@@ -42,68 +42,29 @@ interface
 //  {$DEFINE DISABLE_POLYGON_SELECTION_LAYER}
 //  {$DEFINE DISABLE_SELECTION_BY_LINE_LAYER}
 //  {$DEFINE DISABLE_SELECTION_BY_RECT_LAYER}
-//
 //  {$DEFINE DISABLE_GOTO_MARKER_LAYER}
 //  {$DEFINE DISABLE_GPS_TRACK_GOTO_MARKER_LAYER}
 //  {$DEFINE DISABLE_NAVIGATION_TO_MARK_MARKER_LAYER}
-//  {$DEFINE DISABLE_ERROR_INFO_LAYER}
+//  {$DEFINE DISABLE_TILE_ERROR_INFO_LAYER}
 //  {$DEFINE DISABLE_POINT_EDIT_MARKER_LAYER}
-//  {$DEFINE DISABLE_FULL_MAP_CURSOR_LAYER}
+//  {$DEFINE DISABLE_FULL_MAP_MOUSE_CURSOR_LAYER}
 //  {$DEFINE DISABLE_CENTER_SCALE_LAYER}
 //  {$DEFINE DISABLE_SCALE_LINE_LAYER}
-//  {$DEFINE DISABLE_MAP_LICENSES_LAYER}
+//  {$DEFINE DISABLE_LICENSE_LIST_LAYER}
 //  {$DEFINE DISABLE_STATUS_BAR_LAYER}
 //  {$DEFINE DISABLE_SUN_CALC_LAYER}
 //  {$DEFINE DISABLE_MINI_MAP_LAYER}
 {$ENDIF}
 
 uses
-  GR32_Image,
+  t_MainFormLayersListParams,
+  i_InterfaceListSimple,
   i_InterfaceListStatic,
-  i_NotifierOperation,
-  i_HashFunction,
-  i_Bitmap32BufferFactory,
-  i_ConfigDataProvider,
-  i_ContentTypeManager,
-  i_LocalCoordConverterFactorySimpe,
-  i_VectorItemSubsetBuilder,
-  i_GeometryLonLatFactory,
-  i_GeometryProjectedFactory,
-  i_GeometryProjectedProvider,
-  i_ProjectionSetChangeable,
-  i_ViewPortState,
-  i_MainMapsState,
-  i_MainFormLayersConfig,
-  i_ImageResamplerFactory,
-  i_BitmapPostProcessing,
-  i_TileError,
-  i_TileErrorLogProviedrStuped,
-  i_LastSearchResult,
-  i_PopUp,
-  i_FillingMapPolygon,
+  i_TileRectChangeable,
+  i_ImageResamplerFactoryChangeable,
+  i_MarkerProviderByAppearancePointIcon,
   i_InternalPerformanceCounter,
-  i_MarkSystem,
-  i_TerrainProviderList,
-  i_LanguageManager,
-  i_NotifierTime,
-  i_GPSRecorder,
-  i_DownloadInfoSimple,
-  i_GlobalInternetState,
-  i_LastSelectionInfo,
-  i_GlobalConfig,
   i_FindVectorItems,
-  i_MergePolygonsResult,
-  i_LineOnMapEdit,
-  i_MouseState,
-  i_MainFormState,
-  i_SelectionRect,
-  i_MapViewGoto,
-  i_NavigationToPoint,
-  i_PointOnMapEdit,
-  i_SunCalcConfig,
-  i_SunCalcProvider,
-  i_CoordToStringConverter,
-  i_ValueToStringConverter,
   u_BaseInterfacedObject;
 
 type
@@ -132,63 +93,152 @@ type
     function GetWikiLayer: IFindVectorItems;
     function GetMarksLayer: IFindVectorItems;
     function GetSearchResultsLayer: IFindVectorItems;
+  private
+    procedure BuildCalcCircleLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable
+    );
+    procedure BuildCalcLineLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable
+    );
+    procedure BuildFillingMapMatrixLayer(
+      const AParams: TMainFormLayersListParams;
+      const AMatrixList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+    );
+    procedure BuildGpsMarkerLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildGpsTrackMatrixLayer(
+      const AParams: TMainFormLayersListParams;
+      const AMatrixList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+    );
+    procedure BuildGridsMatrixLayer(
+      const AParams: TMainFormLayersListParams;
+      const AMatrixList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+    );
+    procedure BuildLastSelectionLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable
+    );
+    procedure BuildMarksMatrixLayer(
+      const AParams: TMainFormLayersListParams;
+      const AMatrixList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
+      const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
+    );
+    procedure BuildMergePolygonsResultLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable
+    );
+    procedure BuildPathEditLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable
+    );
+    procedure BuildPolygonEditLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable
+    );
+    procedure BuildPolygonSelectionLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable
+    );
+    procedure BuildRasterMapsMatrixLayer(
+      const AParams: TMainFormLayersListParams;
+      const AMatrixList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+    );
+    procedure BuildSearchResultsMatrixLayer(
+      const AParams: TMainFormLayersListParams;
+      const AMatrixList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
+      const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
+    );
+    procedure BuildSelectionByLineLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable
+    );
+    procedure BuildSelectionByRectLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildVectorMapsMatrixLayer(
+      const AParams: TMainFormLayersListParams;
+      const AMatrixList: IInterfaceListSimple;
+      const ATileRectForShow: ITileRectChangeable;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
+      const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
+    );
+    procedure BuildGotoMarkerLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildGpsTrackGotoMarkerLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildNavigationToMarkMarkerLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildTileErrorInfoLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildPointEditMarkerLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildFullMapMouseCursorLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildCenterScaleLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildScaleLineLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildLicenseListLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildStatusBarLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildSunCalcLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple
+    );
+    procedure BuildMiniMapLayer(
+      const AParams: TMainFormLayersListParams;
+      const ALayersList: IInterfaceListSimple;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+    );
   public
     constructor Create(
-      AParentMap: TImage32;
-      const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const AResourceProvider: IConfigDataProvider;
-      const ALanguageManager: ILanguageManager;
-      const AGlobalConfig: IGlobalConfig;
-      const AContentTypeManager: IContentTypeManager;
-      const AGUISyncronizedTimerNotifier: INotifierTime;
-      const ALastSearchResult: ILastSearchResult;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AProjectedGeometryProvider: IGeometryProjectedProvider;
-      const ACoordToStringConverter: ICoordToStringConverterChangeable;
-      const AValueToStringConverter: IValueToStringConverterChangeable;
-      const AHashFunction: IHashFunction;
-      const ABitmap32StaticFactory: IBitmap32StaticFactory;
-      const AImageResamplerFactoryList: IImageResamplerFactoryList;
-      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-      const AGpsTrackRecorder: IGpsTrackRecorder;
-      const AGPSRecorder: IGPSRecorder;
-      const ATerrainProviderList: ITerrainProviderList;
-      const ALastSelectionInfo: ILastSelectionInfo;
-      const ADownloadInfo: IDownloadInfoSimple;
-      const AGlobalInternetState: IGlobalInternetState;
-      const AMarkSystem: IMarkSystem;
-      const ALayersConfig: IMainFormLayersConfig;
-      const AActiveProjectionSet: IProjectionSetChangeable;
-      const AViewPortState: IViewPortState;
-      const AMainFormState: IMainFormState;
-      const AMouseState: IMouseState;
-      const AMainMapState: IMainMapsState;
-      const AFillingMapPolygon: IFillingMapPolygon;
-      const AMergePolygonsResult: IMergePolygonsResult;
-      const ACalcLinePath: IPathOnMapEdit;
-      const ACircleOnMapEdit: ICircleOnMapEdit;
-      const AEditLinePath: IPathOnMapEdit;
-      const AEditPolygon: IPolygonOnMapEdit;
-      const ASelectPolygon: IPolygonOnMapEdit;
-      const ASelectLinePath: IPathOnMapEdit;
-      const ASelectionRect: ISelectionRect;
-      const AMapGoto: IMapViewGoto;
-      const AGpsTrackGoTo: IMapViewGoto;
-      const ANavToPoint: INavigationToPoint;
-      const APointOnMapEdit: IPointOnMapEdit;
-      const ATileErrorLogProvider: ITileErrorLogProviedrStuped;
-      const ATileErrorLogger: ITileErrorLogger;
-      const APerfListGroup: IInternalPerformanceCounterList;
-      const ASunCalcConfig: ISunCalcConfig;
-      const ASunCalcProvider: ISunCalcProvider;
-      const ASunCalcPopupMenu: IPopUp;
-      const AStatBarPopupMenu: IPopUp;
-      const AScaleLinePopupMenu: IPopUp;
-      const AMiniMapPopupMenu: IPopUp
+      const AParams: TMainFormLayersListParams
     );
   end;
 
@@ -203,12 +253,8 @@ uses
   i_BitmapMarker,
   i_StringListChangeable,
   i_LocalCoordConverterChangeable,
-  i_MarkerProviderByAppearancePointIcon,
   i_MarkerProviderForVectorItem,
-  i_InterfaceListSimple,
   i_VectorItemSubsetChangeable,
-  i_ImageResamplerFactoryChangeable,
-  i_TileRectChangeable,
   i_TextDrawerBasic,
   i_BitmapLayerProviderChangeable,
   i_ObjectWithListener,
@@ -315,1345 +361,40 @@ end;
 { TMainFormLayersList }
 
 constructor TMainFormLayersList.Create(
-  AParentMap: TImage32;
-  const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const AResourceProvider: IConfigDataProvider;
-  const ALanguageManager: ILanguageManager;
-  const AGlobalConfig: IGlobalConfig;
-  const AContentTypeManager: IContentTypeManager;
-  const AGUISyncronizedTimerNotifier: INotifierTime;
-  const ALastSearchResult: ILastSearchResult;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AProjectedGeometryProvider: IGeometryProjectedProvider;
-  const ACoordToStringConverter: ICoordToStringConverterChangeable;
-  const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AHashFunction: IHashFunction;
-  const ABitmap32StaticFactory: IBitmap32StaticFactory;
-  const AImageResamplerFactoryList: IImageResamplerFactoryList;
-  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-  const AGpsTrackRecorder: IGpsTrackRecorder;
-  const AGPSRecorder: IGPSRecorder;
-  const ATerrainProviderList: ITerrainProviderList;
-  const ALastSelectionInfo: ILastSelectionInfo;
-  const ADownloadInfo: IDownloadInfoSimple;
-  const AGlobalInternetState: IGlobalInternetState;
-  const AMarkSystem: IMarkSystem;
-  const ALayersConfig: IMainFormLayersConfig;
-  const AActiveProjectionSet: IProjectionSetChangeable;
-  const AViewPortState: IViewPortState;
-  const AMainFormState: IMainFormState;
-  const AMouseState: IMouseState;
-  const AMainMapState: IMainMapsState;
-  const AFillingMapPolygon: IFillingMapPolygon;
-  const AMergePolygonsResult: IMergePolygonsResult;
-  const ACalcLinePath: IPathOnMapEdit;
-  const ACircleOnMapEdit: ICircleOnMapEdit;
-  const AEditLinePath: IPathOnMapEdit;
-  const AEditPolygon: IPolygonOnMapEdit;
-  const ASelectPolygon: IPolygonOnMapEdit;
-  const ASelectLinePath: IPathOnMapEdit;
-  const ASelectionRect: ISelectionRect;
-  const AMapGoto: IMapViewGoto;
-  const AGpsTrackGoTo: IMapViewGoto;
-  const ANavToPoint: INavigationToPoint;
-  const APointOnMapEdit: IPointOnMapEdit;
-  const ATileErrorLogProvider: ITileErrorLogProviedrStuped;
-  const ATileErrorLogger: ITileErrorLogger;
-  const APerfListGroup: IInternalPerformanceCounterList;
-  const ASunCalcConfig: ISunCalcConfig;
-  const ASunCalcProvider: ISunCalcProvider;
-  const ASunCalcPopupMenu: IPopUp;
-  const AStatBarPopupMenu: IPopUp;
-  const AScaleLinePopupMenu: IPopUp;
-  const AMiniMapPopupMenu: IPopUp
+  const AParams: TMainFormLayersListParams
 );
-
-  procedure BuildRasterMapsMatrixLayer(
-    const AMatrixList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable;
-    const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
-  );
-  const
-    CDebugName = 'RasterMaps';
-  var
-    VPerfList: IInternalPerformanceCounterList;
-    VProvider: IBitmapLayerProviderChangeable;
-    VSourceChangeNotifier: IObjectWithListener;
-    VTileMatrix: IBitmapTileMatrixChangeable;
-  begin
-    {$IFDEF DISABLE_RASTER_MAPS_LAYER} Exit; {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList(CDebugName);
-    VProvider :=
-      TBitmapLayerProviderChangeableForMainLayer.Create(
-        AMainMapState.ActiveMap,
-        AMainMapState.ActiveBitmapLayersList,
-        ABitmapPostProcessing,
-        ALayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
-        ABitmap32StaticFactory,
-        ATileErrorLogger
-      );
-    VSourceChangeNotifier :=
-      TSourceDataUpdateInRectByMapsSet.Create(
-        AMainMapState.ActiveBitmapMapsSet
-      );
-    VTileMatrix :=
-      TBitmapTileMatrixChangeableWithThread.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        ATileRectForShow,
-        ATileMatrixDraftResampler,
-        True,
-        ABitmap32StaticFactory,
-        AHashFunction,
-        VProvider,
-        VSourceChangeNotifier,
-        ALayersConfig.MainMapLayerConfig.ThreadConfig,
-        CDebugName
-      );
-    AMatrixList.Add(VTileMatrix);
-  end;
-
-  procedure BuildGridsMatrixLayer(
-    const AMatrixList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable;
-    const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
-  );
-  const
-    CDebugName = 'Grids';
-  var
-    VPerfList: IInternalPerformanceCounterList;
-    VProvider: IBitmapLayerProviderChangeable;
-    VTileMatrix: IBitmapTileMatrixChangeable;
-  begin
-    {$IFDEF DISABLE_GRIDS_LAYER} Exit; {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList(CDebugName);
-    VProvider :=
-      TBitmapLayerProviderChangeableForGrids.Create(
-        ABitmap32StaticFactory,
-        AActiveProjectionSet,
-        ACoordToStringConverter,
-        ALayersConfig.MapLayerGridsConfig
-      );
-    VTileMatrix :=
-      TBitmapTileMatrixChangeableWithThread.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        ATileRectForShow,
-        ATileMatrixDraftResampler,
-        False,
-        ABitmap32StaticFactory,
-        AHashFunction,
-        VProvider,
-        nil,
-        ALayersConfig.MapLayerGridsConfig.ThreadConfig,
-        CDebugName
-      );
-    AMatrixList.Add(VTileMatrix);
-  end;
-
-  procedure BuildVectorMapsMatrixLayer(
-    const AMatrixList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable;
-    const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
-    const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
-  );
-  const
-    CDebugName = 'VectorMaps';
-  var
-    VPerfList: IInternalPerformanceCounterList;
-    VVectorOversizeRect: TRect;
-    VMarkerChangeable: IMarkerDrawableChangeable;
-    VSourceChangeNotifier: IObjectWithListener;
-    VVectorTileProvider: IVectorTileUniProviderChangeable;
-    VVectorTileMatrix: IVectorTileMatrixChangeable;
-    VTileMatrix: IBitmapTileMatrixChangeable;
-    VVectorRenderer: IVectorTileRendererChangeable;
-  begin
-    {$IFDEF DISABLE_VECTOR_MAPS_LAYER}
-    FWikiLayer := TFindVectorItemsFake.Create;
-    Exit;
-    {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList(CDebugName);
-    VVectorOversizeRect := Rect(10, 10, 10, 10);
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableSimple.Create(
-        TMarkerDrawableSimpleSquare,
-        ALayersConfig.KmlLayerConfig.PointMarkerConfig
-      );
-    VVectorTileProvider :=
-      TVectorTileProviderChangeableForVectorLayers.Create(
-        AMainMapState.ActiveKmlLayersSet,
-        ALayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
-        AVectorItemSubsetBuilderFactory,
-        ATileErrorLogger,
-        Rect(300, 300, 300, 300),
-        VVectorOversizeRect
-      );
-    VSourceChangeNotifier :=
-      TSourceDataUpdateInRectByMapsSet.Create(
-        AMainMapState.ActiveKmlLayersSet
-      );
-    VVectorTileMatrix :=
-      TVectorTileMatrixChangeableForVectorLayers.Create(
-        VPerfList.CreateAndAddNewSubList('VectorMatrix'),
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        ATileRectForShow,
-        AHashFunction,
-        AVectorItemSubsetBuilderFactory,
-        False,
-        VVectorTileProvider,
-        VSourceChangeNotifier,
-        ALayersConfig.KmlLayerConfig.ThreadConfig,
-        VVectorOversizeRect,
-        CDebugName
-      );
-
-    FWikiLayer :=
-      TFindVectorItemsForVectorTileMatrix.Create(
-        AVectorItemSubsetBuilderFactory,
-        AProjectedGeometryProvider,
-        VVectorTileMatrix,
-        VPerfList.CreateAndAddNewCounter('FindItems'),
-        6
-      );
-
-    VVectorRenderer :=
-      TVectorTileRendererChangeableForVectorMaps.Create(
-        ALayersConfig.KmlLayerConfig.DrawConfig,
-        nil,
-        VMarkerChangeable,
-        ABitmap32StaticFactory,
-        AProjectedGeometryProvider,
-        AMarkerIconProvider
-      );
-    VTileMatrix :=
-      TBitmapTileMatrixChangeableByVectorMatrix.Create(
-        VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        VVectorTileMatrix,
-        VVectorRenderer,
-        ATileMatrixDraftResampler,
-        True,
-        ABitmap32StaticFactory,
-        AHashFunction,
-        ALayersConfig.KmlLayerConfig.ThreadConfig,
-        CDebugName
-      );
-    AMatrixList.Add(VTileMatrix);
-  end;
-
-  procedure BuildFillingMapMatrixLayer(
-    const AMatrixList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable;
-    const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
-  );
-  const
-    CDebugName = 'FillingMap';
-  var
-    VPerfList: IInternalPerformanceCounterList;
-    VProvider: IBitmapLayerProviderChangeable;
-    VSourceChangeNotifier: IObjectWithListener;
-    VTileMatrix: IBitmapTileMatrixChangeable;
-  begin
-    {$IFDEF DISABLE_FILLING_MAP_LAYER} Exit; {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList(CDebugName);
-    VProvider :=
-      TBitmapLayerProviderChangeableForFillingMap.Create(
-        ABitmap32StaticFactory,
-        AVectorGeometryProjectedFactory,
-        AMainMapState.FillingMapActiveMap,
-        AFillingMapPolygon,
-        ALayersConfig.FillingMapLayerConfig
-      );
-    VSourceChangeNotifier :=
-      TSourceDataUpdateInRectByFillingMap.Create(
-        AMainMapState.FillingMapActiveMap,
-        ALayersConfig.FillingMapLayerConfig
-      );
-    VTileMatrix :=
-      TBitmapTileMatrixChangeableWithThread.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        ATileRectForShow,
-        ATileMatrixDraftResampler,
-        True,
-        ABitmap32StaticFactory,
-        AHashFunction,
-        VProvider,
-        VSourceChangeNotifier,
-        ALayersConfig.FillingMapLayerConfig.ThreadConfig,
-        CDebugName
-      );
-    AMatrixList.Add(VTileMatrix);
-  end;
-
-  procedure BuildMarksMatrixLayer(
-    const AMatrixList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable;
-    const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
-    const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
-  );
-  const
-    CDebugName = 'Marks';
-  var
-    VPerfList: IInternalPerformanceCounterList;
-    VVectorOversizeRect: TRect;
-    VMarkerChangeable: IMarkerDrawableChangeable;
-    VMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
-    VVectorTileMatrix: IVectorTileMatrixChangeable;
-    VTileMatrix: IBitmapTileMatrixChangeable;
-    VVectorRenderer: IVectorTileRendererChangeable;
-    VBitmap: IBitmap32Static;
-    VTextDrawerBasic: ITextDrawerBasic;
-    VVectorItems: IVectorItemSubsetChangeable;
-  begin
-    {$IFDEF DISABLE_MARKS_LAYER}
-    FLayerMapMarks := TFindVectorItemsFake.Create;
-    Exit;
-    {$ENDIF}
-    VVectorOversizeRect := ALayersConfig.MarksLayerConfig.MarksDrawConfig.DrawOrderConfig.OverSizeRect;
-    VPerfList := APerfListGroup.CreateAndAddNewSubList(CDebugName);
-    VVectorItems :=
-      TVectorItemSubsetChangeableForMarksLayer.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        ATileRectForShow,
-        AMarkSystem,
-        ALayersConfig.MarksLayerConfig.MarksShowConfig,
-        VVectorOversizeRect,
-        ALayersConfig.MarksLayerConfig.ThreadConfig
-      );
-    VVectorTileMatrix :=
-      TVectorTileMatrixChangeableByVectorSubsetChangeable.Create(
-        VPerfList.CreateAndAddNewSubList('VectorMatrix'),
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        ATileRectForShow,
-        AHashFunction,
-        AVectorItemSubsetBuilderFactory,
-        False,
-        VVectorItems,
-        ALayersConfig.MarksLayerConfig.ThreadConfig,
-        VVectorOversizeRect,
-        CDebugName
-      );
-
-    FLayerMapMarks :=
-      TFindVectorItemsForVectorTileMatrix.Create(
-        AVectorItemSubsetBuilderFactory,
-        AProjectedGeometryProvider,
-        VVectorTileMatrix,
-        VPerfList.CreateAndAddNewCounter('FindItems'),
-        24
-      );
-
-    VBitmap :=
-      ReadBitmapByFileRef(
-        AResourceProvider,
-        'RED.png',
-        AContentTypeManager,
-        nil
-      );
-    VMarkerChangeable := nil;
-    if VBitmap <> nil then begin
-      VMarkerChangeable :=
-        TMarkerDrawableChangeableFaked.Create(
-          TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Size.X / 2, VBitmap.Size.Y))
-        );
-    end;
-    VTextDrawerBasic :=
-      TTextDrawerBasic.Create(
-        VPerfList.CreateAndAddNewSubList('Caption'),
-        AHashFunction,
-        ABitmap32StaticFactory,
-        Max(Max(VVectorOversizeRect.Left, VVectorOversizeRect.Right), Max(VVectorOversizeRect.Top, VVectorOversizeRect.Bottom)),
-        True,
-        ALayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.FontName
-      );
-    VMarkerProviderForVectorItem :=
-      TMarkerProviderForVectorItemWithCache.Create(
-        VPerfList.CreateAndAddNewSubList('Marker'),
-        AHashFunction,
-        TMarkerProviderForVectorItemForMarkPoints.Create(VTextDrawerBasic, AMarkerIconProvider)
-      );
-    VVectorRenderer :=
-      TVectorTileRendererChangeableForMarksLayer.Create(
-        ALayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig,
-        ABitmap32StaticFactory,
-        AProjectedGeometryProvider,
-        VMarkerProviderForVectorItem
-      );
-    VTileMatrix :=
-      TBitmapTileMatrixChangeableByVectorMatrix.Create(
-        VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        VVectorTileMatrix,
-        VVectorRenderer,
-        ATileMatrixDraftResampler,
-        True,
-        ABitmap32StaticFactory,
-        AHashFunction,
-        ALayersConfig.MarksLayerConfig.ThreadConfig,
-        CDebugName
-      );
-    AMatrixList.Add(VTileMatrix);
-  end;
-
-  procedure BuildSearchResultsMatrixLayer(
-    const AMatrixList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable;
-    const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
-    const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
-  );
-  const
-    CDebugName = 'SearchResults';
-  var
-    VPerfList: IInternalPerformanceCounterList;
-    VVectorOversizeRect: TRect;
-    VVectorTileMatrix: IVectorTileMatrixChangeable;
-    VTileMatrix: IBitmapTileMatrixChangeable;
-    VVectorTileProvider: IVectorTileUniProviderChangeable;
-    VVectorRenderer: IVectorTileRendererChangeable;
-    VBitmap: IBitmap32Static;
-    VBitmapMarker: IBitmapMarker;
-  begin
-    {$IFDEF DISABLE_SEARCH_RESULTS_LAYER}
-    FLayerSearchResults := TFindVectorItemsFake.Create;
-    Exit;
-    {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList(CDebugName);
-    VBitmap :=
-      ReadBitmapByFileRef(
-        AResourceProvider,
-        'FOUNDPNT.png',
-        AContentTypeManager,
-        nil
-      );
-    VBitmapMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        DoublePoint(8, 8)
-      );
-    VVectorOversizeRect := Rect(10, 10, 10, 10);
-    VVectorTileProvider :=
-      TVectorTileProviderChangeableForLastSearchResult.Create(
-        ALastSearchResult,
-        AVectorItemSubsetBuilderFactory,
-        VVectorOversizeRect
-      );
-    VVectorTileMatrix :=
-      TVectorTileMatrixChangeableForVectorLayers.Create(
-        VPerfList.CreateAndAddNewSubList('VectorMatrix'),
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        ATileRectForShow,
-        AHashFunction,
-        AVectorItemSubsetBuilderFactory,
-        False,
-        VVectorTileProvider,
-        nil,
-        ALayersConfig.KmlLayerConfig.ThreadConfig,
-        VVectorOversizeRect,
-        CDebugName
-      );
-
-    FLayerSearchResults :=
-      TFindVectorItemsForVectorTileMatrix.Create(
-        AVectorItemSubsetBuilderFactory,
-        AProjectedGeometryProvider,
-        VVectorTileMatrix,
-        VPerfList.CreateAndAddNewCounter('FindItems'),
-        6
-      );
-
-    VVectorRenderer :=
-      TVectorTileRendererChangeableForVectorMaps.Create(
-        ALayersConfig.KmlLayerConfig.DrawConfig,
-        VBitmapMarker,
-        nil,
-        ABitmap32StaticFactory,
-        AProjectedGeometryProvider,
-        AMarkerIconProvider
-      );
-    VTileMatrix :=
-      TBitmapTileMatrixChangeableByVectorMatrix.Create(
-        VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        VVectorTileMatrix,
-        VVectorRenderer,
-        ATileMatrixDraftResampler,
-        True,
-        ABitmap32StaticFactory,
-        AHashFunction,
-        ALayersConfig.KmlLayerConfig.ThreadConfig,
-        CDebugName
-      );
-    AMatrixList.Add(VTileMatrix);
-  end;
-
-  procedure BuildGpsTrackMatrixLayer(
-    const AMatrixList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable;
-    const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
-  );
-  const
-    CDebugName = 'GpsTrack';
-  var
-    VPerfList: IInternalPerformanceCounterList;
-    VProvider: IBitmapLayerProviderChangeable;
-    VTileMatrix: IBitmapTileMatrixChangeable;
-  begin
-    {$IFDEF DISABLE_GPS_TRACK_LAYER} Exit; {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList(CDebugName);
-    VProvider :=
-      TBitmapLayerProviderChangeableForGpsTrack.Create(
-        VPerfList,
-        AGUISyncronizedTimerNotifier,
-        ALayersConfig.GPSTrackConfig,
-        ABitmap32StaticFactory,
-        AGpsTrackRecorder
-      );
-    VTileMatrix :=
-      TBitmapTileMatrixChangeableWithThread.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        ATileRectForShow,
-        ATileMatrixDraftResampler,
-        True,
-        ABitmap32StaticFactory,
-        AHashFunction,
-        VProvider,
-        nil,
-        ALayersConfig.GPSTrackConfig.ThreadConfig,
-        CDebugName
-      );
-    AMatrixList.Add(VTileMatrix);
-  end;
-
-  procedure BuildGpsMarkerLayer(
-    const ALayersList: IInterfaceListSimple
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VMarkerChangeable: IMarkerDrawableChangeable;
-    VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
-  begin
-    {$IFDEF DISABLE_GPS_MARKER_LAYER} Exit; {$ENDIF}
-    // GPS marker layer
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableSimple.Create(
-        TMarkerDrawableSimpleSquare,
-        ALayersConfig.GPSMarker.StopedMarkerConfig
-      );
-    VMarkerWithDirectionChangeable :=
-      TMarkerDrawableWithDirectionChangeableSimple.Create(
-        TMarkerDrawableSimpleArrow,
-        ALayersConfig.GPSMarker.MovedMarkerConfig
-      );
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('GpsMarker');
-    VLayer :=
-      TMapLayerGPSMarker.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AGUISyncronizedTimerNotifier,
-        ALayersConfig.GPSMarker,
-        VMarkerWithDirectionChangeable,
-        VMarkerChangeable,
-        AGPSRecorder
-      );
-    ALayersList.Add(VLayer);
-
-    // Layer with rings around GPS marker
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('GpsMarkerRings');
-    VLayer :=
-      TMapLayerGPSMarkerRings.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AGUISyncronizedTimerNotifier,
-        AVectorGeometryProjectedFactory,
-        AVectorGeometryLonLatFactory,
-        ALayersConfig.GPSMarker.MarkerRingsConfig,
-        AGPSRecorder
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildLastSelectionLayer(
-    const ALayersList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VPolygonChangeable: IGeometryLonLatPolygonChangeable;
-  begin
-    {$IFDEF DISABLE_LAST_SELECTION_LAYER} Exit; {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('LastSelection');
-    VPolygonChangeable :=
-      TGeometryLonLatPolygonChangeableByLastSelection.Create(
-        ALayersConfig.LastSelectionLayerConfig,
-        ALastSelectionInfo
-      );
-    VLayer :=
-      TMapLayerSinglePolygon.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.LastSelectionLayerConfig,
-        VPolygonChangeable
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildMergePolygonsResultLayer(
-    const ALayersList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VPolygonChangeable: IGeometryLonLatPolygonChangeable;
-  begin
-    {$IFDEF DISABLE_MERGE_POLYGONS_RESULT_LAYER} Exit; {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('MergePolygonsResult');
-    VPolygonChangeable :=
-      TGeometryLonLatPolygonChangeableByMergePolygonsResult.Create(
-        ALayersConfig.MergePolygonsResultLayerConfig,
-        AMergePolygonsResult
-      );
-    VLayer :=
-      TMapLayerSinglePolygon.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.MergePolygonsResultLayerConfig,
-        VPolygonChangeable
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildCalcLineLayer(
-    const ALayersList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
-  begin
-    {$IFDEF DISABLE_CALC_LINE_LAYER} Exit; {$ENDIF}
-    // CalcLine points
-    VGeometryChangeableByPathEdit :=
-      TGeometryLonLatChangeableByPathEdit.Create(
-        AVectorGeometryLonLatFactory,
-        ACalcLinePath
-      );
-
-    VLayer := VGeometryChangeableByPathEdit;
-    ALayersList.Add(VLayer);
-
-    // CalcLine line visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcLine');
-    VLayer :=
-      TMapLayerSingleLine.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.CalcLineLayerConfig.LineConfig,
-        VGeometryChangeableByPathEdit.LineChangeable
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcLine simple points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcLineSimplePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.OtherPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcLine first points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcLineFirstPoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.FirstPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcLine active points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcLineActivePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.ActivePointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcLine captions layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcLineCaptions');
-    VLayer :=
-      TMapLayerCalcLineCaptions.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ACalcLinePath,
-        ALayersConfig.CalcLineLayerConfig.CaptionConfig,
-        AValueToStringConverter
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildCalcCircleLayer(
-    const ALayersList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
-    VGeometryChangeableByPolygonEdit: TGeometryLonLatChangeableByPolygonEdit;
-  begin
-    {$IFDEF DISABLE_CALC_CIRCLE_LAYER} Exit; {$ENDIF}
-    // CalcCircle polygon
-    VGeometryChangeableByPolygonEdit :=
-      TGeometryLonLatChangeableByPolygonEdit.Create(
-        AVectorGeometryLonLatFactory,
-        ACircleOnMapEdit.GetPolygonOnMapEdit
-      );
-
-    VLayer := VGeometryChangeableByPolygonEdit;
-    ALayersList.Add(VLayer);
-
-    // CalcCircle polygon visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcCirclePolygon');
-    VLayer :=
-      TMapLayerSinglePolygon.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.CalcCircleLayerConfig.PolygonConfig,
-        VGeometryChangeableByPolygonEdit.PolygonChangeable,
-        True
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcCircle line
-    VGeometryChangeableByPathEdit :=
-      TGeometryLonLatChangeableByPathEdit.Create(
-        AVectorGeometryLonLatFactory,
-        ACircleOnMapEdit
-      );
-
-    VLayer := VGeometryChangeableByPathEdit;
-    ALayersList.Add(VLayer);
-
-    // CalcCircle line visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcCircleLine');
-    VLayer :=
-      TMapLayerSingleLine.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.CalcCircleLayerConfig.LineConfig,
-        VGeometryChangeableByPathEdit.LineChangeable
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcCircle simple points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcCircleSimplePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.OtherPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.NormalPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcCircle first points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcCircleFirstPoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.FirstPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.FirstPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcCircle active points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcCircleActivePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.ActivePointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.CalcCircleLayerConfig.PointsConfig.ActivePointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // CalcCircle captions layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('CalcCircleCaptions');
-    VLayer :=
-      TMapLayerCalcCircleCaptions.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ACircleOnMapEdit,
-        ALayersConfig.CalcCircleLayerConfig.CaptionConfig,
-        AValueToStringConverter
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildPathEditLayer(
-    const ALayersList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
-  begin
-    {$IFDEF DISABLE_PATH_EDIT_LAYER} Exit; {$ENDIF}
-    VGeometryChangeableByPathEdit :=
-      TGeometryLonLatChangeableByPathEdit.Create(
-        AVectorGeometryLonLatFactory,
-        AEditLinePath
-      );
-
-    VLayer := VGeometryChangeableByPathEdit;
-    ALayersList.Add(VLayer);
-
-    // PathEdit line visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PathEdit');
-    VLayer :=
-      TMapLayerSingleLine.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.MarkPolyLineLayerConfig.LineConfig,
-        VGeometryChangeableByPathEdit.LineChangeable
-      );
-    ALayersList.Add(VLayer);
-
-    // PathEdit simple points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PathEditSimplePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.OtherPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // PathEdit first points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PathEditFirstPoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.FirstPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // PathEdit active points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PathEditActivePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.ActivePointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // PathEdit captions layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PathEditCaptions');
-    VLayer :=
-      TMapLayerCalcLineCaptions.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AEditLinePath,
-        ALayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
-        AValueToStringConverter
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildPolygonEditLayer(
-    const ALayersList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VGeometryChangeableByPolygonEdit: TGeometryLonLatChangeableByPolygonEdit;
-  begin
-    {$IFDEF DISABLE_POLYGON_EDIT_LAYER} Exit; {$ENDIF}
-    VGeometryChangeableByPolygonEdit :=
-      TGeometryLonLatChangeableByPolygonEdit.Create(
-        AVectorGeometryLonLatFactory,
-        AEditPolygon
-      );
-
-    VLayer := VGeometryChangeableByPolygonEdit;
-    ALayersList.Add(VLayer);
-
-    // PolygonEdit line and fill visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PolygonEdit');
-    VLayer :=
-      TMapLayerSinglePolygon.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.MarkPolygonLayerConfig.LineConfig,
-        VGeometryChangeableByPolygonEdit.PolygonChangeable
-      );
-    ALayersList.Add(VLayer);
-
-    // PolygonEdit simple points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PolygonEditSimplePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPolygonEdit.OtherPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // PolygonEdit first points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PolygonEditFirstPoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPolygonEdit.FirstPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // PolygonEdit active points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PolygonEditActivePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker)
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildPolygonSelectionLayer(
-    const ALayersList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VGeometryChangeableByPolygonEdit: TGeometryLonLatChangeableByPolygonEdit;
-  begin
-    {$IFDEF DISABLE_POLYGON_SELECTION_LAYER} Exit; {$ENDIF}
-    VGeometryChangeableByPolygonEdit :=
-      TGeometryLonLatChangeableByPolygonEdit.Create(
-        AVectorGeometryLonLatFactory,
-        ASelectPolygon
-      );
-
-    VLayer := VGeometryChangeableByPolygonEdit;
-    ALayersList.Add(VLayer);
-
-    // PolygonSelection line and fill visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PolygonSelection');
-    VLayer :=
-      TMapLayerSinglePolygon.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.SelectionPolygonLayerConfig.LineConfig,
-        VGeometryChangeableByPolygonEdit.PolygonChangeable,
-        True
-      );
-    ALayersList.Add(VLayer);
-
-    // PolygonSelection simple points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PolygonSelectionSimplePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPolygonEdit.OtherPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // PolygonSelection first points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PolygonSelectionFirstPoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPolygonEdit.FirstPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // PolygonSelection active points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('PolygonSelectionActivePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker)
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildSelectionByLineLayer(
-    const ALayersList: IInterfaceListSimple;
-    const ATileRectForShow: ITileRectChangeable
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-    VPolygonChangeable: IGeometryLonLatPolygonChangeable;
-    VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
-  begin
-    {$IFDEF DISABLE_SELECTION_BY_LINE_LAYER} Exit; {$ENDIF}
-    VGeometryChangeableByPathEdit :=
-      TGeometryLonLatChangeableByPathEdit.Create(
-        AVectorGeometryLonLatFactory,
-        ASelectLinePath
-      );
-
-    VLayer := VGeometryChangeableByPathEdit;
-    ALayersList.Add(VLayer);
-
-    // SelectionByLine shadow visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('SelectionByLineShadow');
-    VPolygonChangeable :=
-      TGeometryLonLatPolygonChangeableByLineChangeable.Create(
-        AVectorGeometryLonLatFactory,
-        AViewPortState.View,
-        VGeometryChangeableByPathEdit.LineChangeable,
-        ALayersConfig.SelectionPolylineLayerConfig.ShadowConfig
-      );
-    VLayer :=
-      TMapLayerSinglePolygon.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.SelectionPolylineLayerConfig.ShadowConfig,
-        VPolygonChangeable
-      );
-    ALayersList.Add(VLayer);
-
-    // SelectionByLyne line visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('SelectionByLine');
-    VLayer :=
-      TMapLayerSingleLine.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ATileRectForShow,
-        AVectorGeometryProjectedFactory,
-        ALayersConfig.SelectionPolylineLayerConfig.LineConfig,
-        VGeometryChangeableByPathEdit.LineChangeable
-      );
-    ALayersList.Add(VLayer);
-
-    // SelectionByLyne simple points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('SelectionByLineSimplePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.OtherPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // SelectionByLyne first points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('SelectionByLineFirstPoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.FirstPointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker)
-      );
-    ALayersList.Add(VLayer);
-
-    // SelectionByLyne active points visualisation layer
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('SelectionByLineActivePoints');
-    VLayer :=
-      TMapLayerPointsSet.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        AVectorGeometryProjectedFactory,
-        VGeometryChangeableByPathEdit.ActivePointsChangeable,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, ALayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker)
-      );
-    ALayersList.Add(VLayer);
-  end;
-
-  procedure BuildSelectionByRectLayer(
-    const ALayersList: IInterfaceListSimple
-  );
-  var
-    VLayer: IInterface;
-    VPerfList: IInternalPerformanceCounterList;
-  begin
-    {$IFDEF DISABLE_SELECTION_BY_RECT_LAYER} Exit; {$ENDIF}
-    VPerfList := APerfListGroup.CreateAndAddNewSubList('SelectionByRect');
-    VLayer :=
-      TMapLayerSelectionByRect.Create(
-        VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AViewPortState.View,
-        AMainFormState,
-        ASelectionRect,
-        ALayersConfig.SelectionRectLayerConfig,
-        True
-      );
-    ALayersList.Add(VLayer);
-  end;
-
 var
-  VBitmap: IBitmap32Static;
-  VBitmapMarker: IBitmapMarker;
-  VTextDrawerBasic: ITextDrawerBasic;
-  VMarkerChangeable: IMarkerDrawableChangeable;
-  VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
-  VLicensList: IStringListChangeable;
-  VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
-  VBitmapChangeable: IBitmapChangeable;
-  VMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
-  VMarkerIconProvider: IMarkerProviderByAppearancePointIcon;
-  VLayersList: IInterfaceListSimple;
-  VVectorItems: IVectorItemSubsetChangeable;
-  VPerfList: IInternalPerformanceCounterList;
-  VTileMatrixDraftResampler: IImageResamplerFactoryChangeable;
-  VTileRectForShow: ITileRectChangeable;
-  VProvider: IBitmapLayerProviderChangeable;
-  VSourceChangeNotifier: IObjectWithListener;
-  VTileMatrix: IBitmapTileMatrixChangeable;
-  VVectorRenderer: IVectorTileRendererChangeable;
-  VVectorTileProvider: IVectorTileUniProviderChangeable;
-  VVectorTileMatrix: IVectorTileMatrixChangeable;
   VLayer: IInterface;
   VDebugName: string;
-  VVectorOversizeRect: TRect;
+  VPerfList: IInternalPerformanceCounterList;
   VMatrixList: IInterfaceListSimple;
-  VPolygonChangeable: IGeometryLonLatPolygonChangeable;
-  VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
-  VGeometryChangeableByPolygonEdit: TGeometryLonLatChangeableByPolygonEdit;
+  VLayersList: IInterfaceListSimple;
+  VTileRectForShow: ITileRectChangeable;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+  VTileMatrixDraftResampler: IImageResamplerFactoryChangeable;
+  VMarkerIconProvider: IMarkerProviderByAppearancePointIcon;
 begin
   inherited Create;
 
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
-      AActiveProjectionSet,
-      AViewPortState.View,
+      AParams.ActiveProjectionSet,
+      AParams.ViewPortState.View,
       GSync.SyncVariable.Make('TileRectForShowMain'),
       GSync.SyncVariable.Make('TileRectForShowResult')
     );
 
   VTileMatrixDraftResampler :=
     TImageResamplerFactoryChangeableByConfig.Create(
-      AGlobalConfig.TileMatrixDraftResamplerConfig,
-      AImageResamplerFactoryList
+      AParams.GlobalConfig.TileMatrixDraftResamplerConfig,
+      AParams.ImageResamplerFactoryList
     );
 
   VMarkerIconProvider :=
     TMarkerProviderByAppearancePointIcon.Create(
-      APerfListGroup.CreateAndAddNewSubList('VectorItemIcons'),
-      AHashFunction,
-      ABitmap32StaticFactory,
+      AParams.PerfListGroup.CreateAndAddNewSubList('VectorItemIcons'),
+      AParams.HashFunction,
+      AParams.Bitmap32StaticFactory,
       nil
     );
 
@@ -1664,6 +405,7 @@ begin
 
   // Raster maps visualisation layer
   BuildRasterMapsMatrixLayer(
+    AParams,
     VMatrixList,
     VTileRectForShow,
     VTileMatrixDraftResampler
@@ -1671,6 +413,7 @@ begin
 
   // Grids visualisation layer
   BuildGridsMatrixLayer(
+    AParams,
     VMatrixList,
     VTileRectForShow,
     VTileMatrixDraftResampler
@@ -1678,6 +421,7 @@ begin
 
   // Vector maps visualisation layer
   BuildVectorMapsMatrixLayer(
+    AParams,
     VMatrixList,
     VTileRectForShow,
     VTileMatrixDraftResampler,
@@ -1686,6 +430,7 @@ begin
 
   // Filling map visualisation layer
   BuildFillingMapMatrixLayer(
+    AParams,
     VMatrixList,
     VTileRectForShow,
     VTileMatrixDraftResampler
@@ -1693,6 +438,7 @@ begin
 
   // Marks from MarkSystem visualisation layer
   BuildMarksMatrixLayer(
+    AParams,
     VMatrixList,
     VTileRectForShow,
     VTileMatrixDraftResampler,
@@ -1701,6 +447,7 @@ begin
 
   // Vector search results visualisation layer
   BuildSearchResultsMatrixLayer(
+    AParams,
     VMatrixList,
     VTileRectForShow,
     VTileMatrixDraftResampler,
@@ -1709,6 +456,7 @@ begin
 
   // GPS track visualisation layer
   BuildGpsTrackMatrixLayer(
+    AParams,
     VMatrixList,
     VTileRectForShow,
     VTileMatrixDraftResampler
@@ -1717,20 +465,20 @@ begin
   // ========== Composite Tiled Layer ==========
 
   VDebugName := 'Composite';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  VPerfList := AParams.PerfListGroup.CreateAndAddNewSubList(VDebugName);
   if VMatrixList.Count > 1 then begin
     VTileMatrix :=
       TBitmapTileMatrixChangeableComposite.Create(
         VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
+        AParams.AppStartedNotifier,
+        AParams.AppClosingNotifier,
         VTileRectForShow,
         VMatrixList.MakeStaticAndClear,
         VTileMatrixDraftResampler,
         True,
-        ABitmap32StaticFactory,
-        AHashFunction,
-        ALayersConfig.KmlLayerConfig.ThreadConfig,
+        AParams.Bitmap32StaticFactory,
+        AParams.HashFunction,
+        AParams.LayersConfig.KmlLayerConfig.ThreadConfig,
         VDebugName
       );
   end else
@@ -1743,13 +491,13 @@ begin
     VLayer :=
       TTiledMapLayer.Create(
         VPerfList,
-        AAppStartedNotifier,
-        AAppClosingNotifier,
-        AParentMap,
-        AHashFunction,
-        AViewPortState.View,
+        AParams.AppStartedNotifier,
+        AParams.AppClosingNotifier,
+        AParams.ParentMap,
+        AParams.HashFunction,
+        AParams.ViewPortState.View,
         VTileMatrix,
-        AGUISyncronizedTimerNotifier,
+        AParams.GUISyncronizedTimerNotifier,
         VDebugName
       );
     VLayersList.Add(VLayer);
@@ -1760,42 +508,1287 @@ begin
   // ========== Regular Layers ==========
 
   // GPS marker layer
-  BuildGpsMarkerLayer(VLayersList);
+  BuildGpsMarkerLayer(AParams, VLayersList);
 
   // Last selection visualisation layer
-  BuildLastSelectionLayer(VLayersList, VTileRectForShow);
+  BuildLastSelectionLayer(AParams, VLayersList, VTileRectForShow);
 
   // Merge polygons result visualisation layer
-  BuildMergePolygonsResultLayer(VLayersList, VTileRectForShow);
+  BuildMergePolygonsResultLayer(AParams, VLayersList, VTileRectForShow);
 
   // Calc line visualisation layer
-  BuildCalcLineLayer(VLayersList, VTileRectForShow);
+  BuildCalcLineLayer(AParams, VLayersList, VTileRectForShow);
 
   // Calc circle visualisation layer
-  BuildCalcCircleLayer(VLayersList, VTileRectForShow);
+  BuildCalcCircleLayer(AParams, VLayersList, VTileRectForShow);
 
   // Path edit visualisation layer
-  BuildPathEditLayer(VLayersList, VTileRectForShow);
+  BuildPathEditLayer(AParams, VLayersList, VTileRectForShow);
 
   // Polygon edit visualisation layer
-  BuildPolygonEditLayer(VLayersList, VTileRectForShow);
+  BuildPolygonEditLayer(AParams, VLayersList, VTileRectForShow);
 
   // Polygon selection visualisation layer
-  BuildPolygonSelectionLayer(VLayersList, VTileRectForShow);
+  BuildPolygonSelectionLayer(AParams, VLayersList, VTileRectForShow);
 
   // Selection by line visualisation layer
-  BuildSelectionByLineLayer(VLayersList, VTileRectForShow);
+  BuildSelectionByLineLayer(AParams, VLayersList, VTileRectForShow);
 
   // Selection by rect visualisation layer
-  BuildSelectionByRectLayer(VLayersList);
+  BuildSelectionByRectLayer(AParams, VLayersList);
 
   // Goto marker visualisation layer
-  {$IFNDEF DISABLE_GOTO_MARKER_LAYER}
+  BuildGotoMarkerLayer(AParams, VLayersList);
+
+  // Gps Track Goto marker visualisation layer
+  BuildGpsTrackGotoMarkerLayer(AParams, VLayersList);
+
+  // Navigation to mark marker visualisation layer
+  BuildNavigationToMarkMarkerLayer(AParams, VLayersList);
+
+  // Tile error info visualisation layer
+  BuildTileErrorInfoLayer(AParams, VLayersList);
+
+  // Point edit marker visualisation layer
+  BuildPointEditMarkerLayer(AParams, VLayersList);
+
+  // Full map mouse cursor layer
+  BuildFullMapMouseCursorLayer(AParams, VLayersList);
+
+  // Center scale layer
+  BuildCenterScaleLayer(AParams, VLayersList);
+
+  // Scale line layer
+  BuildScaleLineLayer(AParams, VLayersList);
+
+  // Map licenses visualisation layer
+  BuildLicenseListLayer(AParams, VLayersList);
+
+  // Status bar layer
+  BuildStatusBarLayer(AParams, VLayersList);
+
+  // Sun/Moon calc layer
+  BuildSunCalcLayer(AParams, VLayersList);
+
+  // Mini map layer
+  BuildMiniMapLayer(AParams, VLayersList, VTileMatrixDraftResampler);
+
+  FLayersList := VLayersList.MakeStaticAndClear;
+end;
+
+procedure TMainFormLayersList.BuildRasterMapsMatrixLayer(
+  const AParams: TMainFormLayersListParams;
+  const AMatrixList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+);
+const
+  CDebugName = 'RasterMaps';
+var
+  VProvider: IBitmapLayerProviderChangeable;
+  VSourceChangeNotifier: IObjectWithListener;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+begin
+  {$IFDEF DISABLE_RASTER_MAPS_LAYER} Exit; {$ENDIF}
+  VProvider :=
+    TBitmapLayerProviderChangeableForMainLayer.Create(
+      AParams.MainMapState.ActiveMap,
+      AParams.MainMapState.ActiveBitmapLayersList,
+      AParams.BitmapPostProcessing,
+      AParams.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
+      AParams.Bitmap32StaticFactory,
+      AParams.TileErrorLogger
+    );
+  VSourceChangeNotifier :=
+    TSourceDataUpdateInRectByMapsSet.Create(
+      AParams.MainMapState.ActiveBitmapMapsSet
+    );
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableWithThread.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList(CDebugName),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      ATileRectForShow,
+      ATileMatrixDraftResampler,
+      True,
+      AParams.Bitmap32StaticFactory,
+      AParams.HashFunction,
+      VProvider,
+      VSourceChangeNotifier,
+      AParams.LayersConfig.MainMapLayerConfig.ThreadConfig,
+      CDebugName
+    );
+  AMatrixList.Add(VTileMatrix);
+end;
+
+procedure TMainFormLayersList.BuildGridsMatrixLayer(
+  const AParams: TMainFormLayersListParams;
+  const AMatrixList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+);
+const
+  CDebugName = 'Grids';
+var
+  VProvider: IBitmapLayerProviderChangeable;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+begin
+  {$IFDEF DISABLE_GRIDS_LAYER} Exit; {$ENDIF}
+  VProvider :=
+    TBitmapLayerProviderChangeableForGrids.Create(
+      AParams.Bitmap32StaticFactory,
+      AParams.ActiveProjectionSet,
+      AParams.CoordToStringConverter,
+      AParams.LayersConfig.MapLayerGridsConfig
+    );
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableWithThread.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList(CDebugName),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      ATileRectForShow,
+      ATileMatrixDraftResampler,
+      False,
+      AParams.Bitmap32StaticFactory,
+      AParams.HashFunction,
+      VProvider,
+      nil,
+      AParams.LayersConfig.MapLayerGridsConfig.ThreadConfig,
+      CDebugName
+    );
+  AMatrixList.Add(VTileMatrix);
+end;
+
+procedure TMainFormLayersList.BuildVectorMapsMatrixLayer(
+  const AParams: TMainFormLayersListParams;
+  const AMatrixList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
+  const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
+);
+const
+  CDebugName = 'VectorMaps';
+var
+  VPerfList: IInternalPerformanceCounterList;
+  VVectorOversizeRect: TRect;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+  VSourceChangeNotifier: IObjectWithListener;
+  VVectorTileProvider: IVectorTileUniProviderChangeable;
+  VVectorTileMatrix: IVectorTileMatrixChangeable;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+  VVectorRenderer: IVectorTileRendererChangeable;
+begin
+  {$IFDEF DISABLE_VECTOR_MAPS_LAYER}
+  FWikiLayer := TFindVectorItemsFake.Create;
+  Exit;
+  {$ENDIF}
+  VPerfList := AParams.PerfListGroup.CreateAndAddNewSubList(CDebugName);
+  VVectorOversizeRect := Rect(10, 10, 10, 10);
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableSimple.Create(
+      TMarkerDrawableSimpleSquare,
+      AParams.LayersConfig.KmlLayerConfig.PointMarkerConfig
+    );
+  VVectorTileProvider :=
+    TVectorTileProviderChangeableForVectorLayers.Create(
+      AParams.MainMapState.ActiveKmlLayersSet,
+      AParams.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
+      AParams.VectorItemSubsetBuilderFactory,
+      AParams.TileErrorLogger,
+      Rect(300, 300, 300, 300),
+      VVectorOversizeRect
+    );
+  VSourceChangeNotifier :=
+    TSourceDataUpdateInRectByMapsSet.Create(
+      AParams.MainMapState.ActiveKmlLayersSet
+    );
+  VVectorTileMatrix :=
+    TVectorTileMatrixChangeableForVectorLayers.Create(
+      VPerfList.CreateAndAddNewSubList('VectorMatrix'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      ATileRectForShow,
+      AParams.HashFunction,
+      AParams.VectorItemSubsetBuilderFactory,
+      False,
+      VVectorTileProvider,
+      VSourceChangeNotifier,
+      AParams.LayersConfig.KmlLayerConfig.ThreadConfig,
+      VVectorOversizeRect,
+      CDebugName
+    );
+
+  FWikiLayer :=
+    TFindVectorItemsForVectorTileMatrix.Create(
+      AParams.VectorItemSubsetBuilderFactory,
+      AParams.ProjectedGeometryProvider,
+      VVectorTileMatrix,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      6
+    );
+
+  VVectorRenderer :=
+    TVectorTileRendererChangeableForVectorMaps.Create(
+      AParams.LayersConfig.KmlLayerConfig.DrawConfig,
+      nil,
+      VMarkerChangeable,
+      AParams.Bitmap32StaticFactory,
+      AParams.ProjectedGeometryProvider,
+      AMarkerIconProvider
+    );
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableByVectorMatrix.Create(
+      VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      VVectorTileMatrix,
+      VVectorRenderer,
+      ATileMatrixDraftResampler,
+      True,
+      AParams.Bitmap32StaticFactory,
+      AParams.HashFunction,
+      AParams.LayersConfig.KmlLayerConfig.ThreadConfig,
+      CDebugName
+    );
+  AMatrixList.Add(VTileMatrix);
+end;
+
+procedure TMainFormLayersList.BuildFillingMapMatrixLayer(
+  const AParams: TMainFormLayersListParams;
+  const AMatrixList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+);
+const
+  CDebugName = 'FillingMap';
+var
+  VProvider: IBitmapLayerProviderChangeable;
+  VSourceChangeNotifier: IObjectWithListener;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+begin
+  {$IFDEF DISABLE_FILLING_MAP_LAYER} Exit; {$ENDIF}
+  VProvider :=
+    TBitmapLayerProviderChangeableForFillingMap.Create(
+      AParams.Bitmap32StaticFactory,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.MainMapState.FillingMapActiveMap,
+      AParams.FillingMapPolygon,
+      AParams.LayersConfig.FillingMapLayerConfig
+    );
+  VSourceChangeNotifier :=
+    TSourceDataUpdateInRectByFillingMap.Create(
+      AParams.MainMapState.FillingMapActiveMap,
+      AParams.LayersConfig.FillingMapLayerConfig
+    );
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableWithThread.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList(CDebugName),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      ATileRectForShow,
+      ATileMatrixDraftResampler,
+      True,
+      AParams.Bitmap32StaticFactory,
+      AParams.HashFunction,
+      VProvider,
+      VSourceChangeNotifier,
+      AParams.LayersConfig.FillingMapLayerConfig.ThreadConfig,
+      CDebugName
+    );
+  AMatrixList.Add(VTileMatrix);
+end;
+
+procedure TMainFormLayersList.BuildMarksMatrixLayer(
+  const AParams: TMainFormLayersListParams;
+  const AMatrixList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
+  const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
+);
+const
+  CDebugName = 'Marks';
+var
+  VPerfList: IInternalPerformanceCounterList;
+  VVectorOversizeRect: TRect;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+  VMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
+  VVectorTileMatrix: IVectorTileMatrixChangeable;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+  VVectorRenderer: IVectorTileRendererChangeable;
+  VBitmap: IBitmap32Static;
+  VTextDrawerBasic: ITextDrawerBasic;
+  VVectorItems: IVectorItemSubsetChangeable;
+begin
+  {$IFDEF DISABLE_MARKS_LAYER}
+  FLayerMapMarks := TFindVectorItemsFake.Create;
+  Exit;
+  {$ENDIF}
+  VVectorOversizeRect := AParams.LayersConfig.MarksLayerConfig.MarksDrawConfig.DrawOrderConfig.OverSizeRect;
+  VPerfList := AParams.PerfListGroup.CreateAndAddNewSubList(CDebugName);
+  VVectorItems :=
+    TVectorItemSubsetChangeableForMarksLayer.Create(
+      VPerfList,
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      ATileRectForShow,
+      AParams.MarkSystem,
+      AParams.LayersConfig.MarksLayerConfig.MarksShowConfig,
+      VVectorOversizeRect,
+      AParams.LayersConfig.MarksLayerConfig.ThreadConfig
+    );
+  VVectorTileMatrix :=
+    TVectorTileMatrixChangeableByVectorSubsetChangeable.Create(
+      VPerfList.CreateAndAddNewSubList('VectorMatrix'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      ATileRectForShow,
+      AParams.HashFunction,
+      AParams.VectorItemSubsetBuilderFactory,
+      False,
+      VVectorItems,
+      AParams.LayersConfig.MarksLayerConfig.ThreadConfig,
+      VVectorOversizeRect,
+      CDebugName
+    );
+
+  FLayerMapMarks :=
+    TFindVectorItemsForVectorTileMatrix.Create(
+      AParams.VectorItemSubsetBuilderFactory,
+      AParams.ProjectedGeometryProvider,
+      VVectorTileMatrix,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      24
+    );
+
   VBitmap :=
     ReadBitmapByFileRef(
-      AResourceProvider,
+      AParams.ResourceProvider,
+      'RED.png',
+      AParams.ContentTypeManager,
+      nil
+    );
+  VMarkerChangeable := nil;
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Size.X / 2, VBitmap.Size.Y))
+      );
+  end;
+  VTextDrawerBasic :=
+    TTextDrawerBasic.Create(
+      VPerfList.CreateAndAddNewSubList('Caption'),
+      AParams.HashFunction,
+      AParams.Bitmap32StaticFactory,
+      Max(Max(VVectorOversizeRect.Left, VVectorOversizeRect.Right), Max(VVectorOversizeRect.Top, VVectorOversizeRect.Bottom)),
+      True,
+      AParams.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.FontName
+    );
+  VMarkerProviderForVectorItem :=
+    TMarkerProviderForVectorItemWithCache.Create(
+      VPerfList.CreateAndAddNewSubList('Marker'),
+      AParams.HashFunction,
+      TMarkerProviderForVectorItemForMarkPoints.Create(VTextDrawerBasic, AMarkerIconProvider)
+    );
+  VVectorRenderer :=
+    TVectorTileRendererChangeableForMarksLayer.Create(
+      AParams.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig,
+      AParams.Bitmap32StaticFactory,
+      AParams.ProjectedGeometryProvider,
+      VMarkerProviderForVectorItem
+    );
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableByVectorMatrix.Create(
+      VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      VVectorTileMatrix,
+      VVectorRenderer,
+      ATileMatrixDraftResampler,
+      True,
+      AParams.Bitmap32StaticFactory,
+      AParams.HashFunction,
+      AParams.LayersConfig.MarksLayerConfig.ThreadConfig,
+      CDebugName
+    );
+  AMatrixList.Add(VTileMatrix);
+end;
+
+procedure TMainFormLayersList.BuildSearchResultsMatrixLayer(
+  const AParams: TMainFormLayersListParams;
+  const AMatrixList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
+  const AMarkerIconProvider: IMarkerProviderByAppearancePointIcon
+);
+const
+  CDebugName = 'SearchResults';
+var
+  VPerfList: IInternalPerformanceCounterList;
+  VVectorOversizeRect: TRect;
+  VVectorTileMatrix: IVectorTileMatrixChangeable;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+  VVectorTileProvider: IVectorTileUniProviderChangeable;
+  VVectorRenderer: IVectorTileRendererChangeable;
+  VBitmap: IBitmap32Static;
+  VBitmapMarker: IBitmapMarker;
+begin
+  {$IFDEF DISABLE_SEARCH_RESULTS_LAYER}
+  FLayerSearchResults := TFindVectorItemsFake.Create;
+  Exit;
+  {$ENDIF}
+  VPerfList := AParams.PerfListGroup.CreateAndAddNewSubList(CDebugName);
+  VBitmap :=
+    ReadBitmapByFileRef(
+      AParams.ResourceProvider,
+      'FOUNDPNT.png',
+      AParams.ContentTypeManager,
+      nil
+    );
+  VBitmapMarker :=
+    TBitmapMarker.Create(
+      VBitmap,
+      DoublePoint(8, 8)
+    );
+  VVectorOversizeRect := Rect(10, 10, 10, 10);
+  VVectorTileProvider :=
+    TVectorTileProviderChangeableForLastSearchResult.Create(
+      AParams.LastSearchResult,
+      AParams.VectorItemSubsetBuilderFactory,
+      VVectorOversizeRect
+    );
+  VVectorTileMatrix :=
+    TVectorTileMatrixChangeableForVectorLayers.Create(
+      VPerfList.CreateAndAddNewSubList('VectorMatrix'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      ATileRectForShow,
+      AParams.HashFunction,
+      AParams.VectorItemSubsetBuilderFactory,
+      False,
+      VVectorTileProvider,
+      nil,
+      AParams.LayersConfig.KmlLayerConfig.ThreadConfig,
+      VVectorOversizeRect,
+      CDebugName
+    );
+
+  FLayerSearchResults :=
+    TFindVectorItemsForVectorTileMatrix.Create(
+      AParams.VectorItemSubsetBuilderFactory,
+      AParams.ProjectedGeometryProvider,
+      VVectorTileMatrix,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      6
+    );
+
+  VVectorRenderer :=
+    TVectorTileRendererChangeableForVectorMaps.Create(
+      AParams.LayersConfig.KmlLayerConfig.DrawConfig,
+      VBitmapMarker,
+      nil,
+      AParams.Bitmap32StaticFactory,
+      AParams.ProjectedGeometryProvider,
+      AMarkerIconProvider
+    );
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableByVectorMatrix.Create(
+      VPerfList.CreateAndAddNewSubList('BitmapMatrix'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      VVectorTileMatrix,
+      VVectorRenderer,
+      ATileMatrixDraftResampler,
+      True,
+      AParams.Bitmap32StaticFactory,
+      AParams.HashFunction,
+      AParams.LayersConfig.KmlLayerConfig.ThreadConfig,
+      CDebugName
+    );
+  AMatrixList.Add(VTileMatrix);
+end;
+
+procedure TMainFormLayersList.BuildGpsTrackMatrixLayer(
+  const AParams: TMainFormLayersListParams;
+  const AMatrixList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+);
+const
+  CDebugName = 'GpsTrack';
+var
+  VPerfList: IInternalPerformanceCounterList;
+  VProvider: IBitmapLayerProviderChangeable;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+begin
+  {$IFDEF DISABLE_GPS_TRACK_LAYER} Exit; {$ENDIF}
+  VPerfList := AParams.PerfListGroup.CreateAndAddNewSubList(CDebugName);
+  VProvider :=
+    TBitmapLayerProviderChangeableForGpsTrack.Create(
+      VPerfList,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.LayersConfig.GPSTrackConfig,
+      AParams.Bitmap32StaticFactory,
+      AParams.GpsTrackRecorder
+    );
+  VTileMatrix :=
+    TBitmapTileMatrixChangeableWithThread.Create(
+      VPerfList,
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      ATileRectForShow,
+      ATileMatrixDraftResampler,
+      True,
+      AParams.Bitmap32StaticFactory,
+      AParams.HashFunction,
+      VProvider,
+      nil,
+      AParams.LayersConfig.GPSTrackConfig.ThreadConfig,
+      CDebugName
+    );
+  AMatrixList.Add(VTileMatrix);
+end;
+
+procedure TMainFormLayersList.BuildGpsMarkerLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+  VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
+begin
+  {$IFDEF DISABLE_GPS_MARKER_LAYER} Exit; {$ENDIF}
+  // GPS marker layer
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableSimple.Create(
+      TMarkerDrawableSimpleSquare,
+      AParams.LayersConfig.GPSMarker.StopedMarkerConfig
+    );
+  VMarkerWithDirectionChangeable :=
+    TMarkerDrawableWithDirectionChangeableSimple.Create(
+      TMarkerDrawableSimpleArrow,
+      AParams.LayersConfig.GPSMarker.MovedMarkerConfig
+    );
+  VLayer :=
+    TMapLayerGPSMarker.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('GpsMarker'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.LayersConfig.GPSMarker,
+      VMarkerWithDirectionChangeable,
+      VMarkerChangeable,
+      AParams.GPSRecorder
+    );
+  ALayersList.Add(VLayer);
+
+  // Layer with rings around GPS marker
+  VLayer :=
+    TMapLayerGPSMarkerRings.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('GpsMarkerRings'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.VectorGeometryLonLatFactory,
+      AParams.LayersConfig.GPSMarker.MarkerRingsConfig,
+      AParams.GPSRecorder
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildLastSelectionLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable
+);
+var
+  VLayer: IInterface;
+  VPolygonChangeable: IGeometryLonLatPolygonChangeable;
+begin
+  {$IFDEF DISABLE_LAST_SELECTION_LAYER} Exit; {$ENDIF}
+  VPolygonChangeable :=
+    TGeometryLonLatPolygonChangeableByLastSelection.Create(
+      AParams.LayersConfig.LastSelectionLayerConfig,
+      AParams.LastSelectionInfo
+    );
+  VLayer :=
+    TMapLayerSinglePolygon.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('LastSelection'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.LastSelectionLayerConfig,
+      VPolygonChangeable
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildMergePolygonsResultLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable
+);
+var
+  VLayer: IInterface;
+  VPolygonChangeable: IGeometryLonLatPolygonChangeable;
+begin
+  {$IFDEF DISABLE_MERGE_POLYGONS_RESULT_LAYER} Exit; {$ENDIF}
+  VPolygonChangeable :=
+    TGeometryLonLatPolygonChangeableByMergePolygonsResult.Create(
+      AParams.LayersConfig.MergePolygonsResultLayerConfig,
+      AParams.MergePolygonsResult
+    );
+  VLayer :=
+    TMapLayerSinglePolygon.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('MergePolygonsResult'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.MergePolygonsResultLayerConfig,
+      VPolygonChangeable
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildCalcLineLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable
+);
+var
+  VLayer: IInterface;
+  VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
+begin
+  {$IFDEF DISABLE_CALC_LINE_LAYER} Exit; {$ENDIF}
+  // CalcLine points
+  VGeometryChangeableByPathEdit :=
+    TGeometryLonLatChangeableByPathEdit.Create(
+      AParams.VectorGeometryLonLatFactory,
+      AParams.CalcLinePath
+    );
+
+  VLayer := VGeometryChangeableByPathEdit;
+  ALayersList.Add(VLayer);
+
+  // Line visualisation layer
+  VLayer :=
+    TMapLayerSingleLine.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcLine'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.CalcLineLayerConfig.LineConfig,
+      VGeometryChangeableByPathEdit.LineChangeable
+    );
+  ALayersList.Add(VLayer);
+
+  // Simple points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcLineSimplePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.OtherPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // First points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcLineFirstPoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Active points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcLineActivePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Captions layer
+  VLayer :=
+    TMapLayerCalcLineCaptions.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcLineCaptions'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.CalcLinePath,
+      AParams.LayersConfig.CalcLineLayerConfig.CaptionConfig,
+      AParams.ValueToStringConverter
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildCalcCircleLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable
+);
+var
+  VLayer: IInterface;
+  VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
+  VGeometryChangeableByPolygonEdit: TGeometryLonLatChangeableByPolygonEdit;
+begin
+  {$IFDEF DISABLE_CALC_CIRCLE_LAYER} Exit; {$ENDIF}
+  // Circle polygon
+  VGeometryChangeableByPolygonEdit :=
+    TGeometryLonLatChangeableByPolygonEdit.Create(
+      AParams.VectorGeometryLonLatFactory,
+      AParams.CircleOnMapEdit.GetPolygonOnMapEdit
+    );
+
+  VLayer := VGeometryChangeableByPolygonEdit;
+  ALayersList.Add(VLayer);
+
+  // Circle polygon visualisation layer
+  VLayer :=
+    TMapLayerSinglePolygon.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcCirclePolygon'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.CalcCircleLayerConfig.PolygonConfig,
+      VGeometryChangeableByPolygonEdit.PolygonChangeable,
+      True
+    );
+  ALayersList.Add(VLayer);
+
+  // Circle line
+  VGeometryChangeableByPathEdit :=
+    TGeometryLonLatChangeableByPathEdit.Create(
+      AParams.VectorGeometryLonLatFactory,
+      AParams.CircleOnMapEdit
+    );
+
+  VLayer := VGeometryChangeableByPathEdit;
+  ALayersList.Add(VLayer);
+
+  // Circle line visualisation layer
+  VLayer :=
+    TMapLayerSingleLine.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcCircleLine'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.CalcCircleLayerConfig.LineConfig,
+      VGeometryChangeableByPathEdit.LineChangeable
+    );
+  ALayersList.Add(VLayer);
+
+  // Simple points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcCircleSimplePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.OtherPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.CalcCircleLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // First points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcCircleFirstPoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.CalcCircleLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Active points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcCircleActivePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.CalcCircleLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Captions layer
+  VLayer :=
+    TMapLayerCalcCircleCaptions.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('CalcCircleCaptions'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.CircleOnMapEdit,
+      AParams.LayersConfig.CalcCircleLayerConfig.CaptionConfig,
+      AParams.ValueToStringConverter
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildPathEditLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable
+);
+var
+  VLayer: IInterface;
+  VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
+begin
+  {$IFDEF DISABLE_PATH_EDIT_LAYER} Exit; {$ENDIF}
+  VGeometryChangeableByPathEdit :=
+    TGeometryLonLatChangeableByPathEdit.Create(
+      AParams.VectorGeometryLonLatFactory,
+      AParams.EditLinePath
+    );
+
+  VLayer := VGeometryChangeableByPathEdit;
+  ALayersList.Add(VLayer);
+
+  // Line visualisation layer
+  VLayer :=
+    TMapLayerSingleLine.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PathEdit'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.MarkPolyLineLayerConfig.LineConfig,
+      VGeometryChangeableByPathEdit.LineChangeable
+    );
+  ALayersList.Add(VLayer);
+
+  // Simple points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PathEditSimplePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.OtherPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // First points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PathEditFirstPoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Active points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PathEditActivePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Captions layer
+  VLayer :=
+    TMapLayerCalcLineCaptions.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PathEditCaptions'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.EditLinePath,
+      AParams.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
+      AParams.ValueToStringConverter
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildPolygonEditLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable
+);
+var
+  VLayer: IInterface;
+  VGeometryChangeableByPolygonEdit: TGeometryLonLatChangeableByPolygonEdit;
+begin
+  {$IFDEF DISABLE_POLYGON_EDIT_LAYER} Exit; {$ENDIF}
+  VGeometryChangeableByPolygonEdit :=
+    TGeometryLonLatChangeableByPolygonEdit.Create(
+      AParams.VectorGeometryLonLatFactory,
+      AParams.EditPolygon
+    );
+
+  VLayer := VGeometryChangeableByPolygonEdit;
+  ALayersList.Add(VLayer);
+
+  // Line and Fill visualisation layer
+  VLayer :=
+    TMapLayerSinglePolygon.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonEdit'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.MarkPolygonLayerConfig.LineConfig,
+      VGeometryChangeableByPolygonEdit.PolygonChangeable
+    );
+  ALayersList.Add(VLayer);
+
+  // Simple points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonEditSimplePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.OtherPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // First points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonEditFirstPoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Active points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonEditActivePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildPolygonSelectionLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable
+);
+var
+  VLayer: IInterface;
+  VGeometryChangeableByPolygonEdit: TGeometryLonLatChangeableByPolygonEdit;
+begin
+  {$IFDEF DISABLE_POLYGON_SELECTION_LAYER} Exit; {$ENDIF}
+  VGeometryChangeableByPolygonEdit :=
+    TGeometryLonLatChangeableByPolygonEdit.Create(
+      AParams.VectorGeometryLonLatFactory,
+      AParams.SelectPolygon
+    );
+
+  VLayer := VGeometryChangeableByPolygonEdit;
+  ALayersList.Add(VLayer);
+
+  // Line and Fill visualisation layer
+  VLayer :=
+    TMapLayerSinglePolygon.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonSelection'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.SelectionPolygonLayerConfig.LineConfig,
+      VGeometryChangeableByPolygonEdit.PolygonChangeable,
+      True
+    );
+  ALayersList.Add(VLayer);
+
+  // Simple points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonSelectionSimplePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.OtherPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // First points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonSelectionFirstPoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Active points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonSelectionActivePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildSelectionByLineLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileRectForShow: ITileRectChangeable
+);
+var
+  VLayer: IInterface;
+  VPolygonChangeable: IGeometryLonLatPolygonChangeable;
+  VGeometryChangeableByPathEdit: TGeometryLonLatChangeableByPathEdit;
+begin
+  {$IFDEF DISABLE_SELECTION_BY_LINE_LAYER} Exit; {$ENDIF}
+  VGeometryChangeableByPathEdit :=
+    TGeometryLonLatChangeableByPathEdit.Create(
+      AParams.VectorGeometryLonLatFactory,
+      AParams.SelectLinePath
+    );
+
+  VLayer := VGeometryChangeableByPathEdit;
+  ALayersList.Add(VLayer);
+
+  // Shadow visualisation layer
+  VPolygonChangeable :=
+    TGeometryLonLatPolygonChangeableByLineChangeable.Create(
+      AParams.VectorGeometryLonLatFactory,
+      AParams.ViewPortState.View,
+      VGeometryChangeableByPathEdit.LineChangeable,
+      AParams.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
+    );
+  VLayer :=
+    TMapLayerSinglePolygon.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('SelectionByLineShadow'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig,
+      VPolygonChangeable
+    );
+  ALayersList.Add(VLayer);
+
+  // Line visualisation layer
+  VLayer :=
+    TMapLayerSingleLine.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('SelectionByLine'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      ATileRectForShow,
+      AParams.VectorGeometryProjectedFactory,
+      AParams.LayersConfig.SelectionPolylineLayerConfig.LineConfig,
+      VGeometryChangeableByPathEdit.LineChangeable
+    );
+  ALayersList.Add(VLayer);
+
+  // Simple points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('SelectionByLineSimplePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.OtherPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // First points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('SelectionByLineFirstPoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.FirstPointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Active points visualisation layer
+  VLayer :=
+    TMapLayerPointsSet.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('SelectionByLineActivePoints'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.VectorGeometryProjectedFactory,
+      VGeometryChangeableByPathEdit.ActivePointsChangeable,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildSelectionByRectLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+begin
+  {$IFDEF DISABLE_SELECTION_BY_RECT_LAYER} Exit; {$ENDIF}
+  VLayer :=
+    TMapLayerSelectionByRect.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('SelectionByRect'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.SelectionRect,
+      AParams.LayersConfig.SelectionRectLayerConfig,
+      True
+    );
+  ALayersList.Add(VLayer);
+end;
+
+procedure TMainFormLayersList.BuildGotoMarkerLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+  VBitmap: IBitmap32Static;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+begin
+  {$IFDEF DISABLE_GOTO_MARKER_LAYER} Exit; {$ENDIF}
+  VBitmap :=
+    ReadBitmapByFileRef(
+      AParams.ResourceProvider,
       'ICONIII.png',
-      AContentTypeManager,
+      AParams.ContentTypeManager,
       nil
     );
   VMarkerChangeable := nil;
@@ -1805,31 +1798,37 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
   end;
-  VDebugName := 'GotoMarker';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TMapLayerGotoMarker.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AGUISyncronizedTimerNotifier,
-      AViewPortState.View,
-      AMainFormState,
+      AParams.PerfListGroup.CreateAndAddNewSubList('GotoMarker'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
       VMarkerChangeable,
-      AMapGoto,
-      ALayersConfig.GotoLayerConfig
+      AParams.MapGoto,
+      AParams.LayersConfig.GotoLayerConfig
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Gps Track Goto marker visualisation layer
-  {$IFNDEF DISABLE_GPS_TRACK_GOTO_MARKER_LAYER}
+procedure TMainFormLayersList.BuildGpsTrackGotoMarkerLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+  VBitmap: IBitmap32Static;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+begin
+  {$IFDEF DISABLE_GPS_TRACK_GOTO_MARKER_LAYER} Exit; {$ENDIF}
   VBitmap :=
     ReadBitmapByFileRef(
-      AResourceProvider,
+      AParams.ResourceProvider,
       'ARROW.png',
-      AContentTypeManager,
+      AParams.ContentTypeManager,
       nil
     );
   VMarkerChangeable := nil;
@@ -1839,80 +1838,95 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(12, 24))
       );
   end;
-  VDebugName := 'GpsTrackGoToMarker';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TMapLayerGpsTrackGoToMarker.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AMainFormState,
+      AParams.PerfListGroup.CreateAndAddNewSubList('GpsTrackGotoMarker'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
       VMarkerChangeable,
-      AGpsTrackGoTo
+      AParams.GpsTrackGoTo
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Navigation to mark marker visualisation layer
-  {$IFNDEF DISABLE_NAVIGATION_TO_MARK_MARKER_LAYER}
+procedure TMainFormLayersList.BuildNavigationToMarkMarkerLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+  VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
+begin
+  {$IFDEF DISABLE_NAVIGATION_TO_MARK_MARKER_LAYER} Exit; {$ENDIF}
   VMarkerChangeable :=
     TMarkerDrawableChangeableSimple.Create(
       TMarkerDrawableSimpleCross,
-      ALayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
+      AParams.LayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
     );
   VMarkerWithDirectionChangeable :=
     TMarkerDrawableWithDirectionChangeableSimple.Create(
       TMarkerDrawableSimpleArrow,
-      ALayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
+      AParams.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
     );
-
-  VDebugName := 'NavToMark';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TMapLayerNavToMark.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AMainFormState,
-      ANavToPoint,
+      AParams.PerfListGroup.CreateAndAddNewSubList('NavToMark'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.NavToPoint,
       VMarkerWithDirectionChangeable,
       VMarkerChangeable,
-      ALayersConfig.NavToPointMarkerConfig
+      AParams.LayersConfig.NavToPointMarkerConfig
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Error info visualisation layer
-  {$IFNDEF DISABLE_ERROR_INFO_LAYER}
-  VDebugName := 'TileErrorInfo';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+procedure TMainFormLayersList.BuildTileErrorInfoLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+begin
+  {$IFDEF DISABLE_TILE_ERROR_INFO_LAYER} Exit; {$ENDIF}
   VLayer :=
     TMapLayerTileErrorInfo.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AMainFormState,
-      AMainMapState.AllMapsSet,
-      ABitmap32StaticFactory,
-      ATileErrorLogProvider,
-      AGUISyncronizedTimerNotifier
+      AParams.PerfListGroup.CreateAndAddNewSubList('TileErrorInfo'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.MainMapState.AllMapsSet,
+      AParams.Bitmap32StaticFactory,
+      AParams.TileErrorLogProvider,
+      AParams.GUISyncronizedTimerNotifier
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Point edit marker visualisation layer
-  {$IFNDEF DISABLE_POINT_EDIT_MARKER_LAYER}
+procedure TMainFormLayersList.BuildPointEditMarkerLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+  VBitmap: IBitmap32Static;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+begin
+  {$IFDEF DISABLE_POINT_EDIT_MARKER_LAYER} Exit; {$ENDIF}
   VBitmap :=
     ReadBitmapByFileRef(
-      AResourceProvider,
+      AParams.ResourceProvider,
       'ICONIII.png',
-      AContentTypeManager,
+      AParams.ContentTypeManager,
       nil
     );
   VMarkerChangeable := nil;
@@ -1922,400 +1936,414 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
   end;
-  VDebugName := 'PointOnMapEdit';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TMapLayerPointOnMapEdit.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AMainFormState,
+      AParams.PerfListGroup.CreateAndAddNewSubList('PointOnMapEdit'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
       VMarkerChangeable,
-      APointOnMapEdit
+      AParams.PointOnMapEdit
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Full map cursor layer
-  {$IFNDEF DISABLE_FULL_MAP_CURSOR_LAYER}
-  VDebugName := 'FullMapMouseCursor';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+procedure TMainFormLayersList.BuildFullMapMouseCursorLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+begin
+  {$IFDEF DISABLE_FULL_MAP_MOUSE_CURSOR_LAYER} Exit; {$ENDIF}
   VLayer :=
     TWindowLayerFullMapMouseCursor.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AMainFormState,
-      AGUISyncronizedTimerNotifier,
-      AMouseState,
-      ALayersConfig.FullMapMouseCursorLayerConfig
+      AParams.PerfListGroup.CreateAndAddNewSubList('FullMapMouseCursor'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.MouseState,
+      AParams.LayersConfig.FullMapMouseCursorLayerConfig
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Center scale layer
-  {$IFNDEF DISABLE_CENTER_SCALE_LAYER}
+procedure TMainFormLayersList.BuildCenterScaleLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+begin
+  {$IFDEF DISABLE_CENTER_SCALE_LAYER} Exit; {$ENDIF}
   VMarkerChangeable :=
     TMarkerDrawableChangeableFaked.Create(
-      TMarkerDrawableCenterScale.Create(ABitmap32StaticFactory)
+      TMarkerDrawableCenterScale.Create(AParams.Bitmap32StaticFactory)
     );
-  VDebugName := 'CenterScale';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TWindowLayerCenterScale.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
+      AParams.PerfListGroup.CreateAndAddNewSubList('CenterScale'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
       VMarkerChangeable,
-      ALayersConfig.CenterScaleConfig
+      AParams.LayersConfig.CenterScaleConfig
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Scale line layer
-  {$IFNDEF DISABLE_SCALE_LINE_LAYER}
+procedure TMainFormLayersList.BuildScaleLineLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+begin
+  {$IFDEF DISABLE_SCALE_LINE_LAYER} Exit; {$ENDIF}
   // Horizontal scale line layer
-  VDebugName := 'ScaleLineHorizontal';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TWindowLayerScaleLineHorizontal.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AGUISyncronizedTimerNotifier,
-      AScaleLinePopupMenu,
-      ALayersConfig.ScaleLineConfig
+      AParams.PerfListGroup.CreateAndAddNewSubList('ScaleLineHorizontal'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.ScaleLinePopupMenu,
+      AParams.LayersConfig.ScaleLineConfig
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
   // Vertical scale line layer
-  VDebugName := 'ScaleLineVertical';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TWindowLayerScaleLineVertical.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AGUISyncronizedTimerNotifier,
-      AScaleLinePopupMenu,
-      ALayersConfig.ScaleLineConfig
+      AParams.PerfListGroup.CreateAndAddNewSubList('ScaleLineVertical'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.ScaleLinePopupMenu,
+      AParams.LayersConfig.ScaleLineConfig
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Map licenses visualisation layer
-  {$IFNDEF DISABLE_MAP_LICENSES_LAYER}
-  VDebugName := 'LicenseList';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+procedure TMainFormLayersList.BuildLicenseListLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+  VLicensList: IStringListChangeable;
+begin
+  {$IFDEF DISABLE_LICENSE_LIST_LAYER} Exit; {$ENDIF}
   VLicensList :=
     TActiveMapsLicenseList.Create(
-      ALanguageManager,
-      AMainMapState.ActiveMapsSetLicenseNotEmpty
+      AParams.LanguageManager,
+      AParams.MainMapState.ActiveMapsSetLicenseNotEmpty
     );
   VLayer :=
     TWindowLayerLicenseList.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
+      AParams.PerfListGroup.CreateAndAddNewSubList('LicenseList'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
       VLicensList
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // Status bar layer
-  {$IFNDEF DISABLE_STATUS_BAR_LAYER}
-  VDebugName := 'StatusBar';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+procedure TMainFormLayersList.BuildStatusBarLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+begin
+  {$IFDEF DISABLE_STATUS_BAR_LAYER} Exit; {$ENDIF}
   VLayer :=
     TWindowLayerStatusBar.Create(
-      ALanguageManager,
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      ALayersConfig.StatBar,
-      ACoordToStringConverter,
-      AValueToStringConverter,
-      AMouseState,
-      AGUISyncronizedTimerNotifier,
-      ATerrainProviderList,
-      AGlobalConfig.TerrainConfig,
-      ADownloadInfo,
-      AGlobalInternetState,
-      AStatBarPopupMenu,
-      AMainMapState.ActiveMap
+      AParams.LanguageManager,
+      AParams.PerfListGroup.CreateAndAddNewSubList('StatusBar'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.LayersConfig.StatBar,
+      AParams.CoordToStringConverter,
+      AParams.ValueToStringConverter,
+      AParams.MouseState,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.TerrainProviderList,
+      AParams.GlobalConfig.TerrainConfig,
+      AParams.DownloadInfo,
+      AParams.GlobalInternetState,
+      AParams.StatBarPopupMenu,
+      AParams.MainMapState.ActiveMap
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // SunCalc Layer
-  {$IFNDEF DISABLE_SUN_CALC_LAYER}
-  VDebugName := 'SunCalc/YearInfo';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+procedure TMainFormLayersList.BuildSunCalcLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple
+);
+var
+  VLayer: IInterface;
+begin
+  {$IFDEF DISABLE_SUN_CALC_LAYER} Exit; {$ENDIF}
   VLayer :=
     TWindowLayerSunCalcYearInfo.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AMainFormState,
-      ASunCalcConfig,
-      ASunCalcProvider
+      AParams.PerfListGroup.CreateAndAddNewSubList('SunCalc/YearInfo'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.SunCalcConfig,
+      AParams.SunCalcProvider
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  VDebugName := 'SunCalc/DayInfo';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TWindowLayerSunCalcDayInfo.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AMainFormState,
-      ASunCalcConfig,
-      ASunCalcProvider
+      AParams.PerfListGroup.CreateAndAddNewSubList('SunCalc/DayInfo'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.SunCalcConfig,
+      AParams.SunCalcProvider
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  VDebugName := 'SunCalc/TimeInfo';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TWindowLayerSunCalcTimeInfo.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      AMainFormState,
-      ASunCalcConfig,
-      ASunCalcProvider,
-      AGUISyncronizedTimerNotifier
+      AParams.PerfListGroup.CreateAndAddNewSubList('SunCalc/TimeInfo'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.SunCalcConfig,
+      AParams.SunCalcProvider,
+      AParams.GUISyncronizedTimerNotifier
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  VDebugName := 'SunCalc/YearTimeLine';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TWindowLayerSunCalcYearTimeLine.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AMouseState,
-      AGUISyncronizedTimerNotifier,
-      AViewPortState.View,
-      ASunCalcConfig,
-      ASunCalcProvider,
-      ASunCalcPopupMenu
+      AParams.PerfListGroup.CreateAndAddNewSubList('SunCalc/YearTimeLine'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.MouseState,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.ViewPortState.View,
+      AParams.SunCalcConfig,
+      AParams.SunCalcProvider,
+      AParams.SunCalcPopupMenu
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  VDebugName := 'SunCalc/DayTimeLine';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TWindowLayerSunCalcDayTimeLine.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AMouseState,
-      AGUISyncronizedTimerNotifier,
-      AViewPortState.View,
-      ASunCalcConfig,
-      ASunCalcProvider,
-      ASunCalcPopupMenu
+      AParams.PerfListGroup.CreateAndAddNewSubList('SunCalc/DayTimeLine'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.MouseState,
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.ViewPortState.View,
+      AParams.SunCalcConfig,
+      AParams.SunCalcProvider,
+      AParams.SunCalcPopupMenu
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  VDebugName := 'SunCalc/DetailsPanel';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TWindowLayerSunCalcDetailsPanel.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState.View,
-      ASunCalcConfig,
-      ASunCalcProvider,
-      ASunCalcPopupMenu
+      AParams.PerfListGroup.CreateAndAddNewSubList('SunCalc/DetailsPanel'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.SunCalcConfig,
+      AParams.SunCalcProvider,
+      AParams.SunCalcPopupMenu
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
+  ALayersList.Add(VLayer);
+end;
 
-  // MiniMap layer
-  {$IFNDEF DISABLE_MINI_MAP_LAYER}
+procedure TMainFormLayersList.BuildMiniMapLayer(
+  const AParams: TMainFormLayersListParams;
+  const ALayersList: IInterfaceListSimple;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable
+);
+const
+  CDebugName = 'MiniMap';
+var
+  VLayer: IInterface;
+  VPerfList: IInternalPerformanceCounterList;
+  VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
+  VTileRectForShow: ITileRectChangeable;
+  VProvider: IBitmapLayerProviderChangeable;
+  VTileMatrix: IBitmapTileMatrixChangeable;
+  VBitmap: IBitmap32Static;
+  VBitmapChangeable: IBitmapChangeable;
+begin
+  {$IFDEF DISABLE_MINI_MAP_LAYER} Exit; {$ENDIF}
   VMiniMapConverterChangeable :=
     TLocalConverterChangeableOfMiniMap.Create(
-      APerfListGroup.CreateAndAddNewCounter('MiniMapConverter'),
-      ALocalConverterFactory,
-      AActiveProjectionSet,
-      AViewPortState.View,
-      ALayersConfig.MiniMapLayerConfig.LocationConfig
+      AParams.PerfListGroup.CreateAndAddNewCounter('MiniMapConverter'),
+      AParams.LocalConverterFactory,
+      AParams.ActiveProjectionSet,
+      AParams.ViewPortState.View,
+      AParams.LayersConfig.MiniMapLayerConfig.LocationConfig
     );
   VTileRectForShow :=
     TTileRectChangeableByLocalConverterSmart.Create(
-      AActiveProjectionSet,
+      AParams.ActiveProjectionSet,
       VMiniMapConverterChangeable,
       GSync.SyncVariable.Make('TileRectMiniMapForShowMain'),
       GSync.SyncVariable.Make('TileRectMiniMapForShowResult')
     );
 
-  // MiniMap bitmap layer
-  VDebugName := 'MiniMap';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  // Bitmap layer
+  VPerfList := AParams.PerfListGroup.CreateAndAddNewSubList(CDebugName);
   VProvider :=
     TBitmapLayerProviderChangeableForMainLayer.Create(
-      AMainMapState.MiniMapActiveMap,
-      AMainMapState.MiniMapActiveBitmapLayersList,
-      ABitmapPostProcessing,
-      ALayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
-      ABitmap32StaticFactory,
-      ATileErrorLogger
+      AParams.MainMapState.MiniMapActiveMap,
+      AParams.MainMapState.MiniMapActiveBitmapLayersList,
+      AParams.BitmapPostProcessing,
+      AParams.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
+      AParams.Bitmap32StaticFactory,
+      AParams.TileErrorLogger
     );
   VTileMatrix :=
     TBitmapTileMatrixChangeableWithThread.Create(
       VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
       VTileRectForShow,
-      VTileMatrixDraftResampler,
+      ATileMatrixDraftResampler,
       True,
-      ABitmap32StaticFactory,
-      AHashFunction,
+      AParams.Bitmap32StaticFactory,
+      AParams.HashFunction,
       VProvider,
       nil,
-      ALayersConfig.MiniMapLayerConfig.ThreadConfig,
-      VDebugName
+      AParams.LayersConfig.MiniMapLayerConfig.ThreadConfig,
+      CDebugName
     );
   VLayer :=
     TTiledMapLayer.Create(
       VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AHashFunction,
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.HashFunction,
       VMiniMapConverterChangeable,
       VTileMatrix,
-      AGUISyncronizedTimerNotifier,
-      VDebugName
+      AParams.GUISyncronizedTimerNotifier,
+      CDebugName
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  // View rect in MiniMap visualisation layer
-  VDebugName := 'MiniMapViewRect';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  // View rect
   VLayer :=
     TMiniMapLayerViewRect.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
-      AViewPortState,
+      AParams.PerfListGroup.CreateAndAddNewSubList('MiniMapViewRect'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState,
       VMiniMapConverterChangeable,
-      AGUISyncronizedTimerNotifier,
-      AMiniMapPopupMenu,
-      ALayersConfig.MiniMapLayerConfig.LocationConfig
+      AParams.GUISyncronizedTimerNotifier,
+      AParams.MiniMapPopupMenu,
+      AParams.LayersConfig.MiniMapLayerConfig.LocationConfig
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  // Mini Map top border
-  VDebugName := 'MiniMapTopBorder';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  // Top border
   VLayer :=
     TMiniMapLayerTopBorder.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
+      AParams.PerfListGroup.CreateAndAddNewSubList('MiniMapTopBorder'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
       VMiniMapConverterChangeable,
-      ALayersConfig.MiniMapLayerConfig
+      AParams.LayersConfig.MiniMapLayerConfig
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  // Mini Map left border
-  VDebugName := 'MiniMapLeftBorder';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
+  // Left border
   VLayer :=
     TMiniMapLayerLeftBorder.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
+      AParams.PerfListGroup.CreateAndAddNewSubList('MiniMapLeftBorder'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
       VMiniMapConverterChangeable,
-      ALayersConfig.MiniMapLayerConfig
+      AParams.LayersConfig.MiniMapLayerConfig
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  // Mini map Minus button
+  // Minus button
   VBitmap :=
     ReadBitmapByFileRef(
-      AResourceProvider,
+      AParams.ResourceProvider,
       'ICONII.png',
-      AContentTypeManager,
+      AParams.ContentTypeManager,
       nil
     );
   VBitmapChangeable := nil;
   if VBitmap <> nil then begin
     VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
   end;
-  VDebugName := 'MiniMapMinusButton';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TMiniMapLayerMinusButton.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
+      AParams.PerfListGroup.CreateAndAddNewSubList('MiniMapMinusButton'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
       VMiniMapConverterChangeable,
       VBitmapChangeable,
-      ALayersConfig.MiniMapLayerConfig
+      AParams.LayersConfig.MiniMapLayerConfig
     );
-  VLayersList.Add(VLayer);
+  ALayersList.Add(VLayer);
 
-  // Mini Map plus button
+  // Plus button
   VBitmap :=
     ReadBitmapByFileRef(
-      AResourceProvider,
+      AParams.ResourceProvider,
       'ICONI.png',
-      AContentTypeManager,
+      AParams.ContentTypeManager,
       nil
     );
   VBitmapChangeable := nil;
   if VBitmap <> nil then begin
     VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
   end;
-  VDebugName := 'MiniMapPlusButton';
-  VPerfList := APerfListGroup.CreateAndAddNewSubList(VDebugName);
   VLayer :=
     TMiniMapLayerPlusButton.Create(
-      VPerfList,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
-      AParentMap,
+      AParams.PerfListGroup.CreateAndAddNewSubList('MiniMapPlusButton'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
       VMiniMapConverterChangeable,
       VBitmapChangeable,
-      ALayersConfig.MiniMapLayerConfig
+      AParams.LayersConfig.MiniMapLayerConfig
     );
-  VLayersList.Add(VLayer);
-  {$ENDIF}
-
-  FLayersList := VLayersList.MakeStaticAndClear;
+  ALayersList.Add(VLayer);
 end;
 
 function TMainFormLayersList.GetMarksLayer: IFindVectorItems;

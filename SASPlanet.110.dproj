@@ -1470,6 +1470,7 @@
         <DCCReference Include="Src\MainForm\i_StickToGrid.pas"/>
         <DCCReference Include="Src\MainForm\i_ViewPortState.pas"/>
         <DCCReference Include="Src\MainForm\i_ViewProjectionConfig.pas"/>
+        <DCCReference Include="Src\MainForm\t_MainFormLayersListParams.pas"/>
         <DCCReference Include="Src\MainForm\u_ActionListByLanguageManager.pas"/>
         <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas"/>
         <DCCReference Include="Src\MainForm\u_FillingMapPolygon.pas"/>

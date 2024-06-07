@@ -468,6 +468,7 @@ uses
   i_StickToGrid in 'Src\MainForm\i_StickToGrid.pas',
   i_ViewPortState in 'Src\MainForm\i_ViewPortState.pas',
   i_ViewProjectionConfig in 'Src\MainForm\i_ViewProjectionConfig.pas',
+  t_MainFormLayersListParams in 'Src\MainForm\t_MainFormLayersListParams.pas',
   u_ActionListByLanguageManager in 'Src\MainForm\u_ActionListByLanguageManager.pas',
   u_ActiveMapTBXItem in 'Src\MainForm\u_ActiveMapTBXItem.pas',
   u_FillingMapPolygon in 'Src\MainForm\u_FillingMapPolygon.pas',
