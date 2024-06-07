@@ -1034,13 +1034,14 @@ object frmSettings: TfrmSettings
               Align = alClient
               Style = csDropDownList
               ItemHeight = 13
+              DropDownCount = 10
               ItemIndex = 0
-              DropDownCount = 9
               TabOrder = 0
               Items.Strings = (
                 'Auto'
                 'Square Meters'
                 'Square Kilometers'
+                'Ares'
                 'Hectares'
                 'Square Feet'
                 'Square Yards'

@@ -53,6 +53,7 @@ type
     FUnitsKmph: string;
 
     FUnitsHa: string;
+    FUnitsAre: string;
     FUnitsSqKm: string;
     FUnitsSqMeters: string;
 
@@ -98,13 +99,16 @@ constructor TValueToStringConverter.Create(
 );
 begin
   inherited Create;
+
   FDistStrFormat := ADistStrFormat;
   FAreaShowFormat := AAreaShowFormat;
 
+  // Data Size
   FUnitsKb := SAS_UNITS_kb;
   FUnitsMb := SAS_UNITS_mb;
   FUnitsGb := SAS_UNITS_gb;
 
+  // Distance
   FUnitsKm := SAS_UNITS_km;
   FUnitsMeter := SAS_UNITS_m;
   FUnitsCentimeter := SAS_UNITS_sm;
@@ -115,9 +119,13 @@ begin
   FUnitsInch := SAS_UNITS_inch;
   FUnitsNauticalMile := SAS_UNITS_nauticalmile;
 
+  // Speed
   FUnitsKmph := SAS_UNITS_kmperh;
 
-  FUnitsHa := SAS_UNITS_Ha;
+  // Area
+  FUnitsHa := SAS_UNITS_ha;
+  FUnitsAre := SAS_UNITS_are;
+
   FUnitsSqKm := SAS_UNITS_km2;
   FUnitsSqMeters := SAS_UNITS_m2;
 
@@ -167,6 +175,14 @@ begin
         Result := ValToNum(AAreaInSqm / 1000000, FUnitsSqKm, 6);
       end else begin
         Result := ValToNum(AAreaInSqm / 1000000, FUnitsSqKm);
+      end;
+    end;
+
+    asfAre: begin
+      if AAreaInSqm <= 10000 then begin
+        Result := ValToNum(AAreaInSqm / 100, FUnitsAre);
+      end else begin
+        Result := ValToNum(AAreaInSqm / 100, FUnitsAre, 0);
       end;
     end;
 

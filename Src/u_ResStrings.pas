@@ -346,7 +346,8 @@ ResourceString
 
   SAS_UNITS_m2 = 'm2';
   SAS_UNITS_km2 = 'km2';
-  SAS_UNITS_Ha = 'ha';
+  SAS_UNITS_are = 'a'; // sotka
+  SAS_UNITS_ha = 'ha';
 
   SAS_UNITS_yd2 = 'yd2';
   SAS_UNITS_ft2 = 'ft2';

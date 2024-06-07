@@ -592,7 +592,7 @@ end;
 
 procedure TfrmSettings.BtnDefClick(Sender: TObject);
 begin
-  edtDBMSCachePath.Text := c_File_Cache_Default_DBMS; // without deliiter(s)
+  edtDBMSCachePath.Text := c_File_Cache_Default_DBMS; // without delimiter(s)
 end;
 
 procedure TfrmSettings.btnImageProcessResetClick(Sender: TObject);

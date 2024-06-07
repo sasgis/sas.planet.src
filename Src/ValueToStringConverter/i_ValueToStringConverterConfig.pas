@@ -40,11 +40,11 @@ type
   IValueToStringConverterConfig = interface(IConfigDataElement)
     ['{DDC4DF45-A387-43DC-AED7-33935241C718}']
     function GetDistStrFormat: TDistStrFormat;
-    procedure SetDistStrFormat(AValue: TDistStrFormat);
+    procedure SetDistStrFormat(const AValue: TDistStrFormat);
     property DistStrFormat: TDistStrFormat read GetDistStrFormat write SetDistStrFormat;
 
     function GetAreaShowFormat: TAreaStrFormat;
-    procedure SetAreaShowFormat(AValue: TAreaStrFormat);
+    procedure SetAreaShowFormat(const AValue: TAreaStrFormat);
     property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat write SetAreaShowFormat;
 
     function GetStatic: IValueToStringConverterConfigStatic;

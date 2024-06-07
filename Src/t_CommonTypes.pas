@@ -47,6 +47,7 @@ type
 
     asfSqM,
     asfSqKm,
+    asfAre,
     asfHa,
 
     asfSqFoot,

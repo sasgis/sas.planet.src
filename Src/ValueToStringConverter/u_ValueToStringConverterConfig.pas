@@ -56,11 +56,12 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    { IValueToStringConverterConfig }
     function GetDistStrFormat: TDistStrFormat;
-    procedure SetDistStrFormat(AValue: TDistStrFormat);
+    procedure SetDistStrFormat(const AValue: TDistStrFormat);
 
     function GetAreaShowFormat: TAreaStrFormat;
-    procedure SetAreaShowFormat(AValue: TAreaStrFormat);
+    procedure SetAreaShowFormat(const AValue: TAreaStrFormat);
 
     function GetStatic: IValueToStringConverterConfigStatic;
   public
@@ -91,9 +92,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TValueToStringConverterConfig.DoReadConfig(
-  const AConfigData: IConfigDataProvider
-);
+procedure TValueToStringConverterConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -103,9 +102,7 @@ begin
   end;
 end;
 
-procedure TValueToStringConverterConfig.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider
-);
+procedure TValueToStringConverterConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteInteger('DistFormat', Integer(FDistStrFormat));
@@ -137,8 +134,7 @@ begin
   Result := IValueToStringConverterConfigStatic(GetStaticInternal);
 end;
 
-procedure TValueToStringConverterConfig.SetAreaShowFormat(
-  AValue: TAreaStrFormat);
+procedure TValueToStringConverterConfig.SetAreaShowFormat(const AValue: TAreaStrFormat);
 begin
   LockWrite;
   try
@@ -151,8 +147,7 @@ begin
   end;
 end;
 
-procedure TValueToStringConverterConfig.SetDistStrFormat(
-  AValue: TDistStrFormat);
+procedure TValueToStringConverterConfig.SetDistStrFormat(const AValue: TDistStrFormat);
 begin
   LockWrite;
   try
