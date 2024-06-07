@@ -266,7 +266,7 @@ end;
 
 procedure TWindowLayerSunCalcInfoBase.OnPosChange;
 begin
-  if Visible and FShapesGenerator.IsIntersectScreenRect then begin
+  if Visible then begin
     ViewUpdateLock;
     try
       SetNeedFullRepaintLayer;
