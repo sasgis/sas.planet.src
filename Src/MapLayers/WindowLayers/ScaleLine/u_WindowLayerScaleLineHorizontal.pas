@@ -27,40 +27,42 @@ uses
   Types,
   GR32,
   i_LocalCoordConverter,
-  i_LocalCoordConverterChangeable,
-  i_ScaleLineConfig,
   u_WindowLayerScaleLineBase;
 
 type
   TWindowLayerScaleLineHorizontal = class(TWindowLayerScaleLineBase)
   private
-    procedure RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
+    procedure RedrawScaleLegend(
+      const ABitmap: TBitmap32;
+      const AVisualCoordConverter: ILocalCoordConverter
+    );
     procedure DrawScaleLegend(
-      ALineColor: TColor32;
-      AOutLineColor: TColor32;
-      ATextColor: TColor32;
-      AScaleLegendWidth: Integer;
-      const AHalfValue, AFullValue: string;
-      ATargetBitmap: TBitmap32
+      const ABitmap: TBitmap32;
+      const ALineColor: TColor32;
+      const AOutLineColor: TColor32;
+      const ATextColor: TColor32;
+      const AScaleLegendWidth: Integer;
+      const AHalfValue: string;
+      const AFullValue: string
     );
     procedure DrawScaleMarks(
-      ALineColor: TColor32;
-      AOutLineColor: TColor32;
-      ATextColor: TColor32;
+      const ABitmap: TBitmap32;
+      const ALineColor: TColor32;
+      const AOutLineColor: TColor32;
+      const ATextColor: TColor32;
       const AText: string;
-      AScalePos: Integer;
-      ATargetBitmap: TBitmap32
+      const AScalePos: Integer
     );
     function GetMetersPerLine(
       const AVisualCoordConverter: ILocalCoordConverter;
-      ALineWidth: Integer
+      const ALineWidth: Integer
     ): Double;
     procedure ModifyLenAndWidth(
       var ALen: Double;
       var AWidth: Integer
     );
   protected
-    function GetNewVisibility: boolean; override;
+    function GetNewVisibility: Boolean; override;
     function GetNewBitmapSize: TPoint; override;
     procedure DoUpdateBitmapDraw; override;
   end;
@@ -71,6 +73,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_Projection,
+  i_ScaleLineConfig,
   u_ResStrings,
   u_GeoFunc;
 
@@ -80,22 +83,29 @@ procedure TWindowLayerScaleLineHorizontal.DoUpdateBitmapDraw;
 var
   VVisualCoordConverter: ILocalCoordConverter;
 begin
-  inherited;
-  Layer.Bitmap.Clear(0);
-  VVisualCoordConverter := View.GetStatic;
-  if VVisualCoordConverter <> nil then begin
-    RedrawScaleLegend(VVisualCoordConverter);
+  Layer.Bitmap.BeginUpdate;
+  try
+    Layer.Bitmap.Clear(0);
+    VVisualCoordConverter := View.GetStatic;
+    if VVisualCoordConverter <> nil then begin
+      RedrawScaleLegend(Layer.Bitmap, VVisualCoordConverter);
+    end;
+  finally
+    Layer.Bitmap.EndUpdate;
   end;
 end;
 
-procedure TWindowLayerScaleLineHorizontal.RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
+procedure TWindowLayerScaleLineHorizontal.RedrawScaleLegend(
+  const ABitmap: TBitmap32;
+  const AVisualCoordConverter: ILocalCoordConverter
+);
 var
   VUnitsString: string;
-  num: Double;
-  rnum: Integer;
+  VFullLenght: Double;
   VColor: TColor32;
   VOutLineColor: TColor32;
   VValidLegendWidth: Integer;
+  VDigits: Integer;
   VHalfValue, VFullValue: string;
 begin
   VColor := Config.Color;
@@ -103,68 +113,71 @@ begin
 
   VValidLegendWidth := (Config.Width div 4) * 4;
 
-  num := GetMetersPerLine(AVisualCoordConverter, VValidLegendWidth);
-  if num <= 0 then begin
+  VFullLenght := GetMetersPerLine(AVisualCoordConverter, VValidLegendWidth);
+  if VFullLenght <= 0 then begin
     DrawScaleLegend(
+      ABitmap,
       VColor,
       VOutLineColor,
       VColor,
       VValidLegendWidth,
       ' ',
-      ' ',
-      Layer.Bitmap
+      ' '
     );
     Exit;
   end;
 
   if Config.NumbersFormat = slnfNice then begin
-    ModifyLenAndWidth(Num, VValidLegendWidth);
+    ModifyLenAndWidth(VFullLenght, VValidLegendWidth);
   end;
 
-  if num > 10000 then begin
-    num := num / 1000;
-    VUnitsString := ' ' + SAS_UNITS_km + ' ';
-  end else if num < 10 then begin
-    num := num * 100;
-    VUnitsString := ' ' + SAS_UNITS_sm + ' ';
+  if VFullLenght > 10000 then begin
+    VFullLenght := VFullLenght / 1000;
+    VUnitsString := SAS_UNITS_km + ' ';
+  end else
+  if VFullLenght < 10 then begin
+    VFullLenght := VFullLenght * 100;
+    VUnitsString := SAS_UNITS_sm + ' ';
   end else begin
-    VUnitsString := ' ' + SAS_UNITS_m + ' ';
+    VUnitsString := SAS_UNITS_m + ' ';
   end;
 
   case Config.NumbersFormat of
     slnfNice: begin
-      VHalfValue := IntToStr(Round(num / 2)) + VUnitsString;
-      VFullValue := IntToStr(Round(num)) + VUnitsString;
+      VDigits := 0;
+    end;
+    slnfScience: begin
+      VDigits := 2;
     end;
     slnfScienceRound: begin
-      rnum := Round(num / 2);
-      VHalfValue := IntToStr(rnum) + VUnitsString;
-      VFullValue := IntToStr(rnum * 2) + VUnitsString;
+      VDigits := 0;
     end;
-  else begin
-    VHalfValue := FloatToStrF(num / 2, ffFixed, 10, 2) + VUnitsString;
-    VFullValue := FloatToStrF(num, ffFixed, 10, 2) + VUnitsString;
-  end;
+  else
+    Assert(False);
+    VDigits := 0;
   end;
 
+  VHalfValue := ValueToStr(VFullLenght / 2, VDigits, VUnitsString);
+  VFullValue := ValueToStr(VFullLenght, VDigits, VUnitsString);
+
   DrawScaleLegend(
+    ABitmap,
     VColor,
     VOutLineColor,
     VColor,
     VValidLegendWidth,
     VHalfValue,
-    VFullValue,
-    Layer.Bitmap
+    VFullValue
   );
 end;
 
 procedure TWindowLayerScaleLineHorizontal.DrawScaleLegend(
-  ALineColor: TColor32;
-  AOutLineColor: TColor32;
-  ATextColor: TColor32;
-  AScaleLegendWidth: Integer;
-  const AHalfValue, AFullValue: string;
-  ATargetBitmap: TBitmap32
+  const ABitmap: TBitmap32;
+  const ALineColor: TColor32;
+  const AOutLineColor: TColor32;
+  const ATextColor: TColor32;
+  const AScaleLegendWidth: Integer;
+  const AHalfValue, AFullValue: string
 );
 var
   I: Integer;
@@ -174,8 +187,8 @@ var
   VText: string;
 begin
   VWidth := (AScaleLegendWidth div 4) * 4;
-  VBitmapSize := Types.Point(ATargetBitmap.Width, ATargetBitmap.Height);
-  ATargetBitmap.Line(0, VBitmapSize.Y - 3, VWidth + 2, VBitmapSize.Y - 3, AOutLineColor);
+  VBitmapSize := Types.Point(ABitmap.Width, ABitmap.Height);
+  ABitmap.Line(0, VBitmapSize.Y - 3, VWidth + 2, VBitmapSize.Y - 3, AOutLineColor);
   for I := 0 to 4 do begin
     VStartX := I * (VWidth div 4);
     case I of
@@ -192,28 +205,27 @@ begin
       4: begin
         VText := AFullValue;
       end;
-    else begin
+    else
       VText := '';
     end;
-    end;
     DrawScaleMarks(
+      ABitmap,
       ALineColor,
       AOutLineColor,
       ATextColor,
       VText,
-      VStartX + 1,
-      ATargetBitmap
+      VStartX + 1
     );
   end;
-  ATargetBitmap.Line(1, VBitmapSize.Y - 2, VWidth + 2, VBitmapSize.Y - 2, ALineColor);
-  ATargetBitmap.Line(0, VBitmapSize.Y - 1, VWidth + 2, VBitmapSize.Y - 1, AOutLineColor);
+  ABitmap.Line(1, VBitmapSize.Y - 2, VWidth + 2, VBitmapSize.Y - 2, ALineColor);
+  ABitmap.Line(0, VBitmapSize.Y - 1, VWidth + 2, VBitmapSize.Y - 1, AOutLineColor);
 end;
 
 procedure TWindowLayerScaleLineHorizontal.DrawScaleMarks(
-  ALineColor, AOutLineColor, ATextColor: TColor32;
+  const ABitmap: TBitmap32;
+  const ALineColor, AOutLineColor, ATextColor: TColor32;
   const AText: string;
-  AScalePos: Integer;
-  ATargetBitmap: TBitmap32
+  const AScalePos: Integer
 );
 var
   VStartY: Integer;
@@ -221,29 +233,29 @@ var
 begin
   if Length(AText) > 0 then begin
     DrawOutLinedText(
+      ABitmap,
       AScalePos,
-      ATargetBitmap.Height - 36,
+      ABitmap.Height - 36,
       AText,
       ATextColor,
-      AOutLineColor,
-      ATargetBitmap
+      AOutLineColor
     );
   end;
-  VHeight := ATargetBitmap.Height;
+  VHeight := ABitmap.Height;
   if Length(AText) = 0 then begin
     VStartY := VHeight - 10;
   end else begin
     VStartY := VHeight - 20;
   end;
-  ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos - 1, VHeight - 1, AOutLineColor);
-  ATargetBitmap.Line(AScalePos, VStartY, AScalePos, VHeight - 1, ALineColor);
-  ATargetBitmap.Line(AScalePos + 1, VStartY, AScalePos + 1, VHeight - 1, AOutLineColor);
-  ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos + 1, VStartY, AOutLineColor);
+  ABitmap.Line(AScalePos - 1, VStartY, AScalePos - 1, VHeight - 1, AOutLineColor);
+  ABitmap.Line(AScalePos, VStartY, AScalePos, VHeight - 1, ALineColor);
+  ABitmap.Line(AScalePos + 1, VStartY, AScalePos + 1, VHeight - 1, AOutLineColor);
+  ABitmap.Line(AScalePos - 1, VStartY, AScalePos + 1, VStartY, AOutLineColor);
 end;
 
 function TWindowLayerScaleLineHorizontal.GetMetersPerLine(
   const AVisualCoordConverter: ILocalCoordConverter;
-  ALineWidth: Integer
+  const ALineWidth: Integer
 ): Double;
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
@@ -284,7 +296,7 @@ begin
   Result.Y := 50;
 end;
 
-function TWindowLayerScaleLineHorizontal.GetNewVisibility: boolean;
+function TWindowLayerScaleLineHorizontal.GetNewVisibility: Boolean;
 begin
   Result := Config.Visible;
 end;

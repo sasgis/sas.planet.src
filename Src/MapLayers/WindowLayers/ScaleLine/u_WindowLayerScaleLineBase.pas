@@ -27,12 +27,12 @@ uses
   Types,
   Controls,
   Classes,
+  SysUtils,
   GR32,
   GR32_Image,
   i_NotifierOperation,
   i_NotifierTime,
   i_SimpleFlag,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_ScaleLineConfig,
@@ -57,15 +57,20 @@ type
       X, Y: Integer
     );
   protected
+    class function ValueToStr(
+      const AValue: Double;
+      const ADigits: Integer;
+      const AUnits: string
+    ): string; inline;
     procedure DrawOutLinedText(
+      const ABitmap: TBitmap32;
       const X, Y: Integer;
       const AText: string;
       const ATextColor: TColor32;
-      const AOutLineColor: TColor32;
-      const ATargetBitmap: TBitmap32
+      const AOutLineColor: TColor32
     );
-    function GetNiceLen(ALen: Double): Double;
-    function GetNewVisibility: boolean; virtual; abstract;
+    function GetNiceLen(const ALen: Double): Double;
+    function GetNewVisibility: Boolean; virtual; abstract;
     function GetNewLayerLocation: TFloatRect; override;
     procedure DoUpdateLayerVisibility; override;
     procedure StartThreads; override;
@@ -88,7 +93,6 @@ type
 implementation
 
 uses
-  SysUtils,
   GR32_Layers,
   GR32_Resamplers,
   u_ListenerByEvent,
@@ -145,10 +149,9 @@ begin
   inherited;
 end;
 
-function TWindowLayerScaleLineBase.GetNiceLen(ALen: Double): Double;
+function TWindowLayerScaleLineBase.GetNiceLen(const ALen: Double): Double;
 const
-  CNiceValues: array [0..54] of Double =
-    (
+  CNiceValues: array [0..54] of Double = (
     40000000,
     30000000,
     20000000,
@@ -204,12 +207,12 @@ const
     1.5,
     1,
     0.5
-    );
+  );
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i := 0 to Length(CNiceValues) - 1 do begin
-    Result := CNiceValues[i];
+  for I := 0 to Length(CNiceValues) - 1 do begin
+    Result := CNiceValues[I];
     if ALen > Result then begin
       Break;
     end;
@@ -286,7 +289,7 @@ begin
 end;
 
 const
-  cBackGroundColor: TColor32 = 0;
+  CBackGroundColor: TColor32 = 0;
 
 function IsPixelForOutLine(
   const ABitmap: TBitmap32;
@@ -298,13 +301,13 @@ var
   VPixel: TColor32;
 begin
   Result := False;
-  if ABitmap.Pixel[X, Y] <> cBackGroundColor then begin
+  if ABitmap.Pixel[X, Y] <> CBackGroundColor then begin
     Exit;
   end;
   for I := -1 to 1 do begin
     for J := -1 to 1 do begin
       VPixel := ABitmap.Pixel[X + I, Y + J];
-      if (VPixel <> cBackGroundColor) and (VPixel <> AOutLineColor) then begin
+      if (VPixel <> CBackGroundColor) and (VPixel <> AOutLineColor) then begin
         Result := True;
         Exit;
       end;
@@ -313,11 +316,11 @@ begin
 end;
 
 procedure TWindowLayerScaleLineBase.DrawOutLinedText(
+  const ABitmap: TBitmap32;
   const X, Y: Integer;
   const AText: string;
   const ATextColor: TColor32;
-  const AOutLineColor: TColor32;
-  const ATargetBitmap: TBitmap32
+  const AOutLineColor: TColor32
 );
 var
   I, J: Integer;
@@ -326,7 +329,7 @@ begin
   VSize := FTmpBitmap.TextExtent(AText);
   FTmpBitmap.SetSize(VSize.cx + 4, VSize.cy + 4);
 
-  FTmpBitmap.Clear(cBackGroundColor);
+  FTmpBitmap.Clear(CBackGroundColor);
   FTmpBitmap.RenderText(2, 2, AText, ATextColor, False);
 
   for I := 1 to FTmpBitmap.Width - 2 do begin
@@ -338,9 +341,9 @@ begin
   end;
 
   BlockTransfer(
-    ATargetBitmap,
+    ABitmap,
     X, Y,
-    ATargetBitmap.ClipRect,
+    ABitmap.ClipRect,
     FTmpBitmap,
     FTmpBitmap.BoundsRect,
     dmOpaque
@@ -356,6 +359,15 @@ begin
   Result.Bottom := FView.GetStatic.GetLocalRect.Bottom - 6 - FConfig.BottomMargin;
   Result.Right := Result.Left + VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
+end;
+
+class function TWindowLayerScaleLineBase.ValueToStr(
+  const AValue: Double;
+  const ADigits: Integer;
+  const AUnits: string
+): string;
+begin
+  Result := FloatToStrF(AValue, ffNumber, 15, ADigits) + ' ' + AUnits;
 end;
 
 end.
