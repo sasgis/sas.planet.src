@@ -78,6 +78,10 @@ type
     procedure SetTimeZoneInfoAvailable(AValue: Boolean);
     property TimeZoneInfoAvailable: Boolean read GetTimeZoneInfoAvailable write SetTimeZoneInfoAvailable;
 
+    function GetTimeZoneDateTimeFormat: string;
+    procedure SetTimeZoneDateTimeFormat(const AValue: string);
+    property TimeZoneDateTimeFormat: string read GetTimeZoneDateTimeFormat write SetTimeZoneDateTimeFormat;
+
     function GetViewDownloadedInfo: Boolean;
     procedure SetViewDownloadedInfo(AValue: Boolean);
     property ViewDownloadedInfo: Boolean read GetViewDownloadedInfo write SetViewDownloadedInfo;

@@ -30,7 +30,6 @@ uses
   Classes,
   GR32,
   GR32_Image,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   t_GeoTypes,
@@ -91,7 +90,6 @@ type
     FTextColor: TColor32;
     FItemsInfo: TStatusBarItems;
     FPrevItemsInfo: TStatusBarItems;
-    FIsNeedForceRedraw: Boolean;
     procedure OnConfigChange;
     procedure OnTimer;
     procedure OnPosChange;
@@ -101,7 +99,7 @@ type
       Shift: TShiftState;
       X, Y: Integer
     );
-    procedure ResetItems(out AItems: TStatusBarItems);
+    procedure ResetItems(out AItems: TStatusBarItems); inline;
     procedure GetItemsInfo(out AItems: TStatusBarItems);
     function IsEqualItems(const A, B: TStatusBarItems): Boolean;
   protected
@@ -171,12 +169,14 @@ constructor TWindowLayerStatusBar.Create(
 );
 begin
   Assert(Assigned(APopupMenu));
+
   inherited Create(
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
     TBitmapLayer.Create(AParentMap.Layers)
   );
+
   FConfig := AConfig;
   FTerrainConfig := ATerrainConfig;
   FGlobalInternetState := AGlobalInternetState;
@@ -197,7 +197,7 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FConfig.ChangeNotifier
   );
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, FConfig.MinUpdateTickCount),
@@ -210,7 +210,6 @@ begin
   FMainMap := AMainMap;
 
   FLastUpdateTick := 0;
-  FIsNeedForceRedraw := True;
   ResetItems(FPrevItemsInfo);
 end;
 
@@ -247,15 +246,15 @@ end;
 procedure TWindowLayerStatusBar.OnConfigChange;
 
   procedure SetValidFontSize(
-    AFont: TFont;
-    ASize: Integer;
-    AMaxHeight: Integer
+    const AFont: TFont;
+    const ASize: Integer;
+    const AMaxHeight: Integer
   );
   begin
-    if abs(AFont.Height) < AMaxHeight then begin
+    if Abs(AFont.Height) < AMaxHeight then begin
       AFont.Size := ASize;
     end;
-    while abs(AFont.Height) >= AMaxHeight do begin
+    while Abs(AFont.Height) >= AMaxHeight do begin
       AFont.Size := AFont.Size - 1;
     end;
   end;
@@ -263,21 +262,23 @@ procedure TWindowLayerStatusBar.OnConfigChange;
 var
   VVisible: Boolean;
 begin
+  FConfig.LockRead;
+  try
+    Layer.Bitmap.Font.Name := FConfig.FontName;
+    SetValidFontSize(Layer.Bitmap.Font, FConfig.FontSize, (FConfig.Height - 2));
+
+    FMinUpdate := FConfig.MinUpdateTickCount;
+    FBgColor := FConfig.BgColor;
+    FTextColor := FConfig.TextColor;
+    VVisible := FConfig.Visible;
+  finally
+    FConfig.UnlockRead;
+  end;
+
+  GetItemsInfo(FItemsInfo);
+
   ViewUpdateLock;
   try
-    FConfig.LockRead;
-    try
-      Layer.Bitmap.Font.Name := FConfig.FontName;
-      SetValidFontSize(Layer.Bitmap.Font, FConfig.FontSize, (FConfig.Height - 2));
-
-      FMinUpdate := FConfig.MinUpdateTickCount;
-      FBgColor := FConfig.BgColor;
-      FTextColor := FConfig.TextColor;
-      VVisible := FConfig.Visible;
-    finally
-      FConfig.UnlockRead;
-    end;
-    FIsNeedForceRedraw := True;
     Visible := VVisible;
     SetNeedUpdateBitmapSize;
     SetNeedUpdateBitmapDraw;
@@ -289,24 +290,44 @@ end;
 
 procedure TWindowLayerStatusBar.OnPosChange;
 begin
+  if not Visible then begin
+    Exit;
+  end;
+
+  GetItemsInfo(FItemsInfo);
+
   ViewUpdateLock;
   try
-    FIsNeedForceRedraw := True;
     SetNeedUpdateBitmapSize;
     SetNeedUpdateLayerLocation;
+    SetNeedUpdateBitmapDraw;
   finally
     ViewUpdateUnlock;
   end;
 end;
 
 procedure TWindowLayerStatusBar.OnTimer;
+var
+  VCurrentTick: DWORD;
 begin
-  ViewUpdateLock;
-  try
-    FIsNeedForceRedraw := False;
-    SetNeedUpdateBitmapDraw;
-  finally
-    ViewUpdateUnlock;
+  if not Visible then begin
+    Exit;
+  end;
+
+  VCurrentTick := GetTickCount;
+  if (VCurrentTick > FLastUpdateTick) and (VCurrentTick < FLastUpdateTick + FMinUpdate) then begin
+    Exit;
+  end;
+
+  GetItemsInfo(FItemsInfo);
+
+  if not IsEqualItems(FPrevItemsInfo, FItemsInfo) then begin
+    ViewUpdateLock;
+    try
+      SetNeedUpdateBitmapDraw;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 
@@ -377,25 +398,9 @@ procedure TWindowLayerStatusBar.DoUpdateBitmapDraw;
 var
   I: TStatusBarItemID;
   VString: string;
-  VCurrentTick: DWORD;
   VOffset: TPoint;
   VNeedSeparator: Boolean;
 begin
-  inherited;
-
-  if FIsNeedForceRedraw then begin
-    GetItemsInfo(FItemsInfo);
-  end else begin
-    VCurrentTick := GetTickCount;
-    if (VCurrentTick > FLastUpdateTick) and (VCurrentTick < FLastUpdateTick + FMinUpdate) then begin
-      Exit;
-    end;
-    GetItemsInfo(FItemsInfo);
-    if IsEqualItems(FPrevItemsInfo, FItemsInfo) then begin
-      Exit;
-    end;
-  end;
-
   Layer.Bitmap.BeginUpdate;
   try
     Layer.Bitmap.Clear(FBgColor);
@@ -428,7 +433,6 @@ begin
     FLastUpdateTick := GetTickCount;
   finally
     Layer.Bitmap.EndUpdate;
-    Layer.Bitmap.Changed;
   end;
 end;
 
@@ -470,7 +474,7 @@ procedure TWindowLayerStatusBar.GetItemsInfo(out AItems: TStatusBarItems);
     if Result <> '' then begin
       Result := Result + ' : ';
     end;
-    Result := Result + VCoordToStringConverter.LonLatConvert(ALonLat, [coIncludeZone])
+    Result := Result + VCoordToStringConverter.LonLatConvert(ALonLat, [coIncludeZone]);
   end;
 
 const
@@ -519,7 +523,7 @@ begin
     VRad := VProjection.ProjectionType.Datum.GetSpheroidRadiusA;
     VPixelsAtZoom := VProjection.GetPixelsFloat;
     AItems[I].Text := VValueConverter.DistPerPixelConvert(
-      1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * Cos(VLonLat.Y * D2R)))
+      1 / ((VPixelsAtZoom / (2 * Pi)) / (VRad * Cos(VLonLat.Y * D2R)))
     );
   end;
 
@@ -532,7 +536,7 @@ begin
   Inc(I);
   AItems[I].Visible := FConfig.TimeZoneInfoAvailable and FConfig.ViewTimeZoneTimeInfo;
   if AItems[I].Visible then begin
-    AItems[I].Text := FTimeZoneInfo.GetStatusBarTzInfo(VLonLat);
+    AItems[I].Text := FTimeZoneInfo.GetStatusBarTzInfo(VLonLat, FConfig.TimeZoneDateTimeFormat);
   end;
 
   Inc(I);

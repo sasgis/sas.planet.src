@@ -46,6 +46,7 @@ type
     FMetrPerPixInfo: Boolean;
     FTimeZoneTimeInfo: Boolean;
     FTimeZoneInfoAvailable: Boolean;
+    FTimeZoneDateTimeFormat: string;
     FDownloadInfo: Boolean;
     FHttpQueueInfo: Boolean;
     FTilePathInfo: Boolean;
@@ -89,6 +90,9 @@ type
     function GetTimeZoneInfoAvailable: Boolean;
     procedure SetTimeZoneInfoAvailable(AValue: Boolean);
 
+    function GetTimeZoneDateTimeFormat: string;
+    procedure SetTimeZoneDateTimeFormat(const AValue: string);
+
     function GetViewDownloadedInfo: Boolean;
     procedure SetViewDownloadedInfo(AValue: Boolean);
 
@@ -125,6 +129,7 @@ begin
   FMetrPerPixInfo := True;
   FTimeZoneTimeInfo := True;
   FTimeZoneInfoAvailable := False;
+  FTimeZoneDateTimeFormat := 'hh:mm';
   FDownloadInfo := True;
   FHttpQueueInfo := True;
   FTilePathInfo := True;
@@ -146,6 +151,7 @@ begin
     FLonLatInfo := AConfigData.ReadBool('LonLatInfo', FLonLatInfo);
     FMetrPerPixInfo := AConfigData.ReadBool('MetrPerPixInfo', FMetrPerPixInfo);
     FTimeZoneTimeInfo := AConfigData.ReadBool('TimeZoneTimeInfo', FTimeZoneTimeInfo);
+    FTimeZoneDateTimeFormat := AConfigData.ReadString('TimeZoneDateTimeFormat', FTimeZoneDateTimeFormat);
     FDownloadInfo := AConfigData.ReadBool('DownloadInfo', FDownloadInfo);
     FHttpQueueInfo := AConfigData.ReadBool('HttpQueueInfo', FHttpQueueInfo);
     FTilePathInfo := AConfigData.ReadBool('TilePathInfo', FTilePathInfo);
@@ -170,6 +176,7 @@ begin
   AConfigData.WriteBool('LonLatInfo', FLonLatInfo);
   AConfigData.WriteBool('MetrPerPixInfo', FMetrPerPixInfo);
   AConfigData.WriteBool('TimeZoneTimeInfo', FTimeZoneTimeInfo);
+  AConfigData.WriteString('TimeZoneDateTimeFormat', FTimeZoneDateTimeFormat);
   AConfigData.WriteBool('DownloadInfo', FDownloadInfo);
   AConfigData.WriteBool('HttpQueueInfo', FHttpQueueInfo);
   AConfigData.WriteBool('TilePathInfo', FTilePathInfo);
@@ -280,6 +287,16 @@ begin
   LockRead;
   try
     Result := FTimeZoneTimeInfo;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetTimeZoneDateTimeFormat: string;
+begin
+  LockRead;
+  try
+    Result := FTimeZoneDateTimeFormat;
   finally
     UnlockRead;
   end;
@@ -461,6 +478,19 @@ begin
   try
     if FTimeZoneTimeInfo <> AValue then begin
       FTimeZoneTimeInfo := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetTimeZoneDateTimeFormat(const AValue: string);
+begin
+  LockWrite;
+  try
+    if FTimeZoneDateTimeFormat <> AValue then begin
+      FTimeZoneDateTimeFormat := AValue;
       SetChanged;
     end;
   finally

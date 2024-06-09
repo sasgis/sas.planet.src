@@ -58,7 +58,7 @@ type
     class function UtcOffsetToString(const AOffset: TDateTime): string;
 
     function GetTzInfo(const ALonLat: TDoublePoint; const AUtcTime: TDateTime): TTimeZoneRec;
-    function GetStatusBarTzInfo(const ALonLat: TDoublePoint): string;
+    function GetStatusBarTzInfo(const ALonLat: TDoublePoint; const ADateTimeFormat: string): string;
 
     property Available: Boolean read FIsAvailable;
   public
@@ -205,7 +205,7 @@ begin
     (GetTickCount < FPrevUpdateTime + cTimeZoneInfoUpdateInterval);
 end;
 
-function TTimeZoneInfo.GetStatusBarTzInfo(const ALonLat: TDoublePoint): string;
+function TTimeZoneInfo.GetStatusBarTzInfo(const ALonLat: TDoublePoint; const ADateTimeFormat: string): string;
 var
   VTzInfo: PTzInfo;
   VResult: Boolean;
@@ -228,7 +228,7 @@ begin
   end;
 
   VTzLocalTime := UtcToTzLocalTime(VUtcTime, VTzInfo.Offset);
-  Result := TimeToStr(VTzLocalTime) + ' ' + UtcOffsetToString(VTzInfo.Offset);
+  Result := FormatDateTime(ADateTimeFormat, VTzLocalTime) + ' ' + UtcOffsetToString(VTzInfo.Offset);
 end;
 
 function TTimeZoneInfo.GetTzInfo(
