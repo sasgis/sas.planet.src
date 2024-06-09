@@ -148,11 +148,10 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     object tbxsprtrtm1: TTBXSeparatorItem
     end
     object tbxtmHelp: TTBXItem
+      Hint = 'Online Help'
       ImageIndex = 26
       Images = frmMain.MenusImageList
       OnClick = tbxtmHelpClick
-      Caption = ''
-      Hint = 'On-Line Help'
     end
   end
   object statEditor: TStatusBar

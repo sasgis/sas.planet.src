@@ -129,6 +129,7 @@ type
     ); reintroduce;
     procedure ShowStatusBarOptions;
     procedure ShowScaleLineOptions;
+    function ShowModal: Integer; override;
   end;
 
 implementation
@@ -250,6 +251,12 @@ begin
     cbbElevProviderList.Enabled := False;
   end;
   cbbElevProviderList.ItemIndex := VPrimaryIndex;
+end;
+
+function TfrmMapLayersOptions.ShowModal: Integer;
+begin
+  Self.PopupParent := Application.MainForm;
+  Result := inherited ShowModal;
 end;
 
 procedure TfrmMapLayersOptions.ShowScaleLineOptions;

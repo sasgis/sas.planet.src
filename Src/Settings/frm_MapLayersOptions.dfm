@@ -89,7 +89,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 435
         Width = 17
         Height = 21
-        Hint = 'Open on-line help'
+        Hint = 'Open online help'
         Anchors = [akTop, akRight]
         Caption = '?'
         OnClick = btnDateTimeFormatHelpClick

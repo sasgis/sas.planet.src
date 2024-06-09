@@ -1365,6 +1365,7 @@
         <DCCReference Include="Src\ContentType\u_ContentConverterKmz2Kml.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentConverterMatrix.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentConvertersListByKey.pas"/>
+        <DCCReference Include="Src\ContentType\u_ContentTypeFunc.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentTypeInfo.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentTypeListByKey.pas"/>
         <DCCReference Include="Src\ContentType\u_ContentTypeManagerBase.pas"/>
@@ -1417,6 +1418,7 @@
         <DCCReference Include="Src\CoordRepresentation\u_CoordRepresentationConfig.pas"/>
         <DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverter.pas"/>
         <DCCReference Include="Src\CoordRepresentation\u_CoordToStringConverterChangeable.pas"/>
+        <DCCReference Include="Src\CoordRepresentation\u_CoordTransformer.pas"/>
         <DCCReference Include="Src\Debug\frm_DebugInfo.pas">
             <Form>frmDebugInfo</Form>
         </DCCReference>
@@ -1657,6 +1659,7 @@
         <DCCReference Include="Src\MainForm\i_MapTypeIconsList.pas"/>
         <DCCReference Include="Src\MainForm\i_MapViewGoto.pas"/>
         <DCCReference Include="Src\MainForm\i_MapZoomingConfig.pas"/>
+        <DCCReference Include="Src\MainForm\i_MarkOnMapEditProvider.pas"/>
         <DCCReference Include="Src\MainForm\i_MenuGeneratorByTree.pas"/>
         <DCCReference Include="Src\MainForm\i_MessageHandler.pas"/>
         <DCCReference Include="Src\MainForm\i_MouseHandler.pas"/>
@@ -1668,6 +1671,7 @@
         <DCCReference Include="Src\MainForm\i_StickToGrid.pas"/>
         <DCCReference Include="Src\MainForm\i_ViewPortState.pas"/>
         <DCCReference Include="Src\MainForm\i_ViewProjectionConfig.pas"/>
+        <DCCReference Include="Src\MainForm\t_MainFormLayersListParams.pas"/>
         <DCCReference Include="Src\MainForm\u_ActionListByLanguageManager.pas"/>
         <DCCReference Include="Src\MainForm\u_ActiveMapTBXItem.pas"/>
         <DCCReference Include="Src\MainForm\u_FillingMapPolygon.pas"/>
@@ -1702,6 +1706,7 @@
         <DCCReference Include="Src\MainForm\u_MapTypeMenuItemsGeneratorSimple.pas"/>
         <DCCReference Include="Src\MainForm\u_MapViewGoto.pas"/>
         <DCCReference Include="Src\MainForm\u_MapZoomingConfig.pas"/>
+        <DCCReference Include="Src\MainForm\u_MarkOnMapEditProvider.pas"/>
         <DCCReference Include="Src\MainForm\u_MarksDbMenu.pas"/>
         <DCCReference Include="Src\MainForm\u_MenuGeneratorByStaticTreeSimple.pas"/>
         <DCCReference Include="Src\MainForm\u_MouseState.pas"/>
@@ -1812,7 +1817,6 @@
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderChangeable.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderMoon.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDataProviderSun.pas"/>
-        <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcDrawTools.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcProvider.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_SunCalcShapesGenerator.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\SunCalc\u_WindowLayerSunCalcDayInfo.pas"/>
@@ -1841,6 +1845,7 @@
         <DCCReference Include="Src\MapLayers\u_KmlLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_MainFormLayersConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_MainMapLayerConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\u_MapCaptionDrawable.pas"/>
         <DCCReference Include="Src\MapLayers\u_MarkPolyLineLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_MarkPolygonLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_PointCaptionsLayerConfig.pas"/>
@@ -2246,6 +2251,13 @@
         <DCCReference Include="Src\Predicate\i_PredicateByTileRequest.pas"/>
         <DCCReference Include="Src\Predicate\u_PredicateByStaticSampleList.pas"/>
         <DCCReference Include="Src\Predicate\u_PredicateByTileInfoBase.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\frm_GeoTiffOptions.pas">
+            <Form>frmGeoTiffOptions</Form>
+        </DCCReference>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\i_GeoTiffCombinerCustomParams.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\t_GeoTIFF.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\u_GeoTiffCombinerCustomParams.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\GeoTiff\u_GeoTiffFunc.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\fr_MapCombine.pas">
             <Form>frMapCombine</Form>
             <DesignClass>TFrame</DesignClass>
@@ -2260,8 +2272,8 @@
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\Combine\i_BitmapMapCombiner.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\i_ImageLineProvider.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\i_ImageTileProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\t_ECW.pas"/>
-        <DCCReference Include="Src\RegionProcess\Combine\t_GeoTIFF.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\t_MapCombineOptions.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerBMP.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_BitmapMapCombinerECWJP2.pas"/>
@@ -2276,6 +2288,8 @@
         <DCCReference Include="Src\RegionProcess\Combine\u_ECWJP2Write.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ImageLineProviderMultiThread.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\u_ImageProviderBuilder.pas"/>
+        <DCCReference Include="Src\RegionProcess\Combine\u_ImageTileProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_ProviderMapCombine.pas"/>
         <DCCReference Include="Src\RegionProcess\Combine\u_RegionProcessTaskCombine.pas"/>
         <DCCReference Include="Src\RegionProcess\Copy\fr_TilesCopy.pas">
@@ -2314,6 +2328,7 @@
             <Form>frExportToFileCont</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Src\RegionProcess\Export\Archive\t_ExportToFileCont.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportProviderTar.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportProviderZip.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\Archive\u_ExportTaskToArchive.pas"/>
@@ -2385,6 +2400,10 @@
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\GenPrev\u_ProviderTilesGenPrev.pas"/>
         <DCCReference Include="Src\RegionProcess\GenPrev\u_ThreadGenPrevZoom.pas"/>
+        <DCCReference Include="Src\RegionProcess\fr_ImageFormatSelect.pas">
+            <Form>Frame1</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Src\RegionProcess\fr_MapSelect.pas">
             <Form>frMapSelect</Form>
             <DesignClass>TFrame</DesignClass>
@@ -2575,11 +2594,13 @@
         <DCCReference Include="Src\TileMatrix\u_VectorTileMatrixChangeableForVectorLayers.pas"/>
         <DCCReference Include="Src\TileProvider\i_BinaryTileProvider.pas"/>
         <DCCReference Include="Src\TileProvider\i_BitmapTileProvider.pas"/>
+        <DCCReference Include="Src\TileProvider\i_BitmapTileProviderBuilder.pas"/>
         <DCCReference Include="Src\TileProvider\i_InfoTileProvider.pas"/>
         <DCCReference Include="Src\TileProvider\i_VectorTileProvider.pas"/>
         <DCCReference Include="Src\TileProvider\i_VectorTileProviderChangeable.pas"/>
         <DCCReference Include="Src\TileProvider\i_VectorTileRenderer.pas"/>
         <DCCReference Include="Src\TileProvider\i_VectorTileRendererChangeable.pas"/>
+        <DCCReference Include="Src\TileProvider\u_BitmapTileProviderBuilder.pas"/>
         <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByBitmapTileUniProvider.pas"/>
         <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByInfoTileProvider.pas"/>
         <DCCReference Include="Src\TileProvider\u_BitmapTileProviderByMatrix.pas"/>
@@ -2724,6 +2745,23 @@
         <DCCReference Include="Src\UpdateChecker\u_UpdateProgress.pas"/>
         <DCCReference Include="Src\UrlByCoord\i_UrlByCoordProvider.pas"/>
         <DCCReference Include="Src\UrlByCoord\u_UrlByCoordProvider.pas"/>
+        <DCCReference Include="Src\ValueToStringConverter\i_ValueToStringConverter.pas"/>
+        <DCCReference Include="Src\ValueToStringConverter\i_ValueToStringConverterConfig.pas"/>
+        <DCCReference Include="Src\ValueToStringConverter\u_ValueToStringConverter.pas"/>
+        <DCCReference Include="Src\ValueToStringConverter\u_ValueToStringConverterChangeable.pas"/>
+        <DCCReference Include="Src\ValueToStringConverter\u_ValueToStringConverterConfig.pas"/>
+        <DCCReference Include="Src\Vcl\i_CommonDialogConfig.pas"/>
+        <DCCReference Include="Src\Vcl\i_ComponentPropertyState.pas"/>
+        <DCCReference Include="Src\Vcl\i_ComponentPropertyStorage.pas"/>
+        <DCCReference Include="Src\Vcl\i_WindowPositionConfig.pas"/>
+        <DCCReference Include="Src\Vcl\t_ComponentProperty.pas"/>
+        <DCCReference Include="Src\Vcl\u_CheckListBoxExt.pas"/>
+        <DCCReference Include="Src\Vcl\u_CommonDialogConfig.pas"/>
+        <DCCReference Include="Src\Vcl\u_CommonFormAndFrameParents.pas"/>
+        <DCCReference Include="Src\Vcl\u_ComponentPropertyState.pas"/>
+        <DCCReference Include="Src\Vcl\u_ComponentPropertyStorage.pas"/>
+        <DCCReference Include="Src\Vcl\u_ListViewExt.pas"/>
+        <DCCReference Include="Src\Vcl\u_WindowPositionConfig.pas"/>
         <DCCReference Include="Src\VectorLoaders\i_XmlVectorObjects.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_CsvParser.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_HlgParser.pas"/>
@@ -2821,19 +2859,17 @@
         <DCCReference Include="Src\i_TileRectChangeable.pas"/>
         <DCCReference Include="Src\i_TreeChangeable.pas"/>
         <DCCReference Include="Src\i_UsedMarksConfig.pas"/>
-        <DCCReference Include="Src\i_ValueToStringConverter.pas"/>
-        <DCCReference Include="Src\i_ValueToStringConverterConfig.pas"/>
-        <DCCReference Include="Src\i_WindowPositionConfig.pas"/>
         <DCCReference Include="Src\t_CommonTypes.pas"/>
         <DCCReference Include="Src\t_GeoTypes.pas"/>
         <DCCReference Include="Src\u_AnsiStr.pas"/>
         <DCCReference Include="Src\u_BitmapFunc.pas"/>
-        <DCCReference Include="Src\u_CommonFormAndFrameParents.pas"/>
         <DCCReference Include="Src\u_FileSystemFunc.pas"/>
+        <DCCReference Include="Src\u_GR32Func.pas"/>
         <DCCReference Include="Src\u_GeoFunc.pas"/>
         <DCCReference Include="Src\u_GeoToStrFunc.pas"/>
         <DCCReference Include="Src\u_GlobalAppConfig.pas"/>
         <DCCReference Include="Src\u_GlobalConfig.pas"/>
+        <DCCReference Include="Src\u_GlobalDllName.pas"/>
         <DCCReference Include="Src\u_GlobalState.pas"/>
         <DCCReference Include="Src\u_GlobalViewMainConfig.pas"/>
         <DCCReference Include="Src\u_HashInterfaceCache2Q.pas"/>
@@ -2859,6 +2895,7 @@
         <DCCReference Include="Src\u_ReadWriteStateStatic.pas"/>
         <DCCReference Include="Src\u_ResStrings.pas"/>
         <DCCReference Include="Src\u_SASMainConfigProvider.pas"/>
+        <DCCReference Include="Src\u_SQLite3Handler.pas"/>
         <DCCReference Include="Src\u_SatellitesInViewMapDrawSimple.pas"/>
         <DCCReference Include="Src\u_ShortCutSingleConfig.pas"/>
         <DCCReference Include="Src\u_ShortcutManager.pas"/>
@@ -2885,10 +2922,6 @@
         <DCCReference Include="Src\u_TreeChangeableBase.pas"/>
         <DCCReference Include="Src\u_UsedMarksConfig.pas"/>
         <DCCReference Include="Src\u_UsedMarksConfigStatic.pas"/>
-        <DCCReference Include="Src\u_ValueToStringConverter.pas"/>
-        <DCCReference Include="Src\u_ValueToStringConverterChangeable.pas"/>
-        <DCCReference Include="Src\u_ValueToStringConverterConfig.pas"/>
-        <DCCReference Include="Src\u_WindowPositionConfig.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
