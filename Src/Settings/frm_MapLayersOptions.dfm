@@ -3,13 +3,13 @@ object frmMapLayersOptions: TfrmMapLayersOptions
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Interface Options'
-  ClientHeight = 482
+  ClientHeight = 532
   ClientWidth = 325
   Color = clBtnFace
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
+  ShowHint = True
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -17,7 +17,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Left = 0
     Top = 0
     Width = 376
-    Height = 443
+    Height = 493
     ActivePage = tsStatBar
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -26,7 +26,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       Caption = 'Status Bar'
       DesignSize = (
         368
-        415)
+        465)
       object lblStatBarTextColor: TLabel
         AlignWithMargins = True
         Left = 3
@@ -77,6 +77,23 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Height = 13
         Caption = 'Redraw interval (ms):'
       end
+      object lblTimeZoneDateTimeFormat: TLabel
+        Left = 3
+        Top = 415
+        Width = 137
+        Height = 13
+        Caption = 'Time Zone date/time format:'
+      end
+      object btnDateTimeFormatHelp: TSpeedButton
+        Left = 295
+        Top = 435
+        Width = 17
+        Height = 21
+        Hint = 'Open on-line help'
+        Anchors = [akTop, akRight]
+        Caption = '?'
+        OnClick = btnDateTimeFormatHelpClick
+      end
       object chkStatBarHide: TCheckBox
         Left = 3
         Top = 9
@@ -93,7 +110,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Selected = clWhite
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 16
         TabOrder = 9
       end
       object seStatBarTextOpacity: TSpinEdit
@@ -114,7 +130,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Height = 22
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 16
         TabOrder = 11
       end
       object seStatBarBackgroundOpacity: TSpinEdit
@@ -256,13 +271,21 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         TabOrder = 4
         OnClick = chkStatBarElevationClick
       end
+      object cbbTimeZoneDateTimeFormat: TComboBox
+        Left = 3
+        Top = 435
+        Width = 286
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 16
+      end
     end
     object tsScaleLine: TTabSheet
       Caption = 'Scale Legend'
       ImageIndex = 1
       DesignSize = (
         368
-        415)
+        465)
       object lblScalelineColor: TLabel
         AlignWithMargins = True
         Left = 3
@@ -355,7 +378,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Selected = clWhite
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 16
         TabOrder = 3
       end
       object clrbxScaleLineOutlineColor: TColorBox
@@ -366,7 +388,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Selected = clWhite
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 16
         TabOrder = 5
       end
       object seScaleLineColorOpacity: TSpinEdit
@@ -477,7 +498,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Width = 310
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
         TabOrder = 2
       end
       object cbbElevDisplayFormat: TComboBox
@@ -507,7 +527,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
   end
   object btnCancel: TButton
     Left = 244
-    Top = 451
+    Top = 501
     Width = 73
     Height = 23
     Hint = 'Cancel'
@@ -520,7 +540,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
   end
   object btnApply: TButton
     Left = 86
-    Top = 451
+    Top = 501
     Width = 73
     Height = 23
     Align = alCustom
@@ -532,7 +552,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
   end
   object btnOk: TButton
     Left = 165
-    Top = 451
+    Top = 501
     Width = 73
     Height = 23
     Align = alCustom
@@ -549,6 +569,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Font.Name = 'Tahoma'
     Font.Style = []
     Left = 8
-    Top = 448
+    Top = 496
   end
 end

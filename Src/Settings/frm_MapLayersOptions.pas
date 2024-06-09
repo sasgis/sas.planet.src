@@ -102,6 +102,9 @@ type
     lblElevDisplayFormat: TLabel;
     cbbElevDisplayFormat: TComboBox;
     chkElevUseInterpolation: TCheckBox;
+    lblTimeZoneDateTimeFormat: TLabel;
+    cbbTimeZoneDateTimeFormat: TComboBox;
+    btnDateTimeFormatHelp: TSpeedButton;
     procedure FormShow(Sender: TObject);
     procedure btnScaleLineFontClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
@@ -109,6 +112,7 @@ type
     procedure btnStatBarFontClick(Sender: TObject);
     procedure chkStatBarElevationClick(Sender: TObject);
     procedure chkElevShowInStatusBarClick(Sender: TObject);
+    procedure btnDateTimeFormatHelpClick(Sender: TObject);
   private
     FLanguageManager: ILanguageManager;
     FScaleLineConfig: IScaleLineConfig;
@@ -132,8 +136,10 @@ implementation
 uses
   ActiveX,
   GR32,
+  gnugettext,
   i_InterfaceListStatic,
   i_TerrainProviderListElement,
+  u_InetFunc,
   u_ResStrings,
   u_TimeZoneInfo;
 
@@ -149,12 +155,23 @@ constructor TfrmMapLayersOptions.Create(
   const ATerrainProviderList: ITerrainProviderList
 );
 begin
+  TP_Ignore(cbbTimeZoneDateTimeFormat, 'Items');
+
   inherited Create(ALanguageManager);
   FLanguageManager := ALanguageManager;
   FScaleLineConfig := AScaleLineConfig;
   FStatBarConfig := AStatBarConfig;
   FTerrainConfig := ATerrainConfig;
   FTerrainProviderList := ATerrainProviderList;
+
+  with cbbTimeZoneDateTimeFormat.Items do begin
+    Clear;
+    Add('c');
+    Add('hh:nn');
+    Add('hh:nn:ss');
+    Add('yyyy-mm-dd hh:nn');
+    Add('yyyy-mm-dd hh:nn:ss');
+  end;
 end;
 
 procedure TfrmMapLayersOptions.FormShow(Sender: TObject);
@@ -184,6 +201,8 @@ begin
         Format(SAS_ERR_TimeZoneInfoDisabled, [cTimeZoneDllName]);
     end;
   end;
+
+  cbbTimeZoneDateTimeFormat.Text := FStatBarConfig.TimeZoneDateTimeFormat;
 
   chkStatBarDownloadInfo.Checked := FStatBarConfig.ViewDownloadedInfo;
   chkStatBarQueueInfo.Checked := FStatBarConfig.ViewHttpQueueInfo;
@@ -272,6 +291,7 @@ begin
     Color32(clrbxStatBarBackgroundColor.Selected),
     seStatBarBackgroundOpacity.Value
   );
+  FStatBarConfig.TimeZoneDateTimeFormat := Trim(cbbTimeZoneDateTimeFormat.Text);
 
   // Scale Line
   FScaleLineConfig.Visible := not chkScaleLineHide.Checked;
@@ -298,6 +318,13 @@ begin
   if VItem <> nil then begin
     FTerrainConfig.ElevationPrimaryProvider := VItem.GUID;
   end;
+end;
+
+procedure TfrmMapLayersOptions.btnDateTimeFormatHelpClick(Sender: TObject);
+begin
+  OpenUrlInBrowser(
+    'https://docwiki.embarcadero.com/Libraries/en/System.SysUtils.FormatDateTime'
+  );
 end;
 
 procedure TfrmMapLayersOptions.btnOkClick(Sender: TObject);
