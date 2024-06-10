@@ -30,11 +30,9 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     CloseButton = False
     FullSize = True
     ItemTransparency = itEnable
-    MenuBar = True
     ParentShowHint = False
     ProcessShortCuts = True
     ShowHint = True
-    ShrinkMode = tbsmWrap
     Stretch = True
     TabOrder = 0
     object tbxsbmntmOpen: TTBXSubmenuItem

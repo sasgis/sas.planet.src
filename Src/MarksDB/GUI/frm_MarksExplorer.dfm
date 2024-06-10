@@ -378,9 +378,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     CloseButton = False
     FullSize = True
     Images = TBXImageList1
-    MenuBar = True
     ProcessShortCuts = True
-    ShrinkMode = tbsmWrap
     Stretch = True
     TabOrder = 0
     object tbxConfigList: TTBXSubmenuItem
