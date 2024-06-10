@@ -85,22 +85,28 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     end
     object tbxtmParams: TTBXItem
       AutoCheck = True
+      Caption = 'Params'
+      DisplayMode = nbdmImageAndText
       GroupIndex = 1
+      Hint = 'Params.txt'
+      ImageIndex = 78
+      Images = frmMain.MenusImageList
       RadioItem = True
       Stretch = True
       OnClick = tbxtmParamsClick
-      Caption = 'Params'
-      Hint = 'Params.txt'
     end
     object tbxtmScript: TTBXItem
       AutoCheck = True
+      Caption = 'GetUrlScript'
       Checked = True
+      DisplayMode = nbdmImageAndText
       GroupIndex = 1
+      Hint = 'GetUrlScript.txt'
+      ImageIndex = 78
+      Images = frmMain.MenusImageList
       RadioItem = True
       Stretch = True
       OnClick = tbxtmScriptClick
-      Caption = 'GetUrlScript'
-      Hint = 'GetUrlScript.txt'
     end
     object tbxSep1: TTBXSeparatorItem
     end
