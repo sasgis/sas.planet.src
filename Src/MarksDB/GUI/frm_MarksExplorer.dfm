@@ -378,6 +378,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     CloseButton = False
     FullSize = True
     Images = TBXImageList1
+    ItemTransparency = itEnable
     ProcessShortCuts = True
     Stretch = True
     TabOrder = 0
