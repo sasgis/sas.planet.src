@@ -25,7 +25,6 @@ interface
 
 uses
   SysUtils,
-  t_GeoTypes,
   t_CommonTypes,
   i_ValueToStringConverter,
   u_BaseInterfacedObject;
@@ -80,7 +79,6 @@ implementation
 
 uses
   Math,
-  StrUtils,
   u_ResStrings;
 
 const

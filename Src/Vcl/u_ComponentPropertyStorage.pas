@@ -37,6 +37,7 @@ uses
   Classes,
   StrUtils,
   Rtti,
+  TypInfo,
   Generics.Collections,
   t_ComponentProperty,
   i_ConfigDataProvider,
