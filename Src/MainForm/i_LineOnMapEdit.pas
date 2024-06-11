@@ -72,7 +72,8 @@ type
     procedure Clear;
     procedure DeleteActivePoint;
     procedure InsertPoint(const APoint: TDoublePoint);
-    procedure TogleSplit;
+    procedure ToggleSplit;
+    procedure ReverseDirection;
     procedure MoveActivePoint(const APoint: TDoublePoint);
   end;
 

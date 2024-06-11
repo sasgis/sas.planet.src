@@ -64,11 +64,10 @@ type
     procedure RemoveTerrainConfigListener;
 
     procedure ShowProfileInternal(
-      const AItem: IVectorDataItem;
       const ALines: TArrayOfGeometryLonLatSingleLine
     );
 
-    procedure OnElevationMetaWrite(const AItem: IVectorDataItem);
+    procedure OnElevationMetaWrite(const ALine: IGeometryLonLatLine);
 
     procedure HideParent;
     procedure RefreshParent;
@@ -214,15 +213,14 @@ begin
     );
   end;
 
-  VLines := GeometryLonLatLineToArray(AItem.Geometry as IGeometryLonLatLine);
-
   case FConfig.ElevationSource of
     esTrackMetadata: begin
-      ShowProfileInternal(AItem, VLines);
+      VLines := GeometryLonLatLineToArray(AItem.Geometry as IGeometryLonLatLine);
+      ShowProfileInternal(VLines);
     end;
     esTerrainProvider: begin
-      FElevationMetaWriter.ProcessItemAsync(
-        AItem,
+      FElevationMetaWriter.ProcessLineAsync(
+        AItem.Geometry as IGeometryLonLatLine,
         Self.OnElevationMetaWrite
       );
     end;
@@ -235,7 +233,6 @@ begin
 end;
 
 procedure TElevationProfilePresenterOnPanel.ShowProfileInternal(
-  const AItem: IVectorDataItem;
   const ALines: TArrayOfGeometryLonLatSingleLine
 );
 begin
@@ -255,12 +252,12 @@ begin
   AddTerrainConfigListener;
 end;
 
-procedure TElevationProfilePresenterOnPanel.OnElevationMetaWrite(const AItem: IVectorDataItem);
+procedure TElevationProfilePresenterOnPanel.OnElevationMetaWrite(const ALine: IGeometryLonLatLine);
 var
   VLines: TArrayOfGeometryLonLatSingleLine;
 begin
-  VLines := GeometryLonLatLineToArray(AItem.Geometry as IGeometryLonLatLine);
-  ShowProfileInternal(AItem, VLines);
+  VLines := GeometryLonLatLineToArray(ALine);
+  ShowProfileInternal(VLines);
 end;
 
 end.

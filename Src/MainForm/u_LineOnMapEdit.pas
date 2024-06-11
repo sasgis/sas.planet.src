@@ -53,7 +53,8 @@ type
     procedure Clear;
     procedure DeleteActivePoint;
     procedure InsertPoint(const APoint: TDoublePoint);
-    procedure TogleSplit;
+    procedure ToggleSplit;
+    procedure ReverseDirection;
     procedure MoveActivePoint(const APoint: TDoublePoint);
   public
     constructor Create(
@@ -475,7 +476,7 @@ begin
   DoChangeNotify;
 end;
 
-procedure TLineOnMapEdit.TogleSplit;
+procedure TLineOnMapEdit.ToggleSplit;
 var
   VPoint: TDoublePoint;
 begin
@@ -539,6 +540,43 @@ begin
       end;
       _UpdateLineObject;
     end;
+  finally
+    CS.EndWrite;
+  end;
+  DoChangeNotify;
+end;
+
+procedure TLineOnMapEdit.ReverseDirection;
+var
+  I, J: Integer;
+  VTmp: TDoublePoint;
+  VPoints: PDoublePointArray;
+  VMeta: PDoublePointsMeta;
+begin
+  CS.BeginWrite;
+  try
+    VPoints := FPoints.Points;
+    VMeta := FPoints.Meta;
+
+    J := FPoints.Count - 1;
+    for I := 0 to J div 2 do begin
+      VTmp := VPoints[I];
+      VPoints[I] := VPoints[J];
+      VPoints[J] := VTmp;
+      Dec(J);
+    end;
+
+    if VMeta <> nil then begin
+      EraseMetaItems(VMeta, FPoints.Count, [miTimeStamp]);
+
+      J := FPoints.Count - 1;
+      for I := 0 to J div 2 do begin
+        SwapMetaItems(VMeta, I, J);
+        Dec(J);
+      end;
+    end;
+
+    _UpdateLineObject;
   finally
     CS.EndWrite;
   end;

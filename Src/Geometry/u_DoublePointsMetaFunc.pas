@@ -55,6 +55,17 @@ function IsSameMeta(
 function CreateMeta: PDoublePointsMeta;
 procedure FreeAndNilMeta(var AMeta: PDoublePointsMeta);
 
+procedure DeleteMetaItems(
+  const AMeta: PDoublePointsMeta;
+  const AItemsId: TDoublePointsMetaItemIds
+);
+
+procedure EraseMetaItems(
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer;
+  const AItemsId: TDoublePointsMetaItemIds
+);
+
 procedure ResetMetaItem(const AItem: PDoublePointsMetaItem); inline;
 
 procedure SetMetaItem(
@@ -62,6 +73,12 @@ procedure SetMetaItem(
   const APointIndex: Integer;
   const AItem: PDoublePointsMetaItem
 );
+
+procedure SwapMetaItems(
+  const AMeta: PDoublePointsMeta;
+  const AIndexA: Integer;
+  const AIndexB: Integer
+); inline;
 
 implementation
 
@@ -87,6 +104,41 @@ begin
 
   FreeMem(AMeta);
   AMeta := nil;
+end;
+
+procedure DeleteMetaItems(
+  const AMeta: PDoublePointsMeta;
+  const AItemsId: TDoublePointsMetaItemIds
+);
+begin
+  Assert(AMeta <> nil);
+
+  if (AMeta.Elevation <> nil) and (miElevation in AItemsId) then begin
+    FreeMem(AMeta.Elevation);
+    AMeta.Elevation := nil;
+  end;
+
+  if (AMeta.TimeStamp <> nil) and (miTimeStamp in AItemsId) then begin
+    FreeMem(AMeta.TimeStamp);
+    AMeta.TimeStamp := nil;
+  end;
+end;
+
+procedure EraseMetaItems(
+  const AMeta: PDoublePointsMeta;
+  const ACount: Integer;
+  const AItemsId: TDoublePointsMetaItemIds
+);
+begin
+  Assert(AMeta <> nil);
+
+  if (AMeta.Elevation <> nil) and (miElevation in AItemsId) then begin
+    FillChar(AMeta.Elevation[0], ACount * SizeOf(AMeta.Elevation[0]), 0);
+  end;
+
+  if (AMeta.TimeStamp <> nil) and (miTimeStamp in AItemsId) then begin
+    FillChar(AMeta.TimeStamp[0], ACount * SizeOf(AMeta.TimeStamp[0]), 0);
+  end;
 end;
 
 function CopyMeta(
@@ -222,6 +274,30 @@ begin
     end;
   end else begin
     ResetMetaItem(AItem);
+  end;
+end;
+
+procedure SwapMetaItems(
+  const AMeta: PDoublePointsMeta;
+  const AIndexA: Integer;
+  const AIndexB: Integer
+);
+var
+  VElevation: Double;
+  VTimeStamp: TDateTime;
+begin
+  Assert(AMeta <> nil);
+
+  if AMeta.Elevation <> nil then begin
+    VElevation := AMeta.Elevation[AIndexA];
+    AMeta.Elevation[AIndexA] := AMeta.Elevation[AIndexB];
+    AMeta.Elevation[AIndexB] := VElevation;
+  end;
+
+  if AMeta.TimeStamp <> nil then begin
+    VTimeStamp := AMeta.TimeStamp[AIndexA];
+    AMeta.TimeStamp[AIndexA] := AMeta.TimeStamp[AIndexB];
+    AMeta.TimeStamp[AIndexB] := VTimeStamp;
   end;
 end;
 

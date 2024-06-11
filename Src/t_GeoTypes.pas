@@ -73,6 +73,13 @@ type
   end;
   PDoublePointsMetaItem = ^TDoublePointsMetaItem;
 
+  TDoublePointsMetaItemId = (
+    miElevation,
+    miTimeStamp
+  );
+
+  TDoublePointsMetaItemIds = set of TDoublePointsMetaItemId;
+
 implementation
 
 end.

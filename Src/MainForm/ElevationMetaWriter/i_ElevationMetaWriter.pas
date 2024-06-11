@@ -24,16 +24,16 @@ unit i_ElevationMetaWriter;
 interface
 
 uses
-  i_VectorDataItemSimple;
+  i_GeometryLonLat;
 
 type
-  TElevationMetaWriterResult = procedure(const AItem: IVectorDataItem) of object;
+  TElevationMetaWriterResult = procedure(const ALine: IGeometryLonLatLine) of object;
 
   IElevationMetaWriter = interface
     ['{62C42A6C-9ABC-40A5-945B-DB2FF5E6339C}']
 
-    procedure ProcessItemAsync(
-      const AItem: IVectorDataItem;
+    procedure ProcessLineAsync(
+      const ALine: IGeometryLonLatLine;
       const AOnResult: TElevationMetaWriterResult
     );
   end;

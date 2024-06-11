@@ -28,8 +28,6 @@ uses
   Dialogs,
   UITypes,
   i_NotifierOperation,
-  i_VectorDataFactory,
-  i_VectorDataItemSimple,
   i_TerrainInfo,
   i_TerrainConfig,
   i_TerrainProviderList,
@@ -48,13 +46,12 @@ type
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifierOneOperation;
     FTerrainInfo: ITerrainInfo;
-    FVectorDataFactory: IVectorDataFactory;
     FGeometryLonLatFactory: IGeometryLonLatFactory;
 
     FBackgroundTask: IBackgroundTask;
 
-    FItem: IVectorDataItem;
-    FResultItem: IVectorDataItem;
+    FLine: IGeometryLonLatLine;
+    FResultLine: IGeometryLonLatLine;
     FOnResult: TElevationMetaWriterResult;
 
     FProgress: IElevationMetaWriterProgress;
@@ -67,8 +64,8 @@ type
     procedure OnFinish;
   private
     { IElevationMetaWriter }
-    procedure ProcessItemAsync(
-      const AItem: IVectorDataItem;
+    procedure ProcessLineAsync(
+      const ALine: IGeometryLonLatLine;
       const AOnResult: TElevationMetaWriterResult
     );
   public
@@ -77,7 +74,6 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATerrainConfig: ITerrainConfig;
       const ATerrainProviderList: ITerrainProviderList;
-      const AVectorDataFactory: IVectorDataFactory;
       const AGeometryLonLatFactory: IGeometryLonLatFactory
     );
     destructor Destroy; override;
@@ -109,8 +105,7 @@ constructor TElevationMetaWriter.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATerrainConfig: ITerrainConfig;
   const ATerrainProviderList: ITerrainProviderList;
-  const AVectorDataFactory: IVectorDataFactory;
-  const AGeometryLonLatFactory: IGeometryLonLatFactory
+   const AGeometryLonLatFactory: IGeometryLonLatFactory
 );
 begin
   inherited Create;
@@ -118,7 +113,6 @@ begin
   FLanguageManager := ALanguageManager;
   FAppClosingNotifier := AAppClosingNotifier;
   FTerrainInfo := TTerrainInfo.Create(ATerrainConfig, ATerrainProviderList);
-  FVectorDataFactory := AVectorDataFactory;
   FGeometryLonLatFactory := AGeometryLonLatFactory;
 
   FProgress := TElevationMetaWriterProgress.Create;
@@ -132,8 +126,8 @@ begin
   inherited Destroy;
 end;
 
-procedure TElevationMetaWriter.ProcessItemAsync(
-  const AItem: IVectorDataItem;
+procedure TElevationMetaWriter.ProcessLineAsync(
+  const ALine: IGeometryLonLatLine;
   const AOnResult: TElevationMetaWriterResult
 );
 begin
@@ -157,7 +151,7 @@ begin
     FBackgroundTask.Start;
   end;
 
-  FItem := AItem;
+  FLine := ALine;
   FOnResult := AOnResult;
 
   FProgress.Reset;
@@ -203,12 +197,12 @@ var
   VLineBuilder: IGeometryLonLatLineBuilder;
 begin
   // executed in the backgroud thread
-  FResultItem := nil;
+  FResultLine := nil;
   VPointsCountMax := 0;
   VInfo := FProgress.Info;
   try
     // prepare
-    VLines := GeometryLonLatLineToArray(FItem.Geometry as IGeometryLonLatLine);
+    VLines := GeometryLonLatLineToArray(FLine);
 
     for I := 0 to Length(VLines) - 1 do begin
       Inc(VInfo.TotalCount, VLines[I].Count);
@@ -257,11 +251,7 @@ begin
       VLineBuilder.AddLine(VPoints[I]);
     end;
 
-    FResultItem := FVectorDataFactory.BuildItem(
-      FItem.MainInfo,
-      FItem.Appearance,
-      VLineBuilder.MakeStaticAndClear
-    );
+    FResultLine := VLineBuilder.MakeStaticAndClear;
 
     FProgress.Status := emwDone;
   finally
@@ -275,11 +265,11 @@ begin
   try
     FfrmElevationMetaWriterProgress.Hide;
     if FProgress.Status = emwDone then begin
-      FOnResult(FResultItem);
+      FOnResult(FResultLine);
     end;
   finally
-    FItem := nil;
-    FResultItem := nil;
+    FLine := nil;
+    FResultLine := nil;
     FProgress.Status := emwIdle;
   end;
 end;

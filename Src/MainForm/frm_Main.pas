@@ -617,6 +617,11 @@ type
     tbxMainWindowBordersVisible: TTBXItem;
     tbitmFullMapMouseCursor: TTBXItem;
     actViewFullMapMouseCursorVisible: TAction;
+    tbxEditPathTools: TTBXSubmenuItem;
+    tbxEditPathReverse: TTBXItem;
+    tbxEditPathReplaceElevation: TTBXItem;
+    actLineEditReverse: TAction;
+    actLineEditReplaceElevation: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -871,6 +876,8 @@ type
     procedure actEditPathRouteCalcUndoExecute(Sender: TObject);
     procedure actViewBordersVisibleExecute(Sender: TObject);
     procedure actViewFullMapMouseCursorVisibleExecute(Sender: TObject);
+    procedure actLineEditReverseExecute(Sender: TObject);
+    procedure actLineEditReplaceElevationExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -1132,6 +1139,7 @@ type
     procedure OnInternalErrorNotify(const AMsg: IInterface);
     procedure SwitchSunCalc(const ACalcType: TSunCalcDataProviderType);
     procedure OnEditMarkPosition(const AMark: IVectorDataItem);
+    procedure OnElevationMetaWriterResult(const ALine: IGeometryLonLatLine);
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -2471,7 +2479,6 @@ begin
       GState.AppClosingNotifier,
       GState.Config.TerrainConfig,
       GState.TerrainProviderList,
-      GState.VectorDataFactory,
       GState.VectorGeometryLonLatFactory
     );
 
@@ -2944,7 +2951,7 @@ begin
     ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil));
 
   if VIsMarkEdit then begin
-    tbitmSaveMark.Action :=  actMarkSave;
+    tbitmSaveMark.Action := actMarkSave;
     tbitmSaveMark.Hint := _('Save (Enter)');
   end else begin
     tbitmSaveMark.Action := actMarkSaveAsNew;
@@ -2979,6 +2986,8 @@ begin
   tbxCalcLineShowAzimuth.Visible := (VNewState = ao_calc_line);
 
   actLineEditSplitTogle.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
+
+  tbxEditPathTools.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
 
   VIsRoutingVisible :=
     (VNewState = ao_edit_line) and
@@ -7027,10 +7036,35 @@ begin
   FMapGoto.FitRectToScreen(VLLRect);
 end;
 
+procedure TfrmMain.OnElevationMetaWriterResult(const ALine: IGeometryLonLatLine);
+var
+  VPathEdit: IPathOnMapEdit;
+begin
+  if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+    VPathEdit.SetPath(ALine);
+  end;
+end;
+
+procedure TfrmMain.actLineEditReplaceElevationExecute(Sender: TObject);
+var
+  VPathEdit: IPathOnMapEdit;
+begin
+  if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+    FElevationMetaWriter.ProcessLineAsync(VPathEdit.Path.Geometry, Self.OnElevationMetaWriterResult);
+  end;
+end;
+
+procedure TfrmMain.actLineEditReverseExecute(Sender: TObject);
+begin
+  if FLineOnMapEdit <> nil then begin
+    FLineOnMapEdit.ReverseDirection;
+  end;
+end;
+
 procedure TfrmMain.actLineEditSplitTogleExecute(Sender: TObject);
 begin
   if FLineOnMapEdit <> nil then begin
-    FLineOnMapEdit.TogleSplit;
+    FLineOnMapEdit.ToggleSplit;
   end;
 end;
 
