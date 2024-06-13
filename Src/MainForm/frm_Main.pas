@@ -3067,8 +3067,8 @@ end;
 
 procedure TfrmMain.OnAfterViewChange;
 begin
-  map.Changed;
   map.EndUpdate;
+  map.Repaint;
 end;
 
 procedure TfrmMain.OnBeforeViewChange;
