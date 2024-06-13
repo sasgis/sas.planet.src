@@ -61,21 +61,21 @@ type
   TfrMergePolygons = class(TFrame)
     tvPolygonsList: TTreeView;
     tbTop: TTBXToolbar;
-    tbMerge: TTBItem;
+    tbMerge: TTBXItem;
     tbxSep1: TTBXSeparatorItem;
     tbxSep2: TTBXSeparatorItem;
-    tbtmSelect: TTBItem;
-    tbtmSave: TTBItem;
-    tbSep3: TTBSeparatorItem;
+    tbtmSelect: TTBXItem;
+    tbtmSave: TTBXItem;
+    tbSep3: TTBXSeparatorItem;
     tmrProgressCheck: TTimer;
-    tbtmClear: TTBItem;
-    tbOperationType: TTBSubmenuItem;
-    tbtmAND: TTBItem;
-    tbtmOR: TTBItem;
-    tbtmNOT: TTBItem;
-    tbtmXOR: TTBItem;
-    tbSep4: TTBSeparatorItem;
-    tbtmGroup: TTBItem;
+    tbtmClear: TTBXItem;
+    tbOperationType: TTBXSubmenuItem;
+    tbtmAND: TTBXItem;
+    tbtmOR: TTBXItem;
+    tbtmNOT: TTBXItem;
+    tbtmXOR: TTBXItem;
+    tbSep4: TTBXSeparatorItem;
+    tbtmGroup: TTBXItem;
     procedure tvPolygonsListAddition(
       Sender: TObject;
       Node: TTreeNode
@@ -710,11 +710,11 @@ end;
 
 procedure TfrMergePolygons.OnOperationClick(Sender: TObject);
 var
-  VItem: TTBItem;
+  VItem: TTBXItem;
   VOperation: TMergeOperation;
 begin
-  if Sender is TTBItem then begin
-    VItem := (Sender as TTBItem);
+  if Sender is TTBXItem then begin
+    VItem := (Sender as TTBXItem);
     VOperation := TMergeOperation(VItem.Tag);
 
     tbOperationType.ImageIndex := VItem.ImageIndex;

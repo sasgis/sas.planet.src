@@ -31,97 +31,86 @@ object frMergePolygons: TfrMergePolygons
     Width = 451
     Height = 24
     Align = alTop
+    BorderStyle = bsNone
     Images = frmMain.MenusImageList
+    ItemTransparency = itEnable
+    Stretch = True
     TabOrder = 0
-    object tbUp: TTBItem
+    object tbUp: TTBXItem
+      Hint = 'Move selected item Up (Shift + Up Arrow)'
       ImageIndex = 47
       OnClick = tbUpClick
-      Caption = ''
-      Hint = 'Move selected item Up (Shift + Up Arrow)'
     end
-    object tbDown: TTBItem
+    object tbDown: TTBXItem
+      Hint = 'Move selected item Down (Shift + Down Arrow)'
       ImageIndex = 48
       OnClick = tbDownClick
-      Caption = ''
-      Hint = 'Move selected item Down (Shift + Down Arrow)'
     end
     object tbxSep1: TTBXSeparatorItem
     end
-    object tbDel: TTBItem
+    object tbDel: TTBXItem
+      Hint = 'Remove selected (Delete)'
       ImageIndex = 50
       OnClick = tbDelClick
-      Caption = ''
-      Hint = 'Remove selected (Delete)'
     end
-    object tbtmClear: TTBItem
+    object tbtmClear: TTBXItem
+      Hint = 'Remove All'
       ImageIndex = 49
       OnClick = tbtmClearClick
-      Caption = ''
-      Hint = 'Remove All'
     end
     object tbxSep2: TTBXSeparatorItem
     end
-    object tbOperationType: TTBSubmenuItem
-      DropdownCombo = True
+    object tbOperationType: TTBXSubmenuItem
       ImageIndex = 60
-      Caption = ''
-      Hint = ''
-      object tbtmAND: TTBItem
+      Options = [tboDropdownArrow]
+      object tbtmAND: TTBXItem
+        Caption = 'Intersection (AND)'
         ImageIndex = 58
         OnClick = OnOperationClick
-        Caption = 'Intersection (AND)'
-        Hint = ''
       end
-      object tbtmOR: TTBItem
+      object tbtmOR: TTBXItem
         Tag = 1
+        Caption = 'Union (OR)'
         ImageIndex = 60
         OnClick = OnOperationClick
-        Caption = 'Union (OR)'
-        Hint = ''
       end
-      object tbtmNOT: TTBItem
+      object tbtmNOT: TTBXItem
         Tag = 2
+        Caption = 'Difference (NOT)'
         ImageIndex = 59
         OnClick = OnOperationClick
-        Caption = 'Difference (NOT)'
-        Hint = ''
       end
-      object tbtmXOR: TTBItem
+      object tbtmXOR: TTBXItem
         Tag = 3
+        Caption = 'Exclusive or (XOR)'
         ImageIndex = 61
         OnClick = OnOperationClick
-        Caption = 'Exclusive or (XOR)'
-        Hint = ''
       end
-      object tbSep4: TTBSeparatorItem
+      object tbSep4: TTBXSeparatorItem
       end
-      object tbtmGroup: TTBItem
+      object tbtmGroup: TTBXItem
         Tag = 4
+        Caption = 'Group'
         ImageIndex = 56
         OnClick = OnOperationClick
-        Caption = 'Group'
-        Hint = ''
       end
     end
-    object tbMerge: TTBItem
+    object tbMerge: TTBXItem
+      Caption = 'Merge polygons'
       ImageIndex = 38
       OnClick = tbMergeClick
-      Caption = 'Merge polygons'
-      Hint = ''
     end
-    object tbSep3: TTBSeparatorItem
+    object tbSep3: TTBXSeparatorItem
     end
-    object tbtmSelect: TTBItem
+    object tbtmSelect: TTBXItem
+      Hint = 'Selection Manager'
       ImageIndex = 10
       OnClick = tbtmSelectClick
-      Caption = ''
-      Hint = 'Selection Manager'
     end
-    object tbtmSave: TTBItem
+    object tbtmSave: TTBXItem
+      Hint = 'Save merged polygon as...'
       ImageIndex = 25
       OnClick = tbtmSaveClick
-      Caption = ''
-      Hint = 'Save merged polygon as...'
     end
   end
   object tmrProgressCheck: TTimer
