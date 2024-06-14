@@ -643,6 +643,11 @@ object frmMarksExplorer: TfrmMarksExplorer
       ImageIndex = 62
       OnClick = tbxtmAddToMergePolygonsClick
     end
+    object tbxtmGroup: TTBXItem
+      Caption = 'Group'
+      ImageIndex = 56
+      OnClick = tbxtmGroupClick
+    end
     object tbxtmUngroup: TTBXItem
       Caption = 'Ungroup'
       ImageIndex = 57

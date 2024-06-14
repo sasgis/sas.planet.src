@@ -39,8 +39,21 @@ type
       const ABounds: TDoubleRect;
       const APoints: IDoublePoints
     ); overload;
+
     procedure AddLine(
       const APoints: IDoublePoints
+    ); overload;
+
+    procedure AddLine(
+      const ALine: IGeometryLonLatLine
+    ); overload;
+
+    procedure AddLine(
+      const ALine: IGeometryLonLatSingleLine
+    ); overload;
+
+    procedure AddLine(
+      const ALine: IGeometryLonLatMultiLine
     ); overload;
 
     function MakeStaticAndClear: IGeometryLonLatLine;

@@ -161,12 +161,22 @@ type
     FLine: IGeometryLonLatSingleLine;
     FList: IInterfaceListSimple;
   private
+    { IGeometryLonLatLineBuilder }
     procedure AddLine(
       const ABounds: TDoubleRect;
       const APoints: IDoublePoints
     ); overload;
     procedure AddLine(
       const APoints: IDoublePoints
+    ); overload;
+    procedure AddLine(
+      const ALine: IGeometryLonLatLine
+    ); overload;
+    procedure AddLine(
+      const ALine: IGeometryLonLatSingleLine
+    ); overload;
+    procedure AddLine(
+      const ALine: IGeometryLonLatMultiLine
     ); overload;
 
     function MakeStaticAndClear: IGeometryLonLatLine;
@@ -227,6 +237,21 @@ procedure TGeometryLonLatLineBuilder.AddLine(
 begin
   Assert(Assigned(APoints));
   AddLine(LonLatMBRByPoints(APoints.Points, APoints.Count), APoints);
+end;
+
+procedure TGeometryLonLatLineBuilder.AddLine(const ALine: IGeometryLonLatLine);
+var
+  VLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+begin
+  if Supports(ALine, IGeometryLonLatSingleLine, VLine) then begin
+    AddLine(VLine);
+  end else
+  if Supports(ALine, IGeometryLonLatMultiLine, VMultiLine) then begin
+    AddLine(VMultiLine);
+  end else begin
+    Assert(False);
+  end;
 end;
 
 function TGeometryLonLatLineBuilder.MakeStaticAndClear: IGeometryLonLatLine;
@@ -375,6 +400,27 @@ begin
   end else begin
     Assert(False);
   end;
+end;
+
+procedure TGeometryLonLatLineBuilder.AddLine(
+  const ALine: IGeometryLonLatMultiLine
+);
+var
+  I: Integer;
+begin
+  for I := 0 to ALine.Count - 1 do begin
+    AddLine(ALine.Item[I]);
+  end;
+end;
+
+procedure TGeometryLonLatLineBuilder.AddLine(
+  const ALine: IGeometryLonLatSingleLine
+);
+var
+  VPoints: IDoublePoints;
+begin
+  VPoints := TDoublePoints.Create(ALine.Points, ALine.Meta, ALine.Count);
+  AddLine(ALine.Bounds.Rect, VPoints);
 end;
 
 procedure TGeometryLonLatPolygonBuilder.AddPolygon(

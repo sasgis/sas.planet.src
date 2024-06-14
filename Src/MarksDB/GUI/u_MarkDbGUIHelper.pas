@@ -155,6 +155,9 @@ type
       const ADescription: string = '';
       const ATemplate: IMarkTemplate = nil
     ): Boolean;
+    function SaveMarksGroupModal(
+      const AMarksIdList: IInterfaceListStatic
+    ): Boolean;
     function SaveMarkUngroupModal(
       const AMark: IVectorDataItem;
       const AGeometry: IGeometryLonLat;
@@ -1119,6 +1122,99 @@ begin
       end;
     end;
   end;
+end;
+
+function TMarkDbGUIHelper.SaveMarksGroupModal(
+  const AMarksIdList: IInterfaceListStatic
+): Boolean;
+var
+  I: Integer;
+  VDesc: string;
+  VIsVisible: Boolean;
+  VMark: IVectorDataItem;
+  VGeometry: IGeometryLonLat;
+  VLine: IGeometryLonLatLine;
+  VLineBuilder: IGeometryLonLatLineBuilder;
+  VPoly: IGeometryLonLatPolygon;
+  VPolygonBuilder: IGeometryLonLatPolygonBuilder;
+begin
+  Result := False;
+
+  if not IsMarksDBWritable then begin
+    Exit;
+  end;
+
+  if (AMarksIdList = nil) or (AMarksIdList.Count < 2) then begin
+    Assert(False);
+    Exit;
+  end;
+
+  VDesc := '';
+  VLineBuilder := nil;
+  VPolygonBuilder := nil;
+
+  for I := 0 to AMarksIdList.Count - 1 do begin
+    VMark := FMarkSystem.MarkDb.GetMarkByID(AMarksIdList[I] as IMarkId);
+    if VMark = nil then begin
+      Continue;
+    end;
+
+    if VDesc <> '' then begin
+      VDesc := VDesc + #13#10 + '------' + #13#10;
+    end;
+    VDesc := VDesc + Trim(VMark.Desc);
+
+    if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
+      if VPolygonBuilder <> nil then begin
+        Continue;
+      end;
+      if VLineBuilder = nil then begin
+        VLineBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
+      end;
+      VLineBuilder.AddLine(VLine);
+    end else
+    if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
+      if VLineBuilder <> nil then begin
+        Continue;
+      end;
+      if VPolygonBuilder = nil then begin
+        VPolygonBuilder := FVectorGeometryLonLatFactory.MakePolygonBuilder;
+      end;
+      VPolygonBuilder.AddPolygon(VPoly);
+    end;
+  end;
+
+  if VLineBuilder <> nil then begin
+    VGeometry := VLineBuilder.MakeStaticAndClear;
+  end else
+  if VPolygonBuilder <> nil then begin
+    VGeometry := VPolygonBuilder.MakeStaticAndClear;
+  end else begin
+    VGeometry := nil;
+  end;
+
+  if VGeometry = nil then begin
+    Exit;
+  end;
+
+  VMark := FMarkSystem.MarkDb.Factory.CreateNewMark(VGeometry, '', VDesc);
+  if VMark = nil then begin
+    Exit;
+  end;
+
+  VIsVisible := True;
+  VMark := EditMarkModal(VMark, True, VIsVisible);
+  if VMark = nil then begin
+    Exit;
+  end;
+
+  VMark := FMarkSystem.MarkDb.UpdateMark(nil, VMark);
+  if VMark = nil then begin
+    Exit;
+  end;
+
+  FMarkSystem.MarkDb.SetMarkVisible(VMark, VIsVisible);
+  Result := True;
 end;
 
 function TMarkDbGUIHelper.SaveMarkUngroupModal(

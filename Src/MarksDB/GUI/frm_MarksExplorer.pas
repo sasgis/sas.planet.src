@@ -152,6 +152,7 @@ type
     tbxRevertSelection: TTBXItem;
     TBXSeparatorItem7: TTBXSeparatorItem;
     tbitmEditMarkPosition: TTBXItem;
+    tbxtmGroup: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -243,6 +244,7 @@ type
     procedure tbxSelectAllVisibleClick(Sender: TObject);
     procedure tbxRevertSelectionClick(Sender: TObject);
     procedure tbitmEditMarkPositionClick(Sender: TObject);
+    procedure tbxtmGroupClick(Sender: TObject);
   private
     type
       TCopyPasteAction = (cpNone, cpCopy, cpCut);
@@ -294,8 +296,8 @@ type
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IVectorDataItem;
-    function GetSelectedMarksIdList: IInterfaceListStatic;
-    function GetSelectedMarksIdArray: TArrayOfMarkId;
+    function GetSelectedMarksIdList(const ASorted: Boolean = False): IInterfaceListStatic;
+    function GetSelectedMarksIdArray(const ASorted: Boolean = False): TArrayOfMarkId;
 
     procedure WMGetMinMaxInfo(var Msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
   protected
@@ -644,28 +646,60 @@ begin
   end;
 end;
 
-function TfrmMarksExplorer.GetSelectedMarksIdList: IInterfaceListStatic;
+function TfrmMarksExplorer.GetSelectedMarksIdList(const ASorted: Boolean): IInterfaceListStatic;
 var
-  i: integer;
-  VTemp: IInterfaceListSimple;
+  I: Integer;
+  VArr: TArrayOfMarkId;
+  VList: IInterfaceListSimple;
 begin
   Result := nil;
-  VTemp := TInterfaceListSimple.Create;
-  for i := 0 to MarksListBox.SelectionCount - 1 do begin
-    VTemp.Add(IMarkId(MarksListBox.Selections[i].Data));
-  end;
-  if VTemp.Count > 0 then begin
-    Result := VTemp.MakeStaticAndClear;
+  VArr := GetSelectedMarksIdArray(ASorted);
+  if Length(VArr) > 0 then begin
+    VList := TInterfaceListSimple.Create;
+    for I := 0 to Length(VArr) - 1 do begin
+      VList.Add(VArr[I]);
+    end;
+    Result := VList.MakeStaticAndClear;
   end;
 end;
 
-function TfrmMarksExplorer.GetSelectedMarksIdArray: TArrayOfMarkId;
+function TfrmMarksExplorer.GetSelectedMarksIdArray(const ASorted: Boolean): TArrayOfMarkId;
 var
   I: Integer;
+  VArr: TArrayOfMarkId;
+  VName: string;
+  VSortedList: TStringList;
 begin
   SetLength(Result, MarksListBox.SelectionCount);
   for I := 0 to MarksListBox.SelectionCount - 1 do begin
     Result[I] := IMarkId(MarksListBox.Selections[I].Data);
+  end;
+
+  if not ASorted or (Length(Result) < 2) then begin
+    Exit;
+  end;
+
+  VArr := Copy(Result);
+
+  VSortedList := TStringList.Create;
+  try
+    VSortedList.Duplicates := dupAccept;
+    VSortedList.BeginUpdate;
+    try
+      for I := 0 to Length(VArr) - 1 do begin
+        VName := FMarkDBGUI.GetMarkIdCaption(VArr[I]);
+        VSortedList.AddObject(VName, TObject(UIntPtr(I)));
+      end;
+      VSortedList.CustomSort(StringListCompare);
+    finally
+      VSortedList.EndUpdate;
+    end;
+
+    for I := 0 to VSortedList.Count - 1 do begin
+      Result[I] := VArr[UIntPtr(VSortedList.Objects[I])];
+    end;
+  finally
+    VSortedList.Free;
   end;
 end;
 
@@ -1528,6 +1562,11 @@ begin
     end;
   end;
 
+  tbxtmGroup.Visible :=
+    (VCount[mcTotal] > 1) and
+    ((VCount[mcTotal] = VCount[mcLine] + VCount[mcMultiLine]) or
+    (VCount[mcTotal] = VCount[mcPoly] + VCount[mcMultiPoly]));
+
   tbxtmUngroup.Visible :=
     (VCount[mcTotal] = 1) and
     ((VCount[mcMultiPoly] = 1) or (VCount[mcMultiLine] = 1));
@@ -1591,6 +1630,16 @@ begin
     FElevationProfilePresenter.ShowProfile(VMark);
   end else begin
     Assert(False);
+  end;
+end;
+
+procedure TfrmMarksExplorer.tbxtmGroupClick(Sender: TObject);
+var
+  VMarks: IInterfaceListStatic;
+begin
+  VMarks := GetSelectedMarksIdList(True);
+  if Assigned(VMarks) then begin
+    FMarkDBGUI.SaveMarksGroupModal(VMarks);
   end;
 end;
 
