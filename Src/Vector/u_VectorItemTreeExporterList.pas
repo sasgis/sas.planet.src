@@ -24,6 +24,7 @@ unit u_VectorItemTreeExporterList;
 interface
 
 uses
+  i_ExportConfig,
   i_InterfaceListStatic,
   i_VectorItemTreeExporter,
   i_VectorItemTreeExporterList,
@@ -33,15 +34,18 @@ type
   TVectorItemTreeExporterListItem = class(TBaseInterfacedObject, IVectorItemTreeExporterListItem)
   private
     FExporter: IVectorItemTreeExporter;
+    FConfig: IExportConfig;
     FDefaultExt: string;
     FName: string;
   private
     function GetExporter: IVectorItemTreeExporter;
+    function GetConfig: IExportConfig;
     function GetDefaultExt: string;
     function GetName: string;
   public
     constructor Create(
       const AExporter: IVectorItemTreeExporter;
+      const AConfig: IExportConfig;
       const ADefaultExt: string;
       const AName: string
     );
@@ -63,6 +67,7 @@ implementation
 
 constructor TVectorItemTreeExporterListItem.Create(
   const AExporter: IVectorItemTreeExporter;
+  const AConfig: IExportConfig;
   const ADefaultExt, AName: string
 );
 begin
@@ -71,8 +76,14 @@ begin
   Assert(AName <> '');
   inherited Create;
   FExporter := AExporter;
+  FConfig := AConfig;
   FDefaultExt := ADefaultExt;
   FName := AName;
+end;
+
+function TVectorItemTreeExporterListItem.GetConfig: IExportConfig;
+begin
+  Result := FConfig;
 end;
 
 function TVectorItemTreeExporterListItem.GetDefaultExt: string;

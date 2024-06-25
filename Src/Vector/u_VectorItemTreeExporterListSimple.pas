@@ -91,6 +91,7 @@ var
   VItem: IVectorItemTreeExporterListItem;
 begin
   inherited Create;
+
   FNotifierFake := TNotifierFaked.Create;
   VList := TInterfaceListSimple.Create;
 
@@ -102,6 +103,7 @@ begin
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
+      AExportMarks2KMLConfig,
       'kmz',
       'Google KMZ file'
     );
@@ -109,6 +111,7 @@ begin
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
+      AExportMarks2KMLConfig,
       'kml',
       'Google KML file'
     );
@@ -118,6 +121,7 @@ begin
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
+      nil,
       'gpx',
       'GPS Exchange format (GPX track)'
     );
@@ -127,6 +131,7 @@ begin
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
+      nil,
       'gpx',
       'GPS Exchange format (GPX route)'
     );
@@ -136,6 +141,7 @@ begin
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
+      nil,
       'tcx',
       'Training Center XML files (TCX)'
     );
@@ -151,6 +157,7 @@ begin
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
+      nil,
       'sml',
       'SAS.Planet Marks Database in XML format'
     );
@@ -166,6 +173,7 @@ begin
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
+      nil,
       'db3',
       'SAS.Planet Marks Database in SQLite3 format'
     );

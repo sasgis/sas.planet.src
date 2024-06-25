@@ -1812,6 +1812,9 @@
         <DCCReference Include="Src\MarksDB\GUI\frm_MarksExplorer.pas">
             <Form>frmMarksExplorer</Form>
         </DCCReference>
+        <DCCReference Include="Src\MarksDB\GUI\frm_MarksExport.pas">
+            <Form>frmMarksExport</Form>
+        </DCCReference>
         <DCCReference Include="Src\MarksDB\GUI\frm_MarksExportConfig.pas">
             <Form>frmMarksExportConfig</Form>
         </DCCReference>
@@ -2583,6 +2586,7 @@
         <DCCReference Include="Src\Vector\i_AppearanceOfMarkFactory.pas"/>
         <DCCReference Include="Src\Vector\i_AppearanceOfVectorItem.pas"/>
         <DCCReference Include="Src\Vector\i_Category.pas"/>
+        <DCCReference Include="Src\Vector\i_ExportConfig.pas"/>
         <DCCReference Include="Src\Vector\i_ExportMarks2KMLConfig.pas"/>
         <DCCReference Include="Src\Vector\i_ImportConfig.pas"/>
         <DCCReference Include="Src\Vector\i_JpegWithExifImportConfig.pas"/>

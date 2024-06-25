@@ -72,6 +72,7 @@ uses
   frm_MarkEditPath,
   frm_MarkEditPoly,
   frm_MarkInfo,
+  frm_MarksExport,
   frm_ImportConfigEdit,
   frm_JpegImportConfigEdit,
   frm_PolygonForOperationConfig,
@@ -98,14 +99,10 @@ type
     FfrmPolygonForOperationConfig: TfrmPolygonForOperationConfig;
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
     FfrmMarkInfo: TfrmMarkInfo;
-    FExportDialog: TSaveDialog;
+    FfrmMarksExport: TfrmMarksExport;
     FImportDialog: TOpenDialog;
-    FExporterList: IVectorItemTreeExporterListChangeable;
     FImporterList: IVectorItemTreeImporterListChangeable;
     FMarkOnMapEditProvider: IMarkOnMapEditProvider;
-
-    procedure PrepareExportDialog(const AExporterList: IVectorItemTreeExporterListStatic);
-    function GetActiveExporter(const AExporterList: IVectorItemTreeExporterListStatic): IVectorItemTreeExporterListItem;
 
     procedure PrepareImportDialog(const AImporterList: IVectorItemTreeImporterListStatic);
     function ImportFilesModalInternal(
@@ -171,14 +168,16 @@ type
     function EditModalImportConfig: IImportConfig;
     function EditModalJpegImportConfig: IInterface;
     function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
-    procedure ExportMark(const AMark: IVectorDataItem);
+    procedure ExportMark(
+      const AMark: IVectorDataItem
+    );
     procedure ExportCategory(
       const AMarkCategory: IMarkCategory;
-      AIgnoreMarksVisible: Boolean
+      const AIgnoreMarksVisible: Boolean
     );
     procedure ExportCategoryList(
       const ACategoryList: IMarkCategoryList;
-      AIgnoreMarksVisible: Boolean
+      const AIgnoreMarksVisible: Boolean
     );
     function ImportFilesModal(
       const AFiles: IStringListStatic
@@ -281,6 +280,7 @@ constructor TMarkDbGUIHelper.Create(
 );
 begin
   inherited Create;
+
   FMarkSystem := AMarkSystem;
   FMarkOnMapEditProvider := AMarkOnMapEditProvider;
   FVectorDataFactory := AVectorDataFactory;
@@ -292,7 +292,6 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FCoordToStringConverter := ACoordToStringConverter;
   FImporterList := AImporterList;
-  FExporterList := AExporterList;
 
   FfrmMarkEditPoint :=
     TfrmMarkEditPoint.Create(
@@ -365,12 +364,14 @@ begin
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB
     );
-
-  FExportDialog := TSaveDialog.Create(nil);
-  FExportDialog.Name := 'dlgExportMarks';
-  FExportDialog.Options := [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing];
-  FExportDialog.InitialDir := FMarksExplorerConfig.ExportDialogConfig.InitialDir;
-  FExportDialog.FilterIndex := FMarksExplorerConfig.ExportDialogConfig.FilterIndex;
+  FfrmMarksExport :=
+    TfrmMarksExport.Create(
+      ALanguageManager,
+      FMarkSystem,
+      FMarksExplorerConfig.ExportDialogConfig,
+      AExporterList,
+      FVectorItemSubsetBuilderFactory
+    );
 
   FImportDialog := TOpenDialog.Create(nil);
   FImportDialog.Name := 'dlgImportMarks';
@@ -390,7 +391,7 @@ begin
   FreeAndNil(FfrmPolygonForOperationConfig);
   FreeAndNil(FfrmMarksMultiEdit);
   FreeAndNil(FfrmMarkInfo);
-  FreeAndNil(FExportDialog);
+  FreeAndNil(FfrmMarksExport);
   FreeAndNil(FImportDialog);
   inherited;
 end;
@@ -573,140 +574,25 @@ begin
   Result := FfrmJpegImportConfigEdit.GetConfig;
 end;
 
-function TMarkDbGUIHelper.GetActiveExporter(
-  const AExporterList: IVectorItemTreeExporterListStatic
-): IVectorItemTreeExporterListItem;
-var
-  VIndex: Integer;
+procedure TMarkDbGUIHelper.ExportMark(const AMark: IVectorDataItem);
 begin
-  Result := nil;
-  VIndex := FExportDialog.FilterIndex - 1;
-  if (VIndex >= 0) and (VIndex < AExporterList.Count) then begin
-    Result := AExporterList.Items[VIndex];
-  end;
-end;
-
-procedure TMarkDbGUIHelper.PrepareExportDialog(
-  const AExporterList: IVectorItemTreeExporterListStatic
-);
-var
-  VSelectedFilter: Integer;
-  VFilterStr: string;
-  i: Integer;
-  VItem: IVectorItemTreeExporterListItem;
-begin
-  VSelectedFilter := FExportDialog.FilterIndex;
-  VFilterStr := '';
-  for i := 0 to AExporterList.Count - 1 do begin
-    VItem := AExporterList.Items[i];
-    if i = 0 then begin
-      FExportDialog.DefaultExt := VItem.DefaultExt;
-    end else begin
-      VFilterStr := VFilterStr + '|';
-    end;
-    VFilterStr := VFilterStr + VItem.Name + ' (*.' + VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
-  end;
-  FExportDialog.Filter := VFilterStr;
-  FExportDialog.FilterIndex := VSelectedFilter;
+  FfrmMarksExport.ExportMark(AMark);
 end;
 
 procedure TMarkDbGUIHelper.ExportCategory(
   const AMarkCategory: IMarkCategory;
-  AIgnoreMarksVisible: Boolean
+  const AIgnoreMarksVisible: Boolean
 );
-var
-  VFileName: string;
-  VSubCategoryList: IMarkCategoryList;
-  VCategoryTree: IMarkCategoryTree;
-  VMarkTree: IVectorItemTree;
-  VExporterList: IVectorItemTreeExporterListStatic;
-  VExporterItem: IVectorItemTreeExporterListItem;
-  VNotifier: INotifierOperation;
 begin
-  if AMarkCategory <> nil then begin
-    VFileName := ReplaceIllegalFileNameChars(AMarkCategory.Name);
-    VExporterList := FExporterList.GetStatic;
-    PrepareExportDialog(VExporterList);
-    FExportDialog.FileName := VFileName;
-    if FExportDialog.Execute then begin
-      VFileName := FExportDialog.FileName;
-      if VFileName <> '' then begin
-        VExporterItem := GetActiveExporter(VExporterList);
-        if Assigned(VExporterItem) then begin
-          VSubCategoryList := FMarkSystem.CategoryDB.GetCategoryWithSubCategories(AMarkCategory);
-          if not AIgnoreMarksVisible then begin
-            VSubCategoryList := FMarkSystem.CategoryDB.FilterVisibleCategories(VSubCategoryList);
-          end;
-          VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VSubCategoryList);
-          VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
-          VNotifier := TNotifierOperationFake.Create;
-          VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, VMarkTree);
-        end;
-      end;
-    end;
-  end;
+  FfrmMarksExport.ExportCategory(AMarkCategory, AIgnoreMarksVisible);
 end;
 
 procedure TMarkDbGUIHelper.ExportCategoryList(
   const ACategoryList: IMarkCategoryList;
-  AIgnoreMarksVisible: Boolean
+  const AIgnoreMarksVisible: Boolean
 );
-var
-  VFileName: string;
-  VCategoryTree: IMarkCategoryTree;
-  VMarkTree: IVectorItemTree;
-  VExporterList: IVectorItemTreeExporterListStatic;
-  VExporterItem: IVectorItemTreeExporterListItem;
-  VNotifier: INotifierOperation;
 begin
-  if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
-    VExporterList := FExporterList.GetStatic;
-    PrepareExportDialog(VExporterList);
-    if FExportDialog.Execute then begin
-      VFileName := FExportDialog.FileName;
-      if VFileName <> '' then begin
-        VExporterItem := GetActiveExporter(VExporterList);
-        if Assigned(VExporterItem) then begin
-          VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(ACategoryList);
-          VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
-          VNotifier := TNotifierOperationFake.Create;
-          VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, VMarkTree);
-        end;
-      end;
-    end;
-  end;
-end;
-
-procedure TMarkDbGUIHelper.ExportMark(const AMark: IVectorDataItem);
-var
-  VFileName: string;
-  VMarkTree: IVectorItemTree;
-  VSubsetBuilder: IVectorItemSubsetBuilder;
-  VExporterList: IVectorItemTreeExporterListStatic;
-  VExporterItem: IVectorItemTreeExporterListItem;
-  VNotifier: INotifierOperation;
-begin
-  if AMark <> nil then begin
-    VFileName := ReplaceIllegalFileNameChars(AMark.Name);
-    VExporterList := FExporterList.GetStatic;
-    PrepareExportDialog(VExporterList);
-    FExportDialog.FileName := VFileName;
-    if FExportDialog.Execute then begin
-      FMarksExplorerConfig.ExportDialogConfig.InitialDir := ExtractFileDir(FExportDialog.FileName);
-      FMarksExplorerConfig.ExportDialogConfig.FilterIndex := FExportDialog.FilterIndex;
-      VFileName := FExportDialog.FileName;
-      if VFileName <> '' then begin
-        VExporterItem := GetActiveExporter(VExporterList);
-        if Assigned(VExporterItem) then begin
-          VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
-          VSubsetBuilder.Add(AMark);
-          VMarkTree := TVectorItemTree.Create('Export', VSubsetBuilder.MakeStaticAndClear, nil);
-          VNotifier := TNotifierOperationFake.Create;
-          VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, VMarkTree);
-        end;
-      end;
-    end;
-  end;
+  FfrmMarksExport.ExportCategoryList(ACategoryList, AIgnoreMarksVisible);
 end;
 
 function TMarkDbGUIHelper.GetMarkIdCaption(const AMarkId: IMarkId): string;

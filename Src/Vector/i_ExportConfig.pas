@@ -19,43 +19,16 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_VectorItemTreeExporterList;
+unit i_ExportConfig;
 
 interface
 
 uses
-  i_Changeable,
-  i_ExportConfig,
-  i_VectorItemTreeExporter;
+  i_ConfigDataElement;
 
 type
-  IVectorItemTreeExporterListItem = interface
-    ['{96787244-28A5-4D01-A00B-5F7057132BCB}']
-    function GetExporter: IVectorItemTreeExporter;
-    property Exporter: IVectorItemTreeExporter read GetExporter;
-
-    function GetConfig: IExportConfig;
-    property Config: IExportConfig read GetConfig;
-
-    function GetDefaultExt: string;
-    property DefaultExt: string read GetDefaultExt;
-
-    function GetName: string;
-    property Name: string read GetName;
-  end;
-
-  IVectorItemTreeExporterListStatic = interface
-    ['{4D9CF72E-DCD2-48AD-890D-9B9627CF457F}']
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function GetItem(const AIndex: Integer): IVectorItemTreeExporterListItem;
-    property Items[const AIndex: Integer]: IVectorItemTreeExporterListItem read GetItem;
-  end;
-
-  IVectorItemTreeExporterListChangeable = interface(IChangeable)
-    ['{6850E0F8-197F-452F-B46D-239DEA3B452C}']
-    function GetStatic: IVectorItemTreeExporterListStatic;
+  IExportConfig = interface(IConfigDataElement)
+  ['{EA757623-2A26-42B3-9C67-4B3C981349A4}']
   end;
 
 implementation

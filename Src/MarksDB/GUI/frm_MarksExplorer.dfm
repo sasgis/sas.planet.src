@@ -107,11 +107,6 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 25
               OnClick = btnSaveMarkClick
             end
-            object btnExportConfig: TTBXItem
-              Hint = 'Export settings'
-              ImageIndex = 20
-              OnClick = btnExportConfigClick
-            end
             object TBXSeparatorItem4: TTBXSeparatorItem
             end
             object tbitmAllVisible: TTBXItem

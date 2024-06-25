@@ -24,7 +24,7 @@ unit i_ExportMarks2KMLConfig;
 interface
 
 uses
-  i_ConfigDataElement;
+  i_ExportConfig;
 
 type
   TKmlSortingType = (kstNone = 0, kstByNameASC, kstByNameDESC);
@@ -52,7 +52,7 @@ type
     property AbsPathToIcon: string read GetAbsPathToIcon;
   end;
 
-  IExportMarks2KMLConfig = interface(IConfigDataElement)
+  IExportMarks2KMLConfig = interface(IExportConfig)
     ['{D9088CC7-6B52-46C0-AFC7-6F905BF5A96F}']
     function GetUseCoordFormatting: Boolean;
     procedure SetUseCoordFormatting(const AValue: Boolean);

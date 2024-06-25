@@ -1,9 +1,10 @@
 object frmMarksExportConfig: TfrmMarksExportConfig
   Left = 0
   Top = 0
+  BorderStyle = bsDialog
   Caption = 'Marks Export Config'
-  ClientHeight = 356
-  ClientWidth = 549
+  ClientHeight = 304
+  ClientWidth = 362
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,43 +16,20 @@ object frmMarksExportConfig: TfrmMarksExportConfig
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object spl1: TSplitter
-    Left = 161
-    Top = 0
-    Height = 319
-    ExplicitLeft = 136
-    ExplicitTop = 128
-    ExplicitHeight = 100
-  end
-  object tvMenu: TTreeView
-    Left = 0
-    Top = 0
-    Width = 161
-    Height = 319
-    Cursor = crHandPoint
-    Align = alLeft
-    HideSelection = False
-    HotTrack = True
-    Indent = 19
-    ReadOnly = True
-    RowSelect = True
-    TabOrder = 0
-    OnClick = tvMenuClick
-  end
   object pnlBottom: TPanel
     Left = 0
-    Top = 319
-    Width = 549
+    Top = 267
+    Width = 362
     Height = 37
     Align = alBottom
     BevelEdges = [beTop]
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 2
+    TabOrder = 1
     object btnApply: TButton
       AlignWithMargins = True
-      Left = 387
+      Left = 200
       Top = 6
       Width = 75
       Height = 23
@@ -62,7 +40,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
     end
     object btnClose: TButton
       AlignWithMargins = True
-      Left = 468
+      Left = 281
       Top = 6
       Width = 75
       Height = 23
@@ -73,19 +51,20 @@ object frmMarksExportConfig: TfrmMarksExportConfig
     end
   end
   object pgcMain: TPageControl
-    Left = 164
+    Left = 0
     Top = 0
-    Width = 385
-    Height = 319
+    Width = 362
+    Height = 267
     ActivePage = tsExportToKml
     Align = alClient
     Style = tsFlatButtons
-    TabOrder = 1
+    TabOrder = 0
     object tsExportToKml: TTabSheet
+      Caption = 'kml'
       object rgSorting: TRadioGroup
         Left = 0
         Top = 40
-        Width = 377
+        Width = 354
         Height = 81
         Align = alTop
         Caption = ' Sorting '
@@ -100,7 +79,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
         AlignWithMargins = True
         Left = 3
         Top = 124
-        Width = 371
+        Width = 348
         Height = 17
         Align = alTop
         Caption = 'Set absolute path or url to the Icons'
@@ -111,7 +90,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
         AlignWithMargins = True
         Left = 3
         Top = 147
-        Width = 371
+        Width = 348
         Height = 21
         Align = alTop
         TabOrder = 3
@@ -119,7 +98,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
       object grpCoordinates: TGroupBox
         Left = 0
         Top = 0
-        Width = 377
+        Width = 354
         Height = 40
         Align = alTop
         Caption = ' Coordinates '
@@ -127,7 +106,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
         object GridPanel1: TGridPanel
           Left = 2
           Top = 15
-          Width = 373
+          Width = 350
           Height = 23
           Align = alClient
           BevelOuter = bvNone
@@ -136,7 +115,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
               Value = 66.666666666666660000
             end
             item
-              Value = 33.333333333333330000
+              Value = 33.333333333333340000
             end>
           ControlCollection = <
             item
@@ -155,13 +134,13 @@ object frmMarksExportConfig: TfrmMarksExportConfig
             end>
           TabOrder = 0
           DesignSize = (
-            373
+            350
             23)
           object chkFixedCoordPrecision: TCheckBox
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 242
+            Width = 227
             Height = 17
             Align = alClient
             Caption = 'Fixed Precision'
@@ -169,7 +148,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
             OnClick = chkFixedCoordPrecisionClick
           end
           object seCoordDigits: TSpinEdit
-            Left = 284
+            Left = 261
             Top = 0
             Width = 89
             Height = 22
@@ -184,7 +163,7 @@ object frmMarksExportConfig: TfrmMarksExportConfig
       object rgIconScale: TRadioGroup
         Left = 0
         Top = 171
-        Width = 377
+        Width = 354
         Height = 62
         Align = alTop
         Caption = ' Icon Scale '

@@ -37,18 +37,17 @@ uses
   ComCtrls,
   StdCtrls,
   Spin,
+  i_ExportConfig,
   i_ExportMarks2KMLConfig,
   u_CommonFormAndFrameParents;
 
 type
   TfrmMarksExportConfig = class(TCommonFormParent)
-    tvMenu: TTreeView;
     pnlBottom: TPanel;
     btnApply: TButton;
     btnClose: TButton;
     pgcMain: TPageControl;
     tsExportToKml: TTabSheet;
-    spl1: TSplitter;
     chkFixedCoordPrecision: TCheckBox;
     seCoordDigits: TSpinEdit;
     rgSorting: TRadioGroup;
@@ -57,20 +56,15 @@ type
     grpCoordinates: TGroupBox;
     GridPanel1: TGridPanel;
     rgIconScale: TRadioGroup;
-    procedure tvMenuClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     procedure chkFixedCoordPrecisionClick(Sender: TObject);
     procedure chkAbsPathToIconClick(Sender: TObject);
   private
     FExportMarks2KMLConfig: IExportMarks2KMLConfig;
-    procedure BuildTreeViewMenu;
   public
-    constructor Create(
-      const AOwner: TComponent;
-      const AExportMarks2KMLConfig: IExportMarks2KMLConfig
-    ); reintroduce;
+    function DoShowModal(const AConfig: IExportConfig): Integer;
   end;
 
 implementation
@@ -79,46 +73,73 @@ implementation
 
 { TfrmMarksExportConfig }
 
-constructor TfrmMarksExportConfig.Create(
-  const AOwner: TComponent;
-  const AExportMarks2KMLConfig: IExportMarks2KMLConfig
-);
-begin
-  inherited Create(AOwner);
-  FExportMarks2KMLConfig := AExportMarks2KMLConfig;
-  BuildTreeViewMenu;
-end;
-
-procedure TfrmMarksExportConfig.tvMenuClick(Sender: TObject);
-var
-  VNewPageIndex, VActivePageIndex: Integer;
-begin
-  VNewPageIndex := TTabSheet(tvMenu.Selected.Data).PageIndex;
-  VActivePageIndex := pgcMain.ActivePageIndex;
-  if VNewPageIndex <> VActivePageIndex then begin
-    pgcMain.ActivePageIndex := VNewPageIndex;
-  end;
-end;
-
-procedure TfrmMarksExportConfig.BuildTreeViewMenu;
+function TfrmMarksExportConfig.DoShowModal(const AConfig: IExportConfig): Integer;
 var
   I: Integer;
-  VNode: TTreeNode;
 begin
-  // hide all tabs
   for I := 0 to pgcMain.PageCount - 1 do begin
     pgcMain.Pages[I].TabVisible := False;
   end;
 
-  // build menu
-  VNode := tvMenu.Items.AddChildObjectFirst(nil, '*.kml; *.kmz', tsExportToKml);
+  FExportMarks2KMLConfig := nil;
 
-  tvMenu.FullExpand;
+  if Supports(AConfig, IExportMarks2KMLConfig, FExportMarks2KMLConfig) then begin
+    pgcMain.ActivePageIndex := 0;
+  end else begin
+    Assert(False);
+  end;
 
-  // show default tab
-  VNode.Selected := True;
+  Result := ShowModal;
+end;
 
-  tvMenuClick(Self);
+procedure TfrmMarksExportConfig.FormShow(Sender: TObject);
+var
+  VKmlConfig: IExportMarks2KMLConfigStatic;
+begin
+  btnClose.SetFocus;
+
+  if FExportMarks2KMLConfig <> nil then begin
+    VKmlConfig := FExportMarks2KMLConfig.GetStatic;
+
+    chkFixedCoordPrecision.Checked := VKmlConfig.UseCoordFormatting;
+    seCoordDigits.Value := VKmlConfig.CoordPrecision;
+    seCoordDigits.Enabled := chkFixedCoordPrecision.Checked;
+
+    rgSorting.ItemIndex := Integer(VKmlConfig.SortingType);
+
+    chkAbsPathToIcon.Checked := VKmlConfig.UseAbsPathToIcon;
+    edtAbsPathToIcon.Text := VKmlConfig.AbsPathToIcon;
+    edtAbsPathToIcon.Enabled := chkAbsPathToIcon.Checked;
+
+    rgIconScale.ItemIndex := Integer(VKmlConfig.IconScaleType);
+  end;
+end;
+
+procedure TfrmMarksExportConfig.btnApplyClick(Sender: TObject);
+begin
+  if FExportMarks2KMLConfig <> nil then begin
+    FExportMarks2KMLConfig.StopNotify;
+    try
+      FExportMarks2KMLConfig.UseCoordFormatting := chkFixedCoordPrecision.Checked;
+      FExportMarks2KMLConfig.CoordPrecision := seCoordDigits.Value;
+
+      FExportMarks2KMLConfig.SortingType := TKmlSortingType(rgSorting.ItemIndex);
+
+      FExportMarks2KMLConfig.UseAbsPathToIcon := chkAbsPathToIcon.Checked;
+      FExportMarks2KMLConfig.AbsPathToIcon := edtAbsPathToIcon.Text;
+
+      FExportMarks2KMLConfig.IconScaleType := TKmlIconScaleType(rgIconScale.ItemIndex);
+    finally
+      FExportMarks2KMLConfig.StartNotify;
+    end;
+  end;
+
+  Close;
+end;
+
+procedure TfrmMarksExportConfig.btnCloseClick(Sender: TObject);
+begin
+  Close;
 end;
 
 procedure TfrmMarksExportConfig.chkAbsPathToIconClick(Sender: TObject);
@@ -129,52 +150,6 @@ end;
 procedure TfrmMarksExportConfig.chkFixedCoordPrecisionClick(Sender: TObject);
 begin
   seCoordDigits.Enabled := chkFixedCoordPrecision.Checked;
-end;
-
-procedure TfrmMarksExportConfig.FormShow(Sender: TObject);
-var
-  VConfig: IExportMarks2KMLConfigStatic;
-begin
-  btnClose.SetFocus;
-
-  VConfig := FExportMarks2KMLConfig.GetStatic;
-
-  chkFixedCoordPrecision.Checked := VConfig.UseCoordFormatting;
-  seCoordDigits.Value := VConfig.CoordPrecision;
-  seCoordDigits.Enabled := chkFixedCoordPrecision.Checked;
-
-  rgSorting.ItemIndex := Integer(VConfig.SortingType);
-
-  chkAbsPathToIcon.Checked := VConfig.UseAbsPathToIcon;
-  edtAbsPathToIcon.Text := VConfig.AbsPathToIcon;
-  edtAbsPathToIcon.Enabled := chkAbsPathToIcon.Checked;
-
-  rgIconScale.ItemIndex := Integer(VConfig.IconScaleType);
-end;
-
-procedure TfrmMarksExportConfig.btnApplyClick(Sender: TObject);
-begin
-  FExportMarks2KMLConfig.StopNotify;
-  try
-    FExportMarks2KMLConfig.UseCoordFormatting := chkFixedCoordPrecision.Checked;
-    FExportMarks2KMLConfig.CoordPrecision := seCoordDigits.Value;
-
-    FExportMarks2KMLConfig.SortingType := TKmlSortingType(rgSorting.ItemIndex);
-
-    FExportMarks2KMLConfig.UseAbsPathToIcon := chkAbsPathToIcon.Checked;
-    FExportMarks2KMLConfig.AbsPathToIcon := edtAbsPathToIcon.Text;
-
-    FExportMarks2KMLConfig.IconScaleType := TKmlIconScaleType(rgIconScale.ItemIndex);
-  finally
-    FExportMarks2KMLConfig.StartNotify;
-  end;
-
-  Close;
-end;
-
-procedure TfrmMarksExportConfig.btnCloseClick(Sender: TObject);
-begin
-  Close;
 end;
 
 end.
