@@ -41,6 +41,7 @@ type
     FPropertyState: IComponentPropertyState;
     procedure DoShow; override;
     procedure DoHide; override;
+    procedure ReadState(Reader: TReader); override;
   public
     procedure WMSetIcon(var Message: TWMSetIcon); message WM_SETICON;
     destructor Destroy; override;
@@ -194,6 +195,14 @@ begin
     FPropertyState.Restore;
   end;
   inherited;
+end;
+
+procedure TBaseForm.ReadState(Reader: TReader);
+begin
+  inherited;
+  {$IF CompilerVersion <= 34} // Delphi 10.4 and older
+  OldCreateOrder := False;
+  {$IFEND}
 end;
 
 procedure TBaseForm.DoHide;
