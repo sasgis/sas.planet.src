@@ -42,6 +42,7 @@ uses
   i_MarkSystem,
   i_MarkCategory,
   i_MarkCategoryList,
+  i_NotifierOperation,
   i_VectorItemTree,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
@@ -67,6 +68,8 @@ type
     procedure btnRunClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure chkFilePerMarkClick(Sender: TObject);
+    procedure edtDestChange(Sender: TObject);
   private
     FMarkSystem: IMarkSystem;
     FExportDialogConfig: ICommonDialogConfig;
@@ -78,6 +81,13 @@ type
 
     function GetActiveExporter: IVectorItemTreeExporterListItem;
     procedure UpdateUI;
+    function IsExportToSeparateFiles: Boolean; inline;
+    procedure DoExportToSeparateFiles(
+      const ATree: IVectorItemTree;
+      const AExporterItem: IVectorItemTreeExporterListItem;
+      const ANotifier: INotifierOperation;
+      const ADestPath: string
+    );
     class function CalcItemsCount(const ATree: IVectorItemTree): Int64;
   public
     procedure ExportMark(
@@ -105,10 +115,10 @@ type
 implementation
 
 uses
+  FileCtrl,
   gnugettext,
   i_MarkCategoryTree,
   i_VectorItemSubset,
-  i_NotifierOperation,
   u_VectorItemTree,
   u_FileSystemFunc,
   u_NotifierOperation;
@@ -146,8 +156,6 @@ begin
   end else begin
     cbbFormat.ItemIndex := 0;
   end;
-
-  chkFilePerMark.Checked := False;
 end;
 
 destructor TfrmMarksExport.Destroy;
@@ -191,8 +199,11 @@ begin
     (FExportDialogConfig.InitialDir <> '')
   then begin
     edtDest.Text :=
-     IncludeTrailingPathDelimiter(FExportDialogConfig.InitialDir) +
-     dlgSave.FileName + '.' + VExporterItem.DefaultExt;
+      IncludeTrailingPathDelimiter(FExportDialogConfig.InitialDir) +
+      ChangeFileExt(ExtractFileName(dlgSave.FileName), '');
+    if not IsExportToSeparateFiles then begin
+      edtDest.Text := edtDest.Text + '.' + VExporterItem.DefaultExt;
+    end;
   end;
 
   btnConfig.Visible := (VExporterItem <> nil) and (VExporterItem.Config <> nil);
@@ -211,7 +222,7 @@ begin
 
   Self.Caption := _('Export placemarks') + Format(' (%d)', [VCount]);
 
-  chkFilePerMark.Enabled := False; // ToDo: VCount > 1;
+  chkFilePerMark.Enabled := VCount > 1;
 
   UpdateUI;
   btnRun.SetFocus;
@@ -229,8 +240,14 @@ begin
   end;
 end;
 
+function TfrmMarksExport.IsExportToSeparateFiles: Boolean;
+begin
+  Result := chkFilePerMark.Enabled and chkFilePerMark.Checked;
+end;
+
 procedure TfrmMarksExport.btnDestClick(Sender: TObject);
 var
+  VPath: string;
   VExporterItem: IVectorItemTreeExporterListItem;
 begin
   VExporterItem := GetActiveExporter;
@@ -238,19 +255,32 @@ begin
     Exit;
   end;
 
-  dlgSave.Filter := VExporterItem.Name + ' (*.' + VExporterItem.DefaultExt + ')|*.' + VExporterItem.DefaultExt;
-  dlgSave.DefaultExt := VExporterItem.DefaultExt;
-  dlgSave.InitialDir := FExportDialogConfig.InitialDir;
-
-  if dlgSave.Execute then begin
-    edtDest.Text := dlgSave.FileName;
-    FExportDialogConfig.InitialDir := ExtractFileDir(edtDest.Text);
+  if IsExportToSeparateFiles then begin
+    VPath := FExportDialogConfig.InitialDir;
+    if SelectDirectory('', '', VPath, [sdNewFolder, sdNewUI]) then begin
+      edtDest.Text := VPath;
+      FExportDialogConfig.InitialDir := edtDest.Text;
+    end;
+  end else begin
+    dlgSave.Filter := VExporterItem.Name + ' (*.' + VExporterItem.DefaultExt + ')' +
+      '|*.' + VExporterItem.DefaultExt;
+    dlgSave.DefaultExt := VExporterItem.DefaultExt;
+    dlgSave.InitialDir := FExportDialogConfig.InitialDir;
+    if dlgSave.Execute then begin
+      edtDest.Text := dlgSave.FileName;
+      FExportDialogConfig.InitialDir := ExtractFileDir(edtDest.Text);
+    end;
   end;
 end;
 
 procedure TfrmMarksExport.cbbFormatChange(Sender: TObject);
 begin
   FExportDialogConfig.FilterIndex := cbbFormat.ItemIndex;
+  UpdateUI;
+end;
+
+procedure TfrmMarksExport.chkFilePerMarkClick(Sender: TObject);
+begin
   UpdateUI;
 end;
 
@@ -270,8 +300,97 @@ begin
   end;
 end;
 
+procedure TfrmMarksExport.DoExportToSeparateFiles(
+  const ATree: IVectorItemTree;
+  const AExporterItem: IVectorItemTreeExporterListItem;
+  const ANotifier: INotifierOperation;
+  const ADestPath: string
+);
+var
+  VNoNameCounter: Integer;
+
+  function _GetFileNameUnique(const AMarkName: string): string;
+  var
+    VName: string;
+    VCounter: Integer;
+  begin
+    if AMarkName = '' then begin
+      VName := '(NoName)';
+      VCounter := VNoNameCounter;
+    end else begin
+      VName := AMarkName;
+      VCounter := 0;
+    end;
+
+    Result := ADestPath + VName + '.' + AExporterItem.DefaultExt;
+
+    while FileExists(Result) do begin
+      Inc(VCounter);
+      Result := ADestPath + VName + ' (' + VCounter.ToString + ').' + AExporterItem.DefaultExt;
+    end;
+
+    if AMarkName = '' then begin
+      VNoNameCounter := VCounter;
+    end;
+  end;
+
+var
+  I: Integer;
+  VSubDir: string;
+  VFileName: string;
+  VMark: IVectorDataItem;
+  VItems: IVectorItemSubset;
+  VSubTree: IVectorItemTree;
+  VMarkTree: IVectorItemTree;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+begin
+  if ATree = nil then begin
+    Exit;
+  end;
+
+  VItems := ATree.Items;
+  if VItems <> nil then begin
+    if not SysUtils.ForceDirectories(ADestPath) then begin
+      RaiseLastOSError;
+    end;
+
+    VNoNameCounter := 0;
+
+    for I := 0 to VItems.Count - 1 do begin
+      VMark := VItems.Items[I];
+
+      VFileName := _GetFileNameUnique(ReplaceIllegalFileNameChars(VMark.Name));
+
+      VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+      VSubsetBuilder.Add(VMark);
+      VMarkTree := TVectorItemTree.Create('Export', VSubsetBuilder.MakeStaticAndClear, nil);
+
+      // do export
+      AExporterItem.Exporter.ProcessExport(ANotifier.CurrentOperation, ANotifier, VFileName, VMarkTree);
+    end;
+  end;
+
+  for I := 0 to ATree.SubTreeItemCount - 1 do begin
+    VSubTree := ATree.GetSubTreeItem(I);
+
+    if VSubTree.Name <> '' then begin
+      VSubDir := ADestPath + VSubTree.Name + PathDelim;
+    end else begin
+      VSubDir := ADestPath + '(NoName)' + PathDelim;
+    end;
+
+    DoExportToSeparateFiles(VSubTree, AExporterItem, ANotifier, VSubDir); // recursion
+  end;
+end;
+
+procedure TfrmMarksExport.edtDestChange(Sender: TObject);
+begin
+  edtDest.Hint := edtDest.Text;
+end;
+
 procedure TfrmMarksExport.btnRunClick(Sender: TObject);
 var
+  VFileDir: string;
   VFileName: string;
   VNotifier: INotifierOperation;
   VExporterItem: IVectorItemTreeExporterListItem;
@@ -286,9 +405,16 @@ begin
 
     VNotifier := TNotifierOperationFake.Create;
 
-    if chkFilePerMark.Checked then begin
-      // ToDo
+    if IsExportToSeparateFiles then begin
+      VFileDir := IncludeTrailingPathDelimiter(VFileName);
+      DoExportToSeparateFiles(FMarkTree, VExporterItem, VNotifier, VFileDir);
     end else begin
+      VFileDir := ExtractFileDir(VFileName);
+      if not SysUtils.ForceDirectories(VFileDir) then begin
+        RaiseLastOSError;
+      end;
+
+      // do export
       VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, FMarkTree);
     end;
   end;
@@ -345,6 +471,10 @@ begin
     end;
     VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VSubCategoryList);
     FMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
+
+    if (FMarkTree.Items = nil) and (FMarkTree.SubTreeItemCount = 1) then begin
+      FMarkTree := FMarkTree.GetSubTreeItem(0);
+    end;
 
     Self.ShowModal;
   finally

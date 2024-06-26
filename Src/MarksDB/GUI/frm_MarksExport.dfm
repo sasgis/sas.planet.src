@@ -50,8 +50,11 @@ object frmMarksExport: TfrmMarksExport
     Height = 21
     Align = alCustom
     Anchors = [akLeft, akTop, akRight]
+    ParentShowHint = False
     ReadOnly = True
+    ShowHint = True
     TabOrder = 1
+    OnChange = edtDestChange
   end
   object btnDest: TButton
     Left = 389
@@ -73,6 +76,7 @@ object frmMarksExport: TfrmMarksExport
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Separate file for each placemark'
     TabOrder = 3
+    OnClick = chkFilePerMarkClick
   end
   object btnCancel: TButton
     Left = 339
