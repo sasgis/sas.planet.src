@@ -28,9 +28,9 @@ object frmMarksExport: TfrmMarksExport
   object lblDest: TLabel
     Left = 8
     Top = 54
-    Width = 58
+    Width = 41
     Height = 13
-    Caption = 'Destination:'
+    Caption = 'Save to:'
   end
   object cbbFormat: TComboBox
     Left = 8
@@ -101,9 +101,13 @@ object frmMarksExport: TfrmMarksExport
     Top = 136
     Width = 26
     Height = 26
+    Hint = 'Format settings'
     Anchors = [akLeft, akBottom]
+    ButtonStyle = bsFlat
     ImageIndex = 20
     Images = frmMain.MenusImageList
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 6
     OnClick = btnConfigClick
   end

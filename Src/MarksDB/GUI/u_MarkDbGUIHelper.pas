@@ -372,6 +372,7 @@ begin
       AExporterList,
       FVectorItemSubsetBuilderFactory
     );
+  FfrmMarksExport.PopupParent := APopUpParent;
 
   FImportDialog := TOpenDialog.Create(nil);
   FImportDialog.Name := 'dlgImportMarks';

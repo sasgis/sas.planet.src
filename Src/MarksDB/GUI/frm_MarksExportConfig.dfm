@@ -1,9 +1,8 @@
 object frmMarksExportConfig: TfrmMarksExportConfig
   Left = 0
   Top = 0
-  BorderStyle = bsDialog
-  Caption = 'Marks Export Config'
-  ClientHeight = 304
+  BorderStyle = bsToolWindow
+  ClientHeight = 305
   ClientWidth = 362
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,12 +17,11 @@ object frmMarksExportConfig: TfrmMarksExportConfig
   TextHeight = 13
   object pnlBottom: TPanel
     Left = 0
-    Top = 267
+    Top = 268
     Width = 362
     Height = 37
     Align = alBottom
     BevelEdges = [beTop]
-    BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
@@ -32,29 +30,29 @@ object frmMarksExportConfig: TfrmMarksExportConfig
       Left = 200
       Top = 6
       Width = 75
-      Height = 23
+      Height = 25
       Align = alRight
       Caption = 'Apply'
       TabOrder = 0
       OnClick = btnApplyClick
     end
-    object btnClose: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 281
       Top = 6
       Width = 75
-      Height = 23
+      Height = 25
       Align = alRight
-      Caption = 'Close'
+      Caption = 'Cancel'
       TabOrder = 1
-      OnClick = btnCloseClick
+      OnClick = btnCancelClick
     end
   end
   object pgcMain: TPageControl
     Left = 0
     Top = 0
     Width = 362
-    Height = 267
+    Height = 268
     ActivePage = tsExportToKml
     Align = alClient
     Style = tsFlatButtons

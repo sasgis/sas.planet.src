@@ -42,10 +42,10 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrmMarksExportConfig = class(TCommonFormParent)
+  TfrmMarksExportConfig = class(TFormWitghLanguageManager)
     pnlBottom: TPanel;
     btnApply: TButton;
-    btnClose: TButton;
+    btnCancel: TButton;
     pgcMain: TPageControl;
     tsExportToKml: TTabSheet;
     chkFixedCoordPrecision: TCheckBox;
@@ -57,23 +57,32 @@ type
     GridPanel1: TGridPanel;
     rgIconScale: TRadioGroup;
     procedure FormShow(Sender: TObject);
-    procedure btnCloseClick(Sender: TObject);
+    procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure chkFixedCoordPrecisionClick(Sender: TObject);
     procedure chkAbsPathToIconClick(Sender: TObject);
   private
     FExportMarks2KMLConfig: IExportMarks2KMLConfig;
   public
-    function DoShowModal(const AConfig: IExportConfig): Integer;
+    function DoShowModal(
+      const AFormatExt: string;
+      const AConfig: IExportConfig
+    ): Integer;
   end;
 
 implementation
+
+uses
+  gnugettext;
 
 {$R *.dfm}
 
 { TfrmMarksExportConfig }
 
-function TfrmMarksExportConfig.DoShowModal(const AConfig: IExportConfig): Integer;
+function TfrmMarksExportConfig.DoShowModal(
+  const AFormatExt: string;
+  const AConfig: IExportConfig
+): Integer;
 var
   I: Integer;
 begin
@@ -89,6 +98,8 @@ begin
     Assert(False);
   end;
 
+  Self.Caption := Format(_('%s format settings'), [AFormatExt]);
+
   Result := ShowModal;
 end;
 
@@ -96,7 +107,7 @@ procedure TfrmMarksExportConfig.FormShow(Sender: TObject);
 var
   VKmlConfig: IExportMarks2KMLConfigStatic;
 begin
-  btnClose.SetFocus;
+  btnCancel.SetFocus;
 
   if FExportMarks2KMLConfig <> nil then begin
     VKmlConfig := FExportMarks2KMLConfig.GetStatic;
@@ -137,7 +148,7 @@ begin
   Close;
 end;
 
-procedure TfrmMarksExportConfig.btnCloseClick(Sender: TObject);
+procedure TfrmMarksExportConfig.btnCancelClick(Sender: TObject);
 begin
   Close;
 end;

@@ -77,6 +77,7 @@ type
     FfrmMarksExportConfig: TfrmMarksExportConfig;
 
     function GetActiveExporter: IVectorItemTreeExporterListItem;
+    procedure UpdateUI;
     class function CalcItemsCount(const ATree: IVectorItemTree): Int64;
   public
     procedure ExportMark(
@@ -178,10 +179,28 @@ begin
   end;
 end;
 
+procedure TfrmMarksExport.UpdateUI;
+var
+  VExporterItem: IVectorItemTreeExporterListItem;
+begin
+  VExporterItem := GetActiveExporter;
+
+  if
+    (VExporterItem <> nil) and
+    (dlgSave.FileName <> '') and
+    (FExportDialogConfig.InitialDir <> '')
+  then begin
+    edtDest.Text :=
+     IncludeTrailingPathDelimiter(FExportDialogConfig.InitialDir) +
+     dlgSave.FileName + '.' + VExporterItem.DefaultExt;
+  end;
+
+  btnConfig.Visible := (VExporterItem <> nil) and (VExporterItem.Config <> nil);
+end;
+
 procedure TfrmMarksExport.FormShow(Sender: TObject);
 var
   VCount: Integer;
-  VExporterItem: IVectorItemTreeExporterListItem;
 begin
   if FMarkTree <> nil then begin
     VCount := CalcItemsCount(FMarkTree);
@@ -194,8 +213,8 @@ begin
 
   chkFilePerMark.Enabled := False; // ToDo: VCount > 1;
 
-  VExporterItem := GetActiveExporter;
-  btnConfig.Enabled := (VExporterItem <> nil) and (VExporterItem.Config <> nil);
+  UpdateUI;
+  btnRun.SetFocus;
 end;
 
 function TfrmMarksExport.GetActiveExporter: IVectorItemTreeExporterListItem;
@@ -230,13 +249,9 @@ begin
 end;
 
 procedure TfrmMarksExport.cbbFormatChange(Sender: TObject);
-var
-  VExporterItem: IVectorItemTreeExporterListItem;
 begin
-  VExporterItem := GetActiveExporter;
-  btnConfig.Enabled := (VExporterItem <> nil) and (VExporterItem.Config <> nil);
   FExportDialogConfig.FilterIndex := cbbFormat.ItemIndex;
-  edtDest.Text := '';
+  UpdateUI;
 end;
 
 procedure TfrmMarksExport.btnConfigClick(Sender: TObject);
@@ -246,9 +261,12 @@ begin
   VExporterItem := GetActiveExporter;
   if (VExporterItem <> nil) and (VExporterItem.Config <> nil) then begin
     if FfrmMarksExportConfig = nil then begin
-      FfrmMarksExportConfig := TfrmMarksExportConfig.Create(Self);
+      FfrmMarksExportConfig := TfrmMarksExportConfig.Create(Self.LanguageManager);
     end;
-    FfrmMarksExportConfig.DoShowModal(VExporterItem.Config);
+    FfrmMarksExportConfig.DoShowModal(
+      UpperCase(VExporterItem.DefaultExt),
+      VExporterItem.Config
+    );
   end;
 end;
 
@@ -262,7 +280,7 @@ begin
   if (VExporterItem <> nil) and (FMarkTree <> nil) then begin
     VFileName := Trim(edtDest.Text);
     if VFileName = '' then begin
-      MessageDlg(_('Set destination first!'), mtError, [mbOk], 0);
+      MessageDlg(_('Please specify where to save!'), mtError, [mbOk], 0);
       Exit;
     end;
 
@@ -299,7 +317,6 @@ begin
     VSubsetBuilder.Add(AMark);
     FMarkTree := TVectorItemTree.Create('Export', VSubsetBuilder.MakeStaticAndClear, nil);
 
-    Self.PopupParent := Application.MainForm;
     Self.ShowModal;
   finally
     FMarkTree := nil;
@@ -329,7 +346,6 @@ begin
     VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VSubCategoryList);
     FMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
 
-    Self.PopupParent := Application.MainForm;
     Self.ShowModal;
   finally
     FMarkTree := nil;
@@ -354,7 +370,6 @@ begin
     VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(ACategoryList);
     FMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
 
-    Self.PopupParent := Application.MainForm;
     Self.ShowModal;
   finally
     FMarkTree := nil;
