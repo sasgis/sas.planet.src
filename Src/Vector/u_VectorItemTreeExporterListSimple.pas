@@ -104,6 +104,7 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       AExportMarks2KMLConfig,
+      [elioSaveToFile, elioAllowSeparateFiles],
       'kmz',
       'Google KMZ file'
     );
@@ -112,6 +113,7 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       AExportMarks2KMLConfig,
+      [elioSaveToFile, elioAllowSeparateFiles],
       'kml',
       'Google KML file'
     );
@@ -122,6 +124,7 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       nil,
+      [elioSaveToFile, elioAllowSeparateFiles],
       'gpx',
       'GPS Exchange format (GPX track)'
     );
@@ -132,6 +135,7 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       nil,
+      [elioSaveToFile, elioAllowSeparateFiles],
       'gpx',
       'GPS Exchange format (GPX route)'
     );
@@ -142,6 +146,7 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       nil,
+      [elioSaveToFile, elioAllowSeparateFiles],
       'tcx',
       'Training Center XML files (TCX)'
     );
@@ -158,6 +163,7 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       nil,
+      [elioSaveToDir],
       'sml',
       'SAS.Planet Marks Database in XML format'
     );
@@ -174,6 +180,7 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       nil,
+      [elioSaveToFile],
       'db3',
       'SAS.Planet Marks Database in SQLite3 format'
     );

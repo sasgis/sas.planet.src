@@ -24,12 +24,8 @@ unit frm_MarksExport;
 interface
 
 uses
-  Windows,
-  Messages,
   SysUtils,
-  Variants,
   Classes,
-  Graphics,
   Controls,
   Forms,
   Dialogs,
@@ -77,6 +73,7 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
     FMarkTree: IVectorItemTree;
+    FItemsCount: Int64;
     FfrmMarksExportConfig: TfrmMarksExportConfig;
 
     function GetActiveExporter: IVectorItemTreeExporterListItem;
@@ -122,6 +119,9 @@ uses
   u_VectorItemTree,
   u_FileSystemFunc,
   u_NotifierOperation;
+
+const
+  CMaxCountToWarning = 1000;
 
 {$R *.dfm}
 
@@ -193,6 +193,17 @@ var
 begin
   VExporterItem := GetActiveExporter;
 
+  btnConfig.Visible := (VExporterItem <> nil) and (VExporterItem.Config <> nil);
+
+  chkFilePerMark.Enabled :=
+    (FItemsCount > 1) and
+    (VExporterItem <> nil) and
+    (elioAllowSeparateFiles in VExporterItem.Options);
+
+  if not chkFilePerMark.Enabled then begin
+    chkFilePerMark.Checked := False;
+  end;
+
   if
     (VExporterItem <> nil) and
     (dlgSave.FileName <> '') and
@@ -201,28 +212,22 @@ begin
     edtDest.Text :=
       IncludeTrailingPathDelimiter(FExportDialogConfig.InitialDir) +
       ChangeFileExt(ExtractFileName(dlgSave.FileName), '');
-    if not IsExportToSeparateFiles then begin
+    if not IsExportToSeparateFiles and (elioSaveToFile in VExporterItem.Options) then begin
       edtDest.Text := edtDest.Text + '.' + VExporterItem.DefaultExt;
     end;
   end;
-
-  btnConfig.Visible := (VExporterItem <> nil) and (VExporterItem.Config <> nil);
 end;
 
 procedure TfrmMarksExport.FormShow(Sender: TObject);
-var
-  VCount: Integer;
 begin
   if FMarkTree <> nil then begin
-    VCount := CalcItemsCount(FMarkTree);
+    FItemsCount := CalcItemsCount(FMarkTree);
   end else begin
-    VCount := 0;
+    FItemsCount := 0;
     Assert(False);
   end;
 
-  Self.Caption := _('Export placemarks') + Format(' (%d)', [VCount]);
-
-  chkFilePerMark.Enabled := VCount > 1;
+  Self.Caption := Format(_('Export placemarks (%d)'), [FItemsCount]);
 
   UpdateUI;
   btnRun.SetFocus;
@@ -255,7 +260,7 @@ begin
     Exit;
   end;
 
-  if IsExportToSeparateFiles then begin
+  if IsExportToSeparateFiles or (elioSaveToDir in VExporterItem.Options) then begin
     VPath := FExportDialogConfig.InitialDir;
     if SelectDirectory('', '', VPath, [sdNewFolder, sdNewUI]) then begin
       edtDest.Text := VPath;
@@ -357,7 +362,7 @@ begin
     VNoNameCounter := 0;
 
     for I := 0 to VItems.Count - 1 do begin
-      VMark := VItems.Items[I];
+      VMark := VItems[I];
 
       VFileName := _GetFileNameUnique(ReplaceIllegalFileNameChars(VMark.Name));
 
@@ -390,6 +395,7 @@ end;
 
 procedure TfrmMarksExport.btnRunClick(Sender: TObject);
 var
+  VMsg: string;
   VFileDir: string;
   VFileName: string;
   VNotifier: INotifierOperation;
@@ -399,17 +405,35 @@ begin
   if (VExporterItem <> nil) and (FMarkTree <> nil) then begin
     VFileName := Trim(edtDest.Text);
     if VFileName = '' then begin
-      MessageDlg(_('Please specify where to save!'), mtError, [mbOk], 0);
+      MessageDlg(_('Please specify where to save!'), mtError, [mbOK], 0);
       Exit;
     end;
 
     VNotifier := TNotifierOperationFake.Create;
 
     if IsExportToSeparateFiles then begin
+      if FItemsCount > CMaxCountToWarning then begin
+        VMsg := Format(
+          _('You are about to export placemarks into %d separate files. Are you sure?'), [FItemsCount]
+        );
+        if MessageDlg(VMsg, mtWarning, [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbCancel], 0) <> mrYes then begin
+          Exit;
+        end;
+      end;
+
       VFileDir := IncludeTrailingPathDelimiter(VFileName);
       DoExportToSeparateFiles(FMarkTree, VExporterItem, VNotifier, VFileDir);
     end else begin
-      VFileDir := ExtractFileDir(VFileName);
+      if elioSaveToFile in VExporterItem.Options then begin
+        VFileDir := ExtractFileDir(VFileName);
+      end else
+      if elioSaveToDir in VExporterItem.Options then begin
+        VFileDir := IncludeTrailingPathDelimiter(VFileName);
+        VFileName := VFileDir;
+      end else begin
+        raise Exception.Create('Unexpected SaveTo target!');
+      end;
+
       if not SysUtils.ForceDirectories(VFileDir) then begin
         RaiseLastOSError;
       end;

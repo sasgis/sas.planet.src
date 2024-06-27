@@ -35,17 +35,20 @@ type
   private
     FExporter: IVectorItemTreeExporter;
     FConfig: IExportConfig;
+    FOptions: TExporterListItemOptions;
     FDefaultExt: string;
     FName: string;
   private
     function GetExporter: IVectorItemTreeExporter;
     function GetConfig: IExportConfig;
+    function GetOptions: TExporterListItemOptions;
     function GetDefaultExt: string;
     function GetName: string;
   public
     constructor Create(
       const AExporter: IVectorItemTreeExporter;
       const AConfig: IExportConfig;
+      const AOptions: TExporterListItemOptions;
       const ADefaultExt: string;
       const AName: string
     );
@@ -68,7 +71,9 @@ implementation
 constructor TVectorItemTreeExporterListItem.Create(
   const AExporter: IVectorItemTreeExporter;
   const AConfig: IExportConfig;
-  const ADefaultExt, AName: string
+  const AOptions: TExporterListItemOptions;
+  const ADefaultExt: string;
+  const AName: string
 );
 begin
   Assert(Assigned(AExporter));
@@ -77,6 +82,7 @@ begin
   inherited Create;
   FExporter := AExporter;
   FConfig := AConfig;
+  FOptions := AOptions;
   FDefaultExt := ADefaultExt;
   FName := AName;
 end;
@@ -84,6 +90,11 @@ end;
 function TVectorItemTreeExporterListItem.GetConfig: IExportConfig;
 begin
   Result := FConfig;
+end;
+
+function TVectorItemTreeExporterListItem.GetOptions: TExporterListItemOptions;
+begin
+  Result := FOptions;
 end;
 
 function TVectorItemTreeExporterListItem.GetDefaultExt: string;

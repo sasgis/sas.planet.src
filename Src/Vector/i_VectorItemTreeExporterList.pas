@@ -29,6 +29,14 @@ uses
   i_VectorItemTreeExporter;
 
 type
+  TExporterListItemOption = (
+    elioSaveToFile,
+    elioSaveToDir,
+    elioAllowSeparateFiles
+  );
+
+  TExporterListItemOptions = set of TExporterListItemOption;
+
   IVectorItemTreeExporterListItem = interface
     ['{96787244-28A5-4D01-A00B-5F7057132BCB}']
     function GetExporter: IVectorItemTreeExporter;
@@ -36,6 +44,9 @@ type
 
     function GetConfig: IExportConfig;
     property Config: IExportConfig read GetConfig;
+
+    function GetOptions: TExporterListItemOptions;
+    property Options: TExporterListItemOptions read GetOptions;
 
     function GetDefaultExt: string;
     property DefaultExt: string read GetDefaultExt;
