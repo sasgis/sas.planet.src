@@ -519,8 +519,7 @@ begin
 
   try
     edtDest.Text := '';
-    dlgSave.FileName := '';
-
+    dlgSave.FileName := FormatDateTime('yyyymmdd_hhnnss', Now);
     VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(ACategoryList);
     FMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
 
