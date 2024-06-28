@@ -103,7 +103,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             object TBXSeparatorItem2: TTBXSeparatorItem
             end
             object btnSaveMark: TTBXItem
-              Hint = 'Export selected placemark'
+              Hint = 'Export selected placemarks'
               ImageIndex = 25
               OnClick = btnSaveMarkClick
             end
@@ -626,10 +626,9 @@ object frmMarksExplorer: TfrmMarksExplorer
       OnClick = tbitmMarkInfoClick
     end
     object tbitmExportMark: TTBXItem
+      Caption = 'Export selected placemarks'
       ImageIndex = 25
       OnClick = btnSaveMarkClick
-      Caption = 'Export Placemark'
-      Hint = 'Export selected placemark'
     end
     object TBXSeparatorItem6: TTBXSeparatorItem
     end

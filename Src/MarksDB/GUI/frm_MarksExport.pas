@@ -39,6 +39,7 @@ uses
   i_MarkCategory,
   i_MarkCategoryList,
   i_NotifierOperation,
+  i_InterfaceListStatic,
   i_VectorItemTree,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
@@ -90,6 +91,9 @@ type
     procedure ExportMark(
       const AMark: IVectorDataItem
     );
+    procedure ExportMarksList(
+      const AMarksIdList: IInterfaceListStatic
+    );
     procedure ExportCategory(
       const AMarkCategory: IMarkCategory;
       const AIgnoreMarksVisible: Boolean
@@ -114,6 +118,8 @@ implementation
 uses
   FileCtrl,
   gnugettext,
+  i_MarkId,
+  i_MarkDb,
   i_MarkCategoryTree,
   i_VectorItemSubset,
   u_VectorItemTree,
@@ -465,6 +471,37 @@ begin
 
     VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
     VSubsetBuilder.Add(AMark);
+    FMarkTree := TVectorItemTree.Create('Export', VSubsetBuilder.MakeStaticAndClear, nil);
+
+    Self.ShowModal;
+  finally
+    FMarkTree := nil;
+  end;
+end;
+
+procedure TfrmMarksExport.ExportMarksList(const AMarksIdList: IInterfaceListStatic);
+var
+  I: Integer;
+  VMark: IVectorDataItem;
+  VMarkDb: IMarkDb;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+begin
+  if AMarksIdList = nil then begin
+    Exit;
+  end;
+
+  try
+    edtDest.Text := '';
+    dlgSave.FileName := FormatDateTime('yyyymmdd_hhnnss', Now);
+
+    VMarkDb := FMarkSystem.MarkDb;
+    VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+
+    for I := 0 to AMarksIdList.Count - 1 do begin
+      VMark := VMarkDb.GetMarkByID(AMarksIdList[I] as IMarkId);
+      VSubsetBuilder.Add(VMark);
+    end;
+
     FMarkTree := TVectorItemTree.Create('Export', VSubsetBuilder.MakeStaticAndClear, nil);
 
     Self.ShowModal;

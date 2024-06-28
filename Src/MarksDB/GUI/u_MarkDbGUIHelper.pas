@@ -171,6 +171,9 @@ type
     procedure ExportMark(
       const AMark: IVectorDataItem
     );
+    procedure ExportMarksList(
+      const AMarksIdList: IInterfaceListStatic
+    );
     procedure ExportCategory(
       const AMarkCategory: IMarkCategory;
       const AIgnoreMarksVisible: Boolean
@@ -578,6 +581,11 @@ end;
 procedure TMarkDbGUIHelper.ExportMark(const AMark: IVectorDataItem);
 begin
   FfrmMarksExport.ExportMark(AMark);
+end;
+
+procedure TMarkDbGUIHelper.ExportMarksList(const AMarksIdList: IInterfaceListStatic);
+begin
+  FfrmMarksExport.ExportMarksList(AMarksIdList);
 end;
 
 procedure TMarkDbGUIHelper.ExportCategory(

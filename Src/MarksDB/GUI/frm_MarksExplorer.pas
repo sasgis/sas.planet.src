@@ -878,10 +878,19 @@ end;
 procedure TfrmMarksExplorer.btnSaveMarkClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
+  VMarksIdList: IInterfaceListStatic;
 begin
-  VMark := GetSelectedMarkFull;
-  if VMark <> nil then begin
-    FMarkDBGUI.ExportMark(VMark);
+  if MarksListBox.SelectionCount = 1 then begin
+    VMark := GetSelectedMarkFull;
+    if VMark <> nil then begin
+      FMarkDBGUI.ExportMark(VMark);
+    end;
+  end else
+  if MarksListBox.SelectionCount > 1 then begin
+    VMarksIdList := GetSelectedMarksIdList;
+    if VMarksIdList <> nil then begin
+      FMarkDBGUI.ExportMarksList(VMarksIdList);
+    end;
   end;
 end;
 
