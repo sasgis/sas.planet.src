@@ -1289,14 +1289,16 @@ class function TExportMarks2GPX.ToXmlDateTime(
 const
   CFormat: array [Boolean] of AnsiString = (
     'yyyy"-"mm"-"dd"T"hh":"nn":"ss"Z"',
-    'yyyy"-"mm"-"dd"T"hh":"nn":"ss"."z"Z"'
+    'yyyy"-"mm"-"dd"T"hh":"nn":"ss"."zzz"Z"'
   );
 var
+  VDetailed: Boolean;
   VFormatSettings: TFormatSettingsA;
 begin
   VFormatSettings.DateSeparator := '-';
   VFormatSettings.TimeSeparator := ':';
-  Result := FormatDateTimeA(CFormat[ADetailed], ADateTime, VFormatSettings); // '2015-07-19T07:53:32Z'
+  VDetailed := ADetailed and (MilliSecondOf(ADateTime) > 0);
+  Result := FormatDateTimeA(CFormat[VDetailed], ADateTime, VFormatSettings); // '2015-07-19T07:53:32Z'
 end;
 
 class function TExportMarks2GPX.ToXmlText(const AStr: String): AnsiString;
