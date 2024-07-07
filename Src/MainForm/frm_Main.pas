@@ -1075,7 +1075,7 @@ type
     );
     procedure MapMoveAnimate(
       const AMouseMoveSpeed: TDoublePoint;
-      AZoom: byte;
+      const AZoom: Byte;
       const AMousePos: TPoint
     );
     procedure ProcessPosChangeMessage;
@@ -3761,54 +3761,72 @@ end;
 
 procedure TfrmMain.MapMoveAnimate(
   const AMouseMoveSpeed: TDoublePoint;
-  AZoom: byte;
+  const AZoom: Byte;
   const AMousePos: TPoint
 );
 var
-  ts1, ts2, fr: int64;
-  VTime: Double;
-  VMaxTime: Double;
-  Vk: Double;
-  VMapDeltaXY: TDoublePoint;
-  VMapDeltaXYmul: TDoublePoint;
+  VTimeStart: Int64;
+  VTimeEnd: Int64;
+  VAnimationTime: Double;
+  VAnimationTimeMax: Double;
+  VDist: Double;
+  VMapDelta: TDoublePoint;
+  VMapDeltaMul: TDoublePoint;
   VLastDrawTime: double;
   VMousePPS: Double;
-  VLastTime: double;
+  VLastTime: Double;
 begin
   FMapMoveAnimtion := True;
   try
-    VMousePPS := sqrt(sqr(AMouseMoveSpeed.X) + sqr(AMouseMoveSpeed.Y));
+    VMousePPS := Sqrt(Sqr(AMouseMoveSpeed.X) + Sqr(AMouseMoveSpeed.Y));
 
     if (FConfig.MapMovingConfig.AnimateMove) and (VMousePPS > FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
-      VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime / 1000; // максимальное время отображения инерции
-      VTime := 0; // время прошедшее с начала анимации
+      // время прошедшее с начала анимации
+      VAnimationTime := 0;
 
-      VMapDeltaXYmul.X := AMouseMoveSpeed.X / VMousePPS;
-      VMapDeltaXYmul.Y := AMouseMoveSpeed.Y / VMousePPS;
+      // максимальное время на отображение анимации
+      VAnimationTimeMax := FConfig.MapMovingConfig.AnimateMoveTime / 1000;
 
       if VMousePPS > FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
         VMousePPS := FConfig.MapMovingConfig.AnimateMaxStartSpeed;
       end;
-      VLastTime := 0.1;
+
+      VMapDeltaMul.X := AMouseMoveSpeed.X / VMousePPS;
+      VMapDeltaMul.Y := AMouseMoveSpeed.Y / VMousePPS;
+
+      // время последней итерации (инициализируется значением чуть больше нуля, чтобы не было стартового рывка)
+      VLastTime := 0.000000001;
 
       repeat
-        Vk := VMousePPS * VMaxTime; //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
-        Vk := Vk * (VLastTime / VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время ALastTime (время потраченное на последнее ChangeMapPixelByDelta)
-        Vk := Vk * (exp(-VTime / VMaxTime) - exp(-1)); //замедляем экспоненциально, -exp(-1) нужно для того, чтоб к окончанию времени VMaxTime у нас смещение было =0
-        VMapDeltaXY.x := VMapDeltaXYmul.x * Vk;
-        VMapDeltaXY.y := VMapDeltaXYmul.y * Vk;
+        // расстояние в пикселах, которое мы пройдем со скоростью VMousePPS за время анимации
+        VDist := VMousePPS * VAnimationTimeMax;
 
-        ts1 := FTimer.CurrentTime;
-        FViewPortState.ChangeMapPixelByLocalDelta(VMapDeltaXY);
-        application.ProcessMessages;
+        // из этого расстояния вычленяем то, которое мы прошли за время VLastTime
+        // (время потраченное на последнее ChangeMapPixelByLocalDelta)
+        VDist := VDist * (VLastTime / VAnimationTimeMax);
 
-        ts2 := FTimer.CurrentTime;
-        fr := FTimer.Freq;
+        // замедляем экспоненциально, здесь -exp(-1) нужно для того, чтобы к окончанию времени анимации
+        // у нас смещение было равно 0
+        VDist := VDist * (exp(-VAnimationTime / VAnimationTimeMax) - exp(-1));
 
-        VLastDrawTime := (ts2 - ts1) / fr;
-        VTime := VTime + VLastDrawTime;
-        VLastTime := VLastTime + 0.3 * (VLastDrawTime - VLastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
-      until (VTime >= VMaxTime) or (AZoom <> FViewPortState.View.GetStatic.Projection.Zoom) or
+        VMapDelta.X := VMapDeltaMul.X * VDist;
+        VMapDelta.Y := VMapDeltaMul.Y * VDist;
+
+        VTimeStart := FTimer.CurrentTime;
+        FViewPortState.ChangeMapPixelByLocalDelta(VMapDelta);
+
+        Application.ProcessMessages;
+
+        VTimeEnd := FTimer.CurrentTime;
+
+        VLastDrawTime := (VTimeEnd - VTimeStart) / FTimer.Freq;
+        VAnimationTime := VAnimationTime + VLastDrawTime;
+
+        // время последней итерации сглаженное с предыдущими (чтобы поменьше было рывков во время движения)
+        VLastTime := VLastTime + 0.3 * (VLastDrawTime - VLastTime);
+      until
+        (VAnimationTime >= VAnimationTimeMax) or
+        (AZoom <> FViewPortState.View.GetStatic.Projection.Zoom) or
         (AMousePos.X <> FMouseState.GetLastUpPos(FMapMovingButton).X) or
         (AMousePos.Y <> FMouseState.GetLastUpPos(FMapMovingButton).Y);
     end;
