@@ -1069,8 +1069,8 @@ type
 
     procedure ProcessViewGridTileCellClick(const ATag: Integer);
 
-    procedure zooming(
-      ANewZoom: byte;
+    procedure MapZoom(
+      const ANewZoom: Byte;
       const AFreezePos: TPoint
     );
     procedure MapMoveAnimate(
@@ -3697,13 +3697,13 @@ begin
   end;
 end;
 
-procedure TfrmMain.zooming(
-  ANewZoom: byte;
+procedure TfrmMain.MapZoom(
+  const ANewZoom: Byte;
   const AFreezePos: TPoint
 );
 var
   ts1, ts2, ts3, fr: int64;
-  Scale: Double;
+  VScale: Double;
   VZoom: Byte;
   VAlfa: Double;
   VTime: Double;
@@ -3714,7 +3714,7 @@ var
   VScaleStart: Double;
 begin
   if (FMapZoomAnimtion) or (FState.IsMapMoving) or (ANewZoom > 23) then begin
-    exit;
+    Exit;
   end;
   FMapZoomAnimtion := True;
   try
@@ -3742,16 +3742,18 @@ begin
         ts3 := ts1;
         while (VTime + VLastTime < VMaxTime) do begin
           VAlfa := VTime / VMaxTime;
-          Scale := VScaleStart + (VScaleFinish - VScaleStart) * VAlfa;
-          FViewPortState.ScaleTo(Scale, AFreezePos);
-          application.ProcessMessages;
+          VScale := VScaleStart + (VScaleFinish - VScaleStart) * VAlfa;
+          FViewPortState.ScaleTo(VScale, AFreezePos);
+
+          Application.ProcessMessages;
+
           ts2 := FTimer.CurrentTime;
           VLastTime := (ts2 - ts3) / (fr / 1000);
           VTime := (ts2 - ts1) / (fr / 1000);
           ts3 := ts2;
         end;
-        Scale := VScaleFinish;
-        FViewPortState.ScaleTo(Scale, AFreezePos);
+        VScale := VScaleFinish;
+        FViewPortState.ScaleTo(VScale, AFreezePos);
       end;
     end;
   finally
@@ -4638,7 +4640,7 @@ begin
   AllowChange := False;
   VZoom := ((5 * ARow) + ACol) - 1;
   VMouseDownPoint := FMouseState.GetLastDownPos(mbRight);
-  zooming(VZoom, VMouseDownPoint);
+  MapZoom(VZoom, VMouseDownPoint);
 end;
 
 {$REGION 'TileBoundaries'}
@@ -5742,7 +5744,7 @@ begin
             VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
           end;
 
-          zooming(VNewZoom, VFreezePos);
+          MapZoom(VNewZoom, VFreezePos);
         end;
         Handled := True;
       end;
@@ -6501,7 +6503,7 @@ procedure TfrmMain.ZSliderMouseUp(
 begin
   if Button = mbLeft then begin
     ZSliderMouseMove(Sender, [ssLeft], X, Y, Layer);
-    zooming(
+    MapZoom(
       ZSlider.Tag,
       CenterPoint(FViewPortState.View.GetStatic.GetLocalRect)
     );
@@ -7705,7 +7707,7 @@ var
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
-  zooming(
+  MapZoom(
     VLocalConverter.Projection.Zoom + 1,
     VFreezePos
   );
@@ -7718,7 +7720,7 @@ var
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VFreezePos := CenterPoint(VLocalConverter.GetLocalRect);
-  zooming(
+  MapZoom(
     VLocalConverter.Projection.Zoom - 1,
     VFreezePos
   );
