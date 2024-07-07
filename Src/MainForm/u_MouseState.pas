@@ -35,13 +35,12 @@ uses
   i_Timer,
   u_BaseInterfacedObject;
 
-const
-  CPrevSpeedCount = 8;
-
 type
   TMouseState = class(TBaseInterfacedObject, IMouseState, IMouseHandler)
+  private const
+    CPrevSpeedCount = 8;
   private
-    FCS: IReadWriteSync;
+    FLock: IReadWriteSync;
     FTimer: ITimer;
 
     FMinTime: Double;
@@ -55,10 +54,11 @@ type
     FCurentPos: TPoint;
     FCurentTime: TLargeInteger;
     FCurrentSpeed: TDoublePoint;
-
     FCurrentShift: TShiftState;
+
     FLastDownPos: array [TMouseButton] of TPoint;
     FLastDownShift: array [TMouseButton] of TShiftState;
+
     FLastUpPos: array [TMouseButton] of TPoint;
     FLastUpShift: array [TMouseButton] of TShiftState;
 
@@ -66,6 +66,7 @@ type
       const APosition: TPoint
     );
   private
+    { IMouseState }
     function GetCurentPos: TPoint;
     function GetCurentSpeed: TDoublePoint;
     function GetCurrentShift: TShiftState;
@@ -75,6 +76,7 @@ type
     function GetLastUpShift(AButton: TMouseButton): TShiftState;
     function GetLastUpPos(AButton: TMouseButton): TPoint;
   private
+    { IMouseHandler }
     procedure OnMouseMove(
       AShift: TShiftState;
       const APosition: TPoint
@@ -109,7 +111,7 @@ begin
   Assert(Assigned(ATimer));
   inherited Create;
   FTimer := ATimer;
-  FCS := GSync.SyncVariable.Make(Self.ClassName);
+  FLock := GSync.SyncVariable.Make(Self.ClassName);
   FCurentTime := 0;
   FMinTime := 0.001;
   FMaxTime := 3;
@@ -119,71 +121,71 @@ end;
 
 function TMouseState.GetCurentPos: TPoint;
 begin
-  FCS.BeginRead;
+  FLock.BeginRead;
   try
     Result := FCurentPos;
   finally
-    FCS.EndRead;
+    FLock.EndRead;
   end;
 end;
 
 function TMouseState.GetCurentSpeed: TDoublePoint;
 begin
-  FCS.BeginRead;
+  FLock.BeginRead;
   try
     Result := FCurrentSpeed;
   finally
-    FCS.EndRead;
+    FLock.EndRead;
   end;
 end;
 
 function TMouseState.GetCurrentShift: TShiftState;
 begin
-  FCS.BeginRead;
+  FLock.BeginRead;
   try
     Result := FCurrentShift;
   finally
-    FCS.EndRead;
+    FLock.EndRead;
   end;
 end;
 
 function TMouseState.GetLastDownPos(AButton: TMouseButton): TPoint;
 begin
-  FCS.BeginRead;
+  FLock.BeginRead;
   try
     Result := FLastDownPos[AButton];
   finally
-    FCS.EndRead;
+    FLock.EndRead;
   end;
 end;
 
 function TMouseState.GetLastDownShift(AButton: TMouseButton): TShiftState;
 begin
-  FCS.BeginRead;
+  FLock.BeginRead;
   try
     Result := FLastDownShift[AButton];
   finally
-    FCS.EndRead;
+    FLock.EndRead;
   end;
 end;
 
 function TMouseState.GetLastUpPos(AButton: TMouseButton): TPoint;
 begin
-  FCS.BeginRead;
+  FLock.BeginRead;
   try
     Result := FLastUpPos[AButton];
   finally
-    FCS.EndRead;
+    FLock.EndRead;
   end;
 end;
 
 function TMouseState.GetLastUpShift(AButton: TMouseButton): TShiftState;
 begin
-  FCS.BeginRead;
+  FLock.BeginRead;
   try
     Result := FLastUpShift[AButton];
   finally
-    FCS.EndRead;
+    FLock.EndRead;
   end;
 end;
 
@@ -193,16 +195,18 @@ procedure TMouseState.OnMouseDown(
   const APosition: TPoint
 );
 begin
-  FCS.BeginWrite;
+  FLock.BeginWrite;
   try
     SetCurrentPos(APosition);
     FCurrentShift := AShift;
+
     FLastDownPos[AButton] := APosition;
     FLastDownShift[AButton] := AShift;
+
     FLastUpPos[AButton] := APosition;
     FLastUpShift[AButton] := AShift;
   finally
-    FCS.EndWrite;
+    FLock.EndWrite;
   end;
 end;
 
@@ -211,12 +215,12 @@ procedure TMouseState.OnMouseMove(
   const APosition: TPoint
 );
 begin
-  FCS.BeginWrite;
+  FLock.BeginWrite;
   try
     SetCurrentPos(APosition);
     FCurrentShift := AShift;
   finally
-    FCS.EndWrite;
+    FLock.EndWrite;
   end;
 end;
 
@@ -226,21 +230,21 @@ procedure TMouseState.OnMouseUp(
   const APosition: TPoint
 );
 begin
-  FCS.BeginWrite;
+  FLock.BeginWrite;
   try
     SetCurrentPos(APosition);
     FCurrentShift := AShift;
+
     FLastUpPos[AButton] := APosition;
     FLastUpShift[AButton] := AShift;
   finally
-    FCS.EndWrite;
+    FLock.EndWrite;
   end;
 end;
 
-procedure TMouseState.SetCurrentPos(
-  const APosition: TPoint
-);
+procedure TMouseState.SetCurrentPos(const APosition: TPoint);
 var
+  I: Integer;
   VCurrTime: TLargeInteger;
   VFrequency: TLargeInteger;
   VTimeFromLastMove: Double;
@@ -250,8 +254,8 @@ var
   VUsedTime: Double;
   VAvgDelta: TDoublePoint;
   VAvgSpeed: TDoublePoint;
-  VFirstPoint, VSecondPoint: TPoint;
-  i: Integer;
+  VFirstPoint: TPoint;
+  VSecondPoint: TPoint;
 begin
   VCurrTime := FTimer.CurrentTime;
   VFrequency := FTimer.Freq;
@@ -269,29 +273,29 @@ begin
         if (VNotUsedTime > 0) and (FPrevSpeedUsed > 0) then begin
           VAvgDelta.X := VCurrentDelta.X;
           VAvgDelta.Y := VCurrentDelta.Y;
-          i := 0;
-          while ((i < FPrevSpeedUsed) and (FPrevTime[i] < VNotUsedTime)) do begin
-            VNotUsedTime := VNotUsedTime - FPrevTime[i];
-            Inc(i);
+          I := 0;
+          while ((I < FPrevSpeedUsed) and (FPrevTime[I] < VNotUsedTime)) do begin
+            VNotUsedTime := VNotUsedTime - FPrevTime[I];
+            Inc(I);
           end;
-          if (i < FPrevSpeedUsed) then begin
+          if (I < FPrevSpeedUsed) then begin
             if (VNotUsedTime > 0) then begin
-              VFirstPoint := FPrevPoints[i];
-              if i = 0 then begin
+              VFirstPoint := FPrevPoints[I];
+              if I = 0 then begin
                 VSecondPoint := FCurentPos;
               end else begin
-                VSecondPoint := FPrevPoints[i - 1];
+                VSecondPoint := FPrevPoints[I - 1];
               end;
-              VAvgDelta.X := VSecondPoint.X - (VSecondPoint.X - VFirstPoint.X) * VNotUsedTime / FPrevTime[i] - APosition.X;
-              VAvgDelta.Y := VSecondPoint.Y - (VSecondPoint.Y - VFirstPoint.Y) * VNotUsedTime / FPrevTime[i] - APosition.Y;
+              VAvgDelta.X := VSecondPoint.X - (VSecondPoint.X - VFirstPoint.X) * VNotUsedTime / FPrevTime[I] - APosition.X;
+              VAvgDelta.Y := VSecondPoint.Y - (VSecondPoint.Y - VFirstPoint.Y) * VNotUsedTime / FPrevTime[I] - APosition.Y;
               VNotUsedTime := 0;
             end else begin
-              VAvgDelta.X := FPrevPoints[i].X - APosition.X;
-              VAvgDelta.Y := FPrevPoints[i].Y - APosition.Y;
+              VAvgDelta.X := FPrevPoints[I].X - APosition.X;
+              VAvgDelta.Y := FPrevPoints[I].Y - APosition.Y;
             end;
           end else begin
-            VAvgDelta.X := FPrevPoints[i - 1].X - APosition.X;
-            VAvgDelta.Y := FPrevPoints[i - 1].Y - APosition.Y;
+            VAvgDelta.X := FPrevPoints[I - 1].X - APosition.X;
+            VAvgDelta.Y := FPrevPoints[I - 1].Y - APosition.Y;
           end;
           VUsedTime := FUsedTime - VNotUsedTime;
           VAvgSpeed.X := VAvgDelta.X / VUsedTime;
@@ -303,9 +307,9 @@ begin
         if FPrevSpeedUsed < CPrevSpeedCount then begin
           Inc(FPrevSpeedUsed);
         end;
-        for i := FPrevSpeedUsed - 1 downto 1 do begin
-          FPrevPoints[i] := FPrevPoints[i - 1];
-          FPrevTime[i] := FPrevTime[i - 1];
+        for I := FPrevSpeedUsed - 1 downto 1 do begin
+          FPrevPoints[I] := FPrevPoints[I - 1];
+          FPrevTime[I] := FPrevTime[I - 1];
         end;
         FPrevPoints[0] := FCurentPos;
         FPrevTime[0] := VTimeFromLastMove;
