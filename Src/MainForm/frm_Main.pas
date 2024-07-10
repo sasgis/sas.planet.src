@@ -900,8 +900,6 @@ type
     FRouteComment: string;
     FRouteUndoPath: IPathOnMapEdit;
 
-    movepoint: boolean;
-
     FUIDownload: IInterface;
 
     ProgramStart: Boolean;
@@ -935,6 +933,7 @@ type
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
     FMapMoveAnimtion: Boolean;
+    FMovePoint: Boolean;
     FSelectedMark: IVectorDataItem;
     FSelectedWiki: IVectorDataItem;
     FEditMarkPoint: IVectorDataItem;
@@ -1320,7 +1319,7 @@ begin
   GR32_Gamma.SetGamma(1);
 
   FStartedNormal := False;
-  movepoint := False;
+  FMovePoint := False;
   FMapZoomAnimtion := False;
   FTimer := GState.Timer;
   FLinksList := TListenerNotifierLinksList.Create;
@@ -3595,7 +3594,7 @@ begin
             if VLineOnMapEdit <> nil then begin
               if not VLineOnMapEdit.IsEmpty then begin
                 VLineOnMapEdit.Clear;
-                movepoint := false;
+                FMovePoint := false;
               end else begin
                 FState.State := ao_movemap;
               end;
@@ -3608,7 +3607,7 @@ begin
               if VLineOnMapEdit <> nil then begin
                 if not VLineOnMapEdit.IsEmpty then begin
                   VLineOnMapEdit.Clear;
-                  movepoint := false;
+                  FMovePoint := false;
                 end else begin
                   FState.State := ao_movemap;
                 end;
@@ -3625,7 +3624,7 @@ begin
               if VLineOnMapEdit <> nil then begin
                 if not VLineOnMapEdit.IsEmpty then begin
                   VLineOnMapEdit.Clear;
-                  movepoint := false;
+                  FMovePoint := false;
                 end else begin
                   FState.State := ao_movemap;
                 end;
@@ -3716,11 +3715,14 @@ begin
   if (FMapZoomAnimtion) or (FState.IsMapMoving) or (ANewZoom > 23) then begin
     Exit;
   end;
+
   FMapZoomAnimtion := True;
+  FState.IsMapMoving := True;
   try
     VZoom := FViewPortState.View.GetStatic.Projection.Zoom;
     if VZoom <> ANewZoom then begin
       VMaxTime := FConfig.MapZoomingConfig.AnimateZoomTime;
+
       VUseAnimation :=
         (FConfig.MapZoomingConfig.AnimateZoom) and
         ((VZoom = ANewZoom + 1) or (VZoom + 1 = ANewZoom)) and
@@ -3728,11 +3730,7 @@ begin
 
       if VUseAnimation then begin
         FViewPortState.ChangeZoomWithFreezeAtVisualPointWithScale(ANewZoom, AFreezePos);
-      end else begin
-        FViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AFreezePos);
-      end;
 
-      if VUseAnimation then begin
         VScaleStart := FViewPortState.View.GetStatic.GetScale;
         VScaleFinish := 1;
         VTime := 0;
@@ -3754,9 +3752,12 @@ begin
         end;
         VScale := VScaleFinish;
         FViewPortState.ScaleTo(VScale, AFreezePos);
+      end else begin
+        FViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AFreezePos);
       end;
     end;
   finally
+    FState.IsMapMoving := False;
     FMapZoomAnimtion := False;
   end;
 end;
@@ -3779,6 +3780,7 @@ var
   VLastTime: Double;
 begin
   FMapMoveAnimtion := True;
+  FState.IsMapMoving := True;
   try
     VMousePPS := Sqrt(Sqr(AMouseMoveSpeed.X) + Sqr(AMouseMoveSpeed.Y));
 
@@ -3833,6 +3835,7 @@ begin
         (AMousePos.Y <> FMouseState.GetLastUpPos(FMapMovingButton).Y);
     end;
   finally
+    FState.IsMapMoving := False;
     FMapMoveAnimtion := False;
   end;
 end;
@@ -5079,7 +5082,7 @@ begin
   VIsClickInMap := VProjection.CheckPixelPosFloat(VMouseMapPoint);
   if (Button = mbLeft) and (FState.State <> ao_movemap) then begin
     if (FLineOnMapEdit <> nil) then begin
-      movepoint := True;
+      FMovePoint := True;
       if VIsClickInMap then begin
         VClickRect.Left := X - 5;
         VClickRect.Top := Y - 5;
@@ -5125,7 +5128,7 @@ begin
               (HiWord(GetKeyState(VK_CONTROL)) <> 0) then
             begin
               ExtendRoute;
-              movepoint := False;
+              FMovePoint := False;
               Exit;
             end;
           end;
@@ -5143,7 +5146,7 @@ begin
       VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
       VClickLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
       FPointOnMapEdit.Point := VClickLonLat;
-      movepoint := True;
+      FMovePoint := True;
     end;
     exit;
   end;
@@ -5244,12 +5247,12 @@ var
   I: Integer;
   VMapProjection: IProjection;
   VSelectionRect: TDoubleRect;
-  VSelectionFinished: Boolean;
+  VIsSelectionFinished: Boolean;
   VPoly: IGeometryLonLatPolygon;
   VPoint: IGeometryLonLatPoint;
-  VMapMoving: Boolean;
+  VIsMapMoving: Boolean;
   VMapType: IMapType;
-  VValidPoint: Boolean;
+  VIsValidPoint: Boolean;
   VProjection: IProjection;
   VTile: TPoint;
   VLonLat: TDoublePoint;
@@ -5264,34 +5267,33 @@ var
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
-  if (FMapZoomAnimtion) then begin
-    exit;
+  if FMapZoomAnimtion then begin
+    Exit;
   end;
 
   if Button = mbMiddle then begin
     FWinPosition.ToggleFullScreen;
-    exit;
+    Exit;
   end;
 
-  if FState.IsMapMoving and (FMapMovingButton = Button) then begin
+  VIsMapMoving := FState.IsMapMoving and (FMapMovingButton = Button);
+
+  if VIsMapMoving then begin
     FState.IsMapMoving := False;
-    VMapMoving := True;
-  end else begin
-    VMapMoving := False;
   end;
-  if not VMapMoving then begin
-    if (Layer <> nil) then begin
-      exit;
-    end;
+
+  if not VIsMapMoving and (Layer <> nil) then begin
+    Exit;
   end;
 
   VLocalConverter := FViewPortState.View.GetStatic;
-  if not VMapMoving and (Button = mbLeft) then begin
+  if not VIsMapMoving and (Button = mbLeft) then begin
     VProjection := VLocalConverter.Projection;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
-    VValidPoint := VProjection.CheckPixelPosFloat(VMouseMapPoint);
+    VIsValidPoint := VProjection.CheckPixelPosFloat(VMouseMapPoint);
 
-    if VValidPoint then begin
+    // Delete or Download tile
+    if VIsValidPoint then begin
       VMapType := FMainMapState.ActiveMap.GetStatic;
       VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
       VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
@@ -5321,7 +5323,9 @@ begin
         end;
       end;
     end;
-    if (FState.State = ao_edit_point) then begin
+
+    // Add placemark
+    if FState.State = ao_edit_point then begin
       VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
       VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
       FPointOnMapEdit.Point := VLonLat;
@@ -5329,36 +5333,32 @@ begin
       if FMarkDBGUI.SaveMarkModal(FEditMarkPoint, VPoint) then begin
         FState.State := ao_movemap;
       end;
-      movepoint := False;
+      FMovePoint := False;
       Exit;
     end;
+
+    // Select region
     if FState.State = ao_select_rect then begin
-      VSelectionFinished := False;
-      if not FSelectionRect.IsEmpty then begin
-        VSelectionFinished := True;
-      end;
+      VIsSelectionFinished := not FSelectionRect.IsEmpty;
       VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
       VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
       FSelectionRect.SetNextPoint(VLonLat, Shift);
       VSelectionRect := FSelectionRect.GetRect;
-      if VSelectionFinished then begin
+      if VIsSelectionFinished then begin
         FSelectionRect.Reset;
-      end;
-      if VSelectionFinished then begin
         VPoly := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VSelectionRect);
         FState.State := ao_movemap;
         FRegionProcess.ProcessPolygonWithZoom(VProjection.Zoom, VPoly); // TODO: replace Zoom in ProcessPolygonWithZoom to smth
-        VPoly := nil;
       end;
       Exit;
     end;
   end;
 
-  movepoint := False;
+  FMovePoint := False;
 
   if (((FState.State <> ao_movemap) and (Button = mbLeft)) or
-    ((FState.State = ao_movemap) and (Button = mbRight))) then begin
-    exit;
+     ((FState.State = ao_movemap) and (Button = mbRight))) then begin
+    Exit;
   end;
 
   map.Enabled := False;
@@ -5367,52 +5367,56 @@ begin
   VMouseDownPos := FMouseState.GetLastDownPos(Button);
   VMouseMoveDelta := Point(VMouseDownPos.x - X, VMouseDownPos.y - y);
 
-  if (VMapMoving) and ((VMouseMoveDelta.X <> 0) or (VMouseMoveDelta.Y <> 0)) then begin
+  if VIsMapMoving and ((VMouseMoveDelta.X <> 0) or (VMouseMoveDelta.Y <> 0)) then begin
     MapMoveAnimate(
       FMouseState.CurentSpeed,
       FViewPortState.View.GetStatic.Projection.Zoom,
       FMouseState.GetLastUpPos(Button)
     );
   end;
-  if (VMouseMoveDelta.X = 0) and (VMouseMoveDelta.Y = 0) then begin
-    if (FState.State = ao_movemap) and (Button = mbLeft) then begin
-      if FConfig.LayersConfig.SunCalcConfig.Visible then begin
-        VProjection := VLocalConverter.Projection;
-        VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
-        VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
-        VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-        FSunCalcProvider.Location := VLonLat;
-        Exit;
+
+  if (VMouseMoveDelta.X = 0) and (VMouseMoveDelta.Y = 0) and
+     (FState.State = ao_movemap) and (Button = mbLeft)
+  then begin
+    // Update SunCalc location
+    if FConfig.LayersConfig.SunCalcConfig.Visible then begin
+      VProjection := VLocalConverter.Projection;
+      VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
+      VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
+      VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
+      FSunCalcProvider.Location := VLonLat;
+      Exit;
+    end;
+    // Process vector items
+    VVectorItems := FindItems(VLocalConverter, Point(X, Y));
+    if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
+      if (ssCtrl in Shift) then begin
+        // Add polygon(s) to Merge Polygons tool
+        for I := 0 to VVectorItems.Count - 1 do begin
+          if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatPolygon) then begin
+            FMergePolygonsPresenter.AddVectorItems(VVectorItems);
+            Exit;
+          end;
+        end;
+        // Show Elevation Profile for path
+        for I := 0 to VVectorItems.Count - 1 do begin
+          if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatLine) then begin
+            VProjection := VLocalConverter.Projection;
+            VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
+            VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
+            VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
+            FElevationProfilePresenter.ShowProfile(VVectorItems.Items[I], @VLonLat);
+            Exit;
+          end;
+        end;
       end;
-
-      VVectorItems := FindItems(VLocalConverter, Point(x, y));
-      if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
-        if (ssCtrl in Shift) then begin
-          for I := 0 to VVectorItems.Count - 1 do begin
-            if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatPolygon) then begin
-              FMergePolygonsPresenter.AddVectorItems(VVectorItems);
-              Exit;
-            end;
-          end;
-          for I := 0 to VVectorItems.Count - 1 do begin
-            if Supports(VVectorItems.Items[I].Geometry, IGeometryLonLatLine) then begin
-              VProjection := VLocalConverter.Projection;
-              VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(X, Y));
-              VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
-              VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-              FElevationProfilePresenter.ShowProfile(VVectorItems.Items[I], @VLonLat);
-              Exit;
-            end;
-          end;
-        end;
-
-        if THtmlDoc.FromVectorItemsDescription(VVectorItems, VTitle, VDescription) then begin
-          GState.InternalBrowser.ShowMessage(VTitle, VDescription);
-        end else begin
-          VMark := VVectorItems.Items[0];
-          Assert(VMark.GetInfoUrl <> '');
-          GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemDescriptionSuffix);
-        end;
+      // Show placemark(s) description
+      if THtmlDoc.FromVectorItemsDescription(VVectorItems, VTitle, VDescription) then begin
+        GState.InternalBrowser.ShowMessage(VTitle, VDescription);
+      end else begin
+        VMark := VVectorItems.Items[0];
+        Assert(VMark.GetInfoUrl <> '');
+        GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemDescriptionSuffix);
       end;
     end;
   end;
@@ -5458,20 +5462,21 @@ begin
   VMousePosPrev := FMouseState.CurentPos;
   FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
   VMousePos := FMouseState.CurentPos;
-  if not FState.IsMapMoving then begin
-    if Layer <> nil then begin
-      Exit;
-    end;
+
+  if not FState.IsMapMoving and (Layer <> nil) then begin
+    Exit;
   end;
+
   if FMapZoomAnimtion or (ssDouble in Shift) then begin
     Exit;
   end;
+
   VLocalConverter := FViewPortState.View.GetStatic;
   VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
-  if (FLineOnMapEdit <> nil) and movepoint then begin
+  if (FLineOnMapEdit <> nil) and FMovePoint then begin
     VMagnetPoint := CEmptyDoublePoint;
     if FConfig.MainConfig.MagnetDraw then begin
       if ssShift in Shift then begin
@@ -5499,7 +5504,7 @@ begin
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     Exit;
   end;
-  if (FState.State = ao_edit_point) and movepoint then begin
+  if (FState.State = ao_edit_point) and FMovePoint then begin
     FPointOnMapEdit.Point := VLonLat;
   end;
   if FState.State = ao_select_rect then begin
@@ -5539,7 +5544,7 @@ begin
     end;
   end;
 
-  if FMapZoomAnimtion then begin
+  if FMapMoveAnimtion then begin
     Exit;
   end;
 
