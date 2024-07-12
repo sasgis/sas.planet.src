@@ -68,7 +68,7 @@ type
     );
     procedure OnTimer;
 
-    procedure OnScaleChange;
+    procedure OnViewChange;
     procedure OnTileMatrixChange;
   protected
     procedure StartThreads; override;
@@ -124,9 +124,11 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier
   );
+
   FLayer := TPositionedLayer.Create(AParentMap.Layers);
   FLayer.Visible := False;
   FLayer.MouseEvents := False;
+
   FView := AView;
   FTileMatrix := ATileMatrix;
   FDebugName := ADebugName;
@@ -143,7 +145,7 @@ begin
     AGuiSyncronizedTimerNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnScaleChange),
+    TNotifyNoMmgEventListener.Create(Self.OnViewChange),
     FView.ChangeNotifier
   );
   LinksList.Add(
@@ -168,6 +170,7 @@ begin
     VTileMatrix := FTileMatrix.GetStatic;
     if Assigned(VTileMatrix) then begin
       VCounterContext := FOnPaintCounter.StartOperation;
+      Buffer.BeginUpdate;
       try
         VOldClipRect := Buffer.ClipRect;
         if Types.IntersectRect(VNewClipRect, VOldClipRect, VLocalConverter.GetLocalRect) then begin
@@ -179,6 +182,7 @@ begin
           end;
         end;
       finally
+        Buffer.EndUpdate;
         FOnPaintCounter.FinishOperation(VCounterContext);
       end;
     end else begin
@@ -187,7 +191,7 @@ begin
   end;
 end;
 
-procedure TTiledMapLayer.OnScaleChange;
+procedure TTiledMapLayer.OnViewChange;
 begin
   FTileMatrixChangeFlag.SetFlag;
 end;
@@ -250,7 +254,7 @@ begin
     end;
   end;
   if VIsChanged then begin
-    FLayer.Changed;
+    FLayer.Update;
   end;
 end;
 
