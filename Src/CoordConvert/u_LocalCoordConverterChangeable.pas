@@ -90,7 +90,9 @@ function TLocalCoordConverterChangeable._SetConverter(
 ): Boolean;
 begin
   Result := False;
-  if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue)) or (Assigned(AValue) and not Assigned(FConverter)) then begin
+  if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue)) or
+     (Assigned(AValue) and not Assigned(FConverter))
+  then begin
     FConverter := AValue;
     Result := True;
   end;

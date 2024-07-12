@@ -82,10 +82,7 @@ uses
   u_BitmapTileProviderByOtherProjection,
   u_BitmapTileMatrix;
 
-function IndexByPos(
-  const ARect: TRect;
-  const APos: TPoint
-): Integer; inline;
+function IndexByPos(const ARect: TRect; const APos: TPoint): Integer; inline;
 begin
   Result := APos.X - ARect.Left + (APos.Y - ARect.Top) * (ARect.Right - ARect.Left);
 end;
@@ -116,9 +113,7 @@ begin
   Result := FTileRect;
 end;
 
-function TBitmapTileMatrixBuilder.GetTile(
-  const ATile: TPoint
-): IBitmap32Static;
+function TBitmapTileMatrixBuilder.GetTile(const ATile: TPoint): IBitmap32Static;
 var
   VIndex: Integer;
 begin
@@ -133,28 +128,31 @@ end;
 
 function TBitmapTileMatrixBuilder.MakeStatic: IBitmapTileMatrix;
 var
+  I: Integer;
   VHash: THashValue;
-  i: Integer;
   VStaticList: IInterfaceListStatic;
   VBitmap: IBitmap32Static;
   VIsEmpty: Boolean;
 begin
   Result := nil;
+
   if not Assigned(FTileRect) then begin
     Exit;
   end;
+
   VStaticList := FItems.MakeStaticCopy;
 
   VHash := $5f9ef5b5f150c35a;
   VIsEmpty := True;
 
-  for i := 0 to VStaticList.Count - 1 do begin
-    VBitmap := IBitmap32Static(VStaticList.Items[i]);
+  for I := 0 to VStaticList.Count - 1 do begin
+    VBitmap := IBitmap32Static(VStaticList.Items[I]);
     if Assigned(VBitmap) then begin
       FHashFunction.UpdateHashByHash(VHash, VBitmap.Hash);
       VIsEmpty := False;
     end;
   end;
+
   if not VIsEmpty then begin
     Result :=
       TBitmapTileMatrix.Create(
