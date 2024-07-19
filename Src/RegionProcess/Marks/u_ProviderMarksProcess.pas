@@ -19,7 +19,7 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_ProviderDeleteMarks;
+unit u_ProviderMarksProcess;
 
 interface
 
@@ -34,15 +34,17 @@ uses
   i_RegionProcessTask,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoInternalFactory,
-  fr_MapSelect,
-  u_ExportProviderAbstract;
+  u_MarkDbGUIHelper,
+  u_ExportProviderAbstract,
+  fr_MapSelect;
 
 type
-  TProviderDeleteMarks = class(TExportProviderBase)
+  TProviderMarksProcess = class(TExportProviderBase)
   private
-    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FMarkSystem: IMarkSystem;
+    FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -58,7 +60,8 @@ type
       const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
       const APosition: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AMarkSystem: IMarkSystem
+      const AMarkSystem: IMarkSystem;
+      const AMarkDBGUI: TMarkDbGUIHelper
     );
   end;
 
@@ -68,22 +71,24 @@ uses
   Classes,
   SysUtils,
   gnugettext,
+  t_MarksProcess,
   i_RegionProcessParamsFrame,
   i_Projection,
   i_GeometryProjected,
-  u_ThreadDeleteMarks,
   u_ResStrings,
-  fr_DeleteMarks;
+  u_ThreadMarksProcess,
+  fr_MarksProcess;
 
-{ TProviderDeleteMarks }
+{ TProviderMarksProcess }
 
-constructor TProviderDeleteMarks.Create(
+constructor TProviderMarksProcess.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
   const APosition: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AMarkSystem: IMarkSystem
+  const AMarkSystem: IMarkSystem;
+  const AMarkDBGUI: TMarkDbGUIHelper
 );
 begin
   inherited Create(
@@ -95,36 +100,59 @@ begin
   FPosition := APosition;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMarkSystem := AMarkSystem;
+  FMarkDBGUI := AMarkDBGUI;
 end;
 
-function TProviderDeleteMarks.CreateFrame: TFrame;
+function TProviderMarksProcess.CreateFrame: TFrame;
 begin
-  Result := TfrDeleteMarks.Create(Self.LanguageManager);
-  Assert(Supports(Result, IRegionProcessParamsFrameMarksState));
+  Result := TfrMarksProcess.Create(Self.LanguageManager, FMarkSystem.CategoryDB);
+  Assert(Supports(Result, IRegionProcessParamsFrameMarks));
 end;
 
-function TProviderDeleteMarks.GetCaption: string;
+function TProviderMarksProcess.GetCaption: string;
 begin
   Result := _('Placemarks');
 end;
 
-function TProviderDeleteMarks.PrepareTask(
+function TProviderMarksProcess.PrepareTask(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IRegionProcessTask;
+const
+  CFlagsInfo = MB_YESNO + MB_ICONQUESTION + MB_TOPMOST;
+  CFlagsError = MB_OK + MB_ICONERROR + MB_TOPMOST;
 var
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
-  VMarkState: Byte;
-  VDelHiddenMarks: Boolean;
+  VParams: TMarksProcessTaskParams;
 begin
   inherited;
-  VMarkState := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetMarksState;
 
-  if VMarkState <> 0 then begin
-    if (Application.MessageBox(pchar(SAS_MSG_DeleteMarksInRegionAsk), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
+  VParams := (ParamsFrame as IRegionProcessParamsFrameMarks).TaskParams;
+
+  if VParams.MarksTypes = [] then begin
+    Assert(False);
+    Exit;
+  end;
+
+  with FMarkSystem.State.GetStatic do begin
+    if not ReadAccess then begin
+      Application.MessageBox(PChar(_('There is no read access to the placemarks DB!')), PChar(SAS_MSG_error), CFlagsError);
+      AProgressInfo.Finish;
       Exit;
     end;
+    if not WriteAccess and (VParams.Operation in [mpoCopy, mpoMove, mpoDelete]) then begin
+      Application.MessageBox(PChar(_('There is no write access to the placemarks DB!')), PChar(SAS_MSG_error), CFlagsError);
+      AProgressInfo.Finish;
+      Exit;
+    end;
+  end;
+
+  if (VParams.Operation = mpoDelete) and
+     (Application.MessageBox(PChar(SAS_MSG_DeleteMarksInRegionAsk), PChar(SAS_MSG_coution), CFlagsInfo) <> IDYES)
+  then begin
+    AProgressInfo.Finish;
+    Exit;
   end;
 
   VProjection := FPosition.GetStatic.Projection;
@@ -133,16 +161,16 @@ begin
       VProjection,
       APolygon
     );
-  VDelHiddenMarks := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetDeleteHiddenMarks;
+
   Result :=
-    TThreadDeleteMarks.Create(
+    TThreadMarksProcess.Create(
+      FMarkDBGUI,
       AProgressInfo,
       APolygon,
       VProjectedPolygon,
       VProjection,
       FMarkSystem,
-      VMarkState,
-      VDelHiddenMarks
+      VParams
     );
 end;
 

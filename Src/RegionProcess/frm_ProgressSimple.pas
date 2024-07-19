@@ -121,6 +121,7 @@ begin
   Assert(AMapGoto <> nil);
   Assert(APolygon <> nil);
   inherited Create(AOwner);
+
   FRarProgress := TRarProgress.Create(Self);
   with FRarProgress do begin
     Left := 6;
@@ -150,6 +151,7 @@ begin
   FRarProgress.Max := 100;
   FRarProgress.Progress1 := 0;
   FRarProgress.Visible := True;
+
   FMapGoto := AMapGoto;
   FPolygon := APolygon;
 
@@ -159,7 +161,7 @@ begin
   FProgressInfo := AProgressInfo;
   FRegionProcess := ARegionProcess;
 
-  FTimerListener := TListenerTimeCheck.Create(Self.OnTimer, 1000);
+  FTimerListener := TListenerTimeCheck.Create(Self.OnTimer, 250);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnClose);
 
   FTimerNoifier.Add(FTimerListener);
@@ -262,6 +264,5 @@ begin
     FRegionProcess.ProcessPolygon(FPolygon);
   end;
 end;
-
 
 end.

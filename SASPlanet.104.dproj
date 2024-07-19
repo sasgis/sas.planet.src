@@ -2049,7 +2049,6 @@
         <DCCReference Include="Src\MarksDB\SML\u_MarkSystemImplConfigSML.pas"/>
         <DCCReference Include="Src\MarksDB\SML\u_MarkSystemImplFactorySML.pas"/>
         <DCCReference Include="Src\MarksDB\SML\u_MarkSystemSml.pas"/>
-        <DCCReference Include="Src\MarksDB\c_MarkFlag.pas"/>
         <DCCReference Include="Src\MarksDB\c_MarkSystem.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkCategory.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkCategoryDB.pas"/>
@@ -2303,17 +2302,11 @@
         <DCCReference Include="Src\RegionProcess\Copy\u_ProviderTilesCopy.pas"/>
         <DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas"/>
         <DCCReference Include="Src\RegionProcess\Copy\u_ThreadCopyWithModification.pas"/>
-        <DCCReference Include="Src\RegionProcess\Delete\fr_DeleteMarks.pas">
-            <Form>frDeleteMarks</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Src\RegionProcess\Delete\fr_DeleteTiles.pas">
             <Form>frDeleteTiles</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Src\RegionProcess\Delete\u_ProviderDeleteMarks.pas"/>
         <DCCReference Include="Src\RegionProcess\Delete\u_ProviderDeleteTiles.pas"/>
-        <DCCReference Include="Src\RegionProcess\Delete\u_ThreadDeleteMarks.pas"/>
         <DCCReference Include="Src\RegionProcess\Delete\u_ThreadDeleteTiles.pas"/>
         <DCCReference Include="Src\RegionProcess\Download\fr_TilesDownload.pas">
             <Form>frTilesDownload</Form>
@@ -2404,6 +2397,14 @@
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\GenPrev\u_ProviderTilesGenPrev.pas"/>
         <DCCReference Include="Src\RegionProcess\GenPrev\u_ThreadGenPrevZoom.pas"/>
+        <DCCReference Include="Src\RegionProcess\Marks\fr_MarksProcess.pas">
+            <Form>frMarksProcess</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\RegionProcess\Marks\t_MarksProcess.pas"/>
+        <DCCReference Include="Src\RegionProcess\Marks\u_ProviderMarksProcess.pas"/>
+        <DCCReference Include="Src\RegionProcess\Marks\u_ThreadMarksProcess.pas"/>
         <DCCReference Include="Src\RegionProcess\fr_ImageFormatSelect.pas">
             <Form>Frame1</Form>
             <DesignClass>TFrame</DesignClass>

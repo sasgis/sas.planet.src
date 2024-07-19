@@ -73,7 +73,7 @@ end;
 
 function TProviderDeleteTiles.GetCaption: string;
 begin
-  Result := _('Tiles');
+  Result := _('Delete');
 end;
 
 function TProviderDeleteTiles.PrepareTask(
@@ -81,13 +81,14 @@ function TProviderDeleteTiles.PrepareTask(
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IRegionProcessTask;
 var
+  VZoom: Byte;
   VMapType: IMapType;
-  VZoom: byte;
   VProjection: IProjection;
   VPredicate: IPredicateByTileInfo;
 begin
   inherited;
-  if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
+
+  if Application.MessageBox(PChar(SAS_MSG_DeleteTilesInRegionAsk), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION) <> IDYES then begin
     Exit;
   end;
 

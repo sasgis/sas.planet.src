@@ -50,22 +50,19 @@ object frmProgressSimple: TfrmProgressSimple
     ShrinkMode = tbsmWrap
     TabOrder = 1
     object tbtmSelect: TTBItem
+      Hint = 'Selection Manager'
       ImageIndex = 44
       OnClick = tbtmSelectClick
-      Caption = ''
-      Hint = 'Selection Manager'
     end
     object tbtmZoom: TTBItem
+      Hint = 'Fit to Screen'
       ImageIndex = 43
       OnClick = tbtmZoomClick
-      Caption = ''
-      Hint = 'Fit to Screen'
     end
     object tbtmDontClose: TTBItem
       AutoCheck = True
-      ImageIndex = 46
-      Caption = ''
       Hint = 'Do not close this window when finish'
+      ImageIndex = 46
     end
   end
 end

@@ -198,14 +198,7 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       const AMapCalibrationList: IMapCalibrationList
     ): IInterfaceListStatic;
-    function PrepareDeleteProviders(
-      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-      const ALanguageManager: ILanguageManager;
-      const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-      const APosition: ILocalCoordConverterChangeable;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AMarkSystem: IMarkSystem
-    ): IInterfaceListStatic;
+
     function PrepareExportProviders(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
@@ -320,7 +313,7 @@ uses
   u_ProviderTilesCopy,
   u_RegionProcessProviderComplex,
   u_ProviderDeleteTiles,
-  u_ProviderDeleteMarks,
+  u_ProviderMarksProcess,
   u_ProviderMapCombine,
   u_ExportProviderRMP,
   u_ExportProviderMBTiles,
@@ -569,6 +562,7 @@ begin
       FMapGoto
     );
 
+  // Download
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
       AAppClosingNotifier,
@@ -590,6 +584,7 @@ begin
   VProvider := FProviderTilesDownload;
   VList.Add(VProvider);
 
+  // Stitch
   VProvider :=
     TRegionProcessProviderComplex.Create(
       ALanguageManager,
@@ -616,6 +611,7 @@ begin
     );
   VList.Add(VProvider);
 
+  // Generate
   VProvider :=
     TProviderTilesGenPrev.Create(
       VProgressFactory,
@@ -629,24 +625,17 @@ begin
     );
   VList.Add(VProvider);
 
+  // Delete
   VProvider :=
-    TRegionProcessProviderComplex.Create(
+    TProviderDeleteTiles.Create(
+      VProgressFactory,
       ALanguageManager,
-      PrepareDeleteProviders(
-        VProgressFactory,
-        ALanguageManager,
-        VMapSelectFrameBuilder,
-        APosition,
-        AVectorGeometryProjectedFactory,
-        AMarkDBGUI.MarksDb
-      ),
-      True,
-      gettext_NoOp('Delete'),
-      '',
-      ''
+      VMapSelectFrameBuilder,
+      FTileIteratorFactory
     );
   VList.Add(VProvider);
 
+  // Export
   VProvider :=
     TRegionProcessProviderComplex.Create(
       ALanguageManager,
@@ -675,6 +664,7 @@ begin
     );
   VList.Add(VProvider);
 
+  // Copy
   VProvider :=
     TProviderTilesCopy.Create(
       VProgressFactory,
@@ -692,6 +682,19 @@ begin
       ABitmapTileSaveLoadFactory,
       AViewConfig,
       FBitmapTileProviderBuilder
+    );
+  VList.Add(VProvider);
+
+  // Marks
+  VProvider :=
+    TProviderMarksProcess.Create(
+      VProgressFactory,
+      ALanguageManager,
+      VMapSelectFrameBuilder,
+      APosition,
+      AVectorGeometryProjectedFactory,
+      AMarksDB,
+      FMarkDBGUI
     );
   VList.Add(VProvider);
 
@@ -791,43 +794,6 @@ begin
       ABitmapTileSaveLoadFactory
     )
   );
-
-  Result := VList.MakeStaticAndClear;
-end;
-
-function TfrmRegionProcess.PrepareDeleteProviders(
-  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
-  const ALanguageManager: ILanguageManager;
-  const AMapSelectFrameBuilder: IMapSelectFrameBuilder;
-  const APosition: ILocalCoordConverterChangeable;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AMarkSystem: IMarkSystem
-): IInterfaceListStatic;
-var
-  VProvider: IRegionProcessProvider;
-  VList: IInterfaceListSimple;
-begin
-  VList := TInterfaceListSimple.Create;
-
-  VProvider :=
-    TProviderDeleteTiles.Create(
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      FTileIteratorFactory
-    );
-
-  VList.Add(VProvider);
-  VProvider :=
-    TProviderDeleteMarks.Create(
-      AProgressFactory,
-      ALanguageManager,
-      AMapSelectFrameBuilder,
-      APosition,
-      AVectorGeometryProjectedFactory,
-      AMarkSystem
-    );
-  VList.Add(VProvider);
 
   Result := VList.MakeStaticAndClear;
 end;

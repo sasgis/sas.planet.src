@@ -39,8 +39,8 @@ ResourceString
   SAS_MSG_DeleteGPSTrackAsk = 'Are you sure you want to delete current GPS track?';
 
   SAS_MSG_DeleteTileOneTileAsk = 'Are you sure you want to delete tile with name "%0:s"?';
-  SAS_MSG_DeleteTilesInRegionAsk = 'Are you sure you want to delete tiles in selected region?';
-  SAS_MSG_DeleteMarksInRegionAsk = 'Are you sure you want to delete Marks in selected region?';
+  SAS_MSG_DeleteTilesInRegionAsk = 'Are you sure you want to delete tiles in the selected region?';
+  SAS_MSG_DeleteMarksInRegionAsk = 'Are you sure you want to delete placemarks in the selected region?';
 
   SAS_MSG_ResetSensorAsk = 'Are you sure you want to reset sensor?';
 

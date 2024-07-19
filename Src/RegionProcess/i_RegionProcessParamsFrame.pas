@@ -28,6 +28,7 @@ uses
   t_Bitmap32,
   t_CommonTypes,
   t_GeoTIFF,
+  t_MarksProcess,
   i_GeometryLonLat,
   i_BitmapLayerProvider,
   i_MapCalibration,
@@ -63,13 +64,10 @@ type
     property MapType: IMapType read GetMapType;
   end;
 
-  IRegionProcessParamsFrameMarksState = interface(IRegionProcessParamsFrameBase)
+  IRegionProcessParamsFrameMarks = interface(IRegionProcessParamsFrameBase)
     ['{97F8B47B-44D4-473A-B841-F23FCBFBC4D5}']
-    function MarksState: Byte;
-    property GetMarksState: Byte read MarksState;
-
-    function DeleteHiddenMarks: Boolean;
-    property GetDeleteHiddenMarks: Boolean read DeleteHiddenMarks;
+    function GetTaskParams: TMarksProcessTaskParams;
+    property TaskParams: TMarksProcessTaskParams read GetTaskParams;
   end;
 
   IRegionProcessParamsFrameOneZoom = interface(IRegionProcessParamsFrameBase)

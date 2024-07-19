@@ -19,15 +19,16 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_ThreadDeleteMarks;
+unit u_ThreadMarksProcess;
 
 interface
 
 uses
   SysUtils,
   Classes,
-  c_MarkFlag,
-  i_MarkDb,
+  Dialogs,
+  UITypes,
+  t_MarksProcess,
   i_MarkSystem,
   i_RegionProcessProgressInfo,
   i_InterfaceListSimple,
@@ -36,31 +37,35 @@ uses
   i_GeometryProjected,
   i_InterfaceListStatic,
   u_GeoFunc,
+  u_MarkDbGUIHelper,
   u_RegionProcessTaskAbstract;
 
 type
-  TThreadDeleteMarks = class(TRegionProcessTaskAbstract)
+  TThreadMarksProcess = class(TRegionProcessTaskAbstract)
   private
-    FpolyLL: IGeometryLonLatPolygon;
+    FMarkDBGUI: TMarkDbGUIHelper;
+    FLonLatPolygon: IGeometryLonLatPolygon;
     FProjectedPolygon: IGeometryProjectedPolygon;
     FProjection: IProjection;
     FMarkSystem: IMarkSystem;
-    FMarksState: Byte;
-    FDelHiddenMarks: Boolean;
+    FParams: TMarksProcessTaskParams;
+
+    procedure ShowMessageSync(const AMessage: string);
+
+    procedure ProgressFormUpdate(const ACaption: string); overload;
+    procedure ProgressFormUpdate(const AProcessed, AToProcess: Int64); overload;
+    procedure ProgressFormUpdate(const AProcessed, AToProcess, ASelected: Int64); overload;
   protected
     procedure ProcessRegion; override;
-    procedure ProgressFormUpdateOnProgress(
-      const AProcessed, AToProcess, ADeleted: Int64
-    );
   public
     constructor Create(
+      const AMarkDBGUI: TMarkDbGUIHelper;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolyLL: IGeometryLonLatPolygon;
+      const ALonLatPolygon: IGeometryLonLatPolygon;
       const AProjectedPolygon: IGeometryProjectedPolygon;
       const AProjection: IProjection;
       const AMarkSystem: IMarkSystem;
-      const AMarksState: Byte;
-      const ADelHiddenMarks: Boolean
+      const AParams: TMarksProcessTaskParams
     );
   end;
 
@@ -70,39 +75,57 @@ uses
   Math,
   t_GeoTypes,
   i_MarkId,
+  i_MarkDb,
+  i_MarkFactory,
   i_MarkCategory,
+  i_VectorDataItemSimple,
   i_EnumDoublePoint,
   i_VectorItemSubset,
   u_InterfaceListSimple,
   u_ResStrings;
 
-constructor TThreadDeleteMarks.Create(
+resourcestring
+  rsThereAreNoPlacemarksToProcess = 'There are no placemarks to process!';
+  rsReadingPlacemarksFromDb = 'Reading placemarks from DB...';
+  rsSelectingPlacemarks = 'Selecting placemarks...';
+  rsCopyingPlacemarksFmt = 'Copying %d placemarks...';
+  rsMovingPlacemarksFmt = 'Moving %d placemarks...';
+  rsDeletingPlacemarksFmt = 'Deleting %d placemarks...';
+  rsSelectedFmt = 'Selected %d';
+  rsAbortedCopyFmt = 'Aborted! Can''t copy placemark "%s"';
+  rsAbortedMoveFmt = 'Aborted! Can''t move placemark "%s"';
+
+{ TThreadMarksProcess }
+
+constructor TThreadMarksProcess.Create(
+  const AMarkDBGUI: TMarkDbGUIHelper;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolyLL: IGeometryLonLatPolygon;
+  const ALonLatPolygon: IGeometryLonLatPolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
   const AProjection: IProjection;
   const AMarkSystem: IMarkSystem;
-  const AMarksState: Byte;
-  const ADelHiddenMarks: Boolean
+  const AParams: TMarksProcessTaskParams
 );
 begin
   inherited Create(
     AProgressInfo,
-    APolyLL,
+    ALonLatPolygon,
     nil
   );
+
+  Assert(AMarkDBGUI <> nil);
   Assert(AProgressInfo <> nil);
-  Assert(APolyLL <> nil);
+  Assert(ALonLatPolygon <> nil);
   Assert(AProjectedPolygon <> nil);
   Assert(AProjection <> nil);
   Assert(AMarkSystem <> nil);
 
-  FpolyLL := APolyLL;
+  FMarkDBGUI := AMarkDBGUI;
+  FLonLatPolygon := ALonLatPolygon;
   FProjectedPolygon := AProjectedPolygon;
   FProjection := AProjection;
   FMarkSystem := AMarkSystem;
-  FMarksState := AMarksState;
-  FDelHiddenMarks := ADelHiddenMarks;
+  FParams := AParams;
 end;
 
 function IsLonLatPointInProjectedPolygon(
@@ -128,7 +151,6 @@ var
   VEnum: IEnumLonLatPoint;
 begin
   Result := True;
-
   VEnum := AGeometry.GetEnum;
   while VEnum.Next(VLonlatPoint) do begin
     VProjectedPoint := AProjection.LonLat2PixelPosFloat(VLonlatPoint);
@@ -145,11 +167,11 @@ function IsLonLatMultiLineInProjectedPolygon(
   const AProjection: IProjection
 ): Boolean; inline;
 var
-  i: Integer;
+  I: Integer;
 begin
   Result := True;
-  for i := 0 to AGeometry.Count - 1 do begin
-    if not IsLonLatSingleLineInProjectedPolygon(AGeometry.Item[i], AProjectedPolygon, AProjection) then begin
+  for I := 0 to AGeometry.Count - 1 do begin
+    if not IsLonLatSingleLineInProjectedPolygon(AGeometry.Item[I], AProjectedPolygon, AProjection) then begin
       Result := False;
       Break;
     end;
@@ -221,11 +243,11 @@ function IsLonLatMultiPolygonInProjectedPolygon(
   const AProjection: IProjection
 ): Boolean; inline;
 var
-  i: Integer;
+  I: Integer;
 begin
   Result := True;
-  for i := 0 to AGeometry.Count - 1 do begin
-    if IsLonLatSinglePolygonInProjectedPolygon(AGeometry.Item[i], AProjectedPolygon, AProjection) then begin
+  for I := 0 to AGeometry.Count - 1 do begin
+    if IsLonLatSinglePolygonInProjectedPolygon(AGeometry.Item[I], AProjectedPolygon, AProjection) then begin
       Result := False;
       Break;
     end;
@@ -278,84 +300,169 @@ begin
   end;
 end;
 
-procedure TThreadDeleteMarks.ProcessRegion;
+procedure TThreadMarksProcess.ProcessRegion;
 var
   I: Integer;
-  VMarksToProcess: Int64;
+  VTotal: Int64;
   VProcessed: Int64;
+  VMarkDb: IMarkDb;
+  VMarkFactory: IMarkFactory;
+  VOldMark, VNewMark: IVectorDataItem;
   VVectorItems: IVectorItemSubset;
-  VTemp: IInterfaceListSimple;
-  VMarksListToDelete: IInterfaceListStatic;
+  VList: IInterfaceListSimple;
   VDoAdd: Boolean;
   VMarkId: IMarkId;
+  VMarkIdList: IInterfaceListStatic;
 begin
   inherited;
 
+  ProgressFormUpdate(rsReadingPlacemarksFromDb);
+
   VVectorItems :=
     FMarkSystem.MarkDb.GetMarkSubsetByCategoryListInRect(
-      FpolyLL.Bounds.Rect,
+      FLonLatPolygon.Bounds.Rect,
       nil,
-      FDelHiddenMarks,
+      FParams.IncludeHiddenMarks,
       DoublePoint(0, 0)
     );
 
-  if VVectorItems <> nil then begin
-    VProcessed := 0;
-    VTemp := TInterfaceListSimple.Create;
-    VMarksToProcess := VVectorItems.Count;
+  if VVectorItems = nil then begin
+    ShowMessageSync(rsThereAreNoPlacemarksToProcess);
+    Exit;
+  end;
 
-    ProgressInfo.SetCaption(SAS_STR_Whole + ' ' + IntToStr(VVectorItems.Count));
+  VList := TInterfaceListSimple.Create;
 
-    for I := 0 to VVectorItems.Count - 1 do begin
-      Inc(VProcessed);
+  VProcessed := 0;
+  VTotal := VVectorItems.Count;
 
-      VMarkId := VVectorItems.Items[I].MainInfo as IMarkId;
+  ProgressFormUpdate(rsSelectingPlacemarks);
 
-      case VMarkId.MarkType of
-        midPoint : VDoAdd := (FMarksState and CPlacemarkFlag) <> 0;
-        midLine  : VDoAdd := (FMarksState and CPathFlag) <> 0;
-        midPoly  : VDoAdd := (FMarksState and CPolygonFlag) <> 0;
-      else
-        VDoAdd := False;
-      end;
+  for I := 0 to VVectorItems.Count - 1 do begin
+    Inc(VProcessed);
 
-      if VDoAdd and not FDelHiddenMarks then begin
-        VDoAdd := (VMarkId.Category as IMarkCategory).Visible;
-      end;
+    VMarkId := VVectorItems.Items[I].MainInfo as IMarkId;
 
+    case VMarkId.MarkType of
+      midPoint : VDoAdd := mptPlacemarks in FParams.MarksTypes;
+      midLine  : VDoAdd := mptPaths in FParams.MarksTypes;
+      midPoly  : VDoAdd := mptPolygons in FParams.MarksTypes;
+    else
+      VDoAdd := False;
+    end;
+
+    if VDoAdd and not FParams.IncludeHiddenMarks then begin
+      VDoAdd := (VMarkId.Category as IMarkCategory).Visible;
+    end;
+
+    if VDoAdd then begin
+      VDoAdd := FLonLatPolygon.Bounds.IsContainRect(VVectorItems.Items[I].Geometry.Bounds);
+    end;
+
+    if VDoAdd then begin
+      VDoAdd :=
+        IsLonLatGeometryInProjectedPolygon(
+          VVectorItems.Items[I].Geometry,
+          FProjectedPolygon,
+          FProjection
+        );
       if VDoAdd then begin
-        VDoAdd := FpolyLL.Bounds.IsContainRect(VVectorItems.Items[I].Geometry.Bounds);
+        VList.Add(IMarkId(VVectorItems.Items[I].MainInfo));
       end;
+    end;
 
-      if VDoAdd then begin
-        VDoAdd :=
-          IsLonLatGeometryInProjectedPolygon(
-            VVectorItems.Items[I].Geometry,
-            FProjectedPolygon,
-            FProjection
-          );
-        if VDoAdd then begin
-          VTemp.Add(IMarkId(VVectorItems.Items[I].MainInfo));
+    ProgressFormUpdate(VProcessed, VTotal, VList.Count);
+  end;
+
+  if VList.Count <= 0 then begin
+    ShowMessageSync(rsThereAreNoPlacemarksToProcess);
+    Exit;
+  end;
+
+  VMarkIdList := VList.MakeStaticAndClear;
+
+  case FParams.Operation of
+    mpoExport: begin
+      TThread.Synchronize(nil,
+        procedure
+        begin
+          ProgressInfo.Finish;
+          FMarkDBGUI.ExportMarksList(VMarkIdList);
+        end
+      );
+    end;
+
+    mpoCopy: begin
+      VTotal := VMarkIdList.Count;
+      ProgressFormUpdate(Format(rsCopyingPlacemarksFmt, [VTotal]));
+      VMarkDb := FMarkSystem.MarkDb;
+      VMarkFactory := FMarkSystem.MarkDb.Factory;
+      for I := 0 to VMarkIdList.Count - 1 do begin
+        VOldMark := VMarkDb.GetMarkByID(VMarkIdList[I] as IMarkId);
+        VNewMark := VMarkFactory.ReplaceCategory(VOldMark, FParams.Category);
+        if VMarkDb.UpdateMark(nil, VNewMark) = nil then begin
+          ShowMessageSync(Format(rsAbortedCopyFmt, [VOldMark.Name]));
+          Exit;
         end;
+        ProgressFormUpdate(I+1, VTotal);
       end;
-
-      ProgressFormUpdateOnProgress(VProcessed, VMarksToProcess, VTemp.Count);
     end;
 
-    if VTemp.Count > 0 then begin
-      VMarksListToDelete := VTemp.MakeStaticAndClear;
-      FMarkSystem.MarkDb.UpdateMarkList(VMarksListToDelete, nil);
+    mpoMove: begin
+      VTotal := VMarkIdList.Count;
+      ProgressFormUpdate(Format(rsMovingPlacemarksFmt, [VTotal]));
+      VMarkDb := FMarkSystem.MarkDb;
+      VMarkFactory := FMarkSystem.MarkDb.Factory;
+      for I := 0 to VMarkIdList.Count - 1 do begin
+        VOldMark := VMarkDb.GetMarkByID(VMarkIdList[I] as IMarkId);
+        VNewMark := VMarkFactory.ReplaceCategory(VOldMark, FParams.Category);
+        if VMarkDb.UpdateMark(VOldMark, VNewMark) = nil then begin
+          ShowMessageSync(Format(rsAbortedMoveFmt, [VOldMark.Name]));
+          Exit;
+        end;
+        ProgressFormUpdate(I+1, VTotal);
+      end;
     end;
+
+    mpoDelete: begin
+      ProgressFormUpdate(Format(rsDeletingPlacemarksFmt, [VMarkIdList.Count]));
+      FMarkSystem.MarkDb.UpdateMarkList(VMarkIdList, nil);
+    end
+  else
+    Assert(False);
   end;
 end;
 
-procedure TThreadDeleteMarks.ProgressFormUpdateOnProgress(
-  const AProcessed, AToProcess, ADeleted: Int64
-);
+procedure TThreadMarksProcess.ProgressFormUpdate(const ACaption: string);
 begin
+  ProgressInfo.SetCaption(ACaption);
+  ProgressInfo.SetFirstLine('');
+  ProgressInfo.SetSecondLine('');
+  ProgressInfo.SetProcessedRatio(0);
+end;
+
+procedure TThreadMarksProcess.ProgressFormUpdate(const AProcessed, AToProcess: Int64);
+begin
+  ProgressInfo.SetFirstLine(SAS_STR_Processed + ' ' + IntToStr(AProcessed));
+  ProgressInfo.SetSecondLine('');
   ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+end;
+
+procedure TThreadMarksProcess.ProgressFormUpdate(const AProcessed, AToProcess, ASelected: Int64);
+begin
+  ProgressInfo.SetFirstLine(Format(rsSelectedFmt, [ASelected]));
   ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + IntToStr(AProcessed));
-  ProgressInfo.SetFirstLine(SAS_STR_AllDelete + ' ' + IntToStr(ADeleted) + ' ' + SAS_STR_PlaceMarks);
+  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+end;
+
+procedure TThreadMarksProcess.ShowMessageSync(const AMessage: string);
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+      MessageDlg(AMessage,  mtInformation, [mbOK], 0);
+    end
+  );
 end;
 
 end.

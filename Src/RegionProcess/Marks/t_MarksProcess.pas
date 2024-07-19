@@ -19,14 +19,35 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit c_MarkFlag;
+unit t_MarksProcess;
 
 interface
 
-const
-  CPlacemarkFlag: Byte = $01;
-  CPathFlag: Byte = $02;
-  CPolygonFlag: Byte = $04;
+uses
+  i_Category;
+
+type
+  TMarksProcessOperation = (
+    mpoExport,
+    mpoCopy,
+    mpoMove,
+    mpoDelete
+  );
+
+  TMarksProcessType = (
+    mptPlacemarks,
+    mptPaths,
+    mptPolygons
+  );
+
+  TMarksProcessTypes = set of TMarksProcessType;
+
+  TMarksProcessTaskParams = record
+    Operation: TMarksProcessOperation;
+    MarksTypes: TMarksProcessTypes;
+    IncludeHiddenMarks: Boolean;
+    Category: ICategory;
+  end;
 
 implementation
 
