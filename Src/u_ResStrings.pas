@@ -26,8 +26,9 @@ interface
 ResourceString
   SAS_MSG_need_reload_application_curln = 'SAS.Planet must be restarted for the changes to take effect';
 
-  SAS_MSG_error = 'Error!';
-  SAS_MSG_coution = 'Attention!';
+  SAS_MSG_error = 'Error';
+  SAS_MSG_coution = 'Attention';
+  SAS_MSG_information = 'Information';
 
   SAS_MSG_DeleteMarkCategoryAsk = 'Are you sure you want to delete category with name "%0:s"?';
   SAS_MSG_DeleteSubCategoryAsk = 'Selected category "%0:s" contain %d sub categories. Are you realy want to delete all of them?';

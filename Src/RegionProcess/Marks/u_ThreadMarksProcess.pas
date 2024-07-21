@@ -24,18 +24,12 @@ unit u_ThreadMarksProcess;
 interface
 
 uses
-  SysUtils,
-  Classes,
-  Dialogs,
-  UITypes,
   t_MarksProcess,
   i_MarkSystem,
   i_RegionProcessProgressInfo,
-  i_InterfaceListSimple,
   i_Projection,
   i_GeometryLonLat,
   i_GeometryProjected,
-  i_InterfaceListStatic,
   u_GeoFunc,
   u_MarkDbGUIHelper,
   u_RegionProcessTaskAbstract;
@@ -49,8 +43,6 @@ type
     FProjection: IProjection;
     FMarkSystem: IMarkSystem;
     FParams: TMarksProcessTaskParams;
-
-    procedure ShowMessageSync(const AMessage: string);
 
     procedure ProgressFormUpdate(const ACaption: string); overload;
     procedure ProgressFormUpdate(const AProcessed, AToProcess: Int64); overload;
@@ -72,7 +64,8 @@ type
 implementation
 
 uses
-  Math,
+  SysUtils,
+  Classes,
   t_GeoTypes,
   i_MarkId,
   i_MarkDb,
@@ -81,6 +74,9 @@ uses
   i_VectorDataItemSimple,
   i_EnumDoublePoint,
   i_VectorItemSubset,
+  i_InterfaceListSimple,
+  i_InterfaceListStatic,
+  u_Dialogs,
   u_InterfaceListSimple,
   u_ResStrings;
 
@@ -92,8 +88,8 @@ resourcestring
   rsMovingPlacemarksFmt = 'Moving %d placemarks...';
   rsDeletingPlacemarksFmt = 'Deleting %d placemarks...';
   rsSelectedFmt = 'Selected %d';
-  rsAbortedCopyFmt = 'Aborted! Can''t copy placemark "%s"';
-  rsAbortedMoveFmt = 'Aborted! Can''t move placemark "%s"';
+  rsCantCopyFmt = 'Can''t copy placemark "%s"';
+  rsCantMoveFmt = 'Can''t move placemark "%s"';
 
 { TThreadMarksProcess }
 
@@ -307,7 +303,7 @@ var
   VProcessed: Int64;
   VMarkDb: IMarkDb;
   VMarkFactory: IMarkFactory;
-  VOldMark, VNewMark: IVectorDataItem;
+  VMark, VOldMark, VNewMark: IVectorDataItem;
   VVectorItems: IVectorItemSubset;
   VList: IInterfaceListSimple;
   VDoAdd: Boolean;
@@ -327,7 +323,7 @@ begin
     );
 
   if VVectorItems = nil then begin
-    ShowMessageSync(rsThereAreNoPlacemarksToProcess);
+    ShowInfoMessageSync(rsThereAreNoPlacemarksToProcess);
     Exit;
   end;
 
@@ -341,7 +337,8 @@ begin
   for I := 0 to VVectorItems.Count - 1 do begin
     Inc(VProcessed);
 
-    VMarkId := VVectorItems.Items[I].MainInfo as IMarkId;
+    VMark := VVectorItems[I];
+    VMarkId := VMark.MainInfo as IMarkId;
 
     case VMarkId.MarkType of
       midPoint : VDoAdd := mptPlacemarks in FParams.MarksTypes;
@@ -356,18 +353,18 @@ begin
     end;
 
     if VDoAdd then begin
-      VDoAdd := FLonLatPolygon.Bounds.IsContainRect(VVectorItems.Items[I].Geometry.Bounds);
+      VDoAdd := FLonLatPolygon.Bounds.IsContainRect(VMark.Geometry.Bounds);
     end;
 
     if VDoAdd then begin
       VDoAdd :=
         IsLonLatGeometryInProjectedPolygon(
-          VVectorItems.Items[I].Geometry,
+          VMark.Geometry,
           FProjectedPolygon,
           FProjection
         );
       if VDoAdd then begin
-        VList.Add(IMarkId(VVectorItems.Items[I].MainInfo));
+        VList.Add(VMarkId);
       end;
     end;
 
@@ -375,7 +372,7 @@ begin
   end;
 
   if VList.Count <= 0 then begin
-    ShowMessageSync(rsThereAreNoPlacemarksToProcess);
+    ShowInfoMessageSync(rsThereAreNoPlacemarksToProcess);
     Exit;
   end;
 
@@ -401,7 +398,7 @@ begin
         VOldMark := VMarkDb.GetMarkByID(VMarkIdList[I] as IMarkId);
         VNewMark := VMarkFactory.ReplaceCategory(VOldMark, FParams.Category);
         if VMarkDb.UpdateMark(nil, VNewMark) = nil then begin
-          ShowMessageSync(Format(rsAbortedCopyFmt, [VOldMark.Name]));
+          ShowErrorMessageSync(Format(rsCantCopyFmt, [VOldMark.Name]));
           Exit;
         end;
         ProgressFormUpdate(I+1, VTotal);
@@ -417,7 +414,7 @@ begin
         VOldMark := VMarkDb.GetMarkByID(VMarkIdList[I] as IMarkId);
         VNewMark := VMarkFactory.ReplaceCategory(VOldMark, FParams.Category);
         if VMarkDb.UpdateMark(VOldMark, VNewMark) = nil then begin
-          ShowMessageSync(Format(rsAbortedMoveFmt, [VOldMark.Name]));
+          ShowErrorMessageSync(Format(rsCantMoveFmt, [VOldMark.Name]));
           Exit;
         end;
         ProgressFormUpdate(I+1, VTotal);
@@ -427,7 +424,7 @@ begin
     mpoDelete: begin
       ProgressFormUpdate(Format(rsDeletingPlacemarksFmt, [VMarkIdList.Count]));
       FMarkSystem.MarkDb.UpdateMarkList(VMarkIdList, nil);
-    end
+    end;
   else
     Assert(False);
   end;
@@ -453,16 +450,6 @@ begin
   ProgressInfo.SetFirstLine(Format(rsSelectedFmt, [ASelected]));
   ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + IntToStr(AProcessed));
   ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
-end;
-
-procedure TThreadMarksProcess.ShowMessageSync(const AMessage: string);
-begin
-  TThread.Synchronize(nil,
-    procedure
-    begin
-      MessageDlg(AMessage,  mtInformation, [mbOK], 0);
-    end
-  );
 end;
 
 end.

@@ -24,12 +24,9 @@ unit fr_MarksProcess;
 interface
 
 uses
-  SysUtils,
   Classes,
   Controls,
   Forms,
-  Dialogs,
-  UITypes,
   ExtCtrls,
   StdCtrls,
   i_Category,
@@ -59,6 +56,7 @@ type
     procedure cbbOperationChange(Sender: TObject);
   private
     FfrMarkCategory: TfrMarkCategorySelectOrAdd;
+    function IsOperationWithCategory: Boolean;
     function GetMarksOperation: TMarksProcessOperation;
     function GetMarksTypes: TMarksProcessTypes;
     function GetCategory: ICategory;
@@ -83,7 +81,9 @@ type
 implementation
 
 uses
-  gnugettext;
+  SysUtils,
+  gnugettext,
+  u_Dialogs;
 
 {$R *.dfm}
 
@@ -113,14 +113,23 @@ begin
   inherited Destroy;
 end;
 
+function TfrMarksProcess.IsOperationWithCategory: Boolean;
+begin
+  Result := cbbOperation.ItemIndex in [Integer(mpoCopy), Integer(mpoMove)];
+end;
+
 procedure TfrMarksProcess.cbbOperationChange(Sender: TObject);
 begin
-  pnlCategory.Visible := cbbOperation.ItemIndex in [Integer(mpoCopy), Integer(mpoMove)];
+  pnlCategory.Visible := IsOperationWithCategory;
 end;
 
 function TfrMarksProcess.GetCategory: ICategory;
 begin
-  Result := FfrMarkCategory.GetCategory;
+  if IsOperationWithCategory then begin
+    Result := FfrMarkCategory.GetCategory;
+  end else begin
+    Result := nil;
+  end;
 end;
 
 function TfrMarksProcess.GetMarksOperation: TMarksProcessOperation;
@@ -179,12 +188,12 @@ begin
   VParams := GetTaskParams;
 
   if VParams.MarksTypes = [] then begin
-    MessageDlg(_('Please select at least one type of placemark!'),  mtError, [mbOK], 0);
+    ShowErrorMessage(_('Please select at least one type of placemark!'));
     Exit(False);
   end;
 
   if (VParams.Operation in [mpoCopy, mpoMove]) and (VParams.Category = nil) then begin
-    MessageDlg(_('Please select target category!'),  mtError, [mbOK], 0);
+    ShowErrorMessage(_('Please select target category!'));
     Exit(False);
   end;
 end;

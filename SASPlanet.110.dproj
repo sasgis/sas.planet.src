@@ -2568,6 +2568,7 @@
         <DCCReference Include="Src\Vcl\u_CommonFormAndFrameParents.pas"/>
         <DCCReference Include="Src\Vcl\u_ComponentPropertyState.pas"/>
         <DCCReference Include="Src\Vcl\u_ComponentPropertyStorage.pas"/>
+        <DCCReference Include="Src\Vcl\u_Dialogs.pas"/>
         <DCCReference Include="Src\Vcl\u_ListViewExt.pas"/>
         <DCCReference Include="Src\Vcl\u_WindowPositionConfig.pas"/>
         <DCCReference Include="Src\VectorLoaders\i_XmlVectorObjects.pas"/>

@@ -24,7 +24,6 @@ unit u_ProviderMarksProcess;
 interface
 
 uses
-  Windows,
   Forms,
   i_LanguageManager,
   i_MarkSystem,
@@ -68,13 +67,14 @@ type
 implementation
 
 uses
-  Classes,
+  Windows,
   SysUtils,
   gnugettext,
   t_MarksProcess,
   i_RegionProcessParamsFrame,
   i_Projection,
   i_GeometryProjected,
+  u_Dialogs,
   u_ResStrings,
   u_ThreadMarksProcess,
   fr_MarksProcess;
@@ -118,9 +118,6 @@ function TProviderMarksProcess.PrepareTask(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal
 ): IRegionProcessTask;
-const
-  CFlagsInfo = MB_YESNO + MB_ICONQUESTION + MB_TOPMOST;
-  CFlagsError = MB_OK + MB_ICONERROR + MB_TOPMOST;
 var
   VProjection: IProjection;
   VProjectedPolygon: IGeometryProjectedPolygon;
@@ -137,19 +134,19 @@ begin
 
   with FMarkSystem.State.GetStatic do begin
     if not ReadAccess then begin
-      Application.MessageBox(PChar(_('There is no read access to the placemarks DB!')), PChar(SAS_MSG_error), CFlagsError);
+      ShowErrorMessage(_('There is no read access to the placemarks DB!'));
       AProgressInfo.Finish;
       Exit;
     end;
     if not WriteAccess and (VParams.Operation in [mpoCopy, mpoMove, mpoDelete]) then begin
-      Application.MessageBox(PChar(_('There is no write access to the placemarks DB!')), PChar(SAS_MSG_error), CFlagsError);
+      ShowErrorMessage(_('There is no write access to the placemarks DB!'));
       AProgressInfo.Finish;
       Exit;
     end;
   end;
 
   if (VParams.Operation = mpoDelete) and
-     (Application.MessageBox(PChar(SAS_MSG_DeleteMarksInRegionAsk), PChar(SAS_MSG_coution), CFlagsInfo) <> IDYES)
+     (ShowQuestionMessage(SAS_MSG_DeleteMarksInRegionAsk, MB_YESNO) <> IDYES)
   then begin
     AProgressInfo.Finish;
     Exit;
