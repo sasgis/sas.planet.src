@@ -33,12 +33,10 @@ uses
   Messages,
   Menus,
   Forms,
-  Dialogs,
   StdCtrls,
   ExtCtrls,
   ImgList,
   ImageList,
-  UITypes,
   TB2Dock,
   TB2Toolbar,
   TB2Item,
@@ -335,6 +333,7 @@ uses
   i_MarkCategoryFactory,
   i_MarkFactoryConfig,
   i_GeometryLonLat,
+  u_Dialogs,
   u_ClipboardFunc,
   u_MarkCategoryList,
   u_InterfaceListSimple,
@@ -1684,7 +1683,7 @@ var
 begin
   VConfig := FMarkSystemConfig.GetActiveConfig;
   VMsg := Format(_('Are you sure you want to delete database "%s"?'), [VConfig.DisplayName]);
-  if MessageDlg(VMsg, mtConfirmation, mbYesNo, 0) = mrYes then begin
+  if ShowQuestionMessage(VMsg, MB_YESNO) = ID_YES then begin
     FMarkSystemConfig.DeleteByID(VConfig.ID);
   end;
 end;

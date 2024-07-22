@@ -146,7 +146,7 @@ begin
   end;
 
   if (VParams.Operation = mpoDelete) and
-     (ShowQuestionMessage(SAS_MSG_DeleteMarksInRegionAsk, MB_YESNO) <> IDYES)
+     (ShowQuestionMessage(SAS_MSG_DeleteMarksInRegionAsk, MB_YESNO) <> ID_YES)
   then begin
     AProgressInfo.Finish;
     Exit;

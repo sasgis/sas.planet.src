@@ -32,12 +32,10 @@ uses
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   CheckLst,
   ComCtrls,
   ExtCtrls,
-  UITypes,
   fr_MapSelect,
   fr_LonLat,
   i_ActiveMapsConfig,
@@ -129,6 +127,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_GUIDListStatic,
+  u_Dialogs,
   u_GeoFunc,
   u_GUIDListStatic;
 
@@ -225,7 +224,7 @@ begin
       if FfrMapSelect.TrySelectMapType(FMapSetItem.BaseMap) then begin
         chkMap.Checked := True;
       end else begin
-        MessageDlg(_('Can''t bound the Map - GUID not found!'), mtError, [mbOK], 0);
+        ShowErrorMessage(_('Can''t bound the Map - GUID not found!'));
       end;
     end;
     VActiveLayers := FMapSetItem.Layers;
@@ -399,7 +398,7 @@ begin
   VName := Trim(edtName.Text);
 
   if VName = '' then begin
-    MessageDlg(_('The Name can''t be empty!'), mtError, [mbOK], 0);
+    ShowErrorMessage(_('The Name can''t be empty!'));
     Exit;
   end;
 
@@ -436,10 +435,7 @@ begin
     IsEqualGUID(VBaseMap, CGUID_Zero) and
     (VLayers = nil) then
   begin
-    MessageDlg(
-      _('Please, select zoom/coordinates or at least one Layer or Map first!'),
-      mtError, [mbOK], 0
-    );
+    ShowErrorMessage(_('Please select zoom/coordinates or at least one Layer or Map first!'));
     Exit;
   end;
 
@@ -447,20 +443,20 @@ begin
     FMapSetItem := FFavoriteMapSetConfig.GetByName(VName);
     if FMapSetItem <> nil then begin
       case
-        MessageDlg(
+        ShowQuestionMessage(
           _('An entry with the same name already exists!' + #13#10 +
             'Do you want to update it instead of adding a new one?'),
-          mtConfirmation, [mbYes, mbNo, mbCancel], 0
+          MB_YESNOCANCEL
         )
       of
-        mrYes: begin
+        ID_YES: begin
           // update existing
         end;
-        mrNo: begin
+        ID_NO: begin
           // add a new one
           FMapSetItem := nil;
         end;
-        mrCancel: begin
+        ID_CANCEL: begin
           // let the user change it
           FMapSetItem := nil;
           Exit;

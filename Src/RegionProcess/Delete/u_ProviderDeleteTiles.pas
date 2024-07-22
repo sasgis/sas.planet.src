@@ -53,6 +53,7 @@ uses
   i_RegionProcessParamsFrame,
   i_PredicateByTileInfo,
   i_Projection,
+  u_Dialogs,
   u_ThreadDeleteTiles,
   u_ResStrings,
   fr_DeleteTiles;
@@ -88,7 +89,8 @@ var
 begin
   inherited;
 
-  if Application.MessageBox(PChar(SAS_MSG_DeleteTilesInRegionAsk), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION) <> IDYES then begin
+  if ShowQuestionMessage(SAS_MSG_DeleteTilesInRegionAsk, MB_YESNO) <> ID_YES then begin
+    AProgressInfo.Finish;
     Exit;
   end;
 

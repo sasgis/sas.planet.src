@@ -33,11 +33,9 @@ uses
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   ComCtrls,
   ExtCtrls,
   StdCtrls,
-  UITypes,
   frm_FavoriteMapSetEditor,
   i_LanguageManager,
   i_MapTypeSet,
@@ -107,6 +105,7 @@ uses
   i_MapType,
   i_GUIDListStatic,
   i_InterfaceListStatic,
+  u_Dialogs,
   u_GeoFunc;
 
 {$R *.dfm}
@@ -339,8 +338,8 @@ var
 begin
   VItem := _GetSelected;
   if Assigned(VItem) then begin
-    VMsg := Format(_('Delete from Favorites: ''%s''?'), [VItem.Name]);
-    if MessageDlg(VMsg, mtConfirmation, [mbYes, mbCancel], 0) = mrYes then begin
+    VMsg := Format(_('Delete from Favorites: "%s"?'), [VItem.Name]);
+    if ShowQuestionMessage(VMsg, MB_YESNO) = ID_YES then begin
       if FFavoriteMapSetConfig.Delete(VItem.ID) then begin
         Init;
       end;
@@ -368,7 +367,7 @@ begin
   VItem := _GetSelected;
   if VItem <> nil then begin
     if not FFavoriteMapSetHelper.TrySwitchOn(VItem, VErrMsg) then begin
-      MessageDlg(VErrMsg, mtError, [mbOK], 0);
+      ShowErrorMessage(VErrMsg);
     end;
   end;
 end;
