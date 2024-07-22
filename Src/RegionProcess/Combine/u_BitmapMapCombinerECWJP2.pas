@@ -74,11 +74,6 @@ implementation
 uses
   SysUtils,
   Types,
-  {$IFDEF SHOW_COMPRESSION_STAT}
-  Classes,
-  Dialogs,
-  UITypes,
-  {$ENDIF}
   gnugettext,
   libecwj2,
   t_ECW,
@@ -89,6 +84,9 @@ uses
   i_BitmapTileProvider,
   i_Projection,
   i_ImageLineProvider,
+  {$IFDEF SHOW_COMPRESSION_STAT}
+  u_Dialogs,
+  {$ENDIF}
   u_BaseInterfacedObject,
   u_CalcWFileParams,
   u_ECWJP2Write,
@@ -294,7 +292,7 @@ begin
       end else begin
         {$IFDEF SHOW_COMPRESSION_STAT}
         FProgressUpdate.Update(1); // 100%
-        TThread.Synchronize(nil, ShowCompressionStat);
+        ShowCompressionStat;
         {$ENDIF}
       end;
     finally
@@ -328,23 +326,20 @@ procedure TBitmapMapCombinerECWJP2.ShowCompressionStat;
     Result := Round(Seconds * 1000) / MilliSecsPerDay;
   end;
 
-var
-  VEncodeInfoMsg: string;
 begin
-  VEncodeInfoMsg := Format(
-    'The compression was completed successfully in %s sec.' + #13#10 + #13#10 +
+  ShowInfoMessageSync(Format(
+    'The compression was completed successfully!' + #13#10 + #13#10 +
     'Target compression ratio: %2.f' + #13#10 +
     'Actual compression ratio: %2.f' + #13#10 +
+    'Compression time: %s' + #13#10 +
     'Compression speed: %4.f MB/sec' + #13#10 +
     'Output file size: %s',
-    [FormatDateTime('hh:nn:ss.zzz', _SecondsToTime(FEncodeInfo.CompressionSeconds)),
-     FCompressionRatio,
+    [FCompressionRatio,
      FEncodeInfo.ActualCompression,
+     FormatDateTime('hh:nn:ss.zzz', _SecondsToTime(FEncodeInfo.CompressionSeconds)),
      FEncodeInfo.CompressionMBSec,
-     _SizeToStr(FEncodeInfo.OutputSize / 1024)
-    ]
-  );
-  MessageDlg(VEncodeInfoMsg, mtInformation, [mbOK], 0);
+     _SizeToStr(FEncodeInfo.OutputSize / 1024)]
+  ));
 end;
 {$ENDIF}
 

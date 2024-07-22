@@ -30,9 +30,7 @@ uses
   Controls,
   Forms,
   ComCtrls,
-  Dialogs,
   ExtCtrls,
-  UITypes,
   TBX,
   TBXExtItems,
   TB2Item,
@@ -152,6 +150,7 @@ implementation
 uses
   DateUtils,
   t_GeoTypes,
+  u_Dialogs,
   u_Synchronizer,
   u_Notifier,
   u_NotifierTime,
@@ -381,7 +380,7 @@ end;
 procedure TfrMergePolygons.tbMergeClick(Sender: TObject);
 begin
   if Length(FItems) < 2 then begin
-    MessageDlg(rsErrorTwoPolygons, mtError, [mbOK], 0);
+    ShowErrorMessage(rsErrorTwoPolygons);
     Exit;
   end;
 
@@ -416,12 +415,11 @@ begin
       FMergePolygonsResult.Polygon := (VVectorItem.Geometry as IGeometryLonLatPolygon);
       VMessage := Format(rsMergeFinish, [VPolygonsCount, VHolesCount]);
       {$IFDEF DEBUG}
-      VMessage := VMessage + #13#10 + #13#10 +
-        Format(rsProcessedAt, [VTime]);
+      VMessage := VMessage + #13#10 + #13#10 + Format(rsProcessedAt, [VTime]);
       {$ENDIF}
-      MessageDlg(VMessage, mtInformation, [mbOK], 0);
+      ShowInfoMessage(VMessage);
     end else begin
-      MessageDlg(rsMergeFail, mtError, [mbOK], 0);
+      ShowErrorMessage(rsMergeFail);
     end;
   end;
 end;
@@ -441,7 +439,7 @@ begin
       True
     );
   end else begin
-    MessageDlg(rsErrorNeedMerge, mtError, [mbOK], 0);
+    ShowErrorMessage(rsErrorNeedMerge);
   end;
 end;
 
@@ -450,7 +448,7 @@ begin
   if Assigned(FMergeResultInternal) then begin
     FRegionProcess.ProcessPolygon(FMergePolygonsResult.Polygon);
   end else begin
-    MessageDlg(rsErrorNeedMerge, mtError, [mbOK], 0);
+    ShowErrorMessage(rsErrorNeedMerge);
   end;
 end;
 

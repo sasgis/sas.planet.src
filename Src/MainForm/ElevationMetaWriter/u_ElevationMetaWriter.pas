@@ -25,8 +25,6 @@ interface
 
 uses
   Classes,
-  Dialogs,
-  UITypes,
   i_NotifierOperation,
   i_TerrainInfo,
   i_TerrainConfig,
@@ -88,6 +86,7 @@ uses
   i_DoublePointsAggregator,
   i_ThreadConfig,
   i_EnumDoublePoint,
+  u_Dialogs,
   u_BackgroundTask,
   u_DoublePointsAggregator,
   u_ElevationMetaWriterProgress,
@@ -134,7 +133,7 @@ begin
   // executed in the main thread
 
   if FProgress.Status <> emwIdle then begin
-    MessageDlg(rsWaitUntilTheFinishOperation, mtInformation, [mbOK], 0);
+    ShowInfoMessage(rsWaitUntilTheFinishOperation);
     Exit;
   end;
 

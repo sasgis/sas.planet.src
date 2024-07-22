@@ -164,13 +164,12 @@ uses
   {$WARN UNIT_PLATFORM ON}
   SysUtils,
   StrUtils,
-  Dialogs,
-  UITypes,
   c_CacheTypeCodes,
   i_StorageState,
   i_TileDownloaderState,
   u_SynEditExt,
   u_AnsiStr,
+  u_Dialogs,
   u_ResStrings;
 
 {$R *.dfm}
@@ -273,7 +272,7 @@ begin
   ModalResult := mrOk;
 
   if FNeedRestart then begin
-    MessageDlg(_('Changes will take effect after restart.'), mtInformation, [mbOK], -1);
+    ShowInfoMessage(_('Changes will take effect after restart.'));
   end;
 end;
 

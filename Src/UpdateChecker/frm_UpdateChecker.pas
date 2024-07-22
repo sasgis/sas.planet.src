@@ -32,11 +32,9 @@ uses
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   ComCtrls,
   ExtCtrls,
-  UITypes,
   t_UpdateChecker,
   i_PathConfig,
   i_LanguageManager,
@@ -95,7 +93,6 @@ type
 
     procedure CancelOperations;
     procedure CheckAvailableVersion;
-    procedure ShowError(const AMsg: string);
   protected
     procedure RefreshTranslation; override;
   public
@@ -114,6 +111,7 @@ implementation
 {$R *.dfm}
 
 uses
+  u_Dialogs,
   u_UpdateDownloaderThread,
   u_UpdateCheckerThread,
   u_UpdateProgress;
@@ -304,7 +302,7 @@ begin
         lblNewVerValue.Font.Color := clRed;
         lblNewVerValue.Font.Style := [fsBold];
 
-        ShowError('Update check failed!');
+        ShowErrorMessage('Update check failed!');
         Exit;
       end;
 
@@ -389,9 +387,9 @@ begin
       UpdateProgress(VResult);
 
       if not VResult.IsError then begin
-        MessageDlg(Format(rsDownloadFinished, [VResult.Text]), mtInformation, [mbOK], 0);
+        ShowInfoMessage(Format(rsDownloadFinished, [VResult.Text]));
       end else begin
-        ShowError(VResult.Text);
+        ShowErrorMessage(VResult.Text);
       end;
 
       Self.Close;
@@ -411,11 +409,6 @@ procedure TfrmUpdateChecker.ResetTimer;
 begin
   tmrProgress.Enabled := False;
   tmrProgress.OnTimer := nil;
-end;
-
-procedure TfrmUpdateChecker.ShowError(const AMsg: string);
-begin
-  MessageDlg(AMsg, mtError, [mbOK], 0);
 end;
 
 procedure TfrmUpdateChecker.RefreshTranslation;

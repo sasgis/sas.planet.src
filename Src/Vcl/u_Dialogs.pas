@@ -25,11 +25,15 @@ interface
 
 uses
   Windows;
+  
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
 
 function ShowQuestionMessage(const AMessage: string; const AButtons: UINT): Integer;
 
 function ShowInfoMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
 function ShowInfoMessageSync(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
+
+function ShowWarningMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
 
 function ShowErrorMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
 function ShowErrorMessageSync(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
@@ -43,12 +47,12 @@ uses
 
 function ShowQuestionMessage(const AMessage: string; const AButtons: UINT): Integer;
 begin
-  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_coution), AButtons + MB_ICONQUESTION + MB_TOPMOST);
+  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_coution), AButtons or MB_ICONQUESTION or MB_TOPMOST);
 end;
 
 function ShowInfoMessage(const AMessage: string; const AButtons: UINT): Integer;
 begin
-  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_information), AButtons + MB_ICONINFORMATION + MB_TOPMOST);
+  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_information), AButtons or MB_ICONINFORMATION or MB_TOPMOST);
 end;
 
 function ShowInfoMessageSync(const AMessage: string; const AButtons: UINT): Integer;
@@ -64,9 +68,14 @@ begin
   Result := VResult;
 end;
 
+function ShowWarningMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
+begin
+  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_warning), AButtons or MB_ICONWARNING or MB_TOPMOST);
+end;
+
 function ShowErrorMessage(const AMessage: string; const AButtons: UINT): Integer;
 begin
-  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_error), AButtons + MB_ICONERROR + MB_TOPMOST);
+  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_error), AButtons or MB_ICONERROR or MB_TOPMOST);
 end;
 
 function ShowErrorMessageSync(const AMessage: string; const AButtons: UINT): Integer;

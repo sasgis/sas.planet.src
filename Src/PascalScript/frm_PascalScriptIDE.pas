@@ -252,6 +252,7 @@ type
 implementation
 
 uses
+  Windows,
   Math,
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
@@ -278,6 +279,7 @@ uses
   i_TileInfoBasic,
   i_TileInfoBasicMemCache,
   i_InternalPerformanceCounter,
+  u_Dialogs,
   u_TileInfoBasicMemCache,
   u_InternalPerformanceCounterFake,
   u_PascalScriptTypes,
@@ -478,7 +480,7 @@ procedure TfrmPascalScriptIDE.FormCloseQuery(
 );
 begin
   if FNeedSavePrompt then begin
-    CanClose := MessageDlg(rsCanCloseQuery, mtInformation, [mbYes, mbNo], 0) = mrYes;
+    CanClose := ShowQuestionMessage(rsCanCloseQuery, MB_YESNO) = ID_YES;
     FNeedSavePrompt := not CanClose;
   end;
 end;

@@ -29,7 +29,6 @@ uses
   Controls,
   Classes,
   Forms,
-  UITypes,
   i_PathConfig,
   i_LanguageManager,
   i_InterfaceListStatic,
@@ -243,6 +242,7 @@ uses
   i_MarkCategoryTree,
   i_NotifierOperation,
   i_VectorItemTreeImporter,
+  u_Dialogs,
   u_ResStrings,
   u_GeometryFunc,
   u_StringListStatic,
@@ -404,7 +404,7 @@ function TMarkDbGUIHelper.IsMarksDBWritable: Boolean;
 begin
   Result := FMarkSystem.State.GetStatic.WriteAccess;
   if not Result then begin
-    MessageDlg(_('No write access to current Marks DB!'), mtError, [mbOk], 0);
+    ShowErrorMessage(_('No write access to the current Marks DB!'));
   end;
 end;
 
@@ -735,7 +735,7 @@ begin
           end;
         end;
       end else begin
-        MessageDlg(Format(_('Can''t open file: %s'), [VFileName]), mtError, [mbOK], 0);
+        ShowErrorMessage(Format(_('Can''t open file: %s'), [VFileName]));
       end;
     end;
   end;
@@ -746,11 +746,11 @@ begin
       'Fit to screen the last imported item?'
     );
     VMsg := Format(VMsg, [AFiles.Count, VCount]);
-    if MessageDlg(VMsg, mtInformation, [mbYes, mbNo], 0) = mrNo then begin
+    if ShowQuestionMessage(VMsg, MB_YESNO) = ID_NO then begin
       Result := nil;
     end;
   end else begin
-    MessageDlg(_('Nothing to import!'), mtError, [mbOK], 0);
+    ShowErrorMessage(_('Nothing to import!'));
   end;
 end;
 
@@ -1229,10 +1229,10 @@ begin
       VSubset := VSubsetBuilder.MakeStaticAndClear;
       AMergePolygonsPresenter.AddVectorItems(VSubset);
     end else begin
-      MessageDlg(_('No one polygon selected!'), mtWarning, [mbOk], 0);
+      ShowWarningMessage(_('No one polygon selected!'));
     end;
   end else begin
-    MessageDlg(_('Please, select at least one polygon!'), mtWarning, [mbOk], 0);
+    ShowWarningMessage(_('Please select at least one polygon!'));
   end;
 end;
 
@@ -1285,7 +1285,7 @@ begin
     end;
   end;
   if not VIsFound then begin
-    MessageDlg(_('Please, select category with at least one polygon!'), mtWarning, [mbOk], 0);
+    ShowWarningMessage(_('Please select category with at least one polygon!'));
   end;
 end;
 

@@ -33,8 +33,6 @@ uses
   StdCtrls,
   Spin,
   ExtCtrls,
-  UITypes,
-  Dialogs,
   i_Listener,
   i_Notifier,
   i_NotifierTime,
@@ -168,6 +166,7 @@ uses
   c_SensorsGUIDSimple,
   i_Sensor,
   i_GPSModuleByCOMPortSettings,
+  u_Dialogs,
   u_ListenerByEvent;
 
 const
@@ -505,9 +504,9 @@ begin
           ComboBoxCOM.OnChange(ComboBoxCOM);
         end;
       end;
-      MessageDlg(Format(_('Device found on the %s port.'), [VPortName]),  mtInformation, [mbOK], 0);
+      ShowWarningMessage(Format(_('Device found on the %s port.'), [VPortName]));
     end else begin
-      MessageDlg(_('No devices found!'),  mtInformation, [mbOK], 0);
+      ShowWarningMessage(_('No devices found!'));
     end;
   finally
     VObj.Free;

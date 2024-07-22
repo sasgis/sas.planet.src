@@ -34,10 +34,9 @@ uses
   ComCtrls,
   Dialogs,
   Spin,
-  UITypes,
   Buttons,
-  urlmon,
-  wininet,
+  UrlMon,
+  WinInet,
   GR32,
   i_InetConfig,
   i_ProxySettings,
@@ -363,6 +362,7 @@ uses
   i_CoordRepresentationConfig,
   u_ListenerNotifierLinksList,
   u_AnsiStr,
+  u_Dialogs,
   u_GlobalState,
   u_CoordRepresentation,
   u_ResStrings;
@@ -910,7 +910,7 @@ begin
   end;
 
   if VNeedReboot then begin
-    MessageDlg(SAS_MSG_need_reload_application_curln, mtInformation, [mbOK], 0);
+    ShowInfoMessage(SAS_MSG_NeedReloadApplication);
   end;
 end;
 

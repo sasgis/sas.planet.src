@@ -6998,7 +6998,7 @@ end;
 procedure TfrmMain.actGpsTrackClearExecute(Sender: TObject);
 begin
   if GState.GpsTrackRecorder.IsEmpty then begin
-    MessageDlg(_('Nothing to delete - GPS track is empty.'), mtInformation, [mbOk], 0);
+    MessageBox(Handle, PChar(_('Nothing to delete - GPS track is empty.')), PChar(SAS_MSG_information), MB_OK or MB_ICONINFORMATION);
   end else if MessageBox(Handle, PChar(SAS_MSG_DeleteGPSTrackAsk), PChar(SAS_MSG_coution), 36) = IDYES then begin
     GState.GpsTrackRecorder.ClearTrack;
   end;
