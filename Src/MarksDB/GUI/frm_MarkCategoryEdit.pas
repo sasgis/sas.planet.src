@@ -76,6 +76,7 @@ uses
   gnugettext,
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryConfig,
+  u_Dialogs,
   u_ResStrings;
 
 {$R *.dfm}
@@ -94,12 +95,10 @@ end;
 procedure TfrmMarkCategoryEdit.btnSetAsTemplateClick(Sender: TObject);
 var
   VMsg: string;
-  VResult: Integer;
   VConfig: IMarkCategoryFactoryConfig;
 begin
   VMsg := _('Set as default for new marks?');
-  VResult := MessageBox(Self.Handle, PChar(VMsg), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION);
-  if VResult = IDYES then begin
+  if ShowQuestionMessage(Self.Handle, VMsg, MB_YESNO) = ID_YES then begin
     VConfig := FCategoryDB.Factory.Config;
     VConfig.LockWrite;
     try
@@ -133,7 +132,7 @@ function TfrmMarkCategoryEdit.EditCategory(
     end;
     Result := VErr = '';
     if not Result then begin
-      MessageBox(Self.Handle, PChar(VErr), PChar(SAS_MSG_error), MB_OK or MB_ICONERROR);
+      ShowErrorMessage(Self.Handle, VErr);
     end;
   end;
 

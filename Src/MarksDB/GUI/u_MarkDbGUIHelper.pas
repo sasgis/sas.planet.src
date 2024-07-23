@@ -513,7 +513,7 @@ begin
       Result := DeleteMarkModal(VMark, AHandle);
     end else begin
       VMessage := Format(SAS_MSG_DeleteManyMarksAsk, [AMarkIDList.Count]);
-      if MessageBox(AHandle, PChar(VMessage), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION) = IDYES then begin
+      if ShowQuestionMessage(AHandle, VMessage, MB_YESNO) = ID_YES then begin
         FMarkSystem.MarkDb.UpdateMarkList(AMarkIDList, nil);
         Result := True;
       end;

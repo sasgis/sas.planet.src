@@ -297,6 +297,7 @@ uses
   u_ListenerNotifierLinksList,
   u_ListenerTime,
   u_ListenerByEvent,
+  u_Dialogs,
   u_GeoFunc,
   u_GeoToStrFunc,
   u_ResStrings;
@@ -469,7 +470,7 @@ var
   VSensorResetable: ISensorResetable;
 begin
   if Supports(FSensor, ISensorResetable, VSensorResetable) then begin
-    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_ResetSensorAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+    if ShowQuestionMessage(TWinControl(FOwner).Handle, SAS_MSG_ResetSensorAsk, MB_YESNO) = ID_YES then begin
       VSensorResetable.Reset;
       OnTimer;
     end;
@@ -532,7 +533,7 @@ constructor TSensorViewTextTBXPanel.Create(
 begin
   inherited;
   if not Supports(FListEntity.GetSensor, ISensorText, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
 end;
 
@@ -585,7 +586,7 @@ begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FMapDraw := AMapDraw;
   if not Supports(FListEntity.GetSensor, ISensorGPSSatellites, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
 end;
 
@@ -648,7 +649,7 @@ begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorSpeed, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
@@ -708,7 +709,7 @@ begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorDistance, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
@@ -766,7 +767,7 @@ constructor TSensorViewDegreesTBXPanel.Create(
 begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   if not Supports(FListEntity.GetSensor, ISensorDegrees, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
 end;
 
@@ -822,7 +823,7 @@ begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorTime, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
@@ -882,7 +883,7 @@ begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FCoordToStringConverter := ACoordToStringConverter;
   if not Supports(FListEntity.GetSensor, ISensorPosition, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
@@ -940,7 +941,7 @@ constructor TSensorViewDoubleTBXPanel.Create(
 begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   if not Supports(FListEntity.GetSensor, ISensorDouble, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
 end;
 
@@ -995,7 +996,7 @@ constructor TSensorViewBatteryLifePercentTBXPanel.Create(
 begin
   inherited Create(AListEntity, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   if not Supports(FListEntity.GetSensor, ISensorBatteryLifePercent, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
+    raise Exception.Create('Unsupported sensor type!');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),

@@ -152,6 +152,7 @@ uses
   i_GeometryLonLat,
   i_Category,
   i_MarkFactoryConfig,
+  u_Dialogs,
   u_ResStrings;
 
 {$R *.dfm}
@@ -337,7 +338,7 @@ var
   VConfig: IMarkPointTemplateConfig;
   VTemplate: IMarkTemplatePoint;
 begin
-  if MessageBox(handle, pchar(SAS_MSG_SetAsDefaultForNewMarks), pchar(SAS_MSG_coution), 36) = IDYES then begin
+  if ShowQuestionMessage(Handle, SAS_MSG_SetAsDefaultForNewMarks, MB_YESNO) = ID_YES then begin
     VConfig := FMarkFactory.Config.PointTemplateConfig;
     VTemplate :=
       VConfig.CreateTemplate(
