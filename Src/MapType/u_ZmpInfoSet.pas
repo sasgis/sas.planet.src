@@ -66,9 +66,9 @@ implementation
 uses
   Classes,
   SysUtils,
-  Dialogs,
   ExplorerSort,
   i_ConfigDataProvider,
+  u_Dialogs,
   u_GUIDInterfaceSetOrdered,
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByZip,
@@ -171,7 +171,7 @@ begin
         end;
       except
         if ExceptObject <> nil then begin
-          ShowMessage((ExceptObject as Exception).Message);
+          ShowErrorMessage((ExceptObject as Exception).Message);
         end;
         VZmp := nil;
       end;

@@ -189,6 +189,7 @@ uses
   i_MapTypeListStatic,
   i_MapVersionRequest,
   i_TileStorageAbilities,
+  u_Dialogs,
   u_GeoFunc,
   u_GeometryFunc,
   u_BitmapLayerProviderMapWithLayer,
@@ -530,17 +531,17 @@ begin
   Result := False;
 
   if not IsValidFileName(edtTargetFile.Text) then begin
-    ShowMessage(_('Output file name is not set or incorrect!'));
+    ShowErrorMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
   if not FfrZoomsSelect.Validate then begin
-    ShowMessage(_('Please select at least one zoom'));
+    ShowErrorMessage(_('Please select at least one zoom'));
     Exit;
   end;
 
   if FfrMapSelect.GetSelectedMapType = nil then begin
-    ShowMessage(_('Please select the map first!'));
+    ShowErrorMessage(_('Please select the map first!'));
     Exit;
   end;
 

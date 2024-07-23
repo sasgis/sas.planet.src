@@ -201,6 +201,7 @@ uses
   i_ConfigDataProvider,
   i_PathConfig,
   u_AnsiStr,
+  u_Dialogs,
   u_FileSystemFunc,
   u_ConfigDataProviderByIniFile,
   u_GlobalState;
@@ -781,7 +782,7 @@ begin
   Result := False;
 
   if not IsValidFileName(edtTargetFile.Text) then begin
-    ShowMessage(_('Output file name is not set or incorrect!'));
+    ShowErrorMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 

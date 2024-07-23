@@ -445,7 +445,7 @@ begin
           'Detected multiply categories with same name.'),
         [ACategory.Name]
       );
-      MessageBox(AHandle, PChar(VMessage), PChar(SAS_MSG_error), MB_OK or MB_ICONERROR);
+      ShowErrorMessage(AHandle, VMessage);
       Exit;
     end;
     VList := FMarkSystem.CategoryDB.GetSubCategoryListForCategory(ACategory);
@@ -454,7 +454,7 @@ begin
     end else begin
       VMessage := Format(SAS_MSG_DeleteMarkCategoryAsk, [ACategory.Name]);
     end;
-    if MessageBox(AHandle, PChar(VMessage), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION) = IDYES then begin
+    if ShowQuestionMessage(AHandle, VMessage, MB_YESNO) = ID_YES then begin
       if Assigned(VList) then begin
         FMarkSystem.DeleteCategoryListWithMarks(VList);
       end;
@@ -485,7 +485,7 @@ begin
       VMessage := _('Are you sure you want to delete placemark of unknown type with name "%0:s"?');
     end;
     VMessage := Format(VMessage, [AMarkId.Name]);
-    if MessageBox(AHandle, PChar(VMessage), PChar(SAS_MSG_coution), MB_YESNO or MB_ICONQUESTION) = IDYES then begin
+    if ShowQuestionMessage(AHandle, VMessage, MB_YESNO) = ID_YES then begin
       VMark := FMarkSystem.MarkDb.GetMarkByID(AMarkId);
       if Assigned(VMark) then begin
         FMarkSystem.MarkDb.UpdateMark(VMark, nil);
@@ -920,7 +920,7 @@ begin
       try
         VRadius := str2r(VDefRadius);
       except
-        ShowMessage(SAS_ERR_ParamsInput);
+        ShowErrorMessage(SAS_ERR_ParamsInput);
         Exit;
       end;
       Result :=

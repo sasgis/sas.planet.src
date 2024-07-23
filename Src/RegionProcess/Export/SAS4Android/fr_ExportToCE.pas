@@ -32,7 +32,6 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
-  Dialogs,
   i_LanguageManager,
   i_MapType,
   i_GeometryLonLat,
@@ -114,8 +113,9 @@ implementation
 uses
   gnugettext,
   {$WARN UNIT_PLATFORM OFF}
-  FileCtrl;
+  FileCtrl,
   {$WARN UNIT_PLATFORM ON}
+  u_Dialogs;
 
 {$R *.dfm}
 
@@ -192,17 +192,17 @@ begin
   Result := False;
 
   if Trim(edtTargetPath.Text) = '' then begin
-    ShowMessage(_('Please select output folder'));
+    ShowErrorMessage(_('Please select output folder'));
     Exit;
   end;
 
   if not FfrZoomsSelect.Validate then begin
-    ShowMessage(_('Please select at least one zoom'));
+    ShowErrorMessage(_('Please select at least one zoom'));
     Exit;
   end;
 
   if FfrMapSelect.GetSelectedMapType = nil then begin
-    ShowMessage(_('Please select the map first!'));
+    ShowErrorMessage(_('Please select the map first!'));
     Exit;
   end;
 

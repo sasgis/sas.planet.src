@@ -223,15 +223,15 @@ type
 implementation
 
 uses
-  Dialogs,
-  gnugettext,
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
+  gnugettext,
   c_CacheTypeCodes, // for cache types
   i_TileStorageAbilities,
-  u_BitmapLayerProviderMapWithLayer,
-  i_GUIDListStatic;
+  i_GUIDListStatic,
+  u_Dialogs,
+  u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
 
@@ -653,13 +653,13 @@ var
 begin
   Result := (cbbTargetPath.Text <> '');
   if not Result then begin
-    ShowMessage(_('Please select output folder'));
+    ShowErrorMessage(_('Please select output folder'));
     Exit;
   end;
 
   Result := FfrZoomsSelect.Validate;
   if not Result then begin
-    ShowMessage(_('Please select at least one zoom'));
+    ShowErrorMessage(_('Please select at least one zoom'));
     Exit;
   end;
 
@@ -667,13 +667,13 @@ begin
     VMaps := GetMapTypeList;
     Result := Assigned(VMaps) and (VMaps.Count > 0);
     if not Result then begin
-      ShowMessage(_('Please select at least one map'));
+      ShowErrorMessage(_('Please select at least one map'));
       Exit;
     end;
   end else begin
     Result := (FfrMapSelect.GetSelectedMapType <> nil) or (Self.GetSelectedLayer <> nil);
     if not Result then begin
-      ShowMessage(_('Please select at least one map'));
+      ShowErrorMessage(_('Please select at least one map'));
       Exit;
     end;
   end;

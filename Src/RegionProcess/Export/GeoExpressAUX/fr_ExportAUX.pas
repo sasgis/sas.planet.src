@@ -85,6 +85,7 @@ implementation
 uses
   gnugettext,
   i_TileStorageAbilities,
+  u_Dialogs,
   u_FileSystemFunc;
 
 {$R *.dfm}
@@ -170,12 +171,12 @@ begin
   Result := False;
 
   if not IsValidFileName(edtTargetFile.Text) then begin
-    ShowMessage(_('Output file name is not set or incorrect!'));
+    ShowErrorMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
   if FfrMapSelect.GetSelectedMapType = nil then begin
-    ShowMessage(_('Please select the map first!'));
+    ShowErrorMessage(_('Please select the map first!'));
     Exit;
   end;
 

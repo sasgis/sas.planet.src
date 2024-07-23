@@ -194,6 +194,7 @@ uses
   i_GeoTiffCombinerCustomParams,
   u_InterfaceListSimple,
   u_AnsiStr,
+  u_Dialogs,
   u_GeoFunc,
   u_GeometryFunc,
   u_GeoTiffCombinerCustomParams,
@@ -634,7 +635,7 @@ var
   I: Integer;
 begin
   if (FfrMapSelect.GetSelectedMapType = nil) and (FfrLayerSelect.GetSelectedMapType = nil) then begin
-    ShowMessage(_('Please select a map or layer first!'));
+    ShowErrorMessage(_('Please select a map or layer first!'));
     Result := False;
     Exit;
   end;
@@ -646,7 +647,7 @@ begin
       _('Map has unknown projection (EPSG=%d).'#13#10 + 'Do you want to set the projection manually?'),
       [VEPSG]
     );
-    if Application.MessageBox(PChar(VMsg), PChar(SAS_MSG_coution), 36) = IDYES then begin
+    if ShowQuestionMessage(VMsg, MB_YESNO) = ID_YES then begin
       Result := False;
       Exit;
     end;
@@ -664,44 +665,44 @@ begin
   VPixelSize.X := Trunc(VPixelSize.X / VSplitCount.X);
   VPixelSize.Y := Trunc(VPixelSize.Y / VSplitCount.Y);
   if VPixelSize.X < FMinPartSize.X then begin
-    ShowMessageFmt(
+    ShowErrorMessage(Format(
       _('The width of each part of the map must be greater than %0:d pix (currently %1:d pix).'),
       [FMinPartSize.X, VPixelSize.X]
-    );
+    ));
     Result := False;
     Exit;
   end;
 
   if VPixelSize.Y < FMinPartSize.Y then begin
-    ShowMessageFmt(
+    ShowErrorMessage(Format(
       _('The height of each part of the map must be greater than %0:d pix (currently %1:d pix).'),
       [FMinPartSize.Y, VPixelSize.Y]
-    );
+    ));
     Result := False;
     Exit;
   end;
 
   if VPixelSize.X > FMaxPartSize.X then begin
-    ShowMessageFmt(
+    ShowErrorMessage(Format(
       _('The width of each part of the map must not exceed %0:d pix (currently %1:d pix).'),
       [FMaxPartSize.X, VPixelSize.X]
-    );
+    ));
     Result := False;
     Exit;
   end;
 
   if VPixelSize.Y > FMaxPartSize.Y then begin
-    ShowMessageFmt(
+    ShowErrorMessage(Format(
       _('The height of each part of the map must not exceed %0:d pix (currently %1:d pix).'),
       [FMaxPartSize.Y, VPixelSize.Y]
-    );
+    ));
     Result := False;
     Exit;
   end;
 
   VPath := GetPath;
   if VPath = '' then begin
-    ShowMessage(_('Please select the output file first!'));
+    ShowErrorMessage(_('Please select the output file first!'));
     Result := False;
     Exit;
   end;
@@ -709,14 +710,14 @@ begin
   case FCombinePathStringTypeSupport of
     stsAscii: begin
       if not IsAscii(VPath) then begin
-        ShowMessage(_('This format supports file name with ASCII characters only!'));
+        ShowErrorMessage(_('This format supports file name with ASCII characters only!'));
         Result := False;
         Exit;
       end;
     end;
     stsAnsi: begin
       if not IsAnsi(VPath) then begin
-        ShowMessage(_('This format doesn''t support file name with characters not from current locale!'));
+        ShowErrorMessage(_('This format doesn''t support file name with characters not from current locale!'));
         Result := False;
         Exit;
       end;
@@ -725,7 +726,7 @@ begin
 
   if FileExists(VPath) then begin
     VMsg := Format(SAS_MSG_FileExists, [VPath]);
-    if Application.MessageBox(PChar(VMsg), PChar(SAS_MSG_coution), 36) <> IDYES then begin
+    if ShowQuestionMessage(VMsg, MB_YESNO) <> ID_YES then begin
       Result := False;
       Exit;
     end;
@@ -754,14 +755,14 @@ begin
       case VCalibrationStringSupport of
         stsAscii: begin
           if not IsAscii(VFileName) then begin
-            ShowMessage(_('At least one calibration type supports file name with ASCII characters only!'));
+            ShowErrorMessage(_('At least one calibration type supports file name with ASCII characters only!'));
             Result := False;
             Exit;
           end;
         end;
         stsAnsi: begin
           if not IsAnsi(VFileName) then begin
-            ShowMessage(_('At least one calibration type doesn''t support file name with characters not from current locale!'));
+            ShowErrorMessage(_('At least one calibration type doesn''t support file name with characters not from current locale!'));
             Result := False;
             Exit;
           end;

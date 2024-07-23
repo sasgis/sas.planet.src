@@ -42,12 +42,12 @@ uses
   i_LanguageManager,
   i_MapType,
   i_GeometryLonLat,
+  i_ExportToIMGConfig,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessParamsFrame,
   u_ExportToIMGTask,
-  fr_MapSelect,
   u_CommonFormAndFrameParents,
-  i_ExportToIMGConfig;
+  fr_MapSelect;
 
 type
   IRegionProcessParamsFrameExportToIMG = interface(IRegionProcessParamsFrameTargetPath)
@@ -192,6 +192,7 @@ uses
   Windows,
   Graphics,
   gnugettext,
+  u_Dialogs,
   u_InetFunc,
   u_FileSystemFunc,
   u_GlobalState;
@@ -506,26 +507,26 @@ begin
   Result := False;
 
   if MapList.Items.Count = 0 then begin
-    ShowMessage(_('Empty map list. Please add the layers to export!'));
+    ShowErrorMessage(_('Empty map list. Please add the layers to export!'));
     pgcMain.ActivePage := tsMap;
     exit;
   end;
 
   if not IsValidFileName(edtTargetFile.Text) then begin
-    ShowMessage(_('Output file name is not set or incorrect!'));
+    ShowErrorMessage(_('Output file name is not set or incorrect!'));
     edtTargetFile.SetFocus;
     exit;
   end;
 
   if not FileExists(edtMapCompilerPath.Text) then begin
-    ShowMessage(_('MPC compiler path is not set or incorrect!'));
+    ShowErrorMessage(_('MPC compiler path is not set or incorrect!'));
     pgcMain.ActivePage := tsSettings;
     edtMapCompilerPath.SetFocus;
     exit;
   end;
 
   if not FileExists(edtGMTPath.Text) then begin
-    ShowMessage(_('GMT tool path is not set or incorrect!'));
+    ShowErrorMessage(_('GMT tool path is not set or incorrect!'));
     pgcMain.ActivePage := tsSettings;
     edtGMTPath.SetFocus;
     exit;

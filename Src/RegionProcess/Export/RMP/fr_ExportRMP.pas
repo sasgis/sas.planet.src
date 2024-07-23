@@ -150,6 +150,7 @@ uses
   i_ContentTypeInfo,
   i_MapTypeListStatic,
   u_AnsiStr,
+  u_Dialogs,
   u_FileSystemFunc,
   u_ContentTypeFunc,
   u_BitmapLayerProviderMapWithLayer;
@@ -358,17 +359,17 @@ begin
   Result := False;
 
   if not IsValidFileName(edtTargetFile.Text) then begin
-    ShowMessage(_('Output file name is not set or incorrect!'));
+    ShowErrorMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
   if not FfrZoomsSelect.Validate then begin
-    ShowMessage(_('Please select at least one zoom'));
+    ShowErrorMessage(_('Please select at least one zoom'));
     Exit;
   end;
 
   if Self.GetMapType = nil then begin
-    ShowMessage(_('Please select at least one map or overlay layer'));
+    ShowErrorMessage(_('Please select at least one map or overlay layer'));
     Exit;
   end;
 

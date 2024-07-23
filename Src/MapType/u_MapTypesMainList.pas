@@ -135,7 +135,6 @@ type
 implementation
 
 uses
-  Dialogs,
   Types,
   Math,
   c_ZeroGUID,
@@ -146,6 +145,7 @@ uses
   i_TileInfoBasic,
   i_TileStorage,
   i_ZmpInfo,
+  u_Dialogs,
   u_MapTypeGUIConfigList,
   u_MapType,
   u_GeoFunc,
@@ -324,7 +324,7 @@ begin
       VFullMapsList.Add(VMapType);
     except
       if ExceptObject <> nil then begin
-        ShowMessage((ExceptObject as Exception).Message);
+        ShowErrorMessage((ExceptObject as Exception).Message);
       end;
       VMapType := nil;
     end;

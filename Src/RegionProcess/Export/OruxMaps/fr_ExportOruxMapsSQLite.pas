@@ -29,7 +29,6 @@ uses
   Classes,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   ExtCtrls,
   Spin,
@@ -129,17 +128,18 @@ type
 implementation
 
 uses
+  Graphics,
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   gnugettext,
-  Graphics,
   c_CoordConverter,
   t_Bitmap32,
   i_Bitmap32Static,
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_MapTypeListStatic,
+  u_Dialogs,
   u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
@@ -380,12 +380,12 @@ begin
   Result := False;
 
   if Trim(edtTargetPath.Text) = '' then begin
-    ShowMessage(_('Please select output folder'));
+    ShowErrorMessage(_('Please select output folder'));
     Exit;
   end;
 
   if not FfrZoomsSelect.Validate then begin
-    ShowMessage(_('Please select at least one zoom'));
+    ShowErrorMessage(_('Please select at least one zoom'));
     Exit;
   end;
 
@@ -393,7 +393,7 @@ begin
     (FfrMapSelect.GetSelectedMapType = nil) and
     (FfrOverlaySelect.GetSelectedMapType = nil) then
   begin
-    ShowMessage(_('Please select at least one map or overlay layer'));
+    ShowErrorMessage(_('Please select at least one map or overlay layer'));
     Exit;
   end;
 

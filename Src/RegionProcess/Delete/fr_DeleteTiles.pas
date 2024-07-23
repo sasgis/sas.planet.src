@@ -30,7 +30,6 @@ uses
   Forms,
   ExtCtrls,
   StdCtrls,
-  Dialogs,
   Spin,
   t_CommonTypes,
   i_LanguageManager,
@@ -90,6 +89,7 @@ uses
   gnugettext,
   i_BinaryDataListStatic,
   i_PredicateByBinaryData,
+  u_Dialogs,
   u_PredicateByStaticSampleList,
   u_PredicateByTileInfoBase;
 
@@ -218,14 +218,14 @@ var
 begin
   VMapType := GetMapType;
   if VMapType = nil then begin
-    ShowMessage(_('Please select a map'));
+    ShowErrorMessage(_('Please select a map'));
     Result := False;
   end else begin
     if rgTarget.ItemIndex = 3 then begin
       VEmptyTileSamples := VMapType.Zmp.EmptyTileSamples;
       Result := Assigned(VEmptyTileSamples) and (VEmptyTileSamples.Count > 0);
       if not Result then begin
-        ShowMessage(_('Empty tile samples do not exist for this map'));
+        ShowErrorMessage(_('Empty tile samples do not exist for this map'));
       end;
     end else begin
       Result := True;
