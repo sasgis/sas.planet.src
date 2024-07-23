@@ -25,7 +25,6 @@ interface
 
 uses
   Classes,
-  Dialogs,
   Controls,
   Menus,
   i_MapViewGoto,
@@ -70,8 +69,11 @@ implementation
 
 uses
   ActiveX,
+  SysUtils,
+  gnugettext,
   i_VectorDataItemSimple,
   i_GeometryLonLat,
+  u_Dialogs,
   u_ResStrings;
 
 { TSearchResultPresenterOnPanel }
@@ -105,10 +107,10 @@ end;
 
 procedure TSearchResultPresenterOnPanel.ClearSearchResults;
 var
-  i: integer;
+  I: Integer;
 begin
-  for i := 0 to length(FSearchItems) - 1 do begin
-    FSearchItems[i].Free;
+  for I := 0 to Length(FSearchItems) - 1 do begin
+    FSearchItems[I].Free;
   end;
   SetLength(FSearchItems, 0);
 end;
@@ -117,12 +119,12 @@ procedure TSearchResultPresenterOnPanel.ShowSearchResults(
   const ASearchResult: IGeoCodeResult
 );
 var
+  I: Cardinal;
   VPlacemark: IVectorDataItem;
   VEnum: IEnumUnknown;
-  i: Cardinal;
-  LengthFSearchItems: integer;
+  VLen: Integer;
   VItemForGoTo: IVectorDataItem;
-  VCnt: Integer;
+  VCount: Integer;
 begin
   ClearSearchResults;
   VItemForGoTo := nil;
@@ -134,15 +136,15 @@ begin
       FOnShowResults(Self);
     end;
 
-    VCnt := 0;
+    VCount := 0;
     VEnum := ASearchResult.GetEnum;
-    while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
+    while VEnum.Next(1, VPlacemark, @I) = S_OK do begin
       if VItemForGoTo = nil then begin
         VItemForGoTo := VPlacemark;
       end;
-      LengthFSearchItems := length(FSearchItems);
-      SetLength(FSearchItems, LengthFSearchItems + 1);
-      FSearchItems[LengthFSearchItems] :=
+      VLen := Length(FSearchItems);
+      SetLength(FSearchItems, VLen + 1);
+      FSearchItems[VLen] :=
         TfrSearchResultsItem.Create(
           nil,
           FDrawParent,
@@ -152,11 +154,11 @@ begin
           FMapGoto,
           FCoordToStringConverter
         );
-      if LengthFSearchItems > 0 then begin
-        FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;
+      if VLen > 0 then begin
+        FSearchItems[VLen].Top := FSearchItems[VLen - 1].Top + 1;
       end;
-      Inc(VCnt);
-      if VCnt > 100 then begin
+      Inc(VCount);
+      if VCount > 100 then begin
         Break;
       end;
     end;
@@ -164,28 +166,33 @@ begin
 
   if ASearchResult.GetResultCode in [200, 203] then begin
     if VItemForGoTo = nil then begin
-      ShowMessage(SAS_STR_notfound);
+      ShowInfoMessage(SAS_STR_notfound);
     end else begin
       FMapGoto.FitRectToScreen(VItemForGoTo.Geometry.Bounds.Rect);
       FMapGoto.ShowMarker(VItemForGoTo.Geometry.GetGoToPoint);
     end;
   end else begin
     case ASearchResult.GetResultCode of
-      503: begin
-        ShowMessage(SAS_ERR_Noconnectionstointernet + #13#10 + ASearchResult.GetMessage);
+      CGeoCodeExceptionResultCode: begin
+        ShowErrorMessage(ASearchResult.GetMessage);
+      end;
+      CGeoCodeDownloadErrorResultCode: begin
+        ShowErrorMessage(ASearchResult.GetMessage);
+      end;
+      CGeoCodeNoInternetConnectionResultCode: begin
+        ShowErrorMessage(SAS_ERR_Noconnectionstointernet + #13#10 + ASearchResult.GetMessage);
+      end;
+      CGeoCodeNotFoundResultCode: begin
+        ShowErrorMessage(SAS_STR_notfound);
       end;
       407: begin
-        ShowMessage(SAS_ERR_Authorization + #13#10 + ASearchResult.GetMessage);
-      end;
-      416: begin
-        ShowMessage('Ошибка разбора ответа: ' + #13#10 + ASearchResult.GetMessage);
+        ShowErrorMessage(SAS_ERR_Authorization + #13#10 + ASearchResult.GetMessage);
       end;
       404: begin
-        ShowMessage(SAS_STR_notfound);
+        ShowErrorMessage(SAS_STR_notfound);
       end;
-    else begin
-      ShowMessage('Неизвестная ошибка: ' + #13#10 + ASearchResult.GetMessage);
-    end;
+    else
+      ShowErrorMessage(ASearchResult.GetMessage);
     end;
   end;
 end;

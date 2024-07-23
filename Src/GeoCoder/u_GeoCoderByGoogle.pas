@@ -86,6 +86,7 @@ var
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   VStatus, VName, VDesc, VLon, VLat: string;
+  VErrorMessage: string;
 begin
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
@@ -107,24 +108,28 @@ begin
   VStatus := VJsonObject.S['status'];
 
   (*
-    https://developers.google.com/maps/documentation/geocoding/index#StatusCodes
+    https://developers.google.com/maps/documentation/geocoding/requests-geocoding#StatusCodes
 
     "OK" indicates that no errors occurred; the address was successfully parsed
     and at least one geocode was returned.
 
     "ZERO_RESULTS" indicates that the geocode was successful but returned no
-    results. This may occur if the geocode was passed a non-existent address or
-    a latlng in a remote location.
+    results. This may occur if the geocoder was passed a non-existent address.
+
+    "OVER_DAILY_LIMIT" indicates any of the following:
+      - The API key is missing or invalid.
+      - Billing has not been enabled on your account.
+      - A self-imposed usage cap has been exceeded.
+      - The provided method of payment is no longer valid (for example, a credit card has expired).
 
     "OVER_QUERY_LIMIT" indicates that you are over your quota.
 
-    "REQUEST_DENIED" indicates that your request was denied, generally because
-    of lack of a sensor parameter.
+    "REQUEST_DENIED" indicates that your request was denied.
 
-    "INVALID_REQUEST" generally indicates that the query (address or latlng)
+    "INVALID_REQUEST" generally indicates that the query (address, components or latlng)
     is missing.
 
-    UNKNOWN_ERROR indicates that the request could not be processed due to a
+    "UNKNOWN_ERROR" indicates that the request could not be processed due to a
     server error. The request may succeed if you try again.
   *)
 
@@ -135,7 +140,8 @@ begin
     if VStatus = 'OVER_QUERY_LIMIT' then begin
       raise Exception.Create('You are over your quota!');
     end else begin
-      raise Exception.CreateFmt('Unexpected status value: %s', [VStatus]);
+      VErrorMessage := VJsonObject.S['error_message'];
+      raise Exception.CreateFmt('Unexpected status value: "%s"' + #13#10 + '%s', [VStatus, VErrorMessage]);
     end;
   end;
 

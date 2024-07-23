@@ -30,6 +30,12 @@ uses
   i_VectorItemSubset,
   i_LocalCoordConverter;
 
+const
+  CGeoCodeExceptionResultCode = -1;
+  CGeoCodeDownloadErrorResultCode = -2;
+  CGeoCodeNoInternetConnectionResultCode = -3;
+  CGeoCodeNotFoundResultCode = -4;
+
 type
   IGeoCodeResult = interface(IVectorItemSubset)
     ['{C90929AD-3A6C-4906-A554-E1DA363ED060}']

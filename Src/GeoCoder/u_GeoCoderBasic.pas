@@ -53,15 +53,15 @@ type
     ): IVectorItemSubset;
   protected
     FApiKey: string;
-    property PlacemarkFactory: IGeoCodePlacemarkFactory read FPlacemarkFactory;
-    property Downloader: IDownloader read FDownloader;
-    property InetSettings: IInetConfig read FInetSettings;
+
     function PrepareRequestByURL(const AUrl: AnsiString): IDownloadRequest;
     function URLEncode(const S: AnsiString): AnsiString;
+
     function PrepareRequest(
       const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; virtual; abstract;
+
     function ParseResultToPlacemarksList(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -69,7 +69,12 @@ type
       const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; virtual; abstract;
+
+    property PlacemarkFactory: IGeoCodePlacemarkFactory read FPlacemarkFactory;
+    property Downloader: IDownloader read FDownloader;
+    property InetSettings: IInetConfig read FInetSettings;
   private
+    { IGeoCoder }
     function GetLocations(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -96,6 +101,7 @@ uses
   gnugettext,
   i_VectorDataItemSimple,
   i_Datum,
+  u_NetworkStrFunc,
   u_DownloaderHttpWithTTL,
   u_DownloadRequest,
   u_SortFunc,
@@ -125,7 +131,7 @@ function TGeoCoderBasic.BuildSortedSubset(
   const ALocalConverter: ILocalCoordConverter
 ): IVectorItemSubset;
 var
-  i: integer;
+  I: Integer;
   VMark: IVectorDataItem;
   VDatum: IDatum;
   VDistArr: array of Double;
@@ -136,21 +142,20 @@ begin
     if AList.Count > 1 then begin
       VDatum := ALocalConverter.Projection.ProjectionType.Datum;
       SetLength(VDistArr, AList.Count);
-      for i := 0 to AList.GetCount - 1 do begin
-        VMark := IVectorDataItem(AList.Items[i]);
-        VDistArr[i] := VDatum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.Geometry.Bounds.CalcRectCenter);
+      for I := 0 to AList.GetCount - 1 do begin
+        VMark := IVectorDataItem(AList.Items[I]);
+        VDistArr[I] := VDatum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.Geometry.Bounds.CalcRectCenter);
       end;
       SortInterfaceListByDoubleMeasure(AList, VDistArr);
     end;
     VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
-    for i := 0 to AList.GetCount - 1 do begin
-      VMark := IVectorDataItem(AList.Items[i]);
+    for I := 0 to AList.GetCount - 1 do begin
+      VMark := IVectorDataItem(AList.Items[I]);
       VSubsetBuilder.Add(VMark);
     end;
     Result := VSubsetBuilder.MakeStaticAndClear;
   end;
 end;
-
 
 function TGeoCoderBasic.GetLocations(
   const ACancelNotifier: INotifierOperation;
@@ -168,20 +173,24 @@ var
   VResultError: IDownloadResultError;
   VSubset: IVectorItemSubset;
 begin
+  Result := nil;
+
   VResultCode := 200;
   VMessage := '';
-  VList := nil;
-  Result := nil;
+
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     Exit;
   end;
+
   VSubset := nil;
   try
-    if not (ASearch = '') then begin
+    if ASearch <> '' then begin
+      VList := nil;
       VRequest := PrepareRequest(ASearch, ALocalConverter);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
+
       if VRequest <> nil then begin
         VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -197,14 +206,20 @@ begin
               ASearch,
               ALocalConverter
             );
-        end else if Supports(VResult, IDownloadResultError, VResultError) then begin
-          VResultCode := 503;
+        end else
+        if Supports(VResult, IDownloadResultError, VResultError) then begin
+          if VResultError.IsServerExists then begin
+            VResultCode := CGeoCodeDownloadErrorResultCode;
+          end else begin
+            VResultCode := CGeoCodeNoInternetConnectionResultCode;
+          end;
           VMessage := VResultError.ErrorText;
         end else begin
-          VResultCode := 417;
-          VMessage := _('Unknown error');
+          VResultCode := CGeoCodeDownloadErrorResultCode;
+          VMessage := _('Unknown HTTP request error!');
         end;
       end else begin
+        // local (offline) search
         VList :=
           ParseResultToPlacemarksList(
             ACancelNotifier,
@@ -218,14 +233,16 @@ begin
     end;
   except
     on E: Exception do begin
-      VResultCode := 417;
+      VResultCode := CGeoCodeExceptionResultCode;
       VMessage := E.Message;
     end;
   end;
-  if not (Assigned(VSubset)) or (VSubset.Count = 0) then begin
-    VResultCode := 404;
+
+  if (VResultCode = 200) and ((VSubset = nil) or (VSubset.Count = 0)) then begin
+    VResultCode := CGeoCodeNotFoundResultCode;
     VMessage := _('Not Found');
   end;
+
   Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VSubset);
 end;
 
@@ -235,55 +252,8 @@ begin
 end;
 
 function TGeoCoderBasic.URLEncode(const S: AnsiString): AnsiString;
-  function DigitToHex(Digit: Integer): AnsiChar;
-  begin
-    case Digit of
-      0..9:
-      begin
-        Result := AnsiChar(Digit + Ord('0'));
-      end;
-      10..15:
-      begin
-        Result := AnsiChar(Digit - 10 + Ord('A'));
-      end;
-    else begin
-      Result := '0';
-    end;
-    end;
-  end; // DigitToHex
-var
-  i, idx, len: Integer;
 begin
-  len := 0;
-  for i := 1 to Length(S) do begin
-    if ((S[i] >= '0') and (S[i] <= '9')) or
-      ((S[i] >= 'A') and (S[i] <= 'Z')) or
-      ((S[i] >= 'a') and (S[i] <= 'z')) or (S[i] = ' ') or
-      (S[i] = '_') or (S[i] = '*') or (S[i] = '-') or (S[i] = '.') then begin
-      len := len + 1;
-    end else begin
-      len := len + 3;
-    end;
-  end;
-  SetLength(Result, len);
-  idx := 1;
-  for i := 1 to Length(S) do begin
-    if S[i] = ' ' then begin
-      Result[idx] := '+';
-      idx := idx + 1;
-    end else if ((S[i] >= '0') and (S[i] <= '9')) or
-      ((S[i] >= 'A') and (S[i] <= 'Z')) or
-      ((S[i] >= 'a') and (S[i] <= 'z')) or
-      (S[i] = '_') or (S[i] = '*') or (S[i] = '-') or (S[i] = '.') then begin
-      Result[idx] := S[i];
-      idx := idx + 1;
-    end else begin
-      Result[idx] := '%';
-      Result[idx + 1] := DigitToHex(Ord(S[i]) div 16);
-      Result[idx + 2] := DigitToHex(Ord(S[i]) mod 16);
-      idx := idx + 3;
-    end;
-  end;
+  Result := u_NetworkStrFunc.UrlEncode(S);
 end;
 
 end.
