@@ -33,16 +33,9 @@ type
   private
     FOperationID: Integer;
     FCancelListener: IListener;
-    FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
     FDebugThreadName: string;
     procedure OnCancel;
-    procedure SynShowMessage;
-    {$HINTS OFF}
-    // Disable hint: "Private symbol 'ShowMessageSync' declared but never used"
-    // in case we catch exceptions by EurekaLog (see below)
-    procedure ShowMessageSync(const AMessage: string);
-    {$HINTS ON}
   protected
     procedure Process; virtual; abstract;
     procedure Execute; override;
@@ -59,11 +52,12 @@ type
 implementation
 
 uses
+  SysUtils,
   {$IFDEF EUREKALOG}
   ExceptionLog,
+  {$ELSE}
+  u_Dialogs,
   {$ENDIF}
-  Dialogs,
-  SysUtils,
   u_ReadableThreadNames,
   u_ListenerByEvent;
 
@@ -103,30 +97,19 @@ begin
   try
     Process;
   except
-  {$IFDEF EUREKALOG}
+    {$IFDEF EUREKALOG}
     ShowLastExceptionData;
-  {$ELSE}
+    {$ELSE}
     on E: Exception do begin
-      ShowMessageSync(E.ClassName + ': ' + E.Message);
+      ShowErrorMessageSync(E.ClassName + ': ' + E.Message);
     end;
-  {$ENDIF}
+    {$ENDIF}
   end;
 end;
 
 procedure TThreadCacheManagerAbstract.OnCancel;
 begin
   Terminate;
-end;
-
-procedure TThreadCacheManagerAbstract.ShowMessageSync(const AMessage: string);
-begin
-  FMessageForShow := AMessage;
-  Synchronize(SynShowMessage);
-end;
-
-procedure TThreadCacheManagerAbstract.SynShowMessage;
-begin
-  ShowMessage(FMessageForShow);
 end;
 
 end.

@@ -32,7 +32,6 @@ uses
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   ExtCtrls,
   i_NotifierTime,
@@ -101,6 +100,7 @@ type
 implementation
 
 uses
+  u_Dialogs,
   u_ListenerByEvent,
   u_ListenerTime,
   u_ResStrings;
@@ -232,9 +232,9 @@ begin
       Self.Caption := SAS_STR_Finished;
       FFinished := True;
       if FProgressInfo.ProgressAbortErrorStr <> '' then begin
-        ShowMessage(FProgressInfo.ProgressAbortErrorStr);
+        ShowErrorMessage(FProgressInfo.ProgressAbortErrorStr);
       end else begin
-        ShowMessage(SAS_STR_CacheConvertionIsFinished);
+        ShowInfoMessage(SAS_STR_CacheConvertionIsFinished);
       end;
     end;
   end;

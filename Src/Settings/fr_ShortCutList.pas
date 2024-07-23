@@ -29,7 +29,6 @@ uses
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   ExtCtrls,
   i_LanguageManager,
@@ -74,6 +73,7 @@ uses
   i_Bitmap32Static,
   i_ShortCutSingleConfig,
   u_ShortCutModalEditByForm,
+  u_Dialogs,
   u_BitmapFunc,
   u_ResStrings;
 
@@ -128,7 +128,7 @@ begin
       VExistsShortCut := FShortCutManager.GetShortCutInfoByShortCut(VTempShortCut.ShortCut);
       if (VExistsShortCut <> nil) and (VExistsShortCut <> VTempShortCut) then begin
         VTempShortCut.ResetShortCut;
-        ShowMessage(SAS_MSG_HotKeyExists);
+        ShowErrorMessage(SAS_MSG_HotKeyExists);
       end;
       lstShortCutList.Repaint;
     end;

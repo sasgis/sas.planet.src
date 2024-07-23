@@ -28,7 +28,6 @@ uses
   Classes,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   ExtCtrls,
   u_CommonFormAndFrameParents,
@@ -73,6 +72,7 @@ type
 implementation
 
 uses
+  u_Dialogs,
   u_ResStrings;
 
 {$R *.dfm}
@@ -125,11 +125,11 @@ begin
     ALonLatRect.TopLeft := FfrLonLatTopLeft.LonLat;
     ALonLatRect.BottomRight := FfrLonLatBottomRight.LonLat;
     if (ALonLatRect.Left > ALonLatRect.Right) then begin
-      ShowMessage(SAS_ERR_LonLat2);
-      result := false;
+      ShowErrorMessage(SAS_ERR_LonLat2);
+      Result := False;
     end else if (ALonLatRect.Top < ALonLatRect.Bottom) then begin
-      ShowMessage(SAS_ERR_LonLat1);
-      result := false;
+      ShowErrorMessage(SAS_ERR_LonLat1);
+      Result := False;
     end;
   end;
 end;

@@ -39,8 +39,8 @@ uses
   i_ImageResamplerConfig,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
-  fr_MapSelect,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents,
+  fr_MapSelect;
 
 type
   IRegionProcessParamsFrameTilesGenPrev = interface(IRegionProcessParamsFrameBase)
@@ -129,8 +129,8 @@ type
 implementation
 
 uses
-  Dialogs,
-  gnugettext;
+  gnugettext,
+  u_Dialogs;
 
 {$R *.dfm}
 
@@ -176,11 +176,11 @@ end;
 
 procedure TfrTilesGenPrev.cbbFromZoomChange(Sender: TObject);
 var
-  i: integer;
+  I: integer;
 begin
   chklstZooms.Items.Clear;
-  for i := cbbFromZoom.ItemIndex + 1 downto 1 do begin
-    chklstZooms.Items.Add(inttostr(i));
+  for I := cbbFromZoom.ItemIndex + 1 downto 1 do begin
+    chklstZooms.Items.Add(inttostr(I));
   end;
   chklstZoomsClickCheck(nil);
   chklstZooms.Repaint;
@@ -188,15 +188,15 @@ end;
 
 procedure TfrTilesGenPrev.chkAllZoomsClick(Sender: TObject);
 var
-  i: integer;
+  I: integer;
 begin
   if chkAllZooms.State <> cbGrayed then begin
-    for i := 0 to chklstZooms.Count - 1 do begin
-      if chklstZooms.ItemEnabled[i] or chkFromPrevZoom.Checked then begin
+    for I := 0 to chklstZooms.Count - 1 do begin
+      if chklstZooms.ItemEnabled[I] or chkFromPrevZoom.Checked then begin
         if chkFromPrevZoom.Checked then begin
-          chklstZooms.ItemEnabled[i] := true;
+          chklstZooms.ItemEnabled[I] := true;
         end;
-        chklstZooms.Checked[i] := chkAllZooms.Checked;
+        chklstZooms.Checked[I] := chkAllZooms.Checked;
       end;
     end;
   end;
@@ -209,7 +209,7 @@ end;
 
 procedure TfrTilesGenPrev.chklstZoomsClickCheck(Sender: TObject);
 var
-  i: Integer;
+  I: Integer;
   VLastCheckedZoom: Integer;
   VZoom: Integer;
   VSourceZoom: Integer;
@@ -219,33 +219,33 @@ begin
   if chkFromPrevZoom.Checked then begin
     VSourceZoom := cbbFromZoom.ItemIndex + 1;
     VLastCheckedZoom := VSourceZoom;
-    i := 0;
-    while i < chklstZooms.Items.Count do begin
-      VZoom := VSourceZoom - i - 1;
+    I := 0;
+    while I < chklstZooms.Items.Count do begin
+      VZoom := VSourceZoom - I - 1;
       if VLastCheckedZoom - VZoom > CZommDeltaMax then begin
         Break;
       end else begin
-        chklstZooms.ItemEnabled[i] := True;
-        if chklstZooms.Checked[i] then begin
+        chklstZooms.ItemEnabled[I] := True;
+        if chklstZooms.Checked[I] then begin
           VLastCheckedZoom := VZoom;
         end;
       end;
-      Inc(i);
+      Inc(I);
     end;
-    while i < chklstZooms.Items.Count do begin
-      chklstZooms.ItemEnabled[i] := False;
-      Inc(i);
+    while I < chklstZooms.Items.Count do begin
+      chklstZooms.ItemEnabled[I] := False;
+      Inc(I);
     end;
   end else begin
-    for i := CZommDeltaMax to chklstZooms.Items.Count - 1 do begin
-      chklstZooms.ItemEnabled[i] := false;
+    for I := CZommDeltaMax to chklstZooms.Items.Count - 1 do begin
+      chklstZooms.ItemEnabled[I] := false;
     end;
   end;
   VAllChecked := True;
   VAllUnChecked := True;
-  for i := 0 to chklstZooms.Items.Count - 1 do begin
-    if chklstZooms.ItemEnabled[i] then begin
-      if chklstZooms.Checked[i] then begin
+  for I := 0 to chklstZooms.Items.Count - 1 do begin
+    if chklstZooms.ItemEnabled[I] then begin
+      if chklstZooms.Checked[I] then begin
         VAllUnChecked := False;
       end else begin
         VAllChecked := False;
@@ -306,7 +306,7 @@ end;
 
 function TfrTilesGenPrev.GetZoomArray: TByteDynArray;
 var
-  i: Integer;
+  I: Integer;
   VCount: Integer;
   VSourceZoom: Byte;
 begin
@@ -316,11 +316,11 @@ begin
   VSourceZoom := cbbFromZoom.ItemIndex + 1;
   Result[0] := VSourceZoom;
   if VSourceZoom > 0 then begin
-    for i := 0 to VSourceZoom - 1 do begin
-      if chklstZooms.ItemEnabled[i] then begin
-        if chklstZooms.Checked[i] then begin
+    for I := 0 to VSourceZoom - 1 do begin
+      if chklstZooms.ItemEnabled[I] then begin
+        if chklstZooms.Checked[I] then begin
           SetLength(Result, VCount + 1);
-          Result[VCount] := VSourceZoom - 1 - i;
+          Result[VCount] := VSourceZoom - 1 - I;
           Inc(VCount);
         end;
       end;
@@ -379,23 +379,23 @@ end;
 
 function TfrTilesGenPrev.Validate: Boolean;
 var
-  i: Integer;
+  I: Integer;
 begin
   Result := False;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.ItemEnabled[i] then begin
-      if chklstZooms.Checked[i] then begin
+  for I := 0 to chklstZooms.Count - 1 do begin
+    if chklstZooms.ItemEnabled[I] then begin
+      if chklstZooms.Checked[I] then begin
         Result := True;
         Break;
       end;
     end;
   end;
   if not Result then begin
-    ShowMessage(_('Please select at least one zoom'));
+    ShowErrorMessage(_('Please select at least one zoom'));
   end else begin
     Result := FfrMapSelect.GetSelectedMapType <> nil;
     if not Result then begin
-      ShowMessage(_('Please select a map'));
+      ShowErrorMessage(_('Please select a map'));
     end;
   end;
 end;
