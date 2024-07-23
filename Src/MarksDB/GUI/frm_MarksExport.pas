@@ -30,7 +30,6 @@ uses
   Forms,
   Dialogs,
   StdCtrls,
-  UITypes,
   TBXDkPanels,
   i_LanguageManager,
   i_CommonDialogConfig,
@@ -44,8 +43,8 @@ uses
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
   i_VectorItemTreeExporterList,
-  frm_MarksExportConfig,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents,
+  frm_MarksExportConfig;
 
 type
   TfrmMarksExport = class(TFormWitghLanguageManager)
@@ -122,6 +121,7 @@ uses
   i_MarkDb,
   i_MarkCategoryTree,
   i_VectorItemSubset,
+  u_Dialogs,
   u_VectorItemTree,
   u_FileSystemFunc,
   u_NotifierOperation;
@@ -411,7 +411,7 @@ begin
   if (VExporterItem <> nil) and (FMarkTree <> nil) then begin
     VFileName := Trim(edtDest.Text);
     if VFileName = '' then begin
-      MessageDlg(_('Please specify where to save!'), mtError, [mbOK], 0);
+      ShowErrorMessage(_('Please specify where to save!'));
       Exit;
     end;
 
@@ -422,7 +422,7 @@ begin
         VMsg := Format(
           _('You are about to export placemarks into %d separate files. Are you sure?'), [FItemsCount]
         );
-        if MessageDlg(VMsg, mtWarning, [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbCancel], 0) <> mrYes then begin
+        if ShowQuestionMessage(VMsg, MB_YESNO) <> ID_YES then begin
           Exit;
         end;
       end;

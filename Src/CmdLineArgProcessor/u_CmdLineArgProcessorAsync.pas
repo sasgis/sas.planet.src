@@ -26,8 +26,6 @@ interface
 uses
   Windows,
   Classes,
-  Dialogs,
-  UITypes,
   SyncObjs,
   i_MarkSystem,
   i_RegionProcess,
@@ -47,9 +45,6 @@ type
     FCmdLineArgProcessor: ICmdLineArgProcessor;
     FRegionProcess: IRegionProcessFromFile;
 
-    FRetCode: Integer;
-    FErrorMsg: string;
-
     FAbortListener: IListener;
 
     FState: IReadWriteStateStatic;
@@ -60,7 +55,6 @@ type
 
     procedure OnAbort;
     procedure OnStateChange;
-    procedure OnShowErrorMsg;
   protected
     procedure Execute; override;
   public
@@ -77,6 +71,7 @@ implementation
 
 uses
   SysUtils,
+  u_Dialogs,
   u_ListenerByEvent,
   u_CmdLineArgProcessorAPI;
 
@@ -138,8 +133,11 @@ begin
 end;
 
 procedure TCmdLineArgProcessorAsync.Execute;
+var
+  VRetCode: Integer;
+  VErrorMsg: string;
 begin
-  FErrorMsg := '';
+  VErrorMsg := '';
 
   try
     if not IsMarkSystemOk then begin
@@ -154,21 +152,21 @@ begin
       raise ECmdLineArgProcessorAsync.Create('MarkSystem state invalid!');
     end;
 
-    FRetCode := FCmdLineArgProcessor.Process(FRegionProcess);
+    VRetCode := FCmdLineArgProcessor.Process(FRegionProcess);
 
-    if FRetCode <> cCmdLineArgProcessorOk then begin
-      FErrorMsg :=
-        FCmdLineArgProcessor.GetErrorFromCode(FRetCode) + #13#10 + #13#10 +
+    if VRetCode <> cCmdLineArgProcessorOk then begin
+      VErrorMsg :=
+        FCmdLineArgProcessor.GetErrorFromCode(VRetCode) + #13#10 + #13#10 +
         FCmdLineArgProcessor.GetArguments;
     end;
   except
     on E: Exception do begin
-      FErrorMsg := E.ClassName + ': ' + E.Message;
+      VErrorMsg := E.ClassName + ': ' + E.Message;
     end;
   end;
 
-  if FErrorMsg <> '' then begin
-    Synchronize(OnShowErrorMsg);
+  if VErrorMsg <> '' then begin
+    ShowErrorMessageSync(VErrorMsg);
   end;
 end;
 
@@ -182,11 +180,6 @@ procedure TCmdLineArgProcessorAsync.OnStateChange;
 begin
   FState := FMarkSystem.State.GetStatic;
   FStateEvent.SetEvent;
-end;
-
-procedure TCmdLineArgProcessorAsync.OnShowErrorMsg;
-begin
-  MessageDlg(FErrorMsg, mtError, [mbOK], 0);
 end;
 
 end.

@@ -61,8 +61,6 @@ uses
   SysUtils,
   Classes,
   Types,
-  UITypes,
-  Dialogs,
   Math,
   GR32,
   gnugettext,
@@ -77,6 +75,7 @@ uses
   i_BitmapTileProvider,
   i_Bitmap32Static,
   u_AnsiStr,
+  u_Dialogs,
   u_BaseInterfacedObject,
   u_TileIteratorByRect,
   u_BinaryDataByMemStream,
@@ -389,8 +388,8 @@ begin
   VKmzImgesCount.X := ((VPixelSize.X - 1) div VKmzTileSize) + 1;
   VKmzImgesCount.Y := ((VPixelSize.Y - 1) div VKmzTileSize) + 1;
 
-  if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
-    if MessageDlg(SAS_MSG_GarminMaxTilesWarning,  mtWarning, [mbOK, mbAbort], 0) = mrAbort then begin
+  if (VKmzImgesCount.X * VKmzImgesCount.Y) > 100 then begin
+    if ShowWarningMessage(SAS_MSG_GarminMaxTilesWarning, MB_OKCANCEL) = ID_CANCEL then begin
       Result := False;
       Exit;
     end;

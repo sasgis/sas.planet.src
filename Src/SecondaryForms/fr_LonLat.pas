@@ -30,10 +30,8 @@ uses
   Classes,
   Controls,
   Forms,
-  Dialogs,
   ExtCtrls,
   StdCtrls,
-  UITypes,
   Menus,
   TBX,
   TBXDkPanels,
@@ -153,6 +151,7 @@ uses
   i_Projection,
   i_ProjectionSet,
   i_LocalCoordConverter,
+  u_Dialogs,
   u_ListenerByEvent,
   u_ClipboardFunc,
   u_CoordRepresentation,
@@ -498,7 +497,7 @@ begin
   if Result then begin
     FCoordinates := VLonLat;
   end else begin
-    ShowMessage(SAS_ERR_CoordinatesInput);
+    ShowErrorMessage(SAS_ERR_CoordinatesInput);
   end;
 end;
 
@@ -551,10 +550,7 @@ procedure TfrLonLat.btnPasteClick(Sender: TObject);
     Result := (S1 <> '') and (S2 <> '');
 
     if not Result then begin
-      MessageDlg(
-        Format(_('Can''t parse coordinates from clipboard: %s'), [AText]),
-        mtError, [mbOK], 0
-      );
+      ShowErrorMessage(Format(_('Can''t parse coordinates from clipboard: %s'), [AText]));
       Exit;
     end;
   end;
@@ -567,7 +563,7 @@ begin
   VText := Trim(Clipboard.AsText);
 
   if VText = '' then begin
-    MessageDlg(_('Clipboard is empty!'), mtError, [mbOK], 0);
+    ShowErrorMessage(_('Clipboard is empty!'));
     Exit;
   end;
 

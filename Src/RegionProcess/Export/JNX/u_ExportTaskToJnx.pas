@@ -44,10 +44,7 @@ type
     FProductID: Integer; // 0,2,3,4,5,6,7,8,9
     FBitmapPostProcessing: IBitmapPostProcessing;
 
-    FDoAbortExport: Boolean;
-    FTileProcessErrorMsg: string;
     FTileProcessErrorFmt: string;
-    procedure ShowErrorSync;
   protected
     procedure ProcessRegion; override;
   public
@@ -72,8 +69,6 @@ uses
   Types,
   Classes,
   SysUtils,
-  Dialogs,
-  UITypes,
   JNXlib,
   i_TileStorage,
   i_TileInfoBasic,
@@ -86,6 +81,7 @@ uses
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   u_AnsiStr,
+  u_Dialogs,
   u_ContentTypeFunc,
   u_ResStrings;
 
@@ -150,6 +146,7 @@ var
   VTileInfo: ITileInfoWithData;
   VContentTypeInfoBitmap: IContentTypeInfoBitmap;
   VRecompress: Boolean;
+  VTileProcessErrorMsg: string;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -222,12 +219,11 @@ begin
                     end;
                   except
                     on E: Exception do begin
-                      FTileProcessErrorMsg := Format(
+                      VTileProcessErrorMsg := Format(
                         FTileProcessErrorFmt,
                         [VTile.X, VTile.Y, VZoom + 1, E.ClassName, E.Message]
                       );
-                      TThread.Synchronize(nil, Self.ShowErrorSync);
-                      if FDoAbortExport then begin
+                      if ShowErrorMessageSync(VTileProcessErrorMsg, MB_YESNO) <> ID_YES then begin
                         Exit;
                       end;
                       VData := nil;
@@ -275,12 +271,6 @@ begin
   finally
     VWriter.Free;
   end;
-end;
-
-procedure TExportTaskToJnx.ShowErrorSync;
-begin
-  FDoAbortExport :=
-    MessageDlg(FTileProcessErrorMsg, mtError, [mbYes, mbNo], 0) <> mrYes;
 end;
 
 end.

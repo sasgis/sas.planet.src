@@ -33,7 +33,7 @@ uses
   i_TileIteratorFactory,
   i_BitmapPostProcessing,
   i_Listener,
-  i_TileIterator,  
+  i_TileIterator,
   u_ExportToIMGTask,
   u_RegionProcessTaskAbstract;
 
@@ -42,7 +42,7 @@ type
 
   TJPEGFileInfo = record
     Coords: TDoubleRect;
-    FilePath: String;
+    FilePath: string;
     StartLevel, EndLevel: Integer;
     FileSize: Integer;
   end;
@@ -51,8 +51,8 @@ type
     TileCount: Int64;
     JPEGFileInfos: array of TJPEGFileInfo;
     SubmapsPresent: array [TSubmapKind] of Boolean;
-    SubmapsTileCount: array [TSubmapKind] of int64;
-    SubmapMTXNames: array [TSubmapKind] of String;
+    SubmapsTileCount: array [TSubmapKind] of Int64;
+    SubmapMTXNames: array [TSubmapKind] of string;
   end;
 
   TExportTaskToIMG = class(TRegionProcessTaskAbstract, IListener)
@@ -61,10 +61,10 @@ type
     FTargetFileName, FTargetFileExt: string;
     FBitmapPostProcessing: IBitmapPostProcessing;
     FCancelEvent: THandle;
-    FTempFolder: String;
+    FTempFolder: string;
 
     // Derived info about the task
-    FTilesToProcess: int64;
+    FTilesToProcess: Int64;
     FTileIterators: array of ITileIterator;
     FMapBounds: TDoubleRect;
     FAvailableGeneralizationLevels: set of 0..12;
@@ -82,10 +82,7 @@ type
 
     FFormatSettings: TFormatSettings;
 
-    FDoAbortExport: Boolean;
-    FTileProcessErrorMsg: string;
     FTileProcessErrorFmt: string;
-    procedure ShowErrorSync;
 
     // IListener
     procedure Notification(const AMsg: IInterface);
@@ -114,8 +111,6 @@ uses
   Types,
   ShLwApi,
   Math,
-  Dialogs,
-  UITypes,
   libcrc32,
   gnugettext,
   i_TileStorage,
@@ -129,6 +124,7 @@ uses
   i_BitmapTileSaveLoad,
   i_TileStorageAbilities,
   u_AnsiStr,
+  u_Dialogs,
   u_ResStrings,
   u_GeoFunc;
 
@@ -151,7 +147,7 @@ begin
   FTask := ATask;
   FBitmapPostProcessing := ABitmapPostProcessing;
 
-  FCancelEvent := CreateEvent(Nil, False, False, Nil);
+  FCancelEvent := CreateEvent(nil, False, False, nil);
 
   FStrPhase1Format := _('Saving tiles. %s %d %s');
   FStrNoTilesToExport := _('No tiles to export!');
@@ -166,18 +162,13 @@ begin
   FTileProcessErrorFmt := '[IMG] ' + SAS_ERR_TileProcessError;
 
   // Use '.' as a floating point independently of the user's locale preferences.
-  {$IF CompilerVersion < 23}
-  GetLocaleFormatSettings(GetThreadLocale, FFormatSettings);
-  {$ELSE}
   FFormatSettings := TFormatSettings.Create;
-  {$IFEND}
   FFormatSettings.DecimalSeparator := '.';
 end;
 
 destructor TExportTaskToIMG.Destroy;
 begin
   CloseHandle(FCancelEvent);
-
   inherited;
 end;
 
@@ -189,7 +180,7 @@ end;
 const
   MaxFilePathInMTX = 200;
 
-  CodePages: array [0..12] of String = (
+  CodePages: array [0..12] of string = (
     '        11  874thai                          Thai',
     '         9  932japan                         Japanese',
     '         5  936china                         Chinese (Simplified)',
@@ -205,7 +196,7 @@ const
     '        17 1257ANSIINTL                      Baltic Sort'
   );
 
-  InvariableHeaders: array [1..19] of String = (
+  InvariableHeaders: array [1..19] of string = (
     'H4CP1',   'H4CS2',
     'H4CRSAS.Planet development team@2017',
     'H4LL0',   'H4MA  255', 'H4MB1',
@@ -216,7 +207,7 @@ const
     'H4WM0'
   );
 
-  GeneralizationLevels: array [TSubmapKind, 0..7] of String = (
+  GeneralizationLevels: array [TSubmapKind, 0..7] of string = (
     (
       'H20     24      59724  0 01',        // 5m - 200m
       'H21     35     119423  0 01',        // 300m
@@ -245,7 +236,7 @@ const
   //   #3 - NT, GMP
   MapFormatToMF: array [TIMGMapFormat] of Integer = (1, 1, 2);
   MapFormatToMG: array [TIMGMapFormat] of Integer = (0, 1, 1);
-  MapFormatSubfileExts: array [TIMGMapFormat, 1..3] of String = (
+  MapFormatSubfileExts: array [TIMGMapFormat, 1..3] of string = (
     ('.tre', '.lbl', '.rgn'),
     ('.gmp', '', ''),
     ('.gmp', '', '')
@@ -253,35 +244,35 @@ const
 
 procedure TExportTaskToIMG.InitializeTaskInternalInfo;
 var
-  i: Integer;
+  I: Integer;
   VProjection: IProjection;
   VRect: TDoubleRect;
 begin
   // Calculating the number of source tiles.
   FTilesToProcess := 0;
   SetLength(FTileIterators, Length(FTask.FItems));
-  for i := 0 to Length(FTask.FItems) - 1 do begin
-    VProjection := FTask.FItems[i].FSourceTileStorage.ProjectionSet.Zooms[FTask.FItems[i].FSourceScale];
-    FTileIterators[i] := Self.MakeTileIterator(VProjection);
-    inc(FTilesToProcess, FTileIterators[i].TilesTotal);
+  for I := 0 to Length(FTask.FItems) - 1 do begin
+    VProjection := FTask.FItems[I].FSourceTileStorage.ProjectionSet.Zooms[FTask.FItems[I].FSourceScale];
+    FTileIterators[I] := Self.MakeTileIterator(VProjection);
+    Inc(FTilesToProcess, FTileIterators[I].TilesTotal);
 
-    VRect := VProjection.TileRect2LonLatRect(FTileIterators[i].TilesRect.Rect);
-    if i = 0 then begin
+    VRect := VProjection.TileRect2LonLatRect(FTileIterators[I].TilesRect.Rect);
+    if I = 0 then begin
       FMapBounds := VRect;
     end else begin
       FMapBounds := UnionLonLatRects(VRect, FMapBounds);
     end;
-    FAvailableGeneralizationLevels := FAvailableGeneralizationLevels + [FTask.FItems[i].FDeviceZoomStart..FTask.FItems[i].FDeviceZoomEnd];
+    FAvailableGeneralizationLevels := FAvailableGeneralizationLevels + [FTask.FItems[I].FDeviceZoomStart..FTask.FItems[I].FDeviceZoomEnd];
   end;
 
   FGeneralizationLevelCount[skFine] := 0;
   FGeneralizationLevelCount[skCoarse] := 0;
-  for i:=0 to 12 do begin
-    if i in FAvailableGeneralizationLevels then begin
-      if i <= 7 then begin
-        inc(FGeneralizationLevelCount[skFine]);
+  for I := 0 to 12 do begin
+    if I in FAvailableGeneralizationLevels then begin
+      if I <= 7 then begin
+        Inc(FGeneralizationLevelCount[skFine]);
       end else begin
-        inc(FGeneralizationLevelCount[skCoarse]);
+        Inc(FGeneralizationLevelCount[skCoarse]);
       end;
     end;
   end;
@@ -289,10 +280,10 @@ end;
 
 function TExportTaskToIMG.WriteMTXFiles(var AVolumeInfo: TVolumeInfo): Boolean;
 var
-  i: Integer;
+  I: Integer;
   sk: TSubmapKind;
   VMtxFiles: array [TSubmapKind] of TextFile;
-  VFileName: String;
+  VFileName: string;
   VCoords: TDoubleRect;
   VTileIndex: Integer;
   VStartLevel: Integer;
@@ -304,62 +295,62 @@ begin
     VTileIndex := 0;
 
     // Writing MTX Headers
-    for sk:=skFine to skCoarse do begin
+    for sk := skFine to skCoarse do begin
       if AVolumeInfo.SubmapsPresent[sk] then begin
         AVolumeInfo.SubmapMTXNames[sk] := IntToHex(FTask.FMapID, 8);
         VFileName := FTempFolder + AVolumeInfo.SubmapMTXNames[sk] + '.mtx';
-        AssignFile(VMtxFiles[sk], VFileName); rewrite(VMtxFiles[sk]);
+        AssignFile(VMtxFiles[sk], VFileName); Rewrite(VMtxFiles[sk]);
 
         // H0 - Main header
-        writeln(VMtxFiles[sk], Format('H0%.4X%10d%10d%10d%10d', [$601, 13 + FGeneralizationLevelCount[sk] + 4 * AVolumeInfo.SubmapsTileCount[sk] + Length(InvariableHeaders), AVolumeInfo.SubmapsTileCount[sk] + 1, 0, 0]));
+        WriteLn(VMtxFiles[sk], Format('H0%.4X%10d%10d%10d%10d', [$601, 13 + FGeneralizationLevelCount[sk] + 4 * AVolumeInfo.SubmapsTileCount[sk] + Length(InvariableHeaders), AVolumeInfo.SubmapsTileCount[sk] + 1, 0, 0]));
 
         // H1 - Map bounds
         VCoords := FMapBounds;
-        writeln(VMtxFiles[sk],
+        WriteLn(VMtxFiles[sk],
           Format('H1%12.7f%12.7f%11.7f%11.7f', [VCoords.Left, VCoords.Right, VCoords.Bottom, VCoords.Top], FFormatSettings) +
           Format('%s%2d%5d%1s%1s%1s%1s%5d%s', ['P', 20, 16000, '0', '0', '0', '0', 65280, 'Raster Map'])
         );
 
         // H2 - Generalization Levels
-        for i := 0 to 7 do begin
-          if (i + Integer(sk) * 8) in FAvailableGeneralizationLevels then begin
-            writeln(VMtxFiles[sk], GeneralizationLevels[sk, i]);
+        for I := 0 to 7 do begin
+          if (I + Integer(sk) * 8) in FAvailableGeneralizationLevels then begin
+            WriteLn(VMtxFiles[sk], GeneralizationLevels[sk, I]);
           end;
         end;
 
         // H3 - Feature types
-        writeln(VMtxFiles[sk], Format('H3%5d%1d%1d%3d%5d', [23670, 7, 0, 0, 0]));
-        writeln(VMtxFiles[sk], Format('H3%5d%1d%1d%3d',    [20122, 7, 0, 1]));
+        WriteLn(VMtxFiles[sk], Format('H3%5d%1d%1d%3d%5d', [23670, 7, 0, 0, 0]));
+        WriteLn(VMtxFiles[sk], Format('H3%5d%1d%1d%3d',    [20122, 7, 0, 1]));
 
         // H4 - Options
-        writeln(VMtxFiles[sk], 'H4LA' + CodePages[FTask.FCodePageIndex]);
-        writeln(VMtxFiles[sk], Format('H4TI%10d', [FTask.FMapID]));
-        writeln(VMtxFiles[sk], 'H4ID' + IntToStr(FTask.FMapID));
-        writeln(VMtxFiles[sk], Format('H4MD%2d', [FTask.FDrawOrder]));
-        writeln(VMtxFiles[sk], Format('H4MS%5d%s', [FTask.FMapSeries, 'Raster Map']));
-        writeln(VMtxFiles[sk], Format('H4MF%3d', [MapFormatToMF[FTask.FIMGMapFormat]]));
-        writeln(VMtxFiles[sk], 'H4MG' + IntToStr(MapFormatToMG[FTask.FIMGMapFormat]));
+        WriteLn(VMtxFiles[sk], 'H4LA' + CodePages[FTask.FCodePageIndex]);
+        WriteLn(VMtxFiles[sk], Format('H4TI%10d', [FTask.FMapID]));
+        WriteLn(VMtxFiles[sk], 'H4ID' + IntToStr(FTask.FMapID));
+        WriteLn(VMtxFiles[sk], Format('H4MD%2d', [FTask.FDrawOrder]));
+        WriteLn(VMtxFiles[sk], Format('H4MS%5d%s', [FTask.FMapSeries, 'Raster Map']));
+        WriteLn(VMtxFiles[sk], Format('H4MF%3d', [MapFormatToMF[FTask.FIMGMapFormat]]));
+        WriteLn(VMtxFiles[sk], 'H4MG' + IntToStr(MapFormatToMG[FTask.FIMGMapFormat]));
 
-        for i := Low(InvariableHeaders) to High(InvariableHeaders) do begin
-          writeln(VMtxFiles[sk], InvariableHeaders[i]);
+        for I := Low(InvariableHeaders) to High(InvariableHeaders) do begin
+          WriteLn(VMtxFiles[sk], InvariableHeaders[I]);
         end;
 
         // DATA_BOUNDS
-        writeln(VMtxFiles[sk], 'A3  0      0     462350615020122    0    0');
-        writeln(VMtxFiles[sk], Format('C%12.7f%11.7f%s%12.7f%11.7f%s%12.7f%11.7f%s%12.7f%11.7f%s', [VCoords.Left, VCoords.Bottom, 'A', VCoords.Left, VCoords.Top, 'A', VCoords.Right, VCoords.Top, 'A', VCoords.Right, VCoords.Bottom, 'A'], FFormatSettings));
+        WriteLn(VMtxFiles[sk], 'A3  0      0     462350615020122    0    0');
+        WriteLn(VMtxFiles[sk], Format('C%12.7f%11.7f%s%12.7f%11.7f%s%12.7f%11.7f%s%12.7f%11.7f%s', [VCoords.Left, VCoords.Bottom, 'A', VCoords.Left, VCoords.Top, 'A', VCoords.Right, VCoords.Top, 'A', VCoords.Right, VCoords.Bottom, 'A'], FFormatSettings));
 
-        inc(FTask.FMapID);
+        Inc(FTask.FMapID);
       end;
     end;
 
     // Saving tile info into MTX.
     while AVolumeInfo.TileCount > 0 do begin
       if CancelNotifier.IsOperationCanceled(OperationID) then begin
-        exit;
+        Exit;
       end;
 
       if AVolumeInfo.JPEGFileInfos[VTileIndex].FilePath <> '' then begin
-        for sk:=skFine to skCoarse do begin
+        for sk := skFine to skCoarse do begin
           if sk = skFine then begin
             VStartLevel := Max(AVolumeInfo.JPEGFileInfos[VTileIndex].StartLevel, 0);
             VEndLevel := Min(AVolumeInfo.JPEGFileInfos[VTileIndex].EndLevel, 7);
@@ -370,18 +361,18 @@ begin
 
           if VStartLevel <= VEndLevel then begin
             VCoords := AVolumeInfo.JPEGFileInfos[VTileIndex].Coords;
-            writeln(VMtxFiles[sk], 'X001  ');
-            writeln(VMtxFiles[sk],
+            WriteLn(VMtxFiles[sk], 'X001  ');
+            WriteLn(VMtxFiles[sk],
               Format('X09%12.7f%12.7f%12.7f%12.7f', [VCoords.Left, VCoords.Bottom, VCoords.Right, VCoords.Top], FFormatSettings) +
               Format('%-200s%2d%2d%3d%3d', [AVolumeInfo.JPEGFileInfos[VTileIndex].FilePath, VStartLevel, VEndLevel, 0, 0]));
-            writeln(VMtxFiles[sk], 'A3  0      0     4      10823670    0    0');
-            writeln(VMtxFiles[sk], Format('C%12.7f%11.7f%s%12.7f%11.7f%s%12.7f%11.7f%s%12.7f%11.7f%s', [VCoords.Left, VCoords.Bottom, 'A', VCoords.Left, VCoords.Top, 'A', VCoords.Right, VCoords.Top, 'A', VCoords.Right, VCoords.Bottom, 'A'], FFormatSettings));
+            WriteLn(VMtxFiles[sk], 'A3  0      0     4      10823670    0    0');
+            WriteLn(VMtxFiles[sk], Format('C%12.7f%11.7f%s%12.7f%11.7f%s%12.7f%11.7f%s%12.7f%11.7f%s', [VCoords.Left, VCoords.Bottom, 'A', VCoords.Left, VCoords.Top, 'A', VCoords.Right, VCoords.Top, 'A', VCoords.Right, VCoords.Bottom, 'A'], FFormatSettings));
           end;
         end;
 
-        dec(AVolumeInfo.TileCount);
+        Dec(AVolumeInfo.TileCount);
       end;
-      inc(VTileIndex);
+      Inc(VTileIndex);
     end;
   finally
     // Delphi XE2 cannot correcly compile 'for' loop in this block,
@@ -401,7 +392,7 @@ end;
 //   True - child process successfully started and finished.
 //   False - child process started, but the user canceled the export.
 // Raises an exception if the process could not be started.
-function StartProcessAndWaitForCompletion(const ACommandLine, AStartPath, AStartError: String; AShowWindow, ACreationFlags: DWORD; CancellationEvent: THandle): Boolean;
+function StartProcessAndWaitForCompletion(const ACommandLine, AStartPath, AStartError: string; AShowWindow, ACreationFlags: DWORD; CancellationEvent: THandle): Boolean;
 var
   VStartupInfo: TStartupInfo;
   VProcessInfo: TProcessInformation;
@@ -409,21 +400,21 @@ var
 begin
   Result := False;
 
-  FillChar(VProcessInfo, sizeof(VProcessInfo), 0);
-  FillChar(VStartupInfo, sizeof(VStartupInfo), 0);
+  FillChar(VProcessInfo, SizeOf(VProcessInfo), 0);
+  FillChar(VStartupInfo, SizeOf(VStartupInfo), 0);
 
-  VStartupInfo.cb := sizeof(VStartupInfo);
+  VStartupInfo.cb := SizeOf(VStartupInfo);
   VStartupInfo.dwFlags := STARTF_USESHOWWINDOW;
   VStartupInfo.wShowWindow := AShowWindow;
 
-  if CreateProcess(Nil, pChar(ACommandLine), Nil, Nil, False, ACreationFlags, Nil, pChar(AStartPath), VStartupInfo, VProcessInfo) then begin
+  if CreateProcess(Nil, PChar(ACommandLine), Nil, Nil, False, ACreationFlags, Nil, PChar(AStartPath), VStartupInfo, VProcessInfo) then begin
     VWaitObjects[1] := VProcessInfo.hProcess;
     VWaitObjects[2] := CancellationEvent;
     try
       if WaitForMultipleObjects(2, @VWaitObjects[1], False, INFINITE) <> WAIT_OBJECT_0 then begin
         // If user has cancelled the export, terminate the child process.
         TerminateProcess(VProcessInfo.hProcess, 0);
-        exit;
+        Exit;
       end;
 
       Result := True;
@@ -439,11 +430,11 @@ end;
 function TExportTaskToIMG.CompileMaps(var AVolumeInfo: TVolumeInfo; AAddVolumeSuffix: Boolean): Boolean;
 var
   sk: TSubmapKind;
-  i: Integer;
-  VCommandLine: String;
-  VFileName: String;
+  I: Integer;
+  VCommandLine: string;
+  VFileName: string;
   VLogFileStringList: TStringList;
-  VErrorMessage: String;
+  VErrorMessage: string;
 begin
   Result := False;
 
@@ -451,7 +442,7 @@ begin
   for sk:=skFine to skCoarse do begin
     if AVolumeInfo.SubmapsPresent[sk] then begin
       if FTask.FMapCompilerLicensePath <> '' then begin
-        VCommandLine := '/mpc "' + FTask.FMapCompilerLicensePath + '" '
+        VCommandLine := '/mpc "' + FTask.FMapCompilerLicensePath + '" ';
       end else begin
         VCommandLine := '';
       end;
@@ -465,12 +456,12 @@ begin
           VLogFileStringList := TStringList.Create;
           try
             VLogFileStringList.LoadFromFile(VFileName);
-            if pos('Completion status = FATAL ERROR', VLogFileStringList[VLogFileStringList.Count - 1]) > 0 then begin
+            if Pos('Completion status = FATAL ERROR', VLogFileStringList[VLogFileStringList.Count - 1]) > 0 then begin
               VErrorMessage := '';
               // Compilation failed. Finding out the reason.
-              for i:=0 to VLogFileStringList.Count - 1 do begin
-                if pos('ERROR!', VLogFileStringList[i]) > 0 then begin
-                  VErrorMessage := VErrorMessage + StringReplace(VLogFileStringList[i], 'ERROR!', #13#10, []);
+              for I:=0 to VLogFileStringList.Count - 1 do begin
+                if Pos('ERROR!', VLogFileStringList[I]) > 0 then begin
+                  VErrorMessage := VErrorMessage + StringReplace(VLogFileStringList[I], 'ERROR!', #13#10, []);
                 end;
               end;
 
@@ -482,13 +473,13 @@ begin
         end;
 
         // Checking if the map parts were made.
-        for i:=1 to 3 do begin
-          if (MapFormatSubfileExts[FTask.FIMGMapFormat, i] <> '') and not FileExists(FTempFolder + AVolumeInfo.SubmapMTXNames[sk] + MapFormatSubfileExts[FTask.FIMGMapFormat, i]) then begin
+        for I:=1 to 3 do begin
+          if (MapFormatSubfileExts[FTask.FIMGMapFormat, I] <> '') and not FileExists(FTempFolder + AVolumeInfo.SubmapMTXNames[sk] + MapFormatSubfileExts[FTask.FIMGMapFormat, I]) then begin
             raise Exception.Create(FStrCompileErrorNoMessage);
-          end
+          end;
         end;
       end else begin
-        exit;
+        Exit;
       end;
     end;
   end;
@@ -507,15 +498,15 @@ begin
   VCommandLine := VCommandLine + '"';
 
   for sk:=skFine to skCoarse do begin
-    for i:=1 to 3 do begin
-      if AVolumeInfo.SubmapsPresent[sk] and (MapFormatSubfileExts[FTask.FIMGMapFormat, i] <> '') then begin
-        VCommandLine := VCommandLine + ' ' + AVolumeInfo.SubmapMTXNames[sk] + MapFormatSubfileExts[FTask.FIMGMapFormat, i];
+    for I:=1 to 3 do begin
+      if AVolumeInfo.SubmapsPresent[sk] and (MapFormatSubfileExts[FTask.FIMGMapFormat, I] <> '') then begin
+        VCommandLine := VCommandLine + ' ' + AVolumeInfo.SubmapMTXNames[sk] + MapFormatSubfileExts[FTask.FIMGMapFormat, I];
       end;
     end;
   end;
 
   if not StartProcessAndWaitForCompletion(VCommandLine, FTempFolder, FStrCannotStartGMT, SW_SHOWNORMAL, DETACHED_PROCESS, FCancelEvent) then begin
-    exit
+    Exit
   end;
   if FileExists(VFileName) then begin
     Result := True;
@@ -541,7 +532,7 @@ begin
       repeat
         if VSearchRec.Attr and faDirectory = 0 then begin
           DeleteFile(FTempFolder + VSearchRec.Name);
-          inc(VFilesDeleted);
+          Inc(VFilesDeleted);
           ProgressFormUpdateOnProgress(VFilesDeleted, FTilesToProcess);
         end;
       until FindNext(VSearchRec) <> 0;
@@ -566,7 +557,7 @@ var
 begin
   // Volume Index is left intact by this procedure.
   AVolumeInfo.TileCount := 0;
-  AVolumeInfo.JPEGFileInfos := Nil;
+  AVolumeInfo.JPEGFileInfos := nil;
   for sk:=skFine to skCoarse do begin
     AVolumeInfo.SubmapsPresent[sk] := False;
     AVolumeInfo.SubmapsTileCount[sk] := 0;
@@ -576,7 +567,7 @@ end;
 
 procedure TExportTaskToIMG.ProcessRegion;
 var
-  i: Integer;
+  I: Integer;
   VBitmapTile: IBitmap32Static;
   VZoom: Byte;
   VTile: TPoint;
@@ -590,24 +581,25 @@ var
   VTileInfo: ITileInfoWithData;
   VContentTypeInfoBitmap: IContentTypeInfoBitmap;
   VCrc32: Cardinal;
-  VFileName: String;
+  VFileName: string;
   VFile: File;
-  VAbsolutePath: String;
-  VRelativePath: String;
+  VAbsolutePath: string;
+  VRelativePath: string;
   VFileCacheFlagIsValid: Boolean;
   VFileCache: Boolean;
   VUseFileFromCache: Boolean;
   VIndex: Integer;
-  VTileHash: String;
-  VRunningTotalTileSize: int64;
+  VTileHash: string;
+  VRunningTotalTileSize: Int64;
   VCurrentVolumeInfo: TVolumeInfo;
   VTileHashTable: TStringList;
   VJPEGTileInfo: ^TJPEGFileInfo;
+  VTileProcessErrorMsg: string;
 begin
   inherited;
 
   SetLength(FTempFolder, MAX_PATH);
-  SetLength(FTempFolder, GetTempPath(MAX_PATH, pChar(FTempFolder)));
+  SetLength(FTempFolder, GetTempPath(MAX_PATH, PChar(FTempFolder)));
   FTempFolder := FTempFolder + 'ExportToIMG_' + IntToHex(GetCurrentThreadId, 8) + '\';
   if not DirectoryExists(FTempFolder) then begin
     CreateDir(FTempFolder);
@@ -631,12 +623,12 @@ begin
       ProgressFormUpdateOnProgress(VTilesProcessed, FTilesToProcess);
       VRunningTotalTileSize := 0;
 
-      for i := 0 to Length(FTask.FItems) - 1 do begin
-        VTileStorage := FTask.FItems[i].FSourceTileStorage;
-        VVersion := FTask.FItems[i].FSourceMapVersion;
-        VZoom := FTask.FItems[i].FSourceScale;
+      for I := 0 to Length(FTask.FItems) - 1 do begin
+        VTileStorage := FTask.FItems[I].FSourceTileStorage;
+        VVersion := FTask.FItems[I].FSourceMapVersion;
+        VZoom := FTask.FItems[I].FSourceScale;
         VProjectionSet := VTileStorage.ProjectionSet;
-        VTileIterator := FTileIterators[i];
+        VTileIterator := FTileIterators[I];
 
         VFileCacheFlagIsValid := False;
         VFileCache := False;
@@ -650,11 +642,11 @@ begin
 
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
-            exit;
+            Exit;
           end;
 
           if Supports(VTileStorage.GetTileInfoEx(VTile, VZoom, VVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-            VData := Nil;
+            VData := nil;
             VUseFileFromCache := False;
 
             if Assigned(FBitmapPostProcessing) or not SameTextA(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
@@ -669,12 +661,11 @@ begin
                   end;
                 except
                   on E: Exception do begin
-                    FTileProcessErrorMsg := Format(
+                    VTileProcessErrorMsg := Format(
                       FTileProcessErrorFmt,
                       [VTile.X, VTile.Y, VZoom + 1, E.ClassName, E.Message]
                     );
-                    TThread.Synchronize(nil, Self.ShowErrorSync);
-                    if FDoAbortExport then begin
+                    if ShowErrorMessageSync(VTileProcessErrorMsg, MB_YESNO) <> ID_YES then begin
                       Exit;
                     end;
                     VData := nil;
@@ -715,8 +706,8 @@ begin
                   // Checking is it's possible to build a relative path to the tile.
                   if VFileCacheFlagIsValid and VFileCache then begin
                     SetLength(VRelativePath, MAX_PATH);
-                    if PathRelativePathTo(pChar(VRelativePath), pChar(FTempFolder), FILE_ATTRIBUTE_DIRECTORY, pChar(VAbsolutePath), FILE_ATTRIBUTE_NORMAL) then begin
-                      VRelativePath := pChar(VRelativePath);
+                    if PathRelativePathTo(PChar(VRelativePath), PChar(FTempFolder), FILE_ATTRIBUTE_DIRECTORY, PChar(VAbsolutePath), FILE_ATTRIBUTE_NORMAL) then begin
+                      VRelativePath := PChar(VRelativePath);
                       VUseFileFromCache := Length(AnsiString(VRelativePath)) <= MaxFilePathInMTX;
                     end;
                   end;
@@ -733,16 +724,16 @@ begin
 
                 if not WriteMTXFiles(VCurrentVolumeInfo) or not CompileMaps(VCurrentVolumeInfo, True) then begin
                   // Exit if the user has cancelled the export during map compilation.
-                  exit;
+                  Exit;
                 end;
                 ClearVolumeInfo(VCurrentVolumeInfo);
                 VTileHashTable.Clear;
                 VRunningTotalTileSize := 0;
-                inc(VCurrentVolumeInfo.VolumeIndex);
+                Inc(VCurrentVolumeInfo.VolumeIndex);
 
                 ProgressInfo.SetFirstLine(Format(FStrPhase1Format, [SAS_STR_AllSaves, FTilesToProcess, SAS_STR_Files]));
               end;
-              
+
 
               VCrc32 := crc32(0, VData.Buffer, VData.Size);
               VTileHash := IntToHex(VCrc32, 8) + '_' + IntToHex(VData.Size, 8);
@@ -779,25 +770,25 @@ begin
               VJPEGTileInfo := @VCurrentVolumeInfo.JPEGFileInfos[VCurrentVolumeInfo.TileCount];
               VJPEGTileInfo.Coords := VProjectionSet.Zooms[VZoom].TilePos2LonLatRect(VTile);
               VJPEGTileInfo.FilePath := ChangeFileExt(VFileName, '');
-              VJPEGTileInfo.StartLevel := FTask.FItems[i].FDeviceZoomStart;
-              VJPEGTileInfo.EndLevel := FTask.FItems[i].FDeviceZoomEnd;
+              VJPEGTileInfo.StartLevel := FTask.FItems[I].FDeviceZoomStart;
+              VJPEGTileInfo.EndLevel := FTask.FItems[I].FDeviceZoomEnd;
               VJPEGTileInfo.FileSize := VData.Size;
 
-              if FTask.FItems[i].FDeviceZoomStart <= 7 then begin
+              if FTask.FItems[I].FDeviceZoomStart <= 7 then begin
                 VCurrentVolumeInfo.SubmapsPresent[skFine] := True;
-                inc(VCurrentVolumeInfo.SubmapsTileCount[skFine]);
+                Inc(VCurrentVolumeInfo.SubmapsTileCount[skFine]);
               end;
-              if FTask.FItems[i].FDeviceZoomEnd > 7 then begin
+              if FTask.FItems[I].FDeviceZoomEnd > 7 then begin
                 VCurrentVolumeInfo.SubmapsPresent[skCoarse] := True;
-                inc(VCurrentVolumeInfo.SubmapsTileCount[skCoarse]);
+                Inc(VCurrentVolumeInfo.SubmapsTileCount[skCoarse]);
               end;
 
-              inc(VRunningTotalTileSize, VData.Size);
-              inc(VCurrentVolumeInfo.TileCount);
+              Inc(VRunningTotalTileSize, VData.Size);
+              Inc(VCurrentVolumeInfo.TileCount);
             end;
           end;
 
-          inc(VTilesProcessed);
+          Inc(VTilesProcessed);
           ProgressFormUpdateOnProgress(VTilesProcessed, FTilesToProcess);
         end;
       end;
@@ -820,12 +811,6 @@ begin
     // Deleting the files from temp folder.
     ClearTempFolder;
   end;
-end;
-
-procedure TExportTaskToIMG.ShowErrorSync;
-begin
-  FDoAbortExport :=
-    MessageDlg(FTileProcessErrorMsg, mtError, [mbYes, mbNo], 0) <> mrYes;
 end;
 
 end.

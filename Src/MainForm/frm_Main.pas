@@ -1233,6 +1233,7 @@ uses
   u_FavoriteMapSetHotKeyList,
   u_FavoriteMapSetHelper,
   u_StickToGrids,
+  u_Dialogs,
   u_GeoFunc,
   u_GeoToStrFunc,
   u_HtmlDoc,
@@ -3677,7 +3678,7 @@ begin
         VFavoriteMapSet := FFavoriteMapSetHotKeyList.GetMapSetByHotKey(VShortCut);
         if VFavoriteMapSet <> nil then begin
           if not FFavoriteMapSetHelper.TrySwitchOn(VFavoriteMapSet, VErrMsg) then begin
-            MessageDlg(VErrMsg, mtError, [mbOk], 0);
+            ShowErrorMessage(Handle, VErrMsg);
           end;
           Handled := True;
           Exit;
@@ -4043,7 +4044,7 @@ begin
   except
     on E: Exception do begin
       VResult := cCmdLineArgProcessorSASExceptionRaised;
-      MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOK], 0);
+      ShowErrorMessage(Handle, E.ClassName + ': ' + E.Message);
     end;
   end;
   Msg.Result := VResult;
@@ -4104,7 +4105,7 @@ var
 begin
   VMsg := IInterface(Msg.WParam);
   if Supports(VMsg, IMarkSystemErrorMsg, VMarkSystemError) then begin
-    MessageDlg(VMarkSystemError.ErrorText, mtError, [mbOK], 0);
+    ShowErrorMessage(Handle, VMarkSystemError.ErrorText);
   end;
   if Assigned(VMsg) then begin
     VMsg._Release;
@@ -4268,7 +4269,7 @@ end;
 
 procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
 var
-  path: string;
+  VPath: string;
   VMapType: IMapType;
   VMapProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
@@ -4299,10 +4300,13 @@ begin
         );
 
       VVersion := VMapType.VersionRequest.GetStatic.BaseVersion;
-      path := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
+      VPath := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
       VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VMapProjection.Zoom, VVersion, gtimAsIs);
-      if not Assigned(VTileInfo) or not VTileInfo.GetIsExists or
-        (MessageBox(handle, pchar(Format(SAS_MSG_TileExists, [path])), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+
+      if not Assigned(VTileInfo) or
+         not VTileInfo.GetIsExists or
+         (ShowQuestionMessage(Handle, Format(SAS_MSG_TileExists, [VPath]), MB_YESNO) = ID_YES)
+      then begin
         TTileDownloaderUIOneTile.Create(
           GState.Config.DownloaderThreadConfig,
           GState.AppClosingNotifier,
@@ -4371,10 +4375,10 @@ begin
     if FileExists(VFileName) then begin
       OpenFileInDefaultProgram(VFileName);
     end else begin
-      ShowMessageFmt(SAS_ERR_FileNotExistFmt, [VFileName]);
+      ShowErrorMessage(Handle, Format(SAS_ERR_FileNotExistFmt, [VFileName]));
     end;
   end else begin
-    ShowMessage(SAS_MSG_CantGetTileFileName);
+    ShowErrorMessage(Handle, SAS_MSG_CantGetTileFileName);
   end;
 end;
 
@@ -4513,7 +4517,7 @@ end;
 
 procedure TfrmMain.NDelClick(Sender: TObject);
 var
-  s: string;
+  VPath: string;
   VMapType: IMapType;
   VMapProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
@@ -4543,9 +4547,9 @@ begin
           prToTopLeft
         );
       VVersion := VMapType.VersionRequest.GetStatic.BaseVersion;
-      s := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
-      VMessage := Format(SAS_MSG_DeleteTileOneTileAsk, [s]);
-      if (MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+      VPath := VMapType.GetTileShowName(VTile, VMapProjection.Zoom, VVersion);
+      VMessage := Format(SAS_MSG_DeleteTileOneTileAsk, [VPath]);
+      if ShowQuestionMessage(Handle, VMessage, MB_YESNO) = ID_YES then begin
         VMapType.TileStorage.DeleteTile(VTile, VMapProjection.Zoom, VVersion);
       end;
     end;
@@ -4907,7 +4911,7 @@ begin
     if Assigned(VRequest) then begin
       CopyDownloadRequestToClipboard(Handle, VRequest);
     end else begin
-      MessageDlg(_('Nothing to copy: URL is empty!'), mtError, [mbOK], 0);
+      ShowErrorMessage(Handle, _('Nothing to copy: URL is empty!'));
     end;
   end;
 end;
@@ -5015,13 +5019,13 @@ end;
 
 procedure TfrmMain.GPSReceiverConnectError;
 begin
-  ShowMessage(SAS_ERR_GpsConnecting);
+  ShowErrorMessage(Handle, SAS_ERR_GpsConnecting);
 end;
 
 procedure TfrmMain.GPSReceiverTimeout;
 begin
   actGpsConnect.Enabled := True;
-  ShowMessage(SAS_ERR_GpsCommunication);
+  ShowErrorMessage(Handle, SAS_ERR_GpsCommunication);
 end;
 
 procedure TfrmMain.NMapStorageInfoClick(Sender: TObject);
@@ -6250,7 +6254,7 @@ begin
         VIsError := (VRoute = nil);
       except
         on E: Exception do begin
-          MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOk], 0);
+          ShowErrorMessage(Handle, E.ClassName + ': ' + E.Message);
         end;
       end;
 
@@ -6260,7 +6264,7 @@ begin
       end else begin
         FRouteComment := '';
         if VErrorMessage <> '' then begin
-          MessageDlg(VErrorMessage, mtError, [mbOk], 0);
+          ShowErrorMessage(Handle, VErrorMessage);
         end;
       end;
     end;
@@ -6456,7 +6460,7 @@ begin
     VIsError := (VRoute = nil);
   except
     on E: Exception do begin
-      MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOk], 0);
+      ShowErrorMessage(Handle, E.ClassName + ': ' + E.Message);
     end;
   end;
 
@@ -6467,7 +6471,7 @@ begin
   end else begin
     FRouteComment := '';
     if VErrorMessage <> '' then begin
-      MessageDlg(VErrorMessage, mtError, [mbOk], 0);
+      ShowErrorMessage(Handle, VErrorMessage);
     end;
   end;
 
@@ -6998,8 +7002,9 @@ end;
 procedure TfrmMain.actGpsTrackClearExecute(Sender: TObject);
 begin
   if GState.GpsTrackRecorder.IsEmpty then begin
-    MessageBox(Handle, PChar(_('Nothing to delete - GPS track is empty.')), PChar(SAS_MSG_information), MB_OK or MB_ICONINFORMATION);
-  end else if MessageBox(Handle, PChar(SAS_MSG_DeleteGPSTrackAsk), PChar(SAS_MSG_coution), 36) = IDYES then begin
+    ShowInfoMessage(Handle, _('Nothing to delete - GPS track is empty.'));
+  end else
+  if ShowQuestionMessage(Handle, SAS_MSG_DeleteGPSTrackAsk, MB_YESNO) = ID_YES then begin
     GState.GpsTrackRecorder.ClearTrack;
   end;
 end;
@@ -7014,7 +7019,7 @@ begin
       FState.State := ao_movemap;
     end;
   end else begin
-    ShowMessage(SAS_ERR_Nopoints);
+    ShowErrorMessage(Handle, SAS_ERR_Nopoints);
   end;
 end;
 
@@ -7367,7 +7372,7 @@ begin
     FState.State := ao_movemap;
     FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
   end else begin
-    showmessage(SAS_MSG_NeedHL);
+    ShowErrorMessage(Handle, SAS_MSG_NeedHL);
   end;
 end;
 
@@ -7588,7 +7593,7 @@ begin
   end else begin
     VPoint := FConfig.NavToPoint.LonLat;
     if PointIsEmpty(VPoint) then begin
-      ShowMessage('Use right-click on mark and choose Navigation to Mark');
+      ShowErrorMessage(Handle, _('Click on the placemark with the right mouse button and select "Navigation to Placemark"'));
     end else begin
       FConfig.NavToPoint.StartNavLonLat(VPoint);
     end;

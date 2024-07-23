@@ -32,7 +32,6 @@ uses
   Controls,
   Forms,
   Dialogs,
-  UITypes,
   StdCtrls,
   ExtCtrls,
   ComCtrls,
@@ -195,15 +194,11 @@ uses
   u_CacheConverterProgressInfo,
   u_Synchronizer,
   u_AnsiStr,
+  u_Dialogs,
   u_FileSystemFunc,
   frm_ProgressCacheConvrter;
 
 {$R *.dfm}
-
-procedure ShowError(const AMsg: string); inline;
-begin
-  MessageDlg(AMsg, mtError, [mbOk], -1);
-end;
 
 {TfrmCacheManager}
 
@@ -513,19 +508,19 @@ procedure TfrmCacheManager.btnStartClick(Sender: TObject);
     // source
     if Trim(edtPath.Text) = '' then begin
       case FSrcType of
-        stArchive: ShowError( _('Source cache file is not specified!') );
-        stFolder: ShowError( _('Source cache path is not specified!') );
+        stArchive: ShowErrorMessage(_('Source cache file is not specified!'));
+        stFolder: ShowErrorMessage(_('Source cache path is not specified!'));
       else
         Assert(False);
       end;
       Exit;
     end;
     if FfrSrcCacheTypesList.cbbCacheType.ItemIndex = -1 then begin
-      ShowError( _('Source cache type is not selected!') );
+      ShowErrorMessage(_('Source cache type is not selected!'));
       Exit;
     end;
     if cbbExt.ItemIndex = -1 then begin
-      ShowError( _('Tiles extension is not selected!') );
+      ShowErrorMessage(_('Tiles extension is not selected!'));
       Exit;
     end;
 
@@ -533,16 +528,16 @@ procedure TfrmCacheManager.btnStartClick(Sender: TObject);
     if Trim(edtDestPath.Text) = '' then begin
       case FDestType of
         dtArchiveZip, dtArchiveTar: begin
-          ShowError( _('Dest cache file is not specified!') );
+          ShowErrorMessage(_('Dest cache file is not specified!'));
         end;
-        dtFolder: ShowError( _('Dest cache path is not specified!') );
+        dtFolder: ShowErrorMessage(_('Dest cache path is not specified!'));
       else
         Assert(False);
       end;
       Exit;
     end;
     if FfrDestCacheTypesList.cbbCacheType.ItemIndex = -1 then begin
-      ShowError( _('Dest cache type is not selected!') );
+      ShowErrorMessage(_('Dest cache type is not selected!'));
       Exit;
     end;
 
@@ -653,7 +648,7 @@ procedure TfrmCacheManager.ProcessCacheConverter;
     Result := False;
 
     if not FileExists(AFileName) then begin
-      ShowError( Format(_('Source file does not exists: %s'), [AFileName]));
+      ShowErrorMessage(Format(_('Source file does not exists: %s'), [AFileName]));
       Exit;
     end;
 
@@ -665,11 +660,11 @@ procedure TfrmCacheManager.ProcessCacheConverter;
       AArchiveType := atZip;
     end else
     if VExt <> '' then begin
-      ShowError( Format(_('Unsupported archive type: %s'), [VExt]));
+      ShowErrorMessage(Format(_('Unsupported archive type: %s'), [VExt]));
       Exit;
     end else
     if VExt = '' then begin
-      ShowError( Format(_('Failed detect archive type from file name: %s'), [AFileName]));
+      ShowErrorMessage(Format(_('Failed detect archive type from file name: %s'), [AFileName]));
       Exit;
     end;
 

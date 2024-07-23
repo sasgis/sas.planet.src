@@ -27,7 +27,6 @@ uses
   Windows,
   Classes,
   Controls,
-  UITypes,
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB,
@@ -96,8 +95,8 @@ implementation
 uses
   Variants,
   SysUtils,
-  Dialogs,
   gnugettext,
+  u_Dialogs,
   u_HtmlDoc;
 
 const
@@ -225,7 +224,7 @@ begin
     on E: Exception do begin
       Cancel := True;
       if not FIsInvisible then begin
-        MessageDlg(E.Message, mtError, [mbOK], 0);
+        ShowErrorMessage(E.Message);
       end;
     end;
   end;

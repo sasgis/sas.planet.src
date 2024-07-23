@@ -25,7 +25,6 @@ interface
 
 uses
   Windows,
-  UITypes,
   i_IDList,
   i_MarkSystemConfig,
   i_MarkSystemImplConfig,
@@ -75,13 +74,13 @@ implementation
 
 uses
   SysUtils,
-  Dialogs,
   gnugettext,
   c_ZeroGUID,
   c_MarkSystem,
   i_EnumID,
   i_MarkSystemImplConfigSML,
   i_MarkSystemImplConfigORM,
+  u_Dialogs,
   u_IDInterfaceList,
   u_MarkSystemImplConfigSML,
   u_MarkSystemImplConfigORM,
@@ -164,15 +163,9 @@ begin
   Result := TMarkSystemConfigStatic.Create(AID, ADB, _('My Marks'), VImpl);
 end;
 
-procedure _ShowConfigErrorFmt(
-  const AMessageFmt: string;
-  const AArgs: array of const
-);
-var
-  VMsg: string;
+procedure _ShowConfigErrorFmt(const AMessageFmt: string; const AArgs: array of const);
 begin
-  VMsg := Format(AMessageFmt, AArgs);
-  MessageDlg(VMsg, mtError, [mbOK], 0);
+  ShowErrorMessage(Format(AMessageFmt, AArgs));
 end;
 
 { TMarkSystemConfig }

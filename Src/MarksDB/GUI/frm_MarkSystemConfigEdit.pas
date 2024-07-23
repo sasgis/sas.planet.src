@@ -36,7 +36,6 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
-  UITypes,
   i_MarkSystemConfig,
   i_MarkSystemImplConfig,
   i_MarkSystemImplConfigSML,
@@ -115,6 +114,7 @@ uses
   ActiveX,
   gnugettext,
   c_MarkSystem,
+  u_Dialogs,
   u_MarkSystemImplConfigSML,
   U_MarkSystemImplConfigORM;
 
@@ -353,7 +353,7 @@ begin
     end else begin
       VMsgText := _('Set Connection string first!');
     end;
-    MessageDlg(VMsgText, mtError, [mbOK], 0);
+    ShowErrorMessage(VMsgText);
     Exit;
   end;
 

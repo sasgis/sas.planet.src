@@ -32,9 +32,7 @@ uses
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
-  UITypes,
   i_LanguageManager,
   i_ArchiveReadWriteConfig,
   u_CommonFormAndFrameParents;
@@ -64,7 +62,8 @@ implementation
 
 uses
   gnugettext,
-  u_ArchiveReadWriteConfig;
+  u_ArchiveReadWriteConfig,
+  u_Dialogs;
 
 {$R *.dfm}
 
@@ -148,12 +147,7 @@ begin
       VStr := Copy(VStr, 1, I - 1);
     end;
     if not TryStrToInt(VStr, I) then begin
-      MessageDlg(
-        Format(_('Invalid Volume Size value: %s'), [cbbVolumeSize.Text]),
-        mtError,
-        [mbOk],
-        -1
-      );
+      ShowErrorMessage(Format(_('Invalid Volume Size value: %s'), [cbbVolumeSize.Text]));
       Exit;
     end;
   end;

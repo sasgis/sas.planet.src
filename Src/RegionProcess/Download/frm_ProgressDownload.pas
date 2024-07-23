@@ -33,7 +33,6 @@ uses
   Controls,
   Classes,
   DateUtils,
-  UITypes,
   RarProgress,
   TB2Item,
   TB2Dock,
@@ -158,6 +157,7 @@ uses
   Graphics,
   IniFiles,
   i_ConfigDataWriteProvider,
+  u_Dialogs,
   u_ResStrings,
   u_MapTypeIconsList,
   u_ConfigDataWriteProviderByIniFile;
@@ -565,7 +565,7 @@ begin
       VErrMsg := rsFailedSessionSave + VFileName + #13#10 + E.ClassName + ': ' + E.Message;
       mmoLog.Lines.Add(VErrMsg);
       if not FIsSessionInitialized then begin
-        MessageDlg(VErrMsg, mtError, [mbOK], -1);
+        ShowErrorMessage(VErrMsg);
       end;
     end;
   end;

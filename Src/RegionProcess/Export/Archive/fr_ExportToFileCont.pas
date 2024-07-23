@@ -32,7 +32,6 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
-  UITypes,
   t_ExportToFileCont,
   i_LanguageManager,
   i_GeometryLonLat,
@@ -121,6 +120,7 @@ implementation
 uses
   gnugettext,
   i_TileStorageAbilities,
+  u_Dialogs,
   u_FileSystemFunc;
 
 {$R *.dfm}
@@ -260,22 +260,16 @@ begin
 end;
 
 function TfrExportToFileCont.Validate: Boolean;
-
-  procedure ShowErr(const AMsg: string);
-  begin
-    MessageDlg(AMsg, mtError, [mbOk], -1);
-  end;
-
 begin
   Result := False;
 
   if not IsValidFileName(edtTargetFile.Text) then begin
-    ShowErr(_('Output file name is not set or incorrect!'));
+    ShowErrorMessage(_('Output file name is not set or incorrect!'));
     Exit;
   end;
 
   if not FfrZoomsSelect.Validate then begin
-    ShowErr(_('Please select at least one zoom!'));
+    ShowErrorMessage(_('Please select at least one zoom!'));
     Exit;
   end;
 
@@ -288,7 +282,7 @@ begin
   end;
 
   if FfrMapSelect.GetSelectedMapType = nil then begin
-    ShowErr(_('Please select the map first!'));
+    ShowErrorMessage(_('Please select the map first!'));
     Exit;
   end;
 

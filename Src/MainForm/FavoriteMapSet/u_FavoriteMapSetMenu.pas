@@ -24,8 +24,6 @@ unit u_FavoriteMapSetMenu;
 interface
 
 uses
-  Dialogs,
-  UITypes,
   TB2Item,
   i_Listener,
   i_InterfaceListStatic,
@@ -63,6 +61,7 @@ uses
   TBX,
   c_ZeroGUID,
   i_GUIDListStatic,
+  u_Dialogs,
   u_ListenerByEvent;
 
 { TFavoriteMapSetMenu }
@@ -144,7 +143,7 @@ begin
     VItem := IFavoriteMapSetItemStatic(FStatic[VMenuItem.Tag]);
     Assert(VItem <> nil);
     if not FFavoriteMapSetHelper.TrySwitchOn(VItem, VErrMsg) then begin
-      MessageDlg(VErrMsg, mtError, [mbOK], 0);
+      ShowErrorMessage(VErrMsg);
     end;
   end;
 end;

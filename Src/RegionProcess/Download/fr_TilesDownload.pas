@@ -34,7 +34,6 @@ uses
   StdCtrls,
   Windows,
   Spin,
-  UITypes,
   i_MapType,
   i_Listener,
   i_Notifier,
@@ -42,9 +41,9 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_RegionProcessParamsFrame,
+  u_CommonFormAndFrameParents,
   fr_MapSelect,
-  fr_ZoomsSelect,
-  u_CommonFormAndFrameParents;
+  fr_ZoomsSelect;
 
 type
   IRegionProcessParamsFrameTilesDownload = interface(IRegionProcessParamsFrameBase)
@@ -188,12 +187,12 @@ type
 implementation
 
 uses
-  gnugettext,
   Math,
-  Dialogs,
+  gnugettext,
   t_GeoTypes,
   i_Projection,
   i_GeometryProjected,
+  u_Dialogs,
   u_GeoFunc,
   u_ListenerByEvent,
   u_ResStrings;
@@ -533,13 +532,13 @@ function TfrTilesDownload.Validate: Boolean;
 begin
   Result := FfrZoomsSelect.Validate;
   if not Result then begin
-    MessageDlg(SAS_MSG_NeedZoom, mtError, [mbOk], 0);
+    ShowErrorMessage(SAS_MSG_NeedZoom);
   end;
 
   if Result then begin
     Result := FfrMapSelect.GetSelectedMapType <> nil;
     if not Result then begin
-      ShowMessage(_('Please select a map'));
+      ShowErrorMessage(_('Please select a map'));
     end;
   end;
 end;

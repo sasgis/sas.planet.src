@@ -32,10 +32,8 @@ uses
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   ExtCtrls,
-  UITypes,
   i_LanguageManager,
   u_CommonFormAndFrameParents;
 
@@ -54,7 +52,6 @@ type
     procedure btnCancelClick(Sender: TObject);
   private
     procedure SetupItems;
-    procedure ShowError(const AMsg: string); inline;
   protected
     procedure RefreshTranslation; override;
   public
@@ -66,6 +63,7 @@ implementation
 
 uses
   gnugettext,
+  u_Dialogs,
   u_GeoToStrFunc;
 
 {$R *.dfm}
@@ -91,13 +89,13 @@ begin
       AShape := TShapeType(cbbShapeType.ItemIndex);
       ARadius := str2r(Trim(edtRadius.Text));
       if ARadius = 0 then begin
-        ShowError(_('Radius must be greater than zero!'));
+        ShowErrorMessage(_('Radius must be greater than zero!'));
         Result := False;
       end;
     end;
   except
     on E: Exception do begin
-      ShowError(E.ClassName + ': ' + E.Message);
+      ShowErrorMessage(E.ClassName + ': ' + E.Message);
       Result := False;
     end;
   end;
@@ -120,11 +118,6 @@ begin
   cbbShapeType.Items.Add( _('Square') );
   cbbShapeType.Items.Add( _('Square (on the surface)') );
   cbbShapeType.ItemIndex := 0;
-end;
-
-procedure TfrmPolygonForOperationConfig.ShowError(const AMsg: string);
-begin
-  MessageDlg(AMsg, mtError, [mbOK], 0);
 end;
 
 procedure TfrmPolygonForOperationConfig.btnOkClick(Sender: TObject);

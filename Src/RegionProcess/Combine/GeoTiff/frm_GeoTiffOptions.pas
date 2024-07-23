@@ -33,12 +33,10 @@ uses
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   ExtCtrls,
   Spin,
   CheckLst,
-  UITypes,
   t_GeoTIFF,
   i_LanguageManager,
   u_CheckListBoxExt,
@@ -105,6 +103,7 @@ uses
   Math,
   StrUtils,
   gnugettext,
+  u_Dialogs,
   u_GeoTiffFunc;
 
 {$R *.dfm}
@@ -231,13 +230,13 @@ begin
   for I := 0 to Length(VStrArr) - 1 do begin
     if not TryStrToInt(VStrArr[I], AOverview[I]) then begin
       if not ASilent then begin
-        MessageDlg(Format(_('Invalid Overview level value: "%s"'), [VStrArr[I]]), mtError, [mbOk], 0);
+        ShowErrorMessage(Format(_('Invalid Overview level value: "%s"'), [VStrArr[I]]));
       end;
       Exit;
     end;
     if not TGeoTiffFunc.IsValidOverviewValue(AOverview[I]) then begin
       if not ASilent then begin
-        MessageDlg(Format(_('Given Overview level "%s" is not a power of 2!'), [VStrArr[I]]), mtError, [mbOk], 0);
+        ShowErrorMessage(Format(_('Given Overview level "%s" is not a power of 2!'), [VStrArr[I]]));
       end;
       Exit;
     end;

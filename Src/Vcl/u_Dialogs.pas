@@ -25,18 +25,50 @@ interface
 
 uses
   Windows;
-  
+
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
 
-function ShowQuestionMessage(const AMessage: string; const AButtons: UINT): Integer;
+const
+  MB_OK               = Windows.MB_OK;
+  MB_OKCANCEL         = Windows.MB_OKCANCEL;
+  MB_ABORTRETRYIGNORE = Windows.MB_ABORTRETRYIGNORE;
+  MB_YESNOCANCEL      = Windows.MB_YESNOCANCEL;
+  MB_YESNO            = Windows.MB_YESNO;
+  MB_RETRYCANCEL      = Windows.MB_RETRYCANCEL;
 
-function ShowInfoMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
-function ShowInfoMessageSync(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
+  ID_OK               = Windows.ID_OK;
+  ID_CANCEL           = Windows.ID_CANCEL;
+  ID_ABORT            = Windows.ID_ABORT;
+  ID_RETRY            = Windows.ID_RETRY;
+  ID_IGNORE           = Windows.ID_IGNORE;
+  ID_YES              = Windows.ID_YES;
+  ID_NO               = Windows.ID_NO;
+  ID_CLOSE            = Windows.ID_CLOSE;
+  ID_HELP             = Windows.ID_HELP;
 
-function ShowWarningMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
+function ShowQuestionMessage(const AMessage: string; const AButtons: UINT): Integer; overload;
+function ShowQuestionMessage(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer; overload;
 
-function ShowErrorMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
-function ShowErrorMessageSync(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
+function ShowQuestionMessageSync(const AMessage: string; const AButtons: UINT): Integer; overload;
+function ShowQuestionMessageSync(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer; overload;
+
+function ShowInfoMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+function ShowInfoMessage(const AHandle: HWND; const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+
+function ShowInfoMessageSync(const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+function ShowInfoMessageSync(const AHandle: HWND; const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+
+function ShowWarningMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+function ShowWarningMessage(const AHandle: HWND; const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+
+function ShowWarningMessageSync(const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+function ShowWarningMessageSync(const AHandle: HWND; const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+
+function ShowErrorMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+function ShowErrorMessage(const AHandle: HWND; const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+
+function ShowErrorMessageSync(const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
+function ShowErrorMessageSync(const AHandle: HWND; const AMessage: string; const AButtons: UINT = MB_OK): Integer; overload;
 
 implementation
 
@@ -45,14 +77,56 @@ uses
   Classes,
   u_ResStrings;
 
+const
+  CQuestionMessageFlags = MB_ICONQUESTION or MB_TOPMOST;
+  CInfoMessageFlags     = MB_ICONINFORMATION or MB_TOPMOST;
+  CWarningMessageFlags  = MB_ICONWARNING or MB_TOPMOST;
+  CErrorMessageFlags    = MB_ICONERROR or MB_TOPMOST;
+
 function ShowQuestionMessage(const AMessage: string; const AButtons: UINT): Integer;
 begin
-  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_coution), AButtons or MB_ICONQUESTION or MB_TOPMOST);
+  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_coution), AButtons or CQuestionMessageFlags);
+end;
+
+function ShowQuestionMessage(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer;
+begin
+  Result := Windows.MessageBox(AHandle, PChar(AMessage), PChar(SAS_MSG_coution), AButtons or CQuestionMessageFlags);
+end;
+
+function ShowQuestionMessageSync(const AMessage: string; const AButtons: UINT): Integer;
+var
+  VResult: Integer;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+      VResult := ShowQuestionMessage(AMessage, AButtons);
+    end
+  );
+  Result := VResult;
+end;
+
+function ShowQuestionMessageSync(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer;
+var
+  VResult: Integer;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+      VResult := ShowQuestionMessage(AHandle, AMessage, AButtons);
+    end
+  );
+  Result := VResult;
 end;
 
 function ShowInfoMessage(const AMessage: string; const AButtons: UINT): Integer;
 begin
-  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_information), AButtons or MB_ICONINFORMATION or MB_TOPMOST);
+  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_information), AButtons or CInfoMessageFlags);
+end;
+
+function ShowInfoMessage(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer;
+begin
+  Result := Windows.MessageBox(AHandle, PChar(AMessage), PChar(SAS_MSG_information), AButtons or CInfoMessageFlags);
 end;
 
 function ShowInfoMessageSync(const AMessage: string; const AButtons: UINT): Integer;
@@ -68,14 +142,63 @@ begin
   Result := VResult;
 end;
 
-function ShowWarningMessage(const AMessage: string; const AButtons: UINT = MB_OK): Integer;
+function ShowInfoMessageSync(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer;
+var
+  VResult: Integer;
 begin
-  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_warning), AButtons or MB_ICONWARNING or MB_TOPMOST);
+  TThread.Synchronize(nil,
+    procedure
+    begin
+      VResult := ShowInfoMessage(AHandle, AMessage, AButtons);
+    end
+  );
+  Result := VResult;
+end;
+
+function ShowWarningMessage(const AMessage: string; const AButtons: UINT): Integer;
+begin
+  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_warning), AButtons or CWarningMessageFlags);
+end;
+
+function ShowWarningMessage(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer;
+begin
+  Result := Windows.MessageBox(AHandle, PChar(AMessage), PChar(SAS_MSG_warning), AButtons or CWarningMessageFlags);
+end;
+
+function ShowWarningMessageSync(const AMessage: string; const AButtons: UINT): Integer;
+var
+  VResult: Integer;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+      VResult := ShowWarningMessage(AMessage, AButtons);
+    end
+  );
+  Result := VResult;
+end;
+
+function ShowWarningMessageSync(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer;
+var
+  VResult: Integer;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+      VResult := ShowWarningMessage(AHandle, AMessage, AButtons);
+    end
+  );
+  Result := VResult;
 end;
 
 function ShowErrorMessage(const AMessage: string; const AButtons: UINT): Integer;
 begin
-  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_error), AButtons or MB_ICONERROR or MB_TOPMOST);
+  Result := Application.MessageBox(PChar(AMessage), PChar(SAS_MSG_error), AButtons or CErrorMessageFlags);
+end;
+
+function ShowErrorMessage(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer;
+begin
+  Result := Windows.MessageBox(AHandle, PChar(AMessage), PChar(SAS_MSG_error), AButtons or CErrorMessageFlags);
 end;
 
 function ShowErrorMessageSync(const AMessage: string; const AButtons: UINT): Integer;
@@ -86,6 +209,19 @@ begin
     procedure
     begin
       VResult := ShowErrorMessage(AMessage, AButtons);
+    end
+  );
+  Result := VResult;
+end;
+
+function ShowErrorMessageSync(const AHandle: HWND; const AMessage: string; const AButtons: UINT): Integer;
+var
+  VResult: Integer;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+      VResult := ShowErrorMessage(AHandle, AMessage, AButtons);
     end
   );
   Result := VResult;
