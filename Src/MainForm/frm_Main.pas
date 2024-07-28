@@ -115,6 +115,7 @@ uses
   i_SunCalcProvider,
   i_CmdLineArgProcessor,
   u_CmdLineArgProcessorAPI,
+  u_MapHintWindow,
   u_ShortcutManager,
   u_MarksDbMenu,
   u_MarkDbGUIHelper,
@@ -891,7 +892,7 @@ type
     FStickToGrid: IStickToGrid;
     FSensorList: ISensorList;
     FCenterToGPSDelta: TDoublePoint;
-    FHintWindow: THintWindow;
+    FMapHintWindow: TMapHintWindow;
     FKeyMovingHandler: IMessageHandler;
     FMouseHandler: IMouseHandler;
     FMouseState: IMouseState;
@@ -1123,10 +1124,6 @@ type
       const AList: IVectorItemSubset;
       const ALocalConverter: ILocalCoordConverter
     ): IVectorDataItem;
-
-    procedure ShowMapHintWindow(const AHintText: string);
-    procedure HideMapHintWindow;
-    function MakeMapHintText(const AItems: IVectorItemSubset): string;
 
     function FindItems(
       const AVisualConverter: ILocalCoordConverter;
@@ -1730,6 +1727,12 @@ begin
       tbxMarksDbList,
       GState.MarkSystemConfig
     );
+
+  FMapHintWindow :=
+    TMapHintWindow.Create(
+      Self,
+      map
+    );
 end;
 
 procedure TfrmMain.CreateWnd;
@@ -1847,11 +1850,11 @@ function TfrmMain.FindItems(
   const ALocalPoint: TPoint
 ): IVectorItemSubset;
 var
+  I: Integer;
   VSubsetBuilder: IVectorItemSubsetBuilder;
   VVectorItems: IVectorItemSubset;
   VEnumUnknown: IEnumUnknown;
   VItem: IVectorDataItem;
-  i: Integer;
 begin
   VSubsetBuilder := GState.VectorItemSubsetBuilderFactory.Build;
 
@@ -1860,7 +1863,7 @@ begin
     if VVectorItems.Count > 0 then begin
       VEnumUnknown := VVectorItems.GetEnum;
       if VEnumUnknown <> nil then begin
-        while VEnumUnknown.Next(1, VItem, @i) = S_OK do begin
+        while VEnumUnknown.Next(1, VItem, @I) = S_OK do begin
           VSubsetBuilder.Add(VItem);
         end;
       end;
@@ -1872,7 +1875,7 @@ begin
     if VVectorItems.Count > 0 then begin
       VEnumUnknown := VVectorItems.GetEnum;
       if VEnumUnknown <> nil then begin
-        while VEnumUnknown.Next(1, VItem, @i) = S_OK do begin
+        while VEnumUnknown.Next(1, VItem, @I) = S_OK do begin
           VSubsetBuilder.Add(VItem);
         end;
       end;
@@ -1884,7 +1887,7 @@ begin
     if VVectorItems.Count > 0 then begin
       VEnumUnknown := VVectorItems.GetEnum;
       if VEnumUnknown <> nil then begin
-        while VEnumUnknown.Next(1, VItem, @i) = S_OK do begin
+        while VEnumUnknown.Next(1, VItem, @I) = S_OK do begin
           VSubsetBuilder.Add(VItem);
         end;
       end;
@@ -2786,6 +2789,7 @@ begin
   FNCopyLinkItemList := nil;
   FLinksList := nil;
   FRegionProcess := nil;
+  FreeAndNil(FMapHintWindow);
   FreeAndNil(FfrmAbout);
   FreeAndNil(FfrmMarkPictureConfig);
   FreeAndNil(FTumbler);
@@ -3074,7 +3078,7 @@ end;
 
 procedure TfrmMain.OnBeforeViewChange;
 begin
-  HideMapHintWindow;
+  FMapHintWindow.HideHint;
   map.BeginUpdate;
 end;
 
@@ -4918,7 +4922,7 @@ end;
 
 procedure TfrmMain.mapMouseLeave(Sender: TObject);
 begin
-  HideMapHintWindow;
+  FMapHintWindow.HideHint;
 end;
 
 procedure TfrmMain.GPSReceiverDisconnect;
@@ -5066,7 +5070,7 @@ var
   VVectorItems: IVectorItemSubset;
   VMagnetPoint: TDoublePoint;
 begin
-  HideMapHintWindow;
+  FMapHintWindow.HideHint;
 
   if (Layer <> nil) then begin
     exit;
@@ -5455,7 +5459,6 @@ procedure TfrmMain.mapMouseMove(
 var
   VProjection: IProjection;
   VLonLat: TDoublePoint;
-  VHintText: string;
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseMoveDelta: TPoint;
@@ -5510,9 +5513,11 @@ begin
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     Exit;
   end;
+
   if (FState.State = ao_edit_point) and FMovePoint then begin
     FPointOnMapEdit.Point := VLonLat;
   end;
+
   if FState.State = ao_select_rect then begin
     if not FSelectionRect.IsEmpty then begin
       FSelectionRect.SetNextPoint(VLonLat, Shift);
@@ -5569,61 +5574,7 @@ begin
     _AllowShowHint
   then begin
     VVectorItems := FindItems(VLocalConverter, VMousePos);
-    VHintText := MakeMapHintText(VVectorItems);
-    if VHintText <> '' then begin
-      ShowMapHintWindow(VHintText);
-    end else begin
-      HideMapHintWindow;
-    end;
-  end;
-end;
-
-procedure TfrmMain.ShowMapHintWindow(const AHintText: string);
-var
-  VHintRect: TRect;
-begin
-  Assert(AHintText <> '');
-  if map.Cursor = crDefault then begin
-    map.Cursor := crHandPoint;
-  end;
-  if FHintWindow = nil then begin
-    FHintWindow := THintWindow.Create(Self);
-    FHintWindow.Brush.Color := clInfoBk;
-  end;
-  VHintRect := FHintWindow.CalcHintRect(Screen.Width, AHintText, nil);
-  FHintWindow.ActivateHint(
-    Bounds(Mouse.CursorPos.X + 13, Mouse.CursorPos.Y - 13, Abs(VHintRect.Right - VHintRect.Left), Abs(VHintRect.Top - VHintRect.Bottom)),
-    AHintText
-  );
-  FHintWindow.Repaint;
-end;
-
-procedure TfrmMain.HideMapHintWindow;
-begin
-  if FHintWindow <> nil then begin
-    FHintWindow.ReleaseHandle;
-    FreeAndNil(FHintWindow);
-    if map.Cursor = crHandPoint then begin
-      map.Cursor := crDefault;
-    end;
-  end;
-end;
-
-function TfrmMain.MakeMapHintText(const AItems: IVectorItemSubset): string;
-const
-  CSep = #13#10'----------------'#13#10;
-var
-  I: Integer;
-begin
-  Result := '';
-  if AItems <> nil then begin
-    for I := 0 to AItems.Count - 1 do begin
-      if Result = '' then begin
-        Result := AItems[I].GetHintText;
-      end else begin
-        Result := Result + CSep + AItems[I].GetHintText;
-      end;
-    end;
+    FMapHintWindow.ShowHint(VMousePos, VVectorItems);
   end;
 end;
 

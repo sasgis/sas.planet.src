@@ -422,6 +422,7 @@ uses
   u_FavoriteMapSetHotKeyList in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetHotKeyList.pas',
   u_FavoriteMapSetItemStatic in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas',
   u_FavoriteMapSetMenu in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas',
+  u_MapHintWindow in 'Src\MainForm\MapHintWindow\u_MapHintWindow.pas',
   fr_MergePolygons in 'Src\MainForm\MergePolygons\fr_MergePolygons.pas' {frMergePolygons: TFrame},
   frm_MergePolygonsProgress in 'Src\MainForm\MergePolygons\frm_MergePolygonsProgress.pas' {frmMergePolygonsProgress},
   i_MergePolygonsPresenter in 'Src\MainForm\MergePolygons\i_MergePolygonsPresenter.pas',
