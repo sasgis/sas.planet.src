@@ -41,6 +41,11 @@ type
     FDatum: IDatum;
     FProjectedProvider: IGeometryProjectedProvider;
 
+    FLineItem: IGeometryLonLatLine;
+    FLineInfo: array of record
+      Distance: array of Double;
+    end;
+
     // polygon info cache
     FPolyItem: IGeometryLonLatPolygon;
     FPolyInfo: array of record
@@ -52,6 +57,13 @@ type
     FProjectedPolygon: IGeometryProjectedPolygon;
   private
     { IGeometryHintInfoProvider }
+    function GetLineHintInfo(
+      const ALocalConverter: ILocalCoordConverter;
+      const ALine: IGeometryLonLatLine;
+      const AMousePos: TPoint;
+      out AInfo: TLineHintInfo
+    ): Boolean;
+
     function GetPolyHintInfo(
       const ALocalConverter: ILocalCoordConverter;
       const APoly: IGeometryLonLatPolygon;
@@ -68,8 +80,12 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
-  i_Projection;
+  DateUtils,
+  u_GeometryFunc,
+  i_Projection,
+  i_ProjectionType;
 
 { TGeometryHintInfoProvider }
 
@@ -81,6 +97,117 @@ begin
   inherited Create;
   FDatum := ADatum;
   FProjectedProvider := AProjectedProvider;
+end;
+
+function TGeometryHintInfoProvider.GetLineHintInfo(
+  const ALocalConverter: ILocalCoordConverter;
+  const ALine: IGeometryLonLatLine;
+  const AMousePos: TPoint;
+  out AInfo: TLineHintInfo
+): Boolean;
+
+  function GetNearestPointIndex(
+    const ASingle: IGeometryLonLatSingleLine;
+    const AProjection: IProjection;
+    const APixelPos: TDoublePoint;
+    out ADist: Double
+  ): Integer;
+  var
+    I: Integer;
+    VPoints: PDoublePointArray;
+    VProjectionType: IProjectionType;
+    VMapPoint: TDoublePoint;
+    VCurrDist: Double;
+  begin
+    Result := -1;
+    ADist := 0;
+
+    VPoints := ASingle.Points;
+    VProjectionType := AProjection.ProjectionType;
+
+    for I := 0 to ASingle.Count - 1 do begin
+      VProjectionType.ValidateLonLatPos(VPoints[I]);
+      VMapPoint := AProjection.LonLat2PixelPosFloat(VPoints[I]);
+      VCurrDist := Sqr(VMapPoint.X - APixelPos.X) + Sqr(VMapPoint.Y - APixelPos.Y);
+      if (Result < 0) or (VCurrDist < ADist) then begin
+        ADist := VCurrDist;
+        Result := I;
+      end;
+    end;
+  end;
+
+var
+  I: Integer;
+  VSingle: IGeometryLonLatSingleLine;
+  VMulti: IGeometryLonLatMultiLine;
+  VPixelPos: TDoublePoint;
+  VDist: Double;
+  VLineIndex: Integer;
+  VPointIndex: Integer;
+  VPoints: PDoublePointArray;
+  VMeta: PDoublePointsMeta;
+begin
+  VPoints := nil;
+  VMeta := nil;
+
+  if ALine.IsSameGeometry(FLineItem) then begin
+    // todo
+  end;
+
+  VLineIndex := -1;
+  VPointIndex := -1;
+
+  VPixelPos := ALocalConverter.LocalPixel2MapPixelFloat(AMousePos);
+
+  if Supports(ALine, IGeometryLonLatSingleLine, VSingle) then begin
+    VLineIndex := 0;
+    VPointIndex := GetNearestPointIndex(VSingle, ALocalConverter.Projection, VPixelPos, VDist);
+
+    SetLength(FLineInfo, 1);
+    SetLength(FLineInfo[VLineIndex].Distance, VSingle.Count);
+
+    VPoints := VSingle.Points;
+    VMeta := VSingle.Meta;
+
+    FLineInfo[VLineIndex].Distance[0] := 0;
+
+    for I := 1 to VSingle.Count - 1 do begin
+      FLineInfo[VLineIndex].Distance[I] :=
+        FLineInfo[VLineIndex].Distance[I-1] + FDatum.CalcDist(VPoints[I-1], VPoints[I]);
+    end;
+  end else
+  if Supports(ALine, IGeometryLonLatMultiLine, VMulti) then begin
+    // todo
+  end else begin
+    raise Exception.Create('Unknown lonlat line type!');
+  end;
+
+  Result :=
+    (VPoints <> nil) and
+    (VLineIndex >= 0) and (VLineIndex < Length(FLineInfo)) and
+    (VPointIndex >= 0) and (VPointIndex < Length(FLineInfo[VLineIndex].Distance));
+
+  if not Result then begin
+    Exit;
+  end;
+
+  AInfo.LonLatPos := VPoints[VPointIndex];
+  AInfo.Distance := FLineInfo[VLineIndex].Distance[VPointIndex];
+
+  AInfo.Elevation := NaN;
+  AInfo.TimeStamp := 0;
+
+  if VMeta <> nil then begin
+    if VMeta.Elevation <> nil then begin
+      AInfo.Elevation := VMeta.Elevation[VPointIndex];
+    end;
+    if VMeta.TimeStamp <> nil then begin
+      AInfo.TimeStamp := VMeta.TimeStamp[VPointIndex];
+      if AInfo.TimeStamp <> 0 then begin
+        AInfo.TimeStamp := TTimeZone.Local.ToLocalTime(AInfo.TimeStamp);
+      end;
+    end;
+  end;
 end;
 
 function TGeometryHintInfoProvider.GetPolyHintInfo(
@@ -207,17 +334,16 @@ begin
   end;
 
   Result := (VIndex >= 0) and (VIndex < Length(FPolyInfo));
+
   if not Result then begin
     Exit;
   end;
 
-  with AInfo do begin
-    Area := FPolyInfo[VIndex].Area;
-    Perimeter := FPolyInfo[VIndex].Perimeter;
-    PointsCount := FPolyInfo[VIndex].PointsCount;
-    ContoursCount := Length(FPolyInfo);
-    CurrentContour := VIndex + 1;
-  end;
+  AInfo.Area := FPolyInfo[VIndex].Area;
+  AInfo.Perimeter := FPolyInfo[VIndex].Perimeter;
+  AInfo.PointsCount := FPolyInfo[VIndex].PointsCount;
+  AInfo.ContoursCount := Length(FPolyInfo);
+  AInfo.CurrentContour := VIndex + 1;
 end;
 
 end.

@@ -25,10 +25,18 @@ interface
 
 uses
   Types,
+  t_GeoTypes,
   i_GeometryLonLat,
   i_LocalCoordConverter;
 
 type
+  TLineHintInfo = record
+    LonLatPos: TDoublePoint;
+    Distance: Double;
+    Elevation: Double;
+    TimeStamp: TDateTime;
+  end;
+
   TPolyHintInfo = record
     Area: Double;
     Perimeter: Double;
@@ -39,6 +47,12 @@ type
 
   IGeometryHintInfoProvider = interface
     ['{E3DBC106-B0C9-413A-8E6C-F788440AC92A}']
+    function GetLineHintInfo(
+      const ALocalConverter: ILocalCoordConverter;
+      const ALine: IGeometryLonLatLine;
+      const AMousePos: TPoint;
+      out AInfo: TLineHintInfo
+    ): Boolean;
 
     function GetPolyHintInfo(
       const ALocalConverter: ILocalCoordConverter;

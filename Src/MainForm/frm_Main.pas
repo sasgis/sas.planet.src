@@ -5580,13 +5580,7 @@ begin
   then begin
     VVectorItems := FindItems(VLocalConverter, VMousePos);
     if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
-      if ssCtrl in Shift then begin
-        // Extended hint: name + geometry info (area, perimeter for polygons; distance, elevation etc for paths)
-        FMapHintWindow.ShowHintExt(VMousePos, VVectorItems);
-      end else begin
-        // Regular hint: name + short description
-        FMapHintWindow.ShowHint(VMousePos, VVectorItems);
-      end;
+      FMapHintWindow.ShowHint(VMousePos, Mouse.CursorPos, VVectorItems, ssCtrl in Shift);
     end else begin
       FMapHintWindow.HideHint;
     end;

@@ -28,6 +28,7 @@ uses
   Classes,
   Controls,
   GR32_Image,
+  t_GeoTypes,
   i_Datum,
   i_GeometryProjectedProvider,
   i_GeometryHintInfoProvider,
@@ -48,18 +49,26 @@ type
 
     FHintWindow: THintWindow;
     FHintInfoProvider: IGeometryHintInfoProvider;
+    FCanHideGotoMarker: Boolean;
 
     function MakeHintText(const AItems: IVectorItemSubset): string; overload;
+    function MakeHintText(const AItem: IVectorDataItem; const AInfo: TLineHintInfo): string; overload;
     function MakeHintText(const AItem: IVectorDataItem; const AInfo: TPolyHintInfo): string; overload;
 
-    procedure ShowHintText(const AMousePos: TPoint; const AText: string);
+    procedure ShowHintText(const APos: TPoint; const AText: string);
+
+    procedure ShowPointMarker(const ALonLat: TDoublePoint);
+    procedure HidePointMarker;
   public
     procedure ShowHint(
       const AMousePos: TPoint;
-      const AItems: IVectorItemSubset
+      const ACursorPos: TPoint;
+      const AItems: IVectorItemSubset;
+      const AShowExtendedHint: Boolean
     );
     procedure ShowHintExt(
       const AMousePos: TPoint;
+      const ACursorPos: TPoint;
       const AItems: IVectorItemSubset
     );
     procedure HideHint;
@@ -80,10 +89,10 @@ implementation
 
 uses
   Forms,
+  Math,
   SysUtils,
   Graphics,
   gnugettext,
-  t_GeoTypes,
   i_GeometryLonLat,
   i_LocalCoordConverter,
   u_GeometryHintInfoProvider;
@@ -118,20 +127,30 @@ end;
 
 procedure TMapHintWindow.ShowHint(
   const AMousePos: TPoint;
-  const AItems: IVectorItemSubset
+  const ACursorPos: TPoint;
+  const AItems: IVectorItemSubset;
+  const AShowExtendedHint: Boolean
 );
 begin
-  ShowHintText(AMousePos, MakeHintText(AItems));
+  if AShowExtendedHint then begin
+    ShowHintExt(AMousePos, ACursorPos, AItems);
+  end else begin
+    ShowHintText(ACursorPos, MakeHintText(AItems));
+  end;
 end;
 
 procedure TMapHintWindow.ShowHintExt(
   const AMousePos: TPoint;
+  const ACursorPos: TPoint;
   const AItems: IVectorItemSubset
 );
 var
   I: Integer;
   VItem: IVectorDataItem;
   VText: string;
+  VHintPos: TPoint;
+  VLine: IGeometryLonLatLine;
+  VLineInfo: TLineHintInfo;
   VPoly: IGeometryLonLatPolygon;
   VPolyInfo: TPolyHintInfo;
   VLocalConverter: ILocalCoordConverter;
@@ -142,25 +161,33 @@ begin
 
   for I := 0 to AItems.Count - 1 do begin
     VItem := AItems[I];
-    if Supports(VItem.Geometry, IGeometryLonLatLine) then begin
-      // todo
+    if Supports(VItem.Geometry, IGeometryLonLatLine, VLine) then begin
+      if FHintInfoProvider.GetLineHintInfo(VLocalConverter, VLine, AMousePos, VLineInfo) then begin
+        VText := MakeHintText(VItem, VLineInfo);
+        VHintPos := VLocalConverter.LonLat2LocalPixel(VLineInfo.LonLatPos, prToTopLeft);
+        ShowHintText(VHintPos, VText);
+        ShowPointMarker(VLineInfo.LonLatPos);
+        Exit;
+      end;
     end else
     if Supports(VItem.Geometry, IGeometryLonLatPolygon, VPoly) then begin
       if FHintInfoProvider.GetPolyHintInfo(VLocalConverter, VPoly, AMousePos, VPolyInfo) then begin
         VText := MakeHintText(VItem, VPolyInfo);
-        ShowHintText(AMousePos, VText);
+        ShowHintText(ACursorPos, VText);
         Exit;
       end;
     end;
   end;
 
-  ShowHint(AMousePos, AItems);
+  ShowHintText(ACursorPos, MakeHintText(AItems));
 end;
 
-procedure TMapHintWindow.ShowHintText(const AMousePos: TPoint; const AText: string);
+procedure TMapHintWindow.ShowHintText(const APos: TPoint; const AText: string);
 var
   VHintRect: TRect;
 begin
+  HidePointMarker;
+
   if AText = '' then begin
     HideHint;
     Exit;
@@ -179,8 +206,8 @@ begin
 
   FHintWindow.ActivateHint(
     Bounds(
-      AMousePos.X + 13,
-      AMousePos.Y - 13,
+      APos.X + 13,
+      APos.Y - 13,
       Abs(VHintRect.Right - VHintRect.Left),
       Abs(VHintRect.Top - VHintRect.Bottom)
     ),
@@ -198,7 +225,46 @@ begin
     if FMap.Cursor = crHandPoint then begin
       FMap.Cursor := crDefault;
     end;
+    HidePointMarker;
   end;
+end;
+
+procedure TMapHintWindow.ShowPointMarker(const ALonLat: TDoublePoint);
+begin
+  FCanHideGotoMarker := True;
+  FMapGoTo.ShowMarker(ALonLat);
+end;
+
+procedure TMapHintWindow.HidePointMarker;
+begin
+  if FCanHideGotoMarker then begin
+    FCanHideGotoMarker := False;
+    FMapGoTo.HideMarker;
+  end;
+end;
+
+function TMapHintWindow.MakeHintText(const AItem: IVectorDataItem; const AInfo: TLineHintInfo): string;
+var
+  VDistance: string;
+  VElevation: string;
+  VTimeStamp: string;
+  VConverter: IValueToStringConverter;
+begin
+  VConverter := FValueToStringConverter.GetStatic;
+
+  VDistance := #13#10 + Format(_('Distance: %s'), [VConverter.DistConvert(AInfo.Distance)]);
+
+  VElevation := '';
+  if not IsNan(AInfo.Elevation) then begin
+    VElevation := #13#10 + Format(_('Elevation: %s'), [VConverter.AltitudeConvert(AInfo.Elevation)]);
+  end;
+
+  VTimeStamp := '';
+  if AInfo.TimeStamp <> 0 then begin
+    VTimeStamp := #13#10 + Format(_('Time: %s'), [DateTimeToStr(AInfo.TimeStamp)]);
+  end;
+
+  Result := AItem.Name + VDistance + VElevation + VTimeStamp;
 end;
 
 function TMapHintWindow.MakeHintText(const AItem: IVectorDataItem; const AInfo: TPolyHintInfo): string;
