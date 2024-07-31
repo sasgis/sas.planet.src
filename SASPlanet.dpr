@@ -422,6 +422,8 @@ uses
   u_FavoriteMapSetHotKeyList in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetHotKeyList.pas',
   u_FavoriteMapSetItemStatic in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas',
   u_FavoriteMapSetMenu in 'Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas',
+  i_GeometryHintInfoProvider in 'Src\MainForm\MapHintWindow\i_GeometryHintInfoProvider.pas',
+  u_GeometryHintInfoProvider in 'Src\MainForm\MapHintWindow\u_GeometryHintInfoProvider.pas',
   u_MapHintWindow in 'Src\MainForm\MapHintWindow\u_MapHintWindow.pas',
   fr_MergePolygons in 'Src\MainForm\MergePolygons\fr_MergePolygons.pas' {frMergePolygons: TFrame},
   frm_MergePolygonsProgress in 'Src\MainForm\MergePolygons\frm_MergePolygonsProgress.pas' {frmMergePolygonsProgress},

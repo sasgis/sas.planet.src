@@ -28,27 +28,50 @@ uses
   Classes,
   Controls,
   GR32_Image,
-  i_VectorItemSubset;
+  i_Datum,
+  i_GeometryProjectedProvider,
+  i_GeometryHintInfoProvider,
+  i_LocalCoordConverterChangeable,
+  i_ValueToStringConverter,
+  i_MapViewGoto,
+  i_VectorItemSubset,
+  i_VectorDataItemSimple;
 
 type
   TMapHintWindow = class
   private
     FOwner: TComponent;
     FMap: TImage32;
+    FMapGoTo: IMapViewGoto;
+    FValueToStringConverter: IValueToStringConverterChangeable;
+    FLocalConverter: ILocalCoordConverterChangeable;
+
     FHintWindow: THintWindow;
-    function MakeHintText(
-      const AItems: IVectorItemSubset
-    ): string;
+    FHintInfoProvider: IGeometryHintInfoProvider;
+
+    function MakeHintText(const AItems: IVectorItemSubset): string; overload;
+    function MakeHintText(const AItem: IVectorDataItem; const AInfo: TPolyHintInfo): string; overload;
+
+    procedure ShowHintText(const AMousePos: TPoint; const AText: string);
   public
     procedure ShowHint(
       const AMousePos: TPoint;
-      const AVectorItems: IVectorItemSubset
+      const AItems: IVectorItemSubset
+    );
+    procedure ShowHintExt(
+      const AMousePos: TPoint;
+      const AItems: IVectorItemSubset
     );
     procedure HideHint;
   public
     constructor Create(
       const AOwner: TComponent;
-      const AMap: TImage32
+      const AMap: TImage32;
+      const ADatum: IDatum;
+      const AProjectedProvider: IGeometryProjectedProvider;
+      const AMapGoTo: IMapViewGoto;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const ALocalConverter: ILocalCoordConverterChangeable
     );
     destructor Destroy; override;
   end;
@@ -58,18 +81,33 @@ implementation
 uses
   Forms,
   SysUtils,
-  Graphics;
+  Graphics,
+  gnugettext,
+  t_GeoTypes,
+  i_GeometryLonLat,
+  i_LocalCoordConverter,
+  u_GeometryHintInfoProvider;
 
 { TMapHintWindow }
 
 constructor TMapHintWindow.Create(
   const AOwner: TComponent;
-  const AMap: TImage32
+  const AMap: TImage32;
+  const ADatum: IDatum;
+  const AProjectedProvider: IGeometryProjectedProvider;
+  const AMapGoTo: IMapViewGoto;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const ALocalConverter: ILocalCoordConverterChangeable
 );
 begin
   inherited Create;
   FOwner := AOwner;
   FMap := AMap;
+  FMapGoTo := AMapGoTo;
+  FValueToStringConverter := AValueToStringConverter;
+  FLocalConverter := ALocalConverter;
+
+  FHintInfoProvider := TGeometryHintInfoProvider.Create(ADatum, AProjectedProvider);
 end;
 
 destructor TMapHintWindow.Destroy;
@@ -80,15 +118,50 @@ end;
 
 procedure TMapHintWindow.ShowHint(
   const AMousePos: TPoint;
-  const AVectorItems: IVectorItemSubset
+  const AItems: IVectorItemSubset
+);
+begin
+  ShowHintText(AMousePos, MakeHintText(AItems));
+end;
+
+procedure TMapHintWindow.ShowHintExt(
+  const AMousePos: TPoint;
+  const AItems: IVectorItemSubset
 );
 var
-  VHintText: string;
+  I: Integer;
+  VItem: IVectorDataItem;
+  VText: string;
+  VPoly: IGeometryLonLatPolygon;
+  VPolyInfo: TPolyHintInfo;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  Assert(AItems <> nil);
+
+  VLocalConverter := FLocalConverter.GetStatic;
+
+  for I := 0 to AItems.Count - 1 do begin
+    VItem := AItems[I];
+    if Supports(VItem.Geometry, IGeometryLonLatLine) then begin
+      // todo
+    end else
+    if Supports(VItem.Geometry, IGeometryLonLatPolygon, VPoly) then begin
+      if FHintInfoProvider.GetPolyHintInfo(VLocalConverter, VPoly, AMousePos, VPolyInfo) then begin
+        VText := MakeHintText(VItem, VPolyInfo);
+        ShowHintText(AMousePos, VText);
+        Exit;
+      end;
+    end;
+  end;
+
+  ShowHint(AMousePos, AItems);
+end;
+
+procedure TMapHintWindow.ShowHintText(const AMousePos: TPoint; const AText: string);
+var
   VHintRect: TRect;
 begin
-  VHintText := MakeHintText(AVectorItems);
-
-  if VHintText = '' then begin
+  if AText = '' then begin
     HideHint;
     Exit;
   end;
@@ -102,7 +175,7 @@ begin
     FHintWindow.Brush.Color := clInfoBk;
   end;
 
-  VHintRect := FHintWindow.CalcHintRect(Screen.Width, VHintText, nil);
+  VHintRect := FHintWindow.CalcHintRect(Screen.Width, AText, nil);
 
   FHintWindow.ActivateHint(
     Bounds(
@@ -111,7 +184,7 @@ begin
       Abs(VHintRect.Right - VHintRect.Left),
       Abs(VHintRect.Top - VHintRect.Bottom)
     ),
-    VHintText
+    AText
   );
 
   FHintWindow.Repaint;
@@ -128,11 +201,29 @@ begin
   end;
 end;
 
-function TMapHintWindow.MakeHintText(
-  const AItems: IVectorItemSubset
-): string;
+function TMapHintWindow.MakeHintText(const AItem: IVectorDataItem; const AInfo: TPolyHintInfo): string;
+var
+  VPart: string;
+  VConverter: IValueToStringConverter;
+begin
+  VConverter := FValueToStringConverter.GetStatic;
+
+  if AInfo.ContoursCount > 1 then begin
+    VPart := Format(_('Part: %d/%d'), [AInfo.CurrentContour, AInfo.ContoursCount]) + #13#10;
+  end else begin
+    VPart := '';
+  end;
+
+  Result :=
+    AItem.Name + #13#10 +
+    VPart +
+    Format(_('Area: %s'), [VConverter.AreaConvert(AInfo.Area)]) + #13#10 +
+    Format(_('Perimeter: %s'), [VConverter.DistConvert(AInfo.Perimeter)]);
+end;
+
+function TMapHintWindow.MakeHintText(const AItems: IVectorItemSubset): string;
 const
-  CSep = #13#10'----------------'#13#10;
+  CSep = #13#10 + '----------------' + #13#10;
 var
   I: Integer;
 begin

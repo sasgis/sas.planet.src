@@ -57,7 +57,24 @@ type
       const AOperationID: Integer = 0
     ): Double;
 
-    function CalcDist(const AStart, AFinish: TDoublePoint): Double; overload;
+    function CalcPolygonPerimeter(
+      const APoints: PDoublePointArray;
+      const ACount: Integer;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
+
+    function CalcDist(
+      const AStart: TDoublePoint;
+      const AFinish: TDoublePoint
+    ): Double; overload; inline;
+
+    function CalcDist(
+      const APoints: PDoublePointArray;
+      const ACount: Integer;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double; overload;
 
     function CalcDist(
       const AStart: TDoublePoint;
@@ -80,7 +97,7 @@ type
     function GetLinePoints(
       const AStart: TDoublePoint;
       const AFinish: TDoublePoint;
-      const APointCount: integer
+      const APointCount: Integer
     ): IEnumLonLatPoint;
   public
     constructor Create(
@@ -100,6 +117,7 @@ type
 implementation
 
 uses
+  Math,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_PolygonAreaCalculator,
@@ -138,7 +156,7 @@ begin
   Create(AHash, AEPSG, ARadiusA, ARadiusA);
 end;
 
-function TDatum.GetEPSG: integer;
+function TDatum.GetEPSG: Integer;
 begin
   Result := FEPSG;
 end;
@@ -178,11 +196,24 @@ end;
 function TDatum.CalcPolygonArea(
   const APoints: PDoublePointArray;
   const ACount: Integer;
-  const ANotifier: INotifierOperation = nil;
-  const AOperationID: Integer = 0
+  const ANotifier: INotifierOperation;
+  const AOperationID: Integer
 ): Double;
 begin
   Result := FAreaCalc.ComputePolygonArea(APoints, ACount, ANotifier, AOperationID);
+end;
+
+function TDatum.CalcPolygonPerimeter(
+  const APoints: PDoublePointArray;
+  const ACount: Integer;
+  const ANotifier: INotifierOperation;
+  const AOperationID: Integer
+): Double;
+begin
+  Result := CalcDist(APoints, ACount, ANotifier, AOperationID);
+  if not IsNan(Result) and (ACount > 2) then begin
+    Result := Result + CalcDist(APoints[ACount-1], APoints[0]);
+  end;
 end;
 
 function TDatum.CalcFinishPosition(
@@ -202,18 +233,40 @@ begin
 end;
 
 function TDatum.CalcDist(const AStart, AFinish: TDoublePoint): Double;
-var
-  VInitialBearing: Double;
-  VFinalBearing: Double;
 begin
   Result := FDistCalc.ComputeDistance(
     AStart.Y,
     AStart.X,
     AFinish.Y,
-    AFinish.X,
-    VInitialBearing,
-    VFinalBearing
+    AFinish.X
   );
+end;
+
+function TDatum.CalcDist(
+  const APoints: PDoublePointArray;
+  const ACount: Integer;
+  const ANotifier: INotifierOperation;
+  const AOperationID: Integer
+): Double;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 1 to ACount - 1 do begin
+    Result := Result +
+      FDistCalc.ComputeDistance(
+        APoints[I-1].Y,
+        APoints[I-1].X,
+        APoints[I].Y,
+        APoints[I].X
+      );
+    if (ANotifier <> nil) and (I mod 1024 = 0) then begin
+      if ANotifier.IsOperationCanceled(AOperationID) then begin
+        Result := NaN;
+        Exit;
+      end;
+    end;
+  end;
 end;
 
 function TDatum.CalcDist(

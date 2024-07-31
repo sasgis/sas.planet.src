@@ -30,31 +30,38 @@ uses
 type
   IGeoCalc = interface
     ['{C85EEB06-2EA7-437E-8A34-2C7C53A87543}']
+    // distance
     function CalcSingleLineLength(const ALine: IGeometryLonLatSingleLine): Double;
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
     function CalcLineLength(const ALine: IGeometryLonLatLine): Double;
 
+    // perimeter
     function CalcContourPerimeter(const ALine: IGeometryLonLatContour): Double;
     function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
     function CalcPolygonPerimeter(const ALine: IGeometryLonLatPolygon): Double;
-    function CalcPolygonArea(
-      const ALine: IGeometryLonLatPolygon;
-      const ANotifier: INotifierOperation = nil;
-      const AOperationID: Integer = 0
-    ): Double;
+
+    // area
     function CalcContourArea(
       const ALine: IGeometryLonLatContour;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
+
     function CalcSinglePolygonArea(
       const ALine: IGeometryLonLatSinglePolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
+
     function CalcMultiPolygonArea(
       const ALine: IGeometryLonLatMultiPolygon;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
+
+    function CalcPolygonArea(
+      const ALine: IGeometryLonLatPolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;

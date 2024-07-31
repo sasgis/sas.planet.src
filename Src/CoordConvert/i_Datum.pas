@@ -53,11 +53,25 @@ type
       const AOperationID: Integer = 0
     ): Double;
 
+    function CalcPolygonPerimeter(
+      const APoints: PDoublePointArray;
+      const ACount: Integer;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
+
     // ¬озвращает кратчайшее (вдоль геодезической линии) рассто€ние между двум€
     // заданными точками (в метрах).
     function CalcDist(
       const AStart: TDoublePoint;
       const AFinish: TDoublePoint
+    ): Double; overload;
+
+    function CalcDist(
+      const APoints: PDoublePointArray;
+      const ACount: Integer;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
     ): Double; overload;
 
     // –ешает так называемую вторую (обратную) геодезическую задачу: построить

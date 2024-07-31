@@ -48,7 +48,11 @@ type
       const ALat2, ALon2: Double;
       out AInitialBearing: Double;
       out AFinalBearing: Double
-    ): Double;
+    ): Double; overload;
+    function ComputeDistance(
+      const ALat1, ALon1: Double;
+      const ALat2, ALon2: Double
+    ): Double; overload;
   public
     constructor Create(
       const ARadiusA: Double;
@@ -262,6 +266,17 @@ begin
   AFinalBearing := AFinalBearing / DEG2RAD;
 
   Result := FRadiusB * A * (Sigma - DeltaSigma);
+end;
+
+function TDistanceCalculatorByVincentyAlgorithm.ComputeDistance(
+  const ALat1, ALon1: Double;
+  const ALat2, ALon2: Double
+): Double;
+var
+  VInitialBearing: Double;
+  VFinalBearing: Double;
+begin
+  Result := ComputeDistance(ALat1, ALon1, ALat2, ALon2, VInitialBearing, VFinalBearing);
 end;
 
 end.

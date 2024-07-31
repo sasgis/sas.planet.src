@@ -1414,6 +1414,8 @@
         <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetHotKeyList.pas"/>
         <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetItemStatic.pas"/>
         <DCCReference Include="Src\MainForm\FavoriteMapSet\u_FavoriteMapSetMenu.pas"/>
+        <DCCReference Include="Src\MainForm\MapHintWindow\i_GeometryHintInfoProvider.pas"/>
+        <DCCReference Include="Src\MainForm\MapHintWindow\u_GeometryHintInfoProvider.pas"/>
         <DCCReference Include="Src\MainForm\MapHintWindow\u_MapHintWindow.pas"/>
         <DCCReference Include="Src\MainForm\MergePolygons\fr_MergePolygons.pas">
             <Form>frMergePolygons</Form>

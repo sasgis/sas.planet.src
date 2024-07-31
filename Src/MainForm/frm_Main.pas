@@ -1731,7 +1731,12 @@ begin
   FMapHintWindow :=
     TMapHintWindow.Create(
       Self,
-      map
+      map,
+      GState.GPSDatum,
+      GState.ProjectedGeometryProvider,
+      FGpsTrackGoTo,
+      GState.ValueToStringConverter,
+      FViewPortState.View
     );
 end;
 
@@ -5574,7 +5579,17 @@ begin
     _AllowShowHint
   then begin
     VVectorItems := FindItems(VLocalConverter, VMousePos);
-    FMapHintWindow.ShowHint(VMousePos, VVectorItems);
+    if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
+      if ssCtrl in Shift then begin
+        // Extended hint: name + geometry info (area, perimeter for polygons; distance, elevation etc for paths)
+        FMapHintWindow.ShowHintExt(VMousePos, VVectorItems);
+      end else begin
+        // Regular hint: name + short description
+        FMapHintWindow.ShowHint(VMousePos, VVectorItems);
+      end;
+    end else begin
+      FMapHintWindow.HideHint;
+    end;
   end;
 end;
 

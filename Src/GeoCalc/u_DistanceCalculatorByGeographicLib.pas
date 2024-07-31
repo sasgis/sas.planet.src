@@ -46,7 +46,12 @@ type
       const ALat2, ALon2: Double;
       out AInitialBearing: Double;
       out AFinalBearing: Double
-    ): Double;
+    ): Double; overload;
+
+    function ComputeDistance(
+      const ALat1, ALon1: Double;
+      const ALat2, ALon2: Double
+    ): Double; overload;
   public
     constructor Create(
       const ARadiusA: Double;
@@ -108,6 +113,14 @@ begin
   if AFinalBearing < 0 then begin
     AFinalBearing := 2 * Pi / DEG2RAD + AFinalBearing;
   end;
+end;
+
+function TDistanceCalculatorByGeographicLib.ComputeDistance(const ALat1, ALon1, ALat2, ALon2: Double): Double;
+var
+  VInitialBearing: Double;
+  VFinalBearing: Double;
+begin
+  geod_inverse(@FGeod, ALat1, ALon1, ALat2, ALon2, Result, VInitialBearing, VFinalBearing);
 end;
 
 end.

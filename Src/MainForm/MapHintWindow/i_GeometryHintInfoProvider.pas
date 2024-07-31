@@ -19,31 +19,33 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_DistanceCalculator;
+unit i_GeometryHintInfoProvider;
 
 interface
 
+uses
+  Types,
+  i_GeometryLonLat,
+  i_LocalCoordConverter;
+
 type
-  IDistanceCalculator = interface
-    ['{DF3AFB47-4A41-4460-9021-2849BE6953CF}']
-    procedure ComputeFinishPosition(
-      const ALat1, ALon1: Double;
-      const AInitialBearing: Double;
-      const ADistance: Double;
-      out ALat2, ALon2: Double
-    );
+  TPolyHintInfo = record
+    Area: Double;
+    Perimeter: Double;
+    PointsCount: Integer;
+    ContoursCount: Integer;
+    CurrentContour: Integer;
+  end;
 
-    function ComputeDistance(
-      const ALat1, ALon1: Double;
-      const ALat2, ALon2: Double;
-      out AInitialBearing: Double;
-      out AFinalBearing: Double
-    ): Double; overload;
+  IGeometryHintInfoProvider = interface
+    ['{E3DBC106-B0C9-413A-8E6C-F788440AC92A}']
 
-    function ComputeDistance(
-      const ALat1, ALon1: Double;
-      const ALat2, ALon2: Double
-    ): Double; overload;
+    function GetPolyHintInfo(
+      const ALocalConverter: ILocalCoordConverter;
+      const APoly: IGeometryLonLatPolygon;
+      const AMousePos: TPoint;
+      out AInfo: TPolyHintInfo
+    ): Boolean;
   end;
 
 implementation
