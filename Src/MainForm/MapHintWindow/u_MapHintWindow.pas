@@ -51,25 +51,30 @@ type
     FHintInfoProvider: IGeometryHintInfoProvider;
     FCanHideGotoMarker: Boolean;
 
+    FCursorOffset: TPoint;
+
     function MakeHintText(const AItems: IVectorItemSubset): string; overload;
     function MakeHintText(const AItem: IVectorDataItem; const AInfo: TLineHintInfo): string; overload;
     function MakeHintText(const AItem: IVectorDataItem; const AInfo: TPolyHintInfo): string; overload;
 
-    procedure ShowHintText(const APos: TPoint; const AText: string);
+    procedure ShowHintText(
+      const APos: TPoint;
+      const AText: string;
+      const AShowHintAboveCursor: Boolean
+    );
 
     procedure ShowPointMarker(const ALonLat: TDoublePoint);
     procedure HidePointMarker;
+
+    procedure ShowHintExt(
+      const AMousePos: TPoint;
+      const AItems: IVectorItemSubset
+    );
   public
     procedure ShowHint(
       const AMousePos: TPoint;
-      const ACursorPos: TPoint;
       const AItems: IVectorItemSubset;
       const AShowExtendedHint: Boolean
-    );
-    procedure ShowHintExt(
-      const AMousePos: TPoint;
-      const ACursorPos: TPoint;
-      const AItems: IVectorItemSubset
     );
     procedure HideHint;
   public
@@ -127,21 +132,22 @@ end;
 
 procedure TMapHintWindow.ShowHint(
   const AMousePos: TPoint;
-  const ACursorPos: TPoint;
   const AItems: IVectorItemSubset;
   const AShowExtendedHint: Boolean
 );
 begin
+  FCursorOffset.X := Mouse.CursorPos.X - AMousePos.X;
+  FCursorOffset.Y := Mouse.CursorPos.Y - AMousePos.Y;
+
   if AShowExtendedHint then begin
-    ShowHintExt(AMousePos, ACursorPos, AItems);
+    ShowHintExt(AMousePos, AItems);
   end else begin
-    ShowHintText(ACursorPos, MakeHintText(AItems));
+    ShowHintText(AMousePos, MakeHintText(AItems), False);
   end;
 end;
 
 procedure TMapHintWindow.ShowHintExt(
   const AMousePos: TPoint;
-  const ACursorPos: TPoint;
   const AItems: IVectorItemSubset
 );
 var
@@ -165,7 +171,8 @@ begin
       if FHintInfoProvider.GetLineHintInfo(VLocalConverter, VLine, AMousePos, VLineInfo) then begin
         VText := MakeHintText(VItem, VLineInfo);
         VHintPos := VLocalConverter.LonLat2LocalPixel(VLineInfo.LonLatPos, prToTopLeft);
-        ShowHintText(VHintPos, VText);
+        Dec(VHintPos.Y, 24);
+        ShowHintText(VHintPos, VText, True);
         ShowPointMarker(VLineInfo.LonLatPos);
         Exit;
       end;
@@ -173,18 +180,23 @@ begin
     if Supports(VItem.Geometry, IGeometryLonLatPolygon, VPoly) then begin
       if FHintInfoProvider.GetPolyHintInfo(VLocalConverter, VPoly, AMousePos, VPolyInfo) then begin
         VText := MakeHintText(VItem, VPolyInfo);
-        ShowHintText(ACursorPos, VText);
+        ShowHintText(AMousePos, VText, False);
         Exit;
       end;
     end;
   end;
 
-  ShowHintText(ACursorPos, MakeHintText(AItems));
+  ShowHintText(AMousePos, MakeHintText(AItems), False);
 end;
 
-procedure TMapHintWindow.ShowHintText(const APos: TPoint; const AText: string);
+procedure TMapHintWindow.ShowHintText(
+  const APos: TPoint;
+  const AText: string;
+  const AShowHintAboveCursor: Boolean
+);
 var
   VHintRect: TRect;
+  VShift: TPoint;
 begin
   HidePointMarker;
 
@@ -204,10 +216,16 @@ begin
 
   VHintRect := FHintWindow.CalcHintRect(Screen.Width, AText, nil);
 
+  VShift := Point(13, 13);
+
+  if AShowHintAboveCursor then begin
+    VShift.Y := Abs(VHintRect.Top - VHintRect.Bottom);
+  end;
+
   FHintWindow.ActivateHint(
     Bounds(
-      APos.X + 13,
-      APos.Y - 13,
+      FCursorOffset.X + APos.X + VShift.X,
+      FCursorOffset.Y + APos.Y - VShift.Y,
       Abs(VHintRect.Right - VHintRect.Left),
       Abs(VHintRect.Top - VHintRect.Bottom)
     ),

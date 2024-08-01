@@ -5580,7 +5580,7 @@ begin
   then begin
     VVectorItems := FindItems(VLocalConverter, VMousePos);
     if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
-      FMapHintWindow.ShowHint(VMousePos, Mouse.CursorPos, VVectorItems, ssCtrl in Shift);
+      FMapHintWindow.ShowHint(VMousePos, VVectorItems, ssCtrl in Shift);
     end else begin
       FMapHintWindow.HideHint;
     end;
