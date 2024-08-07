@@ -149,7 +149,7 @@ begin
             end else if Supports(VGeometry, IGeometryLonLatLine, VGeometryLine) then begin
               VProjectdPath := FProjectedProvider.GetProjectedPath(VProjection, VGeometryLine);
               if Assigned(VProjectdPath) then begin
-                if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
+                if VProjectdPath.IsPointOnPath(VPixelPos, 6) then begin
                   Vtmp.add(VItem);
                 end;
               end;
