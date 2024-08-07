@@ -41,7 +41,9 @@ type
     FDatum: IDatum;
     FProjectedProvider: IGeometryProjectedProvider;
 
+    // line info cache
     FLineItem: IGeometryLonLatLine;
+    FLines: TArrayOfGeometryLonLatSingleLine;
     FLineInfo: array of record
       Distance: array of Double;
     end;
@@ -136,22 +138,77 @@ function TGeometryHintInfoProvider.GetLineHintInfo(
     end;
   end;
 
+  function CalcSpeed(ALineIndex, APointIndex: Integer): Double;
+  var
+    VDistA, VDistB: Double;
+    VTimeA, VTimeB: TDateTime;
+  begin
+    Result := 0;
+
+    if (ALineIndex = 0) and (APointIndex = 0) then begin
+      Exit;
+    end;
+
+    if FLines[ALineIndex].Meta = nil then begin
+      Exit;
+    end;
+
+    VDistB := FLineInfo[ALineIndex].Distance[APointIndex];
+    VTimeB := FLines[ALineIndex].Meta.TimeStamp[APointIndex];
+
+    repeat
+      Dec(APointIndex);
+      if APointIndex < 0 then begin
+        Dec(ALineIndex);
+        if ALineIndex < 0 then begin
+          Exit;
+        end;
+        APointIndex := Length(FLineInfo[ALineIndex].Distance) - 1;
+      end;
+
+      if FLines[ALineIndex].Meta = nil then begin
+        Exit;
+      end;
+
+      VDistA := FLineInfo[ALineIndex].Distance[APointIndex];
+      VTimeA := FLines[ALineIndex].Meta.TimeStamp[APointIndex];
+
+    until (VTimeA <> VTimeB) and (VDistB <> VDistA);
+
+    Result := Abs(VDistB - VDistA) / SecondsBetween(VTimeA, VTimeB); // m/s
+
+    Result := Result * 3.6; // km/h
+  end;
+
 var
-  I: Integer;
+  I, J: Integer;
   VSingle: IGeometryLonLatSingleLine;
-  VMulti: IGeometryLonLatMultiLine;
   VPixelPos: TDoublePoint;
-  VDist: Double;
+  VDist, VCurrDist: Double;
   VLineIndex: Integer;
   VPointIndex: Integer;
   VPoints: PDoublePointArray;
   VMeta: PDoublePointsMeta;
 begin
-  VPoints := nil;
-  VMeta := nil;
+  if not ALine.IsSameGeometry(FLineItem) then begin
+    FLineItem := ALine;
+    FLines := GeometryLonLatLineToArray(ALine);
 
-  if ALine.IsSameGeometry(FLineItem) then begin
-    // todo
+    VDist := 0;
+    SetLength(FLineInfo, Length(FLines));
+
+    for I := 0 to Length(FLines) - 1 do begin
+      VSingle := FLines[I];
+      VPoints := VSingle.Points;
+
+      SetLength(FLineInfo[I].Distance, VSingle.Count);
+
+      FLineInfo[I].Distance[0] := VDist;
+      for J := 1 to VSingle.Count - 1 do begin
+        FLineInfo[I].Distance[J] := VDist + FDatum.CalcDist(VPoints[J-1], VPoints[J]);
+        VDist := FLineInfo[I].Distance[J];
+      end;
+    end;
   end;
 
   VLineIndex := -1;
@@ -159,31 +216,17 @@ begin
 
   VPixelPos := ALocalConverter.LocalPixel2MapPixelFloat(AMousePos);
 
-  if Supports(ALine, IGeometryLonLatSingleLine, VSingle) then begin
-    VLineIndex := 0;
-    VPointIndex := GetNearestPointIndex(VSingle, ALocalConverter.Projection, VPixelPos, VDist);
-
-    SetLength(FLineInfo, 1);
-    SetLength(FLineInfo[VLineIndex].Distance, VSingle.Count);
-
-    VPoints := VSingle.Points;
-    VMeta := VSingle.Meta;
-
-    FLineInfo[VLineIndex].Distance[0] := 0;
-
-    for I := 1 to VSingle.Count - 1 do begin
-      FLineInfo[VLineIndex].Distance[I] :=
-        FLineInfo[VLineIndex].Distance[I-1] + FDatum.CalcDist(VPoints[I-1], VPoints[I]);
+  VDist := 0;
+  for I := 0 to Length(FLines) - 1 do begin
+    J := GetNearestPointIndex(FLines[I], ALocalConverter.Projection, VPixelPos, VCurrDist);
+    if (VLineIndex < 0) or (VPointIndex < 0) or (VCurrDist < VDist) then begin
+      VLineIndex := I;
+      VPointIndex := J;
+      VDist := VCurrDist;
     end;
-  end else
-  if Supports(ALine, IGeometryLonLatMultiLine, VMulti) then begin
-    // todo
-  end else begin
-    raise Exception.Create('Unknown lonlat line type!');
   end;
 
   Result :=
-    (VPoints <> nil) and
     (VLineIndex >= 0) and (VLineIndex < Length(FLineInfo)) and
     (VPointIndex >= 0) and (VPointIndex < Length(FLineInfo[VLineIndex].Distance));
 
@@ -191,12 +234,14 @@ begin
     Exit;
   end;
 
-  AInfo.LonLatPos := VPoints[VPointIndex];
+  AInfo.LonLatPos := FLines[VLineIndex].Points[VPointIndex];
   AInfo.Distance := FLineInfo[VLineIndex].Distance[VPointIndex];
 
   AInfo.Elevation := NaN;
   AInfo.TimeStamp := 0;
+  AInfo.Speed := NaN;
 
+  VMeta := FLines[VLineIndex].Meta;
   if VMeta <> nil then begin
     if VMeta.Elevation <> nil then begin
       AInfo.Elevation := VMeta.Elevation[VPointIndex];
@@ -206,6 +251,9 @@ begin
       if AInfo.TimeStamp <> 0 then begin
         AInfo.TimeStamp := TTimeZone.Local.ToLocalTime(AInfo.TimeStamp);
       end;
+    end;
+    if AInfo.TimeStamp <> 0 then begin
+      AInfo.Speed := CalcSpeed(VLineIndex, VPointIndex);
     end;
   end;
 end;

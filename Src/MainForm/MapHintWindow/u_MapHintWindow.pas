@@ -263,14 +263,21 @@ end;
 
 function TMapHintWindow.MakeHintText(const AItem: IVectorDataItem; const AInfo: TLineHintInfo): string;
 var
+  VName: string;
   VDistance: string;
   VElevation: string;
   VTimeStamp: string;
+  VSpeed: string;
   VConverter: IValueToStringConverter;
 begin
   VConverter := FValueToStringConverter.GetStatic;
 
-  VDistance := #13#10 + Format(_('Distance: %s'), [VConverter.DistConvert(AInfo.Distance)]);
+  VName := Trim(AItem.Name);
+  if VName <> '' then begin
+    VName := VName + #13#10;
+  end;
+
+  VDistance := Format(_('Distance: %s'), [VConverter.DistConvert(AInfo.Distance)]);
 
   VElevation := '';
   if not IsNan(AInfo.Elevation) then begin
@@ -282,15 +289,26 @@ begin
     VTimeStamp := #13#10 + Format(_('Time: %s'), [DateTimeToStr(AInfo.TimeStamp)]);
   end;
 
-  Result := AItem.Name + VDistance + VElevation + VTimeStamp;
+  VSpeed := '';
+  if not IsNan(AInfo.Speed) then begin
+    VSpeed := #13#10 + Format(_('Speed: %s'), [VConverter.SpeedConvert(AInfo.Speed)]);
+  end;
+
+  Result := VName + VDistance + VElevation + VTimeStamp + VSpeed;
 end;
 
 function TMapHintWindow.MakeHintText(const AItem: IVectorDataItem; const AInfo: TPolyHintInfo): string;
 var
+  VName: string;
   VPart: string;
   VConverter: IValueToStringConverter;
 begin
   VConverter := FValueToStringConverter.GetStatic;
+
+  VName := Trim(AItem.Name);
+  if VName <> '' then begin
+    VName := VName + #13#10;
+  end;
 
   if AInfo.ContoursCount > 1 then begin
     VPart := Format(_('Part: %d/%d'), [AInfo.CurrentContour, AInfo.ContoursCount]) + #13#10;
@@ -299,7 +317,7 @@ begin
   end;
 
   Result :=
-    AItem.Name + #13#10 +
+    VName +
     VPart +
     Format(_('Area: %s'), [VConverter.AreaConvert(AInfo.Area)]) + #13#10 +
     Format(_('Perimeter: %s'), [VConverter.DistConvert(AInfo.Perimeter)]);

@@ -35,6 +35,7 @@ type
     Distance: Double;
     Elevation: Double;
     TimeStamp: TDateTime;
+    Speed: Double;
   end;
 
   TPolyHintInfo = record
