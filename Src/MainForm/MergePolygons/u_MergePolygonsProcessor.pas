@@ -51,7 +51,7 @@ type
 
   TMergePolygonsProcessor = class
   private const
-    CIntToDoubleCoeff = Clipper.Core.MaxCoord div (180 * 4);
+    CIntToDoubleCoeff = Clipper.Core.MaxCoord div (180 * 32);
   private
     FItems: TMergePolygonsItemArray;
     FOperation: TMergeOperation;
