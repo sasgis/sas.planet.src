@@ -23,6 +23,10 @@ unit u_LonLatPolygonGenerator;
 
 interface
 
+{$IFDEF DEBUG}
+  {.$DEFINE RETURN_MINKOWSKI_SUM}
+{$ENDIF}
+
 uses
   SysUtils,
   Clipper,
@@ -150,7 +154,7 @@ function TLonLatPolygonGenerator.Minkowski(
   const AIsClosed: Boolean
 ): TClipperPaths;
 var
-  I, J, K: Integer;
+  I, J, K, G, H: Integer;
   VPrevPoint: PClipperPoint;
   VDelta, VPathLen: Integer;
   VQuad: TClipperPath;
@@ -159,9 +163,9 @@ begin
   MakePattern(APath[0]);
 
   if AIsClosed then begin
-    VDelta := 1;
-  end else begin
     VDelta := 0;
+  end else begin
+    VDelta := 1;
   end;
 
   VPathLen := Length(APath);
@@ -189,21 +193,34 @@ begin
     Inc(K);
     VPrevPoint := @APath[I];
   end;
+  VPathLen := K;
+  SetLength(VTmp, K);
 
   SetLength(VQuad, 4);
-  SetLength(Result, (K + VDelta) * (cPatternLen + 1));
+  SetLength(Result, (VPathLen - VDelta) * cPatternLen);
 
-  for I := 0 to K - 2 + VDelta do begin
+  if AIsClosed then begin
+    G := VPathLen - 1;
+  end else begin
+    G := 0;
+  end;
+
+  for I := VDelta to VPathLen - 1 do begin
+    H := cPatternLen - 1;
+    K := (I - VDelta) * cPatternLen;
     for J := 0 to cPatternLen - 1 do begin
-      VQuad[0] := VTmp[I mod K][J mod cPatternLen];
-      VQuad[1] := VTmp[(I+1) mod K][J mod cPatternLen];
-      VQuad[2] := VTmp[(I+1) mod K][(J+1) mod cPatternLen];
-      VQuad[3] := VTmp[I mod K][(J+1) mod cPatternLen];
+      VQuad[0] := VTmp[G][H];
+      VQuad[1] := VTmp[I][H];
+      VQuad[2] := VTmp[I][J];
+      VQuad[3] := VTmp[G][J];
       if not IsPositive(VQuad) then begin
-        VQuad := ReversePath(VQuad);
+        Result[K + J] := ReversePath(VQuad);
+      end else begin
+        Result[K + J] := Copy(VQuad, 0, 4);
       end;
-      Result[I*cPatternLen + J] := Copy(VQuad, 0, 4);
+      H := J;
     end;
+    G := I;
   end;
 end;
 
@@ -219,6 +236,10 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
     VPointsArray: PDoublePointArray;
   begin
     VCount := Length(APath);
+    if VCount = 0 then begin
+      Result := nil;
+      Exit;
+    end;
     GetMem(VPointsArray, VCount * SizeOf(TDoublePoint));
     for I := 0 to VCount - 1 do begin
       VPointsArray[I].X := APath[I].X / CIntToDoubleCoeff;
@@ -233,7 +254,7 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
     VSinglePoly: IDoublePoints;
   begin
     VSinglePoly := _PathToSinglePolygon(ANode.Polygon);
-    if Assigned(VSinglePoly) then begin
+    if VSinglePoly <> nil then begin
       if ANode.IsHole then begin
         ABuilder.AddHole(VSinglePoly);
       end else begin
@@ -253,7 +274,7 @@ var
   VClipper: TClipper;
   VPolyTree: TClipperPolyTree;
 begin
-  if (ALine = nil) or (ALine.Count <= 1) then begin
+  if (ALine = nil) or (ALine.Count < 2) then begin
     Exit;
   end;
 
@@ -264,6 +285,16 @@ begin
   end;
 
   VPaths := Minkowski(VPath, False);
+
+  {$IFDEF RETURN_MINKOWSKI_SUM}
+  for I := 0 to Length(VPaths) - 1 do begin
+    var VSinglePoly := _PathToSinglePolygon(VPaths[I]);
+    if VSinglePoly <> nil then begin
+      ABuilder.AddOuter(VSinglePoly);
+    end;
+  end;
+  Exit;
+  {$ENDIF}
 
   VClipper := TClipper.Create;
   try
