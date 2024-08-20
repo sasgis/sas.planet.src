@@ -4831,21 +4831,21 @@ procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VSelectedWiki: IVectorDataItem;
-  Vpolygon: IGeometryLonLatPolygon;
+  VPolygon: IGeometryLonLatPolygon;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry, FViewPortState.View.GetStatic.Projection);
-    if Vpolygon <> nil then begin
-      FRegionProcess.ProcessPolygon(Vpolygon);
+    VPolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry, FViewPortState.View.GetStatic.Projection);
+    if VPolygon <> nil then begin
+      FRegionProcess.ProcessPolygon(VPolygon);
     end;
   end else begin
     // no mark - try to select wiki
     VSelectedWiki := FSelectedWiki;
-    if (VSelectedWiki <> nil) then begin
-      Vpolygon := FMarkDBGUI.PolygonForOperation(VSelectedWiki.Geometry, FViewPortState.View.GetStatic.Projection);
-      if Vpolygon <> nil then begin
-        FRegionProcess.ProcessPolygon(Vpolygon);
+    if VSelectedWiki <> nil then begin
+      VPolygon := FMarkDBGUI.PolygonForOperation(VSelectedWiki.Geometry, FViewPortState.View.GetStatic.Projection);
+      if VPolygon <> nil then begin
+        FRegionProcess.ProcessPolygon(VPolygon);
       end;
     end;
   end;

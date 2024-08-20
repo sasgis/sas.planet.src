@@ -314,11 +314,8 @@ begin
     Result := False;
     Exit;
   end;
-  if VTileCount = 0 then begin
-    AResult := nil;
-    Exit;
-  end;
-  if VTileCount = 1 then begin
+
+  if VTileCount < 2 then begin
     Exit;
   end;
 
