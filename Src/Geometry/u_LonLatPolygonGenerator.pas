@@ -29,27 +29,15 @@ interface
 
 uses
   SysUtils,
-  Clipper,
-  Clipper.Core,
-  Clipper.Engine,
+  Clipper.Core, // for the inlining purpose
   t_GeoTypes,
   i_Datum,
   i_GeometryLonLat,
-  i_GeometryLonLatFactory;
+  i_GeometryLonLatFactory,
+  u_Clipper;
 
 type
-  TClipperPoint = Clipper.TPoint64;
-  PClipperPoint = ^TClipperPoint;
-
-  TClipperPath = Clipper.TPath64;
-  TClipperPaths = Clipper.TPaths64;
-
-  TClipperPolyTree = Clipper.Engine.TPolyTree64;
-  TClipperPolyNode = Clipper.Engine.TPolyPath64;
-
   TLonLatPolygonGenerator = class
-  private const
-    CIntToDoubleCoeff = Clipper.Core.MaxCoord div (180 * 32);
   private
     FDatum: IDatum;
     FRadius: Double;
@@ -105,7 +93,7 @@ begin
   FRadius := ARadius;
 
   SetLength(FPattern, cPatternLen);
-  FMaxPatternDiff := Round(0.5 * CIntToDoubleCoeff); // 0.5 degree
+  FMaxPatternDiff := Round(0.5 * CClipperIntToCoordCoeff); // 0.5 degree
 
   if Supports(ALine, IGeometryLonLatSingleLine, VLineSingle) then begin
     GeneratePolygonBySingleLine(VLineSingle, ABuilder);
@@ -127,8 +115,7 @@ var
 begin
   FPatternPoint := APoint;
 
-  VPatternPoint.X := APoint.X / CIntToDoubleCoeff;
-  VPatternPoint.Y := APoint.Y / CIntToDoubleCoeff;
+  VPatternPoint := ClipperPointToDoublePoint(APoint);
 
   for I := 0 to cPatternLen - 1 do begin
     VPoint :=
@@ -138,15 +125,15 @@ begin
         FRadius
       );
 
-    FPattern[I].X := Round(VPoint.X * CIntToDoubleCoeff) - FPatternPoint.X;
-    FPattern[I].Y := Round(VPoint.Y * CIntToDoubleCoeff) - FPatternPoint.Y;
+    FPattern[I].X := DoubleToClipperInt(VPoint.X) - FPatternPoint.X;
+    FPattern[I].Y := DoubleToClipperInt(VPoint.Y) - FPatternPoint.Y;
   end;
 
   VPoint := FDatum.CalcFinishPosition(VPatternPoint, 90, FRadius * cNearestPointRadiusCoeff);
-  FMaxPointDiff.X := Abs(Round(VPoint.X * CIntToDoubleCoeff) - FPatternPoint.X);
+  FMaxPointDiff.X := Abs(DoubleToClipperInt(VPoint.X) - FPatternPoint.X);
 
   VPoint := FDatum.CalcFinishPosition(VPatternPoint, 0, FRadius * cNearestPointRadiusCoeff);
-  FMaxPointDiff.Y := Abs(Round(VPoint.Y * CIntToDoubleCoeff) - FPatternPoint.Y);
+  FMaxPointDiff.Y := Abs(DoubleToClipperInt(VPoint.Y) - FPatternPoint.Y);
 end;
 
 function TLonLatPolygonGenerator.Minkowski(
@@ -242,8 +229,7 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
     end;
     GetMem(VPointsArray, VCount * SizeOf(TDoublePoint));
     for I := 0 to VCount - 1 do begin
-      VPointsArray[I].X := APath[I].X / CIntToDoubleCoeff;
-      VPointsArray[I].Y := APath[I].Y / CIntToDoubleCoeff;
+      VPointsArray[I] := ClipperPointToDoublePoint(APath[I]);
     end;
     Result := TDoublePoints.CreateWithOwn(VPointsArray, nil, VCount);
   end;
@@ -268,6 +254,7 @@ procedure TLonLatPolygonGenerator.GeneratePolygonBySingleLine(
 
 var
   I: Integer;
+  VPoints: PDoublePointArray;
   VPath: TClipperPath;
   VPaths: TClipperPaths;
   VOpenPaths: TClipperPaths;
@@ -279,9 +266,10 @@ begin
   end;
 
   SetLength(VPath, ALine.Count);
+  VPoints := ALine.Points;
+
   for I := 0 to ALine.Count - 1 do begin
-    VPath[I].X := Round(ALine.Points[I].X * CIntToDoubleCoeff);
-    VPath[I].Y := Round(ALine.Points[I].Y * CIntToDoubleCoeff);
+    VPath[I] := DoublePointToClipperPoint(VPoints[I]);
   end;
 
   VPaths := Minkowski(VPath, False);
@@ -301,7 +289,7 @@ begin
     VClipper.AddSubject(VPaths);
     VPolyTree := TClipperPolyTree.Create;
     try
-      if VClipper.Execute(ctUnion, frNonZero, VPolyTree, VOpenPaths) then begin
+      if VClipper.Execute(TClipType.ctUnion, TFillRule.frNonZero, VPolyTree, VOpenPaths) then begin
         for I := 0 to VPolyTree.Count - 1 do begin
           _ProcessNode(VPolyTree.Child[I]);
         end;

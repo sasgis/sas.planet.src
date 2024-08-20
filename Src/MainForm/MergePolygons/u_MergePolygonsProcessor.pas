@@ -24,9 +24,7 @@ unit u_MergePolygonsProcessor;
 interface
 
 uses
-  Clipper,
-  Clipper.Core,
-  Clipper.Engine,
+  Clipper.Core, // for the inlining purpose
   t_MergePolygonsProcessor,
   i_MergePolygonsProgress,
   i_Timer,
@@ -37,21 +35,11 @@ uses
   i_VectorDataItemSimple,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
-  i_NotifierOperation;
+  i_NotifierOperation,
+  u_Clipper;
 
 type
-  TClipperPoint = Clipper.TPoint64;
-  PClipperPoint = ^TClipperPoint;
-
-  TClipperPath = Clipper.TPath64;
-  TClipperPaths = Clipper.TPaths64;
-
-  TClipperPolyTree = Clipper.Engine.TPolyTree64;
-  TClipperPolyNode = Clipper.Engine.TPolyPath64;
-
   TMergePolygonsProcessor = class
-  private const
-    CIntToDoubleCoeff = Clipper.Core.MaxCoord div (180 * 32);
   private
     FItems: TMergePolygonsItemArray;
     FOperation: TMergeOperation;
@@ -142,7 +130,7 @@ function MakePathsUnion(
 begin
   AClipper.AddSubject(ASubj);
   AClipper.AddClip(AClip);
-  if not AClipper.Execute(ctUnion, frEvenOdd, Result) then begin
+  if not AClipper.Execute(TClipType.ctUnion, TFillRule.frEvenOdd, Result) then begin
     raise EMergePolygonsProcessorError.Create(
       'MakePathsUnion: Clipper Exec FAIL!'
     );
@@ -332,7 +320,7 @@ begin
 
     VPolyTree := TClipperPolyTree.Create;
     try
-      if VClipper.Execute(GetClipType(FOperation), frEvenOdd, VPolyTree, VOpenPaths) then begin
+      if VClipper.Execute(GetClipType(FOperation), TFillRule.frEvenOdd, VPolyTree, VOpenPaths) then begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Exit;
         end;
@@ -430,10 +418,10 @@ function TMergePolygonsProcessor.GetClipType(
 ): TClipType;
 begin
   case AMergeOperation of
-    moAND: Result := ctIntersection;
-    moOR:  Result := ctUnion;
-    moNOT: Result := ctDifference;
-    moXOR: Result := ctXor;
+    moAND: Result := TClipType.ctIntersection;
+    moOR:  Result := TClipType.ctUnion;
+    moNOT: Result := TClipType.ctDifference;
+    moXOR: Result := TClipType.ctXor;
   else
     raise EMergePolygonsProcessorError.CreateFmt(
       'Unknown merge operation: %d', [Integer(AMergeOperation)]
@@ -490,8 +478,7 @@ begin
   VPath := Result[K];
   VPoints := VBorder.Points;
   for I := 0 to VBorder.Count - 1 do begin
-    VPath[I].X := Round(VPoints[I].X * CIntToDoubleCoeff);
-    VPath[I].Y := Round(VPoints[I].Y * CIntToDoubleCoeff);
+    VPath[I] := DoublePointToClipperPoint(VPoints[I]);
   end;
   if not IsPositive(VPath) then begin
     Result[K] := ReversePath(VPath);
@@ -505,8 +492,7 @@ begin
     VPath := Result[K];
     VPoints := VBorder.Points;
     for I := 0 to VBorder.Count - 1 do begin
-      VPath[I].X := Round(VPoints[I].X * CIntToDoubleCoeff);
-      VPath[I].Y := Round(VPoints[I].Y * CIntToDoubleCoeff);
+      VPath[I] := DoublePointToClipperPoint(VPoints[I]);
     end;
     if IsPositive(VPath) then begin
       Result[K] := ReversePath(VPath);
@@ -525,8 +511,7 @@ begin
   VCount := Length(APath);
   GetMem(VPointsArray, VCount * SizeOf(TDoublePoint));
   for I := 0 to VCount - 1 do begin
-    VPointsArray[I].X := APath[I].X / CIntToDoubleCoeff;
-    VPointsArray[I].Y := APath[I].Y / CIntToDoubleCoeff;
+    VPointsArray[I] := ClipperPointToDoublePoint(APath[I]);
   end;
   Result := TDoublePoints.CreateWithOwn(VPointsArray, nil, VCount);
 end;
