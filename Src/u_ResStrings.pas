@@ -331,7 +331,7 @@ resourcestring
 
   SAS_UNITS_kmperh = 'km/h';
   SAS_UNITS_mileperh = 'mi/h';
-  SAS_UNITS_knot = 'knot'; // nautical mile / hour
+  SAS_UNITS_knot = 'kn'; // knot, nautical mile / hour
 
   SAS_UNITS_mperp = '/pixel';
 

@@ -50,6 +50,8 @@ type
     FUnitsNauticalMile: string;
 
     FUnitsKmph: string;
+    FUnitsMiph: string;
+    FUnitsKnot: string;
 
     FUnitsHa: string;
     FUnitsAre: string;
@@ -61,7 +63,10 @@ type
     FUnitsSqNMi: string;
     FUnitsSqFt: string;
     FUnitsSqYd: string;
+
+    function GetSpeedStrFormat: TSpeedStrFormat;
   private
+    { IValueToStringConverter }
     function DataSizeConvert(const ASizeInKb: Double): string;
     function DistConvert(const ADistInMeters: Double): string;
     function DistPerPixelConvert(const ADistPerPixelInMeters: Double): string;
@@ -119,6 +124,8 @@ begin
 
   // Speed
   FUnitsKmph := SAS_UNITS_kmperh;
+  FUnitsMiph := SAS_UNITS_mileperh;
+  FUnitsKnot := SAS_UNITS_knot;
 
   // Area
   FUnitsHa := SAS_UNITS_ha;
@@ -308,6 +315,33 @@ begin
   Result := DistConvert(ADistPerPixelInMeters) + SAS_UNITS_mperp;
 end;
 
+function TValueToStringConverter.GetSpeedStrFormat: TSpeedStrFormat;
+begin
+  case FDistStrFormat of
+    dsfKmAndM,
+    dsfKmOrM,
+    dsfSimpleKm,
+    dsfSimpleMeter,
+    dsfSimpleCentimeter: begin
+      Result := ssfKmph;
+    end;
+
+    dsfSimpleMile,
+    dsfSimpleYard,
+    dsfSimpleFoot,
+    dsfSimpleInch: begin
+      Result := ssfMph;
+    end;
+
+    dsfSimpleNauticalMile: begin
+      Result := ssfKnot;
+    end;
+  else
+    Assert(False, 'Unexpected TDistStrFormat value: ' + Integer(FDistStrFormat).ToString);
+    Result := ssfKmph;
+  end;
+end;
+
 function TValueToStringConverter.SpeedConvert(const AKmph: Double): string;
 begin
   if IsNan(AKmph) then begin
@@ -315,7 +349,13 @@ begin
     Exit;
   end;
 
-  Result := ValToNum(AKmph, FUnitsKmph, 1);
+  case GetSpeedStrFormat of
+    ssfKmph: Result := ValToNum(AKmph, FUnitsKmph, 1);
+    ssfMph:  Result := ValToNum(AKmph / 1.609344, FUnitsMiph, 1);
+    ssfKnot: Result := ValToNum(AKmph / 1.8520, FUnitsKnot, 1);
+  else
+    Assert(False);
+  end;
 end;
 
 end.

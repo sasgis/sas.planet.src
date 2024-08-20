@@ -24,7 +24,17 @@ unit t_CommonTypes;
 interface
 
 type
-  TTileSource = (tsInternet = 0, tsCache = 1, tsCacheInternet = 2);
+  TTileSource = (
+    tsInternet,
+    tsCache,
+    tsCacheInternet
+  );
+
+  TStringTypeSupport = (
+    stsAscii,
+    stsAnsi,
+    stsUnicode
+  );
 
   TDistStrFormat = (
     dsfKmAndM,
@@ -57,8 +67,12 @@ type
     asfSqAcr
   );
 
-  TStringTypeSupport = (stsAscii = 0, stsAnsi = 1, stsUnicode = 2);
-  
+  TSpeedStrFormat = (
+    ssfKmph,
+    ssfMph,
+    ssfKnot
+  );
+
 implementation
 
 end.
