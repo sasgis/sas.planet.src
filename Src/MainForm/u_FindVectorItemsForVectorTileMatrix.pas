@@ -43,6 +43,7 @@ type
     FFindItemsCounter: IInternalPerformanceCounter;
     FRectHalfSize: Double;
   private
+    { IFindVectorItems }
     function FindItems(
       const AVisualConverter: ILocalCoordConverter;
       const ALocalPoint: TPoint
@@ -99,6 +100,7 @@ function TFindVectorItemsForVectorTileMatrix.FindItems(
   const ALocalPoint: TPoint
 ): IVectorItemSubset;
 var
+  I: Integer;
   VCounterContext: TInternalPerformanceCounterContext;
   VMatrix: IVectorTileMatrix;
   VRect: TDoubleRect;
@@ -108,7 +110,6 @@ var
   VPixelPos: TDoublePoint;
   VLonLatPos: TDoublePoint;
   VTile: TPoint;
-  i: integer;
   VItems: IVectorItemSubset;
   VItem: IVectorDataItem;
   VProjectdPath: IGeometryProjectedLine;
@@ -116,14 +117,15 @@ var
   VGeometry: IGeometryLonLat;
   VGeometryLine: IGeometryLonLatLine;
   VGeometryPoly: IGeometryLonLatPolygon;
-  Vtmp: IVectorItemSubsetBuilder;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
   Result := nil;
   VCounterContext := FFindItemsCounter.StartOperation;
   try
     VMatrix := FVectorMatrix.GetStatic;
     if Assigned(VMatrix) then begin
-      Vtmp := FVectorItemSubsetBuilderFactory.Build;
+      VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+
       VRect.Left := ALocalPoint.X - FRectHalfSize;
       VRect.Top := ALocalPoint.Y - FRectHalfSize;
       VRect.Right := ALocalPoint.X + FRectHalfSize;
@@ -138,19 +140,20 @@ begin
       VLonLatPos := VProjection.PixelPosFloat2LonLat(VPixelPos);
       VTile := PointFromDoublePoint(VMatrix.TileRect.Projection.LonLat2TilePosFloat(VLonLatPos), prToTopLeft);
       VItems := VMatrix.GetElementByTile(VTile);
+
       if Assigned(VItems) then begin
         // check element
-        for i := 0 to VItems.Count - 1 do begin
-          VItem := VItems.GetItem(i);
+        for I := 0 to VItems.Count - 1 do begin
+          VItem := VItems.GetItem(I);
           VGeometry := VItem.Geometry;
           if VGeometry.Bounds.IsIntersecWithRect(VLonLatRect) then begin
             if Supports(VGeometry, IGeometryLonLatPoint) then begin
-              Vtmp.add(VItem);
+              VSubsetBuilder.Add(VItem);
             end else if Supports(VGeometry, IGeometryLonLatLine, VGeometryLine) then begin
               VProjectdPath := FProjectedProvider.GetProjectedPath(VProjection, VGeometryLine);
               if Assigned(VProjectdPath) then begin
                 if VProjectdPath.IsPointOnPath(VPixelPos, 6) then begin
-                  Vtmp.add(VItem);
+                  VSubsetBuilder.Add(VItem);
                 end;
               end;
             end else if Supports(VGeometry, IGeometryLonLatPolygon, VGeometryPoly) then begin
@@ -158,13 +161,13 @@ begin
               if Assigned(VProjectdPolygon) then begin
                 if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
                   VProjectdPolygon.IsPointOnBorder(VPixelPos, 3) then begin
-                  Vtmp.add(VItem);
+                  VSubsetBuilder.Add(VItem);
                 end;
               end;
             end;
           end;
         end;
-        Result := Vtmp.MakeStaticAndClear;
+        Result := VSubsetBuilder.MakeStaticAndClear;
       end;
     end;
   finally
