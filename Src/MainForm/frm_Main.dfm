@@ -1135,6 +1135,9 @@ object frmMain: TfrmMain
         object tbxEditPathShowAzimuth: TTBXItem
           Action = actEditPathShowAzimuth
         end
+        object tbxEditPathShowPointHint: TTBXItem
+          Action = actEditPathShowPointHint
+        end
       end
       object tbxCalcLineLabelVisible: TTBSubmenuItem
         Action = actCalcLineLabelVisible
@@ -3758,6 +3761,12 @@ object frmMain: TfrmMain
       ImageIndex = 20
       ShortCut = 16449
       OnExecute = actSelectByVisibleAreaExecute
+    end
+    object actEditPathShowPointHint: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show hint for point under cursor'
+      Hint = 'Show hint for point under cursor'
+      OnExecute = actEditPathShowPointHintExecute
     end
     object actMakeLinkOnDesktop: TAction
       Category = 'Operations'

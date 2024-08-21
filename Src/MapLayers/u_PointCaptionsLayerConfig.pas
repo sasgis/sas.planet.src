@@ -38,16 +38,19 @@ type
     FShowAzimuth: Boolean;
     FShowIntermediateDist: Boolean;
     FShowDistIncrement: Boolean;
+    FShowPointHint: Boolean;
     FFontSize: Integer;
     FLastPointFontSize: Integer;
     FFontName: string;
     FTextColor: TColor32;
     FTextBGColor: TColor32;
   private
+    { IPointCaptionsLayerConfigStatic }
     function GetVisible: Boolean;
     function GetShowAzimuth: Boolean;
     function GetShowIntermediateDist: Boolean;
     function GetShowDistIncrement: Boolean;
+    function GetShowPointHint: Boolean;
     function GetFontSize: Integer;
     function GetLastPointFontSize: Integer;
     function GetFontName: string;
@@ -59,6 +62,7 @@ type
       const AShowAzimuth: Boolean;
       const AShowIntermediateDist: Boolean;
       const AShowDistIncrement: Boolean;
+      const AShowPointHint: Boolean;
       const AFontSize: Integer;
       const ALastPointFontSize: Integer;
       const AFontName: string;
@@ -73,6 +77,7 @@ type
     FShowAzimuth: Boolean;
     FShowIntermediateDist: Boolean;
     FShowDistIncrement: Boolean;
+    FShowPointHint: Boolean;
     FFontSize: Integer;
     FLastPointFontSize: Integer;
     FFontName: string;
@@ -84,6 +89,7 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    { IPointCaptionsLayerConfig }
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
 
@@ -95,6 +101,9 @@ type
 
     function GetShowDistIncrement: Boolean;
     procedure SetShowDistIncrement(const AValue: Boolean);
+
+    function GetShowPointHint: Boolean;
+    procedure SetShowPointHint(const AValue: Boolean);
 
     function GetFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
@@ -129,6 +138,7 @@ constructor TPointCaptionsLayerConfigStatic.Create(
   const AShowAzimuth: Boolean;
   const AShowIntermediateDist: Boolean;
   const AShowDistIncrement: Boolean;
+  const AShowPointHint: Boolean;
   const AFontSize: Integer;
   const ALastPointFontSize: Integer;
   const AFontName: string;
@@ -141,6 +151,7 @@ begin
   FShowAzimuth := AShowAzimuth;
   FShowIntermediateDist := AShowIntermediateDist;
   FShowDistIncrement := AShowDistIncrement;
+  FShowPointHint := AShowPointHint;
   FFontSize := AFontSize;
   FLastPointFontSize := ALastPointFontSize;
   FFontName := AFontName;
@@ -166,6 +177,11 @@ end;
 function TPointCaptionsLayerConfigStatic.GetShowIntermediateDist: Boolean;
 begin
   Result := FShowIntermediateDist;
+end;
+
+function TPointCaptionsLayerConfigStatic.GetShowPointHint: Boolean;
+begin
+  Result := FShowPointHint;
 end;
 
 function TPointCaptionsLayerConfigStatic.GetTextBGColor: TColor32;
@@ -202,6 +218,7 @@ begin
   FShowAzimuth := True;
   FShowIntermediateDist := True;
   FShowDistIncrement := True;
+  FShowPointHint := False;
   FFontSize := 8;
   FLastPointFontSize := 9;
   FFontName := 'Arial';
@@ -219,6 +236,7 @@ begin
       FShowAzimuth,
       FShowIntermediateDist,
       FShowDistIncrement,
+      FShowPointHint,
       FFontSize,
       FLastPointFontSize,
       FFontName,
@@ -236,6 +254,7 @@ begin
     FShowAzimuth := AConfigData.ReadBool('ShowAzimuth', FShowAzimuth);
     FShowIntermediateDist := AConfigData.ReadBool('ShowIntermediateDist', FShowIntermediateDist);
     FShowDistIncrement := AConfigData.ReadBool('ShowDistIncrement', FShowDistIncrement);
+    FShowPointHint := AConfigData.ReadBool('ShowPointHint', FShowPointHint);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
     FLastPointFontSize := AConfigData.ReadInteger('LastPointFontSize', FLastPointFontSize);
     FFontName := AConfigData.ReadString('FontName', FFontName);
@@ -255,6 +274,7 @@ begin
   AConfigData.WriteBool('ShowAzimuth', FShowAzimuth);
   AConfigData.WriteBool('ShowIntermediateDist', FShowIntermediateDist);
   AConfigData.WriteBool('ShowDistIncrement', FShowDistIncrement);
+  AConfigData.WriteBool('ShowPointHint', FShowPointHint);
   AConfigData.WriteInteger('FontSize', FFontSize);
   AConfigData.WriteInteger('LastPointFontSize', FLastPointFontSize);
   AConfigData.WriteString('FontName', FFontName);
@@ -298,6 +318,16 @@ begin
   LockRead;
   try
     Result := FShowIntermediateDist;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TPointCaptionsLayerConfig.GetShowPointHint: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowPointHint;
   finally
     UnlockRead;
   end;
@@ -403,6 +433,19 @@ begin
   try
     if FShowIntermediateDist <> AValue then begin
       FShowIntermediateDist := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TPointCaptionsLayerConfig.SetShowPointHint(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowPointHint <> AValue then begin
+      FShowPointHint := AValue;
       SetChanged;
     end;
   finally

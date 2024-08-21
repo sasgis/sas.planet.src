@@ -623,6 +623,8 @@ type
     tbxEditPathReplaceElevation: TTBXItem;
     actLineEditReverse: TAction;
     actLineEditReplaceElevation: TAction;
+    tbxEditPathShowPointHint: TTBXItem;
+    actEditPathShowPointHint: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -879,6 +881,7 @@ type
     procedure actViewFullMapMouseCursorVisibleExecute(Sender: TObject);
     procedure actLineEditReverseExecute(Sender: TObject);
     procedure actLineEditReplaceElevationExecute(Sender: TObject);
+    procedure actEditPathShowPointHintExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -1126,6 +1129,11 @@ type
     ): IVectorDataItem;
 
     function FindItems(
+      const AVisualConverter: ILocalCoordConverter;
+      const ALocalPoint: TPoint
+    ): IVectorItemSubset;
+
+    function FindPathOnMapEdit(
       const AVisualConverter: ILocalCoordConverter;
       const ALocalPoint: TPoint
     ): IVectorItemSubset;
@@ -1900,6 +1908,57 @@ begin
   end;
 
   Result := VSubsetBuilder.MakeStaticAndClear;
+end;
+
+function TfrmMain.FindPathOnMapEdit(
+  const AVisualConverter: ILocalCoordConverter;
+  const ALocalPoint: TPoint
+): IVectorItemSubset;
+var
+  VRect: TDoubleRect;
+  VProjection: IProjection;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VPixelPos: TDoublePoint;
+  VGeometry: IGeometryLonLatLine;
+  VProjectdPath: IGeometryProjectedLine;
+  VPathOnMapEdit: IPathOnMapEdit;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+  VMainInfo: IVectorDataItemMainInfo;
+begin
+  Result := nil;
+  if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
+    if Assigned(VPathOnMapEdit.Path) and IsValidLonLatLine(VPathOnMapEdit.Path.Geometry) then begin
+      VRect.Left := ALocalPoint.X - 12;
+      VRect.Top := ALocalPoint.Y - 12;
+      VRect.Right := ALocalPoint.X + 12;
+      VRect.Bottom := ALocalPoint.Y + 12;
+
+      VProjection := AVisualConverter.Projection;
+      VMapRect := AVisualConverter.LocalRectFloat2MapRectFloat(VRect);
+      VProjection.ValidatePixelRectFloat(VMapRect);
+      VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
+      VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
+      VProjection.ValidatePixelPosFloatStrict(VPixelPos, False);
+
+      VGeometry := VPathOnMapEdit.Path.Geometry;
+      if VGeometry.Bounds.IsIntersecWithRect(VLonLatRect) then begin
+        VProjectdPath := GState.ProjectedGeometryProvider.GetProjectedPath(VProjection, VGeometry);
+        if Assigned(VProjectdPath) then begin
+          if VProjectdPath.IsPointOnPath(VPixelPos, 6) then begin
+            if FEditMarkLine <> nil then begin
+              VMainInfo := FEditMarkLine.MainInfo;
+            end else begin
+              VMainInfo := GState.VectorDataItemMainInfoFactory.BuildMainInfo(nil, '', '');
+            end;
+            VSubsetBuilder := GState.VectorItemSubsetBuilderFactory.Build;
+            VSubsetBuilder.Add( GState.VectorDataFactory.BuildItem(VMainInfo, nil, VGeometry) );
+            Result := VSubsetBuilder.MakeStaticAndClear;
+          end;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
@@ -3332,6 +3391,7 @@ procedure TfrmMain.OnMarkEditConfigsChange;
 var
   VConfig: IPointCaptionsLayerConfig;
 begin
+  // Calc line
   VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
   VConfig.LockRead;
   try
@@ -3342,12 +3402,15 @@ begin
   finally
     VConfig.UnlockRead;
   end;
+
+  // Path edit
   VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
   VConfig.LockRead;
   try
     actEditPathShowIntermediateDist.Checked := VConfig.ShowIntermediateDist;
     actEditPathShowDistIncrement.Checked := VConfig.ShowDistIncrement;
     actEditPathShowAzimuth.Checked := VConfig.ShowAzimuth;
+    actEditPathShowPointHint.Checked := VConfig.ShowPointHint;
     actEditPathLabelVisible.Checked := VConfig.Visible;
   finally
     VConfig.UnlockRead;
@@ -5472,6 +5535,7 @@ var
   VVectorItem: IVectorDataItem;
   VMagnetPoint: TDoublePoint;
   VVectorItems: IVectorItemSubset;
+  VShowExtendedHint: Boolean;
 begin
   VMousePosPrev := FMouseState.CurentPos;
   FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
@@ -5578,9 +5642,25 @@ begin
     ((not FConfig.MainConfig.ShowHintOnlyInMapMoveMode) or (FState.State = ao_movemap)) and
     _AllowShowHint
   then begin
-    VVectorItems := FindItems(VLocalConverter, VMousePos);
+    VVectorItems := nil;
+    VShowExtendedHint := ssCtrl in Shift;
+
+    if not VShowExtendedHint and
+       (FLineOnMapEdit <> nil) and
+       (FState.State = ao_edit_line) and
+       FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.Visible and
+       FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowPointHint
+    then begin
+      VVectorItems := FindPathOnMapEdit(VLocalConverter, VMousePos);
+      VShowExtendedHint := VShowExtendedHint or ((VVectorItems <> nil) and (VVectorItems.Count > 0));
+    end;
+
+    if VVectorItems = nil then begin
+      VVectorItems := FindItems(VLocalConverter, VMousePos);
+    end;
+
     if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
-      FMapHintWindow.ShowHint(VMousePos, VVectorItems, ssCtrl in Shift);
+      FMapHintWindow.ShowHint(VMousePos, VVectorItems, VShowExtendedHint);
     end else begin
       FMapHintWindow.HideHint;
     end;
@@ -6877,6 +6957,12 @@ procedure TfrmMain.actEditPathShowIntermediateDistExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowIntermediateDist :=
     not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowIntermediateDist;
+end;
+
+procedure TfrmMain.actEditPathShowPointHintExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowPointHint :=
+    not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowPointHint;
 end;
 
 procedure TfrmMain.actCalcLineLabelVisibleExecute(Sender: TObject);

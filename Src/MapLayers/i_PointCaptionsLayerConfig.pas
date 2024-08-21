@@ -42,6 +42,9 @@ type
     function GetShowDistIncrement: Boolean;
     property ShowDistIncrement: Boolean read GetShowDistIncrement;
 
+    function GetShowPointHint: Boolean;
+    property ShowPointHint: Boolean read GetShowPointHint;
+
     function GetFontSize: Integer;
     property FontSize: Integer read GetFontSize;
 
@@ -75,6 +78,10 @@ type
     function GetShowDistIncrement: Boolean;
     procedure SetShowDistIncrement(const AValue: Boolean);
     property ShowDistIncrement: Boolean read GetShowDistIncrement write SetShowDistIncrement;
+
+    function GetShowPointHint: Boolean;
+    procedure SetShowPointHint(const AValue: Boolean);
+    property ShowPointHint: Boolean read GetShowPointHint write SetShowPointHint;
 
     function GetFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
