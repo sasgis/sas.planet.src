@@ -208,9 +208,9 @@ resourcestring
   SAS_STR_LoadProcess = 'Downloading...';
   SAS_STR_LoadProcessRepl = 'Downloading with overwrite...';
   SAS_STR_ProcessedFile = 'Processing tile: %0:s ...';
-  SAS_STR_S = 'Area';
+  SAS_STR_Area = 'Area: %s';
   SAS_STR_L = 'Length';
-  SAS_STR_P = 'Perimeter';
+  SAS_STR_Perimeter = 'Perimeter: %s';
   SAS_STR_Radius = 'Radius';
   SAS_STR_Whole = 'Total';
   SAS_STR_Azimuth = 'Azimuth';

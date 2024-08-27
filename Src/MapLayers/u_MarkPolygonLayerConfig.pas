@@ -27,6 +27,7 @@ uses
   i_MarkPolygonLayerConfig,
   i_PolyLineLayerConfig,
   i_PolygonLayerConfig,
+  i_PolygonCaptionsLayerConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -34,9 +35,12 @@ type
   private
     FLineConfig: IPolygonLayerConfig;
     FPointsConfig: IPointsSetLayerConfig;
+    FCaptionsConfig: IPolygonCaptionsLayerConfig;
   private
+    { IMarkPolygonLayerConfig }
     function GetLineConfig: IPolygonLayerConfig;
     function GetPointsConfig: IPointsSetLayerConfig;
+    function GetCaptionsConfig: IPolygonCaptionsLayerConfig;
   public
     constructor Create;
   end;
@@ -48,8 +52,9 @@ uses
   i_MarkerSimpleConfig,
   u_MarkerSimpleConfigStatic,
   u_PointsSetLayerConfig,
-  u_ConfigSaveLoadStrategyBasicUseProvider,
-  u_PolygonLayerConfig;
+  u_PolygonLayerConfig,
+  u_PolygonCaptionsLayerConfig,
+  u_ConfigSaveLoadStrategyBasicUseProvider;
 
 { TMarkPolygonLayerConfig }
 
@@ -94,6 +99,14 @@ begin
       VNormalPointMarkerDefault
     );
   Add(FPointsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+
+  FCaptionsConfig := TPolygonCaptionsLayerConfig.Create;
+  Add(FCaptionsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+end;
+
+function TMarkPolygonLayerConfig.GetCaptionsConfig: IPolygonCaptionsLayerConfig;
+begin
+  Result := FCaptionsConfig;
 end;
 
 function TMarkPolygonLayerConfig.GetLineConfig: IPolygonLayerConfig;

@@ -26,7 +26,8 @@ interface
 uses
   i_ConfigDataElement,
   i_PolyLineLayerConfig,
-  i_PolygonLayerConfig;
+  i_PolygonLayerConfig,
+  i_PolygonCaptionsLayerConfig;
 
 type
   IMarkPolygonLayerConfig = interface(IConfigDataElement)
@@ -36,6 +37,9 @@ type
 
     function GetPointsConfig: IPointsSetLayerConfig;
     property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
+
+    function GetCaptionsConfig: IPolygonCaptionsLayerConfig;
+    property CaptionsConfig: IPolygonCaptionsLayerConfig read GetCaptionsConfig;
   end;
 
 implementation

@@ -312,6 +312,7 @@ uses
   u_MapLayerPointsSet,
   u_MapLayerCalcLineCaptions,
   u_MapLayerCalcCircleCaptions,
+  u_MapLayerPolygonCaptions,
   u_MapLayerSelectionByRect,
   u_MapLayerGotoMarker,
   u_MapLayerGpsTrackGoToMarker,
@@ -1560,6 +1561,21 @@ begin
       AParams.VectorGeometryProjectedFactory,
       VGeometryChangeableByPolygonEdit.ActivePointsChangeable,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, AParams.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker)
+    );
+  ALayersList.Add(VLayer);
+
+  // Captions layer
+  VLayer :=
+    TMapLayerPolygonCaptions.Create(
+      AParams.PerfListGroup.CreateAndAddNewSubList('PolygonEditCaption'),
+      AParams.AppStartedNotifier,
+      AParams.AppClosingNotifier,
+      AParams.ParentMap,
+      AParams.ViewPortState.View,
+      AParams.MainFormState,
+      AParams.EditPolygon,
+      AParams.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig,
+      AParams.ValueToStringConverter
     );
   ALayersList.Add(VLayer);
 end;

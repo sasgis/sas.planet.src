@@ -1790,6 +1790,7 @@
         <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\i_PolyLineLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\i_PolygonLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_MapLayerPointsSet.pas"/>
+        <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_MapLayerPolygonCaptions.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_MapLayerSingleGeometry.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolyLineLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\WindowLayers\Polygon\u_PolygonLayerConfig.pas"/>
@@ -1843,6 +1844,7 @@
         <DCCReference Include="Src\MapLayers\i_MarkPolyLineLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\i_MarkPolygonLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\i_PointCaptionsLayerConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\i_PolygonCaptionsLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\i_UseTilePrevZoomConfig.pas"/>
         <DCCReference Include="Src\MapLayers\i_VectorItemDrawConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_KmlLayerConfig.pas"/>
@@ -1853,6 +1855,7 @@
         <DCCReference Include="Src\MapLayers\u_MarkPolygonLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_PointCaptionsLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_PointsSetLayerConfig.pas"/>
+        <DCCReference Include="Src\MapLayers\u_PolygonCaptionsLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_UseTilePrevZoomConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_VectorItemDrawConfig.pas"/>
         <DCCReference Include="Src\MapType\frm_MapTypeEdit.pas">
