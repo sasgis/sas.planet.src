@@ -1153,6 +1153,17 @@ object frmMain: TfrmMain
           Action = actCalcLineShowAzimuth
         end
       end
+      object tbxEditPolygonLabelVisible: TTBSubmenuItem
+        Action = actEditPolygonLabelVisible
+        DropdownCombo = True
+        Images = MenusImageList
+        object tbxEditPolygonShowPerimeter: TTBXItem
+          Action = actEditPolygonShowPerimeter
+        end
+        object tbxEditPolygonShowArea: TTBXItem
+          Action = actEditPolygonShowArea
+        end
+      end
       object TBEditMagnetDraw: TTBXItem
         Action = actMarksEditSnapToMarkers
         Images = MenusImageList
@@ -4515,6 +4526,23 @@ object frmMain: TfrmMain
       Category = 'Marks\Edit'
       Caption = 'Replace elevation by the DEM data'
       OnExecute = actLineEditReplaceElevationExecute
+    end
+    object actEditPolygonShowPerimeter: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show perimeter'
+      OnExecute = actEditPolygonShowPerimeterExecute
+    end
+    object actEditPolygonShowArea: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show area'
+      OnExecute = actEditPolygonShowAreaExecute
+    end
+    object actEditPolygonLabelVisible: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show/Hide Captions'
+      Hint = 'Show/Hide Captions'
+      ImageIndex = 37
+      OnExecute = actEditPolygonLabelVisibleExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

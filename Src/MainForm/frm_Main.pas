@@ -625,6 +625,12 @@ type
     actLineEditReplaceElevation: TAction;
     tbxEditPathShowPointHint: TTBXItem;
     actEditPathShowPointHint: TAction;
+    tbxEditPolygonLabelVisible: TTBSubmenuItem;
+    tbxEditPolygonShowPerimeter: TTBXItem;
+    tbxEditPolygonShowArea: TTBXItem;
+    actEditPolygonShowPerimeter: TAction;
+    actEditPolygonShowArea: TAction;
+    actEditPolygonLabelVisible: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -882,6 +888,9 @@ type
     procedure actLineEditReverseExecute(Sender: TObject);
     procedure actLineEditReplaceElevationExecute(Sender: TObject);
     procedure actEditPathShowPointHintExecute(Sender: TObject);
+    procedure actEditPolygonShowPerimeterExecute(Sender: TObject);
+    procedure actEditPolygonShowAreaExecute(Sender: TObject);
+    procedure actEditPolygonLabelVisibleExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -1214,6 +1223,7 @@ uses
   i_GeometryProjectedFactory,
   i_ConfigDataProvider,
   i_PointCaptionsLayerConfig,
+  i_PolygonCaptionsLayerConfig,
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_MapVersionListStatic,
@@ -1637,6 +1647,10 @@ begin
   FLinksList.Add(
     VMarkEditConfigsListener,
     FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.GetChangeNotifier
+  );
+  FLinksList.Add(
+    VMarkEditConfigsListener,
+    FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.GetChangeNotifier
   );
 
   FLineOnMapByOperation[ao_movemap] := nil;
@@ -3042,15 +3056,9 @@ begin
     (VNewState = ao_select_poly) or
     (VNewState = ao_select_line);
 
-  tbxEditPathLabelVisible.Visible := (VNewState = ao_edit_line);
-  tbxEditPathShowIntermediateDist.Visible := (VNewState = ao_edit_line);
-  tbxEditPathShowDistIncrement.Visible := (VNewState = ao_edit_line);
-  tbxEditPathShowAzimuth.Visible := (VNewState = ao_edit_line);
-
   tbxCalcLineLabelVisible.Visible := (VNewState = ao_calc_line);
-  tbxCalcLineShowIntermediateDist.Visible := (VNewState = ao_calc_line);
-  tbxCalcLineShowDistIncrement.Visible := (VNewState = ao_calc_line);
-  tbxCalcLineShowAzimuth.Visible := (VNewState = ao_calc_line);
+  tbxEditPathLabelVisible.Visible := (VNewState = ao_edit_line);
+  tbxEditPolygonLabelVisible.Visible := (VNewState = ao_edit_poly);
 
   actLineEditSplitTogle.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
 
@@ -3390,6 +3398,7 @@ end;
 procedure TfrmMain.OnMarkEditConfigsChange;
 var
   VConfig: IPointCaptionsLayerConfig;
+  VPolygonConfig: IPolygonCaptionsLayerConfig;
 begin
   // Calc line
   VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
@@ -3414,6 +3423,17 @@ begin
     actEditPathLabelVisible.Checked := VConfig.Visible;
   finally
     VConfig.UnlockRead;
+  end;
+
+  // Polygon edit
+  VPolygonConfig := FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig;
+  VPolygonConfig.LockRead;
+  try
+    actEditPolygonShowPerimeter.Checked := VPolygonConfig.ShowPerimeter;
+    actEditPolygonShowArea.Checked := VPolygonConfig.ShowArea;
+    actEditPolygonLabelVisible.Checked := VPolygonConfig.Visible;
+  finally
+    VPolygonConfig.UnlockRead;
   end;
 end;
 
@@ -6963,6 +6983,24 @@ procedure TfrmMain.actEditPathShowPointHintExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowPointHint :=
     not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowPointHint;
+end;
+
+procedure TfrmMain.actEditPolygonLabelVisibleExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.Visible :=
+    not FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.Visible;
+end;
+
+procedure TfrmMain.actEditPolygonShowAreaExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.ShowArea :=
+    not FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.ShowArea;
+end;
+
+procedure TfrmMain.actEditPolygonShowPerimeterExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.ShowPerimeter :=
+    not FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.ShowPerimeter;
 end;
 
 procedure TfrmMain.actCalcLineLabelVisibleExecute(Sender: TObject);
