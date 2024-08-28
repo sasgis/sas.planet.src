@@ -192,7 +192,7 @@ begin
 
   if FIsValid then begin
     VValueConverter := FValueToStringConverter.GetStatic;
-    VText := SAS_STR_Radius + ': ' + VValueConverter.DistConvert(FCircleOnMapEdit.Radius);
+    VText := Format(SAS_STR_Radius, [VValueConverter.DistConvert(FCircleOnMapEdit.Radius)]);
 
     VConfig := FConfig.GetStatic;
 

@@ -450,7 +450,7 @@ begin
 
     if VTextItems[0].Enabled or VIsLastPoint then begin
       if VIsLastPoint then begin
-        VTextItems[0].Text := SAS_STR_Whole + ': ' + AValueConverter.DistConvert(ATotalDist);
+        VTextItems[0].Text := Format(SAS_STR_Whole, [AValueConverter.DistConvert(ATotalDist)]);
       end else begin
         VTextItems[0].Text := AValueConverter.DistConvert(ATotalDist);
       end;
@@ -471,7 +471,7 @@ begin
 
     if VTextItems[2].Enabled and ((VTextItems[0].Text <> '') or (VTextItems[1].Text <> '')) then begin
       if VIsLastPoint then begin
-        VTextItems[2].Text := '; ' + SAS_STR_Azimuth + ': ' + AzimuthToString(ALastStartAzimuth);
+        VTextItems[2].Text := '; ' + Format(SAS_STR_Azimuth, [AzimuthToString(ALastStartAzimuth)]);
       end else begin
         VTextItems[2].Text := '; ' + AzimuthToString(ALastStartAzimuth);
       end;

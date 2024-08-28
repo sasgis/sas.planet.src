@@ -41,18 +41,17 @@ uses
 
 { TTextByVectorItemHTMLByDescription }
 
-function TTextByVectorItemHTMLByDescription.GetText(
-  const AItem: IVectorDataItem): string;
+function TTextByVectorItemHTMLByDescription.GetText(const AItem: IVectorDataItem): string;
 begin
   Result :=
-    '<html>'#13#10 +
-      '<head>'#13#10 +
-        '<title>' + AItem.GetInfoCaption + '</title>'#13#10 +
-      '</head>'#13#10 +
-      '<body>'#13#10 +
-      THtmlDoc.FormattedTextToHtml(AItem.Desc) + #13#10 +
-      '</body>'#13#10 +
-      '</html>';
+    '<html>' + #13#10 +
+    '<head>' + #13#10 +
+    '<title>' + AItem.GetInfoCaption + '</title>' + #13#10 +
+    '</head>' + #13#10 +
+    '<body>' + #13#10 +
+    THtmlDoc.FormattedTextToHtml(AItem.Desc) + #13#10 +
+    '</body>' + #13#10 +
+    '</html>';
 end;
 
 end.

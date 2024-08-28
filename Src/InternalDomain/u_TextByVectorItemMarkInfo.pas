@@ -60,7 +60,8 @@ implementation
 
 uses
   SysUtils,
-  gnugettext;
+  gnugettext,
+  u_ResStrings;
 
 { TTextByVectorItemMarkInfo }
 
@@ -117,42 +118,44 @@ begin
   VPointsCount := AGeometry.Count;
   VLength := FGeoCalc.CalcLineLength(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
+
+  Result :=
+    Format(_('Parts count: %d'), [VPartsCount]) + '<br>' + #13#10 +
+    Format(_('Points count: %d'), [VPointsCount]) + '<br>' + #13#10 +
+    Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>' + #13#10;
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForGeometryMultiLine(
   const AGeometry: IGeometryLonLatMultiLine
 ): string;
 var
+  I: Integer;
   VLength: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
-  i: Integer;
   VConverter: IValueToStringConverter;
 begin
   VPartsCount := AGeometry.Count;
   VPointsCount := 0;
-  for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, AGeometry.Item[i].Count);
+  for I := 0 to VPartsCount - 1 do begin
+    Inc(VPointsCount, AGeometry.Item[I].Count);
   end;
   VLength := FGeoCalc.CalcMultiLineLength(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
+
+  Result :=
+    Format(_('Parts count: %d'), [VPartsCount]) + '<br>' + #13#10 +
+    Format(_('Points count: %d'), [VPointsCount]) + '<br>' + #13#10 +
+    Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>' + #13#10;
 end;
 
 function CalcPolyPointsCount(const APoly: IGeometryLonLatSinglePolygon): Integer; inline;
 var
-  i: Integer;
+  I: Integer;
 begin
   Result := APoly.OuterBorder.Count;
-  for i := 0 to APoly.HoleCount - 1 do begin
-    Inc(Result, APoly.HoleBorder[i].Count);
+  for I := 0 to APoly.HoleCount - 1 do begin
+    Inc(Result, APoly.HoleBorder[I].Count);
   end;
 end;
 
@@ -160,26 +163,27 @@ function TTextByVectorItemMarkInfo.GetTextForGeometryMultiPolygon(
   const AGeometry: IGeometryLonLatMultiPolygon
 ): string;
 var
+  I: Integer;
   VLength: Double;
   VArea: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
-  i: Integer;
   VConverter: IValueToStringConverter;
 begin
   VPartsCount := AGeometry.Count;
   VPointsCount := 0;
-  for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, CalcPolyPointsCount(AGeometry.Item[i]));
+  for I := 0 to VPartsCount - 1 do begin
+    Inc(VPointsCount, CalcPolyPointsCount(AGeometry.Item[I]));
   end;
   VLength := FGeoCalc.CalcMultiPolygonPerimeter(AGeometry);
   VArea := FGeoCalc.CalcMultiPolygonArea(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
-  Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + '<br>'#13#10;
+
+  Result :=
+    Format(_('Parts count: %d'), [VPartsCount]) + '<br>' + #13#10 +
+    Format(_('Points count: %d'), [VPointsCount]) + '<br>' + #13#10 +
+    Format(SAS_STR_Perimeter, [VConverter.DistConvert(VLength)]) + '<br>' + #13#10 +
+    Format(SAS_STR_Area, [VConverter.AreaConvert(VArea)]) + '<br>' + #13#10;
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForGeometryPoint(
@@ -189,8 +193,7 @@ var
   VConverter: ICoordToStringConverter;
 begin
   VConverter := FCoordToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AGeometry.Point)]) + '<br>'#13#10;
+  Result := Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AGeometry.Point)]) + '<br>' + #13#10;
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForGeometryPolygon(
@@ -208,11 +211,12 @@ begin
   VLength := FGeoCalc.CalcPolygonPerimeter(AGeometry);
   VArea := FGeoCalc.CalcPolygonArea(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
-  Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + '<br>'#13#10;
+
+  Result :=
+    Format(_('Parts count: %d'), [VPartsCount]) + '<br>' + #13#10 +
+    Format(_('Points count: %d'), [VPointsCount]) + '<br>' + #13#10 +
+    Format(SAS_STR_Perimeter, [VConverter.DistConvert(VLength)]) + '<br>' + #13#10 +
+    Format(SAS_STR_Area, [VConverter.AreaConvert(VArea)]) + '<br>' + #13#10;
 end;
 
 function TTextByVectorItemMarkInfo.GetText(
@@ -227,21 +231,23 @@ begin
       VCategoryName := VItemWithCategory.Category.Name;
     end;
   end;
-  Result := '';
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
-  Result := Result + Format(_('Name: %s'), [AItem.Name]) + '<br>'#13#10;
-  Result := Result + GetTextForGeometry(AItem.Geometry);
-  Result := Result + Format(_('Description:<br>'#13#10'%s'), [AItem.Desc]) + '<br>'#13#10;
+
+  Result :=
+    Format(_('Category: %s'), [VCategoryName]) + '<br>' + #13#10 +
+    Format(_('Name: %s'), [AItem.Name]) + '<br>' + #13#10 +
+    GetTextForGeometry(AItem.Geometry) +
+    Format(_('Description:<br>' + #13#10 + '%s'), [AItem.Desc]) + '<br>' + #13#10;
+
   if Result <> '' then begin
     Result :=
-      '<html>'#13#10 +
-        '<head>'#13#10 +
-          '<title>' + AItem.GetInfoCaption + '</title>'#13#10 +
-        '</head>'#13#10 +
-        '<body>'#13#10 +
-          Result + #13#10 +
-        '</body>'#13#10 +
-        '</html>';
+      '<html>' + #13#10 +
+      '<head>' + #13#10 +
+      '<title>' + AItem.GetInfoCaption + '</title>' + #13#10 +
+      '</head>' + #13#10 +
+      '<body>' + #13#10 +
+      Result + #13#10 +
+      '</body>' + #13#10 +
+      '</html>';
   end;
 end;
 

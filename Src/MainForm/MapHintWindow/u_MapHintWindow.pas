@@ -100,6 +100,7 @@ uses
   gnugettext,
   i_GeometryLonLat,
   i_LocalCoordConverter,
+  u_ResStrings,
   u_GeometryHintInfoProvider;
 
 { TMapHintWindow }
@@ -319,8 +320,8 @@ begin
   Result :=
     VName +
     VPart +
-    Format(_('Area: %s'), [VConverter.AreaConvert(AInfo.Area)]) + #13#10 +
-    Format(_('Perimeter: %s'), [VConverter.DistConvert(AInfo.Perimeter)]);
+    Format(SAS_STR_Area, [VConverter.AreaConvert(AInfo.Area)]) + #13#10 +
+    Format(SAS_STR_Perimeter, [VConverter.DistConvert(AInfo.Perimeter)]);
 end;
 
 function TMapHintWindow.MakeHintText(const AItems: IVectorItemSubset): string;

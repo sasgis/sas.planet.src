@@ -209,11 +209,10 @@ resourcestring
   SAS_STR_LoadProcessRepl = 'Downloading with overwrite...';
   SAS_STR_ProcessedFile = 'Processing tile: %0:s ...';
   SAS_STR_Area = 'Area: %s';
-  SAS_STR_L = 'Length';
   SAS_STR_Perimeter = 'Perimeter: %s';
-  SAS_STR_Radius = 'Radius';
-  SAS_STR_Whole = 'Total';
-  SAS_STR_Azimuth = 'Azimuth';
+  SAS_STR_Radius = 'Radius: %s';
+  SAS_STR_Whole = 'Total: %s';
+  SAS_STR_Azimuth = 'Azimuth: %s';
   SAS_STR_Maps = 'Maps';
   SAS_STR_Layers = 'Layers';
   SAS_STR_InputLacitp = 'Enter comma-separated MNC, MCC, LAC, CellID (example: 02,250,7718,11942)';

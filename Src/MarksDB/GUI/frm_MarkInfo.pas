@@ -91,6 +91,7 @@ uses
   u_Notifier,
   u_NotifierOperation,
   u_Synchronizer,
+  u_ResStrings,
   u_ReadableThreadNames;
 
 {$R *.dfm}
@@ -254,16 +255,17 @@ var
   VItemWithCategory: IVectorDataItemWithCategory;
   VCategoryName: string;
 begin
-  Result := '';
   VCategoryName := '';
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
     if VItemWithCategory.Category <> nil then begin
       VCategoryName := VItemWithCategory.Category.Name;
     end;
   end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
-  Result := Result + GetTextForGeometry(AMark.Geometry);
+
+  Result :=
+    Format(_('Category: %s'), [VCategoryName]) + #13#10 +
+    Format(_('Name: %s'), [AMark.Name]) + #13#10 +
+    GetTextForGeometry(AMark.Geometry);
 end;
 
 function TfrmMarkInfo.GetTextForLine(const ALine: IGeometryLonLatSingleLine): string;
@@ -277,31 +279,33 @@ begin
   VPointsCount := ALine.Count;
   VLength := FGeoCalc.CalcLineLength(ALine);
   VConverter := FValueToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
-  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
+
+  Result :=
+    Format(_('Parts count: %d'), [VPartsCount]) + #13#10 +
+    Format(_('Points count: %d'), [VPointsCount]) + #13#10 +
+    Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
 end;
 
 function TfrmMarkInfo.GetTextForMultiLine(const ALine: IGeometryLonLatMultiLine): string;
 var
+  I: Integer;
   VLength: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
-  i: Integer;
   VConverter: IValueToStringConverter;
 begin
   VPartsCount := ALine.Count;
   VPointsCount := 0;
-  for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, ALine.Item[i].Count);
+  for I := 0 to VPartsCount - 1 do begin
+    Inc(VPointsCount, ALine.Item[I].Count);
   end;
   VLength := FGeoCalc.CalcMultiLineLength(ALine);
   VConverter := FValueToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
-  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
+
+  Result :=
+    Format(_('Parts count: %d'), [VPartsCount]) + #13#10 +
+    Format(_('Points count: %d'), [VPointsCount]) + #13#10 +
+    Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
 end;
 
 function TfrmMarkInfo.GetTextForPoint(const APoint: IGeometryLonLatPoint): string;
@@ -309,17 +313,16 @@ var
   VConverter: ICoordToStringConverter;
 begin
   VConverter := FCoordToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(APoint.Point)]) + #13#10;
+  Result := Format(_('Coordinates: %s'), [VConverter.LonLatConvert(APoint.Point)]) + #13#10;
 end;
 
 function CalcPolyPointsCount(const APoly: IGeometryLonLatSinglePolygon): Integer; inline;
 var
-  i: Integer;
+  I: Integer;
 begin
   Result := APoly.OuterBorder.Count;
-  for i := 0 to APoly.HoleCount - 1 do begin
-    Inc(Result, APoly.HoleBorder[i].Count);
+  for I := 0 to APoly.HoleCount - 1 do begin
+    Inc(Result, APoly.HoleBorder[I].Count);
   end;
 end;
 
@@ -334,40 +337,44 @@ begin
   VPointsCount := CalcPolyPointsCount(APoly);
   VLength := FGeoCalc.CalcPolygonPerimeter(APoly);
   VConverter := FValueToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
-  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
+
+  Result :=
+    Format(_('Parts count: %d'), [VPartsCount]) + #13#10 +
+    Format(_('Points count: %d'), [VPointsCount]) + #13#10 +
+    Format(SAS_STR_Perimeter, [VConverter.DistConvert(VLength)]) + #13#10;
+
   if not IsNan(FArea) then begin
-    Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(FArea)]) + #13#10;
+    Result := Result + Format(SAS_STR_Area, [VConverter.AreaConvert(FArea)]) + #13#10;
   end else begin
-    Result := Result + Format(_('Area: %s'), [_('calc...')]) + #13#10;
+    Result := Result + Format(SAS_STR_Area, [_('calc...')]) + #13#10;
   end;
 end;
 
 function TfrmMarkInfo.GetTextForMultiPoly(const APoly: IGeometryLonLatMultiPolygon): string;
 var
+  I: Integer;
   VLength: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
-  i: Integer;
   VConverter: IValueToStringConverter;
 begin
   VPartsCount := APoly.Count;
   VPointsCount := 0;
-  for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, CalcPolyPointsCount(APoly.Item[i]));
+  for I := 0 to VPartsCount - 1 do begin
+    Inc(VPointsCount, CalcPolyPointsCount(APoly.Item[I]));
   end;
   VLength := FGeoCalc.CalcMultiPolygonPerimeter(APoly);
   VConverter := FValueToStringConverter.GetStatic;
-  Result := '';
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
-  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
+
+  Result :=
+    Format(_('Parts count: %d'), [VPartsCount]) + #13#10 +
+    Format(_('Points count: %d'), [VPointsCount]) + #13#10 +
+    Format(SAS_STR_Perimeter, [VConverter.DistConvert(VLength)]) + #13#10;
+
   if not IsNan(FArea) then begin
-    Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(FArea)]) + #13#10;
+    Result := Result + Format(SAS_STR_Area, [VConverter.AreaConvert(FArea)]) + #13#10;
   end else begin
-    Result := Result + Format(_('Area: %s'), [_('calc...')]) + #13#10;
+    Result := Result + Format(SAS_STR_Area, [_('calc...')]) + #13#10;
   end;
 end;
 
