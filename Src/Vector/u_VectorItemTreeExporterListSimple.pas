@@ -49,7 +49,7 @@ type
     function GetStatic: IVectorItemTreeExporterListStatic;
   public
     constructor Create(
-      const AGeoCalc: IGeoCalc;
+      const AGeoCalc: IGeoCalcChangeable;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
@@ -76,7 +76,7 @@ uses
 { TVectorItemTreeExporterListSimple }
 
 constructor TVectorItemTreeExporterListSimple.Create(
-  const AGeoCalc: IGeoCalc;
+  const AGeoCalc: IGeoCalcChangeable;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
@@ -119,7 +119,7 @@ begin
     );
   VList.Add(VItem);
 
-  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc, ABuildInfo, True);
+  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc.GpsCalc, ABuildInfo, True);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
@@ -130,7 +130,7 @@ begin
     );
   VList.Add(VItem);
 
-  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc, ABuildInfo, False);
+  VExporter := TVectorItemTreeExporterGPX.Create(AGeoCalc.GpsCalc, ABuildInfo, False);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
@@ -141,7 +141,7 @@ begin
     );
   VList.Add(VItem);
 
-  VExporter := TVectorItemTreeExporterTCX.Create(AGeoCalc, ABuildInfo);
+  VExporter := TVectorItemTreeExporterTCX.Create(AGeoCalc.GpsCalc, ABuildInfo);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,

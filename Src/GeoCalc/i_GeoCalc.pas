@@ -24,47 +24,69 @@ unit i_GeoCalc;
 interface
 
 uses
+  i_Datum,
+  i_Changeable,
   i_NotifierOperation,
   i_GeometryLonLat;
 
 type
   IGeoCalc = interface
     ['{C85EEB06-2EA7-437E-8A34-2C7C53A87543}']
+    function GetDatum: IDatum;
+    property Datum: IDatum read GetDatum;
+
+    function IsSame(const AGeoCalc: IGeoCalc): Boolean;
+
     // distance
     function CalcSingleLineLength(const ALine: IGeometryLonLatSingleLine): Double;
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
     function CalcLineLength(const ALine: IGeometryLonLatLine): Double;
 
     // perimeter
-    function CalcContourPerimeter(const ALine: IGeometryLonLatContour): Double;
-    function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
-    function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
-    function CalcPolygonPerimeter(const ALine: IGeometryLonLatPolygon): Double;
+    function CalcContourPerimeter(const AContour: IGeometryLonLatContour): Double;
+    function CalcSinglePolygonPerimeter(const APolygon: IGeometryLonLatSinglePolygon): Double;
+    function CalcMultiPolygonPerimeter(const APolygon: IGeometryLonLatMultiPolygon): Double;
+    function CalcPolygonPerimeter(const APolygon: IGeometryLonLatPolygon): Double;
 
     // area
     function CalcContourArea(
-      const ALine: IGeometryLonLatContour;
+      const AContour: IGeometryLonLatContour;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
 
     function CalcSinglePolygonArea(
-      const ALine: IGeometryLonLatSinglePolygon;
+      const APolygon: IGeometryLonLatSinglePolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
 
     function CalcMultiPolygonArea(
-      const ALine: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
 
     function CalcPolygonArea(
-      const ALine: IGeometryLonLatPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
+  end;
+
+  IGeoCalcChangeable = interface(IChangeable)
+    ['{9645098A-DAA5-40A9-AC73-EB9DB037E2AC}']
+    function GetDatum: IDatum;
+    procedure SetDatum(const AValue: IDatum);
+    property Datum: IDatum read GetDatum write SetDatum;
+
+    function GetGpsDatum: IDatum;
+    property GpsDatum: IDatum read GetGpsDatum;
+
+    function GetGpsCalc: IGeoCalc;
+    property GpsCalc: IGeoCalc read GetGpsCalc;
+
+    function GetStatic: IGeoCalc;
   end;
 
 implementation

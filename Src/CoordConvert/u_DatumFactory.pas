@@ -34,7 +34,7 @@ type
   private
     FHashFunction: IHashFunction;
     FDatumGoogle: IDatum;
-    FDatumYandex: IDatum;
+    FDatumWGS84: IDatum;
     FDatum53004: IDatum;
   private
     function GetByCode(ADatumEPSG: Integer): IDatum;
@@ -65,17 +65,17 @@ begin
   inherited Create;
   FHashFunction := AHashFunction;
 
-  VRadiusA := 6378137;
+  VRadiusA := 6378137.0;
   VRadiusB := VRadiusA;
   VHash := FHashFunction.CalcHashByDouble(VRadiusA);
   FHashFunction.UpdateHashByDouble(VHash, VRadiusB);
   FDatumGoogle := TDatum.Create(VHash, CGoogleDatumEPSG, VRadiusA, VRadiusA);
 
-  VRadiusA := 6378137;
-  VRadiusB := 6356752;
+  VRadiusA := 6378137.0;
+  VRadiusB := 6356752.3142;
   VHash := FHashFunction.CalcHashByDouble(VRadiusA);
   FHashFunction.UpdateHashByDouble(VHash, VRadiusB);
-  FDatumYandex := TDatum.Create(VHash, CYandexDatumEPSG, VRadiusA, VRadiusB);
+  FDatumWGS84 := TDatum.Create(VHash, CWGS84DatumEPSG, VRadiusA, VRadiusB);
 
   VRadiusA := 6371000;
   VRadiusB := VRadiusA;
@@ -91,8 +91,8 @@ begin
     CGoogleDatumEPSG: begin
       Result := FDatumGoogle;
     end;
-    CYandexDatumEPSG: begin
-      Result := FDatumYandex;
+    CWGS84DatumEPSG: begin
+      Result := FDatumWGS84;
     end;
     53004: begin
       Result := FDatum53004;
@@ -112,7 +112,7 @@ begin
     VEPSG := CGoogleDatumEPSG;
   end;
   if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6356752) < 1) then begin
-    VEPSG := CYandexDatumEPSG;
+    VEPSG := CWGS84DatumEPSG;
   end;
   if VEPSG > 0 then begin
     Result := GetByCode(VEPSG);

@@ -91,13 +91,13 @@ begin
   FEPSG53004 := TProjectionTypeMercatorOnSphere.Create(VHash, VDatum, 53004);
 
   VHash := FHashFunction.CalcHashByInteger(2);
-  VDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
+  VDatum := FDatumFactory.GetByCode(CWGS84DatumEPSG);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CYandexProjectionEPSG);
   FYandex := TProjectionTypeMercatorOnEllipsoid.Create(VHash, VDatum, CYandexProjectionEPSG);
 
   VHash := FHashFunction.CalcHashByInteger(3);
-  VDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
+  VDatum := FDatumFactory.GetByCode(CWGS84DatumEPSG);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CGELonLatProjectionEPSG);
   FLonLat := TProjectionTypeGeographic.Create(VHash, VDatum, CGELonLatProjectionEPSG);
@@ -130,7 +130,7 @@ function TProjectionTypeFactorySimple.GetByConfig(
   const AConfig: IConfigDataProvider
 ): IProjectionType;
 var
-  VProjection: byte;
+  VProjection: Byte;
   VRadiusA: Double;
   VRadiusB: Double;
   VEPSG: Integer;
@@ -155,7 +155,8 @@ begin
       1: begin
         if Abs(VRadiusA - 6378137) < 1 then begin
           VEPSG := CGoogleProjectionEPSG;
-        end else if Abs(VRadiusA - 6371000) < 1 then begin
+        end else
+        if Abs(VRadiusA - 6371000) < 1 then begin
           VEPSG := 53004;
         end;
       end;
@@ -188,7 +189,8 @@ begin
         VDatum := FDatumFactory.GetByRadius(VRadiusA, VRadiusA);
         if VDatum.EPSG = CGoogleDatumEPSG then begin
           Result := FGoogle;
-        end else if VDatum.EPSG = 53004 then begin
+        end else
+        if VDatum.EPSG = 53004 then begin
           Result := FEPSG53004;
         end else begin
           VHash := FHashFunction.CalcHashByInteger(1);
@@ -199,7 +201,7 @@ begin
       end;
       2: begin
         VDatum := FDatumFactory.GetByRadius(VRadiusA, VRadiusB);
-        if VDatum.EPSG = CYandexDatumEPSG then begin
+        if VDatum.EPSG = CWGS84DatumEPSG then begin
           Result := FYandex;
         end else begin
           VHash := FHashFunction.CalcHashByInteger(2);
@@ -210,7 +212,7 @@ begin
       end;
       3: begin
         VDatum := FDatumFactory.GetByRadius(VRadiusA, VRadiusB);
-        if VDatum.EPSG = CYandexDatumEPSG then begin
+        if VDatum.EPSG = CWGS84DatumEPSG then begin
           Result := FLonLat;
         end else begin
           VHash := FHashFunction.CalcHashByInteger(3);

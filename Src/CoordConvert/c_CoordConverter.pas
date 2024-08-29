@@ -25,7 +25,7 @@ interface
 
 const
   CGoogleDatumEPSG = 6055;
-  CYandexDatumEPSG = 6326;
+  CWGS84DatumEPSG = 6326;
 
   CGoogleProjectionEPSG = 3857;
   CGoogleProjectionEPSG_Old = 3785; // Deprecated EPSG code for Spherical Mercator - wrong definition

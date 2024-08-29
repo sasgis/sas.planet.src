@@ -158,8 +158,7 @@ type
     FGpsSystem: IGpsSystem;
     FImporterList: IVectorItemTreeImporterListChangeable;
     FExporterList: IVectorItemTreeExporterListChangeable;
-    FGPSDatum: IDatum;
-    FGeoCalc: IGeoCalc;
+    FGeoCalc: IGeoCalcChangeable;
     FGPSRecorder: IGPSRecorder;
     FGPSRecorderInternal: IGPSRecorderInternal;
     FGpsTrackRecorder: IGpsTrackRecorder;
@@ -230,8 +229,7 @@ type
     property MarksDb: IMarkSystem read FMarkSystem;
     property MarkSystemConfig: IMarkSystemConfigListChangeable read FMarkSystemConfig;
     property GpsSystem: IGpsSystem read FGpsSystem;
-    property GPSDatum: IDatum read FGPSDatum;
-    property GeoCalc: IGeoCalc read FGeoCalc;
+    property GeoCalc: IGeoCalcChangeable read FGeoCalc;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
@@ -656,13 +654,15 @@ begin
   FGlobalConfig.MainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
   OnMainThreadConfigChange;
 
-  FGPSDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
-  FGeoCalc := TGeoCalc.Create(FGPSDatum);
+  FGeoCalc :=
+    TGeoCalcChangeable.Create(
+      FDatumFactory.GetByCode(CWGS84DatumEPSG)
+    );
 
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorderInternal :=
     TGPSRecorder.Create(
-      FGPSDatum,
+      FGeoCalc.GpsDatum,
       FGlobalConfig.GpsRecorderFileName,
       FGPSPositionFactory.BuildPositionEmpty
     );

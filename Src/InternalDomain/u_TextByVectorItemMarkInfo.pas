@@ -37,7 +37,10 @@ type
   private
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
+    FGeoCalcChangeable: IGeoCalcChangeable;
+
     FGeoCalc: IGeoCalc;
+
     function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
 
     function GetTextForGeometryPoint(const AGeometry: IGeometryLonLatPoint): string;
@@ -46,12 +49,13 @@ type
     function GetTextForGeometryMultiLine(const AGeometry: IGeometryLonLatMultiLine): string;
     function GetTextForGeometryMultiPolygon(const AGeometry: IGeometryLonLatMultiPolygon): string;
   private
+    { ITextByVectorItem }
     function GetText(const AItem: IVectorDataItem): string;
   public
     constructor Create(
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
-      const AGeoCalc: IGeoCalc
+      const AGeoCalc: IGeoCalcChangeable
     );
   end;
 
@@ -68,16 +72,18 @@ uses
 constructor TTextByVectorItemMarkInfo.Create(
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AGeoCalc: IGeoCalc
+  const AGeoCalc: IGeoCalcChangeable
 );
 begin
   Assert(ACoordToStringConverter <> nil);
   Assert(AValueToStringConverter <> nil);
   Assert(Assigned(AGeoCalc));
+
   inherited Create;
+
   FCoordToStringConverter := ACoordToStringConverter;
   FValueToStringConverter := AValueToStringConverter;
-  FGeoCalc := AGeoCalc;
+  FGeoCalcChangeable := AGeoCalc;
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForGeometry(
@@ -92,13 +98,17 @@ var
 begin
   if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
     Result := GetTextForGeometryPoint(VPoint);
-  end else if Supports(AGeometry, IGeometryLonLatSingleLine, VLine) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatSingleLine, VLine) then begin
     Result := GetTextForGeometryLine(VLine);
-  end else if Supports(AGeometry, IGeometryLonLatSinglePolygon, VPoly) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VPoly) then begin
     Result := GetTextForGeometryPolygon(VPoly);
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
     Result := GetTextForGeometryMultiLine(VMultiLine);
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPoly) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPoly) then begin
     Result := GetTextForGeometryMultiPolygon(VMultiPoly);
   end else begin
     Result := 'Unknown geometry type';
@@ -219,12 +229,13 @@ begin
     Format(SAS_STR_Area, [VConverter.AreaConvert(VArea)]) + '<br>' + #13#10;
 end;
 
-function TTextByVectorItemMarkInfo.GetText(
-  const AItem: IVectorDataItem): string;
+function TTextByVectorItemMarkInfo.GetText(const AItem: IVectorDataItem): string;
 var
   VItemWithCategory: IVectorDataItemWithCategory;
   VCategoryName: string;
 begin
+  FGeoCalc := FGeoCalcChangeable.GetStatic;
+
   VCategoryName := '';
   if Supports(AItem.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
     if VItemWithCategory.Category <> nil then begin

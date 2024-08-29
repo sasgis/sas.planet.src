@@ -213,7 +213,7 @@ type
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
       const AMarkOnMapEditProvider: IMarkOnMapEditProvider;
-      const AGeoCalc: IGeoCalc;
+      const AGeoCalc: IGeoCalcChangeable;
       const AInetConfig: IInetConfig;
       const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
       const AExporterList: IVectorItemTreeExporterListChangeable;
@@ -265,7 +265,7 @@ constructor TMarkDbGUIHelper.Create(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
   const AMarkOnMapEditProvider: IMarkOnMapEditProvider;
-  const AGeoCalc: IGeoCalc;
+  const AGeoCalc: IGeoCalcChangeable;
   const AInetConfig: IInetConfig;
   const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
   const AExporterList: IVectorItemTreeExporterListChangeable;

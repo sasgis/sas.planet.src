@@ -1754,7 +1754,7 @@ begin
     TMapHintWindow.Create(
       Self,
       map,
-      GState.GPSDatum,
+      GState.GeoCalc.GpsDatum,
       GState.ProjectedGeometryProvider,
       FGpsTrackGoTo,
       GState.ValueToStringConverter,
@@ -2569,7 +2569,7 @@ begin
       GState.Config.ElevationProfileConfig,
       GState.Config.TerrainConfig,
       GState.Config.LanguageManager,
-      GState.GPSDatum,
+      GState.GeoCalc.GpsDatum,
       FGpsTrackGoTo,
       FElevationMetaWriter
     );

@@ -59,6 +59,7 @@ type
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FGeoCalc: IGeoCalc;
+    FGeoCalcChangeable: IGeoCalcChangeable;
     FArea: Double;
     FMark: IVectorDataItem;
     procedure OnAreaCalc(const AArea: Double);
@@ -76,7 +77,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
-      const AGeoCalc: IGeoCalc;
+      const AGeoCalc: IGeoCalcChangeable;
       const AInetConfig: IInetConfig;
       const AInternalDomainUrlHandler: IInternalDomainUrlHandler
     ); reintroduce;
@@ -164,7 +165,7 @@ constructor TfrmMarkInfo.Create(
   const ALanguageManager: ILanguageManager;
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AGeoCalc: IGeoCalc;
+  const AGeoCalc: IGeoCalcChangeable;
   const AInetConfig: IInetConfig;
   const AInternalDomainUrlHandler: IInternalDomainUrlHandler
 );
@@ -176,13 +177,16 @@ begin
   Assert(AInternalDomainUrlHandler <> nil);
 
   inherited Create(ALanguageManager);
+
   FCoordToStringConverter := ACoordToStringConverter;
   FValueToStringConverter := AValueToStringConverter;
-  FGeoCalc := AGeoCalc;
+  FGeoCalcChangeable := AGeoCalc;
+
   FCancelNotifier :=
     TNotifierOperation.Create(
       TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
     );
+
   FBrowser :=
     TInternalBrowserImplByIE.Create(
       pnlDesc,
@@ -219,11 +223,14 @@ begin
   Result := '';
   if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
     Result := GetTextForPoint(VPoint);
-  end else if Supports(AGeometry, IGeometryLonLatSingleLine, VLine) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatSingleLine, VLine) then begin
     Result := GetTextForLine(VLine);
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
     Result := GetTextForMultiLine(VMultiLine);
-  end else if Supports(AGeometry, IGeometryLonLatSinglePolygon, VPoly) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VPoly) then begin
     Result := GetTextForPoly(VPoly);
     if IsNan(FArea) then begin
       TCalcAreaThread.Create(
@@ -234,7 +241,8 @@ begin
         Self.OnAreaCalc
       );
     end;
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPoly) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPoly) then begin
     Result := GetTextForMultiPoly(VMultiPoly);
     if IsNan(FArea) then begin
       TCalcAreaThread.Create(
@@ -390,6 +398,8 @@ var
 begin
   FArea := NaN;
   FMark := AMark;
+  FGeoCalc := FGeoCalcChangeable.GetStatic;
+
   VText := GetTextForMark(AMark);
   mmoInfo.Lines.Text := VText;
   if (AMark.GetInfoUrl <> '') and (AMark.Desc <> '') then begin
