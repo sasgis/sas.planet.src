@@ -124,6 +124,7 @@ uses
   u_SearchToolbarContainer,
   u_TBXSASTheme,
   u_TBXExtItems,
+  u_SpinEditExt,
   frm_About,
   frm_Settings,
   frm_MapLayersOptions,
@@ -1122,6 +1123,9 @@ type
     procedure tbxExtendRouteSelect(Sender: TObject);
     procedure ExtendRoute;
 
+    procedure TBEditSelectPolylineRadiusOnUpClick(Sender: TObject);
+    procedure TBEditSelectPolylineRadiusOnDownClick(Sender: TObject);
+
     procedure tbiEditSrchAcceptText(
       Sender: TObject;
       var NewText: String;
@@ -1797,6 +1801,9 @@ begin
   TBEditPath.Floating := True;
   TBEditPath.MoveOnScreen(True);
   TBEditPath.FloatingPosition := Point(Left + map.Left + 30, Top + map.Top + 70);
+
+  TBEditSelectPolylineRadius.OnUpClick := Self.TBEditSelectPolylineRadiusOnUpClick;
+  TBEditSelectPolylineRadius.OnDownClick := Self.TBEditSelectPolylineRadiusOnDownClick;
 
   FSensorList :=
     TSensorListStuped.Create(
@@ -4819,6 +4826,22 @@ begin
 end;
 {$ENDREGION 'TileBoundaries'}
 
+procedure TfrmMain.TBEditSelectPolylineRadiusOnUpClick(Sender: TObject);
+var
+  VKey: Word;
+begin
+  VKey := VK_UP;
+  TBEditSelectPolylineRadiusKeyDown(Sender, VKey, []);
+end;
+
+procedure TfrmMain.TBEditSelectPolylineRadiusOnDownClick(Sender: TObject);
+var
+  VKey: Word;
+begin
+  VKey := VK_DOWN;
+  TBEditSelectPolylineRadiusKeyDown(Sender, VKey, []);
+end;
+
 procedure TfrmMain.TBEditSelectPolylineRadiusKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   VText: string;
@@ -4854,6 +4877,9 @@ begin
           end;
         end;
       end;
+      if Key = VK_RETURN then begin
+        Self.SetFocus;
+      end;
     end;
 
     VK_ESCAPE: begin
@@ -4865,7 +4891,7 @@ begin
           VSpinEdit.Value := Round(VCircleOnMapEdit.Radius);
         end;
       end;
-      VSpinEdit.Parent.SetFocus;
+      Self.SetFocus;
     end;
   end;
 end;

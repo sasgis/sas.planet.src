@@ -1395,6 +1395,7 @@ uses
   u_ComponentPropertyStorage in 'Src\Vcl\u_ComponentPropertyStorage.pas',
   u_Dialogs in 'Src\Vcl\u_Dialogs.pas',
   u_ListViewExt in 'Src\Vcl\u_ListViewExt.pas',
+  u_SpinEditExt in 'Src\Vcl\u_SpinEditExt.pas',
   u_WindowPositionConfig in 'Src\Vcl\u_WindowPositionConfig.pas',
   i_XmlVectorObjects in 'Src\VectorLoaders\i_XmlVectorObjects.pas',
   u_CsvParser in 'Src\VectorLoaders\u_CsvParser.pas',

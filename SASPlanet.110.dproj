@@ -2576,6 +2576,7 @@
         <DCCReference Include="Src\Vcl\u_ComponentPropertyStorage.pas"/>
         <DCCReference Include="Src\Vcl\u_Dialogs.pas"/>
         <DCCReference Include="Src\Vcl\u_ListViewExt.pas"/>
+        <DCCReference Include="Src\Vcl\u_SpinEditExt.pas"/>
         <DCCReference Include="Src\Vcl\u_WindowPositionConfig.pas"/>
         <DCCReference Include="Src\VectorLoaders\i_XmlVectorObjects.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_CsvParser.pas"/>
