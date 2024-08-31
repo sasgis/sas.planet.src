@@ -102,6 +102,7 @@ type
     FImportDialog: TOpenDialog;
     FImporterList: IVectorItemTreeImporterListChangeable;
     FMarkOnMapEditProvider: IMarkOnMapEditProvider;
+    FGeoCalc: IGeoCalcChangeable;
 
     procedure PrepareImportDialog(const AImporterList: IVectorItemTreeImporterListStatic);
     function ImportFilesModalInternal(
@@ -124,10 +125,7 @@ type
       const ACategory: IMarkCategory;
       const AHandle: THandle
     ): Boolean;
-    function PolygonForOperation(
-      const AGeometry: IGeometryLonLat;
-      const AProjection: IProjection
-    ): IGeometryLonLatPolygon;
+    function PolygonForOperation(const AGeometry: IGeometryLonLat): IGeometryLonLatPolygon;
     function AddCategory(const Name: string): IMarkCategory;
     procedure ShowMarkInfo(
       const AMark: IVectorDataItem
@@ -295,6 +293,7 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FCoordToStringConverter := ACoordToStringConverter;
   FImporterList := AImporterList;
+  FGeoCalc := AGeoCalc;
 
   FfrmMarkEditPoint :=
     TfrmMarkEditPoint.Create(
@@ -895,15 +894,12 @@ begin
 end;
 
 
-function TMarkDbGUIHelper.PolygonForOperation(
-  const AGeometry: IGeometryLonLat;
-  const AProjection: IProjection
-): IGeometryLonLatPolygon;
+function TMarkDbGUIHelper.PolygonForOperation(const AGeometry: IGeometryLonLat): IGeometryLonLatPolygon;
 var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatLine;
   VPoly: IGeometryLonLatPolygon;
-  VDefRadius: String;
+  VDefRadius: string;
   VRadius: Double;
   VShape: TShapeType;
 begin
@@ -914,7 +910,8 @@ begin
 
   if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
     Result := VPoly;
-  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+  end else
+  if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
     VDefRadius := '100';
     if InputQuery('', _('Radius, m'), VDefRadius) then begin
       try
@@ -925,42 +922,41 @@ begin
       end;
       Result :=
         FVectorGeometryLonLatFactory.CreateLonLatPolygonByLine(
-          AProjection.ProjectionType.Datum,
+          FGeoCalc.Datum,
           VLine,
           VRadius
         );
     end;
-  end else begin
-    if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
-      if FfrmPolygonForOperationConfig.GetOptions(VRadius, VShape) then begin
-        case VShape of
-          stCircle: begin
-            Result :=
-              FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
-                AProjection.ProjectionType.Datum,
-                VPoint.Point,
-                VRadius
-              );
-          end;
-          stSquare: begin
-            Result :=
-              FVectorGeometryLonLatFactory.CreateLonLatPolygonSquareByPoint(
-                AProjection.ProjectionType.Datum,
-                VPoint.Point,
-                VRadius
-              );
-          end;
-          stSquareOnSurface: begin
-            Result :=
-              FVectorGeometryLonLatFactory.CreateLonLatPolygonSquareOnSurfaceByPoint(
-                AProjection.ProjectionType.Datum,
-                VPoint.Point,
-                VRadius
-              );
-          end;
-        else
-          Assert(False);
+  end else
+  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    if FfrmPolygonForOperationConfig.GetOptions(VRadius, VShape) then begin
+      case VShape of
+        stCircle: begin
+          Result :=
+            FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
+              FGeoCalc.Datum,
+              VPoint.Point,
+              VRadius
+            );
         end;
+        stSquare: begin
+          Result :=
+            FVectorGeometryLonLatFactory.CreateLonLatPolygonSquareByPoint(
+              FGeoCalc.Datum,
+              VPoint.Point,
+              VRadius
+            );
+        end;
+        stSquareOnSurface: begin
+          Result :=
+            FVectorGeometryLonLatFactory.CreateLonLatPolygonSquareOnSurfaceByPoint(
+              FGeoCalc.Datum,
+              VPoint.Point,
+              VRadius
+            );
+        end;
+      else
+        Assert(False);
       end;
     end;
   end;

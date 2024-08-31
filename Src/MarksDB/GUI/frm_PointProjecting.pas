@@ -24,17 +24,12 @@ unit frm_PointProjecting;
 interface
 
 uses
-  Windows,
-  Messages,
-  SysUtils,
-  Variants,
   Classes,
-  Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   ExtCtrls,
+  i_GeoCalc,
   i_LanguageManager,
   i_InterfaceListStatic,
   i_GeometryLonLatFactory,
@@ -59,6 +54,7 @@ type
     procedure FormHide(Sender: TObject);
     procedure rgSourcePointTypeClick(Sender: TObject);
   private
+    FGeoCalc: IGeoCalcChangeable;
     FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
     FGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -68,7 +64,8 @@ type
       const ALanguageManager: ILanguageManager;
       const AGeometryLonLatFactory: IGeometryLonLatFactory;
       const AMarkDBGUI: TMarkDbGUIHelper;
-      const APosition: ILocalCoordConverterChangeable
+      const APosition: ILocalCoordConverterChangeable;
+      const AGeoCalc: IGeoCalcChangeable
     ); reintroduce;
   end;
 
@@ -77,7 +74,6 @@ implementation
 uses
   t_GeoTypes,
   i_MarkId,
-  i_Datum,
   i_GeometryLonLat,
   i_VectorDataItemSimple,
   u_GeoToStrFunc;
@@ -88,7 +84,8 @@ constructor TfrmPointProjecting.Create(
   const ALanguageManager: ILanguageManager;
   const AGeometryLonLatFactory: IGeometryLonLatFactory;
   const AMarkDBGUI: TMarkDbGUIHelper;
-  const APosition: ILocalCoordConverterChangeable
+  const APosition: ILocalCoordConverterChangeable;
+  const AGeoCalc: IGeoCalcChangeable
 );
 begin
   Assert(Assigned(AGeometryLonLatFactory));
@@ -98,6 +95,7 @@ begin
   FGeometryLonLatFactory := AGeometryLonLatFactory;
   FMarkDBGUI := AMarkDBGUI;
   FPosition := APosition;
+  FGeoCalc := AGeoCalc;
 end;
 
 procedure MarksListToStrings(
@@ -105,15 +103,15 @@ procedure MarksListToStrings(
   AStrings: TStrings
 );
 var
-  i: Integer;
+  I: Integer;
   VMarkId: IMarkId;
 begin
   AStrings.BeginUpdate;
   try
     AStrings.Clear;
     if Assigned(AList) then begin
-      for i := 0 to AList.Count - 1 do begin
-        VMarkId := IMarkId(AList[i]);
+      for I := 0 to AList.Count - 1 do begin
+        VMarkId := IMarkId(AList[I]);
         AStrings.AddObject(VMarkId.Name, Pointer(VMarkId));
       end;
     end;
@@ -130,7 +128,6 @@ var
   VIndex: Integer;
   VMarkId: IMarkId;
   VMark: IVectorDataItem;
-  VDatum: IDatum;
   VDist: Double;
   VAzimuth: Double;
   VLonLat: TDoublePoint;
@@ -167,8 +164,7 @@ begin
     end;
   end;
 
-  VDatum := FPosition.GetStatic.Projection.ProjectionType.Datum;
-  VLonLat := VDatum.CalcFinishPosition(VSourceLonLat, VAzimuth, VDist);
+  VLonLat := FGeoCalc.Datum.CalcFinishPosition(VSourceLonLat, VAzimuth, VDist);
   VPoint := FGeometryLonLatFactory.CreateLonLatPoint(VLonLat);
   FMarkDBGUI.SaveMarkModal(nil, VPoint);
 end;

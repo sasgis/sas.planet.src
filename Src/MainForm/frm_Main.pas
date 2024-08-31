@@ -1543,7 +1543,8 @@ begin
       GState.Config.LanguageManager,
       GState.VectorGeometryLonLatFactory,
       FMarkDBGUI,
-      FViewPortState.View
+      FViewPortState.View,
+      GState.GeoCalc
     );
   FfrmPointProjecting.PopupParent := Self;
 
@@ -4990,21 +4991,19 @@ var
   VSelectedWiki: IVectorDataItem;
   VPolygon: IGeometryLonLatPolygon;
 begin
+  VPolygon := nil;
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    VPolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry, FViewPortState.View.GetStatic.Projection);
-    if VPolygon <> nil then begin
-      FRegionProcess.ProcessPolygon(VPolygon);
-    end;
+    VPolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry);
   end else begin
     // no mark - try to select wiki
     VSelectedWiki := FSelectedWiki;
     if VSelectedWiki <> nil then begin
-      VPolygon := FMarkDBGUI.PolygonForOperation(VSelectedWiki.Geometry, FViewPortState.View.GetStatic.Projection);
-      if VPolygon <> nil then begin
-        FRegionProcess.ProcessPolygon(VPolygon);
-      end;
+      VPolygon := FMarkDBGUI.PolygonForOperation(VSelectedWiki.Geometry);
     end;
+  end;
+  if VPolygon <> nil then begin
+    FRegionProcess.ProcessPolygon(VPolygon);
   end;
 end;
 

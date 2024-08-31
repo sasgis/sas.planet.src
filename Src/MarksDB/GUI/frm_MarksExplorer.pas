@@ -862,13 +862,13 @@ end;
 procedure TfrmMarksExplorer.btnOpSelectMarkClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
-  Vpolygon: IGeometryLonLatPolygon;
+  VPolygon: IGeometryLonLatPolygon;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry, FViewPortState.GetStatic.Projection);
-    if Vpolygon <> nil then begin
-      FRegionProcess.ProcessPolygon(Vpolygon);
+    VPolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry);
+    if VPolygon <> nil then begin
+      FRegionProcess.ProcessPolygon(VPolygon);
       ModalResult := mrOk;
     end;
   end;
