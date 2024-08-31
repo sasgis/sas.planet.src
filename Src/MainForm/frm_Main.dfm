@@ -1225,11 +1225,12 @@ object frmMain: TfrmMain
         Top = 221
         Width = 61
         Height = 22
+        Hint = 'Press Enter to apply or Esc to cancel'
         MaxValue = 100000
         MinValue = 1
         TabOrder = 0
         Value = 100000
-        OnChange = TBEditSelectPolylineRadiusChange
+        OnKeyDown = TBEditSelectPolylineRadiusKeyDown
       end
     end
     object tbMergePolygons: TTBXDockablePanel

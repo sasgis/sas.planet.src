@@ -742,7 +742,7 @@ type
       FromLink: Boolean
     );
     procedure TBSearchWindowClose(Sender: TObject);
-    procedure TBEditSelectPolylineRadiusChange(Sender: TObject);
+    procedure TBEditSelectPolylineRadiusKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure osmorg1Click(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
@@ -3076,9 +3076,7 @@ begin
   TBXSeparatorItem25.Visible := VIsRoutingVisible;
   FRouteUndoPath := nil;
 
-  TBEditSelectPolylineRadius.Visible :=
-    (VNewState = ao_select_line) or
-    (VNewState = ao_calc_circle);
+  TBEditSelectPolylineRadius.Visible := (VNewState = ao_select_line) or (VNewState = ao_calc_circle);
   TBEditSelectPolylineRadiusCap1.Visible := TBEditSelectPolylineRadius.Visible;
   TBEditSelectPolylineRadiusCap2.Visible := TBEditSelectPolylineRadius.Visible;
 
@@ -3094,13 +3092,12 @@ begin
   if VNewState = ao_select_line then begin
     TBEditSelectPolylineRadius.MinValue := 1;
     TBEditSelectPolylineRadius.MaxValue := 100000;
-    TBEditSelectPolylineRadius.Value :=
-      Round(FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius);
-  end else if VNewState = ao_calc_circle then begin
+    TBEditSelectPolylineRadius.Value := Round(FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius);
+  end else
+  if VNewState = ao_calc_circle then begin
     TBEditSelectPolylineRadius.MinValue := 0;
     TBEditSelectPolylineRadius.MaxValue := MaxInt;
-    TBEditSelectPolylineRadius.Value :=
-      Round((FLineOnMapEdit as ICircleOnMapEdit).Radius);
+    TBEditSelectPolylineRadius.Value := Round((FLineOnMapEdit as ICircleOnMapEdit).Radius);
   end;
 
   if Assigned(FLineOnMapEdit) then begin
@@ -3307,35 +3304,37 @@ var
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
   VCircleOnMapEdit: ICircleOnMapEdit;
-  VSaveAviable: Boolean;
+  VSaveAvailable: Boolean;
   VPath: IGeometryLonLatLine;
   VPoly: IGeometryLonLatPolygon;
   VIsMultiItem: Boolean;
 begin
   VLineOnMapEdit := FLineOnMapEdit;
   if VLineOnMapEdit <> nil then begin
-    VSaveAviable := False;
+    VSaveAvailable := False;
     VIsMultiItem := False;
     if Supports(VLineOnMapEdit, ICircleOnMapEdit, VCircleOnMapEdit) then begin
-      TBEditSelectPolylineRadius.Value := Round(VCircleOnMapEdit.Radius);
+      if TBEditSelectPolylineRadius.Value <> Round(VCircleOnMapEdit.Radius) then begin
+        TBEditSelectPolylineRadius.Value := Round(VCircleOnMapEdit.Radius);
+      end;
       if Assigned(VCircleOnMapEdit.Path) then begin
         VPath := VCircleOnMapEdit.Path.Geometry;
-        VSaveAviable := IsValidLonLatLine(VPath);
+        VSaveAvailable := IsValidLonLatLine(VPath);
       end;
     end else if Supports(VLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
       if Assigned(VPathOnMapEdit.Path) then begin
         VPath := VPathOnMapEdit.Path.Geometry;
-        VSaveAviable := IsValidLonLatLine(VPath);
+        VSaveAvailable := IsValidLonLatLine(VPath);
         VIsMultiItem := Supports(VPath, IGeometryLonLatMultiLine);
       end;
     end else if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
       if Assigned(VPolygonOnMapEdit.Polygon) then begin
         VPoly := VPolygonOnMapEdit.Polygon.Geometry;
-        VSaveAviable := IsValidLonLatPolygon(VPoly);
+        VSaveAvailable := IsValidLonLatPolygon(VPoly);
         VIsMultiItem := Supports(VPoly, IGeometryLonLatMultiPolygon);
       end;
     end;
-    TBEditPath.Visible := VSaveAviable;
+    TBEditPath.Visible := VSaveAvailable;
     tbxtmSaveMarkAsSeparateSegment.Enabled := VIsMultiItem;
     if Assigned(FLineOnMapEdit) then begin
       actLineEditSplitTogle.Checked := FLineOnMapEdit.IsNearSplit;
@@ -3617,6 +3616,7 @@ procedure TfrmMain.FormShortCut(
   var Handled: Boolean
 );
 var
+  VKey: Word;
   VShortCut: TShortCut;
   VMapType: IMapType;
   VErrMsg: string;
@@ -3625,9 +3625,19 @@ var
   VLineOnMapEdit: ILineOnMapEdit;
   VLonLat: TDoublePoint;
 begin
+  if TBEditSelectPolylineRadius.Focused then begin
+    // workaround: actlstMain can steal some hotkeys
+    VKey := ShortCutFromMessage(Msg);
+    if VKey in [VK_BACK, VK_RETURN, VK_ESCAPE] then begin
+      TBEditSelectPolylineRadiusKeyDown(Self, VKey, []);
+      Handled := True;
+      Exit;
+    end;
+  end;
+
   if Self.Active then begin
     if Self.ActiveControl is TCustomEdit then begin
-      exit;
+      Exit;
     end;
     VShortCut := ShortCutFromMessage(Msg);
     case VShortCut of
@@ -3744,6 +3754,7 @@ begin
             end;
           end;
           ao_calc_line,
+          ao_calc_circle,
           ao_edit_line,
           ao_select_line: begin
             VLineOnMapEdit := FLineOnMapEdit;
@@ -4808,18 +4819,53 @@ begin
 end;
 {$ENDREGION 'TileBoundaries'}
 
-procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);
+procedure TfrmMain.TBEditSelectPolylineRadiusKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
+  VText: string;
+  VSelStart: Integer;
+  VSpinEdit: TSpinEdit;
   VCircleOnMapEdit: ICircleOnMapEdit;
 begin
-  if FState.State = ao_select_line then begin
-    FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius :=
-      TBEditSelectPolylineRadius.Value;
-  end else if FState.State = ao_calc_circle then begin
-    if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleOnMapEdit) then begin
-      if Round(VCircleOnMapEdit.Radius) <> TBEditSelectPolylineRadius.Value then begin
-        VCircleOnMapEdit.Radius := TBEditSelectPolylineRadius.Value;
+  VSpinEdit := TBEditSelectPolylineRadius;
+
+  case Key of
+    VK_BACK: begin
+      if VSpinEdit.SelText <> '' then begin
+        VSpinEdit.SetSelText('');
+      end else begin
+        VSelStart := VSpinEdit.SelStart;
+        if VSelStart > 0 then begin
+          VText := VSpinEdit.Text;
+          Delete(VText, VSelStart, 1);
+          VSpinEdit.Text := VText;
+          VSpinEdit.SelStart := VSelStart - 1;
+        end;
       end;
+    end;
+
+    VK_RETURN, VK_UP, VK_DOWN: begin
+      if FState.State = ao_select_line then begin
+        FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius := VSpinEdit.Value;
+      end else
+      if FState.State = ao_calc_circle then begin
+        if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleOnMapEdit) then begin
+          if Round(VCircleOnMapEdit.Radius) <> VSpinEdit.Value then begin
+            VCircleOnMapEdit.Radius := VSpinEdit.Value;
+          end;
+        end;
+      end;
+    end;
+
+    VK_ESCAPE: begin
+      if FState.State = ao_select_line then begin
+        VSpinEdit.Value := Round(FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius);
+      end else
+      if FState.State = ao_calc_circle then begin
+        if Supports(FLineOnMapEdit, ICircleOnMapEdit, VCircleOnMapEdit) then begin
+          VSpinEdit.Value := Round(VCircleOnMapEdit.Radius);
+        end;
+      end;
+      VSpinEdit.Parent.SetFocus;
     end;
   end;
 end;

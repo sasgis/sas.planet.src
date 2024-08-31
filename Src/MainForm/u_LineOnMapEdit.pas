@@ -1007,20 +1007,27 @@ procedure TCircleOnMapEdit.SetRadius(const AValue: Double);
 var
   VDatum: IDatum;
   VLine: IGeometryLonLatSingleLine;
-  VFirst, VSecond: TDoublePoint;
+  VPoint: TDoublePoint;
 begin
   if SameValue(GetRadius, AValue) then begin
     Exit;
   end;
   if Supports(FLine, IGeometryLonLatSingleLine, VLine) then begin
     if VLine.Count >= 1 then begin
-      VFirst := VLine.Points[0];
-      Clear;
-      InsertPoint(VFirst);
       if AValue > 0 then begin
         VDatum := FCoordConverter.Projection.ProjectionType.Datum;
-        VSecond := VDatum.CalcFinishPosition(VFirst, 90, AValue);
-        InsertPoint(VSecond);
+        VPoint := VDatum.CalcFinishPosition(VLine.Points[0], 90, AValue);
+        if VLine.Count > 1 then begin
+          FSelectedPointIndex := 1;
+          MoveActivePoint(VPoint);
+        end else begin
+          InsertPoint(VPoint);
+        end;
+      end else begin
+        if VLine.Count > 1 then begin
+          FSelectedPointIndex := 1;
+          DeleteActivePoint;
+        end;
       end;
     end;
   end;
