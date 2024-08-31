@@ -1258,7 +1258,8 @@ begin
       AParams.MainFormState,
       AParams.CalcLinePath,
       AParams.LayersConfig.CalcLineLayerConfig.CaptionConfig,
-      AParams.ValueToStringConverter
+      AParams.ValueToStringConverter,
+      AParams.GeoCalc
     );
   ALayersList.Add(VLayer);
 end;
@@ -1479,7 +1480,8 @@ begin
       AParams.MainFormState,
       AParams.EditLinePath,
       AParams.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
-      AParams.ValueToStringConverter
+      AParams.ValueToStringConverter,
+      AParams.GeoCalc
     );
   ALayersList.Add(VLayer);
 end;
@@ -1575,7 +1577,8 @@ begin
       AParams.MainFormState,
       AParams.EditPolygon,
       AParams.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig,
-      AParams.ValueToStringConverter
+      AParams.ValueToStringConverter,
+      AParams.GeoCalc
     );
   ALayersList.Add(VLayer);
 end;

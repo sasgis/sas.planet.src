@@ -62,6 +62,7 @@ uses
   TBXExtItems,
   TBXGraphics,
   t_GeoTypes,
+  i_GeoCalc,
   i_GUIDSet,
   i_Listener,
   i_Notifier,
@@ -1669,7 +1670,7 @@ begin
   FLineOnMapByOperation[ao_calc_circle] :=
     TCircleOnMapEdit.Create(
       GState.VectorGeometryLonLatFactory,
-      FViewPortState.View
+      GState.GeoCalc
     );
 
   FPointOnMapEdit := TPointOnMapEdit.Create;
@@ -2422,7 +2423,8 @@ begin
         VSunCalcPopupMenu,
         VStatBarPopupMenu,
         VScaleLinePopupMenu,
-        VMiniMapPopupMenu
+        VMiniMapPopupMenu,
+        GState.GeoCalc
       )
     );
   FWikiLayer := FLayersList.WikiLayer;

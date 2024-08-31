@@ -27,14 +27,12 @@ uses
   Types,
   GR32,
   GR32_Image,
-  t_GeoTypes,
+  i_GeoCalc,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LineOnMapEdit,
-  i_GeometryLonLat,
-  i_Projection,
   i_ValueToStringConverter,
   i_PolygonCaptionsLayerConfig,
   i_MainFormState,
@@ -49,6 +47,9 @@ type
     FValueToStringConverter: IValueToStringConverterChangeable;
     FPolygonOnMapEdit: IPolygonOnMapEdit;
 
+    FGeoCalc: IGeoCalc;
+    FGeoCalcChangeable: IGeoCalcChangeable;
+
     FPolygon: ILonLatPolygonWithSelected;
 
     FIsValid: Boolean;
@@ -59,7 +60,6 @@ type
 
     FArea: Double;
     FPerimeter: Double;
-    FProjection: IProjection;
     FNeedUpdateValues: Boolean;
 
     procedure OnConfigChange;
@@ -73,12 +73,13 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
+      const AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
       const APolygonOnMapEdit: IPolygonOnMapEdit;
       const AConfig: IPolygonCaptionsLayerConfig;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const AGeoCalc: IGeoCalcChangeable
     );
     destructor Destroy; override;
   end;
@@ -88,10 +89,10 @@ implementation
 uses
   Math,
   SysUtils,
-  i_GeoCalc,
-  i_ProjectionType,
+  t_GeoTypes,
+  i_GeometryLonLat,
+  i_Projection,
   u_GeoFunc,
-  u_GeoCalc,
   u_ListenerByEvent,
   u_ResStrings;
 
@@ -101,12 +102,13 @@ constructor TMapLayerPolygonCaptions.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
+  const AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
   const APolygonOnMapEdit: IPolygonOnMapEdit;
   const AConfig: IPolygonCaptionsLayerConfig;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const AGeoCalc: IGeoCalcChangeable
 );
 begin
   inherited Create(
@@ -121,6 +123,7 @@ begin
   FConfig := AConfig;
   FValueToStringConverter := AValueToStringConverter;
   FPolygonOnMapEdit := APolygonOnMapEdit;
+  FGeoCalcChangeable := AGeoCalc;
 
   FCaption := TMapCaptionDrawable.Create;
 
@@ -131,6 +134,10 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FValueToStringConverter.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
+    FGeoCalcChangeable.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPolygonChange),
@@ -151,6 +158,7 @@ begin
   ViewUpdateLock;
   try
     FNeedUpdateValues := True;
+    FGeoCalc := FGeoCalcChangeable.GetStatic;
     Visible := FConfig.Visible and Assigned(FPolygon);
     SetNeedRedraw;
   finally
@@ -181,24 +189,19 @@ procedure TMapLayerPolygonCaptions.InvalidateLayer(const ALocalConverter: ILocal
     const AConfig: IPolygonCaptionsLayerConfigStatic;
     const APolygon: IGeometryLonLatPolygon
   );
-  var
-    VGeoCalc: IGeoCalc;
   begin
-    if FNeedUpdateValues or
-       (FProjection = nil) or
-       not FProjection.IsSame(ALocalConverter.Projection)
-    then begin
-      FNeedUpdateValues := False;
-      FProjection := ALocalConverter.Projection;
-      VGeoCalc := TGeoCalc.Create(FProjection.ProjectionType.Datum);
+    Assert(FGeoCalc <> nil);
 
+    if FNeedUpdateValues then begin
       if AConfig.ShowArea then begin
-        FArea := VGeoCalc.CalcPolygonArea(APolygon);
+        FArea := FGeoCalc.CalcPolygonArea(APolygon);
       end;
 
       if AConfig.ShowPerimeter then begin
-        FPerimeter := VGeoCalc.CalcPolygonPerimeter(APolygon);
+        FPerimeter := FGeoCalc.CalcPolygonPerimeter(APolygon);
       end;
+
+      FNeedUpdateValues := False;
     end;
   end;
 

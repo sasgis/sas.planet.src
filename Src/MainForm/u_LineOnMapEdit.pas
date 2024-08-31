@@ -25,9 +25,8 @@ interface
 
 uses
   t_GeoTypes,
+  i_GeoCalc,
   i_Listener,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterChangeable,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_LineOnMapEdit,
@@ -116,11 +115,11 @@ type
   TCircleOnMapEdit = class(TPathOnMapEdit, ICircleOnMapEdit)
   private
     FPolygonOnMapEdit: IPolygonOnMapEdit;
-    FCoordConverter: ILocalCoordConverter;
-    FCoordConverterChangeable: ILocalCoordConverterChangeable;
+    FGeoCalc: IGeoCalc;
+    FGeoCalcChangeable: IGeoCalcChangeable;
     FListener: IListener;
-    procedure OnConverterChanged;
-    function _UpdatePolygon: IGeometryLonLatPolygon;
+    procedure OnGeoCalcChanged;
+    procedure _UpdatePolygon;
   private
     procedure _UpdateLineObject; override;
   private
@@ -130,7 +129,7 @@ type
   public
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-      const ALocalCoordConverter: ILocalCoordConverterChangeable
+      const AGeoCalc: IGeoCalcChangeable
     );
     destructor Destroy; override;
   end;
@@ -140,7 +139,6 @@ implementation
 uses
   SysUtils,
   Math,
-  i_Datum,
   i_EnumDoublePoint,
   i_DoublePoints,
   u_DoublePoints,
@@ -368,10 +366,10 @@ end;
 
 function TLineOnMapEdit.SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;
 var
+  I: Integer;
   VIndex: Integer;
   VPoint: TDoublePoint;
   VPoints: PDoublePointArray;
-  i: Integer;
 begin
   Result := False;
   CS.BeginWrite;
@@ -390,11 +388,11 @@ begin
     end;
 
     if VIndex < 0 then begin
-      for i := FPoints.Count - 1 downto 0 do begin
-        VPoint := VPoints[i];
+      for I := FPoints.Count - 1 downto 0 do begin
+        VPoint := VPoints[I];
         if not PointIsEmpty(VPoint) then begin
           if LonLatPointInRect(VPoint, ARect) then begin
-            VIndex := i;
+            VIndex := I;
             Break;
           end;
         end;
@@ -659,7 +657,7 @@ end;
 
 procedure TPathOnMapEdit._SetPath(const AValue: IGeometryLonLatLine);
 var
-  i: Integer;
+  I: Integer;
   VLine: IGeometryLonLatSingleLine;
   VMultiLine: IGeometryLonLatMultiLine;
 begin
@@ -668,8 +666,8 @@ begin
     FPoints.AddPoints(VLine.Points, VLine.Meta, VLine.Count);
     FPoints.Add(CEmptyDoublePoint);
   end else if Supports(AValue, IGeometryLonLatMultiLine, VMultiLine) then begin
-    for i := 0 to VMultiLine.Count - 1 do begin
-      VLine := VMultiLine.Item[i];
+    for I := 0 to VMultiLine.Count - 1 do begin
+      VLine := VMultiLine.Item[I];
       FPoints.AddPoints(VLine.Points, VLine.Meta, VLine.Count);
       FPoints.Add(CEmptyDoublePoint);
     end;
@@ -834,26 +832,26 @@ procedure TPolygonOnMapEdit._AddSinglePolygon(
   const AValue: IGeometryLonLatSinglePolygon
 );
 var
-  i: Integer;
+  I: Integer;
 begin
   _AddContour(AValue.OuterBorder);
-  for i := 0 to AValue.HoleCount - 1 do begin
+  for I := 0 to AValue.HoleCount - 1 do begin
     FPoints.Points[FPoints.Count - 1].Y := -1;
-    _AddContour(AValue.HoleBorder[i]);
+    _AddContour(AValue.HoleBorder[I]);
   end;
 end;
 
 procedure TPolygonOnMapEdit._SetPolygon(const AValue: IGeometryLonLatPolygon);
 var
-  i: Integer;
+  I: Integer;
   VLine: IGeometryLonLatSinglePolygon;
   VMultiLine: IGeometryLonLatMultiPolygon;
 begin
   if Supports(AValue, IGeometryLonLatSinglePolygon, VLine) then begin
     _AddSinglePolygon(VLine);
   end else if Supports(AValue, IGeometryLonLatMultiPolygon, VMultiLine) then begin
-    for i := 0 to VMultiLine.Count - 1 do begin
-      VLine := VMultiLine.Item[i];
+    for I := 0 to VMultiLine.Count - 1 do begin
+      VLine := VMultiLine.Item[I];
       _AddSinglePolygon(VLine);
     end;
   end;
@@ -873,7 +871,7 @@ function TPolygonOnMapEdit._MakePolygon(
   ACount: Integer
 ): IGeometryLonLatPolygon;
 var
-  i: Integer;
+  I: Integer;
   VStart: PDoublePointArray;
   VLineLen: Integer;
   VPoint: TDoublePoint;
@@ -886,13 +884,13 @@ begin
   VIsOuter := True;
   VStart := APoints;
   VLineLen := 0;
-  for i := 0 to ACount - 1 do begin
-    VPoint := APoints[i];
+  for I := 0 to ACount - 1 do begin
+    VPoint := APoints[I];
     VIsValidX := not IsNan(VPoint.X);
     VIsValidY := not IsNan(VPoint.Y);
     if VIsValidX and VIsValidY then begin
       if VLineLen = 0 then begin
-        VStart := @APoints[i];
+        VStart := @APoints[I];
         VLineBounds.TopLeft := VPoint;
         VLineBounds.BottomRight := VPoint;
       end else begin
@@ -942,30 +940,30 @@ end;
 
 constructor TCircleOnMapEdit.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const ALocalCoordConverter: ILocalCoordConverterChangeable
+  const AGeoCalc: IGeoCalcChangeable
 );
 begin
-  Assert(ALocalCoordConverter <> nil);
+  Assert(AGeoCalc <> nil);
   inherited Create(AVectorGeometryLonLatFactory);
 
-  FCoordConverterChangeable := ALocalCoordConverter;
-  FCoordConverter := FCoordConverterChangeable.GetStatic;
+  FGeoCalcChangeable := AGeoCalc;
+  FGeoCalc := FGeoCalcChangeable.GetStatic;
 
-  FListener := TNotifyNoMmgEventListener.Create(Self.OnConverterChanged);
-  FCoordConverterChangeable.ChangeNotifier.Add(FListener);
+  FListener := TNotifyNoMmgEventListener.Create(Self.OnGeoCalcChanged);
+  FGeoCalcChangeable.ChangeNotifier.Add(FListener);
 
   FPolygonOnMapEdit := TPolygonOnMapEdit.Create(AVectorGeometryLonLatFactory);
 end;
 
 destructor TCircleOnMapEdit.Destroy;
 begin
-  if Assigned(FListener) and Assigned(FCoordConverterChangeable) then begin
-    FCoordConverterChangeable.ChangeNotifier.Remove(FListener);
+  if Assigned(FListener) and Assigned(FGeoCalcChangeable) then begin
+    FGeoCalcChangeable.ChangeNotifier.Remove(FListener);
   end;
   inherited Destroy;
 end;
 
-function TCircleOnMapEdit._UpdatePolygon: IGeometryLonLatPolygon;
+procedure TCircleOnMapEdit._UpdatePolygon;
 var
   VRadius: Double;
   VLine: IGeometryLonLatSingleLine;
@@ -977,7 +975,7 @@ begin
     if Supports(FLine, IGeometryLonLatSingleLine, VLine) then begin
       VCircleLonLat :=
         FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
-          FCoordConverter.Projection.ProjectionType.Datum,
+          FGeoCalc.Datum,
           VLine.Points[0],
           VRadius
         );
@@ -992,9 +990,9 @@ begin
   _UpdatePolygon;
 end;
 
-procedure TCircleOnMapEdit.OnConverterChanged;
+procedure TCircleOnMapEdit.OnGeoCalcChanged;
 begin
-  FCoordConverter := FCoordConverterChangeable.GetStatic;
+  FGeoCalc := FGeoCalcChangeable.GetStatic;
   _UpdatePolygon;
 end;
 
@@ -1005,7 +1003,6 @@ end;
 
 procedure TCircleOnMapEdit.SetRadius(const AValue: Double);
 var
-  VDatum: IDatum;
   VLine: IGeometryLonLatSingleLine;
   VPoint: TDoublePoint;
 begin
@@ -1015,8 +1012,7 @@ begin
   if Supports(FLine, IGeometryLonLatSingleLine, VLine) then begin
     if VLine.Count >= 1 then begin
       if AValue > 0 then begin
-        VDatum := FCoordConverter.Projection.ProjectionType.Datum;
-        VPoint := VDatum.CalcFinishPosition(VLine.Points[0], 90, AValue);
+        VPoint := FGeoCalc.Datum.CalcFinishPosition(VLine.Points[0], 90, AValue);
         if VLine.Count > 1 then begin
           FSelectedPointIndex := 1;
           MoveActivePoint(VPoint);
@@ -1043,7 +1039,7 @@ begin
   if Supports(FLine, IGeometryLonLatSingleLine, VLine) then begin
     VEnum := VLine.GetEnum;
     if Assigned(VEnum) and VEnum.Next(VFirst) and VEnum.Next(VSecond) then begin
-      Result := FCoordConverter.Projection.ProjectionType.Datum.CalcDist(VFirst, VSecond);
+      Result := FGeoCalc.Datum.CalcDist(VFirst, VSecond);
     end;
   end;
 end;

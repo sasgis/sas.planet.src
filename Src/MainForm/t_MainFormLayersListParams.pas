@@ -25,6 +25,7 @@ interface
 
 uses
   GR32_Image,
+  i_GeoCalc,
   i_NotifierOperation,
   i_HashFunction,
   i_Bitmap32BufferFactory,
@@ -126,6 +127,7 @@ type
     StatBarPopupMenu: IPopUp;
     ScaleLinePopupMenu: IPopUp;
     MiniMapPopupMenu: IPopUp;
+    GeoCalc: IGeoCalcChangeable;
   end;
 
 function MainFormLayersListParams(
@@ -183,7 +185,8 @@ function MainFormLayersListParams(
   const ASunCalcPopupMenu: IPopUp;
   const AStatBarPopupMenu: IPopUp;
   const AScaleLinePopupMenu: IPopUp;
-  const AMiniMapPopupMenu: IPopUp
+  const AMiniMapPopupMenu: IPopUp;
+  const AGeoCalc: IGeoCalcChangeable
 ): TMainFormLayersListParams; inline;
 
 implementation
@@ -243,7 +246,8 @@ function MainFormLayersListParams(
   const ASunCalcPopupMenu: IPopUp;
   const AStatBarPopupMenu: IPopUp;
   const AScaleLinePopupMenu: IPopUp;
-  const AMiniMapPopupMenu: IPopUp
+  const AMiniMapPopupMenu: IPopUp;
+  const AGeoCalc: IGeoCalcChangeable
 ): TMainFormLayersListParams;
 begin
   with Result do begin
@@ -302,6 +306,7 @@ begin
     ScaleLinePopupMenu := AScaleLinePopupMenu;
     StatBarPopupMenu := AStatBarPopupMenu;
     MiniMapPopupMenu := AMiniMapPopupMenu;
+    GeoCalc := AGeoCalc;
   end;
 end;
 

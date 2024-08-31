@@ -31,12 +31,12 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_GeoCalc,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LineOnMapEdit,
-  i_Datum,
   i_GeometryLonLat,
   i_Projection,
   i_DoublePointsAggregator,
@@ -53,6 +53,9 @@ type
     FConfig: IPointCaptionsLayerConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FLineOnMapEdit: IPathOnMapEdit;
+
+    FGeoCalc: IGeoCalc;
+    FGeoCalcChangeable: IGeoCalcChangeable;
 
     FLine: ILonLatPathWithSelected;
     FNeedUpdatePoints: Boolean;
@@ -105,12 +108,13 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
-      AParentMap: TImage32;
+      const AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: IPointCaptionsLayerConfig;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const AGeoCalc: IGeoCalcChangeable
     );
     destructor Destroy; override;
   end;
@@ -119,6 +123,7 @@ implementation
 
 uses
   Math,
+  i_Datum,
   i_ProjectionType,
   u_GeoFunc,
   u_ListenerByEvent,
@@ -138,12 +143,13 @@ constructor TMapLayerCalcLineCaptions.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
-  AParentMap: TImage32;
+  const AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: IPointCaptionsLayerConfig;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const AGeoCalc: IGeoCalcChangeable
 );
 begin
   inherited Create(
@@ -158,6 +164,7 @@ begin
   FConfig := AConfig;
   FValueToStringConverter := AValueToStringConverter;
   FLineOnMapEdit := ALineOnMapEdit;
+  FGeoCalcChangeable := AGeoCalc;
 
   FCaptions := TObjectList.Create(True);
 
@@ -168,6 +175,10 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FValueToStringConverter.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
+    FGeoCalcChangeable.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLineChange),
@@ -204,6 +215,7 @@ begin
   ViewUpdateLock;
   try
     FNeedUpdatePoints := True;
+    FGeoCalc := FGeoCalcChangeable.GetStatic;
     Visible := FConfig.Visible and Assigned(FLine);
     SetNeedRedraw;
   finally
@@ -249,9 +261,9 @@ begin
 
   VNeedUpdatePoints :=
     FNeedUpdatePoints or
-    (FProjection = nil) or
     (FPoints = nil) or
     (FPointsText = nil) or
+    (FProjection = nil) or
     not FProjection.IsSame(ALocalConverter.Projection);
 
   if VNeedUpdatePoints then begin
@@ -408,10 +420,11 @@ begin
 
   VPointIndex := AProjectedPoints.Count;
 
-  VProjectionType := AProjection.ProjectionType;
-  VDatum := VProjectionType.Datum;
+  VDatum := FGeoCalc.Datum;
+
   VPrevLonLat := VPoints[0];
   VLonLat := VPrevLonLat;
+  VProjectionType := AProjection.ProjectionType;
   VProjectionType.ValidateLonLatPos(VLonLat);
   VPrevProjected := AProjection.LonLat2PixelPosFloat(VLonLat);
   VDistSkipped := 0;
