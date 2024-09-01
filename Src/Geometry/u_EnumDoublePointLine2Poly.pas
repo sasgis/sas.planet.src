@@ -79,6 +79,7 @@ implementation
 
 uses
   Math,
+  i_Datum,
   u_DoublePointsAggregator,
   u_GeoFunc;
 
@@ -118,6 +119,7 @@ var
   VSinA3: Double;
   VResultPixelPos: TDoublePoint;
   VDist: Double;
+  VDatum: IDatum;
 begin
   if FReturnTemp then begin
     APoint := FTemp.Points[FTempIndex];
@@ -129,6 +131,7 @@ begin
   end else begin
     if not FFinished then begin
       Result := False;
+      VDatum := FProjection.ProjectionType.Datum;
       while not FFinished do begin
         FFinished := not FSourceEnum.Next(VCurrLonLat);
         if not FFinished then begin
@@ -139,7 +142,7 @@ begin
             if FLineStarted then begin
               VVector.X := VCurrPoint.X - FPrevPoint.X;
               VVector.Y := VCurrPoint.Y - FPrevPoint.Y;
-              VDist := FProjection.ProjectionType.Datum.CalcDist(FPrevLonLat, VCurrLonLat);
+              VDist := VDatum.CalcDist(FPrevLonLat, VCurrLonLat);
               if VDist > 0.000001 then begin
                 VLonLatMul := FRadius / VDist;
                 VLonLatMul := VLonLatMul * sqrt(sqr(VVector.X) + sqr(VVector.Y));
@@ -199,7 +202,7 @@ begin
                 VCurrPoint := FProjection.LonLat2PixelPosFloat(VCurrLonLat);
                 VVector.X := VCurrPoint.X - FPrevPoint.X;
                 VVector.Y := VCurrPoint.Y - FPrevPoint.Y;
-                VDist := FProjection.ProjectionType.Datum.CalcDist(FPrevLonLat, VCurrLonLat);
+                VDist := VDatum.CalcDist(FPrevLonLat, VCurrLonLat);
                 if VDist > 0.000001 then begin
                   VLonLatMul := FRadius / VDist;
                   VLonLatMul := VLonLatMul * sqrt(sqr(VVector.X) + sqr(VVector.Y));
