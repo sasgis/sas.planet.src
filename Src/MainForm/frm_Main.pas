@@ -3149,7 +3149,7 @@ end;
 
 procedure TfrmMain.OnAfterViewChange;
 begin
-  map.Invalidate;
+  map.ForceFullInvalidate;
   map.Changed;
   map.EndUpdate;
   map.Repaint;
