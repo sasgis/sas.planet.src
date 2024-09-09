@@ -1098,6 +1098,7 @@ type
     procedure OnMainFormMainConfigChange;
     procedure OnStateChange;
 
+    procedure OnGeoCalcConfigChange;
     procedure OnViewProjectionConfigChange;
     procedure OnGridGenshtabChange;
     procedure OnGridLonLatChange;
@@ -1241,6 +1242,7 @@ uses
   i_DownloadRequest,
   i_GPS,
   i_GeoCoder,
+  i_GeoCalcConfig,
   i_GPSRecorder,
   i_PathDetalizeProvider,
   i_FillingMapLayerConfig,
@@ -1657,6 +1659,11 @@ begin
   FLinksList.Add(
     VMarkEditConfigsListener,
     FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.GetChangeNotifier
+  );
+
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnGeoCalcConfigChange),
+    GState.Config.GeoCalcConfig.ChangeNotifier
   );
 
   FLineOnMapByOperation[ao_movemap] := nil;
@@ -2975,7 +2982,7 @@ begin
   VProjection := VConverter.Projection;
 
   VPosition := GState.GPSRecorder.CurrentPosition;
-  if (not VPosition.PositionOK) then begin
+  if not VPosition.PositionOK then begin
     // no position
     FCenterToGPSDelta := CEmptyDoublePoint;
   end else begin
@@ -2991,7 +2998,7 @@ begin
 
   VZoomCurr := VProjection.Zoom;
   PaintZSlider(VZoomCurr);
-  labZoom.caption := 'z' + inttostr(VZoomCurr + 1);
+  labZoom.caption := 'z' + IntToStr(VZoomCurr + 1);
 end;
 
 procedure TfrmMain.RosreestrClick(Sender: TObject);
@@ -3207,6 +3214,23 @@ begin
   actViewFillingMapMainMapUse.Checked := IsEqualGUID(VConfig.SelectedMap, CGUID_Zero);
 end;
 
+procedure TfrmMain.OnGeoCalcConfigChange;
+var
+  VMapType: IMapType;
+begin
+  case GState.Config.GeoCalcConfig.DatumSource of
+    dsWGS84: begin
+      GState.GeoCalc.Datum := GState.GeoCalc.GpsDatum;
+    end;
+    dsZMP: begin
+      VMapType := FMainMapState.ActiveMap.GetStatic;
+      GState.GeoCalc.Datum := VMapType.ProjectionSet.Zooms[0].ProjectionType.Datum;
+    end;
+  else
+    Assert(False);
+  end;
+end;
+
 procedure TfrmMain.OnGridGenshtabChange;
 var
   VScale: Integer;
@@ -3391,6 +3415,9 @@ begin
     TBSMB.Caption := '';
   end;
   TBXSubmnMapVer.Visible := VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions;
+  if GState.Config.GeoCalcConfig.DatumSource = dsZMP then begin
+    GState.GeoCalc.Datum := VMapType.ProjectionSet.Zooms[0].ProjectionType.Datum;
+  end;
 end;
 
 procedure TfrmMain.OnMapGUIChange;

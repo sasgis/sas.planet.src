@@ -29,6 +29,7 @@ uses
   i_LanguageManager,
   i_AppearanceOfMarkFactory,
   i_InetConfig,
+  i_GeoCalcConfig,
   i_GeoCoderConfig,
   i_BitmapPostProcessingConfig,
   i_ValueToStringConverterConfig,
@@ -79,6 +80,7 @@ type
     FInternalDebugConfig: IInternalDebugConfig;
     FGlobalAppConfig: IGlobalAppConfig;
     FLanguageManager: ILanguageManager;
+    FGeoCalcConfig: IGeoCalcConfig;
     FGeoCoderConfig: IGeoCoderConfig;
     FInetConfig: IInetConfig;
     FInternalBrowserConfig: IWindowPositionConfig;
@@ -108,6 +110,7 @@ type
     FExportToIMGConfig: IExportToIMGConfig;
     FElevationProfileConfig: IElevationProfileConfig;
   private
+    { IGlobalConfig }
     function GetBaseConfigPath: IPathConfig;
     function GetBaseCachePath: IPathConfig;
     function GetLogsPath: IPathConfig;
@@ -155,6 +158,7 @@ type
     function GetZmpConfig: IZmpConfig;
     function GetExportToIMGConfig: IExportToIMGConfig;
     function GetElevationProfileConfig: IElevationProfileConfig;
+    function GetGeoCalcConfig: IGeoCalcConfig;
   public
     constructor Create(
       const AInternalDebugConfig: IInternalDebugConfig;
@@ -175,6 +179,7 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_LanguageManager,
+  u_GeoCalcConfig,
   u_GeoCoderConfig,
   u_InetConfig,
   u_WindowPositionConfig,
@@ -355,6 +360,9 @@ begin
 
   FElevationProfileConfig := TElevationProfileConfig.Create;
   Add(FElevationProfileConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ElevationProfile'), False, False, False, False);
+
+  FGeoCalcConfig := TGeoCalcConfig.Create;
+  Add(FGeoCalcConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GeoCalc'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCachePath: IPathConfig;
@@ -400,6 +408,11 @@ end;
 function TGlobalConfig.GetExportToIMGConfig: IExportToIMGConfig;
 begin
   Result := FExportToIMGConfig;
+end;
+
+function TGlobalConfig.GetGeoCalcConfig: IGeoCalcConfig;
+begin
+  Result := FGeoCalcConfig;
 end;
 
 function TGlobalConfig.GetGeoCoderConfig: IGeoCoderConfig;

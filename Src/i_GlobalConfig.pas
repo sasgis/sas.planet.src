@@ -26,6 +26,7 @@ interface
 uses
   i_PathConfig,
   i_GlobalAppConfig,
+  i_GeoCalcConfig,
   i_GeoCoderConfig,
   i_LanguageManager,
   i_InetConfig,
@@ -197,6 +198,9 @@ type
 
     function GetElevationProfileConfig: IElevationProfileConfig;
     property ElevationProfileConfig: IElevationProfileConfig read GetElevationProfileConfig;
+
+    function GetGeoCalcConfig: IGeoCalcConfig;
+    property GeoCalcConfig: IGeoCalcConfig read GetGeoCalcConfig;
   end;
 
 implementation
