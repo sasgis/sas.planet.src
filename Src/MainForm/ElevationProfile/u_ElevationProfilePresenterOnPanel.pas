@@ -28,7 +28,7 @@ uses
   Controls,
   TB2Item,
   t_GeoTypes,
-  i_Datum,
+  i_GeoCalc,
   i_GeometryLonLat,
   i_ElevationMetaWriter,
   i_ElevationProfileConfig,
@@ -51,8 +51,10 @@ type
     FVisibilityToggleItem: TTBCustomItem;
     FConfig: IElevationProfileConfig;
     FLanguageManager: ILanguageManager;
-    FDatum: IDatum;
     FMapGoTo: IMapViewGoto;
+
+    FGeoCalc: IGeoCalcChangeable;
+    FGeoCalcListener: IListener;
 
     FTerrainConfig: ITerrainConfig;
     FTerrainConfigListener: IListener;
@@ -60,8 +62,8 @@ type
     FfrElevationProfile: TfrElevationProfile;
     FElevationMetaWriter: IElevationMetaWriter;
 
-    procedure AddTerrainConfigListener;
-    procedure RemoveTerrainConfigListener;
+    procedure AddChangeListeners;
+    procedure RemoveChangeListeners;
 
     procedure ShowProfileInternal(
       const ALines: TArrayOfGeometryLonLatSingleLine
@@ -84,7 +86,7 @@ type
       const AConfig: IElevationProfileConfig;
       const ATerrainConfig: ITerrainConfig;
       const ALanguageManager: ILanguageManager;
-      const ADatum: IDatum;
+      const AGeoCalc: IGeoCalcChangeable;
       const AMapGoTo: IMapViewGoto;
       const AElevationMetaWriter: IElevationMetaWriter
     );
@@ -106,7 +108,7 @@ constructor TElevationProfilePresenterOnPanel.Create(
   const AConfig: IElevationProfileConfig;
   const ATerrainConfig: ITerrainConfig;
   const ALanguageManager: ILanguageManager;
-  const ADatum: IDatum;
+  const AGeoCalc: IGeoCalcChangeable;
   const AMapGoTo: IMapViewGoto;
   const AElevationMetaWriter: IElevationMetaWriter
 );
@@ -118,11 +120,13 @@ begin
   FConfig := AConfig;
   FTerrainConfig := ATerrainConfig;
   FLanguageManager := ALanguageManager;
-  FDatum := ADatum;
+  FGeoCalc := AGeoCalc;
   FMapGoTo := AMapGoTo;
   FElevationMetaWriter := AElevationMetaWriter;
 
   FfrElevationProfile := nil;
+
+  FGeoCalcListener := nil;
   FTerrainConfigListener := nil;
 
   HideParent;
@@ -130,21 +134,29 @@ end;
 
 destructor TElevationProfilePresenterOnPanel.Destroy;
 begin
-  RemoveTerrainConfigListener;
+  RemoveChangeListeners;
   FfrElevationProfile := nil; // will be destroyed by its parent
   inherited Destroy;
 end;
 
-procedure TElevationProfilePresenterOnPanel.AddTerrainConfigListener;
+procedure TElevationProfilePresenterOnPanel.AddChangeListeners;
 begin
+  if FGeoCalcListener = nil then begin
+    FGeoCalcListener := TNotifyNoMmgEventListener.Create(Self.RefreshParent);
+    FGeoCalc.ChangeNotifier.Add(FGeoCalcListener);
+  end;
   if (FTerrainConfigListener = nil) and (FTerrainConfig <> nil) then begin
     FTerrainConfigListener := TNotifyNoMmgEventListener.Create(Self.RefreshParent);
     FTerrainConfig.ChangeNotifier.Add(FTerrainConfigListener);
   end;
 end;
 
-procedure TElevationProfilePresenterOnPanel.RemoveTerrainConfigListener;
+procedure TElevationProfilePresenterOnPanel.RemoveChangeListeners;
 begin
+  if FGeoCalcListener <> nil  then begin
+    FGeoCalc.ChangeNotifier.Remove(FGeoCalcListener);
+    FGeoCalcListener := nil;
+  end;
   if (FTerrainConfig <> nil) and (FTerrainConfigListener <> nil) then begin
     FTerrainConfig.ChangeNotifier.Remove(FTerrainConfigListener);
     FTerrainConfigListener := nil;
@@ -153,7 +165,7 @@ end;
 
 procedure TElevationProfilePresenterOnPanel.HideParent;
 begin
-  RemoveTerrainConfigListener;
+  RemoveChangeListeners;
 
   FItemCached := nil;
   FLonLatLocation := CEmptyDoublePoint;
@@ -197,7 +209,7 @@ begin
     Exit;
   end;
 
-  RemoveTerrainConfigListener;
+  RemoveChangeListeners;
 
   FItemCached := AItem;
 
@@ -208,7 +220,6 @@ begin
       Self.RefreshParent,
       FConfig,
       FLanguageManager,
-      FDatum,
       FMapGoTo
     );
   end;
@@ -236,7 +247,7 @@ procedure TElevationProfilePresenterOnPanel.ShowProfileInternal(
   const ALines: TArrayOfGeometryLonLatSingleLine
 );
 begin
-  FfrElevationProfile.ShowProfile(ALines);
+  FfrElevationProfile.ShowProfile(FGeoCalc.Datum, ALines);
   FfrElevationProfile.Visible := True;
 
   FDrawParent.Visible := True;
@@ -249,7 +260,7 @@ begin
   FfrElevationProfile.SetFocusOnChart;
   FfrElevationProfile.SetLocation(FLonLatLocation);
 
-  AddTerrainConfigListener;
+  AddChangeListeners;
 end;
 
 procedure TElevationProfilePresenterOnPanel.OnElevationMetaWrite(const ALine: IGeometryLonLatLine);

@@ -202,6 +202,7 @@ type
     class procedure ResetInfo(out AInfo: TProfileInfoRec); static; inline;
   public
     procedure ShowProfile(
+      const ADatum: IDatum;
       const ALines: TArrayOfGeometryLonLatSingleLine
     );
     procedure SetLocation(const ALonLat: TDoublePoint);
@@ -214,7 +215,6 @@ type
       const AOnRefresh: TOnRefreshEvent;
       const AConfig: IElevationProfileConfig;
       const ALanguageManager: ILanguageManager;
-      const ADatum: IDatum;
       const AMapGoTo: IMapViewGoto
     ); reintroduce;
     destructor Destroy; override;
@@ -259,7 +259,6 @@ constructor TfrElevationProfile.Create(
   const AOnRefresh: TOnRefreshEvent;
   const AConfig: IElevationProfileConfig;
   const ALanguageManager: ILanguageManager;
-  const ADatum: IDatum;
   const AMapGoTo: IMapViewGoto
 );
 begin
@@ -270,7 +269,6 @@ begin
   FOnClose := AOnClose;
   FOnRefresh := AOnRefresh;
   FConfig := AConfig;
-  FDatum := ADatum;
   FMapGoTo := AMapGoTo;
 
   Self.Parent := AParent;
@@ -395,9 +393,11 @@ end;
 // Public API
 
 procedure TfrElevationProfile.ShowProfile(
+  const ADatum: IDatum;
   const ALines: TArrayOfGeometryLonLatSingleLine
 );
 begin
+  FDatum := ADatum;
   FLines := ALines;
 
   HidePointInfo;
@@ -414,6 +414,7 @@ end;
 
 procedure TfrElevationProfile.Clear;
 begin
+  FDatum := nil;
   FLines := nil;
   FDist := nil;
 

@@ -2586,7 +2586,7 @@ begin
       GState.Config.ElevationProfileConfig,
       GState.Config.TerrainConfig,
       GState.Config.LanguageManager,
-      GState.GeoCalc.GpsDatum,
+      GState.GeoCalc,
       FGpsTrackGoTo,
       FElevationMetaWriter
     );
