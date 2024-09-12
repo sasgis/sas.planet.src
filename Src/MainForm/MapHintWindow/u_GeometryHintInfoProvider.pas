@@ -27,6 +27,7 @@ uses
   Types,
   t_GeoTypes,
   i_Datum,
+  i_GeoCalc,
   i_GeometryLonLat,
   i_GeometryProjected,
   i_GeometryProjectedProvider,
@@ -39,6 +40,8 @@ type
   TGeometryHintInfoProvider = class(TBaseInterfacedObject, IGeometryHintInfoProvider)
   private
     FDatum: IDatum;
+
+    FGeoCalc: IGeoCalcChangeable;
     FProjectedProvider: IGeometryProjectedProvider;
 
     // line info cache
@@ -74,7 +77,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const ADatum: IDatum;
+      const AGeoCalc: IGeoCalcChangeable;
       const AProjectedProvider: IGeometryProjectedProvider
     );
   end;
@@ -92,12 +95,12 @@ uses
 { TGeometryHintInfoProvider }
 
 constructor TGeometryHintInfoProvider.Create(
-  const ADatum: IDatum;
+  const AGeoCalc: IGeoCalcChangeable;
   const AProjectedProvider: IGeometryProjectedProvider
 );
 begin
   inherited Create;
-  FDatum := ADatum;
+  FGeoCalc := AGeoCalc;
   FProjectedProvider := AProjectedProvider;
 end;
 
@@ -182,6 +185,7 @@ function TGeometryHintInfoProvider.GetLineHintInfo(
 
 var
   I, J: Integer;
+  VDatum: IDatum;
   VSingle: IGeometryLonLatSingleLine;
   VPixelPos: TDoublePoint;
   VDist, VCurrDist: Double;
@@ -190,7 +194,10 @@ var
   VPoints: PDoublePointArray;
   VMeta: PDoublePointsMeta;
 begin
-  if not ALine.IsSameGeometry(FLineItem) then begin
+  VDatum := FGeoCalc.Datum;
+
+  if not VDatum.IsSameDatum(FDatum) or not ALine.IsSameGeometry(FLineItem) then begin
+    FDatum := VDatum;
     FLineItem := ALine;
     FLines := GeometryLonLatLineToArray(ALine);
 
@@ -369,16 +376,20 @@ function TGeometryHintInfoProvider.GetPolyHintInfo(
 
 var
   VIndex: Integer;
+  VDatum: IDatum;
 begin
-  if APoly.IsSameGeometry(FPolyItem) then begin
+  VDatum := FGeoCalc.Datum;
+
+  if not VDatum.IsSameDatum(FDatum) or not APoly.IsSameGeometry(FPolyItem) then begin
+    FDatum := VDatum;
+    FPolyItem := APoly;
+    CalcPolyInfo(VIndex);
+  end else begin
     if Supports(APoly, IGeometryLonLatSinglePolygon) then begin
       VIndex := 0;
     end else begin
       VIndex := FindContourIndex();
     end;
-  end else begin
-    FPolyItem := APoly;
-    CalcPolyInfo(VIndex);
   end;
 
   Result := (VIndex >= 0) and (VIndex < Length(FPolyInfo));

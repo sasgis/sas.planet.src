@@ -1767,7 +1767,7 @@ begin
     TMapHintWindow.Create(
       Self,
       map,
-      GState.GeoCalc.GpsDatum,
+      GState.GeoCalc,
       GState.ProjectedGeometryProvider,
       FGpsTrackGoTo,
       GState.ValueToStringConverter,

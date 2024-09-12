@@ -29,7 +29,7 @@ uses
   Controls,
   GR32_Image,
   t_GeoTypes,
-  i_Datum,
+  i_GeoCalc,
   i_GeometryProjectedProvider,
   i_GeometryHintInfoProvider,
   i_LocalCoordConverterChangeable,
@@ -81,7 +81,7 @@ type
     constructor Create(
       const AOwner: TComponent;
       const AMap: TImage32;
-      const ADatum: IDatum;
+      const AGeoCalc: IGeoCalcChangeable;
       const AProjectedProvider: IGeometryProjectedProvider;
       const AMapGoTo: IMapViewGoto;
       const AValueToStringConverter: IValueToStringConverterChangeable;
@@ -108,7 +108,7 @@ uses
 constructor TMapHintWindow.Create(
   const AOwner: TComponent;
   const AMap: TImage32;
-  const ADatum: IDatum;
+  const AGeoCalc: IGeoCalcChangeable;
   const AProjectedProvider: IGeometryProjectedProvider;
   const AMapGoTo: IMapViewGoto;
   const AValueToStringConverter: IValueToStringConverterChangeable;
@@ -122,7 +122,7 @@ begin
   FValueToStringConverter := AValueToStringConverter;
   FLocalConverter := ALocalConverter;
 
-  FHintInfoProvider := TGeometryHintInfoProvider.Create(ADatum, AProjectedProvider);
+  FHintInfoProvider := TGeometryHintInfoProvider.Create(AGeoCalc, AProjectedProvider);
 end;
 
 destructor TMapHintWindow.Destroy;
