@@ -633,6 +633,11 @@ type
     actEditPolygonShowPerimeter: TAction;
     actEditPolygonShowArea: TAction;
     actEditPolygonLabelVisible: TAction;
+    actGeoCalcUseGpsDatum: TAction;
+    actGeoCalcUseZmpDatum: TAction;
+    tbxsbmGeoCalc: TTBXSubmenuItem;
+    tbxGeoCalcUseGpsDatum: TTBXItem;
+    tbxGeoCalcUseZmpDatum: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -893,6 +898,8 @@ type
     procedure actEditPolygonShowPerimeterExecute(Sender: TObject);
     procedure actEditPolygonShowAreaExecute(Sender: TObject);
     procedure actEditPolygonLabelVisibleExecute(Sender: TObject);
+    procedure actGeoCalcUseZmpDatumExecute(Sender: TObject);
+    procedure actGeoCalcUseGpsDatumExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -1661,11 +1668,6 @@ begin
     FConfig.LayersConfig.MarkPolygonLayerConfig.CaptionsConfig.GetChangeNotifier
   );
 
-  FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnGeoCalcConfigChange),
-    GState.Config.GeoCalcConfig.ChangeNotifier
-  );
-
   FLineOnMapByOperation[ao_movemap] := nil;
   FLineOnMapByOperation[ao_edit_point] := nil;
   FLineOnMapByOperation[ao_select_rect] := nil;
@@ -2210,6 +2212,11 @@ begin
       FPathProvidersTree.ChangeNotifier
     );
 
+    FLinksList.Add(
+      TNotifyNoMmgEventListener.Create(Self.OnGeoCalcConfigChange),
+      GState.Config.GeoCalcConfig.ChangeNotifier
+    );
+
     InitSearchers;
     InitMergePolygons;
     InitElevationProfile;
@@ -2298,6 +2305,7 @@ begin
     OnPathProvidesChange;
     OnNavToMarkChange;
     OnMarkEditConfigsChange;
+    OnGeoCalcConfigChange;
 
     PaintZSlider(FViewPortState.View.GetStatic.Projection.Zoom);
     Application.OnMessage := DoMessageEvent;
@@ -3219,12 +3227,14 @@ var
   VMapType: IMapType;
 begin
   case GState.Config.GeoCalcConfig.DatumSource of
-    dsWGS84: begin
+    TGeoCalcDatumSource.dsWGS84: begin
       GState.GeoCalc.Datum := GState.GeoCalc.GpsDatum;
+      actGeoCalcUseGpsDatum.Checked := True;
     end;
-    dsZMP: begin
+    TGeoCalcDatumSource.dsZMP: begin
       VMapType := FMainMapState.ActiveMap.GetStatic;
       GState.GeoCalc.Datum := VMapType.ProjectionSet.Zooms[0].ProjectionType.Datum;
+      actGeoCalcUseZmpDatum.Checked := True;
     end;
   else
     Assert(False);
@@ -3415,7 +3425,7 @@ begin
     TBSMB.Caption := '';
   end;
   TBXSubmnMapVer.Visible := VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions;
-  if GState.Config.GeoCalcConfig.DatumSource = dsZMP then begin
+  if GState.Config.GeoCalcConfig.DatumSource = TGeoCalcDatumSource.dsZMP then begin
     GState.GeoCalc.Datum := VMapType.ProjectionSet.Zooms[0].ProjectionType.Datum;
   end;
 end;
@@ -7154,6 +7164,16 @@ begin
   if Assigned(VList) then begin
     ProcessOpenFiles(VList);
   end;
+end;
+
+procedure TfrmMain.actGeoCalcUseGpsDatumExecute(Sender: TObject);
+begin
+  GState.Config.GeoCalcConfig.DatumSource := TGeoCalcDatumSource.dsWGS84;
+end;
+
+procedure TfrmMain.actGeoCalcUseZmpDatumExecute(Sender: TObject);
+begin
+  GState.Config.GeoCalcConfig.DatumSource := TGeoCalcDatumSource.dsZMP;
 end;
 
 procedure TfrmMain.actGpsConnectExecute(Sender: TObject);

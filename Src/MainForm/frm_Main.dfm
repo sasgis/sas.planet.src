@@ -555,6 +555,18 @@ object frmMain: TfrmMain
             Action = actConfigProjectionOfMapUse
           end
         end
+        object tbxsbmGeoCalc: TTBXSubmenuItem
+          Caption = 'Distance and Area Calculator'
+          Images = MenusImageList
+          object tbxGeoCalcUseGpsDatum: TTBXItem
+            Action = actGeoCalcUseGpsDatum
+            RadioItem = True
+          end
+          object tbxGeoCalcUseZmpDatum: TTBXItem
+            Action = actGeoCalcUseZmpDatum
+            RadioItem = True
+          end
+        end
         object TBXSubmenuMap: TTBXSubmenuItem
           Caption = 'Maps'
           Images = MenusImageList
@@ -4544,6 +4556,18 @@ object frmMain: TfrmMain
       Hint = 'Show/Hide Captions'
       ImageIndex = 37
       OnExecute = actEditPolygonLabelVisibleExecute
+    end
+    object actGeoCalcUseGpsDatum: TAction
+      Category = 'View\GeoCalc'
+      Caption = 'Use GPS (WGS 84) Datum'
+      GroupIndex = 1
+      OnExecute = actGeoCalcUseGpsDatumExecute
+    end
+    object actGeoCalcUseZmpDatum: TAction
+      Category = 'View\GeoCalc'
+      Caption = 'Use Map Datum (from zmp)'
+      GroupIndex = 1
+      OnExecute = actGeoCalcUseZmpDatumExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu
