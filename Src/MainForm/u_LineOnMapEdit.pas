@@ -993,7 +993,8 @@ end;
 procedure TCircleOnMapEdit.OnGeoCalcChanged;
 begin
   FGeoCalc := FGeoCalcChangeable.GetStatic;
-  _UpdatePolygon;
+  _UpdateLineObject;
+  DoChangeNotify;
 end;
 
 function TCircleOnMapEdit.GetPolygonOnMapEdit: IPolygonOnMapEdit;
