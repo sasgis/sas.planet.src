@@ -353,13 +353,11 @@ begin
       Self.Caption := Format(SAS_STR_Paused, [VComplete]) + ' ' + FFormCaption;
     end else begin
       Self.Caption := Format(SAS_STR_DownloadingCaption, [VComplete]) + ' ' + FFormCaption;
-      Application.ProcessMessages;
       lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files;
       lblProcessedValue.Caption := inttostr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
       lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
       lblSizeToFinishValue.Caption := GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
-      UpdateMemoProgressForm;
       FProgress.Max := VTotal;
       FProgress.Progress1 := FProgressInfo.Processed;
       FProgress.Progress2 := FProgressInfo.Downloaded;
@@ -374,6 +372,7 @@ begin
     end else begin
       tbxStatusBar.Panels.Items[2].Caption := '';
     end;
+    Application.ProcessMessages;
   end;
 end;
 
@@ -429,8 +428,10 @@ end;
 
 procedure TfrmProgressDownload.UpdateTimerTimer(Sender: TObject);
 begin
-  CheckSessionAutosave;
-  UpdateProgressForm;
+  if UpdateTimer.Enabled then begin
+    CheckSessionAutosave;
+    UpdateProgressForm;
+  end;
 end;
 
 procedure TfrmProgressDownload.tbtmGotoMapClick(Sender: TObject);
