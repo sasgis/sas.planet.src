@@ -236,7 +236,7 @@ begin
     FStoped := true;
     btnPause.Caption := SAS_STR_Continue;
   end else begin
-    FStoped := false;
+    FStoped := False;
     btnPause.Caption := SAS_STR_Pause;
   end;
   FFinished := False;
@@ -251,7 +251,7 @@ end;
 destructor TfrmProgressDownload.Destroy;
 begin
   if Assigned(UpdateTimer) then begin
-    UpdateTimer.Enabled := false;
+    UpdateTimer.Enabled := False;
   end;
   if Assigned(FCancelNotifier) then begin
     FCancelNotifier.NextOperation;
@@ -269,7 +269,7 @@ procedure TfrmProgressDownload.btnPauseClick(Sender: TObject);
 begin
   if FStoped then begin
     FProgressInfo.Resume;
-    FStoped := false;
+    FStoped := False;
     btnPause.Caption := SAS_STR_Pause;
   end else begin
     FProgressInfo.Pause;
@@ -315,7 +315,7 @@ var
 begin
   VTotal := FProgressInfo.TotalToProcess;
   if VTotal > 0 then begin
-    VComplete := inttostr(round(FProgressInfo.Processed / VTotal * 100)) + '%';
+    VComplete := IntToStr(Round(FProgressInfo.Processed / VTotal * 100)) + '%';
   end else begin
     VComplete := '~%';
   end;
@@ -324,17 +324,17 @@ begin
 
   FProgressInfo.GetLastTileInfo(VZoom, VPoint, VSize);
 
-  tbxStatusBar.Panels.Items[0].Caption := 'z' + inttostr(VZoom + 1);
+  tbxStatusBar.Panels.Items[0].Caption := 'z' + IntToStr(VZoom + 1);
 
   if FProgressInfo.Finished then begin
     if not FFinished then begin
       FFinished := True;
-      UpdateTimer.Enabled := false;
+      UpdateTimer.Enabled := False;
       UpdateMemoProgressForm;
       Self.Caption := SAS_MSG_LoadComplete + ' ' + FFormCaption;
-      lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files;
-      lblProcessedValue.Caption := inttostr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
-      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
+      lblToProcessValue.Caption := IntToStr(VTotal) + ' ' + SAS_STR_Files;
+      lblProcessedValue.Caption := IntToStr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
+      lblDownloadedValue.Caption := IntToStr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
       lblSizeToFinishValue.Caption := GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
       FProgress.Max := VTotal;
@@ -349,15 +349,17 @@ begin
     end;
   end else begin
     UpdateMemoProgressForm;
-    if (FStoped) then begin
+    if FStoped then begin
       Self.Caption := Format(SAS_STR_Paused, [VComplete]) + ' ' + FFormCaption;
     end else begin
       Self.Caption := Format(SAS_STR_DownloadingCaption, [VComplete]) + ' ' + FFormCaption;
-      lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files;
-      lblProcessedValue.Caption := inttostr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
-      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
+
+      lblToProcessValue.Caption := IntToStr(VTotal) + ' ' + SAS_STR_Files;
+      lblProcessedValue.Caption := IntToStr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
+      lblDownloadedValue.Caption := IntToStr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
       lblSizeToFinishValue.Caption := GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
+
       FProgress.Max := VTotal;
       FProgress.Progress1 := FProgressInfo.Processed;
       FProgress.Progress2 := FProgressInfo.Downloaded;
@@ -378,11 +380,11 @@ end;
 
 procedure TfrmProgressDownload.UpdateMemoProgressForm;
 var
-  i: Cardinal;
+  I: Cardinal;
   VAddToMemo: String;
 begin
-  VAddToMemo := FProgressInfo.LogProvider.GetLastMessages(100, FLastLogID, i);
-  if i > 0 then begin
+  VAddToMemo := FProgressInfo.LogProvider.GetLastMessages(100, FLastLogID, I);
+  if I > 0 then begin
     if mmoLog.Lines.Count > 5000 then begin
       mmoLog.Lines.Clear;
     end;
@@ -398,7 +400,7 @@ var
   VValueConverter: IValueToStringConverter;
 begin
   if loaded = 0 then begin
-    result := '~ Kb';
+    Result := '~ Kb';
   end else begin
     VValueConverter := FValueToStringConverter.GetStatic;
     Result := VValueConverter.DataSizeConvert((len / loaded) * (loadAll - obrab));
@@ -410,17 +412,17 @@ function TfrmProgressDownload.GetTimeEnd(
   AElapsedTime: TDateTime
 ): String;
 var
-  dd: integer;
+  dd: Integer;
   VExpectedTime: TDateTime;
 begin
   if load = 0 then begin
-    result := '~';
+    Result := '~';
   end else begin
     VExpectedTime := AElapsedTime * (loadAll / load);
     dd := DaysBetween(AElapsedTime, VExpectedTime);
     Result := '';
     if dd > 0 then begin
-      Result := inttostr(dd) + ' days, ';
+      Result := IntToStr(dd) + ' days, ';
     end;
     Result := Result + FormatDateTime('hh:nn:ss', VExpectedTime - AElapsedTime);
   end;
@@ -586,7 +588,7 @@ procedure TfrmProgressDownload.FormClose(
   var Action: TCloseAction
 );
 begin
-  UpdateTimer.Enabled := false;
+  UpdateTimer.Enabled := False;
   FCancelNotifier.NextOperation;
   if FSessionFileNameBack <> '' then begin
     DeleteFile(FSessionFileNameBack);
