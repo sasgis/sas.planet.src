@@ -71,7 +71,7 @@ implementation
 
 uses
   SysUtils,
-  u_Dialogs,
+  u_ExceptionManager,
   u_ListenerByEvent,
   u_CmdLineArgProcessorAPI;
 
@@ -135,10 +135,7 @@ end;
 procedure TCmdLineArgProcessorAsync.Execute;
 var
   VRetCode: Integer;
-  VErrorMsg: string;
 begin
-  VErrorMsg := '';
-
   try
     if not IsMarkSystemOk then begin
       FStateEvent.WaitFor(INFINITE);
@@ -155,18 +152,13 @@ begin
     VRetCode := FCmdLineArgProcessor.Process(FRegionProcess);
 
     if VRetCode <> cCmdLineArgProcessorOk then begin
-      VErrorMsg :=
+      raise ECmdLineArgProcessorAsync.Create(
         FCmdLineArgProcessor.GetErrorFromCode(VRetCode) + #13#10 + #13#10 +
-        FCmdLineArgProcessor.GetArguments;
+        FCmdLineArgProcessor.GetArguments
+      );
     end;
   except
-    on E: Exception do begin
-      VErrorMsg := E.ClassName + ': ' + E.Message;
-    end;
-  end;
-
-  if VErrorMsg <> '' then begin
-    ShowErrorMessageSync(VErrorMsg);
+    TExceptionManager.ShowExceptionInfo;
   end;
 end;
 

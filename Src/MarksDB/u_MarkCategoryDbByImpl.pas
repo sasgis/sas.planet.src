@@ -174,10 +174,8 @@ begin
       Result := CategoryListToCategoryTree(AList);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -192,10 +190,8 @@ begin
       Result := VImpl.CategoryDB.GetCategoriesList;
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -212,10 +208,8 @@ begin
       Result := VImpl.CategoryDB.GetFirstCategoryByName(AName);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -242,10 +236,8 @@ begin
       Result := VImpl.CategoryDB.GetCategoryByNameCount(AName);
     end;
   except
-    on E: Exception do begin
-      Result := 0;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := 0;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -283,10 +275,8 @@ begin
       end;
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -323,10 +313,8 @@ begin
       end;
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -359,10 +347,8 @@ begin
       end;
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -391,10 +377,8 @@ begin
       end;
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -414,9 +398,7 @@ begin
     end;
     OnDbImplChange;
   except
-    on E: Exception do begin
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -435,9 +417,7 @@ begin
       VImpl.CategoryDB.SetAllCategoriesVisible(ANewVisible);
     end;
   except
-    on E: Exception do begin
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -488,10 +468,8 @@ begin
       Result := VImpl.CategoryDB.UpdateCategory(AOldCategory, ANewCategory);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -515,10 +493,8 @@ begin
       Result := VImpl.CategoryDB.UpdateCategoryList(AOldCategory, ANewCategory);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 

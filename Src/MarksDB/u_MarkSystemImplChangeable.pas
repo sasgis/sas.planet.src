@@ -183,10 +183,8 @@ begin
               VConfig.ImplConfig
             );
         except
-          on E: Exception do begin
-            VStatic := nil;
-            CatchException(E, FErrorNotifierInternal);
-          end;
+          VStatic := nil;
+          CatchException(FErrorNotifierInternal);
         end;
       end;
     end;

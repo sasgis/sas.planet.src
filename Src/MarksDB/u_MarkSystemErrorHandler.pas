@@ -24,34 +24,20 @@ unit u_MarkSystemErrorHandler;
 interface
 
 uses
-  SysUtils,
   i_Notifier;
 
-procedure CatchException(const E: Exception; const ANotifier: INotifierInternal);
+procedure CatchException(const AErrorNotifier: INotifierInternal);
 
 implementation
 
 uses
-  {$IFDEF EUREKALOG}
-  ExceptionLog,
-  ECore;
-  {$ELSE}
-  i_MarkSystemErrorMsg,
-  u_MarkSystemErrorMsg;
-  {$ENDIF}
+  u_ExceptionManager;
 
-procedure CatchException(const E: Exception; const ANotifier: INotifierInternal);
-{$IFNDEF EUREKALOG}
-var
-  VErrorMsg: IMarkSystemErrorMsg;
-{$ENDIF}
+procedure CatchException(const AErrorNotifier: INotifierInternal);
 begin
-  {$IFDEF EUREKALOG}
-  ShowLastExceptionData;
-  {$ELSE}
-  VErrorMsg := TMarkSystemErrorMsg.Create(E.ClassName + ': ' + E.Message);
-  ANotifier.Notify(VErrorMsg);
-  {$ENDIF}
+  TExceptionManager.ShowExceptionInfo;
+
+  AErrorNotifier.Notify(nil);
 end;
 
 end.

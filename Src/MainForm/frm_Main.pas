@@ -141,9 +141,6 @@ uses
   frm_FavoriteMapSetManager,
   u_CommonFormAndFrameParents;
 
-const
-  WM_INTERNAL_ERROR = WM_USER + 999;
-
 type
   TfrmMain = class(TCommonFormParent)
     map: TImage32;
@@ -1025,9 +1022,6 @@ type
 
     FSunCalcProvider: ISunCalcProvider;
 
-    FInternalErrorListener: IListener;
-    FInternalErrorNotifier: INotifier;
-
     FFavoriteMapSetMenu: TFavoriteMapSetMenu;
     FFavoriteMapSetHelper: IFavoriteMapSetHelper;
     FFavoriteMapSetHotKeyList: IFavoriteMapSetHotKeyList;
@@ -1086,7 +1080,6 @@ type
     Procedure WMCopyData(Var Msg: TMessage); Message WM_COPYDATA;
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
     procedure WMFriendOrFoeMessage(var Msg: TMessage); message u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
-    procedure WMInternalError(var Msg: TMessage); message WM_INTERNAL_ERROR;
 
     procedure ProcessViewGridTileCellClick(const ATag: Integer);
 
@@ -1162,7 +1155,6 @@ type
 
     procedure ProcessOpenFiles(const AFiles: IStringListStatic);
 
-    procedure OnInternalErrorNotify(const AMsg: IInterface);
     procedure SwitchSunCalc(const ACalcType: TSunCalcDataProviderType);
     procedure OnEditMarkPosition(const AMark: IVectorDataItem);
     procedure OnElevationMetaWriterResult(const ALine: IGeometryLonLatLine);
@@ -1216,7 +1208,6 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_InternalPerformanceCounter,
-  i_MarkSystemErrorMsg,
   i_MarkId,
   i_MapType,
   i_MapTypeSet,
@@ -1803,12 +1794,6 @@ begin
 
   FPanelPositionSaveLoad := TPanelsPositionsSaveLoad.Create(FStateConfigDataProvider);
 
-  FInternalErrorListener := TNotifyEventListener.Create(Self.OnInternalErrorNotify);
-  FInternalErrorNotifier := GState.MarksDb.ErrorNotifier;
-  if Assigned(FInternalErrorNotifier) then begin
-    FInternalErrorNotifier.Add(FInternalErrorListener);
-  end;
-
   TBEditPath.Floating := True;
   TBEditPath.MoveOnScreen(True);
   TBEditPath.FloatingPosition := Point(Left + map.Left + 30, Top + map.Top + 70);
@@ -1879,9 +1864,6 @@ end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  if Assigned(FInternalErrorNotifier) and Assigned(FInternalErrorListener) then begin
-    FInternalErrorNotifier.Remove(FInternalErrorListener);
-  end;
   if tbxpmnSearchResult.Tag <> 0 then begin
     IInterface(tbxpmnSearchResult.Tag)._Release;
     tbxpmnSearchResult.Tag := 0;
@@ -4246,28 +4228,6 @@ end;
 procedure TfrmMain.WMFriendOrFoeMessage(var Msg: TMessage);
 begin
   Msg.Result := u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
-end;
-
-procedure TfrmMain.WMInternalError(var Msg: TMessage);
-var
-  VMsg: IInterface;
-  VMarkSystemError: IMarkSystemErrorMsg;
-begin
-  VMsg := IInterface(Msg.WParam);
-  if Supports(VMsg, IMarkSystemErrorMsg, VMarkSystemError) then begin
-    ShowErrorMessage(Handle, VMarkSystemError.ErrorText);
-  end;
-  if Assigned(VMsg) then begin
-    VMsg._Release;
-  end;
-end;
-
-procedure TfrmMain.OnInternalErrorNotify(const AMsg: IInterface);
-begin
-  if Assigned(AMsg) then begin
-    AMsg._AddRef;
-    PostMessage(Self.Handle, WM_INTERNAL_ERROR, WPARAM(Pointer(AMsg)), 0);
-  end;
 end;
 
 procedure TfrmMain.ZoomToolBarDockChanging(

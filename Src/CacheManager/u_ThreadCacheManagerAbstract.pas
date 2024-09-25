@@ -53,11 +53,7 @@ implementation
 
 uses
   SysUtils,
-  {$IFDEF EUREKALOG}
-  ExceptionLog,
-  {$ELSE}
-  u_Dialogs,
-  {$ENDIF}
+  u_ExceptionManager,
   u_ReadableThreadNames,
   u_ListenerByEvent;
 
@@ -97,13 +93,7 @@ begin
   try
     Process;
   except
-    {$IFDEF EUREKALOG}
-    ShowLastExceptionData;
-    {$ELSE}
-    on E: Exception do begin
-      ShowErrorMessageSync(E.ClassName + ': ' + E.Message);
-    end;
-    {$ENDIF}
+    TExceptionManager.ShowExceptionInfo;
   end;
 end;
 

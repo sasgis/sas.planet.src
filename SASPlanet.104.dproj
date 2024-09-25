@@ -1428,6 +1428,7 @@
         <DCCReference Include="Src\Debug\u_BaseInterfacedObjectDebug.pas"/>
         <DCCReference Include="Src\Debug\u_DebugInfoSubSystem.pas"/>
         <DCCReference Include="Src\Debug\u_DebugInfoWindow.pas"/>
+        <DCCReference Include="Src\Debug\u_ExceptionManager.pas"/>
         <DCCReference Include="Src\Debug\u_InternalDebugConfig.pas"/>
         <DCCReference Include="Src\GPS\i_GPS.pas"/>
         <DCCReference Include="Src\GPS\i_GPSConfig.pas"/>
@@ -1454,10 +1455,12 @@
         <DCCReference Include="Src\GPS\u_GpsTrackRecorder.pas"/>
         <DCCReference Include="Src\GeoCalc\i_DistanceCalculator.pas"/>
         <DCCReference Include="Src\GeoCalc\i_GeoCalc.pas"/>
+        <DCCReference Include="Src\GeoCalc\i_GeoCalcConfig.pas"/>
         <DCCReference Include="Src\GeoCalc\i_PolygonAreaCalculator.pas"/>
         <DCCReference Include="Src\GeoCalc\u_DistanceCalculatorByGeographicLib.pas"/>
         <DCCReference Include="Src\GeoCalc\u_DistanceCalculatorByVincentyAlgorithm.pas"/>
         <DCCReference Include="Src\GeoCalc\u_GeoCalc.pas"/>
+        <DCCReference Include="Src\GeoCalc\u_GeoCalcConfig.pas"/>
         <DCCReference Include="Src\GeoCalc\u_PolygonAreaCalculator.pas"/>
         <DCCReference Include="Src\GeoCoder\c_GeoCoderGUIDSimple.pas"/>
         <DCCReference Include="Src\GeoCoder\i_GeoCoder.pas"/>
@@ -2071,7 +2074,6 @@
         <DCCReference Include="Src\MarksDB\i_MarkNameGenerator.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkSystem.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkSystemConfig.pas"/>
-        <DCCReference Include="Src\MarksDB\i_MarkSystemErrorMsg.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkSystemImpl.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkSystemImplChangeable.pas"/>
         <DCCReference Include="Src\MarksDB\i_MarkSystemImplConfig.pas"/>
@@ -2120,7 +2122,6 @@
         <DCCReference Include="Src\MarksDB\u_MarkSystem.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkSystemConfig.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkSystemErrorHandler.pas"/>
-        <DCCReference Include="Src\MarksDB\u_MarkSystemErrorMsg.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkSystemHelpers.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkSystemImplChangeable.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkSystemImplConfigBase.pas"/>

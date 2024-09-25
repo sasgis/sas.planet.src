@@ -19,17 +19,39 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_MarkSystemErrorMsg;
+unit u_ExceptionManager;
 
 interface
 
 type
-  IMarkSystemErrorMsg = interface
-    ['{B37800DC-6638-4145-92C3-370878AC41B7}']
-    function GetErrorText: string;
-    property ErrorText: string read GetErrorText;
+  TExceptionManager = record
+    class procedure ShowExceptionInfo; static;
   end;
 
 implementation
+
+uses
+  {$IF DEFINED(EUREKALOG)}
+  ExceptionLog,
+  ECore;
+  {$ELSEIF DEFINED(MADEXCEPT)}
+  madExcept;
+  {$ELSE}
+  SysUtils;
+  {$IFEND}
+
+{ TExceptionManager }
+
+class procedure TExceptionManager.ShowExceptionInfo;
+begin
+  {$IF DEFINED(EUREKALOG)}
+  //ForceApplicationTermination(tbTerminate);
+  ShowLastExceptionData;
+  {$ELSEIF DEFINED(MADEXCEPT)}
+  madExcept.HandleException;
+  {$ELSE}
+  SysUtils.ShowException(ExceptObject, ExceptAddr);
+  {$IFEND}
+end;
 
 end.

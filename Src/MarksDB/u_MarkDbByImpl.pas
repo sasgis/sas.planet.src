@@ -191,10 +191,8 @@ begin
       Result := VImpl.MarkDb.GetAllMarkIdList;
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -219,10 +217,8 @@ begin
       Result := VImpl.MarkDb.GetMarkByID(AMarkId);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -240,10 +236,8 @@ begin
       Result := VImpl.MarkDb.GetFirstMarkByName(AName, ACategory);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -260,10 +254,8 @@ begin
       Result := VImpl.MarkDb.GetMarkIdListByCategory(ACategory);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -281,10 +273,8 @@ begin
       Result := VImpl.MarkDb.GetMarkSubsetByCategory(ACategory, AIncludeHiddenMarks);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -304,10 +294,8 @@ begin
       Result := VImpl.MarkDb.GetMarkSubsetByCategoryInRect(ARect, ACategory, AIncludeHiddenMarks, ALonLatSize);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -325,10 +313,8 @@ begin
       Result := VImpl.MarkDb.GetMarkSubsetByCategoryList(ACategoryList, AIncludeHiddenMarks);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -348,10 +334,8 @@ begin
       Result := VImpl.MarkDb.GetMarkSubsetByCategoryListInRect(ARect, ACategoryList, AIncludeHiddenMarks, ALonLatSize);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -371,10 +355,8 @@ begin
       Result := VImpl.MarkDb.FindMarks(ASearch, AMaxCount, AIncludeHiddenMarks, ASearchInDescription);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -389,10 +371,8 @@ begin
       Result := VImpl.MarkDb.GetMarkVisible(AMark);
     end;
   except
-    on E: Exception do begin
-      Result := True;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := True;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -407,10 +387,8 @@ begin
       Result := VImpl.MarkDb.GetMarkVisibleByID(AMark);
     end;
   except
-    on E: Exception do begin
-      Result := True;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := True;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -429,9 +407,7 @@ begin
       FNotifier.Add(FDbImplChangeListener);
     end;
   except
-    on E: Exception do begin
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -453,9 +429,7 @@ begin
       VImpl.MarkDb.SetAllMarksInCategoryVisible(ACategory, ANewVisible);
     end;
   except
-    on E: Exception do begin
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -472,9 +446,7 @@ begin
       VImpl.MarkDb.SetMarkVisible(AMark, AVisible);
     end;
   except
-    on E: Exception do begin
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -491,9 +463,7 @@ begin
       VImpl.MarkDb.SetMarkVisibleByID(AMark, AVisible);
     end;
   except
-    on E: Exception do begin
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -510,9 +480,7 @@ begin
       VImpl.MarkDb.SetMarkVisibleByIDList(AMarkList, AVisible);
     end;
   except
-    on E: Exception do begin
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -528,9 +496,7 @@ begin
       VImpl.MarkDb.ToggleMarkVisibleByIDList(AMarkList);
     end;
   except
-    on E: Exception do begin
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -545,10 +511,8 @@ begin
       Result := VImpl.MarkDb.UpdateMark(AOldMark, ANewMark);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 
@@ -565,10 +529,8 @@ begin
       Result := VImpl.MarkDb.UpdateMarkList(AOldMarkList, ANewMarkList);
     end;
   except
-    on E: Exception do begin
-      Result := nil;
-      CatchException(E, FErrorNotifierInternal);
-    end;
+    Result := nil;
+    CatchException(FErrorNotifierInternal);
   end;
 end;
 

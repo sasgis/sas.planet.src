@@ -164,12 +164,9 @@ uses
   Windows,
   Math,
   SysUtils,
-  {$IFDEF EUREKALOG}
-  ExceptionLog,
-  ECore,
-  {$ENDIF}
   t_GeoTypes,
   u_GeoFunc,
+  u_ExceptionManager,
   u_ReadableThreadNames,
   u_TileIteratorByRect;
 
@@ -217,14 +214,8 @@ end;
 
 procedure TWorkingThread.Execute;
 begin
-  {$IFDEF EUREKALOG}
+  SetCurrentThreadName(FDebugName);
   try
-  {$ENDIF}
-    inherited;
-    SetCurrentThreadName(FDebugName);
-    if Terminated then begin
-      Exit;
-    end;
     while not Terminated do begin
       FStartEvent.WaitFor(INFINITE);
       if not Terminated then begin
@@ -233,12 +224,9 @@ begin
         FFinishEvent.SetEvent;
       end;
     end;
-  {$IFDEF EUREKALOG}
   except
-    ForceApplicationTermination(tbTerminate);
-    ShowLastExceptionData;
+    TExceptionManager.ShowExceptionInfo;
   end;
-  {$ENDIF}
 end;
 
 { TImageLineProviderMultiThreadAbstract }

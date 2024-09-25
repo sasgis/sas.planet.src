@@ -73,9 +73,7 @@ implementation
 {.$DEFINE LOG_EVN_OPERATIONS}
 
 uses
-  {$IFDEF EUREKALOG}
-  ExceptionLog,
-  {$ENDIF}
+  u_ExceptionManager,
   u_FileSystemFunc,
   u_InterfaceListSimple,
   u_ListenerByEvent,
@@ -83,9 +81,7 @@ uses
 
 procedure TryShowLastExceptionData;
 begin
-  {$IFDEF EUREKALOG}
-  ShowLastExceptionData;
-  {$ENDIF}
+  TExceptionManager.ShowExceptionInfo;
 end;
 
 { TGlobalBerkeleyDBHelper }

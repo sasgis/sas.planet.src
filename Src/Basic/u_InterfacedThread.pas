@@ -62,10 +62,7 @@ type
 implementation
 
 uses
-  {$IFDEF EUREKALOG}
-  ExceptionLog,
-  ECore,
-  {$ENDIF}
+  u_ExceptionManager,
   u_ListenerByEvent,
   u_ReadableThreadNames;
 
@@ -224,20 +221,14 @@ end;
 
 procedure TThread4InterfacedThread.Execute;
 begin
-  {$IFDEF EUREKALOG}
+  SetCurrentThreadName(FDebugName);
   try
-  {$ENDIF}
-    inherited;
-    SetCurrentThreadName(FDebugName);
     if not Terminated then begin
       FExec;
     end;
-  {$IFDEF EUREKALOG}
   except
-    ForceApplicationTermination(tbTerminate);
-    ShowLastExceptionData;
+    TExceptionManager.ShowExceptionInfo;
   end;
-  {$ENDIF}
 end;
 
 procedure TThread4InterfacedThread.Start(const ARef: IInterface);
