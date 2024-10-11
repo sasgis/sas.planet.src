@@ -19,3 +19,12 @@ if (!reg.test(dpr)){
 	dprFile.write(dpr);
 	dprFile.Close();
 }
+
+var dproj = ReadFile(fso, "SASPlanet.dproj");
+var reg = /(<DCC_Define>DEBUG)(.*?)(<\/DCC_Define>)/i;
+if (reg.test(dproj)){
+	dproj = dproj.replace(reg, '$1$2;MADEXCEPT$3');
+	var dprojFile = fso.OpenTextFile("SASPlanet.dproj", 2, false);
+	dprojFile.write(dproj);
+	dprojFile.Close();
+}

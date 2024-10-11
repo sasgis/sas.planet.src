@@ -1,8 +1,8 @@
 @echo off
 cd ..\
-git rev-list master --count > ".\Tools\revision.txt" 
+git rev-list --count master > ".\Tools\revision.txt" 
 cscript .\Tools\CreateVersionInfo.js
-call .\Tools\CreateBuildInfo.cmd "Stable" %~dp0..\ %~dp0..\..\sas.requires
+call .\Tools\CreateBuildInfo.cmd "Stable" %~dp0..\ %~dp0..\..\
 cd .\Resources
 call Build.Resources.cmd
 cd ..\

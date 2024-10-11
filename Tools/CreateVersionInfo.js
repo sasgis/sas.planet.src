@@ -26,7 +26,9 @@ var fso = WScript.CreateObject("Scripting.FileSystemObject");
 var RevisionString = ReadFile(fso, "./Tools/revision.txt");
     if (RevisionString == "") {
         RevisionString = "0";
-    } 
+    }
+    RevisionString = RevisionString.replace(/[\r\n]/g, "");
+
 var now = new Date();
 var VersionInfoString = DateToVersionInfoString(now) + "," + RevisionString; 
 var VersionInfoRc = ReadFile(fso, "./Resources/Version/Version.rc");

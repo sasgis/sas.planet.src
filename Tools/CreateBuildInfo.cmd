@@ -1,3 +1,4 @@
+@echo off
 
 set BuildType=%1
 set SrcPath="%2"
@@ -17,7 +18,7 @@ echo %sas_date%
 rem Get sources revision and node hash
 cd %SrcPath%
 
-for /f "delims=" %%a in ('git rev-list master --count') do @set SrcRev=%%a
+for /f "delims=" %%a in ('git rev-list --count master') do @set SrcRev=%%a
 IF NOT ERRORLEVEL 0 goto error
 echo %SrcRev%
 
@@ -26,16 +27,32 @@ IF NOT ERRORLEVEL 0 goto error
 echo %SrcNode%
 
 rem Get requires revision and node hash
-cd %ReqPath%
 
-for /f "delims=" %%a in ('hg log --template {rev} -r .') do @set ReqRev=%%a
+if exist %ReqPath%sas.requires\ (
+  cd %ReqPath%sas.requires\
+  goto req
+) else (
+  if exist %ReqPath%requires\ (
+    cd %ReqPath%requires\
+    goto req
+  ) else (
+    set ReqRev=0
+	set ReqNode=0
+	echo "Unable to find requires folder"
+	goto save
+  )
+)
+
+:req
+for /f "delims=" %%a in ('git rev-list --count master') do @set ReqRev=%%a
 IF NOT ERRORLEVEL 0 goto error
 echo %ReqRev%
 
-for /f "delims=" %%a in ('hg log --template {node} -r .') do @set ReqNode=%%a
+for /f "delims=" %%a in ('git rev-parse master') do @set ReqNode=%%a
 IF NOT ERRORLEVEL 0 goto error
 echo %ReqNode%
 
+:save
 rem Save build info to csv-file
 echo 1,%sas_date%,%BuildType%,%SrcRev%,%SrcNode%,%ReqRev%,%ReqNode%, > %CSV%
 
