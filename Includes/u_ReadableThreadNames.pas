@@ -37,11 +37,19 @@ procedure SetCurrentThreadName(const AName: string);
 var
   VName: AnsiString;
   VInfo: TThreadNameInfo;
+  VIsDebuggerPresent: Boolean;
 begin
   // This code is extremely strange, but it's the documented way of doing it
-  // https://docs.microsoft.com/en-us/visualstudio/debugger/how-to-set-a-thread-name-in-native-code
+  // https://learn.microsoft.com/en-us/visualstudio/debugger/tips-for-debugging-threads
 
-  if not IsDebuggerPresent or (AName = '') then begin
+  VIsDebuggerPresent :=
+    {$IF DEFINED(EUREKALOG) OR DEFINED(MADEXCEPT)}
+    True;
+    {$ELSE}
+    IsDebuggerPresent;
+    {$IFEND}
+
+  if not VIsDebuggerPresent or (AName = '') then begin
     Exit;
   end;
 
