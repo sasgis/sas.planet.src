@@ -7,13 +7,13 @@
 
     `git clone https://github.com/sasgis/sas.planet.src`
     
-3. Download and extract all files from [latest release](https://bitbucket.org/sas_team/sas.planet.bin/downloads/) into *sas.planet.src\\.bin*
+3. Download and extract all files from [latest release](https://bitbucket.org/sas_team/sas.planet.bin/downloads/) into `sas.planet.src\.bin\win32` (or `win64` for x64 target)
 
-4. Download and extract all files from [latest nightly build](https://bitbucket.org/sas_team/sas.planet.bin/downloads/) into *sas.planet.src\\.bin* (overwrite existing files)
+4. Download and extract all files from [latest nightly build](https://bitbucket.org/sas_team/sas.planet.bin/downloads/) into `sas.planet.src\.bin\win32` (overwrite existing files)
 
-5. Update maps: execute *sas.planet.src\\.bin\Maps\sas.maps\Update.cmd*
+5. Update maps: execute `sas.planet.src\.bin\win32\Maps\sas.maps\Update.cmd`
 
-6. Now you can open `*.dproj` file (for example: *sas.planet.src\SASPlanet.104.dproj* for Delphi 10.4) and compile it!
+6. Now you can open `SASPlanet.dproj` and compile it!
 
 ---
 
