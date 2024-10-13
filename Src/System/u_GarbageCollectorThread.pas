@@ -60,6 +60,7 @@ implementation
 
 uses
   SysUtils,
+  u_ExceptionManager,
   u_ListenerByEvent,
   u_ReadableThreadNames;
 
@@ -107,15 +108,19 @@ var
   VContext: TInternalPerformanceCounterContext;
 begin
   SetCurrentThreadName(Self.ClassName);
-  while not Terminated do begin
-    VContext := FCounter.StartOperation;
-    try
-      VNow := GetTickCount;
-      FNotifier.Notify(VNow);
-    finally
-      FCounter.FinishOperation(VContext);
+  try
+    while not Terminated do begin
+      VContext := FCounter.StartOperation;
+      try
+        VNow := GetTickCount;
+        FNotifier.Notify(VNow);
+      finally
+        FCounter.FinishOperation(VContext);
+      end;
+      SleepCancelable(FSleepTime);
     end;
-    SleepCancelable(FSleepTime);
+  except
+    TExceptionManager.ShowExceptionInfo;
   end;
 end;
 

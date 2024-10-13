@@ -86,6 +86,7 @@ implementation
 uses
   SysUtils,
   i_DownloadResult,
+  u_ExceptionManager,
   u_NotifierOperation,
   u_TileRequestTask,
   u_ReadableThreadNames,
@@ -158,28 +159,32 @@ var
   VSoftCancelNotifier: INotifierOneOperation;
 begin
   SetCurrentThreadName(Self.ClassName);
-  Randomize;
-  if FMapType.TileDownloadSubsystem.State.GetStatic.Enabled then begin
-    VOperationID := FCancelNotifier.CurrentOperation;
-    VSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(FCancelNotifier, VOperationID);
-    VTask :=
-      FMapType.TileDownloadSubsystem.GetRequestTask(
-        VSoftCancelNotifier,
-        FCancelNotifier,
-        VOperationID,
-        FTaskFinishNotifier,
-        FTile,
-        FZoom,
-        FVersion,
-        False
-      );
-    if VTask <> nil then begin
-      FGlobalInternetState.IncQueueCount;
-      FTileRequestResult := nil;
-      FMapType.TileDownloadSubsystem.Download(VTask);
-      FFinishEvent.WaitFor(INFINITE);
-      ProcessResult(FTileRequestResult);
+  try
+    Randomize;
+    if FMapType.TileDownloadSubsystem.State.GetStatic.Enabled then begin
+      VOperationID := FCancelNotifier.CurrentOperation;
+      VSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(FCancelNotifier, VOperationID);
+      VTask :=
+        FMapType.TileDownloadSubsystem.GetRequestTask(
+          VSoftCancelNotifier,
+          FCancelNotifier,
+          VOperationID,
+          FTaskFinishNotifier,
+          FTile,
+          FZoom,
+          FVersion,
+          False
+        );
+      if VTask <> nil then begin
+        FGlobalInternetState.IncQueueCount;
+        FTileRequestResult := nil;
+        FMapType.TileDownloadSubsystem.Download(VTask);
+        FFinishEvent.WaitFor(INFINITE);
+        ProcessResult(FTileRequestResult);
+      end;
     end;
+  except
+    TExceptionManager.ShowExceptionInfo;
   end;
 end;
 

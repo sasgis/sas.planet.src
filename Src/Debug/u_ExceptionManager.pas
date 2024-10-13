@@ -32,7 +32,6 @@ implementation
 
 uses
   {$IF DEFINED(EUREKALOG)}
-  Classes,
   EBase;
   {$ELSEIF DEFINED(MADEXCEPT)}
   madExcept;
@@ -45,15 +44,7 @@ uses
 class procedure TExceptionManager.ShowExceptionInfo;
 begin
   {$IF DEFINED(EUREKALOG)}
-  var E := System.AcquireExceptionObject;
-  try
-    TThread.Synchronize(nil, procedure
-    begin
-      EBase.HandleException(E);
-    end);
-  finally
-    E.Free;
-  end;
+  EBase.HandleException;
   {$ELSEIF DEFINED(MADEXCEPT)}
   madExcept.HandleException;
   {$ELSE}

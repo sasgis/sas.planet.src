@@ -89,6 +89,7 @@ uses
   Math,
   gnugettext,
   c_InternalBrowser,
+  u_ExceptionManager,
   u_Notifier,
   u_NotifierOperation,
   u_Synchronizer,
@@ -151,11 +152,15 @@ end;
 procedure TCalcAreaThread.Execute;
 begin
   SetCurrentThreadName(Self.ClassName);
-  FArea := FGeoCalc.CalcPolygonArea(FPoly, FCancelNotifier, FOperationID);
-  if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-    Terminate;
-  end else begin
-    Synchronize(OnFinishSync);
+  try
+    FArea := FGeoCalc.CalcPolygonArea(FPoly, FCancelNotifier, FOperationID);
+    if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+      Terminate;
+    end else begin
+      Synchronize(OnFinishSync);
+    end;
+  except
+    TExceptionManager.ShowExceptionInfo;
   end;
 end;
 

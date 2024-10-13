@@ -65,6 +65,7 @@ implementation
 
 uses
   u_Synchronizer,
+  u_ExceptionManager,
   u_UpdateCheckerFunc;
 
 { TUpdateCheckerThread }
@@ -119,17 +120,21 @@ var
   I: TUpdateSource;
   VResult: TUpdateCheckerResult;
 begin
-  FIsFinished.ResetEvent;
+  try
+    FIsFinished.ResetEvent;
 
-  SetLength(FResults, 0);
-  for I := Low(FChecker) to High(FChecker) do begin
-    FChecker[I].Perform(FOperationID);
+    SetLength(FResults, 0);
+    for I := Low(FChecker) to High(FChecker) do begin
+      FChecker[I].Perform(FOperationID);
+    end;
+
+    FIsFinished.WaitFor(INFINITE);
+
+    VResult := TUpdateCheckerFunc.LatestResultFromArray(FResults);
+    FUpdateCheckerProgress.SetResult(FOperationID, VResult);
+  except
+    TExceptionManager.ShowExceptionInfo;
   end;
-
-  FIsFinished.WaitFor(INFINITE);
-
-  VResult := TUpdateCheckerFunc.LatestResultFromArray(FResults);
-  FUpdateCheckerProgress.SetResult(FOperationID, VResult);
 end;
 
 procedure TUpdateCheckerThread.OnUpdateCheckerResult(
