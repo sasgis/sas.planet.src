@@ -89,11 +89,11 @@ var
 begin
   VPoly := BuildPolyLine(APoints, AWidth);
 
-  if not ABitmap.MeasuringMode then begin
+  if ABitmap.MeasuringMode then begin
+    ABitmap.Changed(MakeRect(PolygonBounds(VPoly), rrOutside));
+  end else begin
     PolygonFS(ABitmap, VPoly, AColor);
   end;
-
-  ABitmap.Changed(MakeRect(PolygonBounds(VPoly), rrOutside));
 end;
 
 end.
