@@ -60,7 +60,8 @@ uses
   StrUtils,
   Classes,
   c_InternalBrowser,
-  u_InetFunc;
+  u_InetFunc,
+  u_NetworkStrFunc;
 
 { TInternalDomainUrlHandler }
 
@@ -182,7 +183,7 @@ var
 begin
   Result := AUrl;
   InternalUrlToUrl(Result);
-  Result := URLDecode(Result);
+  Result := UrlDecode(Result);
   I := Length(Result);
   if Result[I] = '/' then begin
     SetLength(Result, I-1);

@@ -47,7 +47,9 @@ procedure DeleteHeaderValueUp(var AHeaders: RawByteString; const AUpName: RawByt
 procedure AddHeaderValue(var AHeaders: RawByteString; const AName, AValue: RawByteString);
 
 function GetResponseCode(const AHeaders: RawByteString): Cardinal;
-function URLEncode(const S: AnsiString): AnsiString;
+
+function UrlEncode(const S: AnsiString): AnsiString;
+function UrlDecode(const AUrl: string): string;
 
 type
   TNormTable = packed array[AnsiChar] of AnsiChar;
@@ -60,6 +62,8 @@ var
 implementation
 
 uses
+  Windows,
+  ShLwApi,
   SysUtils;
 
 function IdemPChar(p, up: PAnsiChar): Boolean;
@@ -313,7 +317,7 @@ begin
   end;
 end;
 
-function URLEncode(const S: AnsiString): AnsiString;
+function UrlEncode(const S: AnsiString): AnsiString;
 
   function DigitToHex(const ADigit: Integer): AnsiChar;
   begin
@@ -368,6 +372,33 @@ begin
       Result[J + 2] := DigitToHex(Ord(S[I]) mod 16);
       Inc(J, 3);
     end;
+  end;
+end;
+
+function UrlDecode(const AUrl: string): string;
+var
+  VLen: DWORD;
+  VRet: Integer;
+begin
+  Assert(AUrl <> '');
+
+  VLen := Length(AUrl);
+  SetLength(Result, VLen);
+
+  VRet := UrlUnescape(PChar(AUrl), PChar(Result), @VLen, 0);
+
+  if VRet = S_OK then begin
+    SetLength(Result, VLen);
+  end else if VRet = E_POINTER then begin
+    SetLength(Result, VLen);
+    VRet := UrlUnescape(PChar(AUrl), PChar(Result), @VLen, 0);
+    if VRet = S_OK then begin
+      SetLength(Result, VLen);
+    end else begin
+      RaiseLastOSError;
+    end;
+  end else begin
+    RaiseLastOSError;
   end;
 end;
 

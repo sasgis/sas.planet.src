@@ -23,13 +23,12 @@ unit u_InetFunc;
 
 interface
 
-procedure OpenUrlInBrowser(const URL: string);
+procedure OpenUrlInBrowser(const AUrl: string);
 procedure OpenFileInProgram(const AFullFileName: string; const AProgram: string);
 procedure OpenFileInDefaultProgram(const AFullFileName: string);
-procedure SelectFileInExplorer(const AFullFileName: String);
-procedure SelectPathInExplorer(const APath: string);
 
-function UrlDecode(const AUrl: string): string;
+procedure SelectFileInExplorer(const AFullFileName: string);
+procedure SelectPathInExplorer(const APath: string);
 
 implementation
 
@@ -37,94 +36,90 @@ uses
   Windows,
   ActiveX,
   ShellAPI,
-  ShLwApi,
   SysUtils;
 
-procedure ShellExecute(
+procedure RunShellExecuteEx(
   const AWnd: HWND;
-  const AOperation, AFileName: String;
-  const AParameters: String = '';
-  const ADirectory: String = '';
+  const AOperation: string;
+  const AFileName: string;
+  const AParameters: string = '';
+  const ADirectory: string = '';
   const AShowCmd: Integer = SW_SHOWNORMAL
 );
 var
-  ExecInfo: TShellExecuteInfo;
-  NeedUninitialize: Boolean;
+  VExecInfo: TShellExecuteInfo;
+  VNeedUninitialize: Boolean;
 begin
   Assert(AFileName <> '');
 
-  NeedUninitialize := SUCCEEDED(CoInitializeEx(nil, COINIT_APARTMENTTHREADED or COINIT_DISABLE_OLE1DDE));
+  VNeedUninitialize := SUCCEEDED(CoInitializeEx(nil, COINIT_APARTMENTTHREADED or COINIT_DISABLE_OLE1DDE));
   try
-    FillChar(ExecInfo, SizeOf(ExecInfo), 0);
-    ExecInfo.cbSize := SizeOf(ExecInfo);
+    FillChar(VExecInfo, SizeOf(VExecInfo), 0);
 
-    ExecInfo.Wnd := AWnd;
-    ExecInfo.lpVerb := Pointer(AOperation);
-    ExecInfo.lpFile := PChar(AFileName);
-    ExecInfo.lpParameters := Pointer(AParameters);
-    ExecInfo.lpDirectory := Pointer(ADirectory);
-    ExecInfo.nShow := AShowCmd;
-    ExecInfo.fMask := SEE_MASK_FLAG_DDEWAIT //SEE_MASK_NOASYNC { = SEE_MASK_FLAG_DDEWAIT для старых версий Delphi }
-                   or SEE_MASK_FLAG_NO_UI;
+    VExecInfo.cbSize := SizeOf(VExecInfo);
+    VExecInfo.Wnd := AWnd;
+    VExecInfo.lpVerb := PChar(AOperation);
+    VExecInfo.lpFile := PChar(AFileName);
+    VExecInfo.lpParameters := PChar(AParameters);
+    VExecInfo.lpDirectory := PChar(ADirectory);
+    VExecInfo.nShow := AShowCmd;
+    VExecInfo.fMask := SEE_MASK_FLAG_DDEWAIT or SEE_MASK_FLAG_NO_UI;
 
     {$WARN SYMBOL_PLATFORM OFF}
-    Win32Check(ShellExecuteEx(@ExecInfo));
+    Win32Check(ShellExecuteEx(@VExecInfo));
     {$WARN SYMBOL_PLATFORM ON}
   finally
-    if NeedUninitialize then begin
+    if VNeedUninitialize then begin
       CoUninitialize;
     end;
   end;
 end;
 
 procedure ExecCmdLine(const ACmdLine: string);
-const
-  ACmdShow: UINT = SW_SHOWNORMAL;
 var
   SI: TStartupInfo;
   PI: TProcessInformation;
-  CmdLine: string;
+  VCmdLine: string;
 begin
   Assert(ACmdLine <> '');
 
-  CmdLine := ACmdLine;
-
-  UniqueString(CmdLine);
+  VCmdLine := ACmdLine;
+  UniqueString(VCmdLine);
 
   FillChar(SI, SizeOf(SI), 0);
   FillChar(PI, SizeOf(PI), 0);
   SI.cb := SizeOf(SI);
   SI.dwFlags := STARTF_USESHOWWINDOW;
-  SI.wShowWindow := ACmdShow;
+  SI.wShowWindow := SW_SHOWNORMAL;
 
   SetLastError(ERROR_INVALID_PARAMETER);
   {$WARN SYMBOL_PLATFORM OFF}
-  Win32Check(CreateProcess(nil, PChar(CmdLine), nil, nil, False, CREATE_DEFAULT_ERROR_MODE {$IFDEF UNICODE}or CREATE_UNICODE_ENVIRONMENT{$ENDIF}, nil, nil, SI, PI));
+  Win32Check(CreateProcess(nil, PChar(VCmdLine), nil, nil, False, CREATE_DEFAULT_ERROR_MODE {$IFDEF UNICODE}or CREATE_UNICODE_ENVIRONMENT{$ENDIF}, nil, nil, SI, PI));
   {$WARN SYMBOL_PLATFORM ON}
   CloseHandle(PI.hThread);
   CloseHandle(PI.hProcess);
 end;
 
-procedure OpenUrlInBrowser(const URL: string);
+procedure OpenUrlInBrowser(const AUrl: string);
 begin
-  Assert(URL <> '');
-  ShellExecute(0, '', URL);
+  Assert(AUrl <> '');
+  RunShellExecuteEx(0, '', AUrl);
 end;
 
 procedure OpenFileInProgram(const AFullFileName: string; const AProgram: string);
 begin
   Assert(AFullFileName <> '');
   Assert(AProgram <> '');
-  ShellExecute(0, '', AProgram, AFullFileName);
+  RunShellExecuteEx(0, '', AProgram, AFullFileName);
 end;
 
 procedure OpenFileInDefaultProgram(const AFullFileName: string);
 begin
   Assert(AFullFileName <> '');
-  ShellExecute(0, '', AFullFileName);
+  RunShellExecuteEx(0, '', AFullFileName);
 end;
 
-procedure SelectFileInExplorer(const AFullFileName: String);
+procedure SelectFileInExplorer(const AFullFileName: string);
 begin
   Assert(AFullFileName <> '');
   ExecCmdLine('explorer /select,' + AFullFileName);
@@ -134,33 +129,6 @@ procedure SelectPathInExplorer(const APath: string);
 begin
   Assert(APath <> '');
   ExecCmdLine('explorer /root,' + APath);
-end;
-
-function UrlDecode(const AUrl: string): string;
-var
-  VLen: DWORD;
-  VRet: Integer;
-begin
-  Assert(AUrl <> '');
-
-  VLen := Length(AUrl);
-  SetLength(Result, VLen);
-
-  VRet := UrlUnescape(PChar(AUrl), PChar(Result), @VLen, 0);
-
-  if VRet = S_OK then begin
-    SetLength(Result, VLen);
-  end else if VRet = E_POINTER then begin
-    SetLength(Result, VLen);
-    VRet := UrlUnescape(PChar(AUrl), PChar(Result), @VLen, 0);
-    if VRet = S_OK then begin
-      SetLength(Result, VLen);
-    end else begin
-      RaiseLastOSError;
-    end;
-  end else begin
-    RaiseLastOSError;
-  end;
 end;
 
 end.
