@@ -98,6 +98,9 @@ resourcestring
   rsNoDataRoute = 'The route cannot be built for the given profile.' + #13#10 +
                   'Not enough data in the database!';
 
+  rsNoDatabaseFmt = 'There is no database in: %s';
+  rsAdditionalInformationFmt = 'For additional information, see %s';
+
 type
   TOsmScoutRouteContext = class(TBaseInterfacedObject, IOsmScoutRouteContext)
   private
@@ -320,9 +323,31 @@ end;
 
 function TOsmScoutRouteContext.Acquire: Pointer;
 
+  function IsDatabaseInDir(const ADir: AnsiString): Boolean;
+  var
+    VDir: string;
+  begin
+    VDir := IncludeTrailingPathDelimiter(string(ADir));
+    Result := FileExists(VDir + 'types.dat') and FileExists(VDir + 'router.dat');
+  end;
+
+  function GetNoDatabaseErrorMessage: string;
+  var
+    VFileName: string;
+  begin
+    Result := Format(rsNoDatabaseFmt, [FDatabasePath]);
+
+    VFileName := FDatabasePath + 'readme.html';
+    if FileExists(VFileName) then begin
+      Result := Result + #13#10 + #13#10 +
+        Format(rsAdditionalInformationFmt, [VFileName]);
+    end;
+  end;
+
   procedure OptInitialize;
   var
     I: Integer;
+    VDir: AnsiString;
     VDataBasesCount: Integer;
     VDataBases: array of AnsiString;
     VDataBasesArr: array of PAnsiChar;
@@ -344,8 +369,13 @@ function TOsmScoutRouteContext.Acquire: Pointer;
           Continue;
         end;
 
+        VDir := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
+        if not IsDatabaseInDir(VDir) then begin
+          Continue;
+        end;
+
         SetLength(VDataBases, VDataBasesCount + 1);
-        VDataBases[VDataBasesCount] := FDatabasePath + StringToAnsiSafe(VSearchRec.Name);
+        VDataBases[VDataBasesCount] := VDir;
 
         Inc(VDataBasesCount);
       until FindNext(VSearchRec) <> 0;
@@ -353,11 +383,15 @@ function TOsmScoutRouteContext.Acquire: Pointer;
       FindClose(VSearchRec);
     end;
 
-    if VDataBasesCount = 0 then begin
+    if (VDataBasesCount = 0) and IsDatabaseInDir(FDatabasePath) then begin
       // no subfolders found, use root folder as a database
       SetLength(VDataBases, 1);
       VDataBases[0] := FDatabasePath;
       Inc(VDataBasesCount);
+    end;
+
+    if VDataBasesCount = 0 then begin
+      raise ELibOsmScoutRouteError.Create(GetNoDatabaseErrorMessage);
     end;
 
     SetLength(VDataBasesArr, VDataBasesCount);
