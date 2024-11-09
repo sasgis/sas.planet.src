@@ -272,7 +272,6 @@ begin
               VCombineInfo.TransparentColor := 0;
               VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
             finally
-              EMMS;
               VTransformer.Free;
             end;
           finally
