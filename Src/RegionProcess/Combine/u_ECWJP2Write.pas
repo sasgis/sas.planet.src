@@ -184,7 +184,7 @@ begin
       raise Exception.Create('ECW Encode: FileName string is too long!');
     end;
 
-    VNCSError := NCSEcwCompressOpen(VEcwData, False);
+    VNCSError := NCSEcwCompressOpenExt(VEcwData, False);
     if VNCSError = NCS_SUCCESS then begin
       VNCSError := NCSEcwCompress(VEcwData);
       if VNCSError = NCS_SUCCESS then begin

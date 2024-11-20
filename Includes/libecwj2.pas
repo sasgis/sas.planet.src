@@ -489,6 +489,8 @@ const
 
 procedure LoadLibEcw(const ALibName: string = libecwj2_dll);
 
+function NCSEcwCompressOpenExt(pInfo: Pointer; bCalculateSizesOnly: Boolean): NCSError;
+
 implementation
 
 uses
@@ -582,6 +584,24 @@ begin
   finally
     GLock.Release;
   end;
+end;
+
+function NCSEcwCompressOpenExt(pInfo: Pointer; bCalculateSizesOnly: Boolean): NCSError;
+
+  procedure _ClearStackFrame;
+  var
+    VArr: array[0..255] of Byte;
+  begin
+    FillChar(VArr, Length(VArr), 0);
+  end;
+
+begin
+  // workaround for the bug with missing initialization Info.fCWRotationDegrees in NCSEcwCompressOpen
+  // http://www.sasgis.org/mantis/view.php?id=2581
+  // https://github.com/sasgis/libecwj2/commit/a1b67f4a2bdedd9bb6a1e14a47a1584646b891ec
+  _ClearStackFrame;
+
+  Result := NCSEcwCompressOpen(pInfo, bCalculateSizesOnly);
 end;
 
 initialization
