@@ -674,9 +674,13 @@ const
 // TRANSLATION: HELPER TYPES...
 
 type
+  {$IF CompilerVersion <= 20}
+  NativeInt = Integer;
+  NativeUInt = Cardinal;
+  {$IFEND}
 
 // Translation: C library types
-  size_t = longword;
+  size_t = NativeUInt;
   time_t = int64;
 
 (*
@@ -799,7 +803,7 @@ type
   int32_t = integer;
   u_int32_t = longword;
   int64_t = int64;
-  u_int64_t = int64;
+  u_int64_t = uint64;
 
   u_char = byte;
   u_int = longword;
@@ -825,7 +829,7 @@ type
  * no unsigned type the same size as a pointer -- here's hoping.
  *)
   uintmax_t = u_int64_t;
-{$IFDEF _WIN64}
+{$IFDEF WIN64}
   uintptr_t = u_int64_t;
 {$ELSE}
   uintptr_t = u_int32_t;
@@ -837,7 +841,7 @@ type
  *)
   off_t = int64_t;
   pid_t = integer;
-{$IFDEF _WIN64}
+{$IFDEF WIN64}
   ssize_t = int64_t;
 {$ELSE}
   ssize_t = int32_t;
