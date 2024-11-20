@@ -123,7 +123,10 @@ end;
 
 function TBuildInfo.GetVersionDetaled: string;
 begin
-  Result := GetVersion + ' ' + FBuildType {$IFDEF DEBUG} + ' -= Debug =-' {$ENDIF};
+  Result :=
+    GetVersion + ' ' + FBuildType
+    {$IFDEF DEBUG} + ' -= Debug =-' {$ENDIF}
+    {$IFDEF WIN64} + ' (x64)'{$ENDIF};
 end;
 
 function TBuildInfo.GetBuildDate: TDateTime;
@@ -184,10 +187,12 @@ end;
 
 function TBuildInfo.GetDescription: string;
 begin
-  Result := 'Windows' + ', ' +
-    {$IFDEF WIN32}   '32-bit'  {$ELSE} '64-bit'      {$ENDIF} + ', ' +
-    {$IFDEF UNICODE} 'Unicode' {$ELSE} 'Non-Unicode' {$ENDIF}
-    {$IFDEF DEBUG} + ', ' + 'Debug'{$ENDIF}
+  Result := 'Windows'
+    {$IFDEF WIN32}     + ', 32-bit'  {$ELSE} + ', 64-bit'      {$ENDIF}
+    {$IFDEF UNICODE}   + ', Unicode' {$ELSE} + ', Non-Unicode' {$ENDIF}
+    {$IFDEF DEBUG}     + ', Debug'{$ENDIF}
+    {$IFDEF EUREKALOG} + ', EL' {$ENDIF}
+    {$IFDEF MADEXCEPT} + ', ME' {$ENDIF}
   ;
 end;
 
