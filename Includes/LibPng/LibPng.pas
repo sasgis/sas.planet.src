@@ -1,6 +1,7 @@
 unit LibPng;
 
 {$ALIGN ON}
+{$MINENUMSIZE 4}
 
 interface
 

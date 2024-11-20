@@ -11,8 +11,8 @@ type
   png_rw_io_stream = record
     DestStream: TStream;
     DestBuffer: Pointer;
-    DestBufferSize: Cardinal;
-    BufferedDataSize: Cardinal;
+    DestBufferSize: png_size_t;
+    BufferedDataSize: png_size_t;
   end;
   png_rw_io_stream_ptr = ^png_rw_io_stream;
 
@@ -36,10 +36,10 @@ begin
     rw_io_ptr.DestStream.WriteBuffer(data^, data_length);
   end else if (rw_io_ptr.BufferedDataSize + data_length) >= rw_io_ptr.DestBufferSize then begin // buffer is full
     FlashBuffer(rw_io_ptr);
-    CopyMemory(Pointer(Cardinal(rw_io_ptr.DestBuffer) + rw_io_ptr.BufferedDataSize), data, data_length);
+    CopyMemory(Pointer(UIntPtr(rw_io_ptr.DestBuffer) + rw_io_ptr.BufferedDataSize), data, data_length);
     Inc(rw_io_ptr.BufferedDataSize, data_length);
   end else begin // (rw_io_ptr.BufferedDataSize + data_length) < rw_io_ptr.DestBufferSize  // buffer is OK
-    CopyMemory(Pointer(Cardinal(rw_io_ptr.DestBuffer) + rw_io_ptr.BufferedDataSize), data, data_length);
+    CopyMemory(Pointer(UIntPtr(rw_io_ptr.DestBuffer) + rw_io_ptr.BufferedDataSize), data, data_length);
     Inc(rw_io_ptr.BufferedDataSize, data_length);
   end;
 end;
