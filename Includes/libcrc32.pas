@@ -8,7 +8,7 @@ const
 function crc32(
   const APrev: Cardinal;
   const AData: Pointer;
-  const ALength: Cardinal
+  const ALength: NativeUInt
 ): Cardinal; cdecl; external libcrc32_dll;
 
 implementation

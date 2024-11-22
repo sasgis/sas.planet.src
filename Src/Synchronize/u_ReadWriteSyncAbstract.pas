@@ -217,7 +217,8 @@ begin
   if (not DebugGlobalLocks_Enabled) then begin
     Exit;
   end;
-  VText := FLockClassName + ' at $' + IntToHex(Integer(Pointer(Self)), 8) + ' (from ' + FName + ')' + c_SEP + 'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP + AProcedure + c_SEP + AEvent;
+  VText := FLockClassName + ' at $' + Format('%p', [Pointer(Self)]) + ' (from ' + FName + ')' + c_SEP +
+    'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP + AProcedure + c_SEP + AEvent;
   OutputDebugString(PChar(VText));
 end;
 
