@@ -5,6 +5,9 @@ interface
 uses
   Windows;
 
+{$ALIGN ON}
+{$MINENUMSIZE 4}
+
 type
   PVOID = Pointer;
   PLPWSTR = ^LPWSTR;
@@ -28,8 +31,11 @@ type
   PLARGE_INTEGER = ^LARGE_INTEGER;
 
   IO_STATUS_BLOCK = packed record
-    Status: DWORD;
-    Information: ULONG;
+    Status: NTSTATUS;
+    {$IFDEF WIN64}
+    Reserved: DWORD;
+    {$ENDIF}
+    Information: ULONG_PTR;
   end;
   PIO_STATUS_BLOCK = ^IO_STATUS_BLOCK;
 
