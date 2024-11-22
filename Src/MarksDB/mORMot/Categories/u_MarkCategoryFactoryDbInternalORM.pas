@@ -32,7 +32,7 @@ uses
 type
   TMarkCategoryFactoryDbInternalORM = class(TBaseInterfacedObject, IMarkCategoryFactoryDbInternalORM)
   private
-    FDbId: Integer;
+    FDbId: NativeInt;
   private
     function CreateCategory(
       const AId: TID;
@@ -46,7 +46,7 @@ type
       const ACategoryRec: TSQLCategoryRec
     ): IMarkCategory; overload;
   public
-    constructor Create(const ADbId: Integer);
+    constructor Create(const ADbId: NativeInt);
   end;
 
 implementation
@@ -56,7 +56,7 @@ uses
 
 { TMarkCategoryFactoryDbInternalORM }
 
-constructor TMarkCategoryFactoryDbInternalORM.Create(const ADbId: Integer);
+constructor TMarkCategoryFactoryDbInternalORM.Create(const ADbId: NativeInt);
 begin
   inherited Create;
   FDbId := ADbId;

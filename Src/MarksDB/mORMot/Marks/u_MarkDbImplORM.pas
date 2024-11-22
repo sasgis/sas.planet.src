@@ -59,7 +59,7 @@ type
     IMarkDbImpl
   )
   private
-    FDbId: Integer;
+    FDbId: NativeInt;
     FClient: TSQLRestClient;
     FHelper: TMarkDbImplORMHelper;
     FStateInternal: IReadWriteStateInternal;
@@ -198,7 +198,7 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
-      const ADbId: Integer;
+      const ADbId: NativeInt;
       const ACacheSizeMb: Cardinal;
       const AStateInternal: IReadWriteStateInternal;
       const AClientProvider: IMarkSystemImplORMClientProvider;
@@ -223,7 +223,7 @@ uses
   u_MarkSystemORMModel;
 
 constructor TMarkDbImplORM.Create(
-  const ADbId: Integer;
+  const ADbId: NativeInt;
   const ACacheSizeMb: Cardinal;
   const AStateInternal: IReadWriteStateInternal;
   const AClientProvider: IMarkSystemImplORMClientProvider;

@@ -49,7 +49,7 @@ type
     IMarkCategoryDBImpl
   )
   private
-    FDbId: Integer;
+    FDbId: NativeInt;
     FClient: TSQLRestClient;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternalORM;
     FHelper: TMarkCategoryDbImplORMHelper;
@@ -85,7 +85,7 @@ type
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
   public
     constructor Create(
-      const ADbId: Integer;
+      const ADbId: NativeInt;
       const AStateInternal: IReadWriteStateInternal;
       const AClientProvider: IMarkSystemImplORMClientProvider
     );
@@ -107,7 +107,7 @@ uses
   u_MarkCategoryFactoryDbInternalORM;
 
 constructor TMarkCategoryDbImplORM.Create(
-  const ADbId: Integer;
+  const ADbId: NativeInt;
   const AStateInternal: IReadWriteStateInternal;
   const AClientProvider: IMarkSystemImplORMClientProvider
 );

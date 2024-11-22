@@ -39,7 +39,7 @@ type
     FName: string;
     FDesc: string;
     FId: Integer;
-    FDbId: Integer;
+    FDbId: NativeInt;
     FCategory: ICategory;
     FCategoryId: Integer;
     FVisible: Boolean;
@@ -61,7 +61,7 @@ type
     function GetMultiGeometryCount: Integer;
   protected
     function GetId: Integer;
-    function GetDbId: integer;
+    function GetDbId: NativeInt;
     function GetCategory: ICategory;
     function GetCategoryId: Integer;
     function GetVisible: Boolean;
@@ -77,7 +77,7 @@ type
       const AName: string;
       const ADesc: string;
       AId: Integer;
-      ADbId: Integer;
+      ADbId: NativeInt;
       AMultiGeometryCount: Integer;
       const ACategory: ICategory;
       AVisible: Boolean
@@ -100,7 +100,7 @@ constructor TMarkId.Create(
   const AName: string;
   const ADesc: string;
   AId: Integer;
-  ADbId: Integer;
+  ADbId: NativeInt;
   AMultiGeometryCount: Integer;
   const ACategory: ICategory;
   AVisible: Boolean
@@ -138,7 +138,7 @@ begin
   Result := FCategoryId;
 end;
 
-function TMarkId.GetDbId: integer;
+function TMarkId.GetDbId: NativeInt;
 begin
   Result := FDbId;
 end;

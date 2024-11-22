@@ -32,7 +32,7 @@ type
   private
     FTimer: ITimer;
     FMainThreadID: THandle;
-    FId: Integer;
+    FId: NativeInt;
     FName: string;
 
     FCounter: Cardinal;
@@ -87,7 +87,7 @@ constructor TInternalPerformanceCounter.Create(
 begin
   Assert(Assigned(ATimer));
   inherited Create;
-  FId := Integer(Self);
+  FId := NativeInt(Self);
   FMainThreadID := AMainThreadID;
   FName := AName;
   FTimer := ATimer;

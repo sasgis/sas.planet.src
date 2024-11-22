@@ -44,7 +44,7 @@ uses
 type
   TMarkCategoryDBSml = class(TConfigDataElementBaseEmptySaveLoad, IMarkCategoryDBSmlInternal, IMarkCategoryDBImpl)
   private
-    FDbId: Integer;
+    FDbId: NativeInt;
     FStateInternal: IReadWriteStateInternal;
     FStream: TStream;
 
@@ -92,7 +92,7 @@ type
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
   public
     constructor Create(
-      const ADbId: Integer;
+      const ADbId: NativeInt;
       const AStateInternal: IReadWriteStateInternal;
       const ADataStream: TStream;
       const AUseUnicodeSchema: Boolean;
@@ -117,7 +117,7 @@ uses
   u_MarkCategoryFactorySmlDbInternal;
 
 constructor TMarkCategoryDBSml.Create(
-  const ADbId: Integer;
+  const ADbId: NativeInt;
   const AStateInternal: IReadWriteStateInternal;
   const ADataStream: TStream;
   const AUseUnicodeSchema: Boolean;
@@ -461,15 +461,15 @@ end;
 function TMarkCategoryDBSml.GetFirstCategoryByName(const AName: string): IMarkCategory;
 var
   VEnum: IEnumID;
-  i: Cardinal;
-  VId: Integer;
+  I: Cardinal;
+  VId: NativeInt;
   VCategory: IMarkCategory;
 begin
   Result := nil;
   LockRead;
   try
     VEnum := FList.GetIDEnum;
-    while VEnum.Next(1, VId, i) = S_OK do begin
+    while VEnum.Next(1, VId, I) = S_OK do begin
       VCategory := IMarkCategory(FList.GetByID(VId));
       if SameStr(VCategory.Name, AName) then begin
         Result := VCategory;
@@ -484,7 +484,7 @@ end;
 function TMarkCategoryDBSml.GetCategoryByNameCount(const AName: string): Integer;
 var
   I: Cardinal;
-  VId: Integer;
+  VId: NativeInt;
   VEnum: IEnumID;
   VCategory: IMarkCategory;
 begin
@@ -537,8 +537,8 @@ end;
 function TMarkCategoryDBSml.GetCategoriesList: IMarkCategoryList;
 var
   VEnum: IEnumID;
-  i: Cardinal;
-  VId: Integer;
+  I: Cardinal;
+  VId: NativeInt;
   VCategory: IMarkCategory;
   VTemp: IInterfaceListSimple;
 begin
@@ -547,7 +547,7 @@ begin
   LockRead;
   try
     VEnum := FList.GetIDEnum;
-    while VEnum.Next(1, VId, i) = S_OK do begin
+    while VEnum.Next(1, VId, I) = S_OK do begin
       VCategory := IMarkCategory(FList.GetByID(VId));
       VTemp.Add(VCategory);
     end;

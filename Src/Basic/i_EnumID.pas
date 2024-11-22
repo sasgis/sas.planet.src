@@ -27,9 +27,9 @@ type
   IEnumID = interface(IUnknown)
     ['{3467515E-78E8-4F90-9578-879F3EB734FB}']
     function Next(
-      celt: LongWord;
-      out rgelt: Integer;
-      out pceltFetched: LongWord
+      celt: LongWord;             // The number of items to be retrieved
+      out rgelt: NativeInt;       // An array of enumerated items
+      out pceltFetched: LongWord  // The number of items that were retrieved
     ): HResult; stdcall;
     function Skip(celt: LongWord): HResult; stdcall;
     function Reset: HResult; stdcall;

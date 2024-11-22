@@ -53,7 +53,7 @@ type
   TMarkSystemImplORM = class(TBaseInterfacedObject, IMarkSystemImpl)
   private
     FState: IReadWriteStateChangeble;
-    FDbId: Integer;
+    FDbId: NativeInt;
     FMarkDbImpl: IMarkDbImpl;
     FMarkDbInternal: IMarkDbInternalORM;
     FCategoryDBImpl: IMarkCategoryDBImpl;
@@ -136,7 +136,7 @@ var
   VImplConfig: IMarkSystemImplConfigORM;
 begin
   inherited Create;
-  FDbId := Integer(Self);
+  FDbId := NativeInt(Self);
 
   if not Supports(AImplConfig, IMarkSystemImplConfigORM, VImplConfig) then begin
     raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Impl config interface!');

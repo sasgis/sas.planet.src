@@ -72,9 +72,9 @@ end;
 function TInternalPerformanceCounterListForDebug.GetCounterByClass(
   AClass: TClass): IInternalPerformanceCounterListForDebugOneClass;
 var
-  VId: Integer;
+  VId: NativeInt;
 begin
-  VId := Integer(AClass);
+  VId := NativeInt(AClass);
   FCS.BeginRead;
   try
     Result := IInternalPerformanceCounterListForDebugOneClass(FList.GetByID(VId));

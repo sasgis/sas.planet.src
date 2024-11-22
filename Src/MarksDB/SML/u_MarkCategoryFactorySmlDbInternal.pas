@@ -31,7 +31,7 @@ uses
 type
   TMarkCategoryFactorySmlDbInternal = class(TBaseInterfacedObject, IMarkCategoryFactoryDbInternal)
   private
-    FDbId: Integer;
+    FDbId: NativeInt;
   private
     function CreateCategory(
       AId: Integer;
@@ -41,7 +41,7 @@ type
       ABeforeScale: integer
     ): IMarkCategory;
   public
-    constructor Create(const ADbId: Integer);
+    constructor Create(const ADbId: NativeInt);
   end;
 
 implementation
@@ -51,7 +51,7 @@ uses
 
 { TMarkCategoryFactorySmlDbInternal }
 
-constructor TMarkCategoryFactorySmlDbInternal.Create(const ADbId: Integer);
+constructor TMarkCategoryFactorySmlDbInternal.Create(const ADbId: NativeInt);
 begin
   inherited Create;
   FDbId := ADbId;

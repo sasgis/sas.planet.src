@@ -29,7 +29,7 @@ uses
 type
   TInternalPerformanceCounterStaticData = class(TInterfacedObject, IInternalPerformanceCounterStaticData)
   private
-    FId: Integer;
+    FId: NativeInt;
     FName: string;
     FCounter: Cardinal;
     FTotalTime: TDateTime;
@@ -39,7 +39,7 @@ type
     FMinTime: TDateTime;
     FLastTime: TDateTime;
   private
-    function GetId: Integer;
+    function GetId: NativeInt;
     function GetName: string;
     function GetCounter: Cardinal;
     function GetTotalTime: TDateTime;
@@ -50,7 +50,7 @@ type
     function GetLastTime: TDateTime;
   public
     constructor Create(
-      const AId: Integer;
+      const AId: NativeInt;
       const AName: string;
       const ACounter: Cardinal;
       const ATotalTime: TDateTime;
@@ -67,7 +67,7 @@ implementation
 { TInternalPerformanceCounterStaticData }
 
 constructor TInternalPerformanceCounterStaticData.Create(
-  const AId: Integer;
+  const AId: NativeInt;
   const AName: string;
   const ACounter: Cardinal;
   const ATotalTime: TDateTime;
@@ -100,7 +100,7 @@ begin
   Result := FCounterInMain;
 end;
 
-function TInternalPerformanceCounterStaticData.GetId: Integer;
+function TInternalPerformanceCounterStaticData.GetId: NativeInt;
 begin
   Result := FId;
 end;

@@ -55,7 +55,7 @@ uses
 type
   TMarkDbSml = class(TConfigDataElementBaseEmptySaveLoad, IMarkDbSmlInternal, IMarkDbImpl)
   private
-    FDbId: Integer;
+    FDbId: NativeInt;
     FStateInternal: IReadWriteStateInternal;
     FStream: TStream;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -197,7 +197,7 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
-      const ADbId: Integer;
+      const ADbId: NativeInt;
       const AStateInternal: IReadWriteStateInternal;
       const ADataStream: TStream;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -230,7 +230,7 @@ uses
   u_SimpleFlagWithInterlock;
 
 constructor TMarkDbSml.Create(
-  const ADbId: Integer;
+  const ADbId: NativeInt;
   const AStateInternal: IReadWriteStateInternal;
   const ADataStream: TStream;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;

@@ -273,7 +273,7 @@ end;
 procedure TMarkSystemConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 var
   I: Cardinal;
-  VId: Integer;
+  VId: NativeInt;
   VCount: Integer;
   VEnum: IEnumID;
   VConfId: string;
@@ -389,7 +389,7 @@ end;
 procedure TMarkSystemConfig.DeleteByID(const AID: Integer);
 var
   I: Cardinal;
-  VId: Integer;
+  VId: NativeInt;
   VEnum: IEnumID;
 begin
   LockWrite;
@@ -464,7 +464,7 @@ end;
 function TMarkSystemConfig.GetIDListStatic: IInterfaceListStatic;
 var
   I: Cardinal;
-  VId: Integer;
+  VId: NativeInt;
   VEnum: IEnumID;
   VItem: IMarkSystemConfigStatic;
   VResultList: IInterfaceListSimple;

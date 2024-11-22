@@ -52,7 +52,7 @@ type
   TMarkSystemSml = class(TBaseInterfacedObject, IMarkSystemImpl)
   private
     FState: IReadWriteStateChangeble;
-    FDbId: Integer;
+    FDbId: NativeInt;
 
     FMarkDbImpl: IMarkDbImpl;
     FMarkDbInternal: IMarkDbSmlInternal;
@@ -149,7 +149,7 @@ var
   VName, VPath: string;
 begin
   inherited Create;
-  FDbId := Integer(Self);
+  FDbId := NativeInt(Self);
   VState := TReadWriteStateInternal.Create(True, not AImplConfig.IsReadOnly);
   FState := VState;
   VStateInternal := VState;

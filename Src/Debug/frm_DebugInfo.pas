@@ -465,7 +465,7 @@ var
   VSortMeasureDouble: array of Double;
   I: Integer;
   VPrevData, VCurrData: IInternalPerformanceCounterStaticData;
-  VId: Integer;
+  VId: NativeInt;
   VValueInteger: Integer;
   VValueDouble: Double;
 begin
@@ -525,7 +525,7 @@ procedure TfrmDebugInfo.UpdateGrid;
 var
   I: Integer;
   VLastRow: Integer;
-  VId: Integer;
+  VId: NativeInt;
   VName: string;
   VCurrStaticData: IInterfaceListStatic;
   VPrevData, VCurrData: IInternalPerformanceCounterStaticData;

@@ -28,8 +28,8 @@ type
 
   IInternalPerformanceCounterStaticData = interface
     ['{64BD3E69-4EAB-41CE-8A87-8324FE9E81D2}']
-    function GetId: Integer;
-    property Id: Integer read GetId;
+    function GetId: NativeInt;
+    property Id: NativeInt read GetId;
 
     function GetName: string;
     property Name: string read GetName;

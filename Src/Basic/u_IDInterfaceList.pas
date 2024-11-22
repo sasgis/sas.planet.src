@@ -31,7 +31,7 @@ uses
 
 type
   TInterfaceWithId = record
-    Id: Integer;
+    Id: NativeInt;
     Obj: IInterface;
   end;
 
@@ -46,24 +46,24 @@ type
     procedure Delete(Index: Integer); override;
     procedure Insert(
       Index: Integer;
-      AID: Integer;
+      AID: NativeInt;
       const AObj: IInterface
     );
-    function GetItemId(Index: Integer): Integer; override;
+    function GetItemId(Index: Integer): NativeInt; override;
   public
     // Добавление объекта. Если объект с таким ID уже есть, то заменяться не будет
     // Возвращает хранимый объект
     function Add(
-      AID: Integer;
+      AID: NativeInt;
       const AInterface: IInterface
     ): IInterface;
 
     // Получение объекта по ID
-    function GetByID(AID: Integer): IInterface;
+    function GetByID(AID: NativeInt): IInterface;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
     procedure Replace(
-      AID: Integer;
+      AID: NativeInt;
       const AInterface: IInterface
     );
     function GetEnumUnknown: IEnumUnknown;
@@ -84,12 +84,12 @@ type
     FRef: IInterface;
     FList: PInterfaceWithIdList;
     FCount: Integer;
-    FCurrentIndex: integer;
+    FCurrentIndex: Integer;
   private
     function Next(
-      celt: Longint;
-      out elt;
-      pceltFetched: PLongint
+      celt: Longint;         // The number of items to be retrieved
+      out elt;               // An array of enumerated items
+      pceltFetched: PLongint // The number of items that were retrieved
     ): HResult; stdcall;
     function Skip(celt: Longint): HResult; stdcall;
     function Reset: HResult; stdcall;
@@ -136,7 +136,7 @@ var
   i: integer;
   Vp: ^IInterface;
 begin
-  pceltFetched^ := min(celt, FCount - FCurrentIndex);
+  pceltFetched^ := Math.Min(celt, FCount - FCurrentIndex);
   Vp := @elt;
   if pceltFetched^ > 0 then begin
     for i := 0 to pceltFetched^ - 1 do begin
@@ -171,7 +171,7 @@ end;
 { TIDInterfaceList }
 
 function TIDInterfaceList.Add(
-  AID: Integer;
+  AID: NativeInt;
   const AInterface: IInterface
 ): IInterface;
 var
@@ -202,7 +202,7 @@ begin
   end;
 end;
 
-function TIDInterfaceList.GetByID(AID: Integer): IInterface;
+function TIDInterfaceList.GetByID(AID: NativeInt): IInterface;
 var
   VIndex: Integer;
 begin
@@ -218,13 +218,14 @@ begin
   Result := TIDListEnumUnknown.Create(Self, Addr(FList), FCount);
 end;
 
-function TIDInterfaceList.GetItemID(Index: Integer): Integer;
+function TIDInterfaceList.GetItemID(Index: Integer): NativeInt;
 begin
   Result := FList[Index].ID;
 end;
 
 procedure TIDInterfaceList.Insert(
-  Index, AID: Integer;
+  Index: Integer;
+  AID: NativeInt;
   const AObj: IInterface
 );
 begin
@@ -245,7 +246,7 @@ begin
 end;
 
 procedure TIDInterfaceList.Replace(
-  AID: Integer;
+  AID: NativeInt;
   const AInterface: IInterface
 );
 var

@@ -40,7 +40,7 @@ uses
 type
   TMarkFactorySmlDbInternal = class(TBaseInterfacedObject, IMarkFactorySmlInternal)
   private
-    FDbId: Integer;
+    FDbId: NativeInt;
     FHashFunction: IHashFunction;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMarkFactory: IMarkFactory;
@@ -97,7 +97,7 @@ type
     function CreateInternalMark(const AMark: IVectorDataItem): IVectorDataItem;
   public
     constructor Create(
-      const ADbId: Integer;
+      const ADbId: NativeInt;
       const AMarkPictureList: IMarkPictureList;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
@@ -135,7 +135,7 @@ end;
 { TMarkFactorySmlDbInternal }
 
 constructor TMarkFactorySmlDbInternal.Create(
-  const ADbId: Integer;
+  const ADbId: NativeInt;
   const AMarkPictureList: IMarkPictureList;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;

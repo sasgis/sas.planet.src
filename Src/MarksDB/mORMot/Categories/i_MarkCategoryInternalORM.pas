@@ -32,8 +32,8 @@ type
     function GetID: TID;
     property ID: TID read GetID;
 
-    function GetDbId: Integer;
-    property DbId: Integer read GetDbId;
+    function GetDbId: NativeInt;
+    property DbId: NativeInt read GetDbId;
   end;
 
 implementation

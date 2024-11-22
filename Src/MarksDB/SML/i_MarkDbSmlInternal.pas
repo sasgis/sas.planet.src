@@ -33,8 +33,8 @@ type
     function GetId: Integer;
     property Id: Integer read GetId;
 
-    function GetDbId: integer;
-    property DbId: integer read GetDbId;
+    function GetDbId: NativeInt;
+    property DbId: NativeInt read GetDbId;
 
     function GetCategoryId: Integer;
     property CategoryId: Integer read GetCategoryId;
@@ -49,11 +49,11 @@ type
 
   IMarkCategorySMLInternal = interface
     ['{08E68E71-FD75-4E7F-953F-485F034525AA}']
-    function GetId: integer;
-    property Id: integer read GetId;
+    function GetId: Integer;
+    property Id: Integer read GetId;
 
-    function GetDbId: integer;
-    property DbId: integer read GetDbId;
+    function GetDbId: NativeInt;
+    property DbId: NativeInt read GetDbId;
   end;
 
   IMarkDbSmlInternal = interface

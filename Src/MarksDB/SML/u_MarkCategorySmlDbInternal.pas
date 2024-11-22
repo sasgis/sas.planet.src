@@ -33,30 +33,30 @@ type
   TMarkCategorySmlDbInternal = class(TBaseInterfacedObject, ICategory, IMarkCategory, IMarkCategorySMLInternal)
   private
     FId: Integer;
-    FDbId: Integer;
+    FDbId: NativeInt;
     FName: string;
     FVisible: Boolean;
-    FAfterScale: integer;
-    FBeforeScale: integer;
+    FAfterScale: Integer;
+    FBeforeScale: Integer;
   private
-    function GetId: integer;
-    function GetDbId: integer;
+    function GetId: Integer;
+    function GetDbId: NativeInt;
   private
     function GetName: string;
     function IsSame(const ACategory: ICategory): Boolean;
     function IsEqual(const ACategory: ICategory): Boolean;
   private
     function GetVisible: boolean;
-    function GetAfterScale: integer;
-    function GetBeforeScale: integer;
+    function GetAfterScale: Integer;
+    function GetBeforeScale: Integer;
   public
     constructor Create(
       AId: Integer;
-      ADbId: Integer;
+      ADbId: NativeInt;
       const AName: string;
       AVisible: Boolean;
-      AAfterScale: integer;
-      ABeforeScale: integer
+      AAfterScale: Integer;
+      ABeforeScale: Integer
     );
   end;
 
@@ -69,7 +69,7 @@ uses
 
 constructor TMarkCategorySmlDbInternal.Create(
   AId: Integer;
-  ADbId: Integer;
+  ADbId: NativeInt;
   const AName: string;
   AVisible: Boolean;
   AAfterScale, ABeforeScale: Integer
@@ -89,22 +89,22 @@ begin
   FBeforeScale := ABeforeScale;
 end;
 
-function TMarkCategorySmlDbInternal.GetAfterScale: integer;
+function TMarkCategorySmlDbInternal.GetAfterScale: Integer;
 begin
   Result := FAfterScale;
 end;
 
-function TMarkCategorySmlDbInternal.GetBeforeScale: integer;
+function TMarkCategorySmlDbInternal.GetBeforeScale: Integer;
 begin
   Result := FBeforeScale;
 end;
 
-function TMarkCategorySmlDbInternal.GetDbId: integer;
+function TMarkCategorySmlDbInternal.GetDbId: NativeInt;
 begin
   Result := FDbId;
 end;
 
-function TMarkCategorySmlDbInternal.GetId: integer;
+function TMarkCategorySmlDbInternal.GetId: Integer;
 begin
   Result := FId;
 end;

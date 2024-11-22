@@ -33,8 +33,8 @@ type
     function GetId: TID;
     property Id: TID read GetId;
 
-    function GetDbId: Integer;
-    property DbId: Integer read GetDbId;
+    function GetDbId: NativeInt;
+    property DbId: NativeInt read GetDbId;
 
     function GetCategoryId: TID;
     property CategoryId: TID read GetCategoryId;

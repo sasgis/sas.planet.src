@@ -39,7 +39,7 @@ type
   )
   private
     FId: TID;
-    FDbId: Integer;
+    FDbId: NativeInt;
     FName: string;
     FVisible: Boolean;
     FAfterScale: Integer;
@@ -47,7 +47,7 @@ type
   private
     { IMarkCategoryInternalORM }
     function GetId: TID;
-    function GetDbId: Integer;
+    function GetDbId: NativeInt;
   private
     { ICategory }
     function GetName: string;
@@ -61,7 +61,7 @@ type
   public
     constructor Create(
       const AId: TID;
-      const ADbId: Integer;
+      const ADbId: NativeInt;
       const AName: string;
       const AVisible: Boolean;
       const AAfterScale: Integer;
@@ -78,7 +78,7 @@ uses
 
 constructor TMarkCategoryDbInternalORM.Create(
   const AId: TID;
-  const ADbId: Integer;
+  const ADbId: NativeInt;
   const AName: string;
   const AVisible: Boolean;
   const AAfterScale: Integer;
@@ -109,7 +109,7 @@ begin
   Result := FBeforeScale;
 end;
 
-function TMarkCategoryDbInternalORM.GetDbId: Integer;
+function TMarkCategoryDbInternalORM.GetDbId: NativeInt;
 begin
   Result := FDbId;
 end;

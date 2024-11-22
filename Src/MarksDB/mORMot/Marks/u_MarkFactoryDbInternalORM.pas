@@ -43,7 +43,7 @@ uses
 type
   TMarkFactoryDbInternalORM = class(TBaseInterfacedObject, IMarkFactoryDbInternalORM)
   private
-    FDbId: Integer;
+    FDbId: NativeInt;
     FHashFunction: IHashFunction;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMarkFactory: IMarkFactory;
@@ -111,7 +111,7 @@ type
     ): IVectorDataItem;
   public
     constructor Create(
-      const ADbId: Integer;
+      const ADbId: NativeInt;
       const AMarkPictureList: IMarkPictureList;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
@@ -135,7 +135,7 @@ uses
 { TMarkFactoryDbInternalORM }
 
 constructor TMarkFactoryDbInternalORM.Create(
-  const ADbId: Integer;
+  const ADbId: NativeInt;
   const AMarkPictureList: IMarkPictureList;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;

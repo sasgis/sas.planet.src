@@ -38,12 +38,12 @@ type
     procedure SetCount(NewCount: Integer); virtual; abstract;
     function GetCount: Integer;
     procedure Delete(Index: Integer); virtual; abstract;
-    function GetItemId(Index: Integer): Integer; virtual; abstract;
+    function GetItemId(Index: Integer): NativeInt; virtual; abstract;
     function Find(
-      AId: Integer;
+      AId: NativeInt;
       var Index: Integer
     ): Boolean; virtual;
-    function CompareID(const I1, I2: Integer): Integer; inline;
+    function CompareID(const I1, I2: NativeInt): Integer; inline;
   protected
     class procedure Error(
       const Msg: string;
@@ -55,16 +55,16 @@ type
     ); overload;
 
     // Проверка наличия ID в списке
-    function IsExists(AId: Integer): boolean; virtual;
+    function IsExists(AId: NativeInt): Boolean; virtual;
 
     // Удаление объекта, если нет с таким Id, то ничего не будет происходить
-    procedure Remove(AId: Integer); virtual;
+    procedure Remove(AId: NativeInt); virtual;
 
     // Очитска списка
     procedure Clear; virtual;
 
     // Получение итератора ID
-    function GetIDEnum(): IEnumID; virtual;
+    function GetIDEnum: IEnumID; virtual;
     property Capacity: Integer read FCapacity write SetCapacity;
     property Count: Integer read GetCount write SetCount;
   public
@@ -91,11 +91,11 @@ type
   TIDListEnum = class(TInterfacedObject, IEnumID)
   private
     FIDList: TIDListBase;
-    FCurrentIndex: integer;
+    FCurrentIndex: Integer;
   private
     function Next(
       celt: LongWord;
-      out rgelt: Integer;
+      out rgelt: NativeInt;
       out pceltFetched: LongWord
     ): HResult; stdcall;
     function Skip(celt: LongWord): HResult; stdcall;
@@ -126,14 +126,14 @@ end;
 
 function TIDListEnum.Next(
   celt: LongWord;
-  out rgelt: Integer;
+  out rgelt: NativeInt;
   out pceltFetched: LongWord
 ): HResult;
 var
   i: integer;
-  VpID: PInteger;
+  VpID: PNativeInt;
 begin
-  pceltFetched := min(celt, FIDList.Count - FCurrentIndex);
+  pceltFetched := Math.Min(celt, FIDList.Count - FCurrentIndex);
   VpID := @rgelt;
   if pceltFetched > 0 then begin
     for i := 0 to pceltFetched - 1 do begin
@@ -173,7 +173,7 @@ begin
   SetCapacity(0);
 end;
 
-function TIDListBase.CompareID(const I1, I2: Integer): Integer;
+function TIDListBase.CompareID(const I1, I2: NativeInt): Integer;
 begin
   if I1 > I2 then begin
     Result := 1;
@@ -226,7 +226,7 @@ begin
 end;
 
 function TIDListBase.Find(
-  AId: Integer;
+  AId: NativeInt;
   var Index: Integer
 ): Boolean;
 var
@@ -277,14 +277,14 @@ begin
   SetCapacity(FCapacity + Delta);
 end;
 
-function TIDListBase.IsExists(AId: Integer): boolean;
+function TIDListBase.IsExists(AId: NativeInt): Boolean;
 var
   VIndex: Integer;
 begin
   Result := Find(AID, VIndex);
 end;
 
-procedure TIDListBase.Remove(AId: Integer);
+procedure TIDListBase.Remove(AId: NativeInt);
 var
   VIndex: Integer;
 begin

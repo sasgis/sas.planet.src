@@ -33,30 +33,30 @@ type
     // Добавление объекта. Если объект с таким ID уже есть, то заменяться не будет
     // Возвращает хранимый объект
     function Add(
-      AID: Integer;
+      AID: NativeInt;
       const AInterface: IInterface
     ): IInterface;
 
     // Проверка наличия ID в списке
-    function IsExists(AID: Integer): boolean;
+    function IsExists(AID: NativeInt): boolean;
 
     // Получение объекта по ID
-    function GetByID(AID: Integer): IInterface;
+    function GetByID(AID: NativeInt): IInterface;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
     procedure Replace(
-      AID: Integer;
+      AID: NativeInt;
       const AInterface: IInterface
     );
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
-    procedure Remove(AID: Integer);
+    procedure Remove(AID: NativeInt);
 
     // Очитска списка
     procedure Clear;
 
     // Получение итератора ID
-    function GetIDEnum(): IEnumID;
+    function GetIDEnum: IEnumID;
     function GetEnumUnknown: IEnumUnknown;
 
     procedure SetCount(NewCount: Integer);
@@ -70,30 +70,30 @@ type
     // Если список является владельцем объектов и переданный объект не равен хранимому, то он будет удален
     // Возвращает хранимый объект
     function Add(
-      AID: Integer;
+      AID: NativeInt;
       AObj: TObject
     ): TObject;
 
     // Проверка наличия ID в списке
-    function IsExists(AID: Integer): boolean;
+    function IsExists(AID: NativeInt): boolean;
 
     // Получение объекта по ID
-    function GetByGUID(AID: Integer): TObject;
+    function GetByGUID(AID: NativeInt): TObject;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
     procedure Replace(
-      AID: Integer;
+      AID: NativeInt;
       AObj: TObject
     );
 
     // Удаление объекта, если нет с таким ID, то ничего не будет происходить
-    procedure Remove(AID: Integer);
+    procedure Remove(AID: NativeInt);
 
     // Очитска списка
     procedure Clear;
 
     // Получение итератора ID
-    function GetIDEnum(): IEnumID;
+    function GetIDEnum: IEnumID;
 
     // Является ли этот список владельцем объектов
     function GetIsObjectOwner: Boolean;
