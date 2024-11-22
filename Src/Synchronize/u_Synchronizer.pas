@@ -36,4 +36,5 @@ uses
 
 initialization
   GSync := TSynchronizerSimple.Create(nil, False, False, False);
+
 end.

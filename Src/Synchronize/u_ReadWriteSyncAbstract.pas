@@ -139,9 +139,8 @@ type
     );
   end;
 
-
 var
-  DebugGlobalLocks_Enabled: Boolean;
+  GIsDebugGlobalLocksEnabled: Boolean;
 
 implementation
 
@@ -207,14 +206,13 @@ begin
   DoDebugGlobalLocks('BeginWrite', 'OUT');
 end;
 
-procedure TReadWriteSyncDebugWrapper.DoDebugGlobalLocks(const AProcedure,
-  AEvent: string);
+procedure TReadWriteSyncDebugWrapper.DoDebugGlobalLocks(const AProcedure, AEvent: string);
 const
   c_SEP: string = ', ' + Chr(VK_TAB);
 var
   VText: string;
 begin
-  if (not DebugGlobalLocks_Enabled) then begin
+  if not GIsDebugGlobalLocksEnabled then begin
     Exit;
   end;
   VText := FLockClassName + ' at $' + Format('%p', [Pointer(Self)]) + ' (from ' + FName + ')' + c_SEP +
@@ -355,9 +353,7 @@ begin
   FLockClassName := ALockClassName;
 end;
 
-function TSynchronizerFactoryWithDebug.Make(
-  const AName: string
-): IReadWriteSync;
+function TSynchronizerFactoryWithDebug.Make(const AName: string): IReadWriteSync;
 begin
   Result :=
     TReadWriteSyncDebugWrapper.Create(
@@ -388,8 +384,7 @@ begin
   FDestroyCounter := ADestroyCounter;
 end;
 
-function TSynchronizerFactoryWithCounters.Make(
-  const AName: string): IReadWriteSync;
+function TSynchronizerFactoryWithCounters.Make(const AName: string): IReadWriteSync;
 begin
   Result :=
     TReadWriteSyncCounterWrapper.Create(
@@ -416,8 +411,7 @@ begin
   FCounter := ACounter;
 end;
 
-function TSynchronizerFactoryWithMakeCounter.Make(
-  const AName: string): IReadWriteSync;
+function TSynchronizerFactoryWithMakeCounter.Make(const AName: string): IReadWriteSync;
 var
   VContext: TInternalPerformanceCounterContext;
 begin
@@ -437,5 +431,6 @@ begin
 end;
 
 initialization
-  DebugGlobalLocks_Enabled := FALSE;
+  GIsDebugGlobalLocksEnabled := False;
+
 end.
