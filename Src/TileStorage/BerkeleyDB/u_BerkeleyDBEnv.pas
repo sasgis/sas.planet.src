@@ -40,6 +40,7 @@ uses
 type
   TBerkeleyDBEnvAppPrivate = record
     FEnvRootPath: string;
+    FTryRemoveSharedFiles: Boolean;
     FHelper: IGlobalBerkeleyDBHelper;
     FMsgLogger: TBerkeleyDBMsgLogger;
   end;
@@ -50,8 +51,9 @@ type
     dbenv: PDB_ENV;
   private
     FAppPrivate: PBerkeleyDBEnvAppPrivate;
-    FActive: Boolean;
-    FLibInitOk: Boolean;
+    FIsOpened: Boolean;
+    FIsLibInitError: Boolean;
+    FIsEnvInitError: Boolean;
     FLastRemoveLogTime: Cardinal;
     FCS: TCriticalSection;
     FClientsCount: Integer;
@@ -60,7 +62,8 @@ type
     FIsFullVerboseMode: Boolean;
     FDatabasePageSize: Cardinal;
     FIsReadOnly: Boolean;
-    function Open: Boolean;
+    procedure DoOpen;
+    procedure DoRemoveSharedFiles;
     procedure MakeDefConfigFile(const AEnvHomePath: string);
     procedure RemoveUnUsedLogs;
     procedure TransactionCheckPoint;
@@ -92,12 +95,15 @@ implementation
 uses
   Windows,
   SysUtils,
+  IOUtils,
+  gnugettext,
   i_BinaryData,
   i_BerkeleyDBFactory,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
   u_BerkeleyDBPool,
-  u_BerkeleyDBFactory;
+  u_BerkeleyDBFactory,
+  u_Dialogs;
 
 const
   cBerkeleyDBEnvSubDir = 'env';
@@ -120,8 +126,14 @@ begin
     if Assigned(VEnvPrivate.FHelper) then begin
       VEnvPrivate.FHelper.LogException('[BDB ErrCall] ' + VMsg);
     end;
+    if Pos('Build signature doesn''t match environment', VMsg) > 0 then begin // do not localize
+      VMsg := VMsg + #13#10 + #13#10 +
+        _('Do you want to delete shared files __db.* and try again?');
+      VEnvPrivate.FTryRemoveSharedFiles := ShowErrorMessageSync(VMsg, MB_YESNO) = ID_YES;
+      Exit;
+    end;
   end;
-  raise EBerkeleyDBExeption.Create(VMsg);
+  ShowErrorMessageSync(VMsg);
 end;
 
 procedure BerkeleyDBMsgCall(
@@ -160,6 +172,7 @@ begin
 
   New(FAppPrivate);
   FAppPrivate.FEnvRootPath := AEnvRootPath;
+  FAppPrivate.FTryRemoveSharedFiles := False;
   FAppPrivate.FHelper := AGlobalBerkeleyDBHelper;
   FAppPrivate.FMsgLogger := TBerkeleyDBMsgLogger.Create(IncludeTrailingPathDelimiter(AEnvRootPath) + cVerboseMsgFileName);
 
@@ -180,10 +193,12 @@ begin
   FIsFullVerboseMode := AStorageConfig.IsFullVerboseMode;
   FDatabasePageSize := AStorageConfig.DatabasePageSize;
   FCS := TCriticalSection.Create;
-  FActive := False;
   FLastRemoveLogTime := 0;
   FClientsCount := 1;
-  FLibInitOk := InitBerkeleyDB;
+
+  FIsOpened := False;
+  FIsEnvInitError := False;
+  FIsLibInitError := not InitBerkeleyDB;
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
@@ -250,12 +265,21 @@ begin
   end;
 end;
 
-function TBerkeleyDBEnv.Open: Boolean;
+procedure TBerkeleyDBEnv.DoOpen;
 var
   VPath: string;
   VPathUtf8: UTF8String;
 begin
-  if not FActive and FLibInitOk then begin
+  if FIsEnvInitError or FIsLibInitError then begin
+    // do not try to reopen env on error
+    raise EBerkeleyDBExeption.Create(
+      'An error occurred during BerkeleyDB Env initialization!' + #13#10 +
+      Self.GetRootPath
+    );
+  end;
+
+  if not FIsOpened then
+  try
     Assert(FAppPrivate <> nil);
     VPath := FAppPrivate.FEnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
     VPathUtf8 := AnsiToUtf8(VPath);
@@ -322,9 +346,33 @@ begin
         0
       )
     );
-    FActive := True;
+    FIsOpened := True;
+  except
+    FIsEnvInitError := True;
+    if dbenv <> nil then begin
+      dbenv.close(dbenv, 0);
+      dbenv := nil;
+    end;
+    if FAppPrivate.FTryRemoveSharedFiles then begin
+      FAppPrivate.FTryRemoveSharedFiles := False;
+      DoRemoveSharedFiles;
+      FIsEnvInitError := False;
+      DoOpen; // try again
+    end else begin
+      raise;
+    end;
   end;
-  Result := FActive and FLibInitOk;
+end;
+
+procedure TBerkeleyDBEnv.DoRemoveSharedFiles;
+var
+  VFileName: string;
+begin
+  for VFileName in TDirectory.GetFiles(Self.GetRootPath + cBerkeleyDBEnvSubDir, '__db.*') do begin
+    if not DeleteFile(VFileName) then begin
+      RaiseLastOSError;
+    end;
+  end;
 end;
 
 procedure TBerkeleyDBEnv.RemoveUnUsedLogs;
@@ -334,7 +382,7 @@ begin
   end;
   FCS.Acquire;
   try
-    if FActive and FLibInitOk and (GetTickCount - FLastRemoveLogTime > 30000) then begin
+    if FIsOpened and (GetTickCount - FLastRemoveLogTime > 30000) then begin
       FLastRemoveLogTime := GetTickCount;
       CheckBDB(dbenv.log_archive(dbenv, nil, DB_ARCH_REMOVE));
     end;
@@ -350,7 +398,7 @@ begin
   Assert(not FIsReadOnly);
   FCS.Acquire;
   try
-    if FActive and FLibInitOk then begin
+    if FIsOpened then begin
       txn := nil;
       CheckBDB(dbenv.txn_begin(dbenv, nil, @txn, DB_TXN_NOWAIT));
       ATxn := txn;
@@ -373,7 +421,7 @@ begin
     ATxn := nil;
     FCS.Acquire;
     try
-      if FActive and FLibInitOk then begin
+      if FIsOpened then begin
         FTxnList.Remove(txn);
         CheckBDBandNil(txn.commit(txn, 0), txn);
       end;
@@ -393,7 +441,7 @@ begin
     ATxn := nil;
     FCS.Acquire;
     try
-      if FActive and FLibInitOk then begin
+      if FIsOpened then begin
         FTxnList.Remove(txn);
         CheckBDBandNil(txn.abort(txn), txn);
       end;
@@ -410,7 +458,7 @@ begin
   end;
   FCS.Acquire;
   try
-    if FActive and FLibInitOk then begin
+    if FIsOpened then begin
       CheckBDB(dbenv.txn_checkpoint(dbenv, 0, 0, DB_FORCE));
     end;
   finally
@@ -431,11 +479,8 @@ function TBerkeleyDBEnv.GetEnvironmentPointerForApi: Pointer;
 begin
   FCS.Acquire;
   try
-    if Open then begin
-      Result := dbenv;
-    end else begin
-      Result := nil;
-    end;
+    DoOpen;
+    Result := dbenv;
   finally
     FCS.Release;
   end;
@@ -464,7 +509,7 @@ end;
 function TBerkeleyDBEnv.Acquire(const ADatabaseFileName: string): IBerkeleyDB;
 begin
   Assert(FDatabasePool <> nil);
-  Result := FDatabasePool.Acquire(ADatabaseFileName, Self);
+  Result := FDatabasePool.Acquire(ADatabaseFileName, Self as IBerkeleyDBEnvironment);
   Assert(Result <> nil);
 end;
 
