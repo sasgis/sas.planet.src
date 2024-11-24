@@ -45,7 +45,7 @@ type
     FActive: Boolean;
     FUsageCount: Integer;
     FFinishEvent: TEvent;
-    procedure Abort;
+    procedure DoAbort;
   private
     { IBerkeleyDBPool }
     function Acquire(
@@ -81,7 +81,7 @@ resourcestring
   rsObjectNotInPool = 'Can''t release an object that is not in the pool!';
   rsNoAvailableObjects = 'There are no available objects in the pool!';
   rsCantAcquireDB = 'Can''t acquire db: %s';
-  rsPoolIsDesabled = 'Pool Disabled - Can''t acquire db: %s';
+  rsPoolIsDisabled = 'Pool Disabled - Can''t acquire db: %s';
   rsCantUseOldPoolRecord = 'Can''t use old pool record!';
 
 { TBerkeleyDBPool }
@@ -106,7 +106,7 @@ end;
 
 destructor TBerkeleyDBPool.Destroy;
 begin
-  Abort;
+  DoAbort;
   FreeAndNil(FObjList);
   FreeAndNil(FCS);
   FreeAndNil(FFinishEvent);
@@ -120,31 +120,33 @@ var
   PRec: PPoolRec;
   VFound: Boolean;
 begin
-  if Assigned(ADatabase) then begin
-    FCS.Acquire;
-    try
-      VFound := False;
-      for I := 0 to FObjList.Count - 1 do begin
-        PRec := FObjList.Items[I];
-        if PRec <> nil then begin
-          VFound := ((PRec.Database as IInterface) = (ADatabase as IInterface));
-          if VFound then begin
-            Dec(FUsageCount);
-            PRec.ReleaseTime := GetTickCount;
-            Dec(PRec.ActiveCount);
-            Break;
-          end;
+  if not Assigned(ADatabase) then begin
+    Exit;
+  end;
+
+  FCS.Acquire;
+  try
+    VFound := False;
+    for I := 0 to FObjList.Count - 1 do begin
+      PRec := FObjList.Items[I];
+      if PRec <> nil then begin
+        VFound := ((PRec.Database as IInterface) = (ADatabase as IInterface));
+        if VFound then begin
+          Dec(FUsageCount);
+          PRec.ReleaseTime := GetTickCount;
+          Dec(PRec.ActiveCount);
+          Break;
         end;
       end;
-      if not VFound then begin
-        raise EBerkeleyDBPool.Create(rsObjectNotInPool);
-      end;
-      if not FActive and (FUsageCount <= 0) then begin
-        FFinishEvent.SetEvent;
-      end;
-    finally
-      FCS.Release;
     end;
+    if not VFound then begin
+      raise EBerkeleyDBPool.Create(rsObjectNotInPool);
+    end;
+    if not FActive and (FUsageCount <= 0) then begin
+      FFinishEvent.SetEvent;
+    end;
+  finally
+    FCS.Release;
   end;
 end;
 
@@ -170,7 +172,7 @@ begin
       VReleaseOldest := $FFFFFFFF;
       VFound := False;
 
-      // Ищем среди открытых
+      // searching among open databases
       for I := 0 to FObjList.Count - 1 do begin
         PRec := FObjList.Items[I];
         if PRec <> nil then begin
@@ -182,7 +184,7 @@ begin
             Result := PRec.Database;
             Break;
           end else if PRec.ActiveCount <= 0 then begin
-            // попутно находим наистарейшую неиспользующуюся БД
+            // oldest unused database
             if PRec.ReleaseTime < VReleaseOldest then begin
               VReleaseOldest := PRec.ReleaseTime;
               VRecIndexOldest := I;
@@ -191,19 +193,21 @@ begin
         end;
       end;
 
-      // Среди открытых не нашли
+      // it is a new database
       if not VFound then begin
         VIsNewRec := (FObjList.Count < FPoolSize);
         if VIsNewRec then begin
-          New(PRec); // если не достигли пределов пула, создаём новую запись
-        end else if VRecIndexOldest <> -1 then begin
-          // иначе, используем старую
+          // create new record
+          New(PRec);
+        end else
+        if VRecIndexOldest <> -1 then begin
+          // reuse old record
           PRec := FObjList.Items[VRecIndexOldest];
           if not Assigned(PRec) or (PRec.ActiveCount > 0) then begin
             raise EBerkeleyDBPool.Create(rsCantUseOldPoolRecord);
           end;
         end else begin
-          // fail - пул заполнен и нету неиспользующихся старых записей
+          // fatal error: the pool is full and there are no unused old records
           raise EBerkeleyDBPool.Create(rsNoAvailableObjects);
         end;
 
@@ -222,12 +226,10 @@ begin
 
           Result := PRec.Database;
         except
-          on E: Exception do begin
-            if VIsNewRec then begin
-              Dispose(PRec);
-            end;
-            raise;
+          if VIsNewRec then begin
+            Dispose(PRec);
           end;
+          raise;
         end;
       end;
 
@@ -237,7 +239,7 @@ begin
         raise EBerkeleyDBPool.CreateFmt(rsCantAcquireDB, [ADatabaseFileName]);
       end;
     end else begin
-      raise EBerkeleyDBPool.CreateFmt(rsPoolIsDesabled, [ADatabaseFileName]);
+      raise EBerkeleyDBPool.CreateFmt(rsPoolIsDisabled, [ADatabaseFileName]);
     end;
   finally
     FCS.Release;
@@ -252,37 +254,38 @@ begin
   FCS.Acquire;
   try
     AHotDatabaseCount := 0;
-    if FActive then begin
-      try
-        for I := 0 to FObjList.Count - 1 do begin
-          PRec := FObjList.Items[i];
-          if (PRec <> nil) then begin
-            if (PRec.ActiveCount <= 0) and ((GetTickCount - PRec.ReleaseTime) > FUnusedObjectTTL) then begin
-              PRec.Database := nil;
-              Dispose(PRec);
-              FObjList.Items[i] := nil;
-            end else begin
-              Assert(PRec.Database <> nil);
-              PRec.Database.LockWrite;
-              try
-                PRec.Database.Sync;
-              finally
-                PRec.Database.UnLockWrite;
-              end;
+    if not FActive then begin
+      Exit;
+    end;
+    try
+      for I := 0 to FObjList.Count - 1 do begin
+        PRec := FObjList.Items[I];
+        if (PRec <> nil) then begin
+          if (PRec.ActiveCount <= 0) and ((GetTickCount - PRec.ReleaseTime) > FUnusedObjectTTL) then begin
+            PRec.Database := nil;
+            Dispose(PRec);
+            FObjList.Items[I] := nil;
+          end else begin
+            Assert(PRec.Database <> nil);
+            PRec.Database.LockWrite;
+            try
+              PRec.Database.Sync;
+            finally
+              PRec.Database.UnLockWrite;
             end;
           end;
         end;
-      finally
-        FObjList.Pack;
-        AHotDatabaseCount := FObjList.Count;
       end;
+    finally
+      FObjList.Pack;
+      AHotDatabaseCount := FObjList.Count;
     end;
   finally
     FCS.Release;
   end;
 end;
 
-procedure TBerkeleyDBPool.Abort;
+procedure TBerkeleyDBPool.DoAbort;
 var
   I: Integer;
   PRec: PPoolRec;
@@ -302,7 +305,7 @@ begin
   FCS.Acquire;
   try
     for I := 0 to FObjList.Count - 1 do begin
-      PRec := FObjList.Items[i];
+      PRec := FObjList.Items[I];
       if PRec <> nil then begin
         PRec.Database := nil;
         Dispose(PRec);
