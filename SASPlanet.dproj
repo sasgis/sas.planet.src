@@ -1556,7 +1556,11 @@
         <DCCReference Include="Src\System\u_LanguagesEx.pas"/>
         <DCCReference Include="Src\System\u_SystemTimeProvider.pas"/>
         <DCCReference Include="Src\System\u_WindowsMessageCopyDataSender.pas"/>
-        <DCCReference Include="Src\Terrain\External\u_ExternalTerrainAPI.pas"/>
+        <DCCReference Include="Src\Terrain\External\u_ElevationReader.pas"/>
+        <DCCReference Include="Src\Terrain\External\u_ElevationReaderRAW.pas"/>
+        <DCCReference Include="Src\Terrain\External\u_ElevationReaderTIFF.pas"/>
+        <DCCReference Include="Src\Terrain\External\u_ElevationValue.pas"/>
+        <DCCReference Include="Src\Terrain\External\u_ExternalTerrainFile.pas"/>
         <DCCReference Include="Src\Terrain\External\u_ExternalTerrainsProvider.pas"/>
         <DCCReference Include="Src\Terrain\GoogleEarth\i_GoogleEarthTerrainTileStorage.pas"/>
         <DCCReference Include="Src\Terrain\GoogleEarth\u_GoogleEarthTerrainMemCache.pas"/>
@@ -1876,6 +1880,7 @@
         <DCCReference Include="Src\t_GeoTypes.pas"/>
         <DCCReference Include="Src\u_AnsiStr.pas"/>
         <DCCReference Include="Src\u_BitmapFunc.pas"/>
+        <DCCReference Include="Src\u_ByteSwapFunc.pas"/>
         <DCCReference Include="Src\u_Clipper.pas"/>
         <DCCReference Include="Src\u_FileSystemFunc.pas"/>
         <DCCReference Include="Src\u_GR32Func.pas"/>

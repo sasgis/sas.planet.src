@@ -33,7 +33,7 @@ uses
   i_ProjConverter,
   i_TerrainConfig,
   i_TerrainProvider,
-  u_ExternalTerrainAPI,
+  u_ExternalTerrainFile,
   u_BaseInterfacedObject;
 
 type
@@ -48,21 +48,21 @@ type
   private
     FUseInterpolation: Boolean;
 
-    FDefaultPath: String;
+    FDefaultPath: string;
     FProjConverter: IProjConverter;
     FConfig: ITerrainConfig;
     FConfigListener: IListener;
 
     // opened file
-    FTerrainFile: TTerrainFile;
-    FBaseFolder: String;
+    FTerrainFile: TExternalTerrainFile;
+    FBaseFolder: string;
     // options
     FAvailable: Boolean;
     FSamplesCount: Integer;
     FLinesCount: Integer;
     FVoidValue: Integer;
     FByteOrder: Integer;
-    FPrefix, FSuffix: String;
+    FPrefix, FSuffix: string;
     FLonDigitsWidth, FLatDigitsWidth : Integer;
 
     FDynamicOptionsReader: TDynamicOptionsReader;
@@ -78,7 +78,7 @@ type
       const AValue: Integer;
       const APrefIfPlus, APrefIfMinus: Char;
       const AWidth: Byte
-    ): String;
+    ): string;
   protected
     { ITerrainProvider }
     function GetPointElevation(
@@ -90,7 +90,7 @@ type
   public
     constructor Create(
       const AConfig: ITerrainConfig;
-      const ADefaultPath: String;
+      const ADefaultPath: string;
       const AProjConverter: IProjConverter;
       const AOptions: IConfigDataProvider
     );
@@ -104,6 +104,9 @@ uses
   StrUtils,
   SysUtils,
   c_TerrainProvider,
+  u_ElevationValue,
+  u_ElevationReader,
+  u_ByteSwapFunc,
   u_FileSystemFunc,
   u_ListenerByEvent;
 
@@ -111,7 +114,7 @@ uses
 
 constructor TTerrainProviderByExternal.Create(
   const AConfig: ITerrainConfig;
-  const ADefaultPath: String;
+  const ADefaultPath: string;
   const AProjConverter: IProjConverter;
   const AOptions: IConfigDataProvider
 );
@@ -132,7 +135,7 @@ begin
   // if failed - create object but disable it
   FAvailable := AOptions.ReadBool('Enabled', False);
 
-  if (not FAvailable) then begin
+  if not FAvailable then begin
     Exit;
   end;
 
@@ -145,9 +148,11 @@ begin
   // get absolute path to storage if it's not
   if StartsText('TerrainData\', FBaseFolder) then begin
     FBaseFolder := StringReplace(FBaseFolder, 'TerrainData\', FDefaultPath, [rfIgnoreCase]);
-  end else if StartsText('.\TerrainData\', FBaseFolder) then begin
+  end else
+  if StartsText('.\TerrainData\', FBaseFolder) then begin
     FBaseFolder := StringReplace(FBaseFolder, '.\TerrainData\', FDefaultPath, [rfIgnoreCase]);
-  end else if StartsText('.', FBaseFolder) then begin
+  end else
+  if StartsText('.', FBaseFolder) then begin
     FBaseFolder := RelativeToAbsolutePath(FDefaultPath, FBaseFolder);
     FBaseFolder := LowerCase(IncludeTrailingPathDelimiter(FBaseFolder));
   end else begin
@@ -155,14 +160,14 @@ begin
   end;
 
   if Length(FBaseFolder) = 0 then begin
-    FAvailable := FALSE;
+    FAvailable := False;
     Exit;
   end;
 
   // samples count in single file (mandatory)
   FSamplesCount := AOptions.ReadInteger('SamplesCount', -1);
-  if (FSamplesCount <= 0) then begin
-    FAvailable := FALSE;
+  if FSamplesCount <= 0 then begin
+    FAvailable := False;
     Exit;
   end;
 
@@ -186,7 +191,7 @@ begin
     FDynamicOptionsReader := nil;
   end;
 
-  FTerrainFile := TTerrainFile.Create(FByteOrder, FVoidValue);
+  FTerrainFile := TExternalTerrainFile.Create(FByteOrder, FVoidValue);
 end;
 
 destructor TTerrainProviderByExternal.Destroy;
@@ -209,7 +214,7 @@ function TTerrainProviderByExternal.GetFilenamePart(
   const AValue: Integer;
   const APrefIfPlus, APrefIfMinus: Char;
   const AWidth: Byte
-): String;
+): string;
 begin
   // 'N60'
   // 'E056'

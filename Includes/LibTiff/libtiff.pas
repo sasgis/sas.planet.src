@@ -16,6 +16,7 @@ type
   tdata_t = Pointer;
   tsize_t = NativeInt;
   ttile_t = Cardinal;
+  tsample_t = Word;
 
   TIFFExtendProc = procedure(Handle: PTIFF); cdecl;
   TIFFMsgHandler = procedure(const AModule: PAnsiChar; const AFmt: PAnsiChar; const AArgs: Pointer); cdecl;
@@ -28,10 +29,11 @@ function TIFFWriteDirectory(Handle: PTIFF): Integer; cdecl; external libtiff_dll
 function TIFFCheckpointDirectory(Handle: PTIFF): Integer; cdecl; external libtiff_dll;
 procedure TIFFClose(Handle: PTIFF); cdecl; external libtiff_dll;
 function TIFFSetField(Handle: PTIFF; Tag: Cardinal): Integer; cdecl; external libtiff_dll; varargs;
-function TIFFWriteScanline(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: Word): Integer; cdecl; external libtiff_dll;
-function TIFFWriteTile(Handle: PTIFF; Buf: Pointer; X, Y, Z: Cardinal; Sample: Word): Integer; cdecl; external libtiff_dll;
+function TIFFWriteScanline(Handle: PTIFF; Buf: tdata_t; Row: Cardinal; Sample: tsample_t): Integer; cdecl; external libtiff_dll;
+function TIFFWriteTile(Handle: PTIFF; Buf: tdata_t; X, Y, Z: Cardinal; Sample: tsample_t): Integer; cdecl; external libtiff_dll;
 function TIFFWriteRawTile(Handle: PTIFF; tile: ttile_t; buf: tdata_t; size: tsize_t): tsize_t; cdecl; external libtiff_dll;
 function TIFFWriteEncodedTile(Handle: PTIFF; tile: ttile_t; buf: tdata_t; size: tsize_t): tsize_t; cdecl; external libtiff_dll;
+function TIFFReadTile(Handle: PTIFF; buf: tdata_t; X, Y, Z: Cardinal; Sample: tsample_t): tsize_t; cdecl; external libtiff_dll;
 function TIFFSetWarningHandler(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl; external libtiff_dll;
 function TIFFSetErrorHandler(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl; external libtiff_dll;
 {$ELSE}
@@ -43,10 +45,11 @@ var
   TIFFCheckpointDirectory: function(Handle: PTIFF): Integer; cdecl;
   TIFFClose: procedure(Handle: PTIFF); cdecl;
   TIFFSetField: function(Handle: PTIFF; Tag: Cardinal): Integer; cdecl varargs;
-  TIFFWriteScanline: function(Handle: PTIFF; Buf: Pointer; Row: Cardinal; Sample: Word): Integer; cdecl;
-  TIFFWriteTile: function(Handle: PTIFF; Buf: Pointer; X, Y, Z: Cardinal; Sample: Word): Integer; cdecl;
+  TIFFWriteScanline: function(Handle: PTIFF; Buf: tdata_t; Row: Cardinal; Sample: tsample_t): Integer; cdecl;
+  TIFFWriteTile: function(Handle: PTIFF; Buf: tdata_t; X, Y, Z: Cardinal; Sample: tsample_t): Integer; cdecl;
   TIFFWriteRawTile: function(Handle: PTIFF; tile: ttile_t; buf: tdata_t; size: tsize_t): tsize_t; cdecl;
   TIFFWriteEncodedTile: function(Handle: PTIFF; tile: ttile_t; buf: tdata_t; size: tsize_t): tsize_t; cdecl;
+  TIFFReadTile: function(Handle: PTIFF; buf: tdata_t; X, Y, Z: Cardinal; Sample: tsample_t): tsize_t; cdecl;
   TIFFSetWarningHandler: function(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl;
 	TIFFSetErrorHandler: function(NewHandler: TIFFMsgHandler): TIFFMsgHandler; cdecl;
 {$ENDIF}
@@ -516,6 +519,7 @@ begin
       TIFFWriteTile := GetProcAddr('TIFFWriteTile');
       TIFFWriteRawTile := GetProcAddr('TIFFWriteRawTile');
       TIFFWriteEncodedTile := GetProcAddr('TIFFWriteEncodedTile');
+      TIFFReadTile := GetProcAddr('TIFFReadTile');
       TIFFSetWarningHandler := GetProcAddr('TIFFSetWarningHandler');
       TIFFSetErrorHandler := GetProcAddr('TIFFSetErrorHandler');
 
@@ -552,6 +556,7 @@ begin
     TIFFWriteTile := nil;
     TIFFWriteRawTile := nil;
     TIFFWriteEncodedTile := nil;
+    TIFFReadTile := nil;
     TIFFSetWarningHandler := nil;
     TIFFSetErrorHandler := nil;
   finally
