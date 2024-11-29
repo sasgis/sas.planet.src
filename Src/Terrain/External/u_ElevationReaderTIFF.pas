@@ -145,10 +145,8 @@ uses
 function _GetTiffDWORD(const AByteOrder: Word; const ASource: DWORD): DWORD; inline;
 begin
   if AByteOrder = c_TIFF_MM then begin
-    // revert
     Result := Swap32(ASource);
   end else begin
-    // common
     Result := ASource;
   end;
 end;
@@ -156,10 +154,8 @@ end;
 function _GetTiffWORD(const AByteOrder: Word; const ASource: WORD): WORD; inline;
 begin
   if AByteOrder = c_TIFF_MM then begin
-    // revert
     Result := Swap16(ASource);
   end else begin
-    // common
     Result := ASource;
   end;
 end;
@@ -169,32 +165,6 @@ begin
   Result :=
     ((ATiffHeader.ByteOrder = c_TIFF_II) and (ATiffHeader.type_ = c_42_II)) or
     ((ATiffHeader.ByteOrder = c_TIFF_MM) and (ATiffHeader.type_ = c_42_MM));
-end;
-
-function _ReadElevationValue(const AFile: THandle; const AOffset: Int64; var AValue: TElevationValue): Boolean; inline;
-begin
-  case AValue.TypeId of
-    evtSmallInt : Result := NtReadFromFile(AFile, @AValue.ValueSmall,  SizeOf(AValue.ValueSmall),  AOffset);
-    evtLongInt  : Result := NtReadFromFile(AFile, @AValue.ValueLong,   SizeOf(AValue.ValueLong),   AOffset);
-    evtSingle   : Result := NtReadFromFile(AFile, @AValue.ValueSingle, SizeOf(AValue.ValueSingle), AOffset);
-  else
-    Assert(False);
-    Result := False;
-  end;
-end;
-
-function _ReadElevationValue2(P: PByte; const AOffset: Int64; var AValue: TElevationValue): Boolean; inline;
-begin
-  Result := True;
-  Inc(P, AOffset);
-  case AValue.TypeId of
-    evtSmallInt : AValue.ValueSmall := PWord(P)^;
-    evtLongInt  : AValue.ValueLong := PCardinal(P)^;
-    evtSingle   : AValue.ValueSingle := PSingle(P)^;
-  else
-    Assert(False);
-    Result := False;
-  end;
 end;
 
 procedure _AllocTiffArray(const ATag: TIFD_12; var P: PTiffArray); inline;
@@ -474,8 +444,6 @@ function TElevationReaderTIFF.ReadElevationValue(
   out AValue: TElevationValue
 ): Boolean;
 begin
-  Result := False;
-
   AValue.TypeId := FValueType;
 
   if FIsStripped then begin
@@ -485,6 +453,7 @@ begin
     Result := FindElevationInTiled(ARow, ACol, AValue);
   end else begin
     Assert(False);
+    Result := False;
     Exit;
   end;
 end;
@@ -497,11 +466,9 @@ var
   VStripOffset: Int64;
   VPixelOffset: Int64;
 begin
-  Result := False;
-
   if FOffsets.Count = 1 then begin
     VPixelOffset := (ARow * FParams.ColsCount + ACol) * FSampleSize;
-    Result := _ReadElevationValue(FParams.FileHandle, FOffsets.Offset + VPixelOffset, AValue);
+    Result := AValue.ReadFromFile(FParams.FileHandle, FOffsets.Offset + VPixelOffset);
   end else
   if FOffsets.Count = Cardinal(FParams.RowsCount) then begin
 
@@ -520,7 +487,9 @@ begin
     end;
 
     VPixelOffset := VStripOffset + ACol * FSampleSize;
-    Result := _ReadElevationValue(FParams.FileHandle, VPixelOffset, AValue);
+    Result := AValue.ReadFromFile(FParams.FileHandle, VPixelOffset);
+  end else begin
+    Result := False;
   end;
 end;
 
@@ -563,7 +532,7 @@ begin
     end;
 
     VPixelOffset := VTileOffset + (VPixel.Y * FTileWidth + VPixel.X) * FSampleSize;
-    Result := _ReadElevationValue(FParams.FileHandle, VPixelOffset, AValue);
+    Result := AValue.ReadFromFile(FParams.FileHandle, VPixelOffset);
   end else begin
 
     if FTiff = nil then begin
@@ -589,7 +558,7 @@ begin
     end;
 
     VPixelOffset := (VPixel.Y * FTileWidth + VPixel.X) * FSampleSize;
-    Result := _ReadElevationValue2(FTiffTileBuff, VPixelOffset, AValue);
+    Result := AValue.ReadFromMem(FTiffTileBuff, VPixelOffset);
   end;
 end;
 

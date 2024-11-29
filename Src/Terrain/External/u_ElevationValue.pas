@@ -34,6 +34,9 @@ type
   );
 
   TElevationValue = record
+    function ReadFromMem(AMem: PByte; const AOffset: Int64): Boolean; inline;
+    function ReadFromFile(const AFile: THandle; const AOffset: Int64): Boolean; inline;
+
     procedure SwapIntByteOrder; inline;
     function IsVoid(const AVoidValue: Integer): Boolean; inline;
     function ToSingle: Single; inline;
@@ -49,6 +52,7 @@ type
 implementation
 
 uses
+  NTFiles,
   u_ByteSwapFunc;
 
 { TElevationValue }
@@ -83,6 +87,30 @@ begin
     evtSmallInt : Result := ValueSmall;
     evtLongInt  : Result := ValueLong;
     evtSingle   : Result := ValueSingle;
+  else
+    raise EElevationValue.CreateFmt('Invalid TypeId value: %d', [Integer(TypeId)]);
+  end;
+end;
+
+function TElevationValue.ReadFromMem(AMem: PByte; const AOffset: Int64): Boolean;
+begin
+  Inc(AMem, AOffset);
+  case TypeId of
+    evtSmallInt : ValueSmall  := PWord(AMem)^;
+    evtLongInt  : ValueLong   := PCardinal(AMem)^;
+    evtSingle   : ValueSingle := PSingle(AMem)^;
+  else
+    raise EElevationValue.CreateFmt('Invalid TypeId value: %d', [Integer(TypeId)]);
+  end;
+  Result := True;
+end;
+
+function TElevationValue.ReadFromFile(const AFile: THandle; const AOffset: Int64): Boolean;
+begin
+  case TypeId of
+    evtSmallInt : Result := NtReadFromFile(AFile, @ValueSmall,  SizeOf(ValueSmall),  AOffset);
+    evtLongInt  : Result := NtReadFromFile(AFile, @ValueLong,   SizeOf(ValueLong),   AOffset);
+    evtSingle   : Result := NtReadFromFile(AFile, @ValueSingle, SizeOf(ValueSingle), AOffset);
   else
     raise EElevationValue.CreateFmt('Invalid TypeId value: %d', [Integer(TypeId)]);
   end;

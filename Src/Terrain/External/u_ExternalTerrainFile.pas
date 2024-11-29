@@ -75,6 +75,7 @@ type
 implementation
 
 uses
+  StrUtils,
   SysUtils,
   NTFiles;
 
@@ -94,10 +95,9 @@ begin
   FFileName := '';
   FIsFileOk := False;
 
+  FTiffReader := nil;
+  FRawReader := nil;
   FElevationReader := nil;
-
-  FTiffReader := TElevationReaderTIFF.Create;
-  FRawReader := TElevationReaderRAW.Create;
 end;
 
 destructor TExternalTerrainFile.Destroy;
@@ -137,24 +137,30 @@ begin
     FIsFileOk := FFileHandle <> INVALID_HANDLE_VALUE;
     if not FIsFileOk then begin
       FFileHandle := 0;
+      Result := False;
+      Exit;
     end;
 
-    if FIsFileOk then begin
-      if SameText(ExtractFileExt(FFileName), '.tif') then begin
-        FElevationReader := FTiffReader;
-      end else begin
-        FElevationReader := FRawReader;
+    if MatchText(ExtractFileExt(FFileName), ['.tif', '.tiff']) then begin
+      if FTiffReader = nil then begin
+        FTiffReader := TElevationReaderTIFF.Create;
       end;
-
-      with VParams do begin
-        FileName := FFileName;
-        FileHandle := FFileHandle;
-        RowsCount := FRowsCount;
-        ColsCount := FColsCount;
+      FElevationReader := FTiffReader;
+    end else begin
+      if FRawReader = nil then begin
+        FRawReader := TElevationReaderRAW.Create;
       end;
-
-      FIsFileOk := FElevationReader.Open(VParams);
+      FElevationReader := FRawReader;
     end;
+
+    with VParams do begin
+      FileName := FFileName;
+      FileHandle := FFileHandle;
+      RowsCount := FRowsCount;
+      ColsCount := FColsCount;
+    end;
+
+    FIsFileOk := FElevationReader.Open(VParams);
   end;
 
   Result := FIsFileOk;
