@@ -538,11 +538,11 @@ var
 begin
   Result := False;
 
-  VTile.X := ARow div FTileWidth;
-  VTile.Y := ACol div FTileLength;
+  VTile.X := ACol div FTileWidth;
+  VTile.Y := ARow div FTileLength;
 
-  VPixel.X := ARow - VTile.X * FTileWidth;
-  VPixel.Y := ACol - VTile.Y * FTileLength;
+  VPixel.X := ACol - VTile.X * FTileWidth;
+  VPixel.Y := ARow - VTile.Y * FTileLength;
 
   if FCompressionFormat = 1 then begin
 
@@ -554,7 +554,7 @@ begin
     end;
     Assert(FOffsets.Data <> nil);
 
-    VTileNum := VTile.X * FTilesCount.X + VTile.Y;
+    VTileNum := VTile.Y * FTilesCount.X + VTile.X;
 
     if FOffsets.ItemType = titLong then begin
       VTileOffset := PLongWord(INT_PTR(FOffsets.Data) + VTileNum * SizeOf(DWORD))^;
@@ -562,7 +562,7 @@ begin
       VTileOffset := PWord(INT_PTR(FOffsets.Data) + VTileNum * SizeOf(WORD))^;
     end;
 
-    VPixelOffset := VTileOffset + (VPixel.X * FTileWidth + VPixel.Y) * FSampleSize;
+    VPixelOffset := VTileOffset + (VPixel.Y * FTileWidth + VPixel.X) * FSampleSize;
     Result := _ReadElevationValue(FParams.FileHandle, VPixelOffset, AValue);
   end else begin
 
@@ -581,14 +581,14 @@ begin
 
     if (FTiffTile.X <> VTile.X) or (FTiffTile.Y <> VTile.Y) then begin
       FTiffTile := VTile;
-      VTileSize := TIFFReadTile(FTiff, FTiffTileBuff, VTile.Y * FTileLength, VTile.X * FTileWidth, 0, 0);
+      VTileSize := TIFFReadTile(FTiff, FTiffTileBuff, VTile.X * FTileWidth, VTile.Y * FTileLength, 0, 0);
 
       if FTiffTileBuffSize <> VTileSize then begin
         Exit;
       end;
     end;
 
-    VPixelOffset := (VPixel.X * FTileWidth + VPixel.Y) * FSampleSize;
+    VPixelOffset := (VPixel.Y * FTileWidth + VPixel.X) * FSampleSize;
     Result := _ReadElevationValue2(FTiffTileBuff, VPixelOffset, AValue);
   end;
 end;
