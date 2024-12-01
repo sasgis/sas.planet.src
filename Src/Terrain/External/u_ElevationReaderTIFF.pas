@@ -530,10 +530,8 @@ var
   VTileNum: Integer;
   VTileOffset: Int64;
   VPixelOffset: Int64;
-  VTilePtr: Pointer;
+  VTileData: Pointer;
 begin
-  Result := False;
-
   VTile.X := ACol div FTileWidth;
   VTile.Y := ARow div FTileLength;
 
@@ -561,13 +559,15 @@ begin
     VPixelOffset := VTileOffset + (VPixel.Y * FTileWidth + VPixel.X) * FSampleSize;
     Result := AValue.ReadFromFile(FParams.FileHandle, VPixelOffset);
   end else begin
-    VTilePtr := FCompressedDataProvider.GetTileData(VTile);
-    if VTilePtr = nil then begin
+
+    VTileData := FCompressedDataProvider.GetTileData(VTile);
+    if VTileData = nil then begin
+      Result := False;
       Exit;
     end;
 
     VPixelOffset := (VPixel.Y * FTileWidth + VPixel.X) * FSampleSize;
-    Result := AValue.ReadFromMem(VTilePtr, VPixelOffset);
+    Result := AValue.ReadFromMem(VTileData, VPixelOffset);
   end;
 end;
 

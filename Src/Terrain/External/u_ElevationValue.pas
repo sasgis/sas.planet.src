@@ -34,6 +34,9 @@ type
   );
 
   TElevationValue = record
+  private const
+    CInvalidTipeIdMsg = 'Invalid TypeId value: %d';
+  public
     function ReadFromMem(AMem: PByte; const AOffset: Int64): Boolean; inline;
     function ReadFromFile(const AFile: THandle; const AOffset: Int64): Boolean; inline;
 
@@ -77,7 +80,7 @@ begin
     evtLongInt  : Result := AVoidValue = ValueLong;
     evtSingle   : Result := AVoidValue = Round(ValueSingle);
   else
-    raise EElevationValue.CreateFmt('Invalid TypeId value: %d', [Integer(TypeId)]);
+    raise EElevationValue.CreateFmt(CInvalidTipeIdMsg, [Integer(TypeId)]);
   end;
 end;
 
@@ -88,7 +91,7 @@ begin
     evtLongInt  : Result := ValueLong;
     evtSingle   : Result := ValueSingle;
   else
-    raise EElevationValue.CreateFmt('Invalid TypeId value: %d', [Integer(TypeId)]);
+    raise EElevationValue.CreateFmt(CInvalidTipeIdMsg, [Integer(TypeId)]);
   end;
 end;
 
@@ -100,7 +103,7 @@ begin
     evtLongInt  : ValueLong   := PCardinal(AMem)^;
     evtSingle   : ValueSingle := PSingle(AMem)^;
   else
-    raise EElevationValue.CreateFmt('Invalid TypeId value: %d', [Integer(TypeId)]);
+    raise EElevationValue.CreateFmt(CInvalidTipeIdMsg, [Integer(TypeId)]);
   end;
   Result := True;
 end;
@@ -112,7 +115,7 @@ begin
     evtLongInt  : Result := NtReadFromFile(AFile, @ValueLong,   SizeOf(ValueLong),   AOffset);
     evtSingle   : Result := NtReadFromFile(AFile, @ValueSingle, SizeOf(ValueSingle), AOffset);
   else
-    raise EElevationValue.CreateFmt('Invalid TypeId value: %d', [Integer(TypeId)]);
+    raise EElevationValue.CreateFmt(CInvalidTipeIdMsg, [Integer(TypeId)]);
   end;
 end;
 
