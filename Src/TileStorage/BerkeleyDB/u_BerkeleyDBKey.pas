@@ -110,10 +110,8 @@ const
 implementation
 
 uses
-  SysUtils;
-
-type
-  PWord = ^Word;
+  SysUtils,
+  u_ByteSwapFunc;
 
 function IsMetaKey(const AKey: IBerkeleyDBKey): Boolean; inline;
 var
@@ -129,23 +127,7 @@ begin
   end;
 end;
 
-function Swap32(Value: Cardinal): Cardinal; assembler;
-asm
-  {$IFDEF CPUX64}
-  mov eax, ecx
-  {$ENDIF}
-  bswap eax
-end;
-
-function Swap16(Value: Word): Word; inline;
-begin
-  Result := System.Swap(Value);
-end;
-
-procedure SetBit(
-  var ADest: Cardinal;
-  const ABit: Integer
-); inline;
+procedure SetBit(var ADest: Cardinal; const ABit: Integer); inline;
 begin
   ADest := ADest or (Cardinal(1) shl ABit);
 end;
