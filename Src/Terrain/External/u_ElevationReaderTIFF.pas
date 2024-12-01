@@ -85,6 +85,32 @@ type
   end;
   PTiffArray = ^TTiffArray;
 
+  TCompressedTiffDataProvider = class
+  private
+    FTiff: PTIFF;
+
+    FTileSize: TPoint;
+    FTilesCount: TPoint;
+
+    FTiles: array of Pointer;
+    FTileBytes: Integer;
+    FIsTileWithData: array of Boolean;
+  public
+    function Open(
+      const AFileName: string;
+      const ATileSize: TPoint;
+      const ATilesCount: TPoint;
+      const ASampleSize: Integer
+    ): Boolean;
+
+    function GetTileData(
+      const ATile: TPoint
+    ): Pointer;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
   TElevationReaderTIFF = class(TElevationReader)
   private
     FOffsets: PTiffArray;
@@ -107,10 +133,7 @@ type
 
     FValueType: TElevationValueType;
 
-    FTiff: PTIFF;
-    FTiffTile: TPoint;
-    FTiffTileBuff: tdata_t;
-    FTiffTileBuffSize: tsize_t;
+    FCompressedDataProvider: TCompressedTiffDataProvider;
 
     function FindElevationInStripped(
       const ARow, ACol: Integer;
@@ -224,19 +247,12 @@ begin
   inherited Create;
 
   FOffsets := nil;
-
-  FTiff := nil;
-  FTiffTileBuff := nil;
+  FCompressedDataProvider := nil;
 end;
 
 destructor TElevationReaderTIFF.Destroy;
 begin
-  if FTiff <> nil then begin
-    TIFFClose(FTiff);
-    FTiff := nil;
-  end;
-
-  FreeMem(FTiffTileBuff);
+  FreeAndNil(FCompressedDataProvider);
   _FreeTiffArray(FOffsets);
 
   inherited Destroy;
@@ -253,11 +269,6 @@ var
   VCurrentTag: TIFD_12;
 begin
   FParams := AParams;
-
-  if FTiff <> nil then begin
-    TIFFClose(FTiff);
-    FTiff := nil;
-  end;
 
   _ResetTiffArray(FOffsets);
 
@@ -428,6 +439,22 @@ begin
 
     if FCompressionFormat <> 1 then begin
       InitLibTiff(GDllName.Tiff);
+
+      if FCompressedDataProvider = nil then begin
+        FCompressedDataProvider := TCompressedTiffDataProvider.Create;
+      end;
+
+      Result :=
+        FCompressedDataProvider.Open(
+          FParams.FileName,
+          Point(FTileWidth, FTileLength),
+          FTilesCount,
+          FSampleSize
+        );
+
+      if not Result then begin
+        Exit;
+      end;
     end;
   end;
 
@@ -503,7 +530,7 @@ var
   VTileNum: Integer;
   VTileOffset: Int64;
   VPixelOffset: Int64;
-  VTileSize: tsize_t;
+  VTilePtr: Pointer;
 begin
   Result := False;
 
@@ -534,32 +561,115 @@ begin
     VPixelOffset := VTileOffset + (VPixel.Y * FTileWidth + VPixel.X) * FSampleSize;
     Result := AValue.ReadFromFile(FParams.FileHandle, VPixelOffset);
   end else begin
-
-    if FTiff = nil then begin
-
-      FTiff := TIFFOpenW(PWideChar(FParams.FileName), 'r');
-      if FTiff = nil then begin
-        Exit;
-      end;
-
-      FTiffTile := Point(-1, -1);
-
-      FTiffTileBuffSize := FTileWidth * FTileLength * FSampleSize;
-      ReallocMem(FTiffTileBuff, FTiffTileBuffSize);
-    end;
-
-    if (FTiffTile.X <> VTile.X) or (FTiffTile.Y <> VTile.Y) then begin
-      FTiffTile := VTile;
-      VTileSize := TIFFReadTile(FTiff, FTiffTileBuff, VTile.X * FTileWidth, VTile.Y * FTileLength, 0, 0);
-
-      if FTiffTileBuffSize <> VTileSize then begin
-        Exit;
-      end;
+    VTilePtr := FCompressedDataProvider.GetTileData(VTile);
+    if VTilePtr = nil then begin
+      Exit;
     end;
 
     VPixelOffset := (VPixel.Y * FTileWidth + VPixel.X) * FSampleSize;
-    Result := AValue.ReadFromMem(FTiffTileBuff, VPixelOffset);
+    Result := AValue.ReadFromMem(VTilePtr, VPixelOffset);
   end;
+end;
+
+{ TCompressedTiffDataProvider }
+
+constructor TCompressedTiffDataProvider.Create;
+begin
+  FTiff := nil;
+  FTileBytes := 0;
+  FTiles := nil;
+  FIsTileWithData := nil;
+end;
+
+destructor TCompressedTiffDataProvider.Destroy;
+var
+  I: Integer;
+begin
+  for I := 0 to Length(FTiles) - 1 do begin
+    FreeMem(FTiles[I]);
+  end;
+
+  if FTiff <> nil then begin
+    TIFFClose(FTiff);
+    FTiff := nil;
+  end;
+
+  inherited Destroy;
+end;
+
+function TCompressedTiffDataProvider.Open(
+  const AFileName: string;
+  const ATileSize: TPoint;
+  const ATilesCount: TPoint;
+  const ASampleSize: Integer
+): Boolean;
+var
+  VLen: Integer;
+  VCount: Integer;
+begin
+  FTileSize := ATileSize;
+  FTilesCount := ATilesCount;
+
+  if FTiff <> nil then begin
+    TIFFClose(FTiff);
+    FTiff := nil;
+  end;
+
+  FTiff := TIFFOpenW(PWideChar(AFileName), 'r');
+  if FTiff = nil then begin
+    Result := False;
+    Exit;
+  end;
+
+  FTileBytes := FTileSize.X * FTileSize.Y * ASampleSize;
+
+  VCount := FTilesCount.X * FTilesCount.Y;
+
+  VLen := Length(FIsTileWithData);
+  if VLen < VCount then begin
+    SetLength(FIsTileWithData, VCount);
+  end;
+  if VCount > 0 then begin
+    // reset all values to False
+    FillChar(FIsTileWithData[0], VCount * SizeOf(FIsTileWithData[0]), 0);
+  end;
+
+  VLen := Length(FTiles);
+  if VLen < VCount then begin
+    SetLength(FTiles, VCount);
+    // reset new values to nil
+    FillChar(FTiles[VLen], (VCount - VLen) * SizeOf(FTiles[0]), 0);
+  end;
+
+  Result := True;
+end;
+
+function TCompressedTiffDataProvider.GetTileData(const ATile: TPoint): Pointer;
+var
+  I: Integer;
+  VSize: tsize_t;
+begin
+  Result := nil;
+
+  I := ATile.Y * FTilesCount.X + ATile.X; // tile number
+
+  if (I < 0) or (I >= Length(FTiles)) then begin
+    Assert(False);
+    Exit;
+  end;
+
+  if not FIsTileWithData[I] then begin
+    ReallocMem(FTiles[I], FTileBytes);
+
+    VSize := TIFFReadTile(FTiff, FTiles[I], ATile.X * FTileSize.X, ATile.Y * FTileSize.Y, 0, 0);
+    if VSize <> FTileBytes then begin
+      Exit;
+    end;
+
+    FIsTileWithData[I] := True;
+  end;
+
+  Result := FTiles[I];
 end;
 
 end.
