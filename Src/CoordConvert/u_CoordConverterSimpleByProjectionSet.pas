@@ -37,35 +37,31 @@ type
     FProjectionSet: IProjectionSet;
     FProjectionType: IProjectionType;
   private
-    // ѕреобразует позицию тайла на заданном зуме в георафически координаты его верхнего левого угла
+    { ICoordConverterSimple }
     function Pos2LonLat(
       const XY: TPoint;
-      AZoom: byte
+      AZoom: Byte
     ): TDoublePoint; stdcall;
-    // ѕреобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
+
     function LonLat2Pos(
-      const Ll: TDoublePoint;
-      AZoom: byte
-    ): Tpoint; stdcall;
+      const APoint: TDoublePoint;
+      AZoom: Byte
+    ): TPoint; stdcall;
 
-    // метрические координаты
-    function LonLat2Metr(const Ll: TDoublePoint): TDoublePoint; stdcall;
-    function Metr2LonLat(const Mm: TDoublePoint): TDoublePoint; stdcall;
+    function LonLat2Metr(const APoint: TDoublePoint): TDoublePoint; stdcall;
+    function Metr2LonLat(const APoint: TDoublePoint): TDoublePoint; stdcall;
 
-    // ¬озвращает количество тайлов в заданном зуме
-    function TilesAtZoom(const AZoom: byte): Longint; stdcall;
-    // ¬озвращает общее количество пикселей на заданном зуме
-    function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
+    function TilesAtZoom(const AZoom: Byte): Longint; stdcall;
+    function PixelsAtZoom(const AZoom: Byte): Longint; stdcall;
 
-    // ѕреобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
     function TilePos2PixelPos(
       const XY: TPoint;
-      const AZoom: byte
+      const AZoom: Byte
     ): TPoint; stdcall;
-    // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+
     function TilePos2PixelRect(
       const XY: TPoint;
-      const AZoom: byte
+      const AZoom: Byte
     ): TRect; stdcall;
   public
     constructor Create(const AProjectionSet: IProjectionSet);
@@ -91,37 +87,37 @@ begin
 end;
 
 function TCoordConverterSimpleByProjectionSet.LonLat2Metr(
-  const Ll: TDoublePoint
+  const APoint: TDoublePoint
 ): TDoublePoint;
 begin
-  Result := FProjectionType.LonLat2Metr(Ll);
+  Result := FProjectionType.LonLat2Metr(APoint);
 end;
 
 function TCoordConverterSimpleByProjectionSet.LonLat2Pos(
-  const Ll: TDoublePoint;
-  AZoom: byte
-): Tpoint;
+  const APoint: TDoublePoint;
+  AZoom: Byte
+): TPoint;
 var
   VProjection: IProjection;
 begin
   if AZoom > 23 then begin
     VProjection := FProjectionSet.Zooms[AZoom - 8];
-    Result := PointFromDoublePoint(VProjection.LonLat2PixelPosFloat(ll), prToTopLeft);
+    Result := PointFromDoublePoint(VProjection.LonLat2PixelPosFloat(APoint), prToTopLeft);
   end else begin
     VProjection := FProjectionSet.Zooms[AZoom];
-    Result := PointFromDoublePoint(VProjection.LonLat2TilePosFloat(LL), prToTopLeft);
+    Result := PointFromDoublePoint(VProjection.LonLat2TilePosFloat(APoint), prToTopLeft);
   end;
 end;
 
 function TCoordConverterSimpleByProjectionSet.Metr2LonLat(
-  const Mm: TDoublePoint
+  const APoint: TDoublePoint
 ): TDoublePoint;
 begin
-  Result := FProjectionType.Metr2LonLat(Mm);
+  Result := FProjectionType.Metr2LonLat(APoint);
 end;
 
 function TCoordConverterSimpleByProjectionSet.PixelsAtZoom(
-  const AZoom: byte
+  const AZoom: Byte
 ): Longint;
 var
   VRect: TRect;
@@ -135,7 +131,7 @@ end;
 
 function TCoordConverterSimpleByProjectionSet.Pos2LonLat(
   const XY: TPoint;
-  AZoom: byte
+  AZoom: Byte
 ): TDoublePoint;
 var
   VProjection: IProjection;
@@ -151,7 +147,7 @@ end;
 
 function TCoordConverterSimpleByProjectionSet.TilePos2PixelPos(
   const XY: TPoint;
-  const AZoom: byte
+  const AZoom: Byte
 ): TPoint;
 begin
   if FProjectionSet.CheckZoom(AZoom) then begin
@@ -161,7 +157,7 @@ end;
 
 function TCoordConverterSimpleByProjectionSet.TilePos2PixelRect(
   const XY: TPoint;
-  const AZoom: byte
+  const AZoom: Byte
 ): TRect;
 begin
   if FProjectionSet.CheckZoom(AZoom) then begin
@@ -170,7 +166,7 @@ begin
 end;
 
 function TCoordConverterSimpleByProjectionSet.TilesAtZoom(
-  const AZoom: byte
+  const AZoom: Byte
 ): Longint;
 var
   VRect: TRect;

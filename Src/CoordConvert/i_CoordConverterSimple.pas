@@ -31,35 +31,42 @@ type
   ICoordConverterSimple = interface
     ['{3EE2987F-7681-425A-8EFE-B676C506CDD4}']
 
-    // ѕреобразует позицию тайла на заданном зуме в георафически координаты его верхнего левого угла
+    // Converts the position of a tile at a given zoom to
+    // geographic coordinates of its upper left corner
     function Pos2LonLat(
       const XY: TPoint;
-      AZoom: byte
+      AZoom: Byte
     ): TDoublePoint; stdcall;
-    // ѕреобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
+
+    // Converts geographic coordinates to the position of a tile
+    // at a given zoom level that covers the given coordinates
     function LonLat2Pos(
-      const Ll: TDoublePoint;
-      AZoom: byte
-    ): Tpoint; stdcall;
+      const APoint: TDoublePoint;
+      AZoom: Byte
+    ): TPoint; stdcall;
 
-    // метрические координаты
-    function LonLat2Metr(const Ll: TDoublePoint): TDoublePoint; stdcall;
-    function Metr2LonLat(const Mm: TDoublePoint): TDoublePoint; stdcall;
+    // Converts geographic coordinates to metric coordinates and vice versa
+    function LonLat2Metr(const APoint: TDoublePoint): TDoublePoint; stdcall;
+    function Metr2LonLat(const APoint: TDoublePoint): TDoublePoint; stdcall;
 
-    // ¬озвращает количество тайлов в заданном зуме
-    function TilesAtZoom(const AZoom: byte): Longint; stdcall;
-    // ¬озвращает общее количество пикселей на заданном зуме
-    function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
+    // Returns the number of tiles at a given zoom level
+    function TilesAtZoom(const AZoom: Byte): Longint; stdcall;
 
-    // ѕреобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
+    // Returns the number of pixels at the given zoom level
+    function PixelsAtZoom(const AZoom: Byte): Longint; stdcall;
+
+    // Converts the tile position at the given zoom
+    // to the pixel coordinates of its upper left corner
     function TilePos2PixelPos(
       const XY: TPoint;
-      const AZoom: byte
+      const AZoom: Byte
     ): TPoint; stdcall;
-    // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+
+    // Converts the tile position at the given zoom
+    // to the pixel coordinates of its corners
     function TilePos2PixelRect(
       const XY: TPoint;
-      const AZoom: byte
+      const AZoom: Byte
     ): TRect; stdcall;
   end;
 
