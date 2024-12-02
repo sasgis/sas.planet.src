@@ -545,14 +545,19 @@ procedure TExportTaskToRMP.ProcessSingleGeometryUni(
 
         if VProcess then begin
           VPixelRect := RectFromDoubleRect(VPixelRectFloat, rrClosest);
+          AProjection.ValidatePixelRect(VPixelRect);
 
-          VBitmapTile :=
-            FBitmapUniProvider.GetBitmap(
-              Self.OperationID,
-              Self.CancelNotifier,
-              AProjection,
-              VPixelRect
-            );
+          if not IsRectEmpty(VPixelRect) then begin
+            VBitmapTile :=
+              FBitmapUniProvider.GetBitmap(
+                Self.OperationID,
+                Self.CancelNotifier,
+                AProjection,
+                VPixelRect
+              );
+          end else begin
+            VBitmapTile := nil;
+          end;
 
           if Assigned(VBitmapTile) then begin
             if (VBitmapTile.Size.X = 256) and (VBitmapTile.Size.Y = 256) then begin
