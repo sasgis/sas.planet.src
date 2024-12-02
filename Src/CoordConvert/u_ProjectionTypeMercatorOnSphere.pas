@@ -62,13 +62,24 @@ end;
 function TProjectionTypeMercatorOnSphere.LonLat2RelativeInternal(
   const APoint: TDoublePoint
 ): TDoublePoint;
+const
+  cEpsilon = 1E-12;
 var
   z, c: Extended;
 begin
-  Result.x := 0.5 + APoint.x / 360;
-  z := Sin(APoint.y * Pi / 180);
-  c := 1 / (2 * Pi);
-  Result.y := 0.5 - 0.5 * Ln((1 + z) / (1 - z)) * c;
+  Result.X := 0.5 + APoint.X / 360;
+
+  z := Sin(APoint.Y * PI / 180);
+  c := Ln((1 + z) / (1 - z)) / (2 * PI);
+
+  Result.Y := 0.5 - 0.5 * c;
+
+  if SameValue(Result.Y, 0, cEpsilon) then begin
+    Result.Y := 0;
+  end else
+  if SameValue(Result.Y, 1, cEpsilon) then begin
+    Result.Y := 1;
+  end;
 end;
 
 function TProjectionTypeMercatorOnSphere.Relative2LonLatInternal(
