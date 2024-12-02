@@ -38,7 +38,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const ADatum: IDatum;
-      const AProjEPSG: integer
+      const AProjEPSG: Integer
     );
   end;
 
@@ -52,7 +52,7 @@ uses
 constructor TProjectionTypeMercatorOnSphere.Create(
   const AHash: THashValue;
   const ADatum: IDatum;
-  const AProjEPSG: integer
+  const AProjEPSG: Integer
 );
 begin
   Assert(Abs(ADatum.GetSpheroidRadiusA - ADatum.GetSpheroidRadiusB) < 1);
@@ -86,8 +86,8 @@ function TProjectionTypeMercatorOnSphere.Relative2LonLatInternal(
   const APoint: TDoublePoint
 ): TDoublePoint;
 begin
-  Result.X := (APoint.x - 0.5) * 360;
-  Result.Y := -(APoint.y - 0.5) * (2 * PI);
+  Result.X := (APoint.X - 0.5) * 360;
+  Result.Y := -(APoint.Y - 0.5) * (2 * Pi);
   Result.Y := (2 * ArcTan(Exp(Result.Y)) - PI / 2) * 180 / PI;
 end;
 
