@@ -94,19 +94,19 @@ function GetRequestUrl(
   const AUpdateChannel: TUpdateChannel
 ): AnsiString;
 const
-  CBitBucketRequestUtl = 'https://bitbucket.org/sas_team/sas.planet.bin/downloads/';
-  CGitHubRequestUrl = 'https://github.com/sasgis/sas.planet.src/releases';
-  CHomeRequestUrl: array [TUpdateChannel] of AnsiString = (
+  CBitBucketRequestUrl = 'https://bitbucket.org/sas_team/sas.planet.bin/downloads/';
+  CGitHubRequestUrl = 'https://api.github.com/repos/sasgis/sas.planet.src/releases/latest';
+  CSasGisRequestUrl: array [TUpdateChannel] of AnsiString = (
     'http://www.sasgis.org/programs/sasplanet/nightly.php',
     'http://www.sasgis.org/programs/sasplanet/release.php'
   );
 begin
   case AUpdateSource of
-    usHome: begin
-      Result := CHomeRequestUrl[AUpdateChannel];
+    usSasGis: begin
+      Result := CSasGisRequestUrl[AUpdateChannel];
     end;
     usBitBucket: begin
-      Result := CBitBucketRequestUtl;
+      Result := CBitBucketRequestUrl;
     end;
     usGitHub: begin
       Result := CGitHubRequestUrl;

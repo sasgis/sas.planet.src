@@ -30,7 +30,7 @@ type
   );
 
   TUpdateSource = (
-    usHome,
+    usSasGis,
     usBitBucket,
     usGitHub
   );

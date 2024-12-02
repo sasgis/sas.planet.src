@@ -44,7 +44,7 @@ implementation
 
 uses
   SysUtils,
-  RegExpr;
+  RegularExpressions;
 
 class function TUpdateCheckerFunc.ParseDownloadResult(
   const AUpdateChannel: TUpdateChannel;
@@ -52,7 +52,7 @@ class function TUpdateCheckerFunc.ParseDownloadResult(
   const ADownloadResult: IDownloadResultOk
 ): TUpdateCheckerResult;
 const
-  CBuildName: array [TUpdateChannel] of AnsiString = (
+  CBuildName: array [TUpdateChannel] of string = (
     'Nightly', 'Release'
   );
   CHostName: array [TUpdateSource] of string = (
@@ -61,66 +61,70 @@ const
 var
   I: Integer;
   VYear, VMonth, VDay: Word;
-  VRegExpr: TRegExpr;
+  VMatch: TMatch;
+  VMatches: TMatchCollection;
+  VInput: string;
+  VPattern: string;
+  VFileNamePattern: string;
   VResponseData: AnsiString;
-  VFileNameExpression: AnsiString;
   VResults: TUpdateCheckerResultArray;
 begin
   Result.IsFound := False;
 
   SetLength(VResponseData, ADownloadResult.Data.Size);
   Move(ADownloadResult.Data.Buffer^, VResponseData[1], ADownloadResult.Data.Size);
+  VInput := string(VResponseData);
 
-  VRegExpr := TRegExpr.Create;
-  try
-    VFileNameExpression :=
-      'SAS\.Planet\.' + CBuildName[AUpdateChannel] + // SAS.Planet.Nightly
-      '\.(\d\d)(\d\d)(\d\d)' +                       // .210616
-      '(\.(\d+))?' +                                 // .10132
-      '\.(zip|7z)';                                  // .7z
+  if AUpdateSource = usGitHub then begin
+    VInput := StringReplace(VInput, 'https://github.com/sasgis/', 'href="/sasgis/', [rfIgnoreCase, rfReplaceAll]);
+  end;
 
-    VRegExpr.Expression :=
-      'href\s?=\s?[''"]?([^''" >]+(' + VFileNameExpression + '))';
+  VFileNamePattern :=
+    'SAS\.Planet\.' + CBuildName[AUpdateChannel] + // SAS.Planet.Nightly
+    '\.(\d\d)(\d\d)(\d\d)' +                       // .210616
+    '(\.(\d+))?' +                                 // .10132 (optional)
+    {$IFDEF WIN64}
+    '\.x64' +                                      // .x64
+    {$ENDIF}
+    '\.(zip|7z)';                                  // .7z
 
-    // href=['"]? says to match "href=", possibly followed by a ' or ".
-    // "Possibly" because it's hard to say how horrible the HTML we are looking
-    // at is, and the quotes aren't strictly required.
+  // href=['"]? says to match "href=", possibly followed by a ' or ".
+  // "Possibly" because it's hard to say how horrible the HTML we are looking
+  // at is, and the quotes aren't strictly required.
 
-    // [^'" >]+ says to match any characters that aren't ', ", >, or a space.
-    // Essentially this is a list of characters that are an end to the URL.
+  // [^'" >]+ says to match any characters that aren't ', ", >, or a space.
+  // Essentially this is a list of characters that are an end to the URL.
 
-    VRegExpr.ModifierI := True;
-    VRegExpr.ModifierG := False;
+  VPattern := 'href\s?=\s?[''"]?([^''" >]+(' + VFileNamePattern + '))';
 
-    if not VRegExpr.Exec(VResponseData) then begin
-      Exit;
+  VMatches := TRegEx.Matches(VInput, VPattern, [roIgnoreCase, roMultiline]);
+
+  for VMatch in VMatches do begin
+
+    if not VMatch.Success or (VMatch.Groups.Count < 9) then begin
+      Continue;
     end;
 
-    repeat
-      I := Length(VResults);
-      SetLength(VResults, I+1);
+    I := Length(VResults);
+    SetLength(VResults, I + 1);
 
-      VResults[I].IsFound := False;
+    VResults[I].IsFound := False;
 
-      VResults[I].DownloadUrl := string(VRegExpr.Match[1]);
-      VResults[I].OutFileName := string(VRegExpr.Match[2]);
+    VResults[I].DownloadUrl := VMatch.Groups.Item[1].Value;
+    VResults[I].OutFileName := VMatch.Groups.Item[2].Value;
 
-      VYear := StrToIntDef(string(VRegExpr.Match[3]), 0);
-      VMonth := StrToIntDef(string(VRegExpr.Match[4]), 0);
-      VDay := StrToIntDef(string(VRegExpr.Match[5]), 0);
+    VYear  := StrToIntDef(VMatch.Groups.Item[3].Value, 0);
+    VMonth := StrToIntDef(VMatch.Groups.Item[4].Value, 0);
+    VDay   := StrToIntDef(VMatch.Groups.Item[5].Value, 0);
 
-      if not TryEncodeDate(VYear + 2000, VMonth, VDay, VResults[I].BuildDate) then begin
-        Continue;
-      end;
+    if not TryEncodeDate(VYear + 2000, VMonth, VDay, VResults[I].BuildDate) then begin
+      Continue;
+    end;
 
-      VResults[I].BuildRevision := StrToIntDef(string(VRegExpr.Match[7]), 0);
-      VResults[I].BuildType := CBuildName[AUpdateChannel];
+    VResults[I].BuildRevision := StrToIntDef(VMatch.Groups.Item[7].Value, 0);
+    VResults[I].BuildType := CBuildName[AUpdateChannel];
 
-      VResults[I].IsFound := True;
-
-    until not VRegExpr.ExecNext;
-  finally
-    VRegExpr.Free;
+    VResults[I].IsFound := True;
   end;
 
   Result := LatestResultFromArray(VResults);

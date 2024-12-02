@@ -93,6 +93,7 @@ type
 
     procedure CancelOperations;
     procedure CheckAvailableVersion;
+    function GetCurVersionStr: string;
   protected
     procedure RefreshTranslation; override;
   public
@@ -149,7 +150,7 @@ begin
   if not FBuildInfo.GetBuildSrcInfo(FCurRevision, VTmp) then begin
     FCurRevision := 0;
   end;
-  lblCurVerValue.Caption := FBuildInfo.GetVersion + ' ' + FCurBuildType;
+  lblCurVerValue.Caption := Self.GetCurVersionStr;
 
   cbbChannel.ItemIndex := 0; // Nightly channel
 
@@ -188,6 +189,11 @@ end;
 procedure TfrmUpdateChecker.FormShow(Sender: TObject);
 begin
   CheckAvailableVersion;
+end;
+
+function TfrmUpdateChecker.GetCurVersionStr: string;
+begin
+  Result := FBuildInfo.GetVersion + ' ' + FCurBuildType;
 end;
 
 procedure TfrmUpdateChecker.cbbChannelChange(Sender: TObject);
@@ -415,7 +421,7 @@ procedure TfrmUpdateChecker.RefreshTranslation;
 begin
   inherited RefreshTranslation;
 
-  lblCurVerValue.Caption := FBuildInfo.GetVersion + ' ' + FBuildInfo.GetBuildType;
+  lblCurVerValue.Caption := Self.GetCurVersionStr;
 end;
 
 end.
