@@ -143,6 +143,6 @@ begin
 end;
 
 initialization
-  // Register any test cases with the test runner
   RegisterTest(TestTEnumDoublePointLine2Poly.Suite);
+
 end.

@@ -1,11 +1,5 @@
 unit i_IGUIDObjectSet_Test;
 
-{
-
-  Delphi DUnit Test Case
-  ----------------------
-}
-
 interface
 
 uses
@@ -14,9 +8,7 @@ uses
   i_GUIDSet;
 
 type
-  // Test methods for interface IGUIDObjectSet
-
-  TestIGUIDObjectSet = class(TTestCase)
+  TestIGUIDObjectSet = class abstract (TTestCase)
   protected
     FGUIDList: IGUIDObjectSet;
     FG1: TObject;
@@ -72,7 +64,6 @@ const
   G5: TGUID = '{86EA601F-EA2D-4E26-BDBE-1C4F65444CA5}';
   G6: TGUID = '{F81CCA0A-D467-4962-A9F7-2A50B4BFDD46}';
   G7: TGUID = '{F81CCA0A-D467-4962-A9F7-2A50B4BFDD47}';
-
 
 { TestIGUIDObjectSet }
 
@@ -222,7 +213,6 @@ begin
 
   VI := TSimple(FGUIDList.GetByGUID(G7));
   Check(VI = nil, 'Найден элемент, которого быть не должно было');
-
 end;
 
 procedure TestIGUIDObjectSet.TestReplace;
@@ -275,7 +265,6 @@ procedure TestIGUIDObjectSet.TestRemove;
 var
   VI: TSimple;
 begin
-
   FGUIDList.Add(G6, FG6);
   FGUIDList.Add(G1, FG1);
   FGUIDList.Add(G5, FG5);
@@ -307,7 +296,6 @@ begin
   VI := TSimple(FGUIDList.GetByGUID(G6));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G6), 'Найден ошибочный элемент');
-
 end;
 
 procedure TestIGUIDObjectSet.TestClear;

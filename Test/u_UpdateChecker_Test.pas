@@ -10,13 +10,17 @@ uses
 type
   TestUpdateChecker = class(TTestCase)
   private
-    FResult: TUpdateCheckerResult;
-    FUpdateSource: TUpdateSource;
-    FUpdateChannel: TUpdateChannel;
-    function GetFakeResponse: IDownloadResultOk;
-    procedure ParseResponse;
+    function GetFakeResponse(
+      const AUpdateSource: TUpdateSource;
+      const AUpdateChannel: TUpdateChannel
+    ): IDownloadResultOk;
+
+    function ParseResponse(
+      const AUpdateSource: TUpdateSource;
+      const AUpdateChannel: TUpdateChannel
+    ): TUpdateCheckerResult;
   published
-    procedure ParseHomeResponse;
+    procedure ParseSasGisResponse;
     procedure ParseBitBucketResponse;
     procedure ParseGitHubResponse;
   end;
@@ -30,81 +34,88 @@ uses
   u_DownloadResult,
   u_UpdateCheckerFunc;
 
+const
+  CReleaseFileName = 'SAS.Planet.Release.201212' + {$IFDEF WIN64} '.x64' + {$ENDIF} '.zip';
+  CNightlyFileName = 'SAS.Planet.Nightly.210616.10132' + {$IFDEF WIN64} '.x64' + {$ENDIF} '.7z';
+
 { TestUpdateCheckParser }
 
-procedure TestUpdateChecker.ParseResponse;
-var
-  VDownloadResult: IDownloadResultOk;
+function TestUpdateChecker.ParseResponse(
+  const AUpdateSource: TUpdateSource;
+  const AUpdateChannel: TUpdateChannel
+): TUpdateCheckerResult;
 begin
-  VDownloadResult := GetFakeResponse;
-
-  FResult :=
+  Result :=
     TUpdateCheckerFunc.ParseDownloadResult(
-      FUpdateChannel,
-      FUpdateSource,
-      VDownloadResult
+      AUpdateChannel,
+      AUpdateSource,
+      Self.GetFakeResponse(AUpdateSource, AUpdateChannel)
     );
 end;
 
-procedure TestUpdateChecker.ParseHomeResponse;
+procedure TestUpdateChecker.ParseSasGisResponse;
+var
+  VResult: TUpdateCheckerResult;
 begin
-  FUpdateSource := usHome;
+  VResult := ParseResponse(usSasGis, ucNightly);
+  CheckTrue(VResult.IsFound, 'Nightly');
+  CheckEquals(VResult.OutFileName, CNightlyFileName, 'Nightly');
 
-  FUpdateChannel := ucNightly;
-  ParseResponse;
-  Check(FResult.IsFound = True);
-  Check(FResult.OutFileName = 'SAS.Planet.Nightly.210616.10132.7z');
-
-  FUpdateChannel := ucRelease;
-  ParseResponse;
-  Check(FResult.IsFound = True);
-  Check(FResult.OutFileName = 'SAS.Planet.Release.201212.zip');
+  VResult := ParseResponse(usSasGis, ucRelease);
+  CheckTrue(VResult.IsFound, 'Release');
+  CheckEquals(VResult.OutFileName, CReleaseFileName, 'Release');
 end;
 
 procedure TestUpdateChecker.ParseBitBucketResponse;
+var
+  VResult: TUpdateCheckerResult;
 begin
-  FUpdateSource := usBitBucket;
+  VResult := ParseResponse(usBitBucket, ucNightly);
+  CheckTrue(VResult.IsFound);
+  CheckEquals(VResult.OutFileName, CNightlyFileName);
 
-  FUpdateChannel := ucNightly;
-  ParseResponse;
-  Check(FResult.IsFound = True);
-  Check(FResult.OutFileName = 'SAS.Planet.Nightly.210616.10132.7z');
-
-  FUpdateChannel := ucRelease;
-  ParseResponse;
-  Check(FResult.IsFound = True);
-  Check(FResult.OutFileName = 'SAS.Planet.Release.201212.zip');
+  VResult := ParseResponse(usBitBucket, ucRelease);
+  CheckTrue(VResult.IsFound);
+  CheckEquals(VResult.OutFileName, CReleaseFileName);
 end;
 
 procedure TestUpdateChecker.ParseGitHubResponse;
+var
+  VResult: TUpdateCheckerResult;
 begin
-  FUpdateSource := usGitHub;
+  VResult := ParseResponse(usGitHub, ucNightly);
+  CheckFalse(VResult.IsFound);
 
-  FUpdateChannel := ucNightly;
-  ParseResponse;
-  Check(FResult.IsFound = False);
-
-  FUpdateChannel := ucRelease;
-  ParseResponse;
-  Check(FResult.IsFound = True);
-  Check(FResult.OutFileName = 'SAS.Planet.Release.201212.zip');
+  VResult := ParseResponse(usGitHub, ucRelease);
+  CheckTrue(VResult.IsFound);
+  CheckEquals(VResult.OutFileName, CReleaseFileName);
 end;
 
-function TestUpdateChecker.GetFakeResponse: IDownloadResultOk;
+function TestUpdateChecker.GetFakeResponse(
+  const AUpdateSource: TUpdateSource;
+  const AUpdateChannel: TUpdateChannel
+): IDownloadResultOk;
 const
-  CHomeFakeHtml: array [TUpdateChannel] of AnsiString = (
+  CSasGisFakeHtml: array [TUpdateChannel] of AnsiString = (
+    '<a href="https://bitbucket.org/sas_team/sas.planet.bin/downloads/SAS.Planet.Nightly.210616.10132.x64.7z">SAS.Planet.Nightly.210616.10132.x64.7z</a>' +
     '<a href="https://bitbucket.org/sas_team/sas.planet.bin/downloads/SAS.Planet.Nightly.210616.10132.7z">SAS.Planet.Nightly.210616.10132.7z</a>',
+
+    '<a href="https://bitbucket.org/sas_team/sas.planet.bin/downloads/SAS.Planet.Release.201212.x64.zip">SAS.Planet.Release.201212.x64.zip</a>' +
     '<a href="https://bitbucket.org/sas_team/sas.planet.bin/downloads/SAS.Planet.Release.201212.zip">SAS.Planet.Release.201212.zip</a>'
   );
 
   CGitHubFakeHtml: AnsiString =
-    '<a href="/sasgis/sas.planet.src/releases/download/v.200606/SAS.Planet.Release.200606.zip" rel="nofollow" class="d-flex flex-items-center min-width-0">' + #10 +
-    '<a href="/sasgis/sas.planet.src/releases/download/v.201212/SAS.Planet.Release.201212.zip" rel="nofollow" class="d-flex flex-items-center min-width-0">';
+    '"browser_download_url": "https://github.com/sasgis/sas.planet.src/releases/download/v.201212/SAS.Planet.Release.201212.zip"' + #13#10 +
+    '"browser_download_url": "https://github.com/sasgis/sas.planet.src/releases/download/v.201212/SAS.Planet.Release.201212.x64.zip"';
 
   CBitBucketFakeHtml: AnsiString =
     '<td class="name">' + #10 +
     '  <a class="execute" rel="nofollow"' + #10 +
     '    href="/sas_team/sas.planet.bin/downloads/SAS.Planet.Nightly.200504.128.7z">SAS.Planet.Nightly.210504.10128.7z</a>' + #10 +
+    '</td>' + #10 +
+    '<td class="name">' + #10 +
+    '  <a class="execute" rel="nofollow"' + #10 +
+    '    href="/sas_team/sas.planet.bin/downloads/SAS.Planet.Nightly.210616.10132.x64.7z">SAS.Planet.Nightly.210616.10132.x64.7z</a>' + #10 +
     '</td>' + #10 +
     '<td class="name">' + #10 +
     '  <a class="execute" rel="nofollow"' + #10 +
@@ -120,19 +131,23 @@ const
     '</td>' + #10 +
     '<td class="name">' + #10 +
     '  <a class="execute" rel="nofollow"' + #10 +
+    '    href="/sas_team/sas.planet.bin/downloads/SAS.Planet.Release.201212.x64.zip">SAS.Planet.Release.201212.x64.zip</a>' + #10 +
+    '</td>' + #10 +
+    '<td class="name">' + #10 +
+    '  <a class="execute" rel="nofollow"' + #10 +
     '    href="/sas_team/sas.planet.bin/downloads/SAS.Planet.Release.200606.zip">SAS.Planet.Release.200606.zip</a>' + #10 +
     '</td>' + #10;
 var
   VStr: AnsiString;
   VData: IBinaryData;
 begin
-  case FUpdateSource of
-    usHome:      VStr := CHomeFakeHtml[FUpdateChannel];
+  case AUpdateSource of
+    usSasGis:    VStr := CSasGisFakeHtml[AUpdateChannel];
     usBitBucket: VStr := CBitBucketFakeHtml;
     usGitHub:    VStr := CGitHubFakeHtml;
   else
     raise Exception.CreateFmt(
-      'Unexpected UpdateSource value: %d', [Integer(FUpdateSource)]
+      'Unexpected UpdateSource value: %d', [Integer(AUpdateSource)]
     );
   end;
 

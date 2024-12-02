@@ -1,11 +1,5 @@
 unit u_EnumDoublePointFilterEqual_Test;
 
-{
-
-  Delphi DUnit Test Case
-  ----------------------
-}
-
 interface
 
 uses
@@ -217,6 +211,6 @@ begin
 end;
 
 initialization
-  // Register any test cases with the test runner
   RegisterTest(TestTEnumDoublePointFilterEqual.Suite);
+
 end.

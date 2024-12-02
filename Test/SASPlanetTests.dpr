@@ -11,6 +11,7 @@ uses
   TestFramework,
   GUITestRunner,
   TextTestRunner,
+  u_GlobalDllName,
   i_IGUIDInterfaceSet_Test in 'i_IGUIDInterfaceSet_Test.pas',
   i_IGUIDObjectSet_Test in 'i_IGUIDObjectSet_Test.pas',
   u_BitmapTileLibPng_Test in 'u_BitmapTileLibPng_Test.pas',
@@ -34,14 +35,17 @@ uses
   u_RegularExpressions_Test in 'u_RegularExpressions_Test.pas',
   u_SASTestCase in 'u_SASTestCase.pas',
   u_UpdateChecker_Test in 'u_UpdateChecker_Test.pas',
-  u_VectorItmesFactorySimple_Test in 'u_VectorItmesFactorySimple_Test.pas',
-  u_WideStrings_Test in 'u_WideStrings_Test.pas';
+  u_VectorItmesFactorySimple_Test in 'u_VectorItmesFactorySimple_Test.pas';
 
 begin
+  GDllName.Init;
+
   Application.Initialize;
-  if IsConsole then
-    TextTestRunner.RunRegisteredTests
-  else
+
+  if IsConsole then begin
+    TextTestRunner.RunRegisteredTests;
+  end else begin
     GUITestRunner.RunRegisteredTests;
+  end;
 end.
 

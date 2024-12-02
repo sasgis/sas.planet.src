@@ -38,7 +38,7 @@ uses
   u_BinaryDataByMemStream;
 
 const
-  cBitmapsFolder = './../Test/bitmaps/';
+  cBitmapsFolder = '.\..\..\Test\bitmaps\';
 
   cBmpSrcTestFile = cBitmapsFolder + 'testimg.bmp';
   cBmpDestTestFile = cBitmapsFolder + 'testimg_out.bmp';

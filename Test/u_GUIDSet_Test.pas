@@ -1,11 +1,5 @@
 unit u_GUIDSet_Test;
 
-{
-
-  Delphi DUnit Test Case
-  ----------------------
-}
-
 interface
 
 uses
@@ -31,6 +25,7 @@ uses
   u_GUIDObjectSet;
 
 { TestTGUIDInterfaceSet }
+
 procedure TestTGUIDInterfaceSet.SetUp;
 begin
   inherited;
@@ -48,4 +43,5 @@ end;
 initialization
   RegisterTest(TestTGUIDInterfaceSet.Suite);
   RegisterTest(TestTGUIDObjectSet.Suite);
+
 end.

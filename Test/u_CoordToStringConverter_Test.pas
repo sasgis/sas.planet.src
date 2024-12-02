@@ -17,23 +17,24 @@ implementation
 
 uses
   t_CoordRepresentation,
+  u_GeoFunc,
   u_CoordToStringConverter;
 
 { TestCoordToStringConverter }
 
 procedure TestCoordToStringConverter.TestCoordToString;
 var
-  VLon, VLat: string;
+  VResult: TCoordPartArray;
   VConverter: ICoordToStringConverter;
 begin
   VConverter := TCoordToStringConverter.Create(
-    True, dshSignDegr2, cstWGS84, csitDontShow
+    True, dshSignDegr2, psfRoundedToTenth, msfSplitted, cstWGS84, csitDontShow
   );
 
-  VConverter.LonLatConvert(10.0, 40.101, True, VLon, VLat);
+  VResult := VConverter.LonLatConvertExt(DoublePoint(10.0, 40.101), [coCutZero]);
 
-  CheckEquals('10', VLon);
-  CheckEquals('40.101', VLat);
+  CheckEquals('10', VResult[cpiLon]);
+  CheckEquals('40.101', VResult[cpiLat]);
 end;
 
 initialization

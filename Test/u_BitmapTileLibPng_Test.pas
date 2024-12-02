@@ -47,7 +47,7 @@ uses
 const
   cCompression = 9; // 0..9 (0 - no compression; 9 - max compression)
 
-  cPngTestFile = './../Test/bitmaps/pngtest.png';
+  cPngTestFile = '.\..\..\Test\bitmaps\pngtest.png';
 
 procedure TestTLibPngTileSaver.SetUp;
 var

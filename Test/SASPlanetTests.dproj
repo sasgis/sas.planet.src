@@ -1,80 +1,220 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <ProjectGuid>{48242a36-b537-4ea6-963c-2409a3dad7ed}</ProjectGuid>
-    <MainSource>SASPlanetTests.dpr</MainSource>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-    <DCC_DependencyCheckOutputName>..\.bin\SASPlanetTests.exe</DCC_DependencyCheckOutputName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Version>7.0</Version>
-    <DCC_DebugInformation>False</DCC_DebugInformation>
-    <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
-    <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-    <DCC_Define>RELEASE</DCC_Define>
-    <DCC_ExeOutput>..\.bin</DCC_ExeOutput>
-    <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
-    <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
-    <DCC_HppOutput>..\.dcu</DCC_HppOutput>
-    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\</DCC_UnitSearchPath>
-    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\</DCC_ResourcePath>
-    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\</DCC_ObjPath>
-    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\</DCC_IncludePath>
-    <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <Version>7.0</Version>
-    <DCC_Define>DEBUG</DCC_Define>
-    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\</DCC_UnitSearchPath>
-    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\</DCC_ResourcePath>
-    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\</DCC_ObjPath>
-    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Marker\;..\Src\MarksDb\;..\Src\MarkPicture\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\TileIterator\;..\Src\Vector\;..\Src\Network\;..\Src\MapVersion\;..\Src\UpdateChecker\;..\Src\HashFunction\</DCC_IncludePath>
-    <DCC_ExeOutput>..\.bin</DCC_ExeOutput>
-    <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
-    <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
-    <DCC_HppOutput>..\.dcu</DCC_HppOutput>
-    <DCC_Optimize>False</DCC_Optimize>
-  </PropertyGroup>
-  <ProjectExtensions>
-    <Borland.Personality>Delphi.Personality</Borland.Personality>
-    <Borland.ProjectType />
-    <BorlandProject>
-<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1058</VersionInfo><VersionInfo Name="CodePage">1251</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">SASPlanetTests.dpr</Source></Source><Excluded_Packages>
-      <Excluded_Packages Name="$(BDS)\bin\dcloffice2k100.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-      <Excluded_Packages Name="$(BDS)\bin\dclofficexp100.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-    </Excluded_Packages></Delphi.Personality><UnitTesting><TestFramework>DUnit / Delphi Win32</TestFramework><TestRunner>GUI</TestRunner></UnitTesting></BorlandProject></BorlandProject>
-  </ProjectExtensions>
-  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
-  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
-  <ItemGroup>
-    <DelphiCompile Include="SASPlanetTests.dpr">
-      <MainSource>MainSource</MainSource>
-    </DelphiCompile>
-    <DCCReference Include="i_IGUIDInterfaceSet_Test.pas" />
-    <DCCReference Include="i_IGUIDObjectSet_Test.pas" />
-    <DCCReference Include="u_BitmapTileLibPng_Test.pas" />
-    <DCCReference Include="u_BitmapTileSaveLoadFactory_Test.pas" />
-    <DCCReference Include="u_CalcTilesInPolygon_Test.pas" />
-    <DCCReference Include="u_Datum_Test.pas" />
-    <DCCReference Include="u_EnumDoublePointClosePoly_Test.pas" />
-    <DCCReference Include="u_EnumDoublePointFilterEqual_Test.pas" />
-    <DCCReference Include="u_EnumDoublePointLine2Poly_Test.pas" />
-    <DCCReference Include="u_EnumDoublePointWithClip_Test.pas" />
-    <DCCReference Include="u_GeometrySaveLoadWKB_Test.pas" />
-    <DCCReference Include="u_GUIDSetStatic_Test.pas" />
-    <DCCReference Include="u_GUIDSet_Test.pas" />
-    <DCCReference Include="u_HashCacheWithQueuesAbstract_Test.pas" />
-    <DCCReference Include="u_MarkCategoryListToTree_Test.pas" />
-    <DCCReference Include="u_PascalScriptUrlTemplate_Test.pas" />
-    <DCCReference Include="u_PathConfig_Test.pas" />
-    <DCCReference Include="u_ProjectedPolygonWithRect_Test.pas" />
-    <DCCReference Include="u_ProjectedSingleLine_Test.pas" />
-    <DCCReference Include="u_RegularExpressions_Test.pas" />
-    <DCCReference Include="u_SASTestCase.pas" />
-    <DCCReference Include="u_UpdateChecker_Test.pas" />
-    <DCCReference Include="u_VectorItmesFactorySimple_Test.pas" />
-    <DCCReference Include="u_WideStrings_Test.pas" />
-  </ItemGroup>
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{48242a36-b537-4ea6-963c-2409a3dad7ed}</ProjectGuid>
+        <MainSource>SASPlanetTests.dpr</MainSource>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+        <DCC_DependencyCheckOutputName>..\.bin\SASPlanetTests.exe</DCC_DependencyCheckOutputName>
+        <FrameworkType>VCL</FrameworkType>
+        <ProjectVersion>20.2</ProjectVersion>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>3</TargetedPlatforms>
+        <AppType>Application</AppType>
+        <ProjectName Condition="'$(ProjectName)'==''">SASPlanetTests</ProjectName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_ExeOutput>..\.bin\$(Platform)</DCC_ExeOutput>
+        <DCC_DcuOutput>..\.dcu\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\BerkeleyDB\;..\Includes\FastCode\;..\Includes\FastMM\;..\Includes\FreeImage\;..\Includes\Fundamentals\;..\Includes\LibJpeg\;..\Includes\LibPng\;..\Includes\libtiff\;..\Includes\Proj4\;..\Includes\RarProgressBar\;..\Src\;..\Src\ArchiveReadWrite\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapLayerProvider\;..\Src\BitmapPostProcessing\;..\Src\BitmapTileSaveLoad\;..\Src\Browser\;..\Src\CacheManager\;..\Src\CmdLineArgProcessor\;..\Src\ConfigData\;..\Src\ContentType\;..\Src\CoordConvert\;..\Src\CoordRepresentation\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\GeoCoder\;..\Src\Geometry\;..\Src\GPS\;..\Src\HashFunction\;..\Src\ImageResampler\;..\Src\InternalDomain\;..\Src\Logger\;..\Src\MainForm\;..\Src\MapCalibration\;..\Src\MapLayers\;..\Src\MapType\;..\Src\MapVersion\;..\Src\Marker\;..\Src\MarkPicture\;..\Src\MarksDB\;..\Src\Network\;..\Src\PascalScript\;..\Src\Performance\;..\Src\Player\;..\Src\Predicate\;..\Src\RegionProcess\;..\Src\Routing\;..\Src\SecondaryForms\;..\Src\Sensor\;..\Src\Settings\;..\Src\Synchronize\;..\Src\System\;..\Src\Terrain\;..\Src\TileIterator\;..\Src\TileMatrix\;..\Src\TileProvider\;..\Src\TileStorage\;..\Src\TimeZone\;..\Src\UpdateChecker\;..\Src\UrlByCoord\;..\Src\ValueToStringConverter\;..\Src\Vcl\;..\Src\Vector\;..\Src\VectorLoaders\;..\Src\MainForm\ElevationMetaWriter\;..\Src\MainForm\ElevationProfile\;..\Src\MainForm\FavoriteMapSet\;..\Src\MainForm\MapHintWindow\;..\Src\MainForm\MergePolygons\;..\Src\MainForm\Search\;..\Src\TileStorage\Archive\;..\Src\TileStorage\BerkeleyDB\;..\Src\TileStorage\DBMS\;..\Src\TileStorage\FileSystem\;..\Src\TileStorage\GoogleEarth\;..\Src\TileStorage\RAM\;..\Src\TileStorage\SQLite\;..\Src\MarksDB\GUI\;..\Src\MarksDB\mORMot\;..\Src\MarksDB\SML\;..\Src\RegionProcess\Export\IMG\;..\Src\MarksDB\mORMot\Categories\;..\Src\MarksDB\mORMot\Marks\;..\Src\RegionProcess\Combine\GeoTiff\;..\Src\RegionProcess\Combine\;..\Src\Terrain\External\;..\Src\Terrain\GoogleEarth\;..\Src\TileStorage\DBMS\ExtTileStorages\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <Manifest_File>None</Manifest_File>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1058</VerInfo_Locale>
+        <SanitizedProjectName>SASPlanetTests</SanitizedProjectName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;$(DCC_Namespace)</DCC_Namespace>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <Version>7.0</Version>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
+        <DCC_HppOutput>..\.dcu</DCC_HppOutput>
+        <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;$(DCC_ResourcePath)</DCC_ResourcePath>
+        <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;$(DCC_ObjPath)</DCC_ObjPath>
+        <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;$(DCC_IncludePath)</DCC_IncludePath>
+        <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <Version>7.0</Version>
+        <DCC_Define>DEBUG;_CONSOLE_TESTRUNNER;$(DCC_Define)</DCC_Define>
+        <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\;$(DCC_ResourcePath)</DCC_ResourcePath>
+        <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\;$(DCC_ObjPath)</DCC_ObjPath>
+        <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\;$(DCC_IncludePath)</DCC_IncludePath>
+        <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
+        <DCC_HppOutput>..\.dcu</DCC_HppOutput>
+        <DCC_Optimize>False</DCC_Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <BT_BuildType>Debug</BT_BuildType>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+    </PropertyGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Parameters>
+                    <Parameters Name="UseLauncher">False</Parameters>
+                    <Parameters Name="LoadAllSymbols">True</Parameters>
+                    <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+                </Parameters>
+                <VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+                    <VersionInfo Name="AutoIncBuild">False</VersionInfo>
+                    <VersionInfo Name="MajorVer">1</VersionInfo>
+                    <VersionInfo Name="MinorVer">0</VersionInfo>
+                    <VersionInfo Name="Release">0</VersionInfo>
+                    <VersionInfo Name="Build">0</VersionInfo>
+                    <VersionInfo Name="Debug">False</VersionInfo>
+                    <VersionInfo Name="PreRelease">False</VersionInfo>
+                    <VersionInfo Name="Special">False</VersionInfo>
+                    <VersionInfo Name="Private">False</VersionInfo>
+                    <VersionInfo Name="DLL">False</VersionInfo>
+                    <VersionInfo Name="Locale">1058</VersionInfo>
+                    <VersionInfo Name="CodePage">1251</VersionInfo>
+                </VersionInfo>
+                <VersionInfoKeys>
+                    <VersionInfoKeys Name="CompanyName"/>
+                    <VersionInfoKeys Name="FileDescription"/>
+                    <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="InternalName"/>
+                    <VersionInfoKeys Name="LegalCopyright"/>
+                    <VersionInfoKeys Name="LegalTrademarks"/>
+                    <VersionInfoKeys Name="OriginalFilename"/>
+                    <VersionInfoKeys Name="ProductName"/>
+                    <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="Comments"/>
+                </VersionInfoKeys>
+                <Source>
+                    <Source Name="MainSource">SASPlanetTests.dpr</Source>
+                </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\Skia.Package.FMX.Designtime290.bpl">Skia4Delphi FMX Designtime package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+            </Delphi.Personality>
+            <UnitTesting>
+                <TestFramework>DUnit / Delphi Win32</TestFramework>
+                <TestRunner>GUI</TestRunner>
+                <TestProjectName/>
+                <SourceProjectName/>
+            </UnitTesting>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="i_IGUIDInterfaceSet_Test.pas"/>
+        <DCCReference Include="i_IGUIDObjectSet_Test.pas"/>
+        <DCCReference Include="u_BitmapTileLibPng_Test.pas"/>
+        <DCCReference Include="u_BitmapTileSaveLoadFactory_Test.pas"/>
+        <DCCReference Include="u_CalcTilesInPolygon_Test.pas"/>
+        <DCCReference Include="u_CoordToStringConverter_Test.pas"/>
+        <DCCReference Include="u_Datum_Test.pas"/>
+        <DCCReference Include="u_EnumDoublePointClosePoly_Test.pas"/>
+        <DCCReference Include="u_EnumDoublePointFilterEqual_Test.pas"/>
+        <DCCReference Include="u_EnumDoublePointLine2Poly_Test.pas"/>
+        <DCCReference Include="u_EnumDoublePointWithClip_Test.pas"/>
+        <DCCReference Include="u_GUIDSetStatic_Test.pas"/>
+        <DCCReference Include="u_GUIDSet_Test.pas"/>
+        <DCCReference Include="u_GeometrySaveLoadWKB_Test.pas"/>
+        <DCCReference Include="u_HashCacheWithQueuesAbstract_Test.pas"/>
+        <DCCReference Include="u_MarkCategoryListToTree_Test.pas"/>
+        <DCCReference Include="u_PascalScriptUrlTemplate_Test.pas"/>
+        <DCCReference Include="u_PathConfig_Test.pas"/>
+        <DCCReference Include="u_ProjectedPolygonWithRect_Test.pas"/>
+        <DCCReference Include="u_ProjectedSingleLine_Test.pas"/>
+        <DCCReference Include="u_RegularExpressions_Test.pas"/>
+        <DCCReference Include="u_SASTestCase.pas"/>
+        <DCCReference Include="u_UpdateChecker_Test.pas"/>
+        <DCCReference Include="u_VectorItmesFactorySimple_Test.pas"/>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>

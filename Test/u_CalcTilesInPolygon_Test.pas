@@ -27,13 +27,13 @@ type
 implementation
 
 uses
-  u_GeoFunc,
   c_CoordConverter,
   i_GeometryProjected,
   i_HashFunction,
   i_DatumFactory,
   i_ProjectionTypeFactory,
   i_ProjectionType,
+  u_GeoFunc,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_DoublePointsAggregator,
@@ -151,6 +151,6 @@ begin
 end;
 
 initialization
-  // Register any test cases with the test runner
   RegisterTest(TestCalcTilesInPolygon.Suite);
+
 end.
