@@ -169,7 +169,7 @@ uses
 {$R *.dfm}
 
 type
-  TMBTilesContentType = (ctUnk, ctPNG, ctJPG);
+  TMBTilesContentType = (ctUnk, ctPNG, ctJPG, ctWEBP);
 
 function GetMBTilesContentType(
   const AContentTypeInfo: IContentTypeInfoBasic
@@ -183,6 +183,9 @@ begin
   end else
   if IsPngContentType(VContentType) then begin
     Result := ctPNG;
+  end else
+  if IsWebpContentType(VContentType) then begin
+    Result := ctWEBP;
   end else begin
     Result := ctUnk;
   end;
@@ -233,7 +236,7 @@ begin
     TfrImageFormatSelect.Create(
       ALanguageManager,
       FBitmapTileSaveLoadFactory,
-      [iftAuto, iftJpeg, iftPng8bpp, iftPng24bpp, iftPng32bpp]
+      [iftAuto, iftJpeg, iftPng8bpp, iftPng24bpp, iftPng32bpp, iftWebp, iftWebpLossless]
     );
 
   FPropertyState := CreateComponentPropertyState(
@@ -340,7 +343,7 @@ function TfrExportMBTiles.GetDirectTilesCopy: Boolean;
     VContentType := GetMBTilesContentType(AMapType.ContentType);
     Result :=
       AMapType.IsBitmapTiles and
-      (VContentType in [ctPNG, ctJPG]) and
+      (VContentType in [ctPNG, ctJPG, ctWEBP]) and
       (AMapType.ProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG = CGoogleProjectionEPSG);
   end;
 
@@ -414,6 +417,7 @@ procedure TfrExportMBTiles.GetBitmapTileSaver(out ASaver: IBitmapTileSaver; out 
 const
   cJPG = 'jpg';
   cPNG = 'png';
+  cWEBP = 'webp';
 var
   VMap: IMapType;
   VContentType: AnsiString;
@@ -430,6 +434,9 @@ begin
     end else
     if IsPngContentType(VContentType) then begin
       AFormat := cPNG;
+    end else
+    if IsWebpContentType(VContentType) then begin
+      AFormat := cWEBP;
     end else begin
       raise Exception.Create('Unexpected ContentType: ' + VContentType);
     end;

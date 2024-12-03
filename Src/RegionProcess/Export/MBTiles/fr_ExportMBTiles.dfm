@@ -113,7 +113,7 @@ object frExportMBTiles: TfrExportMBTiles
         Width = 461
         Height = 17
         Align = alTop
-        Caption = 'Use xyz scheme'
+        Caption = 'Use XYZ scheme'
         TabOrder = 4
       end
       object edtDesc: TEdit

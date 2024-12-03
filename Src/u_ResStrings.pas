@@ -219,7 +219,7 @@ resourcestring
   SAS_STR_InputLacitpCaption = 'Enter parameters';
   SAS_STR_ExportGEKmlExportCaption = 'KML for Google Earth';
   SAS_STR_ExportRMPExportCaption = 'RMP raster map for Magellan';
-  SAS_STR_ExportMBTilesExportCaption = 'MBTiles 1.2 (SQLite3)';
+  SAS_STR_ExportMBTilesExportCaption = 'MBTiles (SQLite3)';
   SAS_STR_ExportRMapsSQLiteExportCaption = 'RMaps (SQLite3)';
   SAS_STR_ExportOsmAndSQLiteExportCaption = 'OsmAnd (SQLite3)';
   SAS_STR_ExportLocusSQLiteExportCaption = 'Locus (SQLite3)';

@@ -333,12 +333,12 @@ begin
     VMetadata.NameValueSeparator := cKeyValSep;
 
     // base fields of MBTiles format
-    // https://github.com/mapbox/mbtiles-spec/blob/master/1.2/spec.md
+    // https://github.com/mapbox/mbtiles-spec/blob/master/1.3/spec.md
 
     // 1.0
     VMetadata.Add( KeyValToStr('name', FName) );
     VMetadata.Add( KeyValToStr('type', FImgType) );
-    VMetadata.Add( KeyValToStr('version', '1.2') );
+    VMetadata.Add( KeyValToStr('version', '1.3') );
     VMetadata.Add( KeyValToStr('description', FDescription) );
 
     // 1.1
@@ -348,13 +348,15 @@ begin
     // 1.2
     VMetadata.Add( KeyValToStr('attribution', FAttribution) );
 
+    // 1.3
+    VMetadata.Add( KeyValToStr('minzoom', IntToStr(AZooms[Low(AZooms)])) );
+    VMetadata.Add( KeyValToStr('maxzoom', IntToStr(AZooms[High(AZooms)])) );
+    VMetadata.Add( KeyValToStr('center', GetCenterStr(ALonLatRect, AZooms[Low(AZooms)])) );
+
     // additional fields from TileJSON standart
     // https://github.com/mapbox/tilejson-spec/tree/master/2.1.0
 
     VMetadata.Add( KeyValToStr('scheme', FScheme) );
-    VMetadata.Add( KeyValToStr('minzoom', IntToStr(AZooms[Low(AZooms)])) );
-    VMetadata.Add( KeyValToStr('maxzoom', IntToStr(AZooms[High(AZooms)])) );
-    VMetadata.Add( KeyValToStr('center', GetCenterStr(ALonLatRect, AZooms[Low(AZooms)])) );
 
     WriteMetadata(VMetadata)
   finally
