@@ -3847,12 +3847,12 @@ var
   VScaleFinish: Double;
   VScaleStart: Double;
 begin
-  if (FMapZoomAnimtion) or (FState.IsMapMoving) or (ANewZoom > 23) then begin
+  if (FMapZoomAnimtion) or (ANewZoom > 23) then begin
     Exit;
   end;
 
   FMapZoomAnimtion := True;
-  FState.IsMapMoving := True;
+  FState.MapMovingBegin;
   try
     VZoom := FViewPortState.View.GetStatic.Projection.Zoom;
     if VZoom <> ANewZoom then begin
@@ -3892,7 +3892,7 @@ begin
       end;
     end;
   finally
-    FState.IsMapMoving := False;
+    FState.MapMovingEnd;
     FMapZoomAnimtion := False;
   end;
 end;
@@ -3915,7 +3915,7 @@ var
   VLastTime: Double;
 begin
   FMapMoveAnimtion := True;
-  FState.IsMapMoving := True;
+  FState.MapMovingBegin;
   try
     VMousePPS := Sqrt(Sqr(AMouseMoveSpeed.X) + Sqr(AMouseMoveSpeed.Y));
 
@@ -3970,7 +3970,7 @@ begin
         (AMousePos.Y <> FMouseState.GetLastUpPos(FMapMovingButton).Y);
     end;
   finally
-    FState.IsMapMoving := False;
+    FState.MapMovingEnd;
     FMapMoveAnimtion := False;
   end;
 end;
@@ -4918,8 +4918,8 @@ begin
       end;
     end;
     if FState.IsMapMoving then begin
-      Assert(False, 'How come IsMapMoving = True?');
-      FState.IsMapMoving := False;
+      Assert(False, 'Unexpected state: IsMapMoving = True');
+      //FState.MapMovingEnd;
     end;
     FViewPortState.ChangeMapPixelToVisualPoint(r);
   end;
@@ -5230,10 +5230,12 @@ var
 begin
   FMapHintWindow.HideHint;
 
-  if (Layer <> nil) then begin
-    exit;
+  if Layer <> nil then begin
+    Exit;
   end;
+
   FMouseHandler.OnMouseDown(Button, Shift, Point(X, Y));
+
   if (FMapZoomAnimtion) or
     (ssDouble in Shift) or
     (Button = mbMiddle) or
@@ -5241,15 +5243,17 @@ begin
     (HiWord(GetKeyState(VK_DELETE)) <> 0) or
     (HiWord(GetKeyState(VK_INSERT)) <> 0)
   then begin
-    exit;
+    Exit;
   end;
+
   Screen.ActiveForm.SetFocusedControl(map);
   VLocalConverter := FViewPortState.View.GetStatic;
   VProjection := VLocalConverter.Projection;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
   VIsClickInMap := VProjection.CheckPixelPosFloat(VMouseMapPoint);
+
   if (Button = mbLeft) and (FState.State <> ao_movemap) then begin
-    if (FLineOnMapEdit <> nil) then begin
+    if FLineOnMapEdit <> nil then begin
       FMovePoint := True;
       if VIsClickInMap then begin
         VClickRect.Left := X - 5;
@@ -5303,29 +5307,27 @@ begin
         end;
       end;
     end;
-    if (FState.State = ao_select_rect) then begin
+    if FState.State = ao_select_rect then begin
       if not FSelectionRect.IsEmpty then begin
         VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
         VClickLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
         FSelectionRect.SetNextPoint(VClickLonLat, Shift);
       end;
     end;
-    if (FState.State = ao_edit_point) then begin
+    if FState.State = ao_edit_point then begin
       VProjection.ValidatePixelPosFloat(VMouseMapPoint, False);
       VClickLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
       FPointOnMapEdit.Point := VClickLonLat;
       FMovePoint := True;
     end;
-    exit;
-  end;
-  if FState.IsMapMoving then begin
-    exit;
+
+    Exit;
   end;
 
   if (VIsClickInMap) and (Button = mbright) and (FState.State = ao_movemap) then begin
     VVectorItem := nil;
     VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x, y));
-    if ((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
+    if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
       VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
     end;
     if not Supports(VVectorItem, IVectorDataItem, FSelectedMark) then begin
@@ -5333,20 +5335,20 @@ begin
     end;
     map.PopupMenu := MainPopupMenu;
   end else begin
-    FState.IsMapMoving := True;
+    FState.MapMovingBegin;
     FMapMovingButton := Button;
     FMoveByMouseStartPoint := Point(X, Y);
     FSelectedMark := nil;
     map.PopupMenu := nil;
   end;
 
-  if (FSelectedMark <> nil) then begin
+  if FSelectedMark <> nil then begin
     // mark selected
     FSelectedWiki := nil;
   end else begin
     // try to select wiki object
     VVectorItems := FWikiLayer.FindItems(VLocalConverter, Point(x, y));
-    if ((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
+    if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
       FSelectedWiki := SelectForEdit(VVectorItems, VLocalConverter);
     end;
   end;
@@ -5447,7 +5449,7 @@ begin
   VIsMapMoving := FState.IsMapMoving and (FMapMovingButton = Button);
 
   if VIsMapMoving then begin
-    FState.IsMapMoving := False;
+    FState.MapMovingEnd;
   end;
 
   if not VIsMapMoving and (Layer <> nil) then begin
@@ -5644,6 +5646,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
   VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
+
   if (FLineOnMapEdit <> nil) and FMovePoint then begin
     VMagnetPoint := CEmptyDoublePoint;
     if FConfig.MainConfig.MagnetDraw then begin

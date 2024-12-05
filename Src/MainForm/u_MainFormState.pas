@@ -35,7 +35,7 @@ type
   TMainFormState = class(TChangeableBase, IMainFormState)
   private
     FState: TStateEnum;
-    FIsMapMoving: Boolean;
+    FMapMovingCount: Integer;
     {$IFDEF ENABLE_STATE_LOGGING}
     procedure LogChanges;
     {$ENDIF}
@@ -44,8 +44,10 @@ type
     function GetState: TStateEnum;
     procedure SetState(const AValue: TStateEnum);
 
+    procedure MapMovingBegin;
+    procedure MapMovingEnd;
+
     function GetIsMapMoving: Boolean;
-    procedure SetIsMapMoving(const AValue: Boolean);
   public
     constructor Create;
   end;
@@ -65,28 +67,48 @@ constructor TMainFormState.Create;
 begin
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FState := ao_movemap;
+  FMapMovingCount := 0;
 end;
 
-function TMainFormState.GetIsMapMoving: Boolean;
+procedure TMainFormState.MapMovingBegin;
 begin
-  Result := FIsMapMoving;
-end;
+  Inc(FMapMovingCount);
 
-function TMainFormState.GetState: TStateEnum;
-begin
-  Result := FState;
-end;
-
-procedure TMainFormState.SetIsMapMoving(const AValue: Boolean);
-begin
-  if FIsMapMoving <> AValue then begin
-    FIsMapMoving := AValue;
+  if FMapMovingCount = 1 then begin
     DoChangeNotify;
 
     {$IFDEF ENABLE_STATE_LOGGING}
     LogChanges;
     {$ENDIF}
   end;
+end;
+
+procedure TMainFormState.MapMovingEnd;
+begin
+  Dec(FMapMovingCount);
+
+  if FMapMovingCount < 0 then begin
+    Assert(False);
+    FMapMovingCount := 0;
+  end;
+
+  if FMapMovingCount = 0 then begin
+    DoChangeNotify;
+
+    {$IFDEF ENABLE_STATE_LOGGING}
+    LogChanges;
+    {$ENDIF}
+  end;
+end;
+
+function TMainFormState.GetIsMapMoving: Boolean;
+begin
+  Result := FMapMovingCount > 0;
+end;
+
+function TMainFormState.GetState: TStateEnum;
+begin
+  Result := FState;
 end;
 
 procedure TMainFormState.SetState(const AValue: TStateEnum);
@@ -118,7 +140,7 @@ const
 begin
   OutputDebugString(PChar(
     'State: ' + cStateId[FState] + '; ' +
-    'IsMapMoving: ' + BoolToStr(FIsMapMoving, True)
+    'MapMovingCount: ' + IntToStr(FMapMovingCount)
   ));
 end;
 {$ENDIF}

@@ -46,9 +46,11 @@ type
     procedure SetState(const AValue: TStateEnum);
     property State: TStateEnum read GetState write SetState;
 
+    procedure MapMovingBegin;
+    procedure MapMovingEnd;
+
     function GetIsMapMoving: Boolean;
-    procedure SetIsMapMoving(const AValue: Boolean);
-    property IsMapMoving: Boolean read GetIsMapMoving write SetIsMapMoving;
+    property IsMapMoving: Boolean read GetIsMapMoving;
   end;
 
 implementation
