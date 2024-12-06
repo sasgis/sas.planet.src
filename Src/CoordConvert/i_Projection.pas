@@ -43,25 +43,33 @@ type
 
     function IsSame(const AProjection: IProjection): Boolean;
 
-    // Возвращает прямоугольник тайлов допустимый в заданном зуме
+    // Returns the rectangle of tiles allowed at the given zoom level
     function GetTileRect: TRect;
-    // Возвращает прямоугольник пикселов допустимый в заданном зуме
+
+    // Returns the rectangle of pixels allowed at the given zoom level
     function GetPixelRect: TRect;
 
-    // Возвращает общее количество пикселей на заданном зуме
+    // Returns the total number of pixels at the given zoom level
     function GetPixelsFloat: Double;
 
-    // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
+    // Returns the ID of the tile division type
+    // (for future reference, to implement custom tile sizes)
     function GetTileSplitCode: Integer;
 
-    // Преобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
+    function GetTileSize(
+      const APoint: TPoint
+    ): TPoint;
+
+    // Converts pixel coordinates to relative coordinates
     function PixelPos2Relative(
       const APoint: TPoint
     ): TDoublePoint;
-    // Преобразует координаты пиксела в географические координаты
+
+    // Converts pixel coordinates to geographic coordinates
     function PixelPos2LonLat(
       const APoint: TPoint
     ): TDoublePoint;
+
     function PixelPos2TilePosFloat(
       const APoint: TPoint
     ): TDoublePoint;
@@ -69,25 +77,30 @@ type
     function PixelPosFloat2TilePosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
+
     function PixelPosFloat2Relative(
       const APoint: TDoublePoint
     ): TDoublePoint;
+
     function PixelPosFloat2LonLat(
       const APoint: TDoublePoint
     ): TDoublePoint;
 
-    // вычисляет прямоугольник тайлов покрывающий прямоугольник пикселов
+    // Calculates the tile rectangle covering the pixel rectangle
     function PixelRect2TileRect(
       const ARect: TRect
     ): TRect;
-    // Преобразует координаты прямоугольника пикселов в относительные координаты на карте (x/PixelsAtZoom)
+
+    // Converts the coordinates of a rectangle of pixels to relative coordinates
     function PixelRect2RelativeRect(
       const ARect: TRect
     ): TDoubleRect;
-    // Преобразует координаты прямоугольника пикселов в географические координаты на карте
+
+    // Converts the coordinates of a rectangle of pixels to geographic coordinates
     function PixelRect2LonLatRect(
       const ARect: TRect
     ): TDoubleRect;
+
     function PixelRect2TileRectFloat(
       const ARect: TRect
     ): TDoubleRect;
@@ -95,37 +108,45 @@ type
     function PixelRectFloat2TileRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
+
     function PixelRectFloat2RelativeRect(
       const ARect: TDoubleRect
     ): TDoubleRect;
+
     function PixelRectFloat2LonLatRect(
       const ARect: TDoubleRect
     ): TDoubleRect;
 
-    // Преобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
+    // Converts the tile position at the given zoom to the pixel coordinates of its upper left corner
     function TilePos2PixelPos(
       const APoint: TPoint
     ): TPoint;
-    // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+
+    // Converts the tile position at a given zoom to the pixel numbers of its corners
     function TilePos2PixelRect(
       const APoint: TPoint
     ): TRect;
+
     function TilePos2PixelRectFloat(
       const APoint: TPoint
     ): TDoubleRect;
-    // Преобразует координаты тайла в относительные координаты на карте (x/PixelsAtZoom)
+
+    // Converts the tile position to the relative coordinates
     function TilePos2Relative(
       const APoint: TPoint
     ): TDoublePoint;
-    // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
+
+    // Converts the tile position at a given zoom to the pixel numbers of its corners
     function TilePos2RelativeRect(
       const APoint: TPoint
     ): TDoubleRect;
-    // Преобразует координаты тайла в географические координаты
+
+    // Converts tile coordinates to geographic coordinates
     function TilePos2LonLat(
       const APoint: TPoint
     ): TDoublePoint;
-    // Преобразует позицию тайла заданного зума в географические координаты его углов
+
+    // Converts the tile position at a given zoom to the geographic coordinates of its corners
     function TilePos2LonLatRect(
       const APoint: TPoint
     ): TDoubleRect;
@@ -133,22 +154,26 @@ type
     function TilePosFloat2PixelPosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
+
     function TilePosFloat2Relative(
       const APoint: TDoublePoint
     ): TDoublePoint;
+
     function TilePosFloat2LonLat(
       const APoint: TDoublePoint
     ): TDoublePoint;
 
-    // вычисляет координты пикселей вершин прямоугольника тайлов
+    // Calculates the pixel coordinates of the vertices of the tile rectangle
     function TileRect2PixelRect(
       const ARect: TRect
     ): TRect;
-    // вычисляет относительные координты вершин прямоугольника тайлов
+
+    // Calculates the relative coordinates of the vertices of the tile rectangle
     function TileRect2RelativeRect(
       const ARect: TRect
     ): TDoubleRect;
-    // Преобразует прямоугольник тайлов заданного зума в географические координаты его углов
+
+    // Converts a tile rectangle at a given zoom to the geographic coordinates of its corners
     function TileRect2LonLatRect(
       const ARect: TRect
     ): TDoubleRect;
@@ -156,36 +181,43 @@ type
     function TileRectFloat2PixelRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
+
     function TileRectFloat2RelativeRect(
       const ARect: TDoubleRect
     ): TDoubleRect;
+
     function TileRectFloat2LonLatRect(
       const ARect: TDoubleRect
     ): TDoubleRect;
 
-    // Перобразует относительные координаты на карте в координаты пиксела
+    // Converts relative coordinates to pixel coordinates
     function Relative2PixelPosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
-    // Перобразует относительные координаты на карте в координаты тайла
+
+    // Converts relative coordinates to tile coordinates
     function Relative2TilePosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
 
-    // Преобразует прямоугольник с относительными координатами в прямоугольник пикселов
+    // Converts a rectangle with relative coordinates to a pixel rectangle
     function RelativeRect2PixelRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
-    // Преобразует прямоугольник с относительными координатами в прямоугольник тайлов
+
+    // Converts a rectangle with relative coordinates to a tile rectangle
     function RelativeRect2TileRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
 
-    // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
+    // Converts geographic coordinates to the coordinates of a pixel at a given zoom
+    // that covers the given coordinates
     function LonLat2PixelPosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
-    // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
+
+    // Converts geographic coordinates to the position of a tile at a given zoom
+    // that covers the given coordinates
     function LonLat2TilePosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
@@ -193,14 +225,12 @@ type
     function LonLatRect2PixelRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
+
     function LonLatRect2TileRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
 
-    function GetTileSize(
-      const APoint: TPoint
-    ): TPoint;
-
+    // Validate
     procedure ValidateTilePos(
       var APoint: TPoint;
       ACicleMap: Boolean
@@ -212,7 +242,6 @@ type
     procedure ValidateTileRect(
       var ARect: TRect
     );
-
     procedure ValidatePixelPos(
       var APoint: TPoint;
       ACicleMap: Boolean
@@ -236,35 +265,34 @@ type
       var ARect: TDoubleRect
     );
 
+    // Check
     function CheckTilePos(
       const APoint: TPoint
-    ): boolean;
+    ): Boolean;
     function CheckTilePosStrict(
       const APoint: TPoint
-    ): boolean;
+    ): Boolean;
     function CheckTileRect(
       const ARect: TRect
-    ): boolean;
-
+    ): Boolean;
     function CheckPixelPos(
       const APoint: TPoint
-    ): boolean;
+    ): Boolean;
     function CheckPixelPosFloat(
       const APoint: TDoublePoint
-    ): boolean;
+    ): Boolean;
     function CheckPixelPosStrict(
       const APoint: TPoint
-    ): boolean;
+    ): Boolean;
     function CheckPixelPosFloatStrict(
       const APoint: TDoublePoint
-    ): boolean;
+    ): Boolean;
     function CheckPixelRect(
       const ARect: TRect
-    ): boolean;
+    ): Boolean;
     function CheckPixelRectFloat(
       const ARect: TDoubleRect
-    ): boolean;
-
+    ): Boolean;
   end;
 
 implementation

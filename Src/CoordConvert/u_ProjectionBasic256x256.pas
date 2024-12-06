@@ -45,6 +45,7 @@ type
     FTilesFloat: Double;
     FPixelsFloat: Double;
     FTileSplitCode: Integer;
+
     procedure InternalValidatePixelPos(
       var APoint: TPoint
     ); inline;
@@ -74,8 +75,12 @@ type
       var ARect: TDoubleRect
     ); inline;
 
-    procedure InternalValidateRelativePos(var APoint: TDoublePoint); inline;
-    procedure InternalValidateRelativeRect(var ARect: TDoubleRect); inline;
+    procedure InternalValidateRelativePos(
+      var APoint: TDoublePoint
+    ); inline;
+    procedure InternalValidateRelativeRect(
+      var ARect: TDoubleRect
+    ); inline;
 
     function InternalRelative2PixelPosFloat(
       const APoint: TDoublePoint
@@ -118,27 +123,25 @@ type
       const ARect: TDoubleRect
     ): TDoubleRect; inline;
   private
+    { IProjection }
     function GetHash: THashValue;
     function GetZoom: Byte;
     function GetProjectionType: IProjectionType;
     function IsSame(const AProjection: IProjection): Boolean;
 
-    // Возвращает прямоугольник тайлов допустимый в заданном зуме
     function GetTileRect: TRect;
-    // Возвращает прямоугольник пикселов допустимый в заданном зуме
     function GetPixelRect: TRect;
-
-    // Возвращает общее количество пикселей на заданном зуме
     function GetPixelsFloat: Double;
 
-    // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
     function GetTileSplitCode: Integer;
 
-    // Преобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
+    function GetTileSize(
+      const APoint: TPoint
+    ): TPoint;
+
     function PixelPos2Relative(
       const APoint: TPoint
     ): TDoublePoint;
-    // Преобразует координаты пиксела в географические координаты
     function PixelPos2LonLat(
       const APoint: TPoint
     ): TDoublePoint;
@@ -156,15 +159,12 @@ type
       const APoint: TDoublePoint
     ): TDoublePoint;
 
-    // вычисляет прямоугольник тайлов покрывающий прямоугольник пикселов
     function PixelRect2TileRect(
       const ARect: TRect
     ): TRect;
-    // Преобразует координаты прямоугольника пикселов в относительные координаты на карте (x/PixelsAtZoom)
     function PixelRect2RelativeRect(
       const ARect: TRect
     ): TDoubleRect;
-    // Преобразует координаты прямоугольника пикселов в географические координаты на карте
     function PixelRect2LonLatRect(
       const ARect: TRect
     ): TDoubleRect;
@@ -182,30 +182,24 @@ type
       const ARect: TDoubleRect
     ): TDoubleRect;
 
-    // Преобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
     function TilePos2PixelPos(
       const APoint: TPoint
     ): TPoint;
-    // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
     function TilePos2PixelRect(
       const APoint: TPoint
     ): TRect;
     function TilePos2PixelRectFloat(
       const APoint: TPoint
     ): TDoubleRect;
-    // Преобразует координаты тайла в относительные координаты на карте (x/PixelsAtZoom)
     function TilePos2Relative(
       const APoint: TPoint
     ): TDoublePoint;
-    // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
     function TilePos2RelativeRect(
       const APoint: TPoint
     ): TDoubleRect;
-    // Преобразует координаты тайла в географические координаты
     function TilePos2LonLat(
       const APoint: TPoint
     ): TDoublePoint;
-    // Преобразует позицию тайла заданного зума в географические координаты его углов
     function TilePos2LonLatRect(
       const APoint: TPoint
     ): TDoubleRect;
@@ -220,15 +214,12 @@ type
       const APoint: TDoublePoint
     ): TDoublePoint;
 
-    // вычисляет координты пикселей вершин прямоугольника тайлов
     function TileRect2PixelRect(
       const ARect: TRect
     ): TRect;
-    // вычисляет относительные координты вершин прямоугольника тайлов
     function TileRect2RelativeRect(
       const ARect: TRect
     ): TDoubleRect;
-    // Преобразует прямоугольник тайлов заданного зума в географические координаты его углов
     function TileRect2LonLatRect(
       const ARect: TRect
     ): TDoubleRect;
@@ -243,29 +234,23 @@ type
       const ARect: TDoubleRect
     ): TDoubleRect;
 
-    // Перобразует относительные координаты на карте в координаты пиксела
     function Relative2PixelPosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
-    // Перобразует относительные координаты на карте в координаты тайла
     function Relative2TilePosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
 
-    // Преобразует прямоугольник с относительными координатами в прямоугольник пикселов
     function RelativeRect2PixelRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
-    // Преобразует прямоугольник с относительными координатами в прямоугольник тайлов
     function RelativeRect2TileRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
 
-    // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
     function LonLat2PixelPosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
-    // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
     function LonLat2TilePosFloat(
       const APoint: TDoublePoint
     ): TDoublePoint;
@@ -276,10 +261,6 @@ type
     function LonLatRect2TileRectFloat(
       const ARect: TDoubleRect
     ): TDoubleRect;
-
-    function GetTileSize(
-      const APoint: TPoint
-    ): TPoint;
 
     procedure ValidateTilePos(
       var APoint: TPoint;
@@ -318,37 +299,37 @@ type
 
     function CheckTilePos(
       const APoint: TPoint
-    ): boolean;
+    ): Boolean;
     function CheckTilePosStrict(
       const APoint: TPoint
-    ): boolean;
+    ): Boolean;
     function CheckTileRect(
       const ARect: TRect
-    ): boolean;
+    ): Boolean;
 
     function CheckPixelPos(
       const APoint: TPoint
-    ): boolean;
+    ): Boolean;
     function CheckPixelPosFloat(
       const APoint: TDoublePoint
-    ): boolean;
+    ): Boolean;
     function CheckPixelPosStrict(
       const APoint: TPoint
-    ): boolean;
+    ): Boolean;
     function CheckPixelPosFloatStrict(
       const APoint: TDoublePoint
-    ): boolean;
+    ): Boolean;
     function CheckPixelRect(
       const ARect: TRect
-    ): boolean;
+    ): Boolean;
     function CheckPixelRectFloat(
       const ARect: TDoubleRect
-    ): boolean;
+    ): Boolean;
   public
     constructor Create(
       const AHash: THashValue;
       const AProjectionType: IProjectionType;
-      AZoom: Byte
+      const AZoom: Byte
     );
   end;
 
@@ -362,7 +343,7 @@ uses
 constructor TProjectionBasic256x256.Create(
   const AHash: THashValue;
   const AProjectionType: IProjectionType;
-  AZoom: Byte
+  const AZoom: Byte
 );
 begin
   Assert(Assigned(AProjectionType));
@@ -880,7 +861,7 @@ begin
     );
 end;
 
-function TProjectionBasic256x256.CheckPixelPos(const APoint: TPoint): boolean;
+function TProjectionBasic256x256.CheckPixelPos(const APoint: TPoint): Boolean;
 begin
   Result := True;
   if APoint.X < 0 then begin
@@ -906,7 +887,7 @@ end;
 
 function TProjectionBasic256x256.CheckPixelPosFloat(
   const APoint: TDoublePoint
-): boolean;
+): Boolean;
 begin
   Result := True;
   if APoint.X < 0 then begin
@@ -932,7 +913,7 @@ end;
 
 function TProjectionBasic256x256.CheckPixelPosFloatStrict(
   const APoint: TDoublePoint
-): boolean;
+): Boolean;
 begin
   Result := True;
   if APoint.X < 0 then begin
@@ -956,7 +937,7 @@ begin
   end;
 end;
 
-function TProjectionBasic256x256.CheckPixelPosStrict(const APoint: TPoint): boolean;
+function TProjectionBasic256x256.CheckPixelPosStrict(const APoint: TPoint): Boolean;
 begin
   Result := True;
   if APoint.X < 0 then begin
@@ -980,7 +961,7 @@ begin
   end;
 end;
 
-function TProjectionBasic256x256.CheckPixelRect(const ARect: TRect): boolean;
+function TProjectionBasic256x256.CheckPixelRect(const ARect: TRect): Boolean;
 begin
   Result := True;
   if ARect.Left < 0 then begin
@@ -1024,7 +1005,7 @@ begin
   end;
 end;
 
-function TProjectionBasic256x256.CheckPixelRectFloat(const ARect: TDoubleRect): boolean;
+function TProjectionBasic256x256.CheckPixelRectFloat(const ARect: TDoubleRect): Boolean;
 begin
   Result := True;
   if ARect.Left < 0 then begin
@@ -1068,7 +1049,7 @@ begin
   end;
 end;
 
-function TProjectionBasic256x256.CheckTilePos(const APoint: TPoint): boolean;
+function TProjectionBasic256x256.CheckTilePos(const APoint: TPoint): Boolean;
 begin
   Result := True;
   if APoint.X < 0 then begin
@@ -1092,7 +1073,7 @@ begin
   end;
 end;
 
-function TProjectionBasic256x256.CheckTilePosStrict(const APoint: TPoint): boolean;
+function TProjectionBasic256x256.CheckTilePosStrict(const APoint: TPoint): Boolean;
 begin
   Result := True;
   if APoint.X < 0 then begin
@@ -1116,7 +1097,7 @@ begin
   end;
 end;
 
-function TProjectionBasic256x256.CheckTileRect(const ARect: TRect): boolean;
+function TProjectionBasic256x256.CheckTileRect(const ARect: TRect): Boolean;
 begin
   Result := True;
   if ARect.Left < 0 then begin
@@ -1166,7 +1147,8 @@ begin
 end;
 
 function TProjectionBasic256x256.IsSame(
-  const AProjection: IProjection): Boolean;
+  const AProjection: IProjection
+): Boolean;
 var
   VSelf: IProjection;
 begin
