@@ -203,6 +203,7 @@
         <DCCReference Include="u_UpdateChecker_Test.pas"/>
         <DCCReference Include="u_VectorItmesFactorySimple_Test.pas"/>
         <DCCReference Include="u_ProjectionType_Test.pas"/>
+        <DCCReference Include="u_ProjectionSet_Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
