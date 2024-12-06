@@ -68,12 +68,13 @@ end;
 function TProjectionTypeMercatorOnEllipsoid.LonLat2RelativeInternal(
   const APoint: TDoublePoint
 ): TDoublePoint;
+const
+  c = 1 / (2 * PI);
 var
-  z, c: Extended;
+  z: Extended;
 begin
   Result.X := 0.5 + APoint.X / 360;
   z := Sin(APoint.Y * PI / 180);
-  c := 1 / (2 * PI);
   Result.Y := 0.5 - c * (ArcTanh(z) - FExct * ArcTanh(FExct * z));
 end;
 

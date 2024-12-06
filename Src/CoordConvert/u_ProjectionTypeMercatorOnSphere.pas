@@ -47,6 +47,17 @@ implementation
 uses
   Math;
 
+function IsSameValue(const A, B: Double): Boolean; inline;
+const
+  cEpsilon = 1E-12;
+begin
+  if A > B then begin
+    Result := (A - B) <= cEpsilon;
+  end else begin
+    Result := (B - A) <= cEpsilon;
+  end;
+end;
+
 { TProjectionTypeMercatorOnSphere }
 
 constructor TProjectionTypeMercatorOnSphere.Create(
@@ -63,21 +74,19 @@ function TProjectionTypeMercatorOnSphere.LonLat2RelativeInternal(
   const APoint: TDoublePoint
 ): TDoublePoint;
 const
-  cEpsilon = 1E-12;
+  c = 1 / (2 * PI);
 var
-  z, c: Extended;
+  z: Extended;
 begin
   Result.X := 0.5 + APoint.X / 360;
 
   z := Sin(APoint.Y * PI / 180);
-  c := Ln((1 + z) / (1 - z)) / (2 * PI);
+  Result.Y := 0.5 - 0.5 * Ln((1 + z) / (1 - z)) * c;
 
-  Result.Y := 0.5 - 0.5 * c;
-
-  if SameValue(Result.Y, 0, cEpsilon) then begin
+  if IsSameValue(Result.Y, 0) then begin
     Result.Y := 0;
   end else
-  if SameValue(Result.Y, 1, cEpsilon) then begin
+  if IsSameValue(Result.Y, 1) then begin
     Result.Y := 1;
   end;
 end;
