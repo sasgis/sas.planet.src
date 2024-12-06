@@ -140,7 +140,7 @@ const
 begin
   OutputDebugString(PChar(
     'State: ' + cStateId[FState] + '; ' +
-    'MapMovingCount: ' + IntToStr(FMapMovingCount)
+    'IsMapMoving: ' + BoolToStr(FMapMovingCount > 0, True)
   ));
 end;
 {$ENDIF}
