@@ -26,8 +26,8 @@ interface
 uses
   SysUtils,
   AnsiStrings,
-  ALString,
-  ALStringList;
+  Alcinoe.StringUtils,
+  Alcinoe.StringList;
 
 //---------------- AnsiStrings ------------------------------------------------
 type
@@ -71,12 +71,16 @@ function FormatA(const Format: AnsiString; const Args: array of const;
 
 //----------------- Alcinoe ---------------------------------------------------
 type
-  TFormatSettingsA = ALString.TALFormatSettingsA;
+  TFormatSettingsA = Alcinoe.StringUtils.TALFormatSettingsA;
 
-  TStringListA = ALStringList.TALStringListA;
-  TStringsEnumeratorA = ALStringList.TALStringsEnumeratorA;
+  TStringListA = class(Alcinoe.StringList.TALStringListA)
+  public
+    function Find(const S: AnsiString; var Index: Integer): Boolean; override;
+  end;
 
-  TStringStreamA = ALString.TALStringStreamA;
+  TStringsEnumeratorA = Alcinoe.StringList.TALStringsEnumeratorA;
+
+  TStringStreamA = Alcinoe.StringUtils.TALStringStreamA;
 
   TFloatToStrA = function(Value: Extended; const AFormatSettings: TALFormatSettingsA): AnsiString;
   TFloatToStrFA = function(Value: Extended; Format: TFloatFormat; Precision, Digits: Integer;
@@ -98,24 +102,24 @@ type
   TFormatDateTimeA = function(const Format: AnsiString; DateTime: TDateTime; const AFormatSettings: TALFormatSettingsA): AnsiString;
 
 const
-  FloatToStrA: TFloatToStrA = ALString.ALFloatToStrA;
-  FloatToStrFA: TFloatToStrFA = ALString.ALFloatToStrFA;
+  FloatToStrA: TFloatToStrA = Alcinoe.StringUtils.ALFloatToStrA;
+  FloatToStrFA: TFloatToStrFA = Alcinoe.StringUtils.ALFloatToStrFA;
 
-  StrToFloatA: TStrToFloatA = ALString.ALStrToFloat;
+  StrToFloatA: TStrToFloatA = Alcinoe.StringUtils.ALStrToFloat;
 
-  IntToHexA: TIntToHexA = ALString.ALIntToHexA;
-  IntToStrA: TIntToStrA = ALString.ALIntToStrA;
+  IntToHexA: TIntToHexA = Alcinoe.StringUtils.ALIntToHexA;
+  IntToStrA: TIntToStrA = Alcinoe.StringUtils.ALIntToStrA;
 
-  StrToIntA: TStrToIntA = ALString.ALStrToInt;
-  StrToIntDefA: TStrToIntDefA = ALString.ALStrToIntDef;
+  StrToIntA: TStrToIntA = Alcinoe.StringUtils.ALStrToInt;
+  StrToIntDefA: TStrToIntDefA = Alcinoe.StringUtils.ALStrToIntDef;
 
-  TryStrToIntA: TTryStrToIntA = ALString.ALTryStrToInt;
-  TryStrToInt64A: TTryStrToInt64A = ALString.ALTryStrToInt64;
+  TryStrToIntA: TTryStrToIntA = Alcinoe.StringUtils.ALTryStrToInt;
+  TryStrToInt64A: TTryStrToInt64A = Alcinoe.StringUtils.ALTryStrToInt64;
 
-  StrToDateA: TStrToDateA = ALString.ALStrToDate;
-  StrToTimeA: TStrToTimeA = ALString.ALStrToTime;
-  DateTimeToStrA: TDateTimeToStrA = ALString.ALDateTimeToStrA;
-  FormatDateTimeA: TFormatDateTimeA = ALString.ALFormatDateTimeA;
+  StrToDateA: TStrToDateA = Alcinoe.StringUtils.ALStrToDate;
+  StrToTimeA: TStrToTimeA = Alcinoe.StringUtils.ALStrToTime;
+  DateTimeToStrA: TDateTimeToStrA = Alcinoe.StringUtils.ALDateTimeToStrA;
+  FormatDateTimeA: TFormatDateTimeA = Alcinoe.StringUtils.ALFormatDateTimeA;
 
 //----------------- System ----------------------------------------------------
 
@@ -231,6 +235,13 @@ begin
   if string(Result) <> s then begin
     raise Exception.CreateFmt('String "%s" contain non-ansi characters!', [s]);
   end;
+end;
+
+{ TStringListA }
+
+function TStringListA.Find(const S: AnsiString; var Index: Integer): Boolean;
+begin
+  Result := inherited Find(S, Index);
 end;
 
 end.

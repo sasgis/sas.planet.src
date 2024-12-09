@@ -133,7 +133,7 @@ implementation
 
 uses
   SysUtils,
-  ALStringList,
+  Alcinoe.StringList,
   i_VectorDataLoader,
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,

@@ -24,7 +24,6 @@ unit u_ContentTypeListByKey;
 interface
 
 uses
-  ALStringList,
   u_AnsiStr,
   i_ContentTypeInfo;
 
@@ -48,7 +47,8 @@ implementation
 
 uses
   Classes,
-  SysUtils;
+  SysUtils,
+  Alcinoe.StringList;
 
 { TContentTypeListByKey }
 
@@ -71,11 +71,11 @@ end;
 
 destructor TContentTypeListByKey.Destroy;
 var
-  i: Integer;
+  I: Integer;
 begin
   if Assigned(FList) then begin
-    for i := 0 to FList.Count - 1 do begin
-      IInterface(Pointer(FList.Objects[i]))._Release;
+    for I := 0 to FList.Count - 1 do begin
+      IInterface(Pointer(FList.Objects[I]))._Release;
     end;
     FreeAndNil(FList);
   end;

@@ -109,7 +109,7 @@ interface
 
 uses
  {$IFDEF ForceAnsiStrings}
- ALStringList,
+ Alcinoe.StringList,
  {$ELSE}
  Classes,  // TStrings in Split method
  {$ENDIF}
@@ -653,7 +653,7 @@ implementation
 
 uses
  {$IFDEF ForceAnsiStrings}
- ALString,
+ Alcinoe.StringUtils,
    {$IFDEF HAS_ANSISTRINGS}
    AnsiStrings,
    {$ENDIF}

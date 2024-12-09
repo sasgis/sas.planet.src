@@ -25,7 +25,6 @@ interface
 
 uses
   Classes,
-  ALStringList,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ContentConverter,
@@ -84,6 +83,7 @@ implementation
 
 uses
   SysUtils,
+  Alcinoe.StringList,
   u_StringListStatic,
   u_AnsiStr;
 

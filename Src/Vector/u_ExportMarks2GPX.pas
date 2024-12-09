@@ -28,7 +28,7 @@ uses
   SysUtils,
   Classes,
   ActiveX,
-  ALXmlDoc,
+  Alcinoe.XMLDoc,
   t_Bitmap32,
   i_GeoCalc,
   i_BuildInfo,
