@@ -26,6 +26,7 @@ interface
 uses
   Windows,
   Classes,
+  libsqlite3,
   t_TileStorageSQLiteHandler,
   i_MapVersionInfo,
   i_MapVersionListStatic,

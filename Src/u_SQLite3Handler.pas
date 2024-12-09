@@ -26,53 +26,35 @@ interface
 uses
   Windows,
   SysUtils,
-  AlSqlite3Wrapper,
-  Classes;
-
-{$IFNDEF UNICODE}
-type
-  UnicodeString = WideString;
-{$ENDIF}
+  libsqlite3;
 
 const
-  c_SQLite_Ext = '.sqlitedb';
   cLogicalSortingCollation = 'LOGICALSORTING';
-
-  SQLITE_OPEN_READONLY  = AlSqlite3Wrapper.SQLITE_OPEN_READONLY;
-  SQLITE_OPEN_READWRITE = AlSqlite3Wrapper.SQLITE_OPEN_READWRITE;
-  SQLITE_OPEN_CREATE    = AlSqlite3Wrapper.SQLITE_OPEN_CREATE;
-  SQLITE_OPEN_URI       = AlSqlite3Wrapper.SQLITE_OPEN_URI;
-
-
-  SQLITE_INTEGER  = AlSqlite3Wrapper.SQLITE_INTEGER;
-  SQLITE_FLOAT    = AlSqlite3Wrapper.SQLITE_FLOAT;
-  SQLITE_BLOB     = AlSqlite3Wrapper.SQLITE_BLOB;
-  SQLITE_NULL     = AlSqlite3Wrapper.SQLITE_NULL;
-  SQLITE_TEXT     = AlSqlite3Wrapper.SQLITE_TEXT;
-  SQLITE3_TEXT    = AlSqlite3Wrapper.SQLITE3_TEXT;
 
 type
   PSQLite3StmtData = ^TSQLite3StmtData;
+
   TSQLite3StmtData = record
   public
     Stmt: PSQLite3Stmt;
     Cancelled: Boolean;
   public
-    procedure Init;
-    function IsNull(const iCol: Integer): Boolean; //inline;
-    function ColumnInt(const iCol: Integer): Integer; //inline;
-    function ColumnInt64(const iCol: Integer): Int64; //inline;
-    function ColumnDouble(const iCol: Integer): Double; //inline;
-    function ColumnIntDef(const iCol, AValueIfNull: Integer): Integer;
-    function ColumnAsString(const iCol: Integer): string;
-    function ColumnAsAnsiString(const iCol: Integer): AnsiString;
-    function ColumnAsWideString(const iCol: Integer): UnicodeString;
-    function ColumnBlobSize(const iCol: Integer): Integer;
-    function ColumnBlobData(const iCol: Integer): Pointer;
-    function ColumnCount: Integer;
-    function ColumnName(const iCol: Integer): PAnsiChar;
-    function ColumnType(const iCol: Integer): Integer;
-    function ColumnDeclType(const iCol: Integer): PAnsiChar;
+    procedure Init; inline;
+
+    function IsNull(const ACol: Integer): Boolean; inline;
+
+    function ColumnInt(const ACol: Integer): Integer; inline;
+    function ColumnInt64(const ACol: Integer): Int64; inline;
+    function ColumnDouble(const ACol: Integer): Double; inline;
+    function ColumnIntDef(const ACol, AValueIfNull: Integer): Integer; inline;
+    function ColumnAsString(const ACol: Integer): string;  inline;
+    function ColumnAsAnsiString(const ACol: Integer): AnsiString; inline;
+    function ColumnBlobSize(const ACol: Integer): Integer; inline;
+    function ColumnBlobData(const ACol: Integer): Pointer; inline;
+    function ColumnCount: Integer; inline;
+    function ColumnName(const ACol: Integer): PAnsiChar; inline;
+    function ColumnType(const ACol: Integer): Integer; inline;
+    function ColumnDeclType(const ACol: Integer): PAnsiChar; inline;
   end;
 
   PSQLite3DbHandler = ^TSQLite3DbHandler;
@@ -86,66 +68,62 @@ type
   // подключение к БД SQLite
   TSQLite3DbHandler = record
   private
-    Sqlite3Handle: PSQLite3;
-  private
+    FHandle: PSQLite3;
     procedure RegisterCollationNeededCallback;
   public
     function Init: Boolean;
     function LibVersionInfo: string;
 
     procedure Open(
-      const ADbFileName: String;
+      const ADbFileName: string;
       const AOpenFlags: Integer;
       const ASupportLogicalCollation: Boolean = False
     );
-    procedure OpenW(
-      const ADbFileName: WideString;
-      const ASupportLogicalCollation: Boolean = False
-    );
-    procedure Close;
-    function Opened: Boolean; //inline;
-    function Closed: Boolean; inline;
 
-    procedure ExecSQL(
-      const ASQLText: AnsiString;
+    procedure Close;
+
+    function IsOpened: Boolean; inline;
+
+    procedure ExecSql(
+      const ASqlText: UTF8String;
       const ARowsAffectedPtr: PInteger = nil
     ); inline;
 
-    procedure ExecSQLWithBLOB(
-      const ASQLText: AnsiString;
+    procedure ExecSqlWithBlob(
+      const ASqlText: UTF8String;
       const ABufferPtr: Pointer;
       const ABufferLen: Integer;
       const ARowsAffectedPtr: PInteger = nil
     );
 
-    procedure ExecSQLWithTEXTW(
-      const ASQLText: AnsiString;
-      const AWithTEXTW: Boolean;
-      const AWideTextBuffer: PWideChar;
-      const AWideTextLength: Integer;
+    procedure ExecSqlWithText(
+      const ASqlText: UTF8String;
+      const AWithText: Boolean;
+      const ATextBuffer: PUTF8Char;
+      const ATextLength: Integer;
       const ARowsAffectedPtr: PInteger = nil
     ); inline;
 
-    function OpenSQL(
-      const ASQLText: AnsiString;
+    function OpenSql(
+      const ASqlText: UTF8String;
       const ACallbackProc: TSQLiteOpenStatementProc;
       const ACallbackPtr: Pointer;
-      const ARaiseOnOpenError: Boolean = TRUE
-    ): Integer; //inline;
+      const ARaiseOnOpenError: Boolean = True
+    ): Integer; inline;
 
-    function OpenSQLWithTEXTW(
-      const ASQLText: AnsiString;
+    function OpenSqlWithText(
+      const ASqlText: UTF8String;
       const ACallbackProc: TSQLiteOpenStatementProc;
       const ACallbackPtr: Pointer;
       const ARaiseOnOpenError: Boolean;
-      const AWithTEXTW: Boolean;
-      const AWideTextBuffer: PWideChar;
-      const AWideTextLength: Integer;
+      const AWithText: Boolean;
+      const ATextBuffer: PUTF8Char;
+      const ATextLength: Integer;
       const ARowsAffectedPtr: PInteger = nil
     ): Integer;
 
-    function DeclareSQL(
-      const ASQLText: AnsiString;
+    function DeclareSql(
+      const ASqlText: UTF8String;
       const ACallbackProc: TSQLiteOpenStatementProc;
       const ACallbackPtr: Pointer;
       const ARaiseOnOpenError: Boolean
@@ -153,20 +131,20 @@ type
 
     function PrepareStatement(
       const AStmtData: PSQLite3StmtData;
-      const ASQLText: AnsiString
-    ): Boolean;
+      const ASqlText: UTF8String
+    ): Boolean; inline;
 
     function FetchPrepared(
       const AStmtData: PSQLite3StmtData;
       const ACallbackProc: TSQLiteOpenStatementProc;
       const ACallbackPtr: Pointer
-    ): Boolean;
+    ): Boolean; inline;
 
     function ClosePrepared(
       const AStmtData: PSQLite3StmtData
-    ): Boolean;
+    ): Boolean; inline;
 
-    function LastInsertedRowId: Int64; //inline;
+    function LastInsertedRowId: Int64; inline;
 
     procedure CheckError(const AHasError: Boolean);
 
@@ -176,14 +154,11 @@ type
       const nOps: Integer;
       const xProgress: TSQLite3ProgressCallback;
       const pArg: Pointer
-    );
+    ); inline;
 
-    procedure SetExclusiveLockingMode; inline;
-    procedure SetNormalLockingMode; inline;
-
-    procedure BeginTran; inline;
-    procedure Rollback; inline;
-    procedure Commit; inline;
+    procedure BeginTransaction; inline;
+    procedure RollbackTransaction; inline;
+    procedure CommitTransaction; inline;
   end;
 
   ESQLite3Exception     = class(Exception);
@@ -193,23 +168,7 @@ type
 implementation
 
 uses
-  u_AnsiStr,
   u_GlobalDllName;
-
-var
-  g_Sqlite3Library: TALSqlite3Library;
-
-function InternalInitLib: Boolean;
-begin
-  // инициализация при первом обращении
-  if (nil=g_Sqlite3Library) then begin
-    g_Sqlite3Library := TALSqlite3Library.Create;
-    Result := g_Sqlite3Library.Load(StringToAnsiSafe(GDllName.Sqlite3));
-  end else begin
-    // уже загружено
-    Result := g_Sqlite3Library.Loaded;
-  end;
-end;
 
 function LocalSQLiteBusyHandler(ptr: Pointer; count: Integer): Integer; cdecl;
 begin
@@ -223,8 +182,7 @@ begin
   end;
 end;
 
-function CompareLogicallyAnsi(n1: Integer; const z1: PAnsiChar; n2: Integer;
-  const z2: PAnsiChar): Integer;
+function CompareLogicallyAnsi(n1: Integer; const z1: PAnsiChar; n2: Integer; const z2: PAnsiChar): Integer;
 var
   V1IsInt, V2IsInt: Boolean;
   V1Cursor, V2Cursor: PAnsiChar;
@@ -338,49 +296,30 @@ begin
   end;
 end;
 
-function LogicalCollactionCompareUTF8(
-  pUser: Pointer;
-  n1: Integer;
-  const z1: Pointer;
-  n2: Integer;
-  const z2: Pointer
-): integer; cdecl;
+function LogicalCollactionCompareUTF8(pUser: Pointer; n1: Integer; const z1: Pointer; n2: Integer;
+  const z2: Pointer): Integer; cdecl;
 begin
   Result := CompareLogicallyAnsi(n1, z1, n2, z2);
 end;
 
-function LogicalCollactionCompareUTF16LE(
-  pUser: Pointer;
-  n1: Integer;
-  const z1: Pointer;
-  n2: Integer;
-  const z2: Pointer
-): integer; cdecl;
+function LogicalCollactionCompareUTF16LE(pUser: Pointer; n1: Integer; const z1: Pointer; n2: Integer;
+  const z2: Pointer): Integer; cdecl;
 begin
   Result := CompareLogicallyAnsi(n1, z1, n2, z2);
 end;
 
-function LogicalCollactionCompareUTF16BE(
-  pUser: Pointer;
-  n1: Integer;
-  const z1: Pointer;
-  n2: Integer;
-  const z2: Pointer
-): integer; cdecl;
+function LogicalCollactionCompareUTF16BE(pUser: Pointer; n1: Integer; const z1: Pointer; n2: Integer;
+  const z2: Pointer): Integer; cdecl;
 begin
   Result := CompareLogicallyAnsi(n1, z1, n2, z2);
 end;
 
-procedure Callback4CollationNeeded(
-  pCollNeededArg: Pointer;
-  db: PSQLite3;
-  eTextRep: Integer;
-  const zExternal: PAnsiChar
-); cdecl;
+procedure Callback4CollationNeeded(pCollNeededArg: Pointer; db: PSQLite3; eTextRep: Integer;
+  const zExternal: PAnsiChar); cdecl;
 begin
   case eTextRep of
     SQLITE_UTF8: begin
-      g_Sqlite3Library.sqlite3_create_collation(
+      sqlite3_create_collation(
         db,
         zExternal,
         SQLITE_UTF8,
@@ -388,8 +327,9 @@ begin
         @LogicalCollactionCompareUTF8
       );
     end;
+
     SQLITE_UTF16LE: begin
-      g_Sqlite3Library.sqlite3_create_collation(
+      sqlite3_create_collation(
         db,
         zExternal,
         SQLITE_UTF8,
@@ -397,8 +337,9 @@ begin
         @LogicalCollactionCompareUTF16LE
       );
     end;
+
     SQLITE_UTF16BE: begin
-      g_Sqlite3Library.sqlite3_create_collation(
+      sqlite3_create_collation(
         db,
         zExternal,
         SQLITE_UTF8,
@@ -407,19 +348,17 @@ begin
       );
     end;
   else
-    begin
-      Assert(False, IntToStr(eTextRep));
-    end;
+    Assert(False, IntToStr(eTextRep));
   end;
 end;
 
 { TSQLite3StmtData }
 
-function TSQLite3StmtData.ColumnAsString(const iCol: Integer): string;
+function TSQLite3StmtData.ColumnAsString(const ACol: Integer): string;
 var
   VValue: PAnsiChar;
 begin
-  VValue := g_Sqlite3Library.sqlite3_column_text(Stmt, iCol); // return UTF-8
+  VValue := sqlite3_column_text(Stmt, ACol); // return UTF-8
   if VValue = nil then begin
     Result := '';
   end else begin
@@ -427,74 +366,63 @@ begin
   end;
 end;
 
-function TSQLite3StmtData.ColumnAsAnsiString(const iCol: Integer): AnsiString;
+function TSQLite3StmtData.ColumnAsAnsiString(const ACol: Integer): AnsiString;
 begin
-  Result := AnsiString(ColumnAsString(iCol));
+  Result := AnsiString(ColumnAsString(ACol));
 end;
 
-function TSQLite3StmtData.ColumnAsWideString(const iCol: Integer): UnicodeString;
-var
-  VValue: PWideChar;
+function TSQLite3StmtData.ColumnBlobData(const ACol: Integer): Pointer;
 begin
-  VValue := g_Sqlite3Library.sqlite3_column_text16(Stmt, iCol); // return UTF-16
-  if VValue = nil then begin
-    Result := '';
-  end else begin
-    Result := UnicodeString(VValue);
-  end;
+  Result := sqlite3_column_blob(Stmt, ACol);
 end;
 
-function TSQLite3StmtData.ColumnBlobData(const iCol: Integer): Pointer;
+function TSQLite3StmtData.ColumnBlobSize(const ACol: Integer): Integer;
 begin
-  Result := g_Sqlite3Library.sqlite3_column_blob(Stmt, iCol)
-end;
-
-function TSQLite3StmtData.ColumnBlobSize(const iCol: Integer): Integer;
-begin
-  Result := g_Sqlite3Library.sqlite3_column_bytes(Stmt, iCol)
+  Result := sqlite3_column_bytes(Stmt, ACol);
 end;
 
 function TSQLite3StmtData.ColumnCount: Integer;
 begin
-  Result := g_Sqlite3Library.sqlite3_column_count(Stmt);
+  Result := sqlite3_column_count(Stmt);
 end;
 
-function TSQLite3StmtData.ColumnDeclType(const iCol: Integer): PAnsiChar;
+function TSQLite3StmtData.ColumnDeclType(const ACol: Integer): PAnsiChar;
 begin
-  Result := g_Sqlite3Library.sqlite3_column_decltype(Stmt, iCol);
+  Result := sqlite3_column_decltype(Stmt, ACol);
 end;
 
-function TSQLite3StmtData.ColumnDouble(const iCol: Integer): Double;
+function TSQLite3StmtData.ColumnDouble(const ACol: Integer): Double;
 begin
-  Result := g_Sqlite3Library.sqlite3_column_double(Stmt, iCol)
+  Result := sqlite3_column_double(Stmt, ACol);
 end;
 
-function TSQLite3StmtData.ColumnInt(const iCol: Integer): Integer;
+function TSQLite3StmtData.ColumnInt(const ACol: Integer): Integer;
 begin
-  Result := g_Sqlite3Library.sqlite3_column_int(Stmt, iCol)
+  Result := sqlite3_column_int(Stmt, ACol);
 end;
 
-function TSQLite3StmtData.ColumnInt64(const iCol: Integer): Int64;
+function TSQLite3StmtData.ColumnInt64(const ACol: Integer): Int64;
 begin
-  Result := g_Sqlite3Library.sqlite3_column_int64(Stmt, iCol)
+  Result := sqlite3_column_int64(Stmt, ACol);
 end;
 
-function TSQLite3StmtData.ColumnIntDef(const iCol, AValueIfNull: Integer): Integer;
+function TSQLite3StmtData.ColumnIntDef(const ACol, AValueIfNull: Integer): Integer;
 begin
-  if IsNull(iCol) then
-    Result := AValueIfNull
-  else
-    Result := g_Sqlite3Library.sqlite3_column_int(Stmt, iCol)
+  if IsNull(ACol) then begin
+    Result := AValueIfNull;
+  end else begin
+    Result := sqlite3_column_int(Stmt, ACol);
+  end;
 end;
 
-function TSQLite3StmtData.ColumnName(const iCol: Integer): PAnsiChar;
+function TSQLite3StmtData.ColumnName(const ACol: Integer): PAnsiChar;
 begin
-  Result := g_Sqlite3Library.sqlite3_column_name(Stmt, iCol);
+  Result := sqlite3_column_name(Stmt, ACol);
 end;
 
-function TSQLite3StmtData.ColumnType(const iCol: Integer): Integer;
+function TSQLite3StmtData.ColumnType(const ACol: Integer): Integer;
 begin
-  Result := g_Sqlite3Library.sqlite3_column_type(Stmt, iCol);
+  Result := sqlite3_column_type(Stmt, ACol);
 end;
 
 procedure TSQLite3StmtData.Init;
@@ -502,29 +430,38 @@ begin
   FillChar(Self, SizeOf(Self), 0);
 end;
 
-function TSQLite3StmtData.IsNull(const iCol: Integer): Boolean;
+function TSQLite3StmtData.IsNull(const ACol: Integer): Boolean;
 begin
-  Result := (SQLITE_NULL = g_Sqlite3Library.sqlite3_column_type(Stmt, iCol))
+  Result := sqlite3_column_type(Stmt, ACol) = SQLITE_NULL;
 end;
 
 { TSQLite3DbHandler }
 
-procedure TSQLite3DbHandler.BeginTran;
+procedure TSQLite3DbHandler.BeginTransaction;
 begin
-  ExecSQL('BEGIN TRANSACTION');
+  ExecSql('BEGIN TRANSACTION');
+end;
+
+procedure TSQLite3DbHandler.RollbackTransaction;
+begin
+  ExecSql('ROLLBACK TRANSACTION');
+end;
+
+procedure TSQLite3DbHandler.CommitTransaction;
+begin
+  ExecSql('COMMIT TRANSACTION');
 end;
 
 procedure TSQLite3DbHandler.CheckError(const AHasError: Boolean);
 begin
-  if (not AHasError) then
+  if not AHasError then begin
     Exit;
+  end;
 
-  if Assigned(Sqlite3Handle) and Assigned(g_Sqlite3Library) then begin
+  if Assigned(FHandle) then begin
     raise ESQLite3ErrorWithCode.Create(
-        g_Sqlite3Library.sqlite3_errmsg(Sqlite3Handle) +
-        ' ( error code: ' +
-        IntToStr(g_Sqlite3Library.sqlite3_errcode(Sqlite3Handle)) + ')'
-      );
+      sqlite3_errmsg(FHandle) + ' ( error code: ' + IntToStr(sqlite3_errcode(FHandle)) + ')'
+    );
   end else begin
     raise ESQLite3SimpleError.Create('SQLite3 error');
   end;
@@ -532,29 +469,24 @@ end;
 
 procedure TSQLite3DbHandler.Close;
 begin
-  if (Sqlite3Handle<>nil) then begin
-    g_Sqlite3Library.sqlite3_close(Sqlite3Handle);
-    Sqlite3Handle := nil;
+  if FHandle <> nil then begin
+    sqlite3_close(FHandle);
+    FHandle := nil;
   end;
 end;
 
-function TSQLite3DbHandler.Closed: Boolean;
+function TSQLite3DbHandler.IsOpened: Boolean;
 begin
-  Result := (nil=Sqlite3Handle)
+  Result := FHandle <> nil;
 end;
 
 function TSQLite3DbHandler.ClosePrepared(const AStmtData: PSQLite3StmtData): Boolean;
 begin
-  Result := (SQLITE_OK = g_Sqlite3Library.sqlite3_finalize(AStmtData^.Stmt));
+  Result := sqlite3_finalize(AStmtData.Stmt) = SQLITE_OK;
 end;
 
-procedure TSQLite3DbHandler.Commit;
-begin
-  ExecSQL('COMMIT TRANSACTION');
-end;
-
-function TSQLite3DbHandler.DeclareSQL(
-  const ASQLText: AnsiString;
+function TSQLite3DbHandler.DeclareSql(
+  const ASqlText: UTF8String;
   const ACallbackProc: TSQLiteOpenStatementProc;
   const ACallbackPtr: Pointer;
   const ARaiseOnOpenError: Boolean
@@ -564,53 +496,38 @@ var
 begin
   VStmtData.Init;
 
-  Result := g_Sqlite3Library.sqlite3_prepare_v2(
-    Sqlite3Handle,
-    PAnsiChar(ASQLText),
-    Length(ASQLText),
-    VStmtData.Stmt,
-    nil
-  );
+  Result := sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), VStmtData.Stmt, nil);
 
-  if (SQLITE_OK<>Result) then begin
-    // ошибка
-    if ARaiseOnOpenError then
-      CheckError(TRUE)
-    else
+  if Result <> SQLITE_OK then begin
+    if ARaiseOnOpenError then begin
+      CheckError(True);
+    end else begin
       Exit;
+    end;
   end;
 
   try
-    Result := g_Sqlite3Library.sqlite3_step(VStmtData.Stmt);
+    Result := sqlite3_step(VStmtData.Stmt);
 
     // SQLITE_ROW
     if Assigned(ACallbackProc) then begin
       ACallbackProc(@Self, ACallbackPtr, @VStmtData);
     end;
   finally
-    CheckError(g_Sqlite3Library.sqlite3_finalize(VStmtData.Stmt) <> SQLITE_OK);
+    CheckError(sqlite3_finalize(VStmtData.Stmt) <> SQLITE_OK);
   end;
 end;
 
-procedure TSQLite3DbHandler.ExecSQL(
-  const ASQLText: AnsiString;
+procedure TSQLite3DbHandler.ExecSql(
+  const ASqlText: UTF8String;
   const ARowsAffectedPtr: PInteger
 );
 begin
-  OpenSQLWithTEXTW(
-    ASQLText,
-    nil,
-    nil,
-    TRUE,
-    FALSE,
-    nil,
-    0,
-    ARowsAffectedPtr
-  )
+  OpenSqlWithText(ASqlText, nil, nil, True, False, nil, 0, ARowsAffectedPtr);
 end;
 
-procedure TSQLite3DbHandler.ExecSQLWithBLOB(
-  const ASQLText: AnsiString;
+procedure TSQLite3DbHandler.ExecSqlWithBlob(
+  const ASqlText: UTF8String;
   const ABufferPtr: Pointer;
   const ABufferLen: Integer;
   const ARowsAffectedPtr: PInteger
@@ -619,51 +536,32 @@ var
   VStmt: PSQLite3Stmt;
 begin
   CheckError(
-    g_Sqlite3Library.sqlite3_prepare_v2(
-    Sqlite3Handle,
-    PAnsiChar(ASQLText),
-    Length(ASQLText),
-    VStmt,
-    nil
-    ) <> SQLITE_OK
+    sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), VStmt, nil) <> SQLITE_OK
   );
   try
     CheckError(
-      g_Sqlite3Library.sqlite3_bind_blob(
-      VStmt,
-      1,
-      ABufferPtr,
-      ABufferLen,
-      SQLITE_STATIC
-      ) <> SQLITE_OK
+      sqlite3_bind_blob(VStmt, 1, ABufferPtr, ABufferLen, SQLITE_STATIC) <> SQLITE_OK
     );
-    CheckError(not (g_Sqlite3Library.sqlite3_step(VStmt) in [SQLITE_DONE, SQLITE_ROW]));
-    if (ARowsAffectedPtr<>nil) then begin
-      ARowsAffectedPtr^ := g_Sqlite3Library.sqlite3_changes(Sqlite3Handle);
+    CheckError(
+      not (sqlite3_step(VStmt) in [SQLITE_DONE, SQLITE_ROW])
+    );
+    if ARowsAffectedPtr <> nil then begin
+      ARowsAffectedPtr^ := sqlite3_changes(FHandle);
     end;
   finally
-    CheckError(g_Sqlite3Library.sqlite3_finalize(VStmt) <> SQLITE_OK);
+    CheckError(sqlite3_finalize(VStmt) <> SQLITE_OK);
   end;
 end;
 
-procedure TSQLite3DbHandler.ExecSQLWithTEXTW(
-  const ASQLText: AnsiString;
-  const AWithTEXTW: Boolean;
-  const AWideTextBuffer: PWideChar;
-  const AWideTextLength: Integer;
+procedure TSQLite3DbHandler.ExecSqlWithText(
+  const ASqlText: UTF8String;
+  const AWithText: Boolean;
+  const ATextBuffer: PUTF8Char;
+  const ATextLength: Integer;
   const ARowsAffectedPtr: PInteger
 );
 begin
-  OpenSQLWithTEXTW(
-    ASQLText,
-    nil,
-    nil,
-    TRUE,
-    AWithTEXTW,
-    AWideTextBuffer,
-    AWideTextLength,
-    ARowsAffectedPtr
-  )
+  OpenSqlWithText(ASqlText, nil, nil, True, AWithText, ATextBuffer, ATextLength, ARowsAffectedPtr);
 end;
 
 function TSQLite3DbHandler.FetchPrepared(
@@ -672,9 +570,9 @@ function TSQLite3DbHandler.FetchPrepared(
   const ACallbackPtr: Pointer
 ): Boolean;
 begin
-  Result := (SQLITE_ROW = g_Sqlite3Library.sqlite3_step(AStmtData^.Stmt));
+  Result := sqlite3_step(AStmtData.Stmt) = SQLITE_ROW;
 
-  if (not Result) then begin
+  if not Result then begin
     // SQLITE_DONE or error
     Exit;
   end;
@@ -685,44 +583,39 @@ end;
 function TSQLite3DbHandler.Init: Boolean;
 begin
   FillChar(Self, SizeOf(Self), 0);
-  Result := InternalInitLib;
+  Result := LibSQLite3Load(GDllName.Sqlite3);
 end;
 
 function TSQLite3DbHandler.LastInsertedRowId: Int64;
 begin
-  Result := g_Sqlite3Library.sqlite3_last_insert_rowid(Sqlite3Handle)
+  Result := sqlite3_last_insert_rowid(FHandle);
 end;
 
 function TSQLite3DbHandler.LibVersionInfo: string;
-var FDLL: THandle;
+var
+  VHandle: THandle;
 begin
-  FDLL := GetModuleHandle(PChar(GDllName.Sqlite3));
-  if (FDLL<>0) then begin
-    Result := string(AnsiString(g_Sqlite3Library.sqlite3_libversion));
-    Result := Result + ' at ' + GetModuleName(FDLL);
+  VHandle := GetModuleHandle(PChar(GDllName.Sqlite3));
+  if VHandle <> 0 then begin
+    Result := string(AnsiString(sqlite3_libversion)) + ' at ' + GetModuleName(VHandle);
   end else begin
     Result := 'not loaded!';
   end;
 end;
 
 procedure TSQLite3DbHandler.Open(
-  const ADbFileName: String;
+  const ADbFileName: string;
   const AOpenFlags: Integer;
   const ASupportLogicalCollation: Boolean
 );
 var
-  VDBFileName: AnsiString;
+  VDbFileName: UTF8String;
 begin
   Close;
   try
-    VDBFileName := AnsiToUtf8(ADbFileName);
+    VDbFileName := Utf8Encode(ADbFileName);
     CheckError(
-      g_Sqlite3Library.sqlite3_open_v2(
-      PAnsiChar(VDBFileName),
-      Sqlite3Handle,
-      AOpenFlags, // SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE // SQLITE_OPEN_READWRITE
-      nil
-      ) <> SQLITE_OK
+      sqlite3_open_v2(PUTF8Char(VDbFileName), FHandle, AOpenFlags, nil) <> SQLITE_OK
     );
     if ASupportLogicalCollation then begin
       RegisterCollationNeededCallback;
@@ -733,58 +626,24 @@ begin
   end;
 end;
 
-procedure TSQLite3DbHandler.OpenW(
-  const ADbFileName: WideString;
-  const ASupportLogicalCollation: Boolean
-);
-begin
-  Close;
-  try
-    CheckError(
-      g_Sqlite3Library.sqlite3_open16(
-      PWideChar(ADbFileName),
-      Sqlite3Handle
-      ) <> SQLITE_OK
-    );
-    if ASupportLogicalCollation then begin
-      RegisterCollationNeededCallback;
-    end;
-  except
-    Close;
-    raise;
-  end;
-end;
-
-function TSQLite3DbHandler.Opened: Boolean;
-begin
-  Result := (nil<>Sqlite3Handle)
-end;
-
-function TSQLite3DbHandler.OpenSQL(
-  const ASQLText: AnsiString;
+function TSQLite3DbHandler.OpenSql(
+  const ASqlText: UTF8String;
   const ACallbackProc: TSQLiteOpenStatementProc;
   const ACallbackPtr: Pointer;
-  const ARaiseOnOpenError: Boolean): Integer;
+  const ARaiseOnOpenError: Boolean
+): Integer;
 begin
-  Result := OpenSQLWithTEXTW(
-    ASQLText,
-    ACallbackProc,
-    ACallbackPtr,
-    ARaiseOnOpenError,
-    FALSE,
-    nil,
-    0
-  );
+  Result := OpenSqlWithText(ASqlText, ACallbackProc, ACallbackPtr, ARaiseOnOpenError, False, nil, 0);
 end;
 
-function TSQLite3DbHandler.OpenSQLWithTEXTW(
-  const ASQLText: AnsiString;
+function TSQLite3DbHandler.OpenSqlWithText(
+  const ASqlText: UTF8String;
   const ACallbackProc: TSQLiteOpenStatementProc;
   const ACallbackPtr: Pointer;
   const ARaiseOnOpenError: Boolean;
-  const AWithTEXTW: Boolean;
-  const AWideTextBuffer: PWideChar;
-  const AWideTextLength: Integer;
+  const AWithText: Boolean;
+  const ATextBuffer: PUTF8Char;
+  const ATextLength: Integer;
   const ARowsAffectedPtr: PInteger
 ): Integer;
 var
@@ -792,44 +651,32 @@ var
 begin
   VStmtData.Init;
 
-  Result := g_Sqlite3Library.sqlite3_prepare_v2(
-    Sqlite3Handle,
-    PAnsiChar(ASQLText),
-    Length(ASQLText),
-    VStmtData.Stmt,
-    nil
-  );
+  Result := sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), VStmtData.Stmt, nil);
 
-  if (SQLITE_OK <> Result) then begin
-    // ошибка
-    if ARaiseOnOpenError then
-      CheckError(TRUE)
-    else
+  if Result <> SQLITE_OK then begin
+    if ARaiseOnOpenError then begin
+      CheckError(True);
+    end else begin
       Exit;
+    end;
   end;
 
   try
-    if AWithTEXTW then begin
+    if AWithText then begin
       CheckError(
-        g_Sqlite3Library.sqlite3_bind_text16(
-        VStmtData.Stmt,
-        1,
-        AWideTextBuffer,
-        AWideTextLength*SizeOf(WideChar),
-        SQLITE_STATIC
-        ) <> SQLITE_OK
+        sqlite3_bind_text(VStmtData.Stmt, 1, ATextBuffer, ATextLength, SQLITE_STATIC) <> SQLITE_OK
       );
     end;
 
     repeat
-      Result := g_Sqlite3Library.sqlite3_step(VStmtData.Stmt);
+      Result := sqlite3_step(VStmtData.Stmt);
 
-      if (SQLITE_ROW <> Result) then begin
-        if (SQLITE_DONE = Result) then begin
-          if (ARowsAffectedPtr <> nil) then begin
-            ARowsAffectedPtr^ := g_Sqlite3Library.sqlite3_changes(Sqlite3Handle);
+      if Result <> SQLITE_ROW then begin
+        if Result = SQLITE_DONE then begin
+          if ARowsAffectedPtr <> nil then begin
+            ARowsAffectedPtr^ := sqlite3_changes(FHandle);
           end;
-          break;
+          Break;
         end;
         CheckError(True);
       end;
@@ -837,61 +684,33 @@ begin
       // SQLITE_ROW
       if Assigned(ACallbackProc) then begin
         ACallbackProc(@Self, ACallbackPtr, @VStmtData);
-        if VStmtData.Cancelled then
-          break;
+        if VStmtData.Cancelled then begin
+          Break;
+        end;
       end;
 
-    until FALSE;
+    until False;
   finally
-    CheckError(g_Sqlite3Library.sqlite3_finalize(VStmtData.Stmt) <> SQLITE_OK);
+    CheckError(sqlite3_finalize(VStmtData.Stmt) <> SQLITE_OK);
   end;
 end;
 
 function TSQLite3DbHandler.PrepareStatement(
   const AStmtData: PSQLite3StmtData;
-  const ASQLText: AnsiString
+  const ASqlText: UTF8String
 ): Boolean;
 begin
-  Result := (SQLITE_OK = g_Sqlite3Library.sqlite3_prepare_v2(
-    Sqlite3Handle,
-    PAnsiChar(ASQLText),
-    Length(ASQLText),
-    AStmtData^.Stmt,
-    nil
-  ));
+  Result := sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), AStmtData.Stmt, nil) = SQLITE_OK;
 end;
 
 procedure TSQLite3DbHandler.RegisterCollationNeededCallback;
 begin
-  g_Sqlite3Library.sqlite3_collation_needed(
-    Sqlite3Handle,
-    nil, // @Self
-    @Callback4CollationNeeded
-  );
-end;
-
-procedure TSQLite3DbHandler.Rollback;
-begin
-  ExecSQL('ROLLBACK TRANSACTION');
+  sqlite3_collation_needed(FHandle, nil {@Self}, @Callback4CollationNeeded);
 end;
 
 procedure TSQLite3DbHandler.SetBusyTryCount(const ATryCount: Integer);
 begin
-  g_Sqlite3Library.sqlite3_busy_handler(
-    Sqlite3Handle,
-    LocalSQLiteBusyHandler,
-    Pointer(ATryCount)
-  );
-end;
-
-procedure TSQLite3DbHandler.SetExclusiveLockingMode;
-begin
-  ExecSQL('PRAGMA locking_mode='+'EXCLUSIVE')
-end;
-
-procedure TSQLite3DbHandler.SetNormalLockingMode;
-begin
-  ExecSQL('PRAGMA locking_mode='+'NORMAL')
+  sqlite3_busy_handler(FHandle, LocalSQLiteBusyHandler, Pointer(ATryCount));
 end;
 
 procedure TSQLite3DbHandler.SetProgressHandler(
@@ -900,18 +719,7 @@ procedure TSQLite3DbHandler.SetProgressHandler(
   const pArg: Pointer
 );
 begin
-  g_Sqlite3Library.sqlite3_progress_handler(
-    Sqlite3Handle,
-    nOps,
-    xProgress,
-    pArg
-  );
+  sqlite3_progress_handler(FHandle, nOps, xProgress, pArg);
 end;
-
-initialization
-  g_Sqlite3Library := nil;
-
-finalization
-  FreeAndNil(g_Sqlite3Library);
 
 end.

@@ -28,6 +28,7 @@ uses
   Windows,
   SysUtils,
   Classes,
+  libsqlite3,
   i_BinaryData,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
@@ -291,8 +292,8 @@ begin
             ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
           if VTilesProcessed mod 10000 = 0 then begin
-            FSQLite3Db.Commit;
-            FSQLite3Db.BeginTran;
+            FSQLite3Db.CommitTransaction;
+            FSQLite3Db.BeginTransaction;
           end;
         end;
       end;
@@ -413,7 +414,7 @@ begin
     end;
   end;
 
-  FSQLite3Db.OpenW(VFileName);
+  FSQLite3Db.Open(VFileName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
 
   FSQLite3DB.ExecSQL(TABLE_TILES_DDL);
   FSQLite3DB.ExecSQL(INDEX_DDL);
@@ -421,17 +422,17 @@ begin
   FSQLite3DB.ExecSQL(TABLE_ANDROID_METADATA_DDL);
   FSQLite3DB.ExecSQL('INSERT INTO android_metadata VALUES (' + cLocale + ')');
 
-  FSQLite3DB.SetExclusiveLockingMode;
-  FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
-  FSQLite3DB.ExecSQL('PRAGMA journal_mode=OFF');
+  FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
+  FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
+  FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
 
-  FSQLite3Db.BeginTran;
+  FSQLite3Db.BeginTransaction;
 end;
 
 procedure TExportTaskToOruxMapsSQLite.CloseSQLiteStorage;
 begin
-  if FSQLite3DB.Opened then begin
-    FSQLite3DB.Commit;
+  if FSQLite3DB.IsOpened then begin
+    FSQLite3DB.CommitTransaction;
     FSQLite3DB.Close;
   end;
 end;

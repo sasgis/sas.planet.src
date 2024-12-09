@@ -28,6 +28,7 @@ uses
   Windows,
   Classes,
   SysUtils,
+  libsqlite3,
   i_BinaryData,
   t_GeoTypes,
   u_SQLite3Handler;
@@ -196,17 +197,17 @@ end;
 
 procedure TSQLiteStorageMBTilesBase.Close;
 begin
-  if FSQLite3DB.Opened then begin
-    FSQLite3DB.Commit;
+  if FSQLite3DB.IsOpened then begin
+    FSQLite3DB.CommitTransaction;
     FSQLite3DB.Close;
   end;
 end;
 
 procedure TSQLiteStorageMBTilesBase.CommitAndBeginTran;
 begin
-  if FSQLite3DB.Opened then begin
-    FSQLite3Db.Commit;
-    FSQLite3Db.BeginTran;
+  if FSQLite3DB.IsOpened then begin
+    FSQLite3Db.CommitTransaction;
+    FSQLite3Db.BeginTransaction;
   end;
 end;
 
@@ -233,14 +234,14 @@ var
   I: Integer;
   VKey, VVal: string;
 begin
-  FSQLite3DB.BeginTran;
+  FSQLite3DB.BeginTransaction;
   try
     for I := 0 to AKeyValList.Count - 1 do begin
       VKey := AKeyValList.Names[I];
       VVal := AKeyValList.ValueFromIndex[I];
       InsertMetaKeyVal(VKey, VVal);
     end;
-    FSQLite3DB.Commit;
+    FSQLite3DB.CommitTransaction;
   except
     //FSQLite3DB.Rollback; // journal_mode = OFF
     raise;
@@ -295,9 +296,9 @@ begin
   // open db with r/w access and UTF-8 encoding
   FSQLite3Db.Open(VFileName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
 
-  FSQLite3DB.SetExclusiveLockingMode;
-  FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
-  FSQLite3DB.ExecSQL('PRAGMA journal_mode=OFF');
+  FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
+  FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
+  FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
 
   for I := Low(ATablesDDL) to High(ATablesDDL) do begin
     FSQLite3DB.ExecSQL(ATablesDDL[I]);
@@ -363,7 +364,7 @@ begin
     VMetadata.Free;
   end;
 
-  FSQLite3DB.BeginTran;
+  FSQLite3DB.BeginTransaction;
 end;
 
 procedure TSQLiteStorageMBTilesClassic.Add(
@@ -495,7 +496,7 @@ begin
     VMetadata.Free;
   end;
 
-  FSQLite3DB.BeginTran;
+  FSQLite3DB.BeginTransaction;
 end;
 
 procedure TSQLiteStorageMBTilesTileMill.Add(

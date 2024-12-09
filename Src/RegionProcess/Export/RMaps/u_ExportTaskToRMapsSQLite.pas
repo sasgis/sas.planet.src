@@ -27,6 +27,7 @@ uses
   Types,
   Windows,
   SysUtils,
+  libsqlite3,
   t_RMapsSQLite,
   i_BinaryData,
   i_NotifierOperation,
@@ -253,8 +254,8 @@ begin
             ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
           if VTilesProcessed mod 10000 = 0 then begin
-            FSQLite3Db.Commit;
-            FSQLite3Db.BeginTran;
+            FSQLite3Db.CommitTransaction;
+            FSQLite3Db.BeginTransaction;
           end;
         end;
       end;
@@ -299,7 +300,7 @@ begin
   end;
 
   // создаём новую или открываем существующую
-  FSQLite3Db.OpenW(FExportPath);
+  FSQLite3Db.Open(FExportPath, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
 
   // настраиваем текст SQL
   if FIsReplace then begin
@@ -360,12 +361,12 @@ begin
     end;
   end;
 
-  FSQLite3DB.SetExclusiveLockingMode;
-  FSQLite3DB.ExecSQL('PRAGMA synchronous=OFF');
-  FSQLite3DB.ExecSQL('PRAGMA journal_mode=OFF');
+  FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
+  FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
+  FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
 
   // открываем транзакцию для пущей скорости
-  FSQLite3DB.BeginTran;
+  FSQLite3DB.BeginTransaction;
 end;
 
 procedure TExportTaskToRMapsSQLite.FillZoomsCallback(
@@ -393,7 +394,7 @@ procedure TExportTaskToRMapsSQLite.CloseSQLiteStorage;
 var
   VZooms: AnsiString;
 begin
-  if not FSQLite3DB.Opened then begin
+  if not FSQLite3DB.IsOpened then begin
     Exit;
   end;
 
@@ -415,7 +416,7 @@ begin
     FSQLite3DB.ExecSQL('UPDATE info SET maxzoom = (SELECT DISTINCT z FROM tiles ORDER BY z DESC LIMIT 1)');
   end;
 
-  FSQLite3DB.Commit;
+  FSQLite3DB.CommitTransaction;
   FSQLite3DB.Close;
 end;
 

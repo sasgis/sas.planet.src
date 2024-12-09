@@ -27,6 +27,7 @@ uses
   Windows,
   Classes,
   SyncObjs,
+  libsqlite3,
   t_TileStorageSQLite,
   t_NotifierOperationRec,
   t_TileStorageSQLiteHandler,
@@ -478,7 +479,7 @@ end;
 
 function TTileStorageSQLiteHandler.Opened: Boolean;
 begin
-  Result := FSQLite3DbHandler.Opened;
+  Result := FSQLite3DbHandler.IsOpened;
 end;
 
 { TTileStorageSQLiteHandlerComplex }
