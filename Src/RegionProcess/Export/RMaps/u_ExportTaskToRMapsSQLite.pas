@@ -55,8 +55,9 @@ type
     FForceDropTarget: Boolean;
     FIsReplace: Boolean;
     FDirectTilesCopy: Boolean;
-    FInsertSQLText: AnsiString;
     FSQLite3DB: TSQLite3DbHandler;
+    FInsertStmt: TSQLite3StmtData;
+    FIsInsertStmtPrepared: Boolean;
     FSQLiteAvailable: Boolean;
     FModType: TRMapsSQLiteModType;
     FIsEllipsoid: Boolean;
@@ -69,8 +70,8 @@ type
       const AZoom: Byte;
       const AData: IBinaryData
     );
+    procedure PrepareInsertStmt;
     function CoordToStr(const AValue: Double): AnsiString; inline;
-    function RMapsZoomStr(const AZoom: Byte): AnsiString; inline;
     procedure FillZoomsCallback(const AHandler: PSQLite3DbHandler;
       const ACallbackPtr: Pointer; const AStmtData: PSQLite3StmtData);
   protected
@@ -277,7 +278,7 @@ var
 begin
   // check library
   if not FSQLiteAvailable then begin
-    raise ESQLite3SimpleError.Create('SQLite not available');
+    raise ESQLite3SimpleError.Create('The SQLite3 library is not available!');
   end;
 
   // закрываем предыдущее (если есть)
@@ -302,18 +303,11 @@ begin
   // создаём новую или открываем существующую
   FSQLite3Db.Open(FExportPath, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
 
-  // настраиваем текст SQL
-  if FIsReplace then begin
-    FInsertSQLText := 'REPLACE';
-  end else begin
-    FInsertSQLText := 'IGNORE';
-  end;
-
-  FInsertSQLText := 'INSERT OR ' + FInsertSQLText + ' INTO tiles (x,y,z,s,image) VALUES (';
-
   // если новая - забацаем структуру
   if VCreateNewDB then begin
-    FSQLite3DB.ExecSQL('CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, s int, image blob, PRIMARY KEY (x,y,z,s))');
+    FSQLite3DB.ExecSQL(
+      'CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, s int, image blob, PRIMARY KEY (x,y,z,s))'
+    );
 
     case FModType of
       mtBase: begin
@@ -365,8 +359,29 @@ begin
   FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
   FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
 
+  // prepare statement
+  PrepareInsertStmt;
+
   // открываем транзакцию для пущей скорости
   FSQLite3DB.BeginTransaction;
+end;
+
+procedure TExportTaskToRMapsSQLite.PrepareInsertStmt;
+var
+  VText: AnsiString;
+begin
+  if FIsReplace then begin
+    VText := 'REPLACE';
+  end else begin
+    VText := 'IGNORE';
+  end;
+
+  VText := 'INSERT OR ' + VText + ' INTO tiles (x,y,z,s,image) VALUES (?,?,?,0,?)';
+
+  FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, VText);
+  if not FIsInsertStmtPrepared then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
 end;
 
 procedure TExportTaskToRMapsSQLite.FillZoomsCallback(
@@ -416,13 +431,13 @@ begin
     FSQLite3DB.ExecSQL('UPDATE info SET maxzoom = (SELECT DISTINCT z FROM tiles ORDER BY z DESC LIMIT 1)');
   end;
 
+  if FIsInsertStmtPrepared then begin
+    FInsertStmt.ClearBindings;
+    FSQLite3DB.ClosePrepared(@FInsertStmt);
+  end;
+
   FSQLite3DB.CommitTransaction;
   FSQLite3DB.Close;
-end;
-
-function TExportTaskToRMapsSQLite.RMapsZoomStr(const AZoom: Byte): AnsiString;
-begin
-  Result := IntToStrA(17 - AZoom);
 end;
 
 procedure TExportTaskToRMapsSQLite.SaveTileToSQLiteStorage(
@@ -431,21 +446,24 @@ procedure TExportTaskToRMapsSQLite.SaveTileToSQLiteStorage(
   const AData: IBinaryData
 );
 var
-  VSQLText: AnsiString;
+  VBindResult: Boolean;
 begin
   Assert(AData <> nil);
+  Assert(FIsInsertStmtPrepared);
 
-  VSQLText := FInsertSQLText +
-    IntToStrA(ATile.X) + ',' +
-    IntToStrA(ATile.Y) + ',' +
-    RMapsZoomStr(AZoom) +
-    ',0,?)';
+  VBindResult :=
+    FInsertStmt.BindInt(1, ATile.X) and
+    FInsertStmt.BindInt(2, ATile.Y) and
+    FInsertStmt.BindInt(3, 17 - AZoom) and
+    FInsertStmt.BindBlob(4, AData.Buffer, AData.Size);
 
-  FSQLite3DB.ExecSQLWithBLOB(
-    VSQLText,
-    AData.Buffer,
-    AData.Size
-  );
+  if not VBindResult then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
+  if not FSQLite3DB.ExecPrepared(@FInsertStmt) then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
 end;
 
 end.

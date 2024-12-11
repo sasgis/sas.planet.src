@@ -799,8 +799,6 @@ var
 function LibSQLite3Load(const ALibName: string = libsqlite3_dll; const AInitialize: Boolean = False): Boolean;
 procedure LibSQLite3Unload;
 
-function IsLibSQLite3Loaded: Boolean;
-
 implementation
 
 uses
@@ -814,16 +812,11 @@ var
   GIsLoadError: Boolean = False;
   GIsInitialized: Boolean = False;
 
-function IsLibSQLite3Loaded: Boolean;
-begin
-  Result := not GIsLoadError and GIsInitialized;
-end;
-
 function GetProcAddr(const AProcName: PAnsiChar): Pointer; inline;
 begin
   Result := GetProcAddress(GHandle, AProcName);
-  if Addr(Result) = nil then begin
-    RaiseLastOSError;
+  if Result = nil then begin
+    raise Exception.CreateFmt('SQLite3: Unable to find proc "%s"', [AProcName]);
   end;
 end;
 
@@ -845,9 +838,13 @@ Begin
       GHandle := SafeLoadLibrary(PChar(ALibName));
       if GHandle = 0 then begin
         GIsLoadError := True;
-        raise Exception.CreateFmt('Unable to load library %s', [ALibName]);
+        raise Exception.CreateFmt(
+          'SQLite3: Unable to load library %s - %s', [ALibName, SysErrorMessage(GetLastError)]
+        );
       end;
     end;
+
+    GIsInitialized := True;
 
     try
       sqlite3_libversion := GetProcAddr('sqlite3_libversion');
@@ -1042,11 +1039,10 @@ Begin
       if sqlite3_initialize <> SQLITE_OK then begin
         GIsLoadError := True;
         LibSQLite3Unload;
-        raise Exception.Create('SQLite3 initialize error!');
+        raise Exception.Create('SQLite3: initialize error!');
       end;
     end;
 
-    GIsInitialized := True;
     Result := GIsInitialized;
   finally
     GLock.Release;
@@ -1060,13 +1056,14 @@ begin
     if not GIsInitialized then begin
       Exit;
     end;
-
     GIsInitialized := False;
 
     // A call to sqlite3_shutdown() is an "effective" call if it is the first call to sqlite3_shutdown()
     // since the last sqlite3_initialize(). Only an effective call to sqlite3_shutdown() does any deinitialization.
     // All other valid calls to sqlite3_shutdown() are harmless no-ops.
-    sqlite3_shutdown;
+    if Addr(sqlite3_shutdown) <> nil then begin
+      sqlite3_shutdown;
+    end;
 
     if GHandle > 0 then begin
       FreeLibrary(GHandle);

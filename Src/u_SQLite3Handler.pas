@@ -52,9 +52,16 @@ type
     function ColumnBlobSize(const ACol: Integer): Integer; inline;
     function ColumnBlobData(const ACol: Integer): Pointer; inline;
     function ColumnCount: Integer; inline;
-    function ColumnName(const ACol: Integer): PAnsiChar; inline;
+    function ColumnName(const ACol: Integer): PUTF8Char; inline;
     function ColumnType(const ACol: Integer): Integer; inline;
-    function ColumnDeclType(const ACol: Integer): PAnsiChar; inline;
+    function ColumnDeclType(const ACol: Integer): PUTF8Char; inline;
+
+    function BindInt(const ACol, AValue: Integer): Boolean; inline;
+    function BindInt64(const ACol: Integer; const AValue: Int64): Boolean; inline;
+    function BindBlob(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean; inline;
+    function BindBlobCopy(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean; inline;
+
+    function ClearBindings: Boolean; inline;
   end;
 
   PSQLite3DbHandler = ^TSQLite3DbHandler;
@@ -69,6 +76,7 @@ type
   TSQLite3DbHandler = record
   private
     FHandle: PSQLite3;
+    procedure CheckResult(AResult, AExpected: Integer); inline;
     procedure RegisterCollationNeededCallback;
   public
     function Init: Boolean;
@@ -140,13 +148,17 @@ type
       const ACallbackPtr: Pointer
     ): Boolean; inline;
 
+    function ExecPrepared(
+      const AStmtData: PSQLite3StmtData
+    ): Boolean; inline;
+
     function ClosePrepared(
       const AStmtData: PSQLite3StmtData
     ): Boolean; inline;
 
     function LastInsertedRowId: Int64; inline;
 
-    procedure CheckError(const AHasError: Boolean);
+    procedure RaiseSQLite3Error;
 
     procedure SetBusyTryCount(const ATryCount: Integer);
 
@@ -366,6 +378,31 @@ begin
   end;
 end;
 
+function TSQLite3StmtData.BindInt(const ACol, AValue: Integer): Boolean;
+begin
+  Result := sqlite3_bind_int(Stmt, ACol, AValue) = SQLITE_OK;
+end;
+
+function TSQLite3StmtData.BindInt64(const ACol: Integer; const AValue: Int64): Boolean;
+begin
+  Result := sqlite3_bind_int64(Stmt, ACol, AValue) = SQLITE_OK;
+end;
+
+function TSQLite3StmtData.BindBlob(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean;
+begin
+  Result := sqlite3_bind_blob(Stmt, ACol, ABlob, ASize, SQLITE_STATIC) = SQLITE_OK;
+end;
+
+function TSQLite3StmtData.BindBlobCopy(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean;
+begin
+  Result := sqlite3_bind_blob(Stmt, ACol, ABlob, ASize, SQLITE_TRANSIENT) = SQLITE_OK;
+end;
+
+function TSQLite3StmtData.ClearBindings: Boolean;
+begin
+  Result := sqlite3_clear_bindings(Stmt) = SQLITE_OK;
+end;
+
 function TSQLite3StmtData.ColumnAsAnsiString(const ACol: Integer): AnsiString;
 begin
   Result := AnsiString(ColumnAsString(ACol));
@@ -386,7 +423,7 @@ begin
   Result := sqlite3_column_count(Stmt);
 end;
 
-function TSQLite3StmtData.ColumnDeclType(const ACol: Integer): PAnsiChar;
+function TSQLite3StmtData.ColumnDeclType(const ACol: Integer): PUTF8Char;
 begin
   Result := sqlite3_column_decltype(Stmt, ACol);
 end;
@@ -415,7 +452,7 @@ begin
   end;
 end;
 
-function TSQLite3StmtData.ColumnName(const ACol: Integer): PAnsiChar;
+function TSQLite3StmtData.ColumnName(const ACol: Integer): PUTF8Char;
 begin
   Result := sqlite3_column_name(Stmt, ACol);
 end;
@@ -452,12 +489,15 @@ begin
   ExecSql('COMMIT TRANSACTION');
 end;
 
-procedure TSQLite3DbHandler.CheckError(const AHasError: Boolean);
+procedure TSQLite3DbHandler.CheckResult(AResult, AExpected: Integer);
 begin
-  if not AHasError then begin
-    Exit;
+  if AResult <> AExpected then begin
+    RaiseSQLite3Error;
   end;
+end;
 
+procedure TSQLite3DbHandler.RaiseSQLite3Error;
+begin
   if Assigned(FHandle) then begin
     raise ESQLite3ErrorWithCode.Create(
       sqlite3_errmsg(FHandle) + ' ( error code: ' + IntToStr(sqlite3_errcode(FHandle)) + ')'
@@ -500,7 +540,7 @@ begin
 
   if Result <> SQLITE_OK then begin
     if ARaiseOnOpenError then begin
-      CheckError(True);
+      RaiseSQLite3Error;
     end else begin
       Exit;
     end;
@@ -514,7 +554,7 @@ begin
       ACallbackProc(@Self, ACallbackPtr, @VStmtData);
     end;
   finally
-    CheckError(sqlite3_finalize(VStmtData.Stmt) <> SQLITE_OK);
+    CheckResult(sqlite3_finalize(VStmtData.Stmt), SQLITE_OK);
   end;
 end;
 
@@ -535,21 +575,21 @@ procedure TSQLite3DbHandler.ExecSqlWithBlob(
 var
   VStmt: PSQLite3Stmt;
 begin
-  CheckError(
-    sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), VStmt, nil) <> SQLITE_OK
+  CheckResult(
+    sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), VStmt, nil), SQLITE_OK
   );
   try
-    CheckError(
-      sqlite3_bind_blob(VStmt, 1, ABufferPtr, ABufferLen, SQLITE_STATIC) <> SQLITE_OK
+    CheckResult(
+      sqlite3_bind_blob(VStmt, 1, ABufferPtr, ABufferLen, SQLITE_STATIC), SQLITE_OK
     );
-    CheckError(
-      not (sqlite3_step(VStmt) in [SQLITE_DONE, SQLITE_ROW])
-    );
+    if not (sqlite3_step(VStmt) in [SQLITE_DONE, SQLITE_ROW]) then begin
+      RaiseSQLite3Error;
+    end;
     if ARowsAffectedPtr <> nil then begin
       ARowsAffectedPtr^ := sqlite3_changes(FHandle);
     end;
   finally
-    CheckError(sqlite3_finalize(VStmt) <> SQLITE_OK);
+    CheckResult(sqlite3_finalize(VStmt), SQLITE_OK);
   end;
 end;
 
@@ -580,6 +620,13 @@ begin
   ACallbackProc(@Self, ACallbackPtr, AStmtData);
 end;
 
+function TSQLite3DbHandler.ExecPrepared(const AStmtData: PSQLite3StmtData): Boolean;
+begin
+  Result :=
+    (sqlite3_step(AStmtData.Stmt) = SQLITE_DONE) and
+    (sqlite3_reset(AStmtData.Stmt) = SQLITE_OK);
+end;
+
 function TSQLite3DbHandler.Init: Boolean;
 begin
   FillChar(Self, SizeOf(Self), 0);
@@ -596,7 +643,7 @@ var
   VHandle: THandle;
 begin
   VHandle := GetModuleHandle(PChar(GDllName.Sqlite3));
-  if VHandle <> 0 then begin
+  if (VHandle <> 0) and (Addr(sqlite3_libversion) <> nil) then begin
     Result := string(AnsiString(sqlite3_libversion)) + ' at ' + GetModuleName(VHandle);
   end else begin
     Result := 'not loaded!';
@@ -614,8 +661,8 @@ begin
   Close;
   try
     VDbFileName := Utf8Encode(ADbFileName);
-    CheckError(
-      sqlite3_open_v2(PUTF8Char(VDbFileName), FHandle, AOpenFlags, nil) <> SQLITE_OK
+    CheckResult(
+      sqlite3_open_v2(PUTF8Char(VDbFileName), FHandle, AOpenFlags, nil), SQLITE_OK
     );
     if ASupportLogicalCollation then begin
       RegisterCollationNeededCallback;
@@ -655,7 +702,7 @@ begin
 
   if Result <> SQLITE_OK then begin
     if ARaiseOnOpenError then begin
-      CheckError(True);
+      RaiseSQLite3Error;
     end else begin
       Exit;
     end;
@@ -663,8 +710,8 @@ begin
 
   try
     if AWithText then begin
-      CheckError(
-        sqlite3_bind_text(VStmtData.Stmt, 1, ATextBuffer, ATextLength, SQLITE_STATIC) <> SQLITE_OK
+      CheckResult(
+        sqlite3_bind_text(VStmtData.Stmt, 1, ATextBuffer, ATextLength, SQLITE_STATIC), SQLITE_OK
       );
     end;
 
@@ -678,7 +725,7 @@ begin
           end;
           Break;
         end;
-        CheckError(True);
+        RaiseSQLite3Error;
       end;
 
       // SQLITE_ROW
@@ -691,7 +738,7 @@ begin
 
     until False;
   finally
-    CheckError(sqlite3_finalize(VStmtData.Stmt) <> SQLITE_OK);
+    CheckResult(sqlite3_finalize(VStmtData.Stmt), SQLITE_OK);
   end;
 end;
 
