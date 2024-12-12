@@ -755,6 +755,7 @@ function TSQLite3DbHandler.PrepareStatement(
   const ASqlText: UTF8String
 ): Boolean;
 begin
+  AStmtData.Init;
   Result := sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), AStmtData.Stmt, nil) = SQLITE_OK;
 end;
 
