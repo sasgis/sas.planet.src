@@ -72,11 +72,10 @@ type
     const AStmtData: PSQLite3StmtData
   ) of object;
 
-  // подключение к БД SQLite
   TSQLite3DbHandler = record
   private
     FHandle: PSQLite3;
-    procedure CheckResult(AResult, AExpected: Integer); inline;
+    procedure CheckResult(const AResult: Integer); inline;
     procedure RegisterCollationNeededCallback;
   public
     function Init: Boolean;
@@ -490,9 +489,9 @@ begin
   ExecSql('COMMIT TRANSACTION');
 end;
 
-procedure TSQLite3DbHandler.CheckResult(AResult, AExpected: Integer);
+procedure TSQLite3DbHandler.CheckResult(const AResult: Integer);
 begin
-  if AResult <> AExpected then begin
+  if AResult <> SQLITE_OK then begin
     RaiseSQLite3Error;
   end;
 end;
@@ -555,7 +554,7 @@ begin
       ACallbackProc(@Self, ACallbackPtr, @VStmtData);
     end;
   finally
-    CheckResult(sqlite3_finalize(VStmtData.Stmt), SQLITE_OK);
+    CheckResult(sqlite3_finalize(VStmtData.Stmt));
   end;
 end;
 
@@ -577,11 +576,11 @@ var
   VStmt: PSQLite3Stmt;
 begin
   CheckResult(
-    sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), VStmt, nil), SQLITE_OK
+    sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), VStmt, nil)
   );
   try
     CheckResult(
-      sqlite3_bind_blob(VStmt, 1, ABufferPtr, ABufferLen, SQLITE_STATIC), SQLITE_OK
+      sqlite3_bind_blob(VStmt, 1, ABufferPtr, ABufferLen, SQLITE_STATIC)
     );
     if not (sqlite3_step(VStmt) in [SQLITE_DONE, SQLITE_ROW]) then begin
       RaiseSQLite3Error;
@@ -590,7 +589,7 @@ begin
       ARowsAffectedPtr^ := sqlite3_changes(FHandle);
     end;
   finally
-    CheckResult(sqlite3_finalize(VStmt), SQLITE_OK);
+    CheckResult(sqlite3_finalize(VStmt));
   end;
 end;
 
@@ -671,7 +670,7 @@ begin
   try
     VDbFileName := Utf8Encode(ADbFileName);
     CheckResult(
-      sqlite3_open_v2(PUTF8Char(VDbFileName), FHandle, AOpenFlags, nil), SQLITE_OK
+      sqlite3_open_v2(PUTF8Char(VDbFileName), FHandle, AOpenFlags, nil)
     );
     if ASupportLogicalCollation then begin
       RegisterCollationNeededCallback;
@@ -720,7 +719,7 @@ begin
   try
     if AWithText then begin
       CheckResult(
-        sqlite3_bind_text(VStmtData.Stmt, 1, ATextBuffer, ATextLength, SQLITE_STATIC), SQLITE_OK
+        sqlite3_bind_text(VStmtData.Stmt, 1, ATextBuffer, ATextLength, SQLITE_STATIC)
       );
     end;
 
@@ -747,7 +746,7 @@ begin
 
     until False;
   finally
-    CheckResult(sqlite3_finalize(VStmtData.Stmt), SQLITE_OK);
+    CheckResult(sqlite3_finalize(VStmtData.Stmt));
   end;
 end;
 
