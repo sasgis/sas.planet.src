@@ -58,6 +58,8 @@ type
     FBitmapProvider: IBitmapTileUniProvider;
     FDirectTilesCopy: Boolean;
     FSQLite3DB: TSQLite3DbHandler;
+    FInsertStmt: TSQLite3StmtData;
+    FIsInsertStmtPrepared: Boolean;
     FSQLiteAvailable: Boolean;
     FBlankTile: IBinaryData;
     FBasePoint: TPoint;
@@ -102,6 +104,7 @@ uses
   i_Bitmap32Static,
   i_TileRect,
   u_AnsiStr,
+  u_Dialogs,
   u_TileRect,
   u_TileIteratorByRect,
   u_TileIteratorByPolygon,
@@ -109,11 +112,15 @@ uses
   u_ResStrings;
 
 const
-  DATABASE_FILENAME = 'OruxMapsImages.db';
+  CDataBaseFileName = 'OruxMapsImages.db';
+
+const
   TABLE_TILES_DDL = 'CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, image blob, PRIMARY KEY (x,y,z))';
   INDEX_DDL = 'CREATE INDEX IF NOT EXISTS IND on tiles (x,y,z)';
-  INSERT_SQL = 'INSERT or IGNORE INTO tiles (x,y,z,image) VALUES (%d,%d,%d,?)';
   TABLE_ANDROID_METADATA_DDL = 'CREATE TABLE IF NOT EXISTS android_metadata (locale TEXT)';
+
+const
+  INSERT_SQL = 'INSERT or IGNORE INTO tiles (x,y,z,image) VALUES (?,?,?,?)';
 
 { TExportTaskToOruxMapsSQLite }
 
@@ -176,6 +183,11 @@ var
   VDoSaveBlank: Boolean;
 begin
   inherited;
+
+  if not FSQLiteAvailable then begin
+    ShowErrorMessageSync('The SQLite3 library is not available!');
+    Exit;
+  end;
 
   VDoDirectCopy := FDirectTilesCopy and Assigned(FTileStorage);
 
@@ -400,13 +412,9 @@ const
 var
   VFileName: string;
 begin
-  if not FSQLiteAvailable then begin
-    raise ESQLite3SimpleError.Create('SQLite not available');
-  end;
-
   CloseSQLiteStorage;
 
-  VFileName := FExportPath + DATABASE_FILENAME;
+  VFileName := FExportPath + CDataBaseFileName;
 
   if FileExists(VFileName) then begin
     if not DeleteFile(VFileName) then begin
@@ -426,15 +434,27 @@ begin
   FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
   FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
 
+  FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, INSERT_SQL);
+  if not FIsInsertStmtPrepared then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
   FSQLite3Db.BeginTransaction;
 end;
 
 procedure TExportTaskToOruxMapsSQLite.CloseSQLiteStorage;
 begin
-  if FSQLite3DB.IsOpened then begin
-    FSQLite3DB.CommitTransaction;
-    FSQLite3DB.Close;
+  if not FSQLite3DB.IsOpened then begin
+    Exit;
   end;
+
+  if FIsInsertStmtPrepared then begin
+    FInsertStmt.ClearBindings;
+    FSQLite3DB.ClosePrepared(@FInsertStmt);
+  end;
+
+  FSQLite3DB.CommitTransaction;
+  FSQLite3DB.Close;
 end;
 
 procedure TExportTaskToOruxMapsSQLite.SaveTileToSQLiteStorage(
@@ -443,18 +463,24 @@ procedure TExportTaskToOruxMapsSQLite.SaveTileToSQLiteStorage(
   const AData: IBinaryData
 );
 var
-  X, Y: Integer;
+  VBindResult: Boolean;
 begin
   Assert(AData <> nil);
+  Assert(FIsInsertStmtPrepared);
 
-  X := ATile.X - FBasePoint.X;
-  Y := ATile.Y - FBasePoint.Y;
+  VBindResult :=
+    FInsertStmt.BindInt(1, ATile.X - FBasePoint.X) and
+    FInsertStmt.BindInt(2, ATile.Y - FBasePoint.Y) and
+    FInsertStmt.BindInt(3, AZoom) and
+    FInsertStmt.BindBlob(4, AData.Buffer, AData.Size);
 
-  FSQLite3DB.ExecSQLWithBLOB(
-    FormatA(INSERT_SQL, [X, Y, AZoom]),
-    AData.Buffer,
-    AData.Size
-  );
+  if not VBindResult then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
+  if not FSQLite3DB.ExecPrepared(@FInsertStmt) then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
 end;
 
 end.
