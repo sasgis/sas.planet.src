@@ -71,6 +71,8 @@ type
       const AMinZoom: Byte
     ): string;
 
+    function GetTileXY(const ATile: TPoint; const AZoom: Byte): TPoint; inline;
+
     procedure OpenInternal(const ATablesDDL: array of AnsiString);
   public
     constructor Create(
@@ -95,7 +97,7 @@ type
       const AZooms: TByteDynArray
     ); virtual; abstract;
 
-    procedure Close;
+    procedure Close; virtual;
 
     procedure CommitAndBeginTran;
   end;
@@ -103,6 +105,9 @@ type
   TSQLiteStorageMBTilesBaseClass = class of TSQLiteStorageMBTilesBase;
 
   TSQLiteStorageMBTilesClassic = class(TSQLiteStorageMBTilesBase)
+  private
+    FInsertStmt: TSQLite3StmtData;
+    FIsInsertStmtPrepared: Boolean;
   public
     procedure Add(
       const ATile: TPoint;
@@ -114,9 +119,15 @@ type
       const ALonLatRect: TDoubleRect;
       const AZooms: TByteDynArray
     ); override;
+
+    procedure Close; override;
   end;
 
   TSQLiteStorageMBTilesTileMill = class(TSQLiteStorageMBTilesBase)
+  private
+    FInsertMapStmt: TSQLite3StmtData;
+    FInsertImagesStmt: TSQLite3StmtData;
+    FIsInsertStmtPrepared: Boolean;
   public
     procedure Add(
       const ATile: TPoint;
@@ -128,12 +139,15 @@ type
       const ALonLatRect: TDoubleRect;
       const AZooms: TByteDynArray
     ); override;
+
+    procedure Close; override;
   end;
 
 implementation
 
 uses
-  MD5,
+  SynCrypto,
+  SynCommons,
   u_AnsiStr,
   u_GeoFunc;
 
@@ -274,13 +288,24 @@ begin
     );
 end;
 
+function TSQLiteStorageMBTilesBase.GetTileXY(const ATile: TPoint; const AZoom: Byte): TPoint;
+begin
+  Result.X := ATile.X;
+
+  if FUseXYZScheme then begin
+    Result.Y := ATile.Y;
+  end else begin
+    Result.Y := (1 shl AZoom) - ATile.Y - 1;
+  end;
+end;
+
 procedure TSQLiteStorageMBTilesBase.OpenInternal(const ATablesDDL: array of AnsiString);
 var
   I: Integer;
   VFileName: string;
 begin
   if not FSQLiteAvailable then begin
-    raise ESQLite3SimpleError.Create('SQLite not available');
+    raise ESQLite3SimpleError.Create('The SQLite3 library is not available!');
   end;
 
   Close;
@@ -311,18 +336,18 @@ const
   cMBTilesDDL: array [0..3] of AnsiString = (
     // metadata
     'CREATE TABLE IF NOT EXISTS metadata (name text, value text)',
-    'CREATE UNIQUE INDEX IF NOT EXISTS metadata_idx  ON metadata (name)',
+    'CREATE UNIQUE INDEX IF NOT EXISTS metadata_idx ON metadata (name)',
     // tiles
     'CREATE TABLE IF NOT EXISTS tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)',
     'CREATE INDEX IF NOT EXISTS tiles_idx on tiles (zoom_level, tile_column, tile_row)'
   );
 
 const
-  INSERT_TILES_SQL = 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (%d,%d,%d,?)';
+  INSERT_TILES_SQL = 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
 
 procedure TSQLiteStorageMBTilesClassic.Open(
   const ALonLatRect: TDoubleRect;
-  const AZooms: TByteDynArray
+  const AZooms: Types.TByteDynArray
 );
 var
   VMetadata: TStringList;
@@ -364,7 +389,22 @@ begin
     VMetadata.Free;
   end;
 
+  FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, INSERT_TILES_SQL);
+  if not FIsInsertStmtPrepared then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
   FSQLite3DB.BeginTransaction;
+end;
+
+procedure TSQLiteStorageMBTilesClassic.Close;
+begin
+  if FIsInsertStmtPrepared then begin
+    FInsertStmt.ClearBindings;
+    FSQLite3DB.ClosePrepared(@FInsertStmt);
+  end;
+
+  inherited Close;
 end;
 
 procedure TSQLiteStorageMBTilesClassic.Add(
@@ -373,23 +413,27 @@ procedure TSQLiteStorageMBTilesClassic.Add(
   const AData: IBinaryData
 );
 var
-  X, Y: Integer;
+  VTile: TPoint;
+  VBindResult: Boolean;
 begin
   Assert(AData <> nil);
+  Assert(FIsInsertStmtPrepared);
 
-  X := ATile.X;
+  VTile := Self.GetTileXY(ATile, AZoom);
 
-  if FUseXYZScheme then begin
-    Y := ATile.Y;
-  end else begin
-    Y := (1 shl AZoom) - ATile.Y - 1;
+  VBindResult :=
+    FInsertStmt.BindInt(1, AZoom) and
+    FInsertStmt.BindInt(2, VTile.X) and
+    FInsertStmt.BindInt(3, VTile.Y) and
+    FInsertStmt.BindBlob(4, AData.Buffer, AData.Size);
+
+  if not VBindResult then begin
+    FSQLite3DB.RaiseSQLite3Error;
   end;
 
-  FSQLite3DB.ExecSQLWithBLOB(
-    FormatA(INSERT_TILES_SQL, [AZoom, X, Y]),
-    AData.Buffer,
-    AData.Size
-  );
+  if not FSQLite3DB.ExecPrepared(@FInsertStmt) then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
 end;
 
 { TSQLiteStorageMBTilesTileMill }
@@ -462,12 +506,12 @@ const
   );
 
 const
-  INSERT_IMAGES_SQL = 'INSERT OR REPLACE INTO images (tile_id, tile_data) VALUES (%s,?)';
-  INSERT_MAP_SQL = 'INSERT OR REPLACE INTO map (zoom_level, tile_column, tile_row, tile_id) VALUES (%d,%d,%d,%s)';
+  INSERT_IMAGES_SQL = 'INSERT OR REPLACE INTO images (tile_id, tile_data) VALUES (?,?)';
+  INSERT_MAP_SQL = 'INSERT OR REPLACE INTO map (zoom_level, tile_column, tile_row, tile_id) VALUES (?,?,?,?)';
 
 procedure TSQLiteStorageMBTilesTileMill.Open(
   const ALonLatRect: TDoubleRect;
-  const AZooms: TByteDynArray
+  const AZooms: Types.TByteDynArray
 );
 var
   VMetadata: TStringList;
@@ -496,7 +540,28 @@ begin
     VMetadata.Free;
   end;
 
+  FIsInsertStmtPrepared :=
+    FSQLite3DB.PrepareStatement(@FInsertMapStmt, INSERT_MAP_SQL) and
+    FSQLite3DB.PrepareStatement(@FInsertImagesStmt, INSERT_IMAGES_SQL);
+
+  if not FIsInsertStmtPrepared then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
   FSQLite3DB.BeginTransaction;
+end;
+
+procedure TSQLiteStorageMBTilesTileMill.Close;
+begin
+  if FIsInsertStmtPrepared then begin
+    FInsertMapStmt.ClearBindings;
+    FInsertImagesStmt.ClearBindings;
+
+    FSQLite3DB.ClosePrepared(@FInsertMapStmt);
+    FSQLite3DB.ClosePrepared(@FInsertImagesStmt);
+  end;
+
+  inherited Close;
 end;
 
 procedure TSQLiteStorageMBTilesTileMill.Add(
@@ -505,32 +570,46 @@ procedure TSQLiteStorageMBTilesTileMill.Add(
   const AData: IBinaryData
 );
 var
-  X, Y: Integer;
-  VMD5: string;
-  VTileID: AnsiString;
+  VTile: TPoint;
+  VTileID: RawUTF8;
+  VBindResult: Boolean;
 begin
-  VMD5 := MD5DigestToStr(MD5Buffer(AData.Buffer^, AData.Size));
-  VTileID := AnsiString('''' + LowerCase(VMD5) + '''');
+  Assert(AData <> nil);
+  Assert(FIsInsertStmtPrepared);
 
-  // insert blob into 'tiles' table
-  FSQLite3DB.ExecSQLWithBLOB(
-    FormatA(INSERT_IMAGES_SQL, [VTileID]),
-    AData.Buffer,
-    AData.Size
-  );
+  VTileID := MD5DigestToString(MD5Buf(AData.Buffer^, AData.Size));
 
-  X := ATile.X;
+  // insert data into 'images' table
 
-  if FUseXYZScheme then begin
-    Y := ATile.Y;
-  end else begin
-    Y := (1 shl AZoom) - ATile.Y - 1;
+  VBindResult :=
+    FInsertImagesStmt.BindText(1, PAnsiChar(VTileID), Length(VTileID)) and
+    FInsertImagesStmt.BindBlob(2, AData.Buffer, AData.Size);
+
+  if not VBindResult then begin
+    FSQLite3DB.RaiseSQLite3Error;
   end;
 
-  // insert coordinates into 'map' table
-  FSQLite3DB.ExecSQL(
-    FormatA(INSERT_MAP_SQL, [AZoom, X, Y, VTileID])
-  );
+  if not FSQLite3DB.ExecPrepared(@FInsertImagesStmt) then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
+  // insert data into 'map' table
+
+  VTile := Self.GetTileXY(ATile, AZoom);
+
+  VBindResult :=
+    FInsertMapStmt.BindInt(1, AZoom) and
+    FInsertMapStmt.BindInt(2, VTile.X) and
+    FInsertMapStmt.BindInt(3, VTile.Y) and
+    FInsertMapStmt.BindText(4, PAnsiChar(VTileID), Length(VTileID));
+
+  if not VBindResult then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
+  if not FSQLite3DB.ExecPrepared(@FInsertMapStmt) then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
 end;
 
 end.

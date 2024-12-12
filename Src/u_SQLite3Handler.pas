@@ -60,6 +60,8 @@ type
     function BindInt64(const ACol: Integer; const AValue: Int64): Boolean; inline;
     function BindBlob(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean; inline;
     function BindBlobCopy(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean; inline;
+    function BindText(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean; inline;
+    function BindTextCopy(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean; inline;
 
     function ClearBindings: Boolean; inline;
   end;
@@ -396,6 +398,16 @@ end;
 function TSQLite3StmtData.BindBlobCopy(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean;
 begin
   Result := sqlite3_bind_blob(Stmt, ACol, ABlob, ASize, SQLITE_TRANSIENT) = SQLITE_OK;
+end;
+
+function TSQLite3StmtData.BindText(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean;
+begin
+  Result := sqlite3_bind_text(Stmt, ACol, AText, ALen, SQLITE_STATIC) = SQLITE_OK;
+end;
+
+function TSQLite3StmtData.BindTextCopy(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean;
+begin
+  Result := sqlite3_bind_text(Stmt, ACol, AText, ALen, SQLITE_TRANSIENT) = SQLITE_OK;
 end;
 
 function TSQLite3StmtData.ClearBindings: Boolean;
