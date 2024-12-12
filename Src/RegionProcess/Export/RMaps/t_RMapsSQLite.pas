@@ -25,7 +25,7 @@ interface
 
 type
   TRMapsSQLiteModType = (
-    mtBase,
+    mtRMaps,
     mtOsmAnd,
     mtLocus
   );

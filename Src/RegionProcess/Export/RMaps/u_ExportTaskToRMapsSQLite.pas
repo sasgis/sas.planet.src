@@ -105,6 +105,7 @@ uses
   i_TileIterator,
   i_Bitmap32Static,
   u_AnsiStr,
+  u_Dialogs,
   u_ResStrings;
 
 { TExportTaskToRMapsSQLite }
@@ -192,6 +193,11 @@ var
 begin
   inherited;
 
+  if not FSQLiteAvailable then begin
+    ShowErrorMessageSync('The SQLite3 library is not available!');
+    Exit;
+  end;
+
   VDoDirectCopy := FDirectTilesCopy and Assigned(FTileStorage);
 
   if not VDoDirectCopy then begin
@@ -276,17 +282,9 @@ var
   VCenter: TDoublePoint;
   VCreateNewDB: Boolean;
 begin
-  // check library
-  if not FSQLiteAvailable then begin
-    raise ESQLite3SimpleError.Create('The SQLite3 library is not available!');
-  end;
-
-  // закрываем предыдущее (если есть)
   CloseSQLiteStorage;
 
-  // make sqlite database
   if FileExists(FExportPath) then begin
-    // база уже есть - будем дописывать или грохнем
     if FForceDropTarget then begin
       if not DeleteFile(FExportPath) then begin
         raise ESQLite3SimpleError.CreateFmt('Can''t delete database: %s', [FExportPath]);
@@ -296,29 +294,20 @@ begin
       VCreateNewDB := False;
     end;
   end else begin
-    // базы ещё нет
     VCreateNewDB := True;
   end;
 
-  // создаём новую или открываем существующую
   FSQLite3Db.Open(FExportPath, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
 
-  // если новая - забацаем структуру
   if VCreateNewDB then begin
     FSQLite3DB.ExecSQL(
       'CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, s int, image blob, PRIMARY KEY (x,y,z,s))'
     );
 
     case FModType of
-      mtBase: begin
+      mtRMaps: begin
         FSQLite3DB.ExecSQL('CREATE TABLE IF NOT EXISTS info (maxzoom Int, minzoom Int)');
         FSQLite3DB.ExecSQL('INSERT OR REPLACE INTO info (minzoom, maxzoom) VALUES (0,0)');
-        (*
-          ещё есть
-          CREATE TABLE android_metadata (locale  text);
-          с одной строкой
-          'en_US'
-        *)
       end;
 
       mtOsmAnd: begin
@@ -417,7 +406,7 @@ begin
     VZooms := '';
     FSQLite3DB.OpenSQL(
       'SELECT DISTINCT z FROM tiles ORDER BY z DESC',
-      FillZoomsCallback,
+      Self.FillZoomsCallback,
       @VZooms,
       True
     );

@@ -135,7 +135,7 @@ end;
 function TExportProviderRMapsSQLite.GetCaption: string;
 begin
   case FModType of
-    mtBase   : Result := SAS_STR_ExportRMapsSQLiteExportCaption;
+    mtRMaps  : Result := SAS_STR_ExportRMapsSQLiteExportCaption;
     mtOsmAnd : Result := SAS_STR_ExportOsmAndSQLiteExportCaption;
     mtLocus  : Result := SAS_STR_ExportLocusSQLiteExportCaption;
   else

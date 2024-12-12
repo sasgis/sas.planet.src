@@ -914,7 +914,7 @@ begin
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       AProjectionSetFactory,
-      mtBase
+      mtRMaps
     );
   VList.Add(VProvider);
 
