@@ -483,15 +483,18 @@ var
   GLock: TCriticalSection = nil;
   GIsInitialized: Boolean = False;
 
-function GetProcAddr(const AProcName: PAnsiChar): Pointer;
-begin
-  Result := GetProcAddress(GHandle, AProcName);
-  if Addr(Result) = nil then begin
-    RaiseLastOSError;
-  end;
-end;
+procedure UnloadLib; forward;
 
 procedure InitLibTiff(const ALibName: string);
+
+  function GetProcAddr(const AProcName: PAnsiChar): Pointer;
+  begin
+    Result := GetProcAddress(GHandle, AProcName);
+    if Result = nil then begin
+      raise Exception.CreateFmt('Unable to find "%s" in %s', [AProcName, ALibName]);
+    end;
+  end;
+
 begin
   if GIsInitialized then begin
     Exit;
@@ -504,10 +507,15 @@ begin
     end;
 
     if GHandle = 0 then begin
-      GHandle := LoadLibrary(PChar(ALibName));
+      GHandle := SafeLoadLibrary(PChar(ALibName));
+      if GHandle = 0 then begin
+        raise Exception.CreateFmt(
+          'Unable to load library %s - %s', [ALibName, SysErrorMessage(GetLastError)]
+        );
+      end;
     end;
 
-    if GHandle <> 0 then begin
+    try
       TIFFGetVersion := GetProcAddr('TIFFGetVersion');
       TIFFOpen := GetProcAddr('TIFFOpen');
       TIFFOpenW := GetProcAddr('TIFFOpenW');
@@ -524,22 +532,21 @@ begin
       TIFFSetErrorHandler := GetProcAddr('TIFFSetErrorHandler');
 
       _SetupErrorHandlers;
-    end else begin
-      RaiseLastOSError;
-    end;
 
-    GIsInitialized := True;
+      GIsInitialized := True;
+    except
+      UnloadLib;
+      raise;
+    end;
   finally
     GLock.Release;
   end;
 end;
 
-procedure FinLibTiff;
+procedure UnloadLib;
 begin
   GLock.Acquire;
   try
-    GIsInitialized := False;
-
     if GHandle <> 0 then begin
       FreeLibrary(GHandle);
       GHandle := 0;
@@ -560,6 +567,7 @@ begin
     TIFFSetWarningHandler := nil;
     TIFFSetErrorHandler := nil;
   finally
+    GIsInitialized := False;
     GLock.Release;
   end;
 end;
@@ -568,7 +576,7 @@ initialization
   GLock := TCriticalSection.Create;
 
 finalization
-  FinLibTiff;
+  UnloadLib;
   FreeAndNil(GLock);
 {$ENDIF}
 

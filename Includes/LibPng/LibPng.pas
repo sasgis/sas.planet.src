@@ -230,15 +230,18 @@ var
   GLock: TCriticalSection = nil;
   GIsInitialized: Boolean = False;
 
-function GetProcAddr(const AProcName: PAnsiChar): Pointer;
-begin
-  Result := GetProcAddress(GHandle, AProcName);
-  if Addr(Result) = nil then begin
-    RaiseLastOSError;
-  end;
-end;
+procedure UnloadLib; forward;
 
 procedure InitLibPng(const ALibName: string);
+
+  function GetProcAddr(const AProcName: PAnsiChar): Pointer;
+  begin
+    Result := GetProcAddress(GHandle, AProcName);
+    if Result = nil then begin
+      raise Exception.CreateFmt('Unable to find "%s" in %s', [AProcName, ALibName]);
+    end;
+  end;
+
 begin
   if GIsInitialized then begin
     Exit;
@@ -251,10 +254,15 @@ begin
     end;
 
     if GHandle = 0 then begin
-      GHandle := LoadLibrary(PChar(ALibName));
+      GHandle := SafeLoadLibrary(PChar(ALibName));
+      if GHandle = 0 then begin
+        raise Exception.CreateFmt(
+          'Unable to load library %s - %s', [ALibName, SysErrorMessage(GetLastError)]
+        );
+      end;
     end;
 
-    if GHandle <> 0 then begin
+    try
       png_get_libpng_ver := GetProcAddr('png_get_libpng_ver');
       png_create_write_struct := GetProcAddr('png_create_write_struct');
       png_create_info_struct := GetProcAddr('png_create_info_struct');
@@ -275,22 +283,21 @@ begin
       png_get_io_ptr := GetProcAddr('png_get_io_ptr');
       png_get_image_width := GetProcAddr('png_get_image_width');
       png_get_image_height := GetProcAddr('png_get_image_height');
-    end else begin
-      RaiseLastOSError;
-    end;
 
-    GIsInitialized := True;
+      GIsInitialized := True;
+    except
+      UnloadLib;
+      raise;
+    end;
   finally
     GLock.Release;
   end;
 end;
 
-procedure FinLibPng;
+procedure UnloadLib;
 begin
   GLock.Acquire;
   try
-    GIsInitialized := False;
-
     if GHandle <> 0 then begin
       FreeLibrary(GHandle);
       GHandle := 0;
@@ -317,6 +324,7 @@ begin
     png_get_image_width := nil;
     png_get_image_height := nil;
   finally
+    GIsInitialized := False;
     GLock.Release;
   end;
 end;
@@ -325,7 +333,7 @@ initialization
   GLock := TCriticalSection.Create;
 
 finalization
-  FinLibPng;
+  UnloadLib;
   FreeAndNil(GLock);
 
 end.

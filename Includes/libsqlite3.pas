@@ -796,8 +796,7 @@ var
   sqlite3_backup_pagecount: function(p: PSQLite3Backup): Integer; cdecl;
   sqlite3_strnicmp: function(const zLeft: PUTF8Char; const zRight: PUTF8Char; N: Integer): Integer; cdecl;
 
-function LibSQLite3Load(const ALibName: string = libsqlite3_dll; const AInitialize: Boolean = False): Boolean;
-procedure LibSQLite3Unload;
+procedure InitLibSQLite3(const ALibName: string = libsqlite3_dll; const AInitialize: Boolean = False);
 
 implementation
 
@@ -809,42 +808,39 @@ uses
 var
   GHandle: THandle = 0;
   GLock: TCriticalSection = nil;
-  GIsLoadError: Boolean = False;
   GIsInitialized: Boolean = False;
 
-function GetProcAddr(const AProcName: PAnsiChar): Pointer; inline;
-begin
-  Result := GetProcAddress(GHandle, AProcName);
-  if Result = nil then begin
-    raise Exception.CreateFmt('SQLite3: Unable to find proc "%s"', [AProcName]);
+procedure UnloadLib; forward;
+
+procedure InitLibSQLite3(const ALibName: string; const AInitialize: Boolean);
+
+  function GetProcAddr(const AProcName: PAnsiChar): Pointer;
+  begin
+    Result := GetProcAddress(GHandle, AProcName);
+    if Result = nil then begin
+      raise Exception.CreateFmt('Unable to find "%s" in %s', [AProcName, ALibName]);
+    end;
   end;
-end;
 
-function LibSQLite3Load(const ALibName: string; const AInitialize: Boolean): Boolean;
-Begin
-  Result := GIsInitialized;
-
-  if GIsLoadError or GIsInitialized then begin
+begin
+  if GIsInitialized then begin
     Exit;
   end;
 
   GLock.Acquire;
   try
-    if GIsLoadError or GIsInitialized then begin
+    if GIsInitialized then begin
       Exit;
     end;
 
     if GHandle = 0 then begin
       GHandle := SafeLoadLibrary(PChar(ALibName));
       if GHandle = 0 then begin
-        GIsLoadError := True;
         raise Exception.CreateFmt(
-          'SQLite3: Unable to load library %s - %s', [ALibName, SysErrorMessage(GetLastError)]
+          'Unable to load library %s - %s', [ALibName, SysErrorMessage(GetLastError)]
         );
       end;
     end;
-
-    GIsInitialized := True;
 
     try
       sqlite3_libversion := GetProcAddr('sqlite3_libversion');
@@ -1020,8 +1016,7 @@ Begin
       sqlite3_backup_pagecount := GetProcAddr('sqlite3_backup_pagecount');
       sqlite3_strnicmp := GetProcAddr('sqlite3_strnicmp');
     except
-      GIsLoadError := True;
-      LibSQLite3Unload;
+      UnloadLib;
       raise;
     end;
 
@@ -1037,31 +1032,26 @@ Begin
        // does any initialization. All other calls are harmless no-ops.
 
       if sqlite3_initialize <> SQLITE_OK then begin
-        GIsLoadError := True;
-        LibSQLite3Unload;
+        UnloadLib;
         raise Exception.Create('SQLite3: initialize error!');
       end;
     end;
 
-    Result := GIsInitialized;
+    GIsInitialized := True;
   finally
     GLock.Release;
   end;
 end;
 
-procedure LibSQLite3Unload;
+procedure UnloadLib;
 begin
   GLock.Acquire;
   try
-    if not GIsInitialized then begin
-      Exit;
-    end;
-    GIsInitialized := False;
-
     // A call to sqlite3_shutdown() is an "effective" call if it is the first call to sqlite3_shutdown()
     // since the last sqlite3_initialize(). Only an effective call to sqlite3_shutdown() does any deinitialization.
     // All other valid calls to sqlite3_shutdown() are harmless no-ops.
-    if Addr(sqlite3_shutdown) <> nil then begin
+
+    if GIsInitialized then begin
       sqlite3_shutdown;
     end;
 
@@ -1243,6 +1233,7 @@ begin
     sqlite3_backup_pagecount := nil;
     sqlite3_strnicmp := nil;
   finally
+    GIsInitialized := False;
     GLock.Release;
   end;
 end;
@@ -1251,7 +1242,7 @@ initialization
   GLock := TCriticalSection.Create;
 
 finalization
-  LibSQLite3Unload;
+  UnloadLib;
   FreeAndNil(GLock);
 
 end.

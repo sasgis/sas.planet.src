@@ -180,6 +180,7 @@ type
 implementation
 
 uses
+  u_Dialogs,
   u_GlobalDllName;
 
 function LocalSQLiteBusyHandler(ptr: Pointer; count: Integer): Integer; cdecl;
@@ -630,7 +631,15 @@ end;
 function TSQLite3DbHandler.Init: Boolean;
 begin
   FillChar(Self, SizeOf(Self), 0);
-  Result := LibSQLite3Load(GDllName.Sqlite3);
+  try
+    InitLibSQLite3(GDllName.Sqlite3);
+    Result := True;
+  except
+    on E: Exception do begin
+      Result := False;
+      ShowErrorMessageSync(E.Message);
+    end;
+  end;
 end;
 
 function TSQLite3DbHandler.LastInsertedRowId: Int64;
