@@ -19,6 +19,7 @@ dprFile.write(dpr);
 var dproj = ReadFile(fso, "SASPlanet.dproj");
 dproj = dproj.replace(';EUREKALOG_VER6', "");
 dproj = dproj.replace(';EUREKALOG_VER7', "");
+dproj = dproj.replace('EUREKALOG_VER7', "");
 dproj = dproj.replace(';EUREKALOG', "");
 var dprojFile = fso.OpenTextFile("SASPlanet.dproj", 2, false);
 dprojFile.write(dproj);

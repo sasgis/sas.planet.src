@@ -7,7 +7,7 @@ cd .\Resources
 call Build.Resources.cmd
 cd ..\
 call rsvars.bat
-msbuild SASPlanet.dproj /p:Configuration=Debug /t:rebuild
+msbuild SASPlanet.dproj /p:config=Debug /p:platform=Win32 /t:rebuild
 cscript .\Tools\ResetVersionInfo.js
 call .\Tools\ResetBuildInfo.cmd %~dp0..\
 del /F /Q ".\Tools\revision.txt"

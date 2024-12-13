@@ -5,12 +5,12 @@ copy ".\Tools\madexcept\u_MadExcept.pas" ".\" /Y
 cscript .\Tools\madexcept\Clear.js
 cscript .\Tools\madexcept\Prepare.js
 cscript .\Tools\CreateVersionInfo.js
-call .\Tools\CreateBuildInfo.cmd "Custom (ME)" %~dp0..\ %~dp0..\..\sas.requires
+call .\Tools\CreateBuildInfo.cmd "Custom (ME)" %~dp0..\ %~dp0..\..\
 cd .\Resources
 call Build.Resources.cmd
 cd ..\
 call rsvars.bat
-msbuild SASPlanet.dproj /p:Configuration=Debug /t:rebuild
+msbuild SASPlanet.dproj /p:config=Debug /p:platform=Win32 /t:rebuild
 madExceptPatch.exe ".\.bin\win32\SASPlanet.exe" ".\Tools\madexcept\SASPlanet.mes"
 cscript .\Tools\ResetVersionInfo.js
 cscript .\Tools\madexcept\Clear.js
