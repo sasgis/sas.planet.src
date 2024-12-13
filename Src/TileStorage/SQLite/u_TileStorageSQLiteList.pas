@@ -668,7 +668,7 @@ end;
 
 function TSQLiteDynList.AddXYEntry: PSQLiteDynamicEntry;
 begin
-  Result := HeapAlloc(GetProcessHeap, HEAP_ZERO_MEMORY, SizeOf(TSQLiteDynamicEntry));
+  Result := AllocMem(SizeOf(TSQLiteDynamicEntry));
   Inc(Result.FOpCount);
   Self.Add(Result);
   Inc(FDynState.FAddCount);
@@ -706,7 +706,7 @@ begin
       // cleanup
       PSQLiteDynamicEntry(Ptr).FHandler := nil;
       // free
-      HeapFree(GetProcessHeap, 0, Ptr);
+      FreeMem(Ptr);
     end;
   end;
 end;
