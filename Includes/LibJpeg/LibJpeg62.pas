@@ -1052,7 +1052,7 @@ var
   procedure jpeg_create_decompress(cinfo: j_decompress_ptr);
 
 {$IFNDEF LIB_JPEG_62_STATIC_LINK}
-  function InitLibJpeg62(const LibName: string = LIB_JPEG_NAME): boolean;
+  function InitLibJpeg62(const ALibName: string = LIB_JPEG_NAME): Boolean;
   procedure QuitLibJpeg62;
 {$ENDIF}
 
@@ -1065,34 +1065,35 @@ uses
   SyncObjs;
 
 var
-  gHandle: THandle = 0;
-  gLock: TCriticalSection = nil;
-  gIsInitialized: Boolean = False;
+  GHandle: THandle = 0;
+  GLock: TCriticalSection = nil;
+  GIsInitialized: Boolean = False;
 
-function GetProcAddr(Name: PAnsiChar): Pointer;
-begin
-  GetProcAddr := GetProcAddress(gHandle, Name);
-end;
+function InitLibJpeg62(const ALibName: string): Boolean;
 
-function InitLibJpeg62(const LibName: string = LIB_JPEG_NAME): Boolean;
+  function GetProcAddr(const AProcName: PAnsiChar): Pointer;
+  begin
+    Result := GetProcAddress(GHandle, AProcName);
+  end;
+
 begin
-  if gIsInitialized then begin
+  if GIsInitialized then begin
     Result := True;
     Exit;
   end;
 
-  gLock.Acquire;
+  GLock.Acquire;
   try
-    if gIsInitialized then begin
+    if GIsInitialized then begin
       Result := True;
       Exit;
     end;
 
-    if gHandle = 0 then begin
-      gHandle := LoadLibrary(PChar(LibName));
+    if GHandle = 0 then begin
+      GHandle := LoadLibrary(PChar(ALibName));
     end;
 
-    if gHandle <> 0 then begin
+    if GHandle <> 0 then begin
       jpeg_std_error := GetProcAddr('jpeg_std_error');
       jpeg_CreateCompress := GetProcAddr('jpeg_CreateCompress');
       jpeg_CreateDecompress := GetProcAddr('jpeg_CreateDecompress');
@@ -1141,8 +1142,8 @@ begin
       jpeg_resync_to_restart := GetProcAddr('jpeg_resync_to_restart');
     end;
 
-    gIsInitialized :=
-      (gHandle <> 0) and
+    GIsInitialized :=
+      (GHandle <> 0) and
       (Addr(jpeg_std_error) <> nil) and
       (Addr(jpeg_CreateCompress) <> nil) and
       (Addr(jpeg_CreateDecompress) <> nil) and
@@ -1190,21 +1191,19 @@ begin
       (Addr(jpeg_destroy) <> nil) and
       (Addr(jpeg_resync_to_restart) <> nil);
 
-    Result := gIsInitialized;
+    Result := GIsInitialized;
   finally
-    gLock.Release;
+    GLock.Release;
   end;
 end;
 
 procedure QuitLibJpeg62;
 begin
-  gLock.Acquire;
+  GLock.Acquire;
   try
-    gIsInitialized := False;
-
-    if gHandle <> 0 then begin
-      FreeLibrary(gHandle);
-      gHandle := 0;
+    if GHandle <> 0 then begin
+      FreeLibrary(GHandle);
+      GHandle := 0;
     end;
 
     jpeg_std_error := nil;
@@ -1254,7 +1253,8 @@ begin
     jpeg_destroy := nil;
     jpeg_resync_to_restart := nil;
   finally
-    gLock.Release;
+    GIsInitialized := False;
+    GLock.Release;
   end;
 end;
 {$ENDIF}
@@ -1271,11 +1271,11 @@ end;
 
 {$IFNDEF LIB_JPEG_62_STATIC_LINK}
 initialization
-  gLock := TCriticalSection.Create;
+  GLock := TCriticalSection.Create;
 
 finalization
   QuitLibJpeg62;
-  FreeAndNil(gLock);
+  FreeAndNil(GLock);
 {$ENDIF}
 
 end.
