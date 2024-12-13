@@ -541,24 +541,24 @@ var
 begin
   // s,d[,v][,c][,b]
   // здесь читаем только один тайл
-  AStmtData^.Cancelled := True;
+  AStmtData.Cancelled := True;
 
-  with PSelectTileInfoComplex(ACallbackPtr)^.TileResult^ do begin
+  with PSelectTileInfoComplex(ACallbackPtr).TileResult^ do begin
     // размер и дату тащим даже без запроса пользователя
     GExtraMode := GExtraMode + [gtiiSize, gtiiLoadDate];
   end;
 
   // original tile size (in bytes)
-  VOriginalTileSize := AStmtData^.ColumnInt(0);
+  VOriginalTileSize := AStmtData.ColumnInt(0);
 
   // time (in unix seconds)
-  VTemp := AStmtData^.ColumnInt64(1);
+  VTemp := AStmtData.ColumnInt64(1);
   VDateTime := UnixToDateTime(VTemp);
 
   // version
   if FTBColInfo.ModeV <> vcm_None then begin
     // get version as field 2
-    VColType := AStmtData^.ColumnType(2);
+    VColType := AStmtData.ColumnType(2);
     case VColType of
       SQLITE_NULL: begin
         // null value
@@ -573,7 +573,7 @@ begin
       end;
       SQLITE_INTEGER: begin
         // version as integer
-        VTemp := AStmtData^.ColumnInt64(2);
+        VTemp := AStmtData.ColumnInt64(2);
         if VTemp = cDefaultVersionAsIntValue then begin
           VVersionStr := cDefaultVersionAsStrValue;
         end else begin
@@ -595,7 +595,7 @@ begin
     else
       begin
         // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
-        VVersionStr := AStmtData^.ColumnAsString(2);
+        VVersionStr := AStmtData.ColumnAsString(2);
         with PSelectTileInfoComplex(ACallbackPtr)^ do begin
           if (RequestedVersionInfo = nil) or not SameText(RequestedVersionInfo.StoreString, VVersionStr) then begin
             // make new version
@@ -608,7 +608,7 @@ begin
 
   if VOriginalTileSize <= 0 then begin
     // TNE
-    PSelectTileInfoComplex(ACallbackPtr)^.TileResult^.GTileInfo :=
+    PSelectTileInfoComplex(ACallbackPtr).TileResult.GTileInfo :=
       TTileInfoBasicTNE.Create(
         VDateTime,
         PSelectTileInfoComplex(ACallbackPtr)^.RequestedVersionInfo
@@ -619,28 +619,28 @@ begin
   // content-type
   if FTBColInfo.HasC then begin
     // get content_type (FieldIndex = 2 + Ord(FTBColInfo.HasV)
-    VContentType := AStmtData^.ColumnAsAnsiString(2 + Ord(FTBColInfo.ModeV <> vcm_None));
+    VContentType := AStmtData.ColumnAsAnsiString(2 + Ord(FTBColInfo.ModeV <> vcm_None));
   end else begin
     // use default content_type
     VContentType := '';
   end;
 
-  with PSelectTileInfoComplex(ACallbackPtr)^.TileResult^ do begin
+  with PSelectTileInfoComplex(ACallbackPtr).TileResult^ do begin
     // тип тайла тут всегда тащим
     GExtraMode := GExtraMode + [gtiiContentType];
   end;
 
   // treat as tile
-  if gtiiBody in PSelectTileInfoComplex(ACallbackPtr)^.SelectMode then begin
+  if gtiiBody in PSelectTileInfoComplex(ACallbackPtr).SelectMode then begin
     // get tile with body
     VColType := 2 + Ord(FTBColInfo.ModeV <> vcm_None) + Ord(FTBColInfo.HasC);
-    VBlobSize := AStmtData^.ColumnBlobSize(VColType);
+    VBlobSize := AStmtData.ColumnBlobSize(VColType);
     if VBlobSize <= 0 then begin
       // TNE ?!
-      PSelectTileInfoComplex(ACallbackPtr)^.TileResult^.GTileInfo :=
+      PSelectTileInfoComplex(ACallbackPtr).TileResult.GTileInfo :=
         TTileInfoBasicTNE.Create(
           VDateTime,
-          PSelectTileInfoComplex(ACallbackPtr)^.RequestedVersionInfo
+          PSelectTileInfoComplex(ACallbackPtr).RequestedVersionInfo
         );
     end else begin
       // has body
@@ -648,23 +648,23 @@ begin
         CreateTileBinaryData(
           VOriginalTileSize,
           VBlobSize,
-          AStmtData^.ColumnBlobData(VColType)
+          AStmtData.ColumnBlobData(VColType)
         );
-      PSelectTileInfoComplex(ACallbackPtr)^.TileResult^.GTileInfo :=
+      PSelectTileInfoComplex(ACallbackPtr).TileResult.GTileInfo :=
         TTileInfoBasicExistsWithTile.Create(
           VDateTime,
           VBinaryData,
-          PSelectTileInfoComplex(ACallbackPtr)^.RequestedVersionInfo,
+          PSelectTileInfoComplex(ACallbackPtr).RequestedVersionInfo,
           FTileStorageSQLiteHolder.GetContentTypeInfo(VContentType)
         );
     end;
   end else begin
     // no need tile body
-    PSelectTileInfoComplex(ACallbackPtr)^.TileResult^.GTileInfo :=
+    PSelectTileInfoComplex(ACallbackPtr).TileResult.GTileInfo :=
       TTileInfoBasicExists.Create(
         VDateTime,
         VOriginalTileSize,
-        PSelectTileInfoComplex(ACallbackPtr)^.RequestedVersionInfo,
+        PSelectTileInfoComplex(ACallbackPtr).RequestedVersionInfo,
         FTileStorageSQLiteHolder.GetContentTypeInfo(VContentType)
       );
   end;
@@ -685,26 +685,26 @@ begin
 
   // check
   with VDataPtr^ do begin
-    if AOperationPtr^.IsOperationCancelled then begin
-      AStmtData^.Cancelled := True;
+    if AOperationPtr.IsOperationCancelled then begin
+      AStmtData.Cancelled := True;
       ACancelled := True;
       Exit;
     end;
   end;
 
   // x,y,d,s
-  VXY.X := AStmtData^.ColumnInt(0);
-  VXY.Y := AStmtData^.ColumnInt(1);
+  VXY.X := AStmtData.ColumnInt(0);
+  VXY.Y := AStmtData.ColumnInt(1);
 
-  VPtr := VDataPtr^.AEnumDataPtr;
+  VPtr := VDataPtr.AEnumDataPtr;
 
   // get index in array
-  VIndex := TTileRectInfoShort.TileInRectToIndex(VXY, VPtr^.DestRect);
+  VIndex := TTileRectInfoShort.TileInRectToIndex(VXY, VPtr.DestRect);
 
   // apply values
-  with VPtr^.RectItems[VIndex] do begin
-    FLoadDate := UnixToDateTime(AStmtData^.ColumnInt64(2));
-    FSize := AStmtData^.ColumnInt(3);
+  with VPtr.RectItems[VIndex] do begin
+    FLoadDate := UnixToDateTime(AStmtData.ColumnInt64(2));
+    FSize := AStmtData.ColumnInt(3);
     if FSize > 0 then begin
       FInfoType := titExists;
     end else begin
@@ -729,15 +729,15 @@ begin
 
   // check
   with VData^ do begin
-    if OperationPtr^.IsOperationCancelled then begin
-      AStmtData^.Cancelled := True;
+    if OperationPtr.IsOperationCancelled then begin
+      AStmtData.Cancelled := True;
       Cancelled := True;
       Exit;
     end;
   end;
 
   // make version
-  VColType := AStmtData^.ColumnType(0);
+  VColType := AStmtData.ColumnType(0);
   case VColType of
     SQLITE_NULL: begin
       // NULL - use empty string
@@ -745,7 +745,7 @@ begin
     end;
     SQLITE_INTEGER: begin
       // Int64
-      VTemp := AStmtData^.ColumnInt64(0);
+      VTemp := AStmtData.ColumnInt64(0);
       if VTemp = cDefaultVersionAsIntValue then begin
         VVersionStr := cDefaultVersionAsStrValue;
       end else begin
@@ -755,11 +755,11 @@ begin
   else
     begin
       // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
-      VVersionStr := AStmtData^.ColumnAsString(0);
+      VVersionStr := AStmtData.ColumnAsString(0);
     end;
   end;
 
-  if VData^.StoreEmptyVersion or (VVersionStr <> cDefaultVersionAsStrValue) then begin
+  if VData.StoreEmptyVersion or (VVersionStr <> cDefaultVersionAsStrValue) then begin
     VVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(VVersionStr);
   end else begin
     VVersionInfo := nil;
@@ -767,7 +767,7 @@ begin
 
   // add it to list
   if VVersionInfo <> nil then begin
-    VData^.ListOfVersions.Add(VVersionInfo);
+    VData.ListOfVersions.Add(VVersionInfo);
   end;
 end;
 

@@ -250,7 +250,7 @@ begin
     ForceDirectories(ExtractFilePath(VDBPath));
   end;
 
-  if AOper^.IsOperationCancelled then begin
+  if AOper.IsOperationCancelled then begin
     Result := nil;
     Exit;
   end;
@@ -295,7 +295,7 @@ begin
       );
   end;
 
-  if AOper^.IsOperationCancelled then begin
+  if AOper.IsOperationCancelled then begin
     Result := False;
     Exit;
   end;
@@ -342,7 +342,7 @@ begin
     );
 
   // check if database exists
-  if (VHandler = nil) or AOper^.IsOperationCancelled then begin
+  if (VHandler = nil) or AOper.IsOperationCancelled then begin
     // no database - no versions
     Result := nil;
   end else begin
@@ -449,13 +449,13 @@ begin
     VDBRect.Right := (AEnumData.DestRect.Right - 1) shr 8;
     // iterate by shifted values
     for I := VDBRect.Left to VDBRect.Right do begin
-      if FShutdown or AOper^.IsOperationCancelled then begin
+      if FShutdown or AOper.IsOperationCancelled then begin
         Result := False;
         Exit;
       end;
       for J := VDBRect.Top to VDBRect.Bottom do begin
         // check
-        if FShutdown or AOper^.IsOperationCancelled then begin
+        if FShutdown or AOper.IsOperationCancelled then begin
           Result := False;
           Exit;
         end;
@@ -510,7 +510,7 @@ begin
       );
   end;
 
-  if AOper^.IsOperationCancelled then begin
+  if AOper.IsOperationCancelled then begin
     Result := False;
     Exit;
   end;

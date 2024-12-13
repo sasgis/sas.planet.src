@@ -253,7 +253,7 @@ begin
         // check initialized
         FDynamicSync.BeginRead;
         try
-          if VList^.FDynList = nil then begin
+          if VList.FDynList = nil then begin
             VList := nil;
           end;
         finally
@@ -261,26 +261,26 @@ begin
         end;
         // if initialized
         if VList <> nil then begin
-          VList^.FDynSync.BeginWrite;
+          VList.FDynSync.BeginWrite;
           try
             case AMode of
               cForeachSync: begin
-                VList^.FDynList.SyncItems;
+                VList.FDynList.SyncItems;
               end;
               cForeachFree: begin
                 // cleanup
-                FreeAndNil(VList^.FDynList);
+                FreeAndNil(VList.FDynList);
               end;
             end;
           finally
-            VList^.FDynSync.EndWrite;
+            VList.FDynSync.EndWrite;
           end;
           // free
           if AMode = cForeachFree then begin
             // uninit
             FDynamicSync.BeginWrite;
             try
-              VList^.FDynSync := nil;
+              VList.FDynSync := nil;
             finally
               FDynamicSync.EndWrite;
             end;
@@ -322,10 +322,10 @@ procedure TSQLiteSingleList.ForeachFixedProc(
 begin
   case AMode of
     cForeachSync: begin
-      AEntryPtr^.InternalSync;
+      AEntryPtr.InternalSync;
     end;
     cForeachFree: begin
-      AEntryPtr^.InternalUninit;
+      AEntryPtr.InternalUninit;
     end;
   end;
 end;
@@ -347,52 +347,52 @@ begin
   // TODO: check cache (XY -> Index)
 
   // search
-  ADynList^.FDynSync.BeginRead;
+  ADynList.FDynSync.BeginRead;
   try
     // save state
-    VOldCount := ADynList^.FDynList.Count;
-    VOldState := ADynList^.FDynList.FDynState;
+    VOldCount := ADynList.FDynList.Count;
+    VOldState := ADynList.FDynList.FDynState;
     // find
-    VDynEntry := ADynList^.FDynList.FindXYEntry(AShiftedXY, 0);
+    VDynEntry := ADynList.FDynList.FindXYEntry(AShiftedXY, 0);
     if VDynEntry <> nil then begin
       // found
-      Result := VDynEntry^.FHandler;
-      if (Result <> nil) or (VDynEntry^.FDBNotFound and not AForceMakeDB) then begin
+      Result := VDynEntry.FHandler;
+      if (Result <> nil) or (VDynEntry.FDBNotFound and not AForceMakeDB) then begin
         Exit;
       end;
     end;
   finally
-    ADynList^.FDynSync.EndRead;
+    ADynList.FDynSync.EndRead;
   end;
 
   // not found
-  ADynList^.FDynSync.BeginWrite;
+  ADynList.FDynSync.BeginWrite;
   try
     // may be item without database
-    with ADynList^.FDynList do begin
+    with ADynList.FDynList do begin
       if FDynState.FAddCount = VOldState.FAddCount then begin
         if FDynState.FDelCount = VOldState.FDelCount then begin
           if VDynEntry <> nil then begin
             // make database
-            if VDynEntry^.FHandler = nil then begin
-              VDynEntry^.FHandler :=
+            if VDynEntry.FHandler = nil then begin
+              VDynEntry.FHandler :=
                 FFactoryProc(
                   AOper,
                   AXY,
                   AZoom,
                   AVersionInfo,
                   AForceMakeDB,
-                  VDynEntry^.FDBNotFound
+                  VDynEntry.FDBNotFound
                 );
             end;
-            Result := VDynEntry^.FHandler;
+            Result := VDynEntry.FHandler;
             Exit;
           end;
         end;
       end;
     end;
 
-    with ADynList^.FDynList do begin
+    with ADynList.FDynList do begin
       if FDynState.FAddCount > VOldState.FAddCount then begin
         // some was added - search again
         VOldState.FDelCount := VOldState.FDelCount - FDynState.FDelCount;
@@ -404,28 +404,29 @@ begin
           end;
         end;
         // find
-        VDynEntry := ADynList^.FDynList.FindXYEntry(AShiftedXY, VOldCount);
+        VDynEntry := ADynList.FDynList.FindXYEntry(AShiftedXY, VOldCount);
         if VDynEntry <> nil then begin
           // found
-          Result := VDynEntry^.FHandler;
+          Result := VDynEntry.FHandler;
           // may be no database
           if Result = nil then begin
-            VDynEntry^.FHandler := FFactoryProc(
+            VDynEntry.FHandler := FFactoryProc(
               AOper,
               AXY,
               AZoom,
               AVersionInfo,
               AForceMakeDB,
-              VDynEntry^.FDBNotFound
+              VDynEntry.FDBNotFound
             );
-            Result := VDynEntry^.FHandler;
+            Result := VDynEntry.FHandler;
           end;
           Exit;
         end;
       end;
     end;
+
     // add
-    VDynEntry := ADynList^.FDynList.AddXYEntry;
+    VDynEntry := ADynList.FDynList.AddXYEntry;
     // apply values
     with VDynEntry^ do begin
       FShiftXY := AShiftedXY;
@@ -441,7 +442,7 @@ begin
       Result := FHandler;
     end;
   finally
-    ADynList^.FDynSync.EndWrite;
+    ADynList.FDynSync.EndWrite;
   end;
 end;
 
@@ -456,7 +457,7 @@ begin
   // check result
   FDynamicSync.BeginRead;
   try
-    if Result^.FDynSync <> nil then begin
+    if Result.FDynSync <> nil then begin
       // initialized
       Exit;
     end;
@@ -468,14 +469,15 @@ begin
   FDynamicSync.BeginWrite;
   try
     // check again
-    if Result^.FDynSync <> nil then begin
+    if Result.FDynSync <> nil then begin
       // initialized
       Exit;
     end;
+
     // initialize
-    Result^.FDynSync := GSync.SyncVariable.Make('TSQLiteSingleList.GetDynList');
-    Result^.FDynList := TSQLiteDynList.Create;
-    with Result^.FDynList do begin
+    Result.FDynSync := GSync.SyncVariable.Make('TSQLiteSingleList.GetDynList');
+    Result.FDynList := TSQLiteDynList.Create;
+    with Result.FDynList do begin
       FillChar(FDynState, SizeOf(FDynState), 0);
     end;
   finally
@@ -497,7 +499,7 @@ begin
   with AFixedEntry^ do
   repeat
     // check
-    if AOper^.IsOperationCancelled then begin
+    if AOper.IsOperationCancelled then begin
       Result := nil;
       Exit;
     end;
@@ -575,7 +577,7 @@ var
   VFixedEntry: PSQLiteFixedEntry;
   VDynList: PSQLiteDynamicList;
 begin
-  VLev := (AZoom - c_Max_Single_Zoom);
+  VLev := AZoom - c_Max_Single_Zoom;
   if VLev <= 0 then begin
     // zoom 0..8
     VFixedEntry := @(FList8[AZoom]);
@@ -666,7 +668,7 @@ end;
 function TSQLiteDynList.AddXYEntry: PSQLiteDynamicEntry;
 begin
   Result := HeapAlloc(GetProcessHeap, HEAP_ZERO_MEMORY, SizeOf(TSQLiteDynamicEntry));
-  Inc(Result^.FOpCount);
+  Inc(Result.FOpCount);
   Self.Add(Result);
   Inc(FDynState.FAddCount);
 end;
@@ -686,7 +688,7 @@ begin
       with Result^ do begin
         if (FShiftXY.X = AShiftedXY.X) and (FShiftXY.Y = AShiftedXY.Y) then begin
           // found (in many readers)
-          InterlockedIncrement(Result^.FOpCount);
+          InterlockedIncrement(Result.FOpCount);
           Exit;
         end;
       end;

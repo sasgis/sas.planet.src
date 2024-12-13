@@ -157,7 +157,7 @@ end;
 
 function TTileStorageSQLiteFetcher.Fetch(var ATileInfo: TTileInfo): Boolean;
 begin
-  Result := FPrepared and FSQLite3DbHandlerPtr^.FetchPrepared(@FStmtData, CallbackEnum, @ATileInfo);
+  Result := FPrepared and FSQLite3DbHandlerPtr.FetchPrepared(@FStmtData, CallbackEnum, @ATileInfo);
 end;
 
 procedure TTileStorageSQLiteFetcher.InitObjIface(
@@ -177,7 +177,7 @@ procedure TTileStorageSQLiteFetcher.InternalClose;
 begin
   if FPrepared then begin
     FPrepared := False;
-    FSQLite3DbHandlerPtr^.ClosePrepared(@FStmtData);
+    FSQLite3DbHandlerPtr.ClosePrepared(@FStmtData);
   end;
 end;
 
@@ -187,7 +187,7 @@ var
 begin
   InternalClose;
   VSQLText := GetSQL_SelectEntire;
-  FPrepared := (Length(VSQLText) > 0) and FSQLite3DbHandlerPtr^.PrepareStatement(@FStmtData, VSQLText);
+  FPrepared := (Length(VSQLText) > 0) and FSQLite3DbHandlerPtr.PrepareStatement(@FStmtData, VSQLText);
 end;
 
 function TTileStorageSQLiteFetcher.Opened: Boolean;
@@ -212,13 +212,13 @@ var
 begin
   // x,y,s,d[,v][,c][,b]
   with PTileInfo(ACallbackPtr)^ do begin
-    FTile.X := AStmtData^.ColumnInt(0);
-    FTile.Y := AStmtData^.ColumnInt(1);
+    FTile.X := AStmtData.ColumnInt(0);
+    FTile.Y := AStmtData.ColumnInt(1);
     // original size (in bytes)
-    VOriginalTileSize := AStmtData^.ColumnInt(2);
+    VOriginalTileSize := AStmtData.ColumnInt(2);
     FSize := VOriginalTileSize;
     // time (in unix seconds)
-    VTemp := AStmtData^.ColumnInt64(3);
+    VTemp := AStmtData.ColumnInt64(3);
     FLoadDate := UnixToDateTime(VTemp);
     // others
     FVersionInfo := nil;
@@ -227,14 +227,14 @@ begin
   end;
 
   // version
-  case FTBColInfoPtr^.ModeV of
+  case FTBColInfoPtr.ModeV of
     vcm_Text: begin
       // version as TEXT without conversion
-      VVersionStr := AStmtData^.ColumnAsString(4);
+      VVersionStr := AStmtData.ColumnAsString(4);
     end;
     vcm_Int: begin
       // get version as field 4
-      VColType := AStmtData^.ColumnType(4);
+      VColType := AStmtData.ColumnType(4);
       case VColType of
         SQLITE_NULL: begin
           // null value - empty version
@@ -242,7 +242,7 @@ begin
         end;
         SQLITE_INTEGER: begin
           // version as integer
-          VTemp := AStmtData^.ColumnInt64(4);
+          VTemp := AStmtData.ColumnInt64(4);
           if VTemp = cDefaultVersionAsIntValue then begin
             VVersionStr := cDefaultVersionAsStrValue;
           end else begin
@@ -252,7 +252,7 @@ begin
       else
         begin
           // SQLITE_FLOAT, SQLITE_BLOB, SQLITE_TEXT
-          VVersionStr := AStmtData^.ColumnAsString(4);
+          VVersionStr := AStmtData.ColumnAsString(4);
         end;
       end;
     end;
@@ -261,10 +261,10 @@ begin
   // создадим версию или возьмём готовую
   if Assigned(FLastSelectedVersion) and SameText(FLastSelectedVersion.StoreString, VVersionStr) then begin
     // версия уже есть
-    PTileInfo(ACallbackPtr)^.FVersionInfo := FLastSelectedVersion;
+    PTileInfo(ACallbackPtr).FVersionInfo := FLastSelectedVersion;
   end else begin
     // версию надо создать
-    PTileInfo(ACallbackPtr)^.FVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(VVersionStr);
+    PTileInfo(ACallbackPtr).FVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(VVersionStr);
   end;
 
   // check if TNE
@@ -280,9 +280,9 @@ begin
   end;
 
   // content-type
-  if FTBColInfoPtr^.HasC then begin
+  if FTBColInfoPtr.HasC then begin
     // get content_type (FieldIndex = 4 + Ord(FTBColInfo.HasV)
-    VContentType := AStmtData^.ColumnAsAnsiString(4 + Ord(FTBColInfoPtr^.ModeV <> vcm_None));
+    VContentType := AStmtData.ColumnAsAnsiString(4 + Ord(FTBColInfoPtr.ModeV <> vcm_None));
   end else begin
     // use default content_type
     VContentType := '';
@@ -294,8 +294,8 @@ begin
     FContentType := FTileStorageSQLiteHolder.GetContentTypeInfo(VContentType);
 
     // tile body
-    VColType := 4 + Ord(FTBColInfoPtr^.ModeV <> vcm_None) + Ord(FTBColInfoPtr^.HasC);
-    VBlobSize := AStmtData^.ColumnBlobSize(VColType);
+    VColType := 4 + Ord(FTBColInfoPtr.ModeV <> vcm_None) + Ord(FTBColInfoPtr.HasC);
+    VBlobSize := AStmtData.ColumnBlobSize(VColType);
     // if no BLOB - treat as TNE
     if VBlobSize <= 0 then begin
       // TNE
@@ -305,7 +305,7 @@ begin
       FData := CreateTileBinaryData(
         VOriginalTileSize,
         VBlobSize,
-        AStmtData^.ColumnBlobData(VColType)
+        AStmtData.ColumnBlobData(VColType)
       );
     end;
   end;
@@ -351,7 +351,7 @@ begin
   Result := 'SELECT x,y,s,d';
 
   // отсечка по версии тайла в БД
-  if FUseVersionFieldInDB and (FTBColInfoPtr^.ModeV <> vcm_None) then begin
+  if FUseVersionFieldInDB and (FTBColInfoPtr.ModeV <> vcm_None) then begin
     Result := Result + ',v';
     // есть отдельное поле версии
     // тащим тайлы конкретной версии, так что версия должна быть передана
@@ -373,7 +373,7 @@ begin
     // парсим версию
     ParseSQLiteDBVersion(
       FUseVersionFieldInDB,
-      FTBColInfoPtr^.ModeV,
+      FTBColInfoPtr.ModeV,
       FLastSelectedVersion,
       VSelectTileInfo
     );
@@ -385,11 +385,11 @@ begin
     VWhere := VWhere +
       VersionFieldIsEqual(
         VSelectTileInfo.RequestedVersionIsInt,
-        FTBColInfoPtr^.ModeV,
+        FTBColInfoPtr.ModeV,
         VSelectTileInfo.RequestedVersionToDB
       );
   end;
-  if FTBColInfoPtr^.HasC then begin
+  if FTBColInfoPtr.HasC then begin
     Result := Result + ',c'; // есть отдельное поле ContextType
   end;
   Result := Result + ',b FROM t';
