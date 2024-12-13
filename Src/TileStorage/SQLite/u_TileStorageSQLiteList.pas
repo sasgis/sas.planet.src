@@ -70,7 +70,7 @@ type
     FAddCount: Integer;
     FDelCount: Integer;
   end;
-  
+
   TSQLiteDynList = class(TList)
   private
     FDynState: TSQLiteDynState;
@@ -99,24 +99,27 @@ const
   c_Max_Fixed_Zoom = 10;
   c_Max_Zoom = 23; // for z24
 
-  cList9Max=1;
-  cListAMax=3;
+  cList9Max = 1;
+  cListAMax = 3;
 
-  cForeachSync=0;
-  cForeachFree=1;
+  cForeachSync = 0;
+  cForeachFree = 1;
 
 type
   TSQLiteSingleList = record
   private
     FFactoryProc: TSQLiteHandlerFactoryProc;
-    // single zooms
-    FList8: array [0..c_Max_Single_Zoom] of TSQLiteFixedEntry; // z1-z9
-    // fixed zooms
-    FList9: array [0..1, 0..1] of TSQLiteFixedEntry; // z10
-    FListA: array [0..3, 0..3] of TSQLiteFixedEntry; // z11
-    // dynamic zooms (up to z24)
+
+    // single zooms (item = one database)
+    FList8: array [0..c_Max_Single_Zoom] of TSQLiteFixedEntry; // z1-z9 (9 items)
+
+    // fixed zooms (item = one database)
+    FList9: array [0..1, 0..1] of TSQLiteFixedEntry; // z10 (2*2 = 4 items)
+    FListA: array [0..3, 0..3] of TSQLiteFixedEntry; // z11 (4*4 = 16 items)
+
+    // dynamic zooms (item = dyn list with multiple databases)
     FDynamicSync: IReadWriteSync; // to make children
-    FDynamicList: array [c_Max_Fixed_Zoom+1..c_Max_Zoom, 0..3, 0..3] of TSQLiteDynamicList;
+    FDynamicList: array [c_Max_Fixed_Zoom+1..c_Max_Zoom, 0..3, 0..3] of TSQLiteDynamicList; // z12-z24 (13*4*4 = 208 items)
   private
     procedure ForeachFixedEntry(const AMode: Byte);
     procedure ForeachFixedProc(const AMode: Byte; const AEntryPtr: PSQLiteFixedEntry);
@@ -151,6 +154,7 @@ type
     procedure Init(const AFactoryProc: TSQLiteHandlerFactoryProc);
     procedure Uninit;
     procedure Sync;
+
     // get single database by xyz
     function GetHandler(
       const AOper: PNotifierOperationRec;
@@ -220,17 +224,15 @@ begin
         Sleep(1);
       end;
     else
-      begin
-        // already initialized (FOpState >= 2)
-        FFixSync.BeginWrite;
-        try
-          InterlockedExchange(FOpState, 1);
-          FHandler := nil;
-        finally
-          FFixSync.EndWrite;
-          FFixSync := nil;
-          InterlockedExchange(FOpState, 0);
-        end;
+      // already initialized (FOpState >= 2)
+      FFixSync.BeginWrite;
+      try
+        InterlockedExchange(FOpState, 1);
+        FHandler := nil;
+      finally
+        FFixSync.EndWrite;
+        FFixSync := nil;
+        InterlockedExchange(FOpState, 0);
       end;
     end;
   until False;
@@ -297,12 +299,14 @@ begin
   for I := 0 to c_Max_Single_Zoom do begin
     ForeachFixedProc(AMode, @(FList8[I]));
   end;
+
   // 9 (z10)
   for I := 0 to cList9Max do begin
     for J := 0 to cList9Max do begin
       ForeachFixedProc(AMode, @(FList9[I, J]));
     end;
   end;
+
   // 10 (z11)
   for I := 0 to cListAMax do begin
     for J := 0 to cListAMax do begin
@@ -614,19 +618,17 @@ begin
         );
       end;
     else
-      begin
-        // zoom is greater than fixed
-        VDynList := GetDynList(AZoom, VPos);
-        Result := GetDynHandler(
-          AOper,
-          VDynList,
-          AZoom,
-          VPos,
-          AXY,
-          AVersionInfo,
-          AForceMakeDB
-        );
-      end;
+      // zoom is greater than fixed
+      VDynList := GetDynList(AZoom, VPos);
+      Result := GetDynHandler(
+        AOper,
+        VDynList,
+        AZoom,
+        VPos,
+        AXY,
+        AVersionInfo,
+        AForceMakeDB
+      );
     end;
   end;
 end;
@@ -680,13 +682,7 @@ begin
   if Count > 0 then begin
     for I := Count - 1 downto AMinIndex do begin
       // check key
-      Result := PSQLiteDynamicEntry(
-        {$IF CompilerVersion < 23}
-        List^[I] // D2007
-        {$ELSE}
-        List[I]  // XE2
-        {$IFEND}
-      );
+      Result := PSQLiteDynamicEntry(List[I]);
       with Result^ do begin
         if (FShiftXY.X = AShiftedXY.X) and (FShiftXY.Y = AShiftedXY.Y) then begin
           // found (in many readers)
@@ -705,9 +701,7 @@ begin
   if Action in [lnDeleted] then begin
     if Ptr <> nil then begin
       // cleanup
-      with PSQLiteDynamicEntry(Ptr)^ do begin
-        FHandler := nil;
-      end;
+      PSQLiteDynamicEntry(Ptr).FHandler := nil;
       // free
       HeapFree(GetProcessHeap, 0, Ptr);
     end;
@@ -723,13 +717,7 @@ begin
   if Count > 0 then begin
     for I := Count - 1 downto 0 do begin
       // check key
-      VItem := PSQLiteDynamicEntry(
-        {$IF CompilerVersion < 23}
-        List^[I] // D2007
-        {$ELSE}
-        List[I]  // XE2
-        {$IFEND}
-      );
+      VItem := PSQLiteDynamicEntry(List[I]);
       with VItem^ do begin
         if FOpCount > 0 then begin
           // was operated
