@@ -1242,7 +1242,7 @@ initialization
   GLock := TCriticalSection.Create;
 
 finalization
-  UnloadLib;
+  //UnloadLib;
   FreeAndNil(GLock);
 
 end.
