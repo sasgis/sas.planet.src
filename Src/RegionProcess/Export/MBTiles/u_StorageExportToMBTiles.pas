@@ -324,6 +324,7 @@ begin
   FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
   FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
   FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
+  FSQLite3DB.ExecSQL('PRAGMA temp_store = MEMORY');
 
   for I := Low(ATablesDDL) to High(ATablesDDL) do begin
     FSQLite3DB.ExecSQL(ATablesDDL[I]);
@@ -333,17 +334,17 @@ end;
 { TSQLiteStorageMBTilesClassic }
 
 const
-  cMBTilesDDL: array [0..3] of AnsiString = (
+  CMBTilesDDL: array [0..2] of AnsiString = (
     // metadata
     'CREATE TABLE IF NOT EXISTS metadata (name text, value text)',
     'CREATE UNIQUE INDEX IF NOT EXISTS metadata_idx ON metadata (name)',
     // tiles
-    'CREATE TABLE IF NOT EXISTS tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)',
-    'CREATE INDEX IF NOT EXISTS tiles_idx on tiles (zoom_level, tile_column, tile_row)'
+    'CREATE TABLE IF NOT EXISTS tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)'
   );
 
-const
   INSERT_TILES_SQL = 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
+
+  CREATE_INDEX_SQL = 'CREATE INDEX IF NOT EXISTS tiles_idx on tiles (zoom_level, tile_column, tile_row)';
 
 procedure TSQLiteStorageMBTilesClassic.Open(
   const ALonLatRect: TDoubleRect;
@@ -352,7 +353,7 @@ procedure TSQLiteStorageMBTilesClassic.Open(
 var
   VMetadata: TStringList;
 begin
-  OpenInternal(cMBTilesDDL);
+  OpenInternal(CMBTilesDDL);
 
   VMetadata := TStringList.Create;
   try
@@ -399,12 +400,21 @@ end;
 
 procedure TSQLiteStorageMBTilesClassic.Close;
 begin
+  if not FSQLite3DB.IsOpened then begin
+    Exit;
+  end;
+
   if FIsInsertStmtPrepared then begin
     FInsertStmt.ClearBindings;
     FSQLite3DB.ClosePrepared(@FInsertStmt);
   end;
 
-  inherited Close;
+  FSQLite3DB.CommitTransaction;
+
+  // create index at the very end to speed up insertion
+  FSQLite3DB.ExecSql(CREATE_INDEX_SQL);
+
+  FSQLite3DB.Close;
 end;
 
 procedure TSQLiteStorageMBTilesClassic.Add(
