@@ -30,9 +30,13 @@ uses
   Classes,
   t_TileStorageSQLite,
   t_NotifierOperationRec,
+  i_NotifierTime,
+  i_NotifierOperation,
+  i_ListenerTime,
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_MapVersionListStatic,
+  i_SimpleFlag,
   i_TileFileNameGenerator,
   i_TileStorage,
   i_TileStorageSQLiteHelper,
@@ -51,6 +55,21 @@ type
     FUseVersion: Boolean;
     FIsReadOnly: Boolean;
     FShutdown: Boolean;
+
+    FGCNotifier: INotifierTime;
+    FSyncCallListener: IListenerTimeWithUsedFlag;
+    FIsNeedCleanup: ISimpleFlag;
+
+    procedure Sync;
+
+    function InternalGetHandler(
+      const AOper: PNotifierOperationRec;
+      const AZoom: Byte;
+      const AXY: TPoint;
+      const AVersionInfo: IMapVersionInfo;
+      const AForceMakeDB: Boolean
+    ): ITileStorageSQLiteHandler; inline;
+
     function InternalHandlerFactory(
       const AOper: PNotifierOperationRec;
       const AXY: TPoint;
@@ -61,8 +80,6 @@ type
     ): ITileStorageSQLiteHandler;
   private
     { ITileStorageSQLiteHelper }
-    procedure Sync;
-
     function GetTileInfo(
       const AOper: PNotifierOperationRec;
       const AXY: TPoint;
@@ -101,6 +118,7 @@ type
     ): IMapVersionListStatic;
   public
     constructor Create(
+      const AGCNotifier: INotifierTime;
       const AStoragePath: string;
       const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
       const AFileNameGenerator: ITileFileNameGenerator;
@@ -114,11 +132,11 @@ implementation
 
 uses
   c_TileStorageSQLite,
+  u_ListenerTime,
+  u_SimpleFlagWithInterlock,
   u_TileStorageSQLiteHandler;
 
-function TileInfoModeToSQLiteMode(
-  const AMode: TGetTileInfoMode
-): TGetTileInfoModeSQLite;
+function TileInfoModeToSQLiteMode(const AMode: TGetTileInfoMode): TGetTileInfoModeSQLite; inline;
 begin
   if AMode = gtimWithData then begin
     Result := [gtiiLoadDate, gtiiSize, gtiiBody, gtiiContentType];
@@ -131,6 +149,7 @@ end;
 { TTileStorageSQLiteHelper }
 
 constructor TTileStorageSQLiteHelper.Create(
+  const AGCNotifier: INotifierTime;
   const AStoragePath: string;
   const ATileStorageSQLiteHolder: ITileStorageSQLiteHolder;
   const AFileNameGenerator: ITileFileNameGenerator;
@@ -138,23 +157,69 @@ constructor TTileStorageSQLiteHelper.Create(
   const AIsReadOnly: Boolean
 );
 begin
+  Assert(AGCNotifier <> nil);
+
   inherited Create;
+
+  FGCNotifier := AGCNotifier;
   FStoragePath := IncludeTrailingPathDelimiter(AStoragePath);
   FTileStorageSQLiteHolder := ATileStorageSQLiteHolder;
   FFileNameGenerator := AFileNameGenerator;
   FUseVersion := AUseVersion;
   FIsReadOnly := AIsReadOnly;
+
   FShutdown := False;
-  FDBSingleList.Init(InternalHandlerFactory);
+  FDBSingleList.Init(Self.InternalHandlerFactory);
+
+  FSyncCallListener :=
+    TListenerTTLCheck.Create(
+      Self.Sync,
+      cStorageSyncInterval
+    );
+  FGCNotifier.Add(FSyncCallListener);
+
+  FIsNeedCleanup := TSimpleFlagWithInterlock.Create;
 end;
 
 destructor TTileStorageSQLiteHelper.Destroy;
 begin
+  if Assigned(FGCNotifier) and Assigned(FSyncCallListener) then begin
+    FGCNotifier.Remove(FSyncCallListener);
+    FGCNotifier := nil;
+  end;
+  FSyncCallListener := nil;
+
   FShutdown := True;
   FDBSingleList.Uninit;
+
   FTileStorageSQLiteHolder := nil;
   FFileNameGenerator := nil;
+
   inherited Destroy;
+end;
+
+procedure TTileStorageSQLiteHelper.Sync;
+begin
+  FDBSingleList.Sync;
+
+  if FIsNeedCleanup.CheckFlagAndReset then begin
+    if FSyncCallListener <> nil then begin
+      FSyncCallListener.CheckUseTimeUpdated;
+    end;
+  end;
+end;
+
+function TTileStorageSQLiteHelper.InternalGetHandler(
+  const AOper: PNotifierOperationRec;
+  const AZoom: Byte;
+  const AXY: TPoint;
+  const AVersionInfo: IMapVersionInfo;
+  const AForceMakeDB: Boolean
+): ITileStorageSQLiteHandler;
+begin
+  Result := FDBSingleList.GetHandler(AOper, AZoom, AXY, AVersionInfo, AForceMakeDB);
+  FSyncCallListener.CheckUseTimeUpdated;
+  FIsNeedCleanup.SetFlag;
 end;
 
 function TTileStorageSQLiteHelper.InternalHandlerFactory(
@@ -221,7 +286,7 @@ begin
   // get database by xyz
   with ADeleteTileAllData^ do begin
     VHandler :=
-      FDBSingleList.GetHandler(
+      InternalGetHandler(
         AOper,
         DZoom,
         DXY,
@@ -268,7 +333,7 @@ begin
 
   // get database by xyz
   VHandler :=
-    FDBSingleList.GetHandler(
+    InternalGetHandler(
       AOper,
       AZoom,
       AXY,
@@ -311,7 +376,7 @@ begin
 
   // get database by xyz
   VHandler :=
-    FDBSingleList.GetHandler(
+    InternalGetHandler(
       AOper,
       AZoom,
       AXY,
@@ -360,7 +425,7 @@ begin
   if AEnumData.DestZoom <= c_Max_Single_Zoom then begin
     // single database request without shiftings
     VHandler :=
-      FDBSingleList.GetHandler(
+      InternalGetHandler(
         AOper,
         AEnumData.DestZoom,
         FDBSingleList.Zero,
@@ -399,7 +464,7 @@ begin
         VXY.Y := J shl 8;
         // get handler
         VHandler :=
-          FDBSingleList.GetHandler(
+          InternalGetHandler(
             AOper,
             AEnumData.DestZoom,
             VXY,
@@ -436,7 +501,7 @@ begin
   // get database by xyz
   with ASaveTileAllData^ do begin
     VHandler :=
-      FDBSingleList.GetHandler(
+      InternalGetHandler(
         AOper,
         SZoom,
         SXY,
@@ -458,11 +523,6 @@ begin
     // save tile
     Result := VHandler.SaveTile(ASaveTileAllData);
   end;
-end;
-
-procedure TTileStorageSQLiteHelper.Sync;
-begin
-  FDBSingleList.Sync;
 end;
 
 end.

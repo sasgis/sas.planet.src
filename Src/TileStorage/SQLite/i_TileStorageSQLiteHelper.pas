@@ -35,9 +35,6 @@ uses
 type
   ITileStorageSQLiteHelper = interface
     ['{581A3C7C-86C2-4B7C-9B42-FC79CEB333C8}']
-    // sync
-    procedure Sync;
-
     // load tile info
     function GetTileInfo(
       const AOper: PNotifierOperationRec;

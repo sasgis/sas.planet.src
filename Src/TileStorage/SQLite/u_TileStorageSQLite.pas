@@ -42,7 +42,6 @@ uses
   i_MapVersionInfo,
   i_NotifierTime,
   i_NotifierTilePyramidUpdate,
-  i_ListenerTime,
   i_TileFileNameGenerator,
   i_TileInfoBasicMemCache,
   i_TileStorageSQLiteHelper,
@@ -54,8 +53,6 @@ type
   private
     FIsReadOnly: Boolean;
     FIsVersioned: Boolean;
-    FGCNotifier: INotifierTime;
-    FSyncCallListner: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FTileFileNameGenerator: ITileFileNameGenerator;
@@ -65,7 +62,6 @@ type
     FTileStorageSQLiteHelper: ITileStorageSQLiteHelper;
     FTileStorageSQLiteHolder: ITileStorageSQLiteHolder;
   private
-    procedure OnSyncCall;
     function GetTileInfoInternal(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -154,7 +150,6 @@ uses
   t_NotifierOperationRec,
   i_FileNameIterator,
   i_TileFileNameParser,
-  u_ListenerTime,
   u_TileRectInfoShort,
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
@@ -193,7 +188,6 @@ begin
   FMainContentType := AMainContentType;
   FTileInfoMemCache := ATileInfoMemCache;
   FContentTypeManager := AContentTypeManager;
-  FGCNotifier := AGCNotifier;
 
   FMapVersionRequestConfig := nil;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
@@ -217,39 +211,20 @@ begin
 
   FTileStorageSQLiteHelper :=
     TTileStorageSQLiteHelper.Create(
+      AGCNotifier,
       Self.StoragePath,
       FTileStorageSQLiteHolder,
       FTileFileNameGenerator,
       FIsVersioned,
       FIsReadOnly
     );
-
-  FSyncCallListner :=
-    TListenerTTLCheck.Create(
-      Self.OnSyncCall,
-      cStorageSyncInterval
-    );
-
-  if FGCNotifier <> nil then begin
-    FGCNotifier.Add(FSyncCallListner);
-  end;
 end;
 
 destructor TTileStorageSQLite.Destroy;
 begin
-  if Assigned(FGCNotifier) and Assigned(FSyncCallListner) then begin
-    FGCNotifier.Remove(FSyncCallListner);
-    FGCNotifier := nil;
-  end;
-  FSyncCallListner := nil;
   FTileStorageSQLiteHolder := nil;
   FTileStorageSQLiteHelper := nil;
   inherited Destroy;
-end;
-
-procedure TTileStorageSQLite.OnSyncCall;
-begin
-  FTileStorageSQLiteHelper.Sync;
 end;
 
 function TTileStorageSQLite.GetTileFileName(
@@ -490,7 +465,6 @@ begin
           VTileInfo
         );
       end;
-      FSyncCallListner.CheckUseTimeUpdated;
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   end;
@@ -524,7 +498,6 @@ begin
       if Assigned(FTileInfoMemCache) then begin
         FTileInfoMemCache.Remove(AXY, AZoom, AVersionInfo);
       end;
-      FSyncCallListner.CheckUseTimeUpdated;
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   end;
