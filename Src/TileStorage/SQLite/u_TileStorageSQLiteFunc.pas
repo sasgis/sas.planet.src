@@ -66,7 +66,7 @@ begin
   Result := TBinaryData.Create(ABlobSize, ABlobData);
 end;
 
-function LocalTryStrToInt64(const S: AnsiString; out Value: Int64): Boolean;
+function LocalTryStrToInt64(const S: AnsiString; out Value: Int64): Boolean; inline;
 begin
   // X701 is string
   // $123 is string

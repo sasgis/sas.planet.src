@@ -28,6 +28,7 @@ uses
   SysUtils,
   Classes,
   t_NotifierOperationRec,
+  i_NotifierOperation,
   i_MapVersionInfo,
   i_TileStorageSQLiteHandler;
 

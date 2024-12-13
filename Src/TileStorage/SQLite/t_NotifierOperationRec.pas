@@ -33,7 +33,7 @@ type
     UseExclusively: Boolean;
   public
     procedure Init(const ACancelNotifier: INotifierOperation);
-    function IsOperationCancelled: Boolean;
+    function IsOperationCancelled: Boolean; inline;
   end;
   PNotifierOperationRec = ^TNotifierOperationRec;
 

@@ -36,6 +36,7 @@ uses
   i_InterfaceListSimple,
   i_MapVersionInfo,
   i_MapVersionListStatic,
+  i_NotifierOperation,
   i_TileInfoBasic,
   i_TileStorageSQLiteHandler,
   i_TileStorageSQLiteHolder,
