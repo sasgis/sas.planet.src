@@ -374,11 +374,11 @@ begin
   try
     if FSQLite3DbHandler.Init then begin
       if AIsReadOnly then begin
-        VOpenFlags := SQLITE_OPEN_READONLY or SQLITE_OPEN_URI;
+        VOpenFlags := SQLITE_OPEN_READONLY or SQLITE_OPEN_URI or SQLITE_OPEN_FULLMUTEX;
         FSQLite3DbHandler.Open('file:///' + FDBFilename + '?immutable=1', VOpenFlags, True);
       end else begin
         // open existing or create new
-        VOpenFlags := SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE;
+        VOpenFlags := SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_FULLMUTEX;
         FSQLite3DbHandler.Open(FDBFilename, VOpenFlags, True);
         // apply session params
         FTileStorageSQLiteHolder.ExecMakeSession(ExecuteSQL);
