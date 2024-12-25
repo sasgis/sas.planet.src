@@ -297,7 +297,7 @@ begin
     VCreateNewDB := True;
   end;
 
-  FSQLite3Db.Open(FExportPath, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
+  FSQLite3Db.Open(FExportPath, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_NOMUTEX);
 
   if VCreateNewDB then begin
     FSQLite3DB.ExecSQL(

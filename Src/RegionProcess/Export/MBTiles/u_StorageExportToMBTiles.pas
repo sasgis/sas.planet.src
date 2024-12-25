@@ -318,8 +318,8 @@ begin
     end;
   end;
 
-  // open db with r/w access and UTF-8 encoding
-  FSQLite3Db.Open(VFileName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);
+  // open db with r/w access, UTF-8 encoding, in multi-thread mode (one connection per thread)
+  FSQLite3Db.Open(VFileName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_NOMUTEX);
 
   FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
   FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
