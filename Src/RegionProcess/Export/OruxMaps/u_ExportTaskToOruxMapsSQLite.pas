@@ -424,15 +424,15 @@ begin
 
   FSQLite3Db.Open(VFileName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_NOMUTEX);
 
+  FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
+  FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
+  FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
+
   FSQLite3DB.ExecSQL(TABLE_TILES_DDL);
   FSQLite3DB.ExecSQL(INDEX_DDL);
 
   FSQLite3DB.ExecSQL(TABLE_ANDROID_METADATA_DDL);
   FSQLite3DB.ExecSQL('INSERT INTO android_metadata VALUES (' + cLocale + ')');
-
-  FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
-  FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
-  FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
 
   FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, INSERT_SQL);
   if not FIsInsertStmtPrepared then begin

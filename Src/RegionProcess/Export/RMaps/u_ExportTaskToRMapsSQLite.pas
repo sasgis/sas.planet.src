@@ -299,6 +299,10 @@ begin
 
   FSQLite3Db.Open(FExportPath, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_NOMUTEX);
 
+  FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
+  FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
+  FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
+
   if VCreateNewDB then begin
     FSQLite3DB.ExecSQL(
       'CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, s int, image blob, PRIMARY KEY (x,y,z,s))'
@@ -343,10 +347,6 @@ begin
       Assert(False);
     end;
   end;
-
-  FSQLite3DB.ExecSQL('PRAGMA locking_mode = EXCLUSIVE');
-  FSQLite3DB.ExecSQL('PRAGMA synchronous = OFF');
-  FSQLite3DB.ExecSQL('PRAGMA journal_mode = OFF');
 
   // prepare statement
   PrepareInsertStmt;
