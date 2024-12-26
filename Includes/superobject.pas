@@ -3237,7 +3237,7 @@ class function TSuperObject.ParseFile(const FileName: string; strict: Boolean;
 var
   stream: TFileStream;
 begin
-  stream := TFileStream.Create(FileName, fmOpenRead, fmShareDenyWrite);
+  stream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
   try
     Result := ParseStream(stream, strict, partial, this, options, put, dt);
   finally
@@ -7131,7 +7131,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
 
   procedure FromDynArray;
   var
-    i: Integer;
+    i: NativeInt; // NativeInt for DynArraySetLength(..., @i)
     p: Pointer;
     pb: PByte;
     val: TValue;
