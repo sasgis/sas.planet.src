@@ -48,6 +48,7 @@ type
       const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
+
     function ParseResultToPlacemarksList(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -69,6 +70,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   StrUtils,
   DateUtils,
@@ -77,24 +79,57 @@ uses
   t_GeoTypes,
   i_VectorDataItemSimple,
   u_AnsiStr,
+  u_GeoFunc,
   u_InterfaceListSimple,
   u_DownloadRequest,
   u_ResStrings;
 
 { TGeoCoderByRosreestr }
 
-function UtcNow: TDateTime;
-var
-  VSystemTime: TSystemTime;
+function MetersToLonLatPoint(const APoint: TDoublePoint): TDoublePoint; inline;
 begin
-  GetSystemTime(VSystemTime);
-  Result := SystemTimeToDateTime(VSystemTime);
+  // mercator on sphere (epsg: 3857)
+  Result.X := APoint.X / 6378137 * 180 / Pi;
+  Result.Y := ((ArcTan(Exp(APoint.Y / 6378137)) - Pi / 4) * 360) / Pi;
 end;
 
-function MetersToLonLatPoint(const X, Y: Double): TDoublePoint;
+function GetCenterPos(const AGeoJsonGeometry: ISuperObject): TDoublePoint;
+
+  function _ReadPoint(const AJsonArrar: TSuperArray): TDoublePoint;
+  begin
+    if AJsonArrar.Length >= 2 then begin
+      Result.X := AJsonArrar.D[0];
+      Result.Y := AJsonArrar.D[1];
+    end else begin
+      Assert(False);
+      Result := CEmptyDoublePoint;
+    end;
+  end;
+
+var
+  VType: string;
+  VCoordinates: TSuperArray;
+  VLine: TSuperArray;
 begin
-  Result.X := X / 6378137 * 180 / Pi;
-  Result.Y := ((ArcTan(Exp(Y / 6378137)) - Pi / 4) * 360) / Pi;
+  Result := CEmptyDoublePoint;
+
+  VType := LowerCase(AGeoJsonGeometry.S['type']);
+  VCoordinates := AGeoJsonGeometry.A['coordinates'];
+
+  if VType = 'point' then begin
+    Result := _ReadPoint(VCoordinates);
+  end else
+  if VType = 'linestring' then begin
+    VLine := VCoordinates.O[0].AsArray;
+    Result := _ReadPoint(VLine);
+  end else
+  if VType = 'polygon' then begin
+    VLine := VCoordinates.O[0].AsArray;
+    Result := _ReadPoint(VLine.O[0].AsArray);
+  end;
+
+  // todo: calc geometry center point for line and polygon
+  // todo: add support for multi-point, multi-line, mult-polygon geometries
 end;
 
 constructor TGeoCoderByRosreestr.Create(
@@ -125,8 +160,6 @@ function TGeoCoderByRosreestr.ParseResultToPlacemarksList(
 ): IInterfaceListSimple;
 var
   I: Integer;
-  X, Y: Double;
-  VStr: string;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
@@ -134,7 +167,10 @@ var
   VJsonObject: ISuperObject;
   VJsonArray: TSuperArray;
   VItem: ISuperObject;
+  VOptions: ISuperObject;
+  VGeometry: ISuperObject;
   VTmpBuf: UTF8String;
+  VCRS: string;
   VName, VFullDesc, VDescription: string;
 begin
   if AResult = nil then begin
@@ -154,7 +190,7 @@ begin
     raise EParserError.Create('JSON parser error');
   end;
 
-  VJsonArray := VJsonObject.A['features'];
+  VJsonArray := VJsonObject.A['data.features'];
   if VJsonArray = nil then begin
     raise EParserError.Create('"features" array is not found');
   end;
@@ -170,34 +206,31 @@ begin
     VFullDesc := '';
     VDescription := '';
 
-    if Assigned(VItem.O['attrs']) then begin
-      VStr := VItem.S['attrs.address'];
-      if VStr <> '' then VDescription := 'address: ' + VStr;
-      VStr := VItem.S['attrs.cn'];
-      if VStr <> '' then VDescription := VDescription + #$D#$A + 'cn: ' + VStr;
-      VStr := VItem.S['attrs.adate'];
-      if VStr <> '' then VDescription := VDescription + #$D#$A + 'adate: ' + VStr;
-      VStr := VItem.S['attrs.pubdate'];
-      if VStr <> '' then VDescription := VDescription + #$D#$A + 'pubdate: ' + VStr;
-      VStr := VItem.S['attrs.cad_record_date'];
-      if VStr <> '' then VDescription := VDescription + #$D#$A + 'cad_record_date: ' + VStr;
-      VStr := VItem.S['attrs.util_by_doc'];
-      if VStr <> '' then VDescription := VDescription + #$D#$A + 'util_by_doc: ' + VStr;
-      VStr := VItem.S['attrs.cad_cost'];
-      if VStr <> '' then VDescription := VDescription + #$D#$A + 'cad_cost: ' + VStr;
-      VStr := VItem.S['attrs.area_value'];
-      if VStr <> '' then VDescription := VDescription + #$D#$A + 'area_value: ' + VStr;
+    VOptions := VItem.O['properties.options'];
+    if Assigned(VOptions) then begin
+      VDescription := VOptions.AsJSon(True, False);
+
+      VDescription := StringReplace(VDescription, '{', '', [rfReplaceAll]);
+      VDescription := StringReplace(VDescription, '}', '', [rfReplaceAll]);
+      VDescription := StringReplace(VDescription, '"', '', [rfReplaceAll]);
+      VDescription := StringReplace(VDescription, ',' + #13#10, #13#10, [rfReplaceAll]);
     end;
 
-    if Assigned(VItem.O['center']) then begin
-      X := VItem.D['center.x'];
-      Y := VItem.D['center.y'];
+    VGeometry := VItem.O['geometry'];
+    if Assigned(VGeometry) then begin
+      VPoint := GetCenterPos(VGeometry);
 
-      try
-        VPoint := MetersToLonLatPoint(X, Y);
-      except
-        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [FloatToStr(X), FloatToStr(Y)]);
+      if PointIsEmpty(VPoint) then begin
+        Assert(False, 'Failed to parse geometry!');
+        Continue;
       end;
+
+      VCRS := Trim(VItem.S['crs.properties.name']);
+      if LowerCase(VCRS) <> 'epsg:3857' then begin
+        Assert(False, 'Unsupported CRS: "' + VCRS + '"');
+      end;
+
+      VPoint := MetersToLonLatPoint(VPoint);
 
       VDescription := VDescription + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
       VFullDesc := ReplaceStr(VName + #$D#$A + VDescription, #$D#$A, '<br>');
@@ -215,18 +248,17 @@ function TGeoCoderByRosreestr.PrepareRequest(
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 const
-  cURLFmt = 'https://pkk.rosreestr.ru/api/features/%d?text=%s&tolerance=262259&limit=11&_=%d000';
+  cUrlBase =
+    'https://nspd.gov.ru/api/geoportal/v2/search/geoportal?thematicSearchId=1&query=';
   cRequestHeader =
-    'Accept: text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01' + #13#10 +
-    'Accept-Language: en-US' + #13#10 +
+    'Accept: */*' + #13#10 +
+    'Accept-Language: ru,en;q=0.9' + #13#10 +
     'Accept-Encoding: gzip, deflate' + #13#10 +
-    'Referer: https://pkk.rosreestr.ru/' + #13#10 +
-    'X-Requested-With: XMLHttpRequest';
+    'Referer: https://nspd.gov.ru/';
 var
-  I: Integer;
-  VRequestStr: UTF8String;
-  VRegExpr: TRegExpr;
+  VQuery: AnsiString;
   VSearch: AnsiString;
+  VRegExpr: TRegExpr;
 begin
   VRegExpr  := TRegExpr.Create;
   try
@@ -238,15 +270,16 @@ begin
         IntToStrA(StrToIntA(VRegExpr.Match[1])) + ':' +
         IntToStrA(StrToIntA(VRegExpr.Match[2])) + ':' +
         IntToStrA(StrToIntA(VRegExpr.Match[3]));
-      I := 2;
+
       if VRegExpr.Match[4] <> '' then begin
         VSearch := VSearch + ':' + IntToStrA(StrToIntA(VRegExpr.Match[5]));
-        I := 1;
       end;
-      VRequestStr := URLEncode(VSearch);
+
+      VQuery := URLEncode(VSearch);
+
       Result :=
         TDownloadRequest.Create(
-          FormatA(cURLFmt, [I, VRequestStr, DateTimeToUnix(UtcNow)]),
+          cUrlBase + VQuery,
           cRequestHeader,
           InetSettings.GetStatic
         );
