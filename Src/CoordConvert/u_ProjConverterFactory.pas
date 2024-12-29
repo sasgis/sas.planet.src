@@ -32,6 +32,7 @@ uses
 type
   TProjConverterFactory = class(TBaseInterfacedObject, IProjConverterFactory)
   private
+    FSearchPath: string;
     FProj4Status: Integer; // 0 - not loaded; 1 - ok; 2 - error
   private
     function _GetByInitString(const AArgs: AnsiString): IProjConverter;
@@ -52,16 +53,22 @@ uses
   u_ProjConverterByDll;
 
 const
-  cProj4NotLoaded = 0;
-  cProj4LoadedOK = 1;
-  cProj4LoadedError = 2;
+  CProj4NotLoaded   = 0;
+  CProj4LoadedOK    = 1;
+  CProj4LoadedError = 2;
 
 { TProjConverterFactory }
 
 constructor TProjConverterFactory.Create;
 begin
   inherited Create;
-  FProj4Status := cProj4NotLoaded;
+
+  FSearchPath := ExtractFilePath(Paramstr(0)) + 'share\proj';
+  if not DirectoryExists(FSearchPath) then begin
+    FSearchPath := '';
+  end;
+
+  FProj4Status := CProj4NotLoaded;
 end;
 
 function TProjConverterFactory._GetByInitString(
@@ -71,27 +78,29 @@ var
   VProj4Status: Integer;
 begin
   Result := nil;
-  if AArgs <> '' then begin
 
-    VProj4Status := InterlockedCompareExchange(FProj4Status, 0, 0);
+  if AArgs = '' then begin
+    Exit;
+  end;
 
-    if VProj4Status = cProj4NotLoaded then begin
-      try
-        if init_proj4_dll(proj4_dll, True) then begin
-          VProj4Status := cProj4LoadedOK;
-        end else begin
-          VProj4Status := cProj4LoadedError;
-        end;
-        InterlockedExchange(FProj4Status, VProj4Status);
-      except
-        InterlockedExchange(FProj4Status, cProj4LoadedError);
-        raise;
+  VProj4Status := InterlockedCompareExchange(FProj4Status, 0, 0);
+
+  if VProj4Status = CProj4NotLoaded then begin
+    try
+      if init_proj4_dll(proj4_dll, True, FSearchPath) then begin
+        VProj4Status := CProj4LoadedOK;
+      end else begin
+        VProj4Status := CProj4LoadedError;
       end;
+      InterlockedExchange(FProj4Status, VProj4Status);
+    except
+      InterlockedExchange(FProj4Status, CProj4LoadedError);
+      raise;
     end;
+  end;
 
-    if VProj4Status = cProj4LoadedOK then begin
-      Result := TProjConverterByDll.Create(AArgs);
-    end;
+  if VProj4Status = CProj4LoadedOK then begin
+    Result := TProjConverterByDll.Create(AArgs);
   end;
 end;
 

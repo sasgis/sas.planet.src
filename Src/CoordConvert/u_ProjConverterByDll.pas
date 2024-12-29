@@ -32,8 +32,10 @@ uses
 type
   // 1. This class is not thread safe (because of projCtx), so use one instance
   // per thread (https://trac.osgeo.org/proj/wiki/ThreadSafety).
+
   // 2. You must init pro4 library BEFORE creating instances of this class
   // (see TProjConverterFactory).
+
   TProjConverterByDll = class(TBaseInterfacedObject, IProjConverter)
   private
     FCtx: projCtx;
@@ -41,6 +43,7 @@ type
     FProjPJ: projPJ;
     FProj4InitStr: AnsiString;
   private
+    { IProjConverter }
     function LonLat2XY(const ALonLat: TDoublePoint): TDoublePoint;
     function XY2LonLat(const AXY: TDoublePoint): TDoublePoint;
   public
@@ -60,7 +63,7 @@ type
 
 const
   cProjCtxInitError = 'Can''t initialize proj4 context!';
-  cProjectionInitError = 'Can''t initialize proj4 with string: %s';
+  cProjectionInitError = 'Can''t initialize proj4 with string: "%s"' + #13#10 + '%s';
 
 { TProjConverterByDll }
 
@@ -75,6 +78,9 @@ begin
 end;
 
 procedure TProjConverterByDll.AfterConstruction;
+var
+  VErrNo: Integer;
+  VErrMsg: AnsiString;
 begin
   inherited;
 
@@ -85,12 +91,16 @@ begin
 
   FProjPJ := pj_init_plus_ctx(FCtx, PAnsiChar(FProj4InitStr));
   if FProjPJ = nil then begin
-    raise EProjConverterByDllError.CreateFmt(cProjectionInitError, [FProj4InitStr]);
+    VErrNo := pj_ctx_get_errno(FCtx);
+    VErrMsg := pj_strerrno(VErrNo);
+    raise EProjConverterByDllError.CreateFmt(cProjectionInitError, [FProj4InitStr, VErrMsg]);
   end;
 
   FGeoPJ := pj_init_plus_ctx(FCtx, PAnsiChar(wgs_84));
   if FGeoPJ = nil then begin
-    raise EProjConverterByDllError.CreateFmt(cProjectionInitError, [wgs_84]);
+    VErrNo := pj_ctx_get_errno(FCtx);
+    VErrMsg := pj_strerrno(VErrNo);
+    raise EProjConverterByDllError.CreateFmt(cProjectionInitError, [wgs_84, VErrMsg]);
   end;
 end;
 
@@ -118,52 +128,50 @@ function TProjConverterByDll.LonLat2XY(
   const ALonLat: TDoublePoint
 ): TDoublePoint;
 var
-  err: Integer;
-  x, y, z: Double;
+  VErrNo: Integer;
+  X, Y: Double;
 begin
   Assert(FProjPJ <> nil);
   Assert(FGeoPJ <> nil);
 
-  x := ALonLat.X * DEG_TO_RAD;
-  y := ALonLat.Y * DEG_TO_RAD;
-  z := 0;
+  X := ALonLat.X * DEG_TO_RAD;
+  Y := ALonLat.Y * DEG_TO_RAD;
 
-  err := pj_transform(FGeoPJ, FProjPJ, 1, 0, x, y, z); // Geo -> Proj
+  VErrNo := pj_transform(FGeoPJ, FProjPJ, 1, 1, @X, @Y, nil); // Geo -> Proj
 
-  if err <> 0 then begin
+  if VErrNo <> 0 then begin
     raise EProjConverterByDllError.CreateFmt(
-      'LonLat2XY(%.6f; %.6f) failed: %s', [ALonLat.X, ALonLat.Y, pj_strerrno(err)]
+      'LonLat2XY(%.6f; %.6f) failed: %s', [ALonLat.X, ALonLat.Y, pj_strerrno(VErrNo)]
     );
   end;
 
-  Result.X := x;
-  Result.Y := y;
+  Result.X := X;
+  Result.Y := Y;
 end;
 
 function TProjConverterByDll.XY2LonLat(
   const AXY: TDoublePoint
 ): TDoublePoint;
 var
-  err: Integer;
-  x, y, z: Double;
+  VErrNo: Integer;
+  X, Y: Double;
 begin
   Assert(FProjPJ <> nil);
   Assert(FGeoPJ <> nil);
 
-  x := AXY.X;
-  y := AXY.Y;
-  z := 0;
+  X := AXY.X;
+  Y := AXY.Y;
 
-  err := pj_transform(FProjPJ, FGeoPJ, 1, 0, x, y, z); // Proj -> Geo
+  VErrNo := pj_transform(FProjPJ, FGeoPJ, 1, 1, @X, @Y, nil); // Proj -> Geo
 
-  if err <> 0 then begin
+  if VErrNo <> 0 then begin
     raise EProjConverterByDllError.CreateFmt(
-      'XY2LonLat(%.6f; %.6f) failed: %s', [AXY.X, AXY.Y, pj_strerrno(err)]
+      'XY2LonLat(%.6f; %.6f) failed: %s', [AXY.X, AXY.Y, pj_strerrno(VErrNo)]
     );
   end;
 
-  Result.X := x * RAD_TO_DEG;
-  Result.Y := y * RAD_TO_DEG;
+  Result.X := X * RAD_TO_DEG;
+  Result.Y := Y * RAD_TO_DEG;
 end;
 
 end.

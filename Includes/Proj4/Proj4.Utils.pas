@@ -70,12 +70,18 @@ begin
   try
     src := pj_init_plus_ctx(ctx, PAnsiChar(ASrc));
     if src = nil then begin
+      if AErrNo <> nil then begin
+        AErrNo^ := pj_ctx_get_errno(ctx);
+      end;
       Exit;
     end;
 
     try
       dst := pj_init_plus_ctx(ctx, PAnsiChar(ADst));
       if dst = nil then begin
+        if AErrNo <> nil then begin
+          AErrNo^ := pj_ctx_get_errno(ctx);
+        end;
         Exit;
       end;
 
@@ -99,13 +105,12 @@ function geodetic_cs_to_cs(
 ): Boolean;
 var
   err: Integer;
-  x, y, z: Double;
+  x, y: Double;
 begin
   x := ALon * DEG_TO_RAD;
   y := ALat * DEG_TO_RAD;
-  z := 0;
 
-  err := pj_transform(ASrc, ADst, 1, 0, x, y, z);
+  err := pj_transform(ASrc, ADst, 1, 1, @x, @y, nil);
 
   Result := (err = 0);
 
@@ -142,12 +147,18 @@ begin
   try
     src := pj_init_plus_ctx(ctx, PAnsiChar(ASrc));
     if src = nil then begin
+      if AErrNo <> nil then begin
+        AErrNo^ := pj_ctx_get_errno(ctx);
+      end;
       Exit;
     end;
 
     try
       dst := pj_init_plus_ctx(ctx, PAnsiChar(ADst));
       if dst = nil then begin
+        if AErrNo <> nil then begin
+          AErrNo^ := pj_ctx_get_errno(ctx);
+        end;
         Exit;
       end;
 
@@ -172,13 +183,12 @@ function geodetic_cs_to_projected_cs(
 ): Boolean;
 var
   err: Integer;
-  x, y, z: Double;
+  x, y: Double;
 begin
   x := ALon * DEG_TO_RAD;
   y := ALat * DEG_TO_RAD;
-  z := 0;
 
-  err := pj_transform(ASrc, ADst, 1, 0, x, y, z);
+  err := pj_transform(ASrc, ADst, 1, 1, @x, @y, nil);
 
   Result := (err = 0);
 
@@ -215,12 +225,18 @@ begin
   try
     src := pj_init_plus_ctx(ctx, PAnsiChar(ASrc));
     if src = nil then begin
+      if AErrNo <> nil then begin
+        AErrNo^ := pj_ctx_get_errno(ctx);
+      end;
       Exit;
     end;
 
     try
       dst := pj_init_plus_ctx(ctx, PAnsiChar(ADst));
       if dst = nil then begin
+        if AErrNo <> nil then begin
+          AErrNo^ := pj_ctx_get_errno(ctx);
+        end;
         Exit;
       end;
 
@@ -245,13 +261,12 @@ function projected_cs_to_geodetic_cs(
 ): Boolean;
 var
   err: Integer;
-  x, y, z: Double;
+  x, y: Double;
 begin
   x := AX;
   y := AY;
-  z := 0;
 
-  err := pj_transform(ASrc, ADst, 1, 0, x, y, z);
+  err := pj_transform(ASrc, ADst, 1, 1, @x, @y, nil);
 
   Result := (err = 0);
 
