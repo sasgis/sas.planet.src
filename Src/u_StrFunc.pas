@@ -30,6 +30,8 @@ function GetBetween(const Str, After, Before: AnsiString): AnsiString; inline;
 procedure SwapStr(var A, B: string); inline;
 procedure SwapStrA(var A, B: AnsiString); inline;
 
+function Utf8DataToUnicodeString(const AData: Pointer; const ASize: Integer): UnicodeString;
+
 implementation
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
@@ -77,6 +79,26 @@ begin
   P := Pointer(A);
   Pointer(A) := Pointer(B);
   Pointer(B) := P;
+end;
+
+function Utf8DataToUnicodeString(const AData: Pointer; const ASize: Integer): UnicodeString;
+var
+  VLen: Integer;
+begin
+  if (AData = nil) or (ASize <= 0) then begin
+    Result := '';
+    Exit;
+  end;
+
+  SetLength(Result, ASize);
+
+  VLen := Utf8ToUnicode(PWideChar(Result), ASize + 1, AData, ASize);
+
+  if VLen > 0 then begin
+    SetLength(Result, VLen - 1);
+  end else begin
+    Result := '';
+  end;
 end;
 
 end.

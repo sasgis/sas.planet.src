@@ -25,6 +25,7 @@ interface
 
 uses
   i_GeometryLonLatFactory,
+  i_ProjConverter,
   i_ContentTypeInfo,
   i_ContentConverter,
   i_VectorDataFactory,
@@ -114,8 +115,7 @@ type
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkPictureList: IMarkPictureList;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const ALoadPerfCounterList: IInternalPerformanceCounterList;
-      const ASavePerfCounterList: IInternalPerformanceCounterList
+      const AProjConverterFactory: IProjConverterFactory
     );
   public
     constructor Create(
@@ -125,7 +125,8 @@ type
       const AMarkPictureList: IMarkPictureList;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AProjConverterFactory: IProjConverterFactory
     );
   end;
 
@@ -141,6 +142,7 @@ uses
   u_WikimapiaKmlSimpleParser,
   u_KmzInfoSimpleParser,
   u_XmlInfoSimpleParser,
+  u_GeoJsonParser,
   u_AnsiStr,
   u_ContentConverterBase,
   u_ContentConverterBitmap;
@@ -154,7 +156,8 @@ constructor TContentTypeManagerSimple.Create(
   const AMarkPictureList: IMarkPictureList;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AProjConverterFactory: IProjConverterFactory
 );
 begin
   inherited Create;
@@ -168,8 +171,7 @@ begin
     AAppearanceOfMarkFactory,
     AMarkPictureList,
     AVectorItemSubsetBuilderFactory,
-    AContentTypeManagerBitmapInternal.LoadPerfCounterList,
-    AContentTypeManagerBitmapInternal.SavePerfCounterList
+    AProjConverterFactory
   );
 end;
 
@@ -179,14 +181,14 @@ procedure TContentTypeManagerSimple.InitLists(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkPictureList: IMarkPictureList;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const ALoadPerfCounterList: IInternalPerformanceCounterList;
-  const ASavePerfCounterList: IInternalPerformanceCounterList
+  const AProjConverterFactory: IProjConverterFactory
 );
 var
   VContentType: IContentTypeInfoBasic;
-  VKmlParser: IVectorDataLoader;
+  VParser: IVectorDataLoader;
 begin
-  VKmlParser :=
+  // KML/KMZ simple (wikimapia)
+  VParser :=
     TWikimapiaKmlSimpleParser.Create(
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
@@ -196,7 +198,7 @@ begin
   VContentType := TContentTypeInfoVector.Create(
     'application/vnd.sas.wikimapia.kml+xml',
     '.kml',
-    VKmlParser
+    VParser
   );
   AddByType(VContentType, VContentType.GetContentType);
 
@@ -204,13 +206,14 @@ begin
     'application/vnd.sas.wikimapia.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      VKmlParser,
+      VParser,
       FArchiveReadWriteFactory.Zip.ReaderFactory
-    )
+    ) as IVectorDataLoader
   );
   AddByType(VContentType, VContentType.GetContentType);
 
-  VKmlParser :=
+  // KML/KMZ full
+  VParser :=
     TXmlInfoSimpleParser.Create(
       AMarkPictureList,
       AAppearanceOfMarkFactory,
@@ -222,7 +225,7 @@ begin
   VContentType := TContentTypeInfoVector.Create(
     'application/vnd.google-earth.kml+xml',
     '.kml',
-    VKmlParser
+    VParser
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
@@ -231,19 +234,43 @@ begin
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      VKmlParser,
+      VParser,
       FArchiveReadWriteFactory.Zip.ReaderFactory
-    )
+    ) as IVectorDataLoader
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+  AddByExt(VContentType, VContentType.GetDefaultExt);
+
+  // GPX
+  VContentType := TContentTypeInfoVector.Create(
+    'application/gpx+xml',
+    '.gpx',
+    VParser
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+  AddByExt(VContentType, VContentType.GetDefaultExt);
+
+  // GeoJSON
+  VParser := TGeoJsonParser.Create(
+    AVectorItemSubsetBuilderFactory,
+    AVectorDataFactory,
+    AVectorGeometryLonLatFactory,
+    AProjConverterFactory
+  );
+
+  VContentType := TContentTypeInfoVector.Create(
+    'application/geo+json',
+    '.json',
+    VParser
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
   VContentType := TContentTypeInfoVector.Create(
-    'application/gpx+xml',
-    '.gpx',
-    VKmlParser
+    'application/geo+json',
+    '.geojson',
+    VParser
   );
-  AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
   UpdateConverterMatrix;

@@ -42,6 +42,7 @@ uses
   i_MarkSystemImplFactory,
   i_PathConfig,
   i_ContentTypeManager,
+  i_ProjConverter,
   u_BaseInterfacedObject;
 
 type
@@ -70,6 +71,7 @@ type
       const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
       const AMediaDataPath: IPathConfig;
       const AContentTypeManager: IContentTypeManager;
+      const AProjConverterFactory: IProjConverterFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -88,6 +90,7 @@ uses
   u_VectorItemTreeImporterXML,
   u_VectorItemTreeImporterKMZ,
   u_VectorDataLoaderWithCounter,
+  u_GeoJsonParser,
   u_PLTSimpleParser,
   u_SlsParser,
   u_HlgParser,
@@ -112,6 +115,7 @@ constructor TVectorItemTreeImporterListSimple.Create(
   const AMarkSystemImplFactoryListStatic: IMarkSystemImplFactoryListStatic;
   const AMediaDataPath: IPathConfig;
   const AContentTypeManager: IContentTypeManager;
+  const AProjConverterFactory: IProjConverterFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -121,9 +125,11 @@ var
   VLoader: IVectorDataLoader;
 begin
   inherited Create;
+
   FNotifierFake := TNotifierFaked.Create;
   VList := TInterfaceListSimple.Create;
 
+  // KML
   VImporter :=
     TVectorItemTreeImporterXML.Create(
       False,
@@ -142,6 +148,7 @@ begin
     );
   VList.Add(VItem);
 
+  // KMZ
   VImporter :=
     TVectorItemTreeImporterKMZ.Create(
       AMarkPictureList,
@@ -160,6 +167,7 @@ begin
     );
   VList.Add(VItem);
 
+  // GPX
   VImporter :=
     TVectorItemTreeImporterXML.Create(
       False,
@@ -178,6 +186,33 @@ begin
     );
   VList.Add(VItem);
 
+  // GeoJSON
+  VLoader :=
+    TGeoJsonParser.Create(
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AVectorGeometryLonLatFactory,
+      AProjConverterFactory
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VLoader,
+      APerfCounterList.CreateAndAddNewCounter('GeoJSON')
+    );
+  VImporter :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VItem :=
+    TVectorItemTreeImporterListItem.Create(
+      VImporter,
+      'json',
+      'GeoJSON files'
+    );
+  VList.Add(VItem);
+
+  // OziExplorer PLT (track file)
   VLoader :=
     TPLTSimpleParser.Create(
       AVectorGeometryLonLatFactory,
@@ -187,7 +222,7 @@ begin
   VLoader :=
     TVectorDataLoaderWithCounter.Create(
       VLoader,
-      APerfCounterList.CreateAndAddNewCounter('Plt')
+      APerfCounterList.CreateAndAddNewCounter('PLT')
     );
   VImporter :=
     TVectorItemTreeImporterByVectorLoader.Create(
@@ -198,10 +233,11 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'plt',
-      'OziExplorer Track Point File Version 2.1'
+      'OziExplorer Track File'
     );
   VList.Add(VItem);
 
+  // CSV
   VLoader :=
     TCsvParser.Create(
       AVectorItemSubsetBuilderFactory,
@@ -211,7 +247,7 @@ begin
   VLoader :=
     TVectorDataLoaderWithCounter.Create(
       VLoader,
-      APerfCounterList.CreateAndAddNewCounter('Csv')
+      APerfCounterList.CreateAndAddNewCounter('CSV')
     );
   VImporter :=
     TVectorItemTreeImporterByVectorLoader.Create(
@@ -226,6 +262,7 @@ begin
     );
   VList.Add(VItem);
 
+  // Polish MP format
   VLoader :=
     TMpSimpleParser.Create(
       AVectorItemSubsetBuilderFactory,
@@ -235,7 +272,7 @@ begin
   VLoader :=
     TVectorDataLoaderWithCounter.Create(
       VLoader,
-      APerfCounterList.CreateAndAddNewCounter('Mp')
+      APerfCounterList.CreateAndAddNewCounter('MP')
     );
   VImporter :=
     TVectorItemTreeImporterByVectorLoader.Create(
@@ -246,10 +283,11 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'mp',
-      'Single Polygone from MP file'
+      'Single Polygon from Polish MP file'
     );
   VList.Add(VItem);
 
+  // JPEG with EXIF
   VImporter :=
     TVectorItemTreeImporterJpegWithExif.Create(
       AHashFunction,
@@ -270,6 +308,7 @@ begin
     );
   VList.Add(VItem);
 
+  // HLG (selection polygon)
   VLoader :=
     THlgParser.Create(
       AVectorItemSubsetBuilderFactory,
@@ -279,7 +318,7 @@ begin
   VLoader :=
     TVectorDataLoaderWithCounter.Create(
       VLoader,
-      APerfCounterList.CreateAndAddNewCounter('Hlg')
+      APerfCounterList.CreateAndAddNewCounter('HLG')
     );
   VImporter :=
     TVectorItemTreeImporterByVectorLoader.Create(
@@ -290,10 +329,11 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'hlg',
-      'SAS.Planet Selection Polygone'
+      'SAS.Planet Selection Polygon'
     );
   VList.Add(VItem);
 
+  // SLS (download session)
   VLoader :=
     TSlsParser.Create(
       AVectorItemSubsetBuilderFactory,
@@ -303,7 +343,7 @@ begin
   VLoader :=
     TVectorDataLoaderWithCounter.Create(
       VLoader,
-      APerfCounterList.CreateAndAddNewCounter('Sls')
+      APerfCounterList.CreateAndAddNewCounter('SLS')
     );
   VImporter :=
     TVectorItemTreeImporterByVectorLoader.Create(
@@ -314,10 +354,11 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'sls',
-      'SAS.Planet Download Session Polygone'
+      'SAS.Planet Download Session Polygon'
     );
   VList.Add(VItem);
 
+  // SML marks db
   VImporter :=
     TVectorItemTreeMarksDb.Create(
       cSMLMarksDbGUID,
@@ -334,6 +375,7 @@ begin
     );
   VList.Add(VItem);
 
+  // SQLite3 marks db
   VImporter :=
     TVectorItemTreeMarksDb.Create(
       cORMSQLiteMarksDbGUID,

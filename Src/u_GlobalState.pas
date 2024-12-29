@@ -689,7 +689,8 @@ begin
       FMarkPictureList,
       FVectorItemSubsetBuilderFactory,
       VContentTypeManagerBitmapInternal,
-      FArchiveReadWriteFactory
+      FArchiveReadWriteFactory,
+      FProjConverterFactory
     );
 
   FGlobalInternetState := TGlobalInternetState.Create;
@@ -809,6 +810,7 @@ begin
       FMarkSystem.ImplFactoryList,
       FGlobalConfig.MediaDataPath,
       FContentTypeManager,
+      FProjConverterFactory,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')
     );
 

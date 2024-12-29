@@ -1404,6 +1404,7 @@ uses
   u_WindowPositionConfig in 'Src\Vcl\u_WindowPositionConfig.pas',
   i_XmlVectorObjects in 'Src\VectorLoaders\i_XmlVectorObjects.pas',
   u_CsvParser in 'Src\VectorLoaders\u_CsvParser.pas',
+  u_GeoJsonParser in 'Src\VectorLoaders\u_GeoJsonParser.pas',
   u_HlgParser in 'Src\VectorLoaders\u_HlgParser.pas',
   u_KmzInfoSimpleParser in 'Src\VectorLoaders\u_KmzInfoSimpleParser.pas',
   u_MpSimpleParser in 'Src\VectorLoaders\u_MpSimpleParser.pas',
