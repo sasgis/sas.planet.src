@@ -118,3 +118,30 @@ Windows, 32-bit and 64-bit
 * Add support for the FastMM_IncludeLegacyOptionsFile define. If defined the legacy FastMM4Options.inc will be included (and the version 4 options will be translated to the equivalent v5 options).
 * Add the FastMM_NoDebugInfo option. If defined then debug info will not be emitted for FastMM5.pas, stopping the debugger from stepping into it.
 * Fix a race condition in FastMM_ScanDebugBlocksForCorruption that could erroneously report a debug block that is in the process of being freed by another thread as corrupted.
+
+##### Version 5.06
+* Add lock timeout parameters to FastMM_ScanDebugBlocksForCorruption, FastMM_GetHeapStatus and FastMM_GetUsageSummary, with a default of 50ms. This prevents excessive wait times in these routines if another thread that holds a lock on a memory manager resource is currently suspended.
+* Make the LogStackTrace routine in FastMM_FullDebugMode thread safe.
+* Add FastMM_RequireIDEPresenceForLeakReporting like FastMM4 had to enable leak reporting in libraries.
+* Add an allocation group filter to FastMM_WalkBlocks and FastMM_LogStateToFile
+* Under 64-bit memory blocks are always at least 16 byte aligned, and under 32-bit they are always at least 8 byte aligned. Add a check in the debug FreeMem and ReallocMem routines to catch potentially bad pointers that break these rules.
+* Add a debug mode demo showing how to configure FastMM to detect and report memory corruption errors
+* Handle a potential race condition in FastMM_DetectClassInstance: If another thread frees a block while it is being evaluated as a potential class then an A/V could occur. This indirectly affects other functionality, like FastMM_LogStateToFile.
+* Fix several warnings with the options enabled to warn of potential data loss with implicit integer type conversions. These warnings were all false alarms, but now that the type conversions have been made explicit the warnings will no longer be emitted.
+* Add an option to sort the output of FastMM_LogStateToFile either in descending total memory usage (the default) or alphabetically.
+* Add the current timestamp to the FastMM_LogStateToFile output, and add an option not to truncate the file.
+* Change the parameters of FastMM_LogStateToFile from string to PWideChar to allow the calling code to avoid allocating strings (which may add clutter to the report). Reorder the parameters so that the order is more logical.
+* Add support to FastMM_LogStateToFile for logging a differential state between two allocation group ranges.
+* Include the relative allocation time when logging memory block details.
+* Report thread IDs in decimal (was previously hexadecimal).
+* Change allocation timestamps in crash logs to absolute times
+* Include milliseconds in block logging timestamps
+* Add FastMM_GetMemoryManagerState and FastMM_GetMemoryMap calls for backward compatibility with FastMM4
+* Port the usage tracker demo to FastMM5
+* Fix to large block thread contention handling: Previously large block thread contentions were not logged, and the thread would also not yield to other threads as intended.
+* Add support for changing the virtual method table offsets used to correctly identify objects in e.g. leak reports. This is useful when compiling a borlndmm.dll that will be used with an application that was compiled with a different version of Delphi where the VMT offsets differ.
+* Use the $90909090 debug fill pattern for allocated debug blocks in order to differentiate between errors involving uninitialized allocated memory and errors involving freed memory. Previously allocated debug blocks were initialized with the same $80808080 pattern as freed debug blocks.
+* Add FastMM_BeginEraseAllocatedBlockContent and FastMM_EndEraseAllocatedBlockContent. When enabled this will fill newly allocated blocks with the debug pattern, helping to catch bugs involving the use of uninitialized memory. This is a subset of the debug mode functionality, at a substantially reduced CPU cost.
+* Add a sanity check on the class name pointer in FastMM_DetectClassInstance as an additional safety net in order to prevent blocks from being misidentified as class instances in leak and state reports
+* Fix the failure to correctly report class names in leak reports, etc. when the class name pointer is not aligned to SizeOf(Pointer).
+* Add FastMM_DebugBreakAllocationNumber: Allows triggering of a break point in the debugger if the block with the specified allocation number is allocated.

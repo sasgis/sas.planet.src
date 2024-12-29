@@ -1,6 +1,6 @@
 {
 
-FastMM 5.05
+FastMM 5.06
 
 Description:
   A fast replacement memory manager for Embarcadero Delphi applications that scales well across multiple threads and CPU
@@ -226,7 +226,7 @@ dynamic loading is explicitly specified.}
 const
 
   {The current version of FastMM.  The first digit is the major version, followed by a two digit minor version number.}
-  CFastMM_Version = 505;
+  CFastMM_Version = 506;
 
   {The number of arenas for small, medium and large blocks.  Increasing the number of arenas decreases the likelihood
   of thread contention happening (when the number of threads inside a GetMem call is greater than the number of arenas),
@@ -699,11 +699,24 @@ function FastMM_ExitDebugMode: Boolean;
 FastMM_ExitDebugMode.}
 function FastMM_DebugModeActive: Boolean;
 
+{Enables/disables the erasure of the content of newly allocated blocks.  Calls may be nested, in which case erasure is
+only disabled when the number of FastMM_EndEraseAllocatedBlockContent calls equal the number of
+FastMM_BeginEraseAllocatedBlockContent calls.  When enabled the content of all newly allocated blocks is filled with the
+debug pattern $90909090 before being passed to the application.  This may help catch application bugs involving the use
+of uninitialized memory.  Note that this is a subset of the debug mode functionality, and is implicitly enabled
+in debug mode.}
+function FastMM_BeginEraseAllocatedBlockContent: Boolean;
+function FastMM_EndEraseAllocatedBlockContent: Boolean;
+{Returns True if newly allocated blocks are currently erased, i.e. FastMM_BeginEraseAllocatedBlockContent has been
+called more times than FastMM_EndEraseAllocatedBlockContent.}
+function FastMM_EraseAllocatedBlockContentActive: Boolean;
+
 {Enables/disables the erasure of the content of freed blocks.  Calls may be nested, in which case erasure is only
 disabled when the number of FastMM_EndEraseFreedBlockContent calls equal the number of
 FastMM_BeginEraseFreedBlockContent calls.  When enabled the content of all freed blocks is filled with the debug pattern
 $80808080 before being returned to the memory pool.  This is useful for security purposes, and may also help catch "use
-after free" programming errors (like debug mode, but at reduced CPU cost).}
+after free" programming errors.  Note that this is a subset of the debug mode functionality, and is implicitly enabled
+in debug mode.}
 function FastMM_BeginEraseFreedBlockContent: Boolean;
 function FastMM_EndEraseFreedBlockContent: Boolean;
 {Returns True if free blocks are currently erased on free, i.e. FastMM_BeginEraseFreedBlockContent has been called more
@@ -780,8 +793,12 @@ var
   by the application to track memory issues.}
   FastMM_CurrentAllocationGroup: Cardinal;
   {This variable is incremented during every debug getmem call (wrapping to 0 once it hits 4G) and stored in the debug
-  header.  It may be useful for debugging purposes.}
+  header.  It may be useful for debugging purposes.  A break point may be triggered in the debugger for a specific
+  AllocationNumber via FastMM_DebugBreakAllocationNumber.}
   FastMM_LastAllocationNumber: Cardinal;
+  {If this value is non-zero and the block with matching allocation number is allocated then a break point will be
+  triggered in the debugger.}
+  FastMM_DebugBreakAllocationNumber: Cardinal;
   {These variables are incremented every time all the arenas for the block size are locked simultaneously and FastMM had
   to relinquish the thread's timeslice during a GetMem or ReallocMem call. (FreeMem frees can always be deferred, so
   will never cause a thread contention).  If these numbers are excessively high then it is an indication that the number
@@ -1135,11 +1152,9 @@ const
   CMemoryDumpMaxBytes = 256;
   CMemoryDumpMaxBytesPerLine = 32;
 
-  {The debug block fill pattern, in several sizes.}
-  CDebugFillPattern8B = $8080808080808080;
-  CDebugFillPattern4B = $80808080;
-  CDebugFillPattern2B = $8080;
-  CDebugFillPattern1B = $80;
+  {The debug fill pattern for freed and allocated blocks.}
+  CDebugFillByteFreedBlock = $80;
+  CDebugFillByteAllocatedBlock = $90;
 
   {The first few frames of a GetMem or FreeMem stack trace are inside system.pas and this unit, so does not provide any
   useful information.  Specify how many of the initial frames should be skipped here.  Note that these are actual
@@ -1663,6 +1678,27 @@ const
     CMaximumSmallBlockSize // = 2624
   );
 
+  {Virtual method table offsets.  These are needed to determine whether a memory block is being used by an object, e.g.
+  for leak and state reporting.  Normally these offsets can be assumed to match the constants in system.pas, but if this
+  memory manager instance is in a library that is compiled with a different version of Delphi than the main application
+  then it may be necessary to change these constants to match the constants that the application was compiled with.}
+{$ifdef UseDelphi5VMTOffsets}
+  SelfPtrVMTOffset = -76;
+  TypeInfoVMTOffset = -60;
+  ClassNameVMTOffset = -44;
+  ParentVMTOffset = -36;
+  {$define VMTOffsetsDeclared}
+  {$define OldStringHeader}
+{$endif}
+
+{$ifndef VMTOffsetsDeclared}
+  {Use the VMT offsets of the Delphi version used to compile this unit if there is no override.}
+  SelfPtrVMTOffset = vmtSelfPtr;
+  TypeInfoVMTOffset = vmtTypeInfo;
+  ClassNameVMTOffset = vmtClassName;
+  ParentVMTOffset = vmtParent;
+{$endif}
+
 var
   {Lookup table for converting a block size to a small block type index from 0..CSmallBlockTypeCount - 1}
   SmallBlockTypeLookup: array[0.. CMaximumSmallBlockSize div CSmallBlockGranularity - 1] of Byte;
@@ -1709,6 +1745,9 @@ var
 
   {The difference between the number of times FastMM_EnterDebugMode has been called vs FastMM_ExitDebugMode.}
   DebugModeCounter: Integer;
+
+  {The difference between the number of times FastMM_BeginEraseAllocatedBlockContent has been called vs FastMM_EndEraseAllocatedBlockContent.}
+  EraseAllocatedBlockContentCounter: Integer;
 
   {The difference between the number of times FastMM_BeginEraseFreedBlockContent has been called vs FastMM_EndEraseFreedBlockContent.}
   EraseFreedBlockContentCounter: Integer;
@@ -2658,6 +2697,11 @@ begin
   Winapi.Windows.OutputDebugString(APDebugMessage);
 end;
 
+procedure OS_DebugBreak; inline;
+begin
+  Winapi.Windows.DebugBreak;
+end;
+
 {Shows a message box if the program is not showing one already.}
 procedure OS_ShowMessageBox(APText, APCaption: PWideChar);
 begin
@@ -2829,12 +2873,12 @@ var
   LMemoryRegionInfo: TMemoryRegionInfo;
 
   {Checks whether the given address is a valid address for a VMT entry.}
-  function IsValidVMTAddress(APAddress: Pointer): Boolean;
+  function IsValidVMTAddress(APAddress: Pointer; AMustBePointerAligned: Boolean): Boolean;
   begin
-    {Do some basic pointer checks:  Must be pointer aligned and beyond 64K. (The low 64K is never readable, at least
-    under Windows.)}
+    {Do some basic pointer checks:  The pointer must be beyond 64K since the the low 64K is never readable, at least
+    under Windows.  Also optionally check that the pointer is aligned to SizeOf(Pointer).}
     if (NativeUInt(APAddress) <= 65535)
-      or (NativeUInt(APAddress) and (SizeOf(Pointer) - 1) <> 0) then
+      or (AMustBePointerAligned and (NativeUInt(APAddress) and (SizeOf(Pointer) - 1) <> 0)) then
     begin
       Exit(False);
     end;
@@ -2852,21 +2896,34 @@ var
 
   {Returns True if AClassPointer points to a class VMT}
   function InternalIsValidClass(AClassPointer: Pointer; ADepth: Integer = 0): Boolean;
+  const
+    CMaxVMTSize = $1000; //Assume a VMT will not be larger than this
   var
     LParentClassSelfPointer: PPointer;
+    LPClassNameString: PShortString;
   begin
     {Check that the self pointer as well as parent class self pointer addresses are valid}
     if (ADepth < 1000)
       and (NativeUInt(AClassPointer) > 65535)
-      and IsValidVMTAddress(Pointer(PByte(AClassPointer) + vmtSelfPtr))
-      and IsValidVMTAddress(Pointer(PByte(AClassPointer) + vmtParent)) then
+      and IsValidVMTAddress(Pointer(PByte(AClassPointer) + SelfPtrVMTOffset), True)
+      and IsValidVMTAddress(Pointer(PByte(AClassPointer) + ParentVMTOffset), True) then
     begin
       try
         {Get a pointer to the parent class' self pointer}
-        LParentClassSelfPointer := PPointer(PByte(AClassPointer) + vmtParent)^;
+        LParentClassSelfPointer := PPointer(PByte(AClassPointer) + ParentVMTOffset)^;
         {Is the "Self" pointer valid?}
-        if PPointer(PByte(AClassPointer) + vmtSelfPtr)^ <> AClassPointer then
+        if PPointer(PByte(AClassPointer) + SelfPtrVMTOffset)^ <> AClassPointer then
           Exit(False);
+
+        {Do a sanity check on the pointer to the name of the class.  The short string containing the name is always just
+        after the VMT.}
+        LPClassNameString := PShortString(PPointer(PByte(AClassPointer) + ClassNameVMTOffset)^);
+        if (NativeUInt(LPClassNameString) - NativeUInt(AClassPointer) > CMaxVMTSize)
+          or (not IsValidVMTAddress(LPClassNameString, False)) then
+        begin
+          Exit(False);
+        end;
+
       except
         {There is a potential race condition between the call to IsValidVMTAddress and the checks above:  If another
         thread frees the block at an inopportune moment then the reads above may cause an A/V.  If this happens then
@@ -2877,7 +2934,7 @@ var
       if LParentClassSelfPointer = nil then
         Exit(True);
       {Recursively check the parent class for validity.}
-      Result := IsValidVMTAddress(LParentClassSelfPointer)
+      Result := IsValidVMTAddress(LParentClassSelfPointer, True)
         and InternalIsValidClass(LParentClassSelfPointer^, ADepth + 1);
     end
     else
@@ -2904,8 +2961,10 @@ type
 {$ifdef 64Bit}
     _Padding: Integer;
 {$endif}
+{$ifndef OldStringHeader}
     codePage: Word;
     elemSize: Word;
+{$endif}
     refCnt: Integer;
     length: Integer;
   end;
@@ -2926,9 +2985,13 @@ begin
     Exit(sdtNotAString);
 
   {Element size must be either 1 (Ansi) or 2 (Unicode)}
+{$ifndef OldStringHeader}
   LElementSize := PStrRec(APMemoryBlock).elemSize;
   if (LElementSize <> 1) and (LElementSize <> 2) then
     Exit(sdtNotAString);
+{$else}
+  LElementSize := 1;
+{$endif}
 
   {Get the string length and check whether it fits inside the block}
   LStringLength := PStrRec(APMemoryBlock).length;
@@ -3135,7 +3198,7 @@ var
   LPTarget: PWideChar;
   LPSource: PAnsiChar;
   LCharInd, LNumChars: Integer;
-  LClassInfo: Pointer;
+  LPClassInfo: Pointer;
   LPShortString: PShortString;
 begin
   Result := APTarget;
@@ -3153,10 +3216,10 @@ begin
       LPTarget := @LBuffer;
 
       {Get the name of the unit.}
-      LClassInfo := LClass.ClassInfo;
-      if LClassInfo <> nil then
+      LPClassInfo := PPointer(@PByte(LClass)[TypeInfoVMTOffset])^;
+      if LPClassInfo <> nil then
       begin
-        LPShortString := @PClassData(PByte(LClassInfo) + 2 + PByte(PByte(LClassInfo) + 1)^).UnitName;
+        LPShortString := @PClassData(PByte(LPClassInfo) + 2 + PByte(PByte(LPClassInfo) + 1)^).UnitName;
         LPSource := @LPShortString^[1];
         LNumChars := Length(LPShortString^);
 
@@ -3179,7 +3242,7 @@ begin
       end;
 
       {Append the class name}
-      LPShortString := PShortString(PPointer(PByte(LClass) + vmtClassName)^);
+      LPShortString := PShortString(PPointer(PByte(LClass) + ClassNameVMTOffset)^);
       LPSource := @LPShortString^[1];
       LNumChars := Length(LPShortString^);
       for LCharInd := 1 to LNumChars do
@@ -4069,7 +4132,7 @@ begin
   Result := True;
 end;
 
-procedure FillDebugBlockWithDebugPattern(APDebugBlockHeader: PFastMM_DebugBlockHeader);
+procedure FillFreedDebugBlockWithDebugPattern(APDebugBlockHeader: PFastMM_DebugBlockHeader);
 var
   LByteOffset: NativeInt;
   LPUserArea: PByte;
@@ -4082,7 +4145,7 @@ begin
   begin
     PPointerArray(LPUserArea)[0] := TFastMM_FreedObject;
     {$ifdef 32Bit}
-    PIntegerArray(LPUserArea)[1] := Integer(CDebugFillPattern4B);
+    PIntegerArray(LPUserArea)[1] := Integer(Cardinal($01010101) * CDebugFillByteFreedBlock);
     {$endif}
     Dec(LByteOffset, 8);
     Inc(LPUserArea, 8);
@@ -4091,19 +4154,19 @@ begin
   if LByteOffset and 1 <> 0 then
   begin
     Dec(LByteOffset);
-    LPUserArea[LByteOffset] := CDebugFillPattern1B;
+    LPUserArea[LByteOffset] := CDebugFillByteFreedBlock;
   end;
 
   if LByteOffset and 2 <> 0 then
   begin
     Dec(LByteOffset, 2);
-    PWord(@LPUserArea[LByteOffset])^ := CDebugFillPattern2B;
+    PWord(@LPUserArea[LByteOffset])^ := Word($0101) * CDebugFillByteFreedBlock;
   end;
 
   if LByteOffset and 4 <> 0 then
   begin
     Dec(LByteOffset, 4);
-    PCardinal(@LPUserArea[LByteOffset])^ := CDebugFillPattern4B;
+    PCardinal(@LPUserArea[LByteOffset])^ := Cardinal($01010101) * CDebugFillByteFreedBlock;
   end;
 
   {Loop over the remaining 8 byte chunks using a negative offset.}
@@ -4111,14 +4174,49 @@ begin
   LByteOffset := - LByteOffset;
   while LByteOffset < 0 do
   begin
-    PUInt64(@LPUserArea[LByteOffset])^ := CDebugFillPattern8B;
+    PUInt64(@LPUserArea[LByteOffset])^ := UInt64($0101010101010101) * CDebugFillByteFreedBlock;
     Inc(LByteOffset, 8);
   end;
+end;
 
+procedure FillAllocatedDebugBlockWithDebugPattern(APDebugBlockHeader: PFastMM_DebugBlockHeader);
+var
+  LByteOffset: NativeInt;
+  LPUserArea: PByte;
+begin
+  LByteOffset := APDebugBlockHeader.UserSize;
+  LPUserArea := PByte(APDebugBlockHeader) + CDebugBlockHeaderSize;
+
+  if LByteOffset and 1 <> 0 then
+  begin
+    Dec(LByteOffset);
+    LPUserArea[LByteOffset] := CDebugFillByteAllocatedBlock;
+  end;
+
+  if LByteOffset and 2 <> 0 then
+  begin
+    Dec(LByteOffset, 2);
+    PWord(@LPUserArea[LByteOffset])^ := Word($0101) * CDebugFillByteAllocatedBlock;
+  end;
+
+  if LByteOffset and 4 <> 0 then
+  begin
+    Dec(LByteOffset, 4);
+    PCardinal(@LPUserArea[LByteOffset])^ := Cardinal($01010101) * CDebugFillByteAllocatedBlock;
+  end;
+
+  {Loop over the remaining 8 byte chunks using a negative offset.}
+  Inc(LPUserArea, LByteOffset);
+  LByteOffset := - LByteOffset;
+  while LByteOffset < 0 do
+  begin
+    PUInt64(@LPUserArea[LByteOffset])^ := UInt64($0101010101010101) * CDebugFillByteAllocatedBlock;
+    Inc(LByteOffset, 8);
+  end;
 end;
 
 {The debug header and footer are assumed to be valid.}
-procedure LogDebugBlockFillPatternCorrupted(APDebugBlockHeader: PFastMM_DebugBlockHeader);
+procedure LogFreedDebugBlockFillPatternCorrupted(APDebugBlockHeader: PFastMM_DebugBlockHeader);
 const
   CMaxLoggedChanges = 32;
 var
@@ -4141,7 +4239,7 @@ begin
   LTokenValues[CEventLogTokenModifyAfterFreeDetail] := LPBufferPos;
   while LOffset < APDebugBlockHeader.UserSize do
   begin
-    if LPUserArea[LOffset] <> CDebugFillPattern1B then
+    if LPUserArea[LOffset] <> CDebugFillByteFreedBlock then
     begin
 
       {Found the start of a changed block, now find the length}
@@ -4150,7 +4248,7 @@ begin
       begin
         Inc(LOffset);
         if (LOffset >= APDebugBlockHeader.UserSize)
-          or (LPUserArea[LOffset] = CDebugFillPattern1B) then
+          or (LPUserArea[LOffset] = CDebugFillByteFreedBlock) then
         begin
           Break;
         end;
@@ -4190,7 +4288,7 @@ end;
 
 {Checks that the debug fill pattern in the debug block is intact.  Returns True if the block is intact, otherwise
 (optionally) logs and/or displays the error and returns False.}
-function CheckDebugBlockFillPatternIntact(APDebugBlockHeader: PFastMM_DebugBlockHeader): Boolean;
+function CheckFreedDebugBlockFillPatternIntact(APDebugBlockHeader: PFastMM_DebugBlockHeader): Boolean;
 var
   LByteOffset: NativeInt;
   LPUserArea: PByte;
@@ -4205,7 +4303,7 @@ begin
   begin
     LFillPatternIntact := (PPointer(LPUserArea)^ = TFastMM_FreedObject)
     {$ifdef 32Bit}
-      and (PIntegerArray(LPUserArea)[1] = Integer(CDebugFillPattern4B));
+      and (PIntegerArray(LPUserArea)[1] = Integer(Cardinal($01010101) * CDebugFillByteFreedBlock));
     {$endif};
     Dec(LByteOffset, 8);
     Inc(LPUserArea, 8);
@@ -4215,21 +4313,21 @@ begin
   if LByteOffset and 1 <> 0 then
   begin
     Dec(LByteOffset);
-    if LPUserArea[LByteOffset] <> CDebugFillPattern1B then
+    if LPUserArea[LByteOffset] <> CDebugFillByteFreedBlock then
       LFillPatternIntact := False;
   end;
 
   if LByteOffset and 2 <> 0 then
   begin
     Dec(LByteOffset, 2);
-    if PWord(@LPUserArea[LByteOffset])^ <> CDebugFillPattern2B then
+    if PWord(@LPUserArea[LByteOffset])^ <> Word($0101) * CDebugFillByteFreedBlock then
       LFillPatternIntact := False;
   end;
 
   if LByteOffset and 4 <> 0 then
   begin
     Dec(LByteOffset, 4);
-    if PCardinal(@LPUserArea[LByteOffset])^ <> CDebugFillPattern4B then
+    if PCardinal(@LPUserArea[LByteOffset])^ <> Cardinal($01010101) * CDebugFillByteFreedBlock then
       LFillPatternIntact := False;
   end;
 
@@ -4238,7 +4336,7 @@ begin
   LByteOffset := - LByteOffset;
   while LByteOffset < 0 do
   begin
-    if PUInt64(@LPUserArea[LByteOffset])^ <> CDebugFillPattern8B then
+    if PUInt64(@LPUserArea[LByteOffset])^ <> UInt64($0101010101010101) * CDebugFillByteFreedBlock then
     begin
       LFillPatternIntact := False;
       Break;
@@ -4250,7 +4348,7 @@ begin
   if not LFillPatternIntact then
   begin
     {Log the block error.}
-    LogDebugBlockFillPatternCorrupted(APDebugBlockHeader);
+    LogFreedDebugBlockFillPatternCorrupted(APDebugBlockHeader);
     Result := False;
   end
   else
@@ -4261,7 +4359,7 @@ end;
 function CheckFreeDebugBlockIntact(APDebugBlockHeader: PFastMM_DebugBlockHeader): Boolean;
 begin
   Result := CheckDebugBlockHeaderAndFooterCheckSumsValid(APDebugBlockHeader)
-    and CheckDebugBlockFillPatternIntact(APDebugBlockHeader);
+    and CheckFreedDebugBlockFillPatternIntact(APDebugBlockHeader);
 end;
 
 procedure EnsureEmergencyReserveAddressSpaceAllocated;
@@ -4329,7 +4427,7 @@ begin
   LPActualBlock.PreviouslyUsedByClass := PPointer(APointer)^;
 
   {Fill the user area of the block with the debug pattern.}
-  FillDebugBlockWithDebugPattern(LPActualBlock);
+  FillFreedDebugBlockWithDebugPattern(LPActualBlock);
 
   {The block is now free.}
   LPActualBlock.DebugBlockFlags := CIsDebugBlockFlag or CBlockIsFreeFlag;
@@ -4599,56 +4697,54 @@ begin
   LLargeBlockActualSize := (ASize + CLargeBlockHeaderSize + CLargeBlockGranularity - 1) and -CLargeBlockGranularity;
   if LLargeBlockActualSize <= CMaximumMediumBlockSize then
     Exit(nil);
+
   {Get the large block.}
   Result := OS_AllocateVirtualMemory(LLargeBlockActualSize, False);
+  if Result = nil then
+    Exit;
 
-  {Set the Large block fields}
-  if Result <> nil then
+  {Set the large block size and flags}
+  PLargeBlockHeader(Result).UserAllocatedSize := ASize;
+  PLargeBlockHeader(Result).ActualBlockSize := LLargeBlockActualSize;
+  PLargeBlockHeader(Result).BlockIsSegmented := False;
+  PLargeBlockHeader(Result).BlockStatusFlags := CIsLargeBlockFlag;
+
+  {Insert the block in the first available arena.}
+  while True do
   begin
-    {Set the large block size and flags}
-    PLargeBlockHeader(Result).UserAllocatedSize := ASize;
-    PLargeBlockHeader(Result).ActualBlockSize := LLargeBlockActualSize;
-    PLargeBlockHeader(Result).BlockIsSegmented := False;
-    PLargeBlockHeader(Result).BlockStatusFlags := CIsLargeBlockFlag;
 
-    {Insert the block in the first available arena.}
-    while True do
+    LPLargeBlockManager := @LargeBlockManagers[0];
+    for LArenaIndex := 0 to CFastMM_LargeBlockArenaCount - 1 do
     begin
 
-      LPLargeBlockManager := @LargeBlockManagers[0];
-      for LArenaIndex := 0 to CFastMM_LargeBlockArenaCount - 1 do
+      if (LPLargeBlockManager.LargeBlockManagerLocked = 0)
+        and (AtomicExchange(LPLargeBlockManager.LargeBlockManagerLocked, 1) = 0) then
       begin
+        PLargeBlockHeader(Result).LargeBlockManager := LPLargeBlockManager;
 
-        if (LPLargeBlockManager.LargeBlockManagerLocked = 0)
-          and (AtomicExchange(LPLargeBlockManager.LargeBlockManagerLocked, 1) = 0) then
-        begin
-          PLargeBlockHeader(Result).LargeBlockManager := LPLargeBlockManager;
+        {Insert the large block into the linked list of large blocks}
+        LOldFirstLargeBlock := LPLargeBlockManager.FirstLargeBlockHeader;
+        PLargeBlockHeader(Result).PreviousLargeBlockHeader := Pointer(LPLargeBlockManager);
+        LPLargeBlockManager.FirstLargeBlockHeader := Result;
+        PLargeBlockHeader(Result).NextLargeBlockHeader := LOldFirstLargeBlock;
+        LOldFirstLargeBlock.PreviousLargeBlockHeader := Result;
 
-          {Insert the large block into the linked list of large blocks}
-          LOldFirstLargeBlock := LPLargeBlockManager.FirstLargeBlockHeader;
-          PLargeBlockHeader(Result).PreviousLargeBlockHeader := Pointer(LPLargeBlockManager);
-          LPLargeBlockManager.FirstLargeBlockHeader := Result;
-          PLargeBlockHeader(Result).NextLargeBlockHeader := LOldFirstLargeBlock;
-          LOldFirstLargeBlock.PreviousLargeBlockHeader := Result;
+        LPLargeBlockManager.LargeBlockManagerLocked := 0;
 
-          LPLargeBlockManager.LargeBlockManagerLocked := 0;
+        {Add the size of the header}
+        Inc(PByte(Result), CLargeBlockHeaderSize);
 
-          {Add the size of the header}
-          Inc(PByte(Result), CLargeBlockHeaderSize);
-
-          Exit;
-        end;
-
-        {Try the next arena.}
-        Inc(LPLargeBlockManager);
+        Exit;
       end;
 
+      {Try the next arena.}
+      Inc(LPLargeBlockManager);
     end;
 
     {All large block managers are locked:  Back off and try again.}
     LogLargeBlockThreadContentionAndYieldToOtherThread;
-
   end;
+
 end;
 
 function FastMM_FreeMem_FreeLargeBlock(APLargeBlock: Pointer): Integer;
@@ -7561,6 +7657,15 @@ begin
 {$endif}
 end;
 
+function FastMM_GetMem_EraseAllocatedBlock(ASize: NativeInt): Pointer;
+begin
+  Result := FastMM_GetMem(ASize);
+
+  {Fill the user area of the block with the debug fill pattern before returning it to the application.}
+  if Result <> nil then
+    FillChar(Result^, FastMM_BlockMaximumUserBytes(Result), CDebugFillByteAllocatedBlock);
+end;
+
 function FastMM_FreeMem(APointer: Pointer): Integer;
 {$ifndef PurePascal}
 asm
@@ -7778,7 +7883,7 @@ end;
 function FastMM_FreeMem_EraseBeforeFree(APointer: Pointer): Integer;
 begin
   {Fill the user area of the block with the debug fill pattern before passing the block to the regular FreeMem handler.}
-  FillChar(APointer^, FastMM_BlockMaximumUserBytes(APointer), CDebugFillPattern1B);
+  FillChar(APointer^, FastMM_BlockMaximumUserBytes(APointer), CDebugFillByteFreedBlock);
 
   Result := FastMM_FreeMem(APointer);
 end;
@@ -7922,10 +8027,18 @@ begin
 
   {Fill the block with the debug pattern}
   if AFillBlockWithDebugPattern then
-    FillDebugBlockWithDebugPattern(Result);
+    FillAllocatedDebugBlockWithDebugPattern(Result);
 
   {Set the flag in the actual block header to indicate that the block contains debug information.}
   SetBlockHasDebugInfo(Result, True);
+
+  {If the current allocation number matches FastMM_DebugBreakAllocationNumber then trigger a break point in the
+  debugger.}
+  if (FastMM_DebugBreakAllocationNumber <> 0)
+    and (PFastMM_DebugBlockHeader(Result).AllocationNumber = FastMM_DebugBreakAllocationNumber) then
+  begin
+    OS_DebugBreak;
+  end;
 
   {Return a pointer to the user data}
   Inc(PByte(Result), CDebugBlockHeaderSize);
@@ -8628,7 +8741,7 @@ begin
   end;
 
   {If it is a free block, check whether it has been modified after being freed.}
-  if ABlockInfo.BlockIsFree and (not CheckDebugBlockFillPatternIntact(ABlockInfo.DebugInformation)) then
+  if ABlockInfo.BlockIsFree and (not CheckFreedDebugBlockFillPatternIntact(ABlockInfo.DebugInformation)) then
     System.Error(reInvalidPtr);
 end;
 
@@ -10262,11 +10375,14 @@ begin
   end;
 
   {---------Debug setup-------}
-  {Reserve 64K starting at address $80800000.  $80808080 is the debug fill pattern under 32-bit, so we don't want any
-  pointer dereferences at this address to succeed.  This is only necessary under 32-bit, since $8080808000000000 is
-  already reserved for the OS under 64-bit.}
 {$ifdef 32Bit}
-  OS_AllocateVirtualMemoryAtAddress(Pointer($80800000), $10000, True);
+  {Reserve 64K starting at address $80800000.  $80808080 is the debug fill pattern for freed blocks under 32-bit, so we
+  don't want any pointer dereferences at this address to succeed.  This is only necessary under 32-bit, since
+  $8080808000000000 is already reserved for the OS under 64-bit.}
+  OS_AllocateVirtualMemoryAtAddress(Pointer(Cardinal($01010000) * CDebugFillByteFreedBlock), $10000, True);
+  {If the allocated block fill pattern differs, reserve its corresponding address range as well.}
+  if CDebugFillByteFreedBlock <> CDebugFillByteAllocatedBlock then
+    OS_AllocateVirtualMemoryAtAddress(Pointer(Cardinal($01010000) * CDebugFillByteAllocatedBlock), $10000, True);
 {$endif}
 
   FastMM_GetStackTrace := @FastMM_NoOpGetStackTrace;
@@ -10395,7 +10511,10 @@ begin
   {Debug mode or normal memory manager?}
   if DebugModeCounter <= 0 then
   begin
-    LNewMemoryManager.GetMem := FastMM_GetMem;
+    if EraseAllocatedBlockContentCounter <= 0 then
+      LNewMemoryManager.GetMem := FastMM_GetMem
+    else
+      LNewMemoryManager.GetMem := FastMM_GetMem_EraseAllocatedBlock;
     if EraseFreedBlockContentCounter <= 0 then
       LNewMemoryManager.FreeMem := FastMM_FreeMem
     else
@@ -10602,6 +10721,37 @@ begin
     AStackTraceEntryCount := CFastMM_StackTrace_MaximumEntryCount;
 
   DebugMode_StackTrace_EntryCount := AStackTraceEntryCount;
+end;
+
+function FastMM_BeginEraseAllocatedBlockContent: Boolean;
+begin
+  if CurrentInstallationState = mmisInstalled then
+  begin
+    if AtomicIncrement(EraseAllocatedBlockContentCounter) = 1 then
+      Result := FastMM_SetNormalOrDebugMemoryManager
+    else
+      Result := True;
+  end
+  else
+    Result := False;
+end;
+
+function FastMM_EndEraseAllocatedBlockContent: Boolean;
+begin
+  if CurrentInstallationState = mmisInstalled then
+  begin
+    if AtomicDecrement(EraseAllocatedBlockContentCounter) = 0 then
+      Result := FastMM_SetNormalOrDebugMemoryManager
+    else
+      Result := True;
+  end
+  else
+    Result := False;
+end;
+
+function FastMM_EraseAllocatedBlockContentActive: Boolean;
+begin
+  Result := EraseAllocatedBlockContentCounter > 0;
 end;
 
 function FastMM_BeginEraseFreedBlockContent: Boolean;
