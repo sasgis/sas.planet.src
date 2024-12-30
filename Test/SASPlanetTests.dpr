@@ -25,6 +25,7 @@ uses
   u_EnumDoublePointWithClip_Test in 'u_EnumDoublePointWithClip_Test.pas',
   u_GUIDSetStatic_Test in 'u_GUIDSetStatic_Test.pas',
   u_GUIDSet_Test in 'u_GUIDSet_Test.pas',
+  u_GeoJsonParser_Test in 'u_GeoJsonParser_Test.pas',
   u_GeometrySaveLoadWKB_Test in 'u_GeometrySaveLoadWKB_Test.pas',
   u_HashCacheWithQueuesAbstract_Test in 'u_HashCacheWithQueuesAbstract_Test.pas',
   u_MarkCategoryListToTree_Test in 'u_MarkCategoryListToTree_Test.pas',
@@ -32,12 +33,12 @@ uses
   u_PathConfig_Test in 'u_PathConfig_Test.pas',
   u_ProjectedPolygonWithRect_Test in 'u_ProjectedPolygonWithRect_Test.pas',
   u_ProjectedSingleLine_Test in 'u_ProjectedSingleLine_Test.pas',
+  u_ProjectionSet_Test in 'u_ProjectionSet_Test.pas',
+  u_ProjectionType_Test in 'u_ProjectionType_Test.pas',
   u_RegularExpressions_Test in 'u_RegularExpressions_Test.pas',
   u_SASTestCase in 'u_SASTestCase.pas',
   u_UpdateChecker_Test in 'u_UpdateChecker_Test.pas',
-  u_VectorItmesFactorySimple_Test in 'u_VectorItmesFactorySimple_Test.pas',
-  u_ProjectionType_Test in 'u_ProjectionType_Test.pas',
-  u_ProjectionSet_Test in 'u_ProjectionSet_Test.pas';
+  u_VectorItmesFactorySimple_Test in 'u_VectorItmesFactorySimple_Test.pas';
 
 begin
   GDllName.Init;

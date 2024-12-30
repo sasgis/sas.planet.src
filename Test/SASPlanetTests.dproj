@@ -191,6 +191,7 @@
         <DCCReference Include="u_EnumDoublePointWithClip_Test.pas"/>
         <DCCReference Include="u_GUIDSetStatic_Test.pas"/>
         <DCCReference Include="u_GUIDSet_Test.pas"/>
+        <DCCReference Include="u_GeoJsonParser_Test.pas"/>
         <DCCReference Include="u_GeometrySaveLoadWKB_Test.pas"/>
         <DCCReference Include="u_HashCacheWithQueuesAbstract_Test.pas"/>
         <DCCReference Include="u_MarkCategoryListToTree_Test.pas"/>
@@ -198,12 +199,12 @@
         <DCCReference Include="u_PathConfig_Test.pas"/>
         <DCCReference Include="u_ProjectedPolygonWithRect_Test.pas"/>
         <DCCReference Include="u_ProjectedSingleLine_Test.pas"/>
+        <DCCReference Include="u_ProjectionSet_Test.pas"/>
+        <DCCReference Include="u_ProjectionType_Test.pas"/>
         <DCCReference Include="u_RegularExpressions_Test.pas"/>
         <DCCReference Include="u_SASTestCase.pas"/>
         <DCCReference Include="u_UpdateChecker_Test.pas"/>
         <DCCReference Include="u_VectorItmesFactorySimple_Test.pas"/>
-        <DCCReference Include="u_ProjectionType_Test.pas"/>
-        <DCCReference Include="u_ProjectionSet_Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
