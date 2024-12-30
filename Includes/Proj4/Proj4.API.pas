@@ -106,6 +106,7 @@ uses
 
 var
   GLock: TCriticalSection = nil;
+  GIsInitialized: Boolean = False;
 
 function get_proj4_dll_version: AnsiString;
 begin
@@ -143,23 +144,29 @@ function init_proj4_dll(
 begin
   Result := True;
 
-  if ASearchPath = '' then begin
+  if GIsInitialized then begin
     Exit;
   end;
 
-  GLock.Acquire;
   try
-    set_proj4_searchpath(ASearchPath);
+    if ASearchPath = '' then begin
+      Exit;
+    end;
+
+    GLock.Acquire;
+    try
+      set_proj4_searchpath(ASearchPath);
+    finally
+      GLock.Release;
+    end;
   finally
-    GLock.Release;
+    GIsInitialized := True;
   end;
 end;
 
 {$ELSE}
-
 var
   GHandle: THandle = 0;
-  GIsInitialized: Boolean = False;
 
 function init_proj4_dll(
   const ALibName: string;
