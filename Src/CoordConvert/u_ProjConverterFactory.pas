@@ -50,7 +50,7 @@ uses
   Proj4.API,
   Proj4.Defines,
   u_AnsiStr,
-  u_ProjConverterByDll;
+  u_ProjConverterByProj4;
 
 const
   CProj4NotLoaded   = 0;
@@ -100,7 +100,7 @@ begin
   end;
 
   if VProj4Status = CProj4LoadedOK then begin
-    Result := TProjConverterByDll.Create(AArgs);
+    Result := TProjConverterByProj4.Create(AArgs);
   end;
 end;
 

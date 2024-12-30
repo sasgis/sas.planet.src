@@ -19,7 +19,7 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_ProjConverterByDll;
+unit u_ProjConverterByProj4;
 
 interface
 
@@ -36,7 +36,7 @@ type
   // 2. You must init pro4 library BEFORE creating instances of this class
   // (see TProjConverterFactory).
 
-  TProjConverterByDll = class(TBaseInterfacedObject, IProjConverter)
+  TProjConverterByProj4 = class(TBaseInterfacedObject, IProjConverter)
   private
     FCtx: projCtx;
     FGeoPJ: projPJ;
@@ -65,9 +65,9 @@ const
   cProjCtxInitError = 'Can''t initialize proj4 context!';
   cProjectionInitError = 'Can''t initialize proj4 with string: "%s"' + #13#10 + '%s';
 
-{ TProjConverterByDll }
+{ TProjConverterByProj4 }
 
-constructor TProjConverterByDll.Create(const AProj4InitStr: AnsiString);
+constructor TProjConverterByProj4.Create(const AProj4InitStr: AnsiString);
 begin
   Assert(AProj4InitStr <> '');
   inherited Create;
@@ -77,7 +77,7 @@ begin
   FGeoPJ := nil;
 end;
 
-procedure TProjConverterByDll.AfterConstruction;
+procedure TProjConverterByProj4.AfterConstruction;
 var
   VErrNo: Integer;
   VErrMsg: AnsiString;
@@ -104,7 +104,7 @@ begin
   end;
 end;
 
-destructor TProjConverterByDll.Destroy;
+destructor TProjConverterByProj4.Destroy;
 begin
   if FProjPJ <> nil then begin
     pj_free(FProjPJ);
@@ -124,7 +124,7 @@ begin
   inherited;
 end;
 
-function TProjConverterByDll.LonLat2XY(
+function TProjConverterByProj4.LonLat2XY(
   const ALonLat: TDoublePoint
 ): TDoublePoint;
 var
@@ -149,7 +149,7 @@ begin
   Result.Y := Y;
 end;
 
-function TProjConverterByDll.XY2LonLat(
+function TProjConverterByProj4.XY2LonLat(
   const AXY: TDoublePoint
 ): TDoublePoint;
 var
