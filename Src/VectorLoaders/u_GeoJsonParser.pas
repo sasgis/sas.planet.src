@@ -156,7 +156,7 @@ begin
   if VType = 'feature' then begin
     ParseFeature(AContext, VJson, VSubsetBuilder, nil);
   end else begin
-    EGeoJsonParser.Create('Invalid GeoJSON format!');
+    raise EGeoJsonParser.Create('Invalid GeoJSON format!');
   end;
 
   if VSubsetBuilder.Count > 0 then begin
@@ -406,6 +406,9 @@ begin
   end else
   if VType = 'multipolygon' then begin
     Result := _ReadMultiPolygon(VCoord);
+  end else
+  if VType = 'geometrycollection' then begin
+    // todo
   end;
 end;
 
@@ -447,14 +450,14 @@ begin
       if (I >= 2) and (VStr[I-2] = 'EPSG') and TryStrToInt(VStr[I-1], VEPSG) then begin
         FConverter := AProjConverterFactory.GetByEPSG(VEPSG);
         if FConverter = nil then begin
-          EGeoJsonParser.CreateFmt('Unsupported CRS EPSG: "%s"', [VName]);
+          raise EGeoJsonParser.CreateFmt('Unsupported CRS EPSG: "%s"', [VName]);
         end;
       end else begin
-        EGeoJsonParser.CreateFmt('Unsupported CRS: "%s"', [VName]);
+        raise EGeoJsonParser.CreateFmt('Unsupported CRS: "%s"', [VName]);
       end;
     end;
   end else begin
-    EGeoJsonParser.CreateFmt('Unsupported CRS type: "%s"', [VType]);
+    raise EGeoJsonParser.CreateFmt('Unsupported CRS type: "%s"', [VType]);
   end;
 end;
 
