@@ -24,7 +24,6 @@ unit u_GeoCoderByRosreestr;
 interface
 
 uses
-  Windows,
   Classes,
   i_InterfaceListSimple,
   i_InetConfig,
@@ -34,6 +33,10 @@ uses
   i_NotifierOperation,
   i_GeoCoder,
   i_LocalCoordConverter,
+  i_ProjConverter,
+  i_VectorDataLoader,
+  i_GeometryLonLatFactory,
+  i_VectorDataFactory,
   i_VectorItemSubsetBuilder,
   i_DownloaderFactory,
   i_CoordToStringConverter,
@@ -42,6 +45,8 @@ uses
 type
   TGeoCoderByRosreestr = class(TGeoCoderBasic)
   private
+    FGeoJsonParser: IVectorDataLoader;
+    FParserContext: TVectorLoadContext;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
   protected
     function PrepareRequest(
@@ -63,74 +68,34 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const ADownloaderFactory: IDownloaderFactory;
-      const ACoordToStringConverter: ICoordToStringConverterChangeable
+      const ACoordToStringConverter: ICoordToStringConverterChangeable;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AProjConverterFactory: IProjConverterFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     );
   end;
 
 implementation
 
 uses
-  Math,
   SysUtils,
   StrUtils,
-  DateUtils,
   RegExpr,
   superobject,
   t_GeoTypes,
+  i_ImportConfig,
+  i_VectorItemSubset,
   i_VectorDataItemSimple,
   u_AnsiStr,
-  u_GeoFunc,
+  u_StrFunc,
+  u_GeoJsonParser,
+  u_BinaryData,
   u_InterfaceListSimple,
   u_DownloadRequest,
   u_ResStrings;
 
 { TGeoCoderByRosreestr }
-
-function MetersToLonLatPoint(const APoint: TDoublePoint): TDoublePoint; inline;
-begin
-  // mercator on sphere (epsg: 3857)
-  Result.X := APoint.X / 6378137 * 180 / Pi;
-  Result.Y := ((ArcTan(Exp(APoint.Y / 6378137)) - Pi / 4) * 360) / Pi;
-end;
-
-function GetCenterPos(const AGeoJsonGeometry: ISuperObject): TDoublePoint;
-
-  function _ReadPoint(const AJsonArrar: TSuperArray): TDoublePoint;
-  begin
-    if AJsonArrar.Length >= 2 then begin
-      Result.X := AJsonArrar.D[0];
-      Result.Y := AJsonArrar.D[1];
-    end else begin
-      Assert(False);
-      Result := CEmptyDoublePoint;
-    end;
-  end;
-
-var
-  VType: string;
-  VCoordinates: TSuperArray;
-  VLine: TSuperArray;
-begin
-  Result := CEmptyDoublePoint;
-
-  VType := LowerCase(AGeoJsonGeometry.S['type']);
-  VCoordinates := AGeoJsonGeometry.A['coordinates'];
-
-  if VType = 'point' then begin
-    Result := _ReadPoint(VCoordinates);
-  end else
-  if VType = 'linestring' then begin
-    VLine := VCoordinates.O[0].AsArray;
-    Result := _ReadPoint(VLine);
-  end else
-  if VType = 'polygon' then begin
-    VLine := VCoordinates.O[0].AsArray;
-    Result := _ReadPoint(VLine.O[0].AsArray);
-  end;
-
-  // todo: calc geometry center point for line and polygon
-  // todo: add support for multi-point, multi-line, mult-polygon geometries
-end;
 
 constructor TGeoCoderByRosreestr.Create(
   const AInetSettings: IInetConfig;
@@ -138,7 +103,11 @@ constructor TGeoCoderByRosreestr.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const ADownloaderFactory: IDownloaderFactory;
-  const ACoordToStringConverter: ICoordToStringConverterChangeable
+  const ACoordToStringConverter: ICoordToStringConverterChangeable;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AProjConverterFactory: IProjConverterFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 );
 begin
   inherited Create(
@@ -148,7 +117,18 @@ begin
     APlacemarkFactory,
     ADownloaderFactory
   );
+
   FCoordToStringConverter := ACoordToStringConverter;
+
+  FGeoJsonParser := TGeoJsonParser.Create(
+    AVectorItemSubsetBuilderFactory,
+    AVectorDataFactory,
+    AVectorGeometryLonLatFactory,
+    AProjConverterFactory
+  );
+
+  FParserContext.Init;
+  FParserContext.MainInfoFactory := AVectorDataItemMainInfoFactory;
 end;
 
 function TGeoCoderByRosreestr.ParseResultToPlacemarksList(
@@ -165,12 +145,11 @@ var
   VList: IInterfaceListSimple;
   VCoordToStringConverter: ICoordToStringConverter;
   VJsonObject: ISuperObject;
-  VJsonArray: TSuperArray;
-  VItem: ISuperObject;
-  VOptions: ISuperObject;
-  VGeometry: ISuperObject;
-  VTmpBuf: UTF8String;
-  VCRS: string;
+  VGeoJsonObject: ISuperObject;
+  VItems: IVectorItemSubset;
+  VItem: IVectorDataItem;
+  VStr: string;
+  VStrA: AnsiString;
   VName, VFullDesc, VDescription: string;
 begin
   if AResult = nil then begin
@@ -178,66 +157,52 @@ begin
     Exit;
   end;
 
-  if AResult.Data.Size <= 0 then begin
+  if (AResult.Data = nil) or (AResult.Data.Size <= 0) then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
 
-  SetLength(VTmpBuf, AResult.Data.Size);
-  Move(AResult.Data.Buffer^, VTmpBuf[1], AResult.Data.Size);
+  VStr := Utf8DataToUnicodeString(AResult.Data.Buffer, AResult.Data.Size);
 
-  VJsonObject := SO(Utf8ToAnsi(VTmpBuf));
+  VJsonObject := SO(VStr);
   if not Assigned(VJsonObject) then begin
-    raise EParserError.Create('JSON parser error');
+    raise EParserError.Create(Self.ClassName + ': ' + 'JSON parser error');
   end;
 
-  VJsonArray := VJsonObject.A['data.features'];
-  if VJsonArray = nil then begin
-    raise EParserError.Create('"features" array is not found');
+  VGeoJsonObject := VJsonObject.O['data'];
+  if VGeoJsonObject = nil then begin
+    raise EParserError.Create(Self.ClassName + ': ' + '"data" object is not found!');
+  end;
+
+  VStrA := UTF8Encode(VGeoJsonObject.AsJSon(False, False));
+
+  VItems :=
+    FGeoJsonParser.Load(
+      FParserContext,
+      TBinaryData.CreateByAnsiString(VStrA)
+    );
+
+  if (VItems = nil) or (VItems.Count <= 0) then begin
+    Result := nil;
+    Exit;
   end;
 
   VName := ASearch;
   VList := TInterfaceListSimple.Create;
   VCoordToStringConverter := FCoordToStringConverter.GetStatic;
 
-  for I := 0 to VJsonArray.Length - 1 do begin
-    VItem := VJsonArray.O[I];
+  for I := 0 to VItems.Count - 1 do begin
+    VItem := VItems[I];
+
     Assert(VItem <> nil);
+    Assert(VItem.Geometry <> nil);
 
-    VFullDesc := '';
-    VDescription := '';
+    VPoint := VItem.Geometry.GetGoToPoint;
 
-    VOptions := VItem.O['properties.options'];
-    if Assigned(VOptions) then begin
-      VDescription := VOptions.AsJSon(True, False);
+    VDescription := VItem.Desc + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+    VFullDesc := ReplaceStr(VName + #$D#$A + VDescription, #$D#$A, '<br>');
 
-      VDescription := StringReplace(VDescription, '{', '', [rfReplaceAll]);
-      VDescription := StringReplace(VDescription, '}', '', [rfReplaceAll]);
-      VDescription := StringReplace(VDescription, '"', '', [rfReplaceAll]);
-      VDescription := StringReplace(VDescription, ',' + #13#10, #13#10, [rfReplaceAll]);
-    end;
-
-    VGeometry := VItem.O['geometry'];
-    if Assigned(VGeometry) then begin
-      VPoint := GetCenterPos(VGeometry);
-
-      if PointIsEmpty(VPoint) then begin
-        Assert(False, 'Failed to parse geometry!');
-        Continue;
-      end;
-
-      VCRS := Trim(VItem.S['crs.properties.name']);
-      if LowerCase(VCRS) <> 'epsg:3857' then begin
-        Assert(False, 'Unsupported CRS: "' + VCRS + '"');
-      end;
-
-      VPoint := MetersToLonLatPoint(VPoint);
-
-      VDescription := VDescription + #$D#$A + '[ ' + VCoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-      VFullDesc := ReplaceStr(VName + #$D#$A + VDescription, #$D#$A, '<br>');
-
-      VPlace := PlacemarkFactory.Build(VPoint, VName, VDescription, VFullDesc, 4);
-      VList.Add(VPlace);
-    end;
+    VPlace := Self.PlacemarkFactory.Build(VPoint, VName, VDescription, VFullDesc, 4);
+    VList.Add(VPlace);
   end;
 
   Result := VList;
@@ -254,7 +219,7 @@ const
     'Accept: */*' + #13#10 +
     'Accept-Language: ru,en;q=0.9' + #13#10 +
     'Accept-Encoding: gzip, deflate' + #13#10 +
-    'Referer: https://nspd.gov.ru/';
+    'Referer: https://nspd.gov.ru/map?thematic=PKK';
 var
   VQuery: AnsiString;
   VSearch: AnsiString;
@@ -284,8 +249,7 @@ begin
           InetSettings.GetStatic
         );
     end else begin
-      Result := nil;
-      Assert(False, 'Unexpected input format: ' + ASearch);
+      raise Exception.CreateFmt('Unexpected query format: "%s"', [ASearch]);
     end;
   finally
     VRegExpr.Free;

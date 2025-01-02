@@ -837,6 +837,7 @@ begin
       FCoordToStringConverter,
       FMarkSystem.MarkDb,
       FProjectionSetFactory,
+      FProjConverterFactory,
       FVectorGeometryLonLatFactory,
       FVectorDataFactory,
       FVectorDataItemMainInfoFactory

@@ -33,6 +33,7 @@ uses
   i_VectorDataFactory,
   i_GeometryLonLatFactory,
   i_ProjectionSetFactory,
+  i_ProjConverter,
   i_DownloaderFactory,
   i_CoordToStringConverter,
   u_GeoCoderListBase;
@@ -50,6 +51,7 @@ type
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AMarksDb: IMarkDb;
       const AProjectionSetFactory: IProjectionSetFactory;
+      const AProjConverterFactory: IProjConverterFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
@@ -94,6 +96,7 @@ constructor TGeoCoderListSimple.Create(
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AMarksDb: IMarkDb;
   const AProjectionSetFactory: IProjectionSetFactory;
+  const AProjConverterFactory: IProjConverterFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
@@ -173,7 +176,18 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
       _('Rosreestr'),
-      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, ADownloaderFactory, ACoordToStringConverter)
+      TGeoCoderByRosreestr.Create(
+        AInetConfig,
+        AGCNotifier,
+        AVectorItemSubsetBuilderFactory,
+        APlacemarkFactory,
+        ADownloaderFactory,
+        ACoordToStringConverter,
+        AVectorDataFactory,
+        AVectorGeometryLonLatFactory,
+        AProjConverterFactory,
+        AVectorDataItemMainInfoFactory
+      ) as IGeoCoder
     );
   VList.Add(VItem);
 
