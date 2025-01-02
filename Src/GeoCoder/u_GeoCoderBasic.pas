@@ -171,6 +171,7 @@ var
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
   VResultError: IDownloadResultError;
+  VResultNotFound: IDownloadResultDataNotExists;
   VSubset: IVectorItemSubset;
 begin
   Result := nil;
@@ -214,6 +215,10 @@ begin
             VResultCode := CGeoCodeNoInternetConnectionResultCode;
           end;
           VMessage := VResultError.ErrorText;
+        end else
+        if Supports(VResult, IDownloadResultDataNotExists, VResultNotFound) then begin
+          VResultCode := CGeoCodeNotFoundResultCode;
+          VMessage := VResultNotFound.ReasonText;
         end else begin
           VResultCode := CGeoCodeDownloadErrorResultCode;
           VMessage := _('Unknown HTTP request error!');
