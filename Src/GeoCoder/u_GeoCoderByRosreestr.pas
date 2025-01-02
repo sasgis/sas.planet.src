@@ -222,25 +222,22 @@ const
     'Referer: https://nspd.gov.ru/map?thematic=PKK';
 var
   VQuery: AnsiString;
-  VSearch: AnsiString;
   VRegExpr: TRegExpr;
 begin
   VRegExpr  := TRegExpr.Create;
   try
-    VSearch := AnsiString(ASearch);
+    VQuery := AnsiString(ASearch);
     VRegExpr.Expression := '^([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,7})(:([0-9]{1,5}))?$';
 
-    if VRegExpr.Exec(VSearch) then begin
-      VSearch :=
-        IntToStrA(StrToIntA(VRegExpr.Match[1])) + ':' +
-        IntToStrA(StrToIntA(VRegExpr.Match[2])) + ':' +
-        IntToStrA(StrToIntA(VRegExpr.Match[3]));
+    if VRegExpr.Exec(VQuery) then begin
+      VQuery :=
+        VRegExpr.Match[1] + ':' +
+        VRegExpr.Match[2] + ':' +
+        VRegExpr.Match[3];
 
       if VRegExpr.Match[4] <> '' then begin
-        VSearch := VSearch + ':' + IntToStrA(StrToIntA(VRegExpr.Match[5]));
+        VQuery := VQuery + ':' + VRegExpr.Match[5];
       end;
-
-      VQuery := URLEncode(VSearch);
 
       Result :=
         TDownloadRequest.Create(
