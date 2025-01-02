@@ -921,6 +921,7 @@ uses
   u_DownloadUIConfig in 'Src\Network\u_DownloadUIConfig.pas',
   u_DownloaderByCurlFactory in 'Src\Network\u_DownloaderByCurlFactory.pas',
   u_DownloaderByWinInetFactory in 'Src\Network\u_DownloaderByWinInetFactory.pas',
+  u_DownloaderFactory in 'Src\Network\u_DownloaderFactory.pas',
   u_DownloaderHttpBase in 'Src\Network\u_DownloaderHttpBase.pas',
   u_DownloaderHttpByCurl in 'Src\Network\u_DownloaderHttpByCurl.pas',
   u_DownloaderHttpByWinInet in 'Src\Network\u_DownloaderHttpByWinInet.pas',

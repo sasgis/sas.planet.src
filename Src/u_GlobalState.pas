@@ -350,8 +350,7 @@ uses
   u_ProjectionSetFactorySimple,
   u_ProjectionSetListStaticSimple,
   u_DownloadInfoSimple,
-  u_DownloaderByCurlFactory,
-  u_DownloaderByWinInetFactory,
+  u_DownloaderFactory,
   u_DatumFactory,
   u_GeoCalc,
   u_HashFunctionCityHash,
@@ -695,21 +694,11 @@ begin
 
   FGlobalInternetState := TGlobalInternetState.Create;
 
-  case FGlobalConfig.InetConfig.NetworkEngineType of
-    neWinInet: begin
-      FDownloaderFactory := TDownloaderByWinInetFactory.Create(
-        FGlobalConfig.InetConfig.WinInetConfig,
-        FContentTypeManager
-      );
-    end;
-    neCurl: begin
-      FDownloaderFactory := TDownloaderByCurlFactory.Create(
-        FContentTypeManager
-      );
-    end;
-  else
-    raise Exception.Create('Unknown NetworkEngineType');
-  end;
+  FDownloaderFactory :=
+    TDownloaderFactory.Create(
+      FGlobalConfig.InetConfig,
+      FContentTypeManager
+    );
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   FProjectedGeometryProvider :=
