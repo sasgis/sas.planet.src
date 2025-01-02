@@ -134,6 +134,7 @@ type
   end;
 
 type
+  TArrayOfIGeometryLonLat = array of IGeometryLonLat;
   TArrayOfGeometryLonLatSingleLine = array of IGeometryLonLatSingleLine;
   TArrayOfGeometryLonLatSinglePolygon = array of IGeometryLonLatSinglePolygon;
 

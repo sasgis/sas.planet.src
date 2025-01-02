@@ -73,10 +73,11 @@ type
       const ACoordConverter: PGeoJsonCoordConverter
     );
 
-    function ParseGeometry(
+    procedure ParseGeometry(
       const AGeometry: ISuperObject;
-      const ACoordConverter: PGeoJsonCoordConverter
-    ): IGeometryLonLat;
+      const ACoordConverter: PGeoJsonCoordConverter;
+      var AResult: TArrayOfIGeometryLonLat
+    );
   private
     { IVectorDataLoader }
     function Load(
@@ -193,10 +194,11 @@ procedure TGeoJsonParser.ParseFeature(
   const ACoordConverter: PGeoJsonCoordConverter
 );
 var
+  I: Integer;
   VItem: IVectorDataItem;
   VProp: ISuperObject;
   VDesc: string;
-  VGeometryLonLat: IGeometryLonLat;
+  VGeometryLonLat: TArrayOfIGeometryLonLat;
   VCoordConverter: TGeoJsonCoordConverter;
 begin
   if LowerCase(AFeature.S['type']) <> 'feature' then begin
@@ -205,10 +207,8 @@ begin
 
   VCoordConverter.Init(FProjConverterFactory, AFeature.O['crs'], ACoordConverter);
 
-  VGeometryLonLat := ParseGeometry(AFeature.O['geometry'], VCoordConverter.GetPtr);
-  if VGeometryLonLat = nil then begin
-    Exit;
-  end;
+  VGeometryLonLat := nil;
+  ParseGeometry(AFeature.O['geometry'], VCoordConverter.GetPtr, VGeometryLonLat);
 
   VProp := AFeature.O['properties'];
   if VProp <> nil then begin
@@ -217,20 +217,22 @@ begin
     VDesc := '';
   end;
 
-  VItem :=
-    FVectorDataFactory.BuildItem(
-      AContext.MainInfoFactory.BuildMainInfo(AContext.IdData, '', VDesc),
-      nil,
-      VGeometryLonLat
-    );
-
-  AList.Add(VItem);
+  for I := 0 to Length(VGeometryLonLat) - 1 do begin
+    VItem :=
+      FVectorDataFactory.BuildItem(
+        AContext.MainInfoFactory.BuildMainInfo(AContext.IdData, '', VDesc),
+        nil,
+        VGeometryLonLat[I]
+      );
+    AList.Add(VItem);
+  end;
 end;
 
-function TGeoJsonParser.ParseGeometry(
+procedure TGeoJsonParser.ParseGeometry(
   const AGeometry: ISuperObject;
-  const ACoordConverter: PGeoJsonCoordConverter
-): IGeometryLonLat;
+  const ACoordConverter: PGeoJsonCoordConverter;
+  var AResult: TArrayOfIGeometryLonLat
+);
 
 var
   VCoordConverterPtr: PGeoJsonCoordConverter;
@@ -347,26 +349,45 @@ var
     Result := VBuilder.MakeStaticAndClear;
   end;
 
+  procedure _AddResult(const AGeometry: IGeometryLonLat);
+  var
+    I: Integer;
+  begin
+    if AGeometry = nil then begin
+      Exit;
+    end;
+    I := Length(AResult);
+    SetLength(AResult, I+1);
+    AResult[I] := AGeometry;
+  end;
+
 var
   I: Integer;
   VType: string;
   VCoord: TSuperArray;
+  VGeometries: TSuperArray;
   VPoint: TDoublePoint;
   VPoints: IDoublePointsAggregator;
   VCoordConverter: TGeoJsonCoordConverter;
   VLineBuilder: IGeometryLonLatLineBuilder;
 begin
-  Result := nil;
-
   if AGeometry = nil then begin
     Exit;
   end;
 
   VType := LowerCase(AGeometry.S['type']);
-  VCoord := AGeometry.A['coordinates'];
-
-  if (VType = '') or (VCoord = nil) then begin
+  if (VType = '') then begin
     Exit;
+  end;
+
+  VCoord := AGeometry.A['coordinates'];
+  VGeometries := nil;
+
+  if VCoord = nil then begin
+    VGeometries := AGeometry.A['geometries'];
+    if VGeometries = nil then begin
+      Exit;
+    end;
   end;
 
   VCoordConverter.Init(FProjConverterFactory, AGeometry.O['crs'], ACoordConverter);
@@ -374,19 +395,25 @@ begin
 
   if VType = 'point' then begin
     if _ReadPoint(VCoord, VPoint, nil) then begin
-      Result := FVectorGeometryLonLatFactory.CreateLonLatPoint(VPoint);
+      _AddResult(
+        FVectorGeometryLonLatFactory.CreateLonLatPoint(VPoint)
+      );
     end;
   end else
   if VType = 'multipoint' then begin
     VPoints := _ReadPointsArray(VCoord, False);
-    if VPoints.Count > 0 then begin
-      Result := FVectorGeometryLonLatFactory.CreateLonLatMultiPoint(VPoints.Points, VPoints.Count);
+    for I := 0 to VPoints.Count - 1 do begin
+      _AddResult(
+        FVectorGeometryLonLatFactory.CreateLonLatPoint(VPoints.Points[I])
+      );
     end;
   end else
   if VType = 'linestring' then begin
     VPoints := _ReadPointsArray(VCoord, True);
     if VPoints.Count > 0 then begin
-      Result := FVectorGeometryLonLatFactory.CreateLonLatLine(VPoints.Points, VPoints.Meta, VPoints.Count);
+      _AddResult(
+        FVectorGeometryLonLatFactory.CreateLonLatLine(VPoints.Points, VPoints.Meta, VPoints.Count)
+      );
     end;
   end else
   if VType = 'multilinestring' then begin
@@ -399,16 +426,28 @@ begin
         );
       end;
     end;
-    Result := VLineBuilder.MakeStaticAndClear;
+    _AddResult(
+      VLineBuilder.MakeStaticAndClear
+    );
   end else
   if VType = 'polygon' then begin
-    Result := _ReadPolygon(VCoord);
+    _AddResult(
+      _ReadPolygon(VCoord)
+    );
   end else
   if VType = 'multipolygon' then begin
-    Result := _ReadMultiPolygon(VCoord);
+    _AddResult(
+      _ReadMultiPolygon(VCoord)
+    );
   end else
   if VType = 'geometrycollection' then begin
-    // todo
+    if VGeometries = nil then begin
+      Assert(False);
+      Exit;
+    end;
+    for I := 0 to VGeometries.Length - 1 do begin
+      ParseGeometry(VGeometries.O[I], VCoordConverter.GetPtr, AResult);
+    end;
   end;
 end;
 

@@ -126,7 +126,7 @@ begin
   // Feature Collection with Geometry Collection
   VResult := FParser.Load(FContext, Self.GetTestDataGeometryCollection);
 
-  //CheckNotNull(VResult);
+  CheckNotNull(VResult);
   // todo: check result
 end;
 
