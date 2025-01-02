@@ -7,7 +7,13 @@
   {$IFNDEF WIN64} 
     {$DEFINE USE_FAST_MOVE}
   {$ENDIF}
-  
+
+{$ELSE}
+
+  // Logging http requests
+  {.$DEFINE WRITE_HTTP_LOG}
+  {.$DEFINE WRITE_HTTP_LOG_WITH_BODY}
+
 {$ENDIF}
 
 {$IFDEF EUREKALOG}

@@ -925,6 +925,7 @@ uses
   u_DownloaderHttpBase in 'Src\Network\u_DownloaderHttpBase.pas',
   u_DownloaderHttpByCurl in 'Src\Network\u_DownloaderHttpByCurl.pas',
   u_DownloaderHttpByWinInet in 'Src\Network\u_DownloaderHttpByWinInet.pas',
+  u_DownloaderHttpLog in 'Src\Network\u_DownloaderHttpLog.pas',
   u_DownloaderHttpWithTTL in 'Src\Network\u_DownloaderHttpWithTTL.pas',
   u_GlobalDownloadConfig in 'Src\Network\u_GlobalDownloadConfig.pas',
   u_GlobalInternetState in 'Src\Network\u_GlobalInternetState.pas',

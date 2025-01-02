@@ -24,7 +24,7 @@ unit u_DownloaderHttpByWinInet;
 interface
 
 {$IFDEF DEBUG}
-  {.$DEFINE VerboseHttpClient}
+  {$I SASPlanet.inc}
 {$ENDIF}
 
 uses
@@ -46,6 +46,9 @@ uses
   i_DownloadChecker,
   i_SimpleFlag,
   i_ContentTypeManager,
+  {$IFDEF WRITE_HTTP_LOG}
+  u_DownloaderHttpLog,
+  {$ENDIF}
   u_DownloaderHttpBase;
 
 type
@@ -65,7 +68,7 @@ type
 
   TDownloaderHttpByWinInet = class(TDownloaderHttpBase, IDownloader)
   private
-    FCS: IReadWriteSync;
+    FLock: IReadWriteSync;
     FCancelListener: IListener;
     FHttpClient: TALWinInetHTTPClient;
     FHttpResponseHeader: TALHTTPResponseHeader;
@@ -78,6 +81,14 @@ type
     FAcceptEncoding: Boolean;
     FTryDetectContentType: Boolean;
     FOnDownloadProgress: TOnDownloadProgress;
+    {$IFDEF WRITE_HTTP_LOG}
+    FLog: TDownloaderHttpLog;
+    procedure OnStatusChange(
+      InternetStatus: DWORD;
+      StatusInformation: Pointer;
+      StatusInformationLength: DWORD
+    );
+    {$ENDIF}
     function OnBeforeRequest(
       const ARequest: IDownloadRequest
     ): IDownloadResult;
@@ -97,13 +108,13 @@ type
   private
     { ALHttpClient CallBack's }
     procedure DoOnALStatusChange(
-      sender: Tobject;
+      Sender: TObject;
       InternetStatus: DWord;
       StatusInformation: Pointer;
       StatusInformationLength: DWord
     );
     procedure DoOnALDownloadProgress(
-      sender: Tobject;
+      Sender: TObject;
       Read: Integer;
       Total: Integer
     );
@@ -139,14 +150,6 @@ uses
   u_SimpleFlagWithInterlock,
   u_StreamReadOnlyByBinaryData;
 
-{$IFDEF VerboseHttpClient}
-procedure VerboseStatusChange(
-  InternetStatus: DWORD;
-  StatusInformation: Pointer;
-  StatusInformationLength: DWORD
-); forward;
-{$ENDIF}
-
 { TDownloaderHttpByWinInet }
 
 constructor TDownloaderHttpByWinInet.Create(
@@ -170,7 +173,7 @@ begin
   FDisconnectByUser := TSimpleFlagWithInterlock.Create;
   FDisconnectByServer := TSimpleFlagWithInterlock.Create;
 
-  FCS := GSync.SyncBig.Make(Self.ClassName);
+  FLock := GSync.SyncBig.Make(Self.ClassName);
 
   FHttpClient := TALWinInetHTTPClient.Create;
   FHttpClient.OnStatus := Self.DoOnALStatusChange;
@@ -197,6 +200,10 @@ begin
   FHttpClientLastConfig.ProxyPassword := '';
   FHttpClientLastConfig.ProxyType := ptHttp;
   FHttpClientLastConfig.WinInetOptions := [];
+
+  {$IFDEF WRITE_HTTP_LOG}
+  FLog := TDownloaderHttpLog.Create('wininet');
+  {$ENDIF}
 end;
 
 destructor TDownloaderHttpByWinInet.Destroy;
@@ -208,8 +215,11 @@ begin
   FResultFactory := nil;
   FDisconnectByUser := nil;
   FDisconnectByServer := nil;
-  FCS := nil;
-  inherited;
+  FLock := nil;
+  {$IFDEF WRITE_HTTP_LOG}
+  FreeAndNil(FLog);
+  {$ENDIF}
+  inherited Destroy;
 end;
 
 procedure TDownloaderHttpByWinInet.DoGetRequest(const ARequest: IDownloadRequest);
@@ -231,14 +241,14 @@ begin
 end;
 
 procedure TDownloaderHttpByWinInet.DoOnALStatusChange(
-  sender: Tobject;
+  Sender: TObject;
   InternetStatus: DWord;
   StatusInformation: Pointer;
   StatusInformationLength: DWord
 );
 begin
-  {$IFDEF VerboseHttpClient}
-  VerboseStatusChange(
+  {$IFDEF WRITE_HTTP_LOG}
+  Self.OnStatusChange(
     InternetStatus,
     StatusInformation,
     StatusInformationLength
@@ -253,11 +263,7 @@ begin
   end;
 end;
 
-procedure TDownloaderHttpByWinInet.DoOnALDownloadProgress(
-  sender: Tobject;
-  Read: Integer;
-  Total: Integer
-);
+procedure TDownloaderHttpByWinInet.DoOnALDownloadProgress(Sender: TObject; Read, Total: Integer);
 begin
   FOnDownloadProgress(Read, Total);
 end;
@@ -304,7 +310,11 @@ begin
 
   Result := nil;
 
-  FCS.BeginWrite;
+  {$IFDEF WRITE_HTTP_LOG}
+  FLog.Write(hmtInfo, 'BEGIN url=' + ARequest.Url);
+  {$ENDIF}
+
+  FLock.BeginWrite;
   try
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := FResultFactory.BuildCanceled(ARequest);
@@ -324,23 +334,24 @@ begin
         if Result = nil then begin
           try
             // check gracefully off
-            if FDisconnectByServer.CheckFlag then begin
-              try
-                Disconnect;
-              finally
-                FDisconnectByServer.CheckFlagAndReset;
-              end;
+            if FDisconnectByServer.CheckFlag then
+            try
+              Disconnect;
+            finally
+              FDisconnectByServer.CheckFlagAndReset;
             end;
-            {$IFDEF VerboseHttpClient}
-            OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <I> DoRequest: ' + ARequest.Url));
-            {$ENDIF}
             if Supports(ARequest, IDownloadHeadRequest, VHeadRequest) then begin
               DoHeadRequest(VHeadRequest);
-            end else if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
+            end else
+            if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
               DoPostRequest(VPostRequest);
             end else begin
               DoGetRequest(ARequest);
             end;
+            {$IFDEF WRITE_HTTP_LOG}
+            FLog.Write(hmtRaw, FHttpResponseHeader.RawHeaderText);
+            FLog.Write(FHttpResponseBody);
+            {$ENDIF}
           except
             on E: EALHTTPClientException do begin
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -350,19 +361,19 @@ begin
                   Result := FResultFactory.BuildLoadErrorByUnknownReason(ARequest, '%s', [e.Message]);
                 end;
               end;
-              {$IFDEF VerboseHttpClient}
-              OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + E.Message));
+              {$IFDEF WRITE_HTTP_LOG}
+              FLog.Write(hmtError, E.ClassName + ':' + E.Message);
               {$ENDIF}
             end;
             on E: EOSError do begin
               Result := OnOSError(ARequest, E.ErrorCode);
-              {$IFDEF VerboseHttpClient}
-              OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + SysErrorMessage(E.ErrorCode)));
+              {$IFDEF WRITE_HTTP_LOG}
+              FLog.Write(hmtError, E.ClassName + ':' + SysErrorMessage(E.ErrorCode));
               {$ENDIF}
             end;
             on E: Exception do begin
-              {$IFDEF VerboseHttpClient}
-              OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + E.Message));
+              {$IFDEF WRITE_HTTP_LOG}
+              FLog.Write(hmtError, E.ClassName + ':' + E.Message);
               {$ENDIF}
             end;
           end;
@@ -383,18 +394,21 @@ begin
       end;
     end;
   finally
-    FCS.EndWrite;
+    FLock.EndWrite;
+    {$IFDEF WRITE_HTTP_LOG}
+    FLog.Write(hmtInfo, 'END url=' + ARequest.Url);
+    {$ENDIF}
   end;
 end;
 
 procedure TDownloaderHttpByWinInet.Disconnect;
 begin
   if Assigned(FHttpClient) then begin
-    {$IFDEF VerboseHttpClient}
+    {$IFDEF WRITE_HTTP_LOG}
     if FDisconnectByServer.CheckFlag then begin
-      OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <W> Detect disconnection by server.'));
+      FLog.Write(hmtInfo, 'Detect disconnection by server');
     end else begin
-      OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <W> Init disconnection by user.'));
+      FLog.Write(hmtInfo, 'Init disconnection by user');
     end;
     {$ENDIF}
     FDisconnectByUser.SetFlag;
@@ -446,7 +460,8 @@ begin
         ARequest,
         AErrorCode
       );
-    end else if IsDownloadError(AErrorCode) then begin
+    end else
+    if IsDownloadError(AErrorCode) then begin
       Result := FResultFactory.BuildLoadErrorByErrorCode(
         ARequest,
         AErrorCode
@@ -473,7 +488,7 @@ var
   VOptions: TALWininetHttpClientInternetOptionSet;
 begin
   if (ARawHttpRequestHeader <> '') and
-    (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then
+     (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then
   begin
     FHttpClientLastConfig.HeaderRawText := ARawHttpRequestHeader;
     FHttpClient.RequestHeader.RawHeaderText := FHttpClientLastConfig.HeaderRawText;
@@ -503,6 +518,10 @@ begin
   if FAcceptEncoding then begin
     FHttpClient.RequestHeader.AcceptEncoding := TContentDecoder.GetDecodersStr;
   end;
+
+  {$IFDEF WRITE_HTTP_LOG}
+  FLog.Write(hmtRaw, FHttpClient.RequestHeader.RawHeaderText);
+  {$ENDIF}
 
   if FHttpClientLastConfig.HttpTimeOut <> AInetConfig.TimeOut then begin
     FHttpClientLastConfig.HttpTimeOut := AInetConfig.TimeOut;
@@ -554,15 +573,17 @@ begin
 
       if FHttpClientLastConfig.ProxyUseIESettings then begin
         FHttpClient.AccessType := wHttpAt_Preconfig;
-        {$IFDEF VerboseHttpClient}
-        OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <P> Set INTERNET_OPEN_TYPE_PRECONFIG'));
+        {$IFDEF WRITE_HTTP_LOG}
+        FLog.Write(hmtInfo, 'Set INTERNET_OPEN_TYPE_PRECONFIG');
         {$ENDIF}
-      end else if FHttpClientLastConfig.ProxyUseCustomSettings then begin
+      end else
+      if FHttpClientLastConfig.ProxyUseCustomSettings then begin
         VProxyHost := FHttpClientLastConfig.ProxyHost;
         Assert(VProxyHost <> '');
         if FHttpClientLastConfig.ProxyType = ptSocks4 then begin
           VProxyHost := 'socks=' + VProxyHost;
-        end else if FHttpClientLastConfig.ProxyType <> ptHttp then begin
+        end else
+        if FHttpClientLastConfig.ProxyType <> ptHttp then begin
           Assert(False, Format('Unsupported proxy type: %d', [Integer(FHttpClientLastConfig.ProxyType)]));
         end;
         VPos := Pos(':', VProxyHost);
@@ -578,31 +599,27 @@ begin
           FHttpClient.ProxyParams.ProxyPassword := AnsiString(FHttpClientLastConfig.ProxyPassword);
         end;
         FHttpClient.AccessType := wHttpAt_Proxy;
-        {$IFDEF VerboseHttpClient}
-        OutputDebugString(
-          PChar(
-            IntToStr(GetCurrentThreadId) + ' <P> Set INTERNET_OPEN_TYPE_PROXY ' +
-            FHttpClient.ProxyParams.ProxyServer + ':' +
-            IntToStr(FHttpClient.ProxyParams.ProxyPort)
-          )
+        {$IFDEF WRITE_HTTP_LOG}
+        FLog.Write(hmtInfo, 'Set INTERNET_OPEN_TYPE_PROXY "%s:%d"',
+          [FHttpClient.ProxyParams.ProxyServer, FHttpClient.ProxyParams.ProxyPort]
         );
         {$ENDIF}
       end else begin
         FHttpClient.AccessType := wHttpAt_Direct;
-        {$IFDEF VerboseHttpClient}
-        OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <P> Set INTERNET_OPEN_TYPE_DIRECT'));
+        {$IFDEF WRITE_HTTP_LOG}
+        FLog.Write(hmtInfo, 'Set INTERNET_OPEN_TYPE_DIRECT');
         {$ENDIF}
       end;
     end;
   end else begin
-    {$IFDEF VerboseHttpClient}
-    OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> Fail ProxyConfig read.'));
+    {$IFDEF WRITE_HTTP_LOG}
+    FLog.Write(hmtError, 'Fail ProxyConfig read');
     {$ENDIF}
   end;
 end;
 
-{$IFDEF VerboseHttpClient}
-procedure VerboseStatusChange(
+{$IFDEF WRITE_HTTP_LOG}
+procedure TDownloaderHttpByWinInet.OnStatusChange(
   InternetStatus: DWORD;
   StatusInformation: Pointer;
   StatusInformationLength: DWORD
@@ -640,7 +657,7 @@ const
       #define INTERNET_STATUS_COOKIE_HISTORY          327
   }
 
-  function StatInfoAsStr: string;
+  function StatInfoAsStr: AnsiString;
   begin
     if StatusInformationLength > 0 then begin
       SetLength(Result, StatusInformationLength);
@@ -776,18 +793,16 @@ begin
 
         //INTERNET_STATUS_USER_INPUT_REQUIRED:
           //VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATUS_USER_INPUT_REQUIRED - The request requires user input to be completed.';
-      else begin
-        VInfoStr := '<W> Unknown StatusInformation: ' + IntToStr(DWORD(StatusInformation^));
-      end;
+      else
+        VInfoStr := 'Unknown StatusInformation: ' + IntToStr(DWORD(StatusInformation^));
       end;
     end;
-  else begin
-    VInfoStr := '<W> Unknown InternetStatus: ' + IntToStr(InternetStatus);
+  else
+    VInfoStr := 'Unknown InternetStatus: ' + IntToStr(InternetStatus);
   end;
-  end;
-  OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <WinInet> ' + VInfoStr));
-end;
 
+  FLog.Write(hmtInfo, VInfoStr);
+end;
 {$ENDIF}
 
 end.

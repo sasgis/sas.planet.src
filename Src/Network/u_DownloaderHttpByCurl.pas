@@ -24,7 +24,7 @@ unit u_DownloaderHttpByCurl;
 interface
 
 {$IFDEF DEBUG}
-  {.$DEFINE DO_HTTP_LOG}
+  {$I SASPlanet.inc}
 {$ENDIF}
 
 uses
@@ -45,6 +45,9 @@ uses
   t_CurlHttpClient,
   u_CurlHttpClient,
   u_CurlProxyResolver,
+  {$IFDEF WRITE_HTTP_LOG}
+  u_DownloaderHttpLog,
+  {$ENDIF}
   u_DownloaderHttpBase;
 
 type
@@ -65,19 +68,15 @@ type
     FTryDetectContentType: Boolean;
     FOnDownloadProgress: TOnDownloadProgress;
 
+    {$IFDEF WRITE_HTTP_LOG}
+    FLog: TDownloaderHttpLog;
+    {$ENDIF}
+
     function OnBeforeRequest(
       const ARequest: IDownloadRequest
     ): IDownloadResult;
 
     procedure DoDisconnect;
-
-  {$IFDEF DO_HTTP_LOG}
-  private
-    FLogStream: TFileStream;
-    procedure InitLog;
-    procedure FinLog;
-    procedure WriteLogMsg(const AMsg: string);
-  {$ENDIF}
   private
     { IDownloader }
     function DoRequest(
@@ -108,23 +107,19 @@ uses
   u_ListenerByEvent,
   u_Synchronizer;
 
-procedure OnCurlProgress(const ATotal: Integer; const ADownload: Integer;
-  const AUserData: Pointer);
+procedure OnCurlProgress(const ATotal, ADownload: Integer; const AUserData: Pointer);
 var
   VSelf: TDownloaderHttpByCurl absolute AUserData;
 begin
   VSelf.FOnDownloadProgress(ADownload, ATotal);
 end;
 
-{$IFDEF DO_HTTP_LOG}
-var
-  GLogIdCounter: Integer = 0;
-
+{$IFDEF WRITE_HTTP_LOG}
 procedure OnCurlDebug(const ADebugMsg: RawByteString; const AUserData: Pointer);
 var
   VSelf: TDownloaderHttpByCurl absolute AUserData;
 begin
-  VSelf.WriteLogMsg(string(ADebugMsg));
+  VSelf.FLog.Write(hmtRaw, string(ADebugMsg));
 end;
 {$ENDIF}
 
@@ -175,8 +170,8 @@ begin
 
   FProxyResolver := TCurlProxyResolver.Create;
 
-  {$IFDEF DO_HTTP_LOG}
-  InitLog;
+  {$IFDEF WRITE_HTTP_LOG}
+  FLog := TDownloaderHttpLog.Create('curl');
   VDebugCallBack := OnCurlDebug;
   {$ELSE}
   VDebugCallBack := nil;
@@ -208,8 +203,8 @@ begin
   FreeAndNil(FHttpClient);
   FreeAndNil(FHttpResponse.Data);
   FreeAndNil(FProxyResolver);
-  {$IFDEF DO_HTTP_LOG}
-  FinLog;
+  {$IFDEF WRITE_HTTP_LOG}
+  FreeAndNil(FLog);
   {$ENDIF}
   inherited Destroy;
 end;
@@ -229,17 +224,12 @@ begin
   Assert(ARequest.InetConfig <> nil);
   Assert(ARequest.InetConfig.ProxyConfigStatic <> nil);
 
+  {$IFDEF WRITE_HTTP_LOG}
+  FLog.Write(hmtInfo, 'BEGIN url=' + ARequest.Url);
+  {$ENDIF}
+
   FLock.BeginWrite;
   try
-    {$IFDEF DO_HTTP_LOG}
-    WriteLogMsg(
-      Format(
-        '[INF] <start at %s> TreadId=%d; Url=%s',
-        [FormatDateTime('hh:nn:ss.zzz', Now), GetCurrentThreadId, ARequest.Url]
-        )
-      );
-    {$ENDIF}
-
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := FResultFactory.BuildCanceled(ARequest);
       Exit;
@@ -324,33 +314,25 @@ begin
               []
             );
         end;
+        {$IFDEF WRITE_HTTP_LOG}
+        FLog.Write(FHttpResponse.Data);
+        {$ENDIF}
       except
         on E: Exception do begin
-          Result :=
-            FResultFactory.BuildLoadErrorByUnknownReason(
-              ARequest,
-              E.Message,
-              []
-            );
-          {$IFDEF DO_HTTP_LOG}
-          WriteLogMsg(Format('[ERR] TreadID=%d; %s', [E.ClassName + ': ' + E.Message]));
+          Result := FResultFactory.BuildLoadErrorByUnknownReason(ARequest, E.Message, []);
+          {$IFDEF WRITE_HTTP_LOG}
+          FLog.Write(hmtError, E.ClassName + ': ' + E.Message);
           {$ENDIF}
         end;
       end;
     finally
       ACancelNotifier.RemoveListener(FCancelListener);
     end;
-
-    {$IFDEF DO_HTTP_LOG}
-    WriteLogMsg(
-      Format(
-        '[INF] <finish at %s> TreadId=%d; Url=%s',
-        [FormatDateTime('hh:nn:ss.zzz', Now), GetCurrentThreadId, ARequest.Url]
-      )
-    );
-    {$ENDIF}
   finally
     FLock.EndWrite;
+    {$IFDEF WRITE_HTTP_LOG}
+    FLog.Write(hmtInfo, 'END url=' + ARequest.Url);
+    {$ENDIF}
   end;
 end;
 
@@ -463,31 +445,5 @@ begin
     FHttpRequest.Proxy := @FHttpProxy;
   end;
 end;
-
-{$IFDEF DO_HTTP_LOG}
-procedure TDownloaderHttpByCurl.InitLog;
-var
-  VLogId: Integer;
-  VLogFileName: string;
-begin
-  VLogId := InterlockedIncrement(GLogIdCounter);
-  VLogFileName := Format('%s\HttpLog\%.4d.curl.log', [ExtractFileDir(ParamStr(0)), VLogId]);
-  ForceDirectories(ExtractFileDir(VLogFileName));
-  FLogStream := TFileStream.Create(VLogFileName, fmCreate or fmShareDenyWrite);
-end;
-
-procedure TDownloaderHttpByCurl.FinLog;
-begin
-  FreeAndNil(FLogStream);
-end;
-
-procedure TDownloaderHttpByCurl.WriteLogMsg(const AMsg: string);
-var
-  VText: UTF8String;
-begin
-  VText := UTF8Encode(AMsg) + #13#10;
-  FLogStream.WriteBuffer(PAnsiChar(VText)^, Length(VText));
-end;
-{$ENDIF}
 
 end.

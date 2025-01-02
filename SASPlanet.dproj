@@ -66,7 +66,7 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_PEOSVersion>5.0</DCC_PEOSVersion>
         <DCC_PESubSysVersion>5.0</DCC_PESubSysVersion>
-        <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\LibTiff;Includes\Proj4;$(SAS)\clipper2\Delphi\Clipper2Lib;$(SAS)\alcinoe-code\source;$(SAS)\graphics32\Source;$(SAS)\toolbar2000\Source;$(SAS)\tbx\Source;$(SAS)\tbx\Source\Themes;$(SAS)\embeddedwb\source;$(SAS)\pascalscript\Source;$(SAS)\vsagps\Runtime;$(SAS)\vsagps\Public;$(SAS)\ccr-exif;$(SAS)\synedit\Source;$(SAS)\mormot;$(SAS)\mormot\SQLite3;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Src;Includes;Includes\RarProgressBar;Includes\FastMM;Includes\Fundamentals;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage;Includes\LibPng;Includes\LibTiff;Includes\Proj4;$(SAS)\clipper2\Delphi\Clipper2Lib;$(SAS)\alcinoe-code\source;$(SAS)\graphics32\Source;$(SAS)\toolbar2000\Source;$(SAS)\tbx\Source;$(SAS)\tbx\Source\Themes;$(SAS)\embeddedwb\source;$(SAS)\pascalscript\Source;$(SAS)\vsagps\Runtime;$(SAS)\vsagps\Public;$(SAS)\ccr-exif;$(SAS)\synedit\Source;$(SAS)\mormot;$(SAS)\mormot\SQLite3;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_IMPLICIT_STRING_CAST>false</DCC_IMPLICIT_STRING_CAST>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_UNIT_PLATFORM>false</DCC_UNIT_PLATFORM>
@@ -74,6 +74,7 @@
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_ExeOutput>.bin\$(Platform)</DCC_ExeOutput>
         <DCC_DcuOutput>.dcu\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_DUPLICATE_CTOR_DTOR>false</DCC_DUPLICATE_CTOR_DTOR>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -1180,6 +1181,7 @@
         <DCCReference Include="Src\Network\u_DownloaderHttpBase.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpByCurl.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpByWinInet.pas"/>
+        <DCCReference Include="Src\Network\u_DownloaderHttpLog.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas"/>
         <DCCReference Include="Src\Network\u_GlobalDownloadConfig.pas"/>
         <DCCReference Include="Src\Network\u_GlobalInternetState.pas"/>
