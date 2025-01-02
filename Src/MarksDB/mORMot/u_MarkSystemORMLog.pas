@@ -44,12 +44,17 @@ implementation
 
 {$IFDEF SQL_LOG_ENABLE}
 uses
+  SysUtils,
   mORMot,
   SynLog,
   SynCommons;
 
 procedure InitSQLLog;
+var
+  VLogPath: string;
 begin
+  VLogPath := ExtractFilePath(ParamStr(0)) + 'log\marks\';
+  ForceDirectories(VLogPath);
   with TSQLLog.Family do begin
     {$IFDEF SQL_LOG_VERBOSE}
     Level := LOG_VERBOSE;
@@ -58,6 +63,9 @@ begin
     {$ENDIF}
     HighResolutionTimeStamp := True;
     PerThreadLog := ptIdentifiedInOnFile;
+    DestinationPath := VLogPath;
+    CustomFileName := 'mormot';
+    DefaultExtension := '.txt';
   end;
 end;
 
@@ -89,11 +97,10 @@ begin
 end;
 
 {$ELSE}
-
 procedure InitSQLLog;
 begin
+  //
 end;
-
 {$ENDIF}
 
 end.
