@@ -259,7 +259,7 @@ begin
   );
 
   VContentType := TContentTypeInfoVector.Create(
-    'application/geo+json',
+    'application/json',
     '.json',
     VParser
   );
@@ -271,6 +271,7 @@ begin
     '.geojson',
     VParser
   );
+  AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
   UpdateConverterMatrix;
@@ -340,6 +341,31 @@ begin
     VSourceContent,
     VTargetContent,
     FArchiveReadWriteFactory
+  );
+  ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+
+  // json <-> geojson
+  VSoruceName := 'application/json';
+  VSourceContent := TypeList.Get(VSoruceName);
+
+  VTargetName := 'application/geo+json';
+  VTargetContent := TypeList.Get(VTargetName);
+
+  VConverter := TContentConverterSimpleCopy.Create(
+    VSourceContent,
+    VTargetContent
+  );
+  ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
+
+  VSoruceName := 'application/geo+json';
+  VSourceContent := TypeList.Get(VSoruceName);
+
+  VTargetName := 'application/json';
+  VTargetContent := TypeList.Get(VTargetName);
+
+  VConverter := TContentConverterSimpleCopy.Create(
+    VSourceContent,
+    VTargetContent
   );
   ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
 end;
