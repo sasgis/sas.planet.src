@@ -24,7 +24,7 @@ unit u_DownloaderHttpByWinInet;
 interface
 
 {$IFDEF DEBUG}
-  {$I SASPlanet.inc}
+  {$I Network.inc}
 {$ENDIF}
 
 uses

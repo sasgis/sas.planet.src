@@ -24,7 +24,7 @@ unit u_DownloaderHttpLog;
 interface
 
 {$IFDEF DEBUG}
-  {$I SASPlanet.inc}
+  {$I Network.inc}
 {$ENDIF}
 
 uses
