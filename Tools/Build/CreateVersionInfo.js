@@ -23,7 +23,7 @@ function DateToVersionInfoString(dtmDate){
 
 var fso = WScript.CreateObject("Scripting.FileSystemObject");
 
-var RevisionString = ReadFile(fso, "./Tools/revision.txt");
+var RevisionString = ReadFile(fso, "./Tools/Build/revision.txt");
     if (RevisionString == "") {
         RevisionString = "0";
     }

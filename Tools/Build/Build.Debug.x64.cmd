@@ -1,0 +1,1 @@
+.\Build.cmd Debug Win64 Custom

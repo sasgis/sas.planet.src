@@ -1,0 +1,1 @@
+.\Build.cmd Release Win32 Stable

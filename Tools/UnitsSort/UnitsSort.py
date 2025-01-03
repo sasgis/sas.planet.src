@@ -158,9 +158,12 @@ def process_project(root_path, dpr_name):
 if __name__ == '__main__':
     init_log('UnitsSort.log', logging.INFO)
     
+    root_path = '..\\..\\'
+    
     projects = (
-        ('..\\', 'SASPlanet.dpr'), 
-        ('..\\Test\\', 'SASPlanetTests.dpr'),
+        (root_path, 'SASPlanet.dpr'), 
+        (root_path + 'Test', 'SASPlanetTests.dpr'),
+        (root_path + 'Benchmark', 'BenchmarkCmd.dpr'),
     )
     
     for path, dpr in projects:

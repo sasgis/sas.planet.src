@@ -1,7 +1,7 @@
 @echo off
 
 set mingw=c:\msys64\mingw32\bin\
-set lib=.\..\.bin\win32\lib32\
+set lib=.\..\..\.bin\win32\lib32\
 
 set PATH=%mingw%;%PATH%
 
