@@ -1,7 +1,7 @@
 {******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
-{* Copyright (C) 2007-2022, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
 {*                                                                            *}
 {* SAS.Planet is free software: you can redistribute it and/or modify         *}
 {* it under the terms of the GNU General Public License as published by       *}
