@@ -12,7 +12,7 @@
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Console</AppType>
-        <ProjectName Condition="'$(ProjectName)'==''">BenchmarkCmd.104</ProjectName>
+        <ProjectName Condition="'$(ProjectName)'==''">BenchmarkCmd</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -44,7 +44,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <SanitizedProjectName>BenchmarkCmd_104</SanitizedProjectName>
+        <SanitizedProjectName>BenchmarkCmd</SanitizedProjectName>
         <VerInfo_Locale>1058</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
@@ -154,35 +154,35 @@
         <DCCReference Include="i_BenchmarkItemList.pas"/>
         <DCCReference Include="i_BenchmarkResult.pas"/>
         <DCCReference Include="i_BenchmarkResultList.pas"/>
-        <DCCReference Include="i_BenchmarkTestRunner.pas"/>
         <DCCReference Include="i_BenchmarkResultListSaver.pas"/>
         <DCCReference Include="i_BenchmarkSystem.pas"/>
+        <DCCReference Include="i_BenchmarkTestRunner.pas"/>
         <DCCReference Include="u_BenchmarkItemBase.pas"/>
-        <DCCReference Include="u_BenchmarkItemEmpty.pas"/>
-        <DCCReference Include="u_BenchmarkItemList.pas"/>
-        <DCCReference Include="u_BenchmarkItemIncSimple.pas"/>
-        <DCCReference Include="u_BenchmarkItemIncInterlocked.pas"/>
-        <DCCReference Include="u_BenchmarkItemSyncRead.pas"/>
-        <DCCReference Include="u_BenchmarkItemSyncWrite.pas"/>
-        <DCCReference Include="u_BenchmarkItemTimer.pas"/>
-        <DCCReference Include="u_BenchmarkItemHashFunction.pas"/>
-        <DCCReference Include="u_BenchmarkItemDoubleInc.pas"/>
-        <DCCReference Include="u_BenchmarkItemDoublePointBaseTest.pas"/>
-        <DCCReference Include="u_BenchmarkItemProjectionType.pas"/>
-        <DCCReference Include="u_BenchmarkItemDoublePointIncrement.pas"/>
-        <DCCReference Include="u_BenchmarkItemDoublePointIncrementWithEmpty.pas"/>
         <DCCReference Include="u_BenchmarkItemBitmap32BlockTransferFull.pas"/>
         <DCCReference Include="u_BenchmarkItemBitmap32BlockTransferQuarter.pas"/>
         <DCCReference Include="u_BenchmarkItemBitmap32FillRect.pas"/>
-        <DCCReference Include="u_BenchmarkItemBitmap32LineVertical.pas"/>
-        <DCCReference Include="u_BenchmarkItemBitmap32LineHorizontal.pas"/>
         <DCCReference Include="u_BenchmarkItemBitmap32Line.pas"/>
+        <DCCReference Include="u_BenchmarkItemBitmap32LineHorizontal.pas"/>
+        <DCCReference Include="u_BenchmarkItemBitmap32LineVertical.pas"/>
         <DCCReference Include="u_BenchmarkItemCalcTilesInPolygon.pas"/>
+        <DCCReference Include="u_BenchmarkItemDoubleInc.pas"/>
+        <DCCReference Include="u_BenchmarkItemDoublePointBaseTest.pas"/>
+        <DCCReference Include="u_BenchmarkItemDoublePointIncrement.pas"/>
+        <DCCReference Include="u_BenchmarkItemDoublePointIncrementWithEmpty.pas"/>
+        <DCCReference Include="u_BenchmarkItemEmpty.pas"/>
+        <DCCReference Include="u_BenchmarkItemHashFunction.pas"/>
+        <DCCReference Include="u_BenchmarkItemIncInterlocked.pas"/>
+        <DCCReference Include="u_BenchmarkItemIncSimple.pas"/>
+        <DCCReference Include="u_BenchmarkItemList.pas"/>
+        <DCCReference Include="u_BenchmarkItemProjectionType.pas"/>
+        <DCCReference Include="u_BenchmarkItemSyncRead.pas"/>
+        <DCCReference Include="u_BenchmarkItemSyncWrite.pas"/>
+        <DCCReference Include="u_BenchmarkItemTimer.pas"/>
         <DCCReference Include="u_BenchmarkResult.pas"/>
         <DCCReference Include="u_BenchmarkResultList.pas"/>
-        <DCCReference Include="u_BenchmarkTestRunner.pas"/>
         <DCCReference Include="u_BenchmarkResultListSaverToCsv.pas"/>
         <DCCReference Include="u_BenchmarkSystem.pas"/>
+        <DCCReference Include="u_BenchmarkTestRunner.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -197,4 +197,5 @@
     </ItemGroup>
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
