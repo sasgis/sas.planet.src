@@ -26,7 +26,7 @@ interface
 const
   cSQLiteDBFileExt = '.sqlitedb';
 
-  cStorageSyncInterval = 1 * 60 * 1000; // 1-2 min after last operation
+  cStorageSyncInterval = 3 * 60 * 1000; // 3-6 min after last operation
 
   c_Log_Init    = 'i';
   c_Log_Delete  = 'd';
