@@ -1,5 +1,4 @@
 .bin/**
-.bin-x64/**
 *.bak
 *.dcu
 *.~*
@@ -14,3 +13,9 @@
 *.tvsconfig
 *.log
 Test/bitmaps/*_out.*
+/Benchmark/*.res
+/Test/*.res
+/SASPlanet.eof
+/SASPlanet.mes
+/SASPlanet.prjmgc
+/SASPlanet.res
