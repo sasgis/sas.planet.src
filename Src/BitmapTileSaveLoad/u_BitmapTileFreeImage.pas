@@ -87,6 +87,14 @@ type
     );
   end;
 
+  TBitmapTileFreeImageLoaderTiff = class(TBitmapTileFreeImageLoader)
+  public
+    constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory
+    );
+  end;
+
   TBitmapTileFreeImageSaver = class(TBaseInterfacedObject, IBitmapTileSaver)
   private
     FFormat: FREE_IMAGE_FORMAT;
@@ -142,6 +150,15 @@ type
   TBitmapTileFreeImageSaverWebpLossless = class(TBitmapTileFreeImageSaver)
   public
     constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList
+    );
+  end;
+
+  TBitmapTileFreeImageSaverTiff = class(TBitmapTileFreeImageSaver)
+  public
+    constructor Create(
+      const ACompressionType: Cardinal;
+      const ABitPerPixel: Integer;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -308,6 +325,19 @@ begin
   );
 end;
 
+{ TBitmapTileFreeImageLoaderTiff }
+
+constructor TBitmapTileFreeImageLoaderTiff.Create(
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory
+);
+begin
+  inherited Create(
+    APerfCounterList.CreateAndAddNewSubList('FreeImage/Tiff'),
+    ABitmap32StaticFactory
+  );
+end;
+
 { TBitmapTileFreeImageSaver }
 
 constructor TBitmapTileFreeImageSaver.Create(
@@ -332,6 +362,9 @@ begin
         Assert(False, 'Invalid PNG compression level: ' + IntToStr(ACompress));
       end;
     end;
+    FIF_TIFF: begin
+      FFlag := ACompress;
+    end;
     FIF_WEBP: begin
       case ACompress of
         1..100: FFlag := ACompress;
@@ -339,7 +372,7 @@ begin
       else
         Assert(False, 'Invalid WebP quality value: ' + IntToStr(ACompress));
       end;
-    end
+    end;
   else // FIF_BMP, FIF_GIF
     FFlag := 0;
   end;
@@ -548,6 +581,23 @@ begin
     32,
     nil,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/WebpLossless')
+  );
+end;
+
+{ TBitmapTileFreeImageSaverTiff }
+
+constructor TBitmapTileFreeImageSaverTiff.Create(
+  const ACompressionType: Cardinal;
+  const ABitPerPixel: Integer;
+  const APerfCounterList: IInternalPerformanceCounterList
+);
+begin
+  inherited Create(
+    FIF_TIFF,
+    ACompressionType,
+    ABitPerPixel,
+    nil,
+    APerfCounterList.CreateAndAddNewSubList(Format('FreeImage/Tiff comp:%d; %dbpp', [ACompressionType, ABitPerPixel]))
   );
 end;
 

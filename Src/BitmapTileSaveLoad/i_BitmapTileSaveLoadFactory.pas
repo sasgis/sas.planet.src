@@ -30,6 +30,8 @@ uses
 type
   TImageColorBitPerPix = (i8bpp = 0, i24bpp = 1, i32bpp = 2);
 
+  TImageTiffCompression = (itcNone, itcDeflate, itcLZW, itcJPEG);
+
   IBitmapTileSaveLoadFactory = interface
     ['{2F2F9CA4-4642-47D9-902B-6514F1D882E9}']
     // BMP
@@ -68,6 +70,17 @@ type
 
     function CreateJpegSaver(
       const ACompressionQuality: Byte = 75;
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileSaver;
+
+    // TIFF
+    function CreateTiffLoader(
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileLoader;
+
+    function CreateTiffSaver(
+      const AColorDepth: TImageColorBitPerPix = i32bpp;
+      const ACompressionType: TImageTiffCompression = itcDeflate;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
 

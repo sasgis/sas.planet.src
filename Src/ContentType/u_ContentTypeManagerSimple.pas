@@ -665,6 +665,7 @@ var
   VExt: AnsiString;
   VType: AnsiString;
 begin
+  // jpeg
   VSaver := ABitmapTileSaveLoadFactory.CreateJpegSaver(85, FSavePerfCounterList);
   VLoader := ABitmapTileSaveLoadFactory.CreateJpegLoader(FLoadPerfCounterList);
   VType := 'image/jpg';
@@ -679,6 +680,7 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
   AddByExt(VContentType, VExt);
 
+  // png
   VSaver := ABitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, 2, FSavePerfCounterList);
   VLoader := ABitmapTileSaveLoadFactory.CreatePngLoader(FLoadPerfCounterList);
   VType := 'image/png';
@@ -689,6 +691,7 @@ begin
   AddByType(VContentType, 'image/png; mode=24bit');
   AddByExt(VContentType, VExt);
 
+  // gif
   VSaver := ABitmapTileSaveLoadFactory.CreateGifSaver(FSavePerfCounterList);
   VLoader := ABitmapTileSaveLoadFactory.CreateGifLoader(FLoadPerfCounterList);
   VType := 'image/gif';
@@ -697,6 +700,7 @@ begin
   AddByType(VContentType, VType);
   AddByExt(VContentType, VExt);
 
+  // bmp
   VSaver := ABitmapTileSaveLoadFactory.CreateBmpSaver(FSavePerfCounterList);
   VLoader := ABitmapTileSaveLoadFactory.CreateBmpLoader(FLoadPerfCounterList);
   VType := 'image/bmp';
@@ -707,12 +711,26 @@ begin
   AddByType(VContentType, 'image/x-windows-bmp');
   AddByExt(VContentType, VExt);
 
+  // webp
   VSaver := ABitmapTileSaveLoadFactory.CreateWebpSaver(75, FSavePerfCounterList);
   VLoader := ABitmapTileSaveLoadFactory.CreateWebpLoader(FLoadPerfCounterList);
   VType := 'image/webp';
   VExt := '.webp';
   VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
   AddByType(VContentType, VType);
+  AddByExt(VContentType, VExt);
+
+  // tiff
+  VSaver := ABitmapTileSaveLoadFactory.CreateTiffSaver(i32bpp, itcDeflate, FSavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateTiffLoader(FLoadPerfCounterList);
+  VType := 'image/tiff';
+  VExt := '.tif';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByExt(VContentType, VExt);
+
+  VExt := '.tiff';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
   AddByExt(VContentType, VExt);
 end;
 
