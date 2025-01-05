@@ -45,8 +45,8 @@ type
     function GetIsBitmapType(const AType: AnsiString): Boolean;
     function GetBitmapLoaderByFileName(const AFileName: string): IBitmapTileLoader;
     function GetIsBitmapExt(const AExt: AnsiString): Boolean;
-    function GetIsKmlType(const AType: AnsiString): Boolean;
-    function GetIsKmlExt(const AExt: AnsiString): Boolean;
+    function GetIsVectorType(const AType: AnsiString): Boolean;
+    function GetIsVectorExt(const AExt: AnsiString): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
     function GetKnownExtList: IStringListStatic;
   end;

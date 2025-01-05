@@ -45,8 +45,8 @@ type
     FTypeList: TContentTypeListByKey;
     FBitmapExtList: TContentTypeListByKey;
     FBitmapTypeList: TContentTypeListByKey;
-    FKmlExtList: TContentTypeListByKey;
-    FKmlTypeList: TContentTypeListByKey;
+    FVectorExtList: TContentTypeListByKey;
+    FVectorTypeList: TContentTypeListByKey;
     FConverterMatrix: TContentConverterMatrix;
   protected
     procedure AddByType(
@@ -61,8 +61,8 @@ type
     property TypeList: TContentTypeListByKey read FTypeList;
     property BitmapExtList: TContentTypeListByKey read FBitmapExtList;
     property BitmapTypeList: TContentTypeListByKey read FBitmapTypeList;
-    property KmlExtList: TContentTypeListByKey read FKmlExtList;
-    property KmlTypeList: TContentTypeListByKey read FKmlTypeList;
+    property VectorExtList: TContentTypeListByKey read FVectorExtList;
+    property VectorTypeList: TContentTypeListByKey read FVectorTypeList;
     property ConverterMatrix: TContentConverterMatrix read FConverterMatrix;
   private
     function GetInfo(const AType: AnsiString): IContentTypeInfoBasic;
@@ -70,8 +70,8 @@ type
     function GetIsBitmapType(const AType: AnsiString): Boolean;
     function GetIsBitmapExt(const AExt: AnsiString): Boolean;
     function GetBitmapLoaderByFileName(const AFileName: string): IBitmapTileLoader;
-    function GetIsKmlType(const AType: AnsiString): Boolean;
-    function GetIsKmlExt(const AExt: AnsiString): Boolean;
+    function GetIsVectorType(const AType: AnsiString): Boolean;
+    function GetIsVectorExt(const AExt: AnsiString): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
     function GetKnownExtList: IStringListStatic;
   public
@@ -97,7 +97,7 @@ begin
   if Supports(AInfo, IContentTypeInfoBitmap) then begin
     FBitmapExtList.Add(AExt, AInfo);
   end else if Supports(AInfo, IContentTypeInfoVectorData) then begin
-    FKmlExtList.Add(AExt, AInfo);
+    FVectorExtList.Add(AExt, AInfo);
   end;
 end;
 
@@ -111,7 +111,7 @@ begin
   if Supports(AInfo, IContentTypeInfoBitmap) then begin
     FBitmapTypeList.Add(AType, AInfo);
   end else if Supports(AInfo, IContentTypeInfoVectorData) then begin
-    FKmlTypeList.Add(AType, AInfo);
+    FVectorTypeList.Add(AType, AInfo);
   end;
 end;
 
@@ -122,8 +122,8 @@ begin
   FTypeList := TContentTypeListByKey.Create;
   FBitmapExtList := TContentTypeListByKey.Create;
   FBitmapTypeList := TContentTypeListByKey.Create;
-  FKmlExtList := TContentTypeListByKey.Create;
-  FKmlTypeList := TContentTypeListByKey.Create;
+  FVectorExtList := TContentTypeListByKey.Create;
+  FVectorTypeList := TContentTypeListByKey.Create;
   FConverterMatrix := TContentConverterMatrix.Create;
 end;
 
@@ -133,8 +133,8 @@ begin
   FreeAndNil(FTypeList);
   FreeAndNil(FBitmapExtList);
   FreeAndNil(FBitmapTypeList);
-  FreeAndNil(FKmlExtList);
-  FreeAndNil(FKmlTypeList);
+  FreeAndNil(FVectorExtList);
+  FreeAndNil(FVectorTypeList);
   FreeAndNil(FConverterMatrix);
   inherited;
 end;
@@ -214,16 +214,16 @@ begin
   Result := FBitmapTypeList.Get(AType) <> nil;
 end;
 
-function TContentTypeManagerBase.GetIsKmlExt(const AExt: AnsiString): Boolean;
+function TContentTypeManagerBase.GetIsVectorExt(const AExt: AnsiString): Boolean;
 begin
   Assert(IsAscii(AExt));
-  Result := FKmlExtList.Get(AExt) <> nil;
+  Result := FVectorExtList.Get(AExt) <> nil;
 end;
 
-function TContentTypeManagerBase.GetIsKmlType(const AType: AnsiString): Boolean;
+function TContentTypeManagerBase.GetIsVectorType(const AType: AnsiString): Boolean;
 begin
   Assert(IsAscii(AType));
-  Result := FKmlTypeList.Get(AType) <> nil;
+  Result := FVectorTypeList.Get(AType) <> nil;
 end;
 
 end.
