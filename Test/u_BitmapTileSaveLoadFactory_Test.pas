@@ -17,14 +17,16 @@ type
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     function BinaryDataFromFile(const AFileName: string): IBinaryData;
     procedure BinaryDataToFile(const AFileName: string; const AData: IBinaryData);
+    procedure DoTest(const AExt: string; const ALoader: IBitmapTileLoader; const ASaver: IBitmapTileSaver);
   public
     procedure SetUp; override;
-    procedure TearDown; override;
   published
     procedure TestBmp;
     procedure TestGif;
     procedure TestPng;
     procedure TestJpeg;
+    procedure TestWebp;
+    procedure TestTiff;
   end;
 
 implementation
@@ -38,19 +40,8 @@ uses
   u_BinaryDataByMemStream;
 
 const
-  cBitmapsFolder = '.\..\..\Test\bitmaps\';
-
-  cBmpSrcTestFile = cBitmapsFolder + 'testimg.bmp';
-  cBmpDestTestFile = cBitmapsFolder + 'testimg_out.bmp';
-
-  cGifSrcTestFile = cBitmapsFolder + 'giftest.gif';
-  cGifDestTestFile = cBitmapsFolder + 'giftest_out.gif';
-
-  cPngSrcTestFile = cBitmapsFolder + 'pngtest.png';
-  cPngDestTestFile = cBitmapsFolder + 'pngtest_out.png';
-
-  cJpegSrcTestFile = cBitmapsFolder + 'testimgfst.jpg';
-  cJpegDestTestFile = cBitmapsFolder + 'testimgfst_out.jpg';
+  cBitmapsFolder = '.\..\..\Test\data\bitmaps\';
+  cTestBitmapFileName = cBitmapsFolder + 'test';
 
 procedure TestTBitmapTileSaveLoadFactory.SetUp;
 begin
@@ -61,11 +52,6 @@ begin
         TBitmap32BufferFactorySimple.Create
       )
     );
-end;
-
-procedure TestTBitmapTileSaveLoadFactory.TearDown;
-begin
-  FBitmapTileSaveLoadFactory := nil;
 end;
 
 function TestTBitmapTileSaveLoadFactory.BinaryDataFromFile(
@@ -100,72 +86,73 @@ begin
   end;
 end;
 
-procedure TestTBitmapTileSaveLoadFactory.TestBmp;
+procedure TestTBitmapTileSaveLoadFactory.DoTest(
+  const AExt: string;
+  const ALoader: IBitmapTileLoader;
+  const ASaver: IBitmapTileSaver
+);
 var
-  VSaver: IBitmapTileSaver;
-  VLoader: IBitmapTileLoader;
   VBinaryData: IBinaryData;
 begin
-  VBinaryData := BinaryDataFromFile(cBmpSrcTestFile);
+  VBinaryData := BinaryDataFromFile(cTestBitmapFileName + '.' + AExt);
+  FBitmap := ALoader.Load(VBinaryData);
 
-  VLoader := FBitmapTileSaveLoadFactory.CreateBmpLoader;
-  FBitmap := VLoader.Load(VBinaryData);
+  VBinaryData := ASaver.Save(FBitmap);
+  BinaryDataToFile(cTestBitmapFileName + '_out' + '.' + AExt, VBinaryData);
+end;
 
-  VSaver := FBitmapTileSaveLoadFactory.CreateBmpSaver;
-  VBinaryData := VSaver.Save(FBitmap);
-
-  BinaryDataToFile(cBmpDestTestFile, VBinaryData);
+procedure TestTBitmapTileSaveLoadFactory.TestBmp;
+begin
+  DoTest(
+    'bmp',
+    FBitmapTileSaveLoadFactory.CreateBmpLoader,
+    FBitmapTileSaveLoadFactory.CreateBmpSaver
+  );
 end;
 
 procedure TestTBitmapTileSaveLoadFactory.TestGif;
-var
-  VSaver: IBitmapTileSaver;
-  VLoader: IBitmapTileLoader;
-  VBinaryData: IBinaryData;
 begin
-  VBinaryData := BinaryDataFromFile(cGifSrcTestFile);
-
-  VLoader := FBitmapTileSaveLoadFactory.CreateGifLoader;
-  FBitmap := VLoader.Load(VBinaryData);
-
-  VSaver := FBitmapTileSaveLoadFactory.CreateGifSaver;
-  VBinaryData := VSaver.Save(FBitmap);
-
-  BinaryDataToFile(cGifDestTestFile, VBinaryData);
+  DoTest(
+    'gif',
+    FBitmapTileSaveLoadFactory.CreateGifLoader,
+    FBitmapTileSaveLoadFactory.CreateGifSaver
+  );
 end;
 
 procedure TestTBitmapTileSaveLoadFactory.TestPng;
-var
-  VSaver: IBitmapTileSaver;
-  VLoader: IBitmapTileLoader;
-  VBinaryData: IBinaryData;
 begin
-  VBinaryData := BinaryDataFromFile(cPngSrcTestFile);
-
-  VLoader := FBitmapTileSaveLoadFactory.CreatePngLoader;
-  FBitmap := VLoader.Load(VBinaryData);
-
-  VSaver := FBitmapTileSaveLoadFactory.CreatePngSaver;
-  VBinaryData := VSaver.Save(FBitmap);
-
-  BinaryDataToFile(cPngDestTestFile, VBinaryData);
+  DoTest(
+    'png',
+    FBitmapTileSaveLoadFactory.CreatePngLoader,
+    FBitmapTileSaveLoadFactory.CreatePngSaver
+  );
 end;
 
 procedure TestTBitmapTileSaveLoadFactory.TestJpeg;
-var
-  VSaver: IBitmapTileSaver;
-  VLoader: IBitmapTileLoader;
-  VBinaryData: IBinaryData;
 begin
-  VBinaryData := BinaryDataFromFile(cJpegSrcTestFile);
+  DoTest(
+    'jpg',
+    FBitmapTileSaveLoadFactory.CreateJpegLoader,
+    FBitmapTileSaveLoadFactory.CreateJpegSaver
+  );
+end;
 
-  VLoader := FBitmapTileSaveLoadFactory.CreateJpegLoader;
-  FBitmap := VLoader.Load(VBinaryData);
+procedure TestTBitmapTileSaveLoadFactory.TestTiff;
+begin
+  DoTest(
+    'tif',
+    FBitmapTileSaveLoadFactory.CreateTiffLoader,
+    FBitmapTileSaveLoadFactory.CreateTiffSaver
+  );
+end;
 
-  VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver;
-  VBinaryData := VSaver.Save(FBitmap);
-
-  BinaryDataToFile(cJpegDestTestFile, VBinaryData);
+procedure TestTBitmapTileSaveLoadFactory.TestWebp;
+begin
+  DoTest(
+    'webp',
+    FBitmapTileSaveLoadFactory.CreateWebpLoader,
+    FBitmapTileSaveLoadFactory.CreateWebpSaver
+  );
 end;
 
 initialization

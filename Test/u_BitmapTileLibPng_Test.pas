@@ -26,7 +26,6 @@ type
     procedure SaveBinData(const AData: IBinaryData; const AFileName: string);
   public
     procedure SetUp; override;
-    procedure TearDown; override;
   published
     procedure TestSave;
   end;
@@ -47,7 +46,7 @@ uses
 const
   cCompression = 9; // 0..9 (0 - no compression; 9 - max compression)
 
-  cPngTestFile = '.\..\..\Test\bitmaps\pngtest.png';
+  cPngTestFile = '.\..\..\Test\data\bitmaps\test2.png';
 
 procedure TestTLibPngTileSaver.SetUp;
 var
@@ -84,11 +83,6 @@ begin
     );
 end;
 
-procedure TestTLibPngTileSaver.TearDown;
-begin
-  //
-end;
-
 procedure TestTLibPngTileSaver.SaveBinData(const AData: IBinaryData; const AFileName: string);
 var
   VMemStream: TMemoryStream;
@@ -122,19 +116,19 @@ begin
 
   if Assigned(FLibPng8bppTileSaverWithFreeImageConverter) then begin
     VBinData := FLibPng8bppTileSaverWithFreeImageConverter.Save(VBitmap);
-    SaveBinData(VBinData, ChangeFileExt(cPngTestFile, '.8bpp.FreeImage.png'));
+    SaveBinData(VBinData, ChangeFileExt(cPngTestFile, '_out.8bpp.FreeImage.png'));
   end;
 
   if Assigned(FLibPng8bppTileSaverWithLibImageQuantConverter) then begin
     VBinData := FLibPng8bppTileSaverWithLibImageQuantConverter.Save(VBitmap);
-    SaveBinData(VBinData, ChangeFileExt(cPngTestFile, '.8bpp.LibImageQuant.png'));
+    SaveBinData(VBinData, ChangeFileExt(cPngTestFile, '_out.8bpp.LibImageQuant.png'));
   end;
 
   VBinData := FLibPng24bppTileSaver.Save(VBitmap);
-  SaveBinData(VBinData, ChangeFileExt(cPngTestFile, '.24bpp.png'));
+  SaveBinData(VBinData, ChangeFileExt(cPngTestFile, '_out.24bpp.png'));
 
   VBinData := FLibPng32bppTileSaver.Save(VBitmap);
-  SaveBinData(VBinData, ChangeFileExt(cPngTestFile, '.32bpp.png'));
+  SaveBinData(VBinData, ChangeFileExt(cPngTestFile, '_out.32bpp.png'));
 end;
 
 initialization

@@ -12,7 +12,7 @@
 *.stat
 *.tvsconfig
 *.log
-Test/bitmaps/*_out.*
+/Test/data/bitmaps/*_out.*
 /Benchmark/*.res
 /Test/*.res
 /SASPlanet.eof
