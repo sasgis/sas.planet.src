@@ -754,9 +754,16 @@ begin
 end;
 
 procedure TMarkDbGUIHelper.PrepareImportDialog(const AImporterList: IVectorItemTreeImporterListStatic);
+
+  function _Cleanup(const AStr: string): string;
+  begin
+    Result := StringReplace(AStr, ';', ' ', [rfReplaceAll]);
+  end;
+
 var
   I: Integer;
   VSelectedFilter: Integer;
+  VExtStr: string;
   VFilterStr: string;
   VItem: IVectorItemTreeImporterListItem;
   VAllMasks: string;
@@ -766,13 +773,14 @@ begin
   VAllMasks := '';
   for I := 0 to AImporterList.Count - 1 do begin
     VItem := AImporterList.Items[I];
-    VFilterStr := VFilterStr + '|' + VItem.Name + ' (*.' + VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
+    VExtStr := '*.' + string.Join(';*.', VItem.SupportedExt);
+    VFilterStr := VFilterStr + '|' + VItem.Name + ' (' + _Cleanup(VExtStr) + ')|' + VExtStr;
     if I > 0 then begin
       VAllMasks := VAllMasks + ';';
     end;
-    VAllMasks := VAllMasks + '*.' + VItem.DefaultExt;
+    VAllMasks := VAllMasks + VExtStr;
   end;
-  VFilterStr := _('All compatible formats') + '(' + VAllMasks + ')|' + VAllMasks + VFilterStr;
+  VFilterStr := _('All compatible formats') + ' (' + _Cleanup(VAllMasks) + ')|' + VAllMasks + VFilterStr;
   FImportDialog.Filter := VFilterStr;
   FImportDialog.FilterIndex := VSelectedFilter;
 end;

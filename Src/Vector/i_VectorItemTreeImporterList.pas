@@ -24,6 +24,7 @@ unit i_VectorItemTreeImporterList;
 interface
 
 uses
+  Types,
   i_Changeable,
   i_VectorItemTreeImporter;
 
@@ -33,8 +34,8 @@ type
     function GetImporter: IVectorItemTreeImporter;
     property Importer: IVectorItemTreeImporter read GetImporter;
 
-    function GetDefaultExt: string;
-    property DefaultExt: string read GetDefaultExt;
+    function GetSupportedExt: TStringDynArray;
+    property SupportedExt: TStringDynArray read GetSupportedExt;
 
     function GetName: string;
     property Name: string read GetName;

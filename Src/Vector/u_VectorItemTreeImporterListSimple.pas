@@ -143,7 +143,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'kml',
+      ['kml'],
       'Google KML files'
     );
   VList.Add(VItem);
@@ -162,7 +162,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'kmz',
+      ['kmz'],
       'Google KMZ files'
     );
   VList.Add(VItem);
@@ -181,7 +181,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'gpx',
+      ['gpx'],
       'GPS Exchange files'
     );
   VList.Add(VItem);
@@ -207,7 +207,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'json',
+      ['geojson', 'json'],
       'GeoJSON files'
     );
   VList.Add(VItem);
@@ -232,7 +232,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'plt',
+      ['plt'],
       'OziExplorer Track File'
     );
   VList.Add(VItem);
@@ -257,7 +257,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'csv',
+      ['csv'],
       'Universal CSV files'
     );
   VList.Add(VItem);
@@ -282,7 +282,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'mp',
+      ['mp'],
       'Single Polygon from Polish MP file'
     );
   VList.Add(VItem);
@@ -303,7 +303,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'jpg',
+      ['jpg', 'jpeg'],
       'JPEG Image with GPS Exif info'
     );
   VList.Add(VItem);
@@ -328,7 +328,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'hlg',
+      ['hlg'],
       'SAS.Planet Selection Polygon'
     );
   VList.Add(VItem);
@@ -353,7 +353,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'sls',
+      ['sls'],
       'SAS.Planet Download Session Polygon'
     );
   VList.Add(VItem);
@@ -370,7 +370,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'sml',
+      ['sml'],
       'SAS.Planet Marks Database in XML format'
     );
   VList.Add(VItem);
@@ -387,7 +387,7 @@ begin
   VItem :=
     TVectorItemTreeImporterListItem.Create(
       VImporter,
-      'db3',
+      ['db3'],
       'SAS.Planet Marks Database in SQLite3 format'
     );
   VList.Add(VItem);

@@ -24,6 +24,7 @@ unit u_VectorItemTreeImporterList;
 interface
 
 uses
+  Types,
   i_InterfaceListStatic,
   i_VectorItemTreeImporter,
   i_VectorItemTreeImporterList,
@@ -33,16 +34,17 @@ type
   TVectorItemTreeImporterListItem = class(TBaseInterfacedObject, IVectorItemTreeImporterListItem)
   private
     FImporter: IVectorItemTreeImporter;
-    FDefaultExt: string;
+    FSupportedExt: TStringDynArray;
     FName: string;
   private
+    { IVectorItemTreeImporterListItem }
     function GetImporter: IVectorItemTreeImporter;
-    function GetDefaultExt: string;
+    function GetSupportedExt: TStringDynArray;
     function GetName: string;
   public
     constructor Create(
       const AImporter: IVectorItemTreeImporter;
-      const ADefaultExt: string;
+      const ASupportedExt: TStringDynArray;
       const AName: string
     );
   end;
@@ -51,9 +53,9 @@ type
   private
     FList: IInterfaceListStatic;
   private
+    { IVectorItemTreeImporterListStatic }
     function GetCount: Integer;
     function GetItem(const AIndex: Integer): IVectorItemTreeImporterListItem;
-
     function GetImporterByExt(const AExt: string): IVectorItemTreeImporter;
   public
     constructor Create(const AList: IInterfaceListStatic);
@@ -69,21 +71,24 @@ uses
 
 constructor TVectorItemTreeImporterListItem.Create(
   const AImporter: IVectorItemTreeImporter;
-  const ADefaultExt, AName: string
+  const ASupportedExt: TStringDynArray;
+  const AName: string
 );
 begin
   Assert(Assigned(AImporter));
-  Assert(ADefaultExt <> '');
+  Assert(Length(ASupportedExt) > 0);
   Assert(AName <> '');
+
   inherited Create;
+
   FImporter := AImporter;
-  FDefaultExt := ADefaultExt;
+  FSupportedExt := ASupportedExt;
   FName := AName;
 end;
 
-function TVectorItemTreeImporterListItem.GetDefaultExt: string;
+function TVectorItemTreeImporterListItem.GetSupportedExt: TStringDynArray;
 begin
-  Result := FDefaultExt;
+  Result := Copy(FSupportedExt);
 end;
 
 function TVectorItemTreeImporterListItem.GetImporter: IVectorItemTreeImporter;
@@ -119,19 +124,24 @@ function TVectorItemTreeImporterListStatic.GetImporterByExt(
   const AExt: string
 ): IVectorItemTreeImporter;
 var
+  I, J: Integer;
   VExt: string;
-  i: Integer;
+  VExtArr: TStringDynArray;
   VItem: IVectorItemTreeImporterListItem;
 begin
   Result := nil;
   VExt := LowerCase(AExt);
   if VExt[1] = '.' then begin
-    VExt := RightStr(VExt, Length(VExt) - 1);
+    VExt := Copy(VExt, 2);
   end;
-  for i := 0 to FList.Count - 1 do begin
-    VItem := GetItem(i);
-    if VExt = VItem.DefaultExt then begin
-      Result := VItem.Importer;
+  for I := 0 to FList.Count - 1 do begin
+    VItem := GetItem(I);
+    VExtArr := TVectorItemTreeImporterListItem(VItem).FSupportedExt;
+    for J := 0 to Length(VExtArr) - 1 do begin
+      if VExt = VExtArr[J] then begin
+        Result := VItem.Importer;
+        Break;
+      end;
     end;
   end;
 end;
