@@ -319,7 +319,7 @@ procedure TTiffWriter.WriteTIFFDirectory(
     VCompression: Word;
   begin
     case FParams.Compression of
-      tcZip: VCompression := COMPRESSION_DEFLATE;
+      tcZip: VCompression := COMPRESSION_ADOBE_DEFLATE;
       tcLzw: VCompression := COMPRESSION_LZW;
       tcJpeg: VCompression := COMPRESSION_JPEG;
     else
@@ -331,8 +331,12 @@ procedure TTiffWriter.WriteTIFFDirectory(
     if FParams.CompressionLevel >= 0 then begin
       Assert( SizeOf(FParams.CompressionLevel) = 4 );
       case VCompression of
-        COMPRESSION_JPEG: TIFFSetField(ATiff, TIFFTAG_JPEGQUALITY, FParams.CompressionLevel); // 0..100
-        COMPRESSION_DEFLATE: TIFFSetField(ATiff, TIFFTAG_ZIPQUALITY, FParams.CompressionLevel); // 0..9
+        COMPRESSION_JPEG: begin
+          TIFFSetField(ATiff, TIFFTAG_JPEGQUALITY, FParams.CompressionLevel); // 0..100
+        end;
+        COMPRESSION_ADOBE_DEFLATE, COMPRESSION_DEFLATE: begin
+          TIFFSetField(ATiff, TIFFTAG_ZIPQUALITY, FParams.CompressionLevel); // 0..9
+        end;
       end;
     end;
   end;
