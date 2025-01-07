@@ -3553,37 +3553,29 @@ object frmMain: TfrmMain
       Caption = '&Copy to Clipboard'
       ImageIndex = 28
       Images = MenusImageList
-      object Google1: TTBXItem
+      object tbxCopyUrlToOpenStreetMap: TTBXItem
+        Caption = 'URL to OpenStreetMap'
+        OnClick = tbxCopyUrlToOpenStreetMapClick
+      end
+      object tbxCopyUrlToGoogleMaps: TTBXItem
         Caption = 'URL to Google Maps'
-        OnClick = Google1Click
+        OnClick = tbxCopyUrlToGoogleMapsClick
       end
-      object YaLink: TTBXItem
-        Caption = 'URL to Yandex.Maps'
-        OnClick = YaLinkClick
+      object tbxCopyUrlToYandexMaps: TTBXItem
+        Caption = 'URL to Yandex Maps'
+        OnClick = tbxCopyUrlToYandexMapsClick
       end
-      object kosmosnimkiru1: TTBXItem
-        Caption = 'URL to kosmosnimki.ru'
-        OnClick = kosmosnimkiru1Click
-      end
-      object livecom1: TTBXItem
+      object tbxCopyUrlToBingMaps: TTBXItem
         Caption = 'URL to Bing Maps'
-        OnClick = livecom1Click
+        OnClick = tbxCopyUrlToBingMapsClick
       end
-      object osmorg1: TTBXItem
-        Caption = 'URL to osm.org'
-        OnClick = osmorg1Click
+      object tbxCopyUrlToNakarteMe: TTBXItem
+        Caption = 'URL to nakarte.me'
+        OnClick = tbxCopyUrlToNakarteMeClick
       end
-      object nokiamapcreator1: TTBXItem
-        Caption = 'URL to Nokia Map Creator'
-        OnClick = nokiamapcreator1Click
-      end
-      object terraserver1: TTBXItem
-        Caption = 'URL to Terraserver'
-        OnClick = terraserver1Click
-      end
-      object Rosreestr: TTBXItem
-        Caption = 'URL to Rosreestr'
-        OnClick = RosreestrClick
+      object tbxCopyUrlToKosmosnimkiRu: TTBXItem
+        Caption = 'URL to kosmosnimki.ru'
+        OnClick = tbxCopyUrlToKosmosnimkiRuClick
       end
       object tbsprtCopyToClipboard0: TTBXSeparatorItem
       end

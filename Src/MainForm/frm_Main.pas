@@ -290,10 +290,10 @@ type
     tbitmCenterWithZoom: TTBXSubmenuItem;
     tbsprtMainPopUp2: TTBXSeparatorItem;
     tbitmCopyToClipboard: TTBXSubmenuItem;
-    Google1: TTBXItem;
-    YaLink: TTBXItem;
-    kosmosnimkiru1: TTBXItem;
-    livecom1: TTBXItem;
+    tbxCopyUrlToGoogleMaps: TTBXItem;
+    tbxCopyUrlToYandexMaps: TTBXItem;
+    tbxCopyUrlToKosmosnimkiRu: TTBXItem;
+    tbxCopyUrlToBingMaps: TTBXItem;
     tbsprtCopyToClipboard0: TTBXSeparatorItem;
     tbitmCopyToClipboardMainMapUrl: TTBXItem;
     tbitmCopyToClipboardCoordinates: TTBXItem;
@@ -360,7 +360,7 @@ type
     TBXSeparatorItem12: TTBXSeparatorItem;
     tbitmPlacemarkManager: TTBXItem;
     TBHideMarks: TTBXItem;
-    osmorg1: TTBXItem;
+    tbxCopyUrlToOpenStreetMap: TTBXItem;
     TBXSeparatorItem20: TTBXSeparatorItem;
     NFillMode3: TTBXItem;
     NFillMode2: TTBXItem;
@@ -391,10 +391,8 @@ type
     NDegValue: TTBXEditItem;
     TBSeparatorItem2: TTBSeparatorItem;
     NDegScaleAuto: TTBXItem;
-    nokiamapcreator1: TTBXItem;
     tbpmiVersions: TTBXSubmenuItem;
     tbpmiClearVersion: TTBXItem;
-    terraserver1: TTBXItem;
     tbitmNavigationArrow: TTBXItem;
     tbitmMarkEditProperties: TTBXItem;
     tbitmFitMarkToScreen: TTBXItem;
@@ -418,7 +416,6 @@ type
     NGShauto: TTBXItem;
     NGShScale5000: TTBXItem;
     NGShScale2500: TTBXItem;
-    Rosreestr: TTBXItem;
     tbpmiShowOtherVersions: TTBXItem;
     tbxsbmProjection: TTBXSubmenuItem;
     tbxSep1: TTBXSeparatorItem;
@@ -635,6 +632,7 @@ type
     tbxsbmGeoCalc: TTBXSubmenuItem;
     tbxGeoCalcUseGpsDatum: TTBXItem;
     tbxGeoCalcUseZmpDatum: TTBXItem;
+    tbxCopyUrlToNakarteMe: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -656,15 +654,15 @@ type
     procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
     procedure NDelClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
-    procedure Google1Click(Sender: TObject);
+    procedure tbxCopyUrlToGoogleMapsClick(Sender: TObject);
     procedure mapResize(Sender: TObject);
-    procedure YaLinkClick(Sender: TObject);
-    procedure kosmosnimkiru1Click(Sender: TObject);
+    procedure tbxCopyUrlToYandexMapsClick(Sender: TObject);
+    procedure tbxCopyUrlToKosmosnimkiRuClick(Sender: TObject);
     procedure mapDblClick(Sender: TObject);
     procedure tbitmMarkEditPositionClick(Sender: TObject);
     procedure NMarkDelClick(Sender: TObject);
     procedure NMarkOperClick(Sender: TObject);
-    procedure livecom1Click(Sender: TObject);
+    procedure tbxCopyUrlToBingMapsClick(Sender: TObject);
     procedure tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure mapMouseDown(
@@ -747,7 +745,7 @@ type
     );
     procedure TBSearchWindowClose(Sender: TObject);
     procedure TBEditSelectPolylineRadiusKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure osmorg1Click(Sender: TObject);
+    procedure tbxCopyUrlToOpenStreetMapClick(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
     procedure FormMouseWheel(
@@ -763,13 +761,11 @@ type
       var NewText: string;
       var Accept: Boolean
     );
-    procedure nokiamapcreator1Click(Sender: TObject);
     procedure tbpmiVersionsPopup(
       Sender: TTBCustomItem;
       FromLink: Boolean
     );
     procedure tbpmiClearVersionClick(Sender: TObject);
-    procedure terraserver1Click(Sender: TObject);
     procedure tbitmCopySearchResultCoordinatesClick(Sender: TObject);
     procedure tbitmMarkEditPropertiesClick(Sender: TObject);
     procedure tbitmFitMarkToScreenClick(Sender: TObject);
@@ -783,7 +779,6 @@ type
     procedure NMapStorageInfoClick(Sender: TObject);
     procedure tbitmMakeVersionByMarkClick(Sender: TObject);
     procedure tbitmSelectVersionByMarkClick(Sender: TObject);
-    procedure RosreestrClick(Sender: TObject);
     procedure tbpmiShowOtherVersionsClick(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
     procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
@@ -897,6 +892,7 @@ type
     procedure actEditPolygonLabelVisibleExecute(Sender: TObject);
     procedure actGeoCalcUseZmpDatumExecute(Sender: TObject);
     procedure actGeoCalcUseGpsDatumExecute(Sender: TObject);
+    procedure tbxCopyUrlToNakarteMeClick(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -962,18 +958,17 @@ type
     FState: IMainFormState;
     FStateValueOld: TStateEnum;
 
+    FUrlProviderOSM: IUrlByCoordProvider;
     FUrlProviderBing: IUrlByCoordProvider;
-    FUrlProviderKosmosnimki: IUrlByCoordProvider;
-    FUrlProviderYandex: IUrlByCoordProvider;
     FUrlProviderGoogle: IUrlByCoordProvider;
+    FUrlProviderYandex: IUrlByCoordProvider;
+    FUrlProviderNakarte: IUrlByCoordProvider;
+    FUrlProviderKosmosnimki: IUrlByCoordProvider;
+
     FUrlProviderGTopo30: IUrlByCoordProvider;
     FUrlProviderSTRM3: IUrlByCoordProvider;
-    FUrlProviderOSM: IUrlByCoordProvider;
-    FUrlProviderNokia: IUrlByCoordProvider;
     FUrlProviderWeatherUnderground: IUrlByCoordProvider;
     FUrlProviderYandexWeather: IUrlByCoordProvider;
-    FUrlProviderRosreestr: IUrlByCoordProvider;
-    FUrlProviderTerraserver: IUrlByCoordProvider;
 
     FWinPosition: IMainWindowPosition;
     FPanelPositionSaveLoad: IPanelsPositionsSaveLoad;
@@ -2526,18 +2521,17 @@ end;
 
 procedure TfrmMain.InitUrlProviders;
 begin
+  FUrlProviderOSM := TUrlByCoordProviderOSM.Create(GState.ProjectionSetFactory);
   FUrlProviderBing := TUrlByCoordProviderBing.Create(GState.ProjectionSetFactory);
-  FUrlProviderKosmosnimki := TUrlByCoordProviderKosmosnimki.Create(GState.ProjectionSetFactory);
-  FUrlProviderYandex := TUrlByCoordProviderYandex.Create(GState.ProjectionSetFactory);
   FUrlProviderGoogle := TUrlByCoordProviderGoogle.Create(GState.ProjectionSetFactory);
+  FUrlProviderYandex := TUrlByCoordProviderYandex.Create(GState.ProjectionSetFactory);
+  FUrlProviderNakarte := TUrlByCoordProviderNakarte.Create(GState.ProjectionSetFactory);
+  FUrlProviderKosmosnimki := TUrlByCoordProviderKosmosnimki.Create(GState.ProjectionSetFactory);
+
   FUrlProviderGTopo30 := TUrlByCoordProviderGTopo30.Create;
   FUrlProviderSTRM3 := TUrlByCoordProviderSTRM3.Create;
-  FUrlProviderOSM := TUrlByCoordProviderOSM.Create(GState.ProjectionSetFactory);
-  FUrlProviderNokia := TUrlByCoordProviderNokia.Create(GState.ProjectionSetFactory);
   FUrlProviderWeatherUnderground := TUrlByCoordProviderWeatherUnderground.Create;
   FUrlProviderYandexWeather := TUrlByCoordProviderYandexWeather.Create;
-  FUrlProviderRosreestr := TUrlByCoordProviderRosreestr.Create(GState.ProjectionSetFactory);
-  FUrlProviderTerraserver := TUrlByCoordProviderTerraserver.Create;
 end;
 
 procedure TfrmMain.InitMergePolygons;
@@ -2989,16 +2983,6 @@ begin
   VZoomCurr := VProjection.Zoom;
   PaintZSlider(VZoomCurr);
   labZoom.caption := 'z' + IntToStr(VZoomCurr + 1);
-end;
-
-procedure TfrmMain.RosreestrClick(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
-begin
-  VRequest := FUrlProviderRosreestr.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
-  end;
 end;
 
 procedure TfrmMain.OnStateChange;
@@ -4081,16 +4065,6 @@ begin
         end;
       end;
     end;
-  end;
-end;
-
-procedure TfrmMain.terraserver1Click(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
-begin
-  VRequest := FUrlProviderTerraserver.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
   end;
 end;
 
@@ -5896,16 +5870,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.nokiamapcreator1Click(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
-begin
-  VRequest := FUrlProviderNokia.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
-  end;
-end;
-
 procedure TfrmMain.NMapInfoClick(Sender: TObject);
 var
   VMapType: IMapType;
@@ -6027,7 +5991,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.osmorg1Click(Sender: TObject);
+procedure TfrmMain.tbxCopyUrlToOpenStreetMapClick(Sender: TObject);
 var
   VRequest: IDownloadRequest;
 begin
@@ -6105,6 +6069,7 @@ var
 begin
   VRequest := FUrlProviderSTRM3.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
   if Assigned(VRequest) then begin
+    //GState.DownloaderFactory.BuildDownloaderAsync(True, True, False, nil).DoRequestAsync()
     GState.InternalBrowser.NavigateByRequest('http://api.geonames.org/srtm3', VRequest);
   end;
 end;
@@ -6119,7 +6084,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.Google1Click(Sender: TObject);
+procedure TfrmMain.tbxCopyUrlToGoogleMapsClick(Sender: TObject);
 var
   VRequest: IDownloadRequest;
 begin
@@ -6129,7 +6094,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.YaLinkClick(Sender: TObject);
+procedure TfrmMain.tbxCopyUrlToYandexMapsClick(Sender: TObject);
 var
   VRequest: IDownloadRequest;
 begin
@@ -6139,7 +6104,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.kosmosnimkiru1Click(Sender: TObject);
+procedure TfrmMain.tbxCopyUrlToKosmosnimkiRuClick(Sender: TObject);
 var
   VRequest: IDownloadRequest;
 begin
@@ -6149,7 +6114,17 @@ begin
   end;
 end;
 
-procedure TfrmMain.livecom1Click(Sender: TObject);
+procedure TfrmMain.tbxCopyUrlToNakarteMeClick(Sender: TObject);
+var
+  VRequest: IDownloadRequest;
+begin
+  VRequest := FUrlProviderNakarte.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
+end;
+
+procedure TfrmMain.tbxCopyUrlToBingMapsClick(Sender: TObject);
 var
   VRequest: IDownloadRequest;
 begin
