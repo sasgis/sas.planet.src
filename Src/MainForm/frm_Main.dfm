@@ -3593,6 +3593,10 @@ object frmMain: TfrmMain
         Caption = '&Coordinates'
         OnClick = tbitmCopyToClipboardCoordinatesClick
       end
+      object tbitmCopyToClipboardCoordinatesAndElev: TTBXItem
+        Caption = 'Coordinates and Elevation'
+        OnClick = tbitmCopyToClipboardCoordinatesAndElevClick
+      end
       object tbitmCopyToClipboardMainMapTile: TTBXItem
         Caption = 'Primary Map Tile'
         OnClick = tbitmCopyToClipboardMainMapTileClick

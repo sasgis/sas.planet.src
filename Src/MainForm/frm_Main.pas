@@ -633,6 +633,7 @@ type
     tbxGeoCalcUseGpsDatum: TTBXItem;
     tbxGeoCalcUseZmpDatum: TTBXItem;
     tbxCopyUrlToNakarteMe: TTBXItem;
+    tbitmCopyToClipboardCoordinatesAndElev: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -893,6 +894,7 @@ type
     procedure actGeoCalcUseZmpDatumExecute(Sender: TObject);
     procedure actGeoCalcUseGpsDatumExecute(Sender: TObject);
     procedure tbxCopyUrlToNakarteMeClick(Sender: TObject);
+    procedure tbitmCopyToClipboardCoordinatesAndElevClick(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -1232,6 +1234,7 @@ uses
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileRectChangeable,
+  i_TerrainInfo,
   i_DownloadRequest,
   i_GPS,
   i_GeoCoder,
@@ -1258,6 +1261,7 @@ uses
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
   u_TileRectChangeableByLocalConverter,
+  u_TerrainInfo,
   u_LineOnMapEdit,
   u_PointOnMapEdit,
   u_MarkOnMapEditProvider,
@@ -4299,6 +4303,26 @@ begin
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
   VStr := GState.CoordToStringConverter.GetStatic.LonLatConvert(VMouseLonLat);
+  CopyStringToClipboard(Handle, VStr);
+end;
+
+procedure TfrmMain.tbitmCopyToClipboardCoordinatesAndElevClick(Sender: TObject);
+var
+  VMouseLonLat: TDoublePoint;
+  VStr: string;
+  VLocalConverter: ILocalCoordConverter;
+  VProjection: IProjection;
+  VTerrainInfo: ITerrainInfo;
+  VMouseMapPoint: TDoublePoint;
+begin
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VProjection := VLocalConverter.Projection;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
+  VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
+  VTerrainInfo := TTerrainInfo.Create(GState.Config.TerrainConfig, GState.TerrainProviderList);
+  VStr := GState.CoordToStringConverter.GetStatic.LonLatConvert(VMouseLonLat) + ' ' +
+    VTerrainInfo.GetElevationInfoStr(VMouseLonLat, VProjection.Zoom);
   CopyStringToClipboard(Handle, VStr);
 end;
 
