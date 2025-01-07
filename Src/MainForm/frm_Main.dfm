@@ -3589,6 +3589,8 @@ object frmMain: TfrmMain
         ImageIndex = 45
         Images = MenusImageList
       end
+      object TBSeparatorItem5: TTBSeparatorItem
+      end
       object tbitmCopyToClipboardCoordinates: TTBXItem
         Caption = '&Coordinates'
         OnClick = tbitmCopyToClipboardCoordinatesClick
@@ -3596,6 +3598,8 @@ object frmMain: TfrmMain
       object tbitmCopyToClipboardCoordinatesAndElev: TTBXItem
         Caption = 'Coordinates and Elevation'
         OnClick = tbitmCopyToClipboardCoordinatesAndElevClick
+      end
+      object TBSeparatorItem6: TTBSeparatorItem
       end
       object tbitmCopyToClipboardMainMapTile: TTBXItem
         Caption = 'Primary Map Tile'

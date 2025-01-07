@@ -634,6 +634,8 @@ type
     tbxGeoCalcUseZmpDatum: TTBXItem;
     tbxCopyUrlToNakarteMe: TTBXItem;
     tbitmCopyToClipboardCoordinatesAndElev: TTBXItem;
+    TBSeparatorItem5: TTBSeparatorItem;
+    TBSeparatorItem6: TTBSeparatorItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
