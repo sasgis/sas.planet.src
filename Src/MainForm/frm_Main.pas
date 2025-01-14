@@ -636,6 +636,7 @@ type
     tbitmCopyToClipboardCoordinatesAndElev: TTBXItem;
     TBSeparatorItem5: TTBSeparatorItem;
     TBSeparatorItem6: TTBSeparatorItem;
+    tbxCopyUrlToGoogleEarthWeb: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -897,6 +898,7 @@ type
     procedure actGeoCalcUseGpsDatumExecute(Sender: TObject);
     procedure tbxCopyUrlToNakarteMeClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesAndElevClick(Sender: TObject);
+    procedure tbxCopyUrlToGoogleEarthWebClick(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -965,6 +967,7 @@ type
     FUrlProviderOSM: IUrlByCoordProvider;
     FUrlProviderBing: IUrlByCoordProvider;
     FUrlProviderGoogle: IUrlByCoordProvider;
+    FUrlProviderGoogleEarthWeb: IUrlByCoordProvider;
     FUrlProviderYandex: IUrlByCoordProvider;
     FUrlProviderNakarte: IUrlByCoordProvider;
     FUrlProviderKosmosnimki: IUrlByCoordProvider;
@@ -2530,6 +2533,7 @@ begin
   FUrlProviderOSM := TUrlByCoordProviderOSM.Create(GState.ProjectionSetFactory);
   FUrlProviderBing := TUrlByCoordProviderBing.Create(GState.ProjectionSetFactory);
   FUrlProviderGoogle := TUrlByCoordProviderGoogle.Create(GState.ProjectionSetFactory);
+  FUrlProviderGoogleEarthWeb := TUrlByCoordProviderGoogleEarthWeb.Create(GState.ProjectionSetFactory);
   FUrlProviderYandex := TUrlByCoordProviderYandex.Create(GState.ProjectionSetFactory);
   FUrlProviderNakarte := TUrlByCoordProviderNakarte.Create(GState.ProjectionSetFactory);
   FUrlProviderKosmosnimki := TUrlByCoordProviderKosmosnimki.Create(GState.ProjectionSetFactory);
@@ -6115,6 +6119,16 @@ var
   VRequest: IDownloadRequest;
 begin
   VRequest := FUrlProviderGoogle.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  if Assigned(VRequest) then begin
+    CopyDownloadRequestToClipboard(Handle, VRequest);
+  end;
+end;
+
+procedure TfrmMain.tbxCopyUrlToGoogleEarthWebClick(Sender: TObject);
+var
+  VRequest: IDownloadRequest;
+begin
+  VRequest := FUrlProviderGoogleEarthWeb.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
   if Assigned(VRequest) then begin
     CopyDownloadRequestToClipboard(Handle, VRequest);
   end;

@@ -66,7 +66,55 @@ type
     ): IDownloadRequest;
   end;
 
+  TUrlByCoordProviderOSM = class(TUrlByCoordProviderBase)
+  protected
+    function GetUrlByLonLat(
+      const AProjection: IProjection;
+      const ALonLat: TDoublePoint
+    ): AnsiString; override;
+  public
+    constructor Create(
+      const AProjectionSetFactory: IProjectionSetFactory
+    );
+  end;
+
+  TUrlByCoordProviderGoogle = class(TUrlByCoordProviderBase)
+  protected
+    function GetUrlByLonLat(
+      const AProjection: IProjection;
+      const ALonLat: TDoublePoint
+    ): AnsiString; override;
+  public
+    constructor Create(
+      const AProjectionSetFactory: IProjectionSetFactory
+    );
+  end;
+
+  TUrlByCoordProviderGoogleEarthWeb = class(TUrlByCoordProviderBase)
+  protected
+    function GetUrlByLonLat(
+      const AProjection: IProjection;
+      const ALonLat: TDoublePoint
+    ): AnsiString; override;
+  public
+    constructor Create(
+      const AProjectionSetFactory: IProjectionSetFactory
+    );
+  end;
+
   TUrlByCoordProviderBing = class(TUrlByCoordProviderBase)
+  protected
+    function GetUrlByLonLat(
+      const AProjection: IProjection;
+      const ALonLat: TDoublePoint
+    ): AnsiString; override;
+  public
+    constructor Create(
+      const AProjectionSetFactory: IProjectionSetFactory
+    );
+  end;
+
+  TUrlByCoordProviderYandex = class(TUrlByCoordProviderBase)
   protected
     function GetUrlByLonLat(
       const AProjection: IProjection;
@@ -102,30 +150,6 @@ type
     );
   end;
 
-  TUrlByCoordProviderYandex = class(TUrlByCoordProviderBase)
-  protected
-    function GetUrlByLonLat(
-      const AProjection: IProjection;
-      const ALonLat: TDoublePoint
-    ): AnsiString; override;
-  public
-    constructor Create(
-      const AProjectionSetFactory: IProjectionSetFactory
-    );
-  end;
-
-  TUrlByCoordProviderGoogle = class(TUrlByCoordProviderBase)
-  protected
-    function GetUrlByLonLat(
-      const AProjection: IProjection;
-      const ALonLat: TDoublePoint
-    ): AnsiString; override;
-  public
-    constructor Create(
-      const AProjectionSetFactory: IProjectionSetFactory
-    );
-  end;
-
   TUrlByCoordProviderGTopo30 = class(TUrlByCoordProviderLonLatBase)
   protected
     function GetUrlByLonLat(
@@ -138,18 +162,6 @@ type
     function GetUrlByLonLat(
       const ALonLat: TDoublePoint
     ): AnsiString; override;
-  end;
-
-  TUrlByCoordProviderOSM = class(TUrlByCoordProviderBase)
-  protected
-    function GetUrlByLonLat(
-      const AProjection: IProjection;
-      const ALonLat: TDoublePoint
-    ): AnsiString; override;
-  public
-    constructor Create(
-      const AProjectionSetFactory: IProjectionSetFactory
-    );
   end;
 
   TUrlByCoordProviderWeatherUnderground = class(TUrlByCoordProviderLonLatBase)
@@ -170,6 +182,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   c_CoordConverter,
   i_BinaryData,
   u_AnsiStr,
@@ -229,6 +242,85 @@ begin
   Result := TDownloadRequest.Create(VUrl, '', nil);
 end;
 
+{ TUrlByCoordProviderOSM }
+
+constructor TUrlByCoordProviderOSM.Create(
+  const AProjectionSetFactory: IProjectionSetFactory
+);
+begin
+  inherited Create(AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256));
+end;
+
+function TUrlByCoordProviderOSM.GetUrlByLonLat(
+  const AProjection: IProjection;
+  const ALonLat: TDoublePoint
+): AnsiString;
+begin
+  Result :=
+    'https://www.openstreetmap.org/?' +
+    'mlat=' + R2AnsiStrPoint(ALonLat.Y) +
+    '&mlon=' + R2AnsiStrPoint(ALonLat.X) +
+    '#map=' + IntToStrA(AProjection.Zoom) +
+    '/' + RoundExAnsi(ALonLat.Y, 5) +
+    '/' + RoundExAnsi(ALonLat.X, 5);
+end;
+
+{ TUrlByCoordProviderGoogle }
+
+constructor TUrlByCoordProviderGoogle.Create(
+  const AProjectionSetFactory: IProjectionSetFactory
+);
+begin
+  inherited Create(AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256));
+end;
+
+function TUrlByCoordProviderGoogle.GetUrlByLonLat(
+  const AProjection: IProjection;
+  const ALonLat: TDoublePoint
+): AnsiString;
+begin
+  Result :=
+    'https://maps.google.com/?ie=UTF8&ll=' +
+    R2AnsiStrPoint(ALonLat.Y) + ',' +
+    R2AnsiStrPoint(ALonLat.X) +
+    '&spn=57.249013,100.371094&t=h&z=' + IntToStrA(AProjection.Zoom);
+end;
+
+{ TUrlByCoordProviderGoogleEarthWeb }
+
+constructor TUrlByCoordProviderGoogleEarthWeb.Create(
+  const AProjectionSetFactory: IProjectionSetFactory
+);
+begin
+  inherited Create(AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256));
+end;
+
+function TUrlByCoordProviderGoogleEarthWeb.GetUrlByLonLat(
+  const AProjection: IProjection;
+  const ALonLat: TDoublePoint
+): AnsiString;
+
+  function _CalcAltitude(AZoom: Byte): Double;
+  const
+    cAltitudeOnZoom8 = 63170000; // max
+  begin
+    Inc(AZoom); // count zoom from 1
+    if AZoom <= 8 then begin
+      Result := cAltitudeOnZoom8;
+    end else begin
+      Result := cAltitudeOnZoom8 / Math.Power(2, AZoom - 8);
+    end;
+  end;
+
+begin
+  Result :=
+    'https://earth.google.com/web/@' +
+    RoundExAnsi(ALonLat.Y, 8) + ',' +
+    RoundExAnsi(ALonLat.X, 8) + ',' +
+    '0a,' +
+    RoundExAnsi(_CalcAltitude(AProjection.Zoom), 3) + 'd';
+end;
+
 { TUrlByCoordProviderBing }
 
 constructor TUrlByCoordProviderBing.Create(
@@ -245,9 +337,31 @@ function TUrlByCoordProviderBing.GetUrlByLonLat(
 begin
   Result :=
     'https://www.bing.com/maps?v=2&cp=' +
-    R2AnsiStrPoint(ALonLat.y) + '~' +
-    R2AnsiStrPoint(ALonLat.x) +
+    R2AnsiStrPoint(ALonLat.Y) + '~' +
+    R2AnsiStrPoint(ALonLat.X) +
     '&style=h&lvl=' + IntToStrA(AProjection.Zoom);
+end;
+
+{ TUrlByCoordProviderYandex }
+
+constructor TUrlByCoordProviderYandex.Create(
+  const AProjectionSetFactory: IProjectionSetFactory
+);
+begin
+  inherited Create(AProjectionSetFactory.GetProjectionSetByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256));
+end;
+
+function TUrlByCoordProviderYandex.GetUrlByLonLat(
+  const AProjection: IProjection;
+  const ALonLat: TDoublePoint
+): AnsiString;
+begin
+  Result :=
+    'https://yandex.ru/maps/?ll=' +
+    R2AnsiStrPoint(Round(ALonLat.X * 100000) / 100000) + '%2C' +
+    R2AnsiStrPoint(Round(ALonLat.Y * 100000) / 100000) +
+    '&z=' + IntToStrA(AProjection.Zoom) +
+    '&l=sat';
 end;
 
 { TUrlByCoordProviderNakarte }
@@ -285,76 +399,10 @@ function TUrlByCoordProviderKosmosnimki.GetUrlByLonLat(
 begin
   Result :=
     'https://kosmosnimki.ru/?x=' +
-    R2AnsiStrPoint(ALonLat.x) +
-    '&y=' + R2AnsiStrPoint(ALonLat.y) +
+    R2AnsiStrPoint(ALonLat.X) +
+    '&y=' + R2AnsiStrPoint(ALonLat.Y) +
     '&z=' + IntToStrA(AProjection.Zoom) +
     '&fullscreen=False&mode=satellite';
-end;
-
-{ TUrlByCoordProviderYandex }
-
-constructor TUrlByCoordProviderYandex.Create(
-  const AProjectionSetFactory: IProjectionSetFactory
-);
-begin
-  inherited Create(AProjectionSetFactory.GetProjectionSetByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256));
-end;
-
-function TUrlByCoordProviderYandex.GetUrlByLonLat(
-  const AProjection: IProjection;
-  const ALonLat: TDoublePoint
-): AnsiString;
-begin
-  Result :=
-    'https://yandex.ru/maps/?ll=' +
-    R2AnsiStrPoint(round(ALonLat.x * 100000) / 100000) + '%2C' +
-    R2AnsiStrPoint(round(ALonLat.y * 100000) / 100000) +
-    '&z=' + IntToStrA(AProjection.Zoom) +
-    '&l=sat';
-end;
-
-{ TUrlByCoordProviderGoogle }
-
-constructor TUrlByCoordProviderGoogle.Create(
-  const AProjectionSetFactory: IProjectionSetFactory
-);
-begin
-  inherited Create(AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256));
-end;
-
-function TUrlByCoordProviderGoogle.GetUrlByLonLat(
-  const AProjection: IProjection;
-  const ALonLat: TDoublePoint
-): AnsiString;
-begin
-  Result :=
-    'https://maps.google.com/?ie=UTF8&ll=' +
-    R2AnsiStrPoint(ALonLat.y) + ',' +
-    R2AnsiStrPoint(ALonLat.x) +
-    '&spn=57.249013,100.371094&t=h&z=' + IntToStrA(AProjection.Zoom);
-end;
-
-{ TUrlByCoordProviderOSM }
-
-constructor TUrlByCoordProviderOSM.Create(
-  const AProjectionSetFactory: IProjectionSetFactory
-);
-begin
-  inherited Create(AProjectionSetFactory.GetProjectionSetByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256));
-end;
-
-function TUrlByCoordProviderOSM.GetUrlByLonLat(
-  const AProjection: IProjection;
-  const ALonLat: TDoublePoint
-): AnsiString;
-begin
-  Result :=
-    'https://www.openstreetmap.org/?' +
-    'mlat=' + R2AnsiStrPoint(ALonLat.Y) +
-    '&mlon=' + R2AnsiStrPoint(ALonLat.X) +
-    '#map=' + IntToStrA(AProjection.Zoom) +
-    '/' + RoundExAnsi(ALonLat.Y, 5) +
-    '/' + RoundExAnsi(ALonLat.X, 5);
 end;
 
 { TUrlByCoordProviderGTopo30 }

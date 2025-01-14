@@ -3561,13 +3561,17 @@ object frmMain: TfrmMain
         Caption = 'URL to Google Maps'
         OnClick = tbxCopyUrlToGoogleMapsClick
       end
-      object tbxCopyUrlToYandexMaps: TTBXItem
-        Caption = 'URL to Yandex Maps'
-        OnClick = tbxCopyUrlToYandexMapsClick
+      object tbxCopyUrlToGoogleEarthWeb: TTBXItem
+        Caption = 'URL to Google Earth Web'
+        OnClick = tbxCopyUrlToGoogleEarthWebClick
       end
       object tbxCopyUrlToBingMaps: TTBXItem
         Caption = 'URL to Bing Maps'
         OnClick = tbxCopyUrlToBingMapsClick
+      end
+      object tbxCopyUrlToYandexMaps: TTBXItem
+        Caption = 'URL to Yandex Maps'
+        OnClick = tbxCopyUrlToYandexMapsClick
       end
       object tbxCopyUrlToNakarteMe: TTBXItem
         Caption = 'URL to nakarte.me'
