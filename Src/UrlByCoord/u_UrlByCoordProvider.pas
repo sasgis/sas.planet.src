@@ -182,7 +182,6 @@ implementation
 
 uses
   SysUtils,
-  Math,
   c_CoordConverter,
   i_BinaryData,
   u_AnsiStr,
@@ -300,16 +299,11 @@ function TUrlByCoordProviderGoogleEarthWeb.GetUrlByLonLat(
   const ALonLat: TDoublePoint
 ): AnsiString;
 
-  function _CalcAltitude(AZoom: Byte): Double;
+  function _GetAltitude(const AZoom: Byte): AnsiString;
   const
-    cAltitudeOnZoom8 = 63170000; // max
+    cAltitudeOnZoom24 = 20; // absolute, meters
   begin
-    Inc(AZoom); // count zoom from 1
-    if AZoom <= 8 then begin
-      Result := cAltitudeOnZoom8;
-    end else begin
-      Result := cAltitudeOnZoom8 / Math.Power(2, AZoom - 8);
-    end;
+    Result := IntToStrA(cAltitudeOnZoom24 * (1 shl (23 - AZoom)));
   end;
 
 begin
@@ -317,8 +311,8 @@ begin
     'https://earth.google.com/web/@' +
     RoundExAnsi(ALonLat.Y, 8) + ',' +
     RoundExAnsi(ALonLat.X, 8) + ',' +
-    '0a,' +
-    RoundExAnsi(_CalcAltitude(AProjection.Zoom), 3) + 'd';
+    _GetAltitude(AProjection.Zoom) + 'a,' +
+    '0d,35y,0h,0t,0r';
 end;
 
 { TUrlByCoordProviderBing }
