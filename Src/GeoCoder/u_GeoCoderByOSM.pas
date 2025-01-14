@@ -73,73 +73,75 @@ function TGeoCoderByOSM.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  slat, slon: AnsiString;
-  sname, sdesc, sfulldesc: string;
-  osm_type, osm_id: AnsiString;
-  i, j, k: integer;
+  I, J, K: Integer;
+  VLat, VLon: AnsiString;
+  VName, VDesc, VFullDesc: string;
+  VOsmType, VOsmId: AnsiString;
   VPoint: TDoublePoint;
   VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettingsA;
   VStr: AnsiString;
 begin
-  sfulldesc := '';
-  sdesc := '';
+  VFullDesc := '';
+  VDesc := '';
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
 
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceListSimple.Create;
-  SetLength(Vstr, AResult.Data.Size);
-  Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
-  i := PosA('<searchresults', VStr);
 
-  while (PosA('<place', VStr, i) > i) and (i > 0) do begin
-    j := i;
+  SetLength(VStr, AResult.Data.Size);
+  Move(AResult.Data.Buffer^, VStr[1], AResult.Data.Size);
 
-    i := PosA('osm_type="', VStr, j);
-    j := PosA('"', VStr, i + 10);
-    osm_type := Copy(VStr, i + 10, j - (i + 10));
+  I := PosA('<searchresults', VStr);
 
-    i := PosA('osm_id="', VStr, j);
-    j := PosA('"', VStr, i + 8);
-    osm_id := Copy(VStr, i + 8, j - (i + 8));
+  while (PosA('<place', VStr, I) > I) and (I > 0) do begin
+    J := I;
 
-    i := PosA('lat="', VStr, j);
-    j := PosA('"', VStr, i + 5);
-    slat := Copy(VStr, i + 5, j - (i + 5));
+    I := PosA('osm_type="', VStr, J);
+    J := PosA('"', VStr, I + 10);
+    VOsmType := Copy(VStr, I + 10, J - (I + 10));
 
-    i := PosA('lon="', VStr, j);
-    j := PosA('"', VStr, i + 5);
-    slon := Copy(VStr, i + 5, j - (i + 5));
+    I := PosA('osm_id="', VStr, J);
+    J := PosA('"', VStr, I + 8);
+    VOsmId := Copy(VStr, I + 8, J - (I + 8));
 
-    i := PosA('display_name="', VStr, j);
-    j := PosA('"', VStr, i + 14);
-    sname := Utf8ToAnsi(Copy(VStr, i + 14, j - (i + 14)));
+    I := PosA('lat="', VStr, J);
+    J := PosA('"', VStr, I + 5);
+    VLat := Copy(VStr, I + 5, J - (I + 5));
 
-    i := PosA('class="', VStr, j);
-    if i > j then begin
-      j := PosA('"', VStr, i + 7);
-      sdesc := Utf8ToAnsi(Copy(VStr, i + 7, j - (i + 7)));
+    I := PosA('lon="', VStr, J);
+    J := PosA('"', VStr, I + 5);
+    VLon := Copy(VStr, I + 5, J - (I + 5));
+
+    I := PosA('display_name="', VStr, J);
+    J := PosA('"', VStr, I + 14);
+    VName := Utf8ToAnsi(Copy(VStr, I + 14, J - (I + 14)));
+
+    I := PosA('class="', VStr, J);
+    if I > J then begin
+      J := PosA('"', VStr, I + 7);
+      VDesc := Utf8ToAnsi(Copy(VStr, I + 7, J - (I + 7)));
     end;
 
-    i := PosA('type="', VStr, j);
-    if i > j then begin
-      j := PosA('"', VStr, i + 6);
-      sdesc := sdesc + '=' + Utf8ToAnsi(Copy(VStr, i + 6, j - (i + 6)));
+    I := PosA('type="', VStr, J);
+    if I > J then begin
+      J := PosA('"', VStr, I + 6);
+      VDesc := VDesc + '=' + Utf8ToAnsi(Copy(VStr, I + 6, J - (I + 6)));
     end;
 
     // финт ушам, дабы не занимать много места
     // будем разбивать "Кураж, 84, Вокзальная улица, Магнитогорск, Челябинская область, Уральский федеральный округ, 455000, Российская Федерация"
     // до первой запятой, остальное пихать в переменную sdesc
-    k := PosEx(',', sname, 1);
-    sdesc := sdesc + (copy(sname, k, length(sname) - k + 1));
-    sname := (copy(sname, 1, k - 1));
+    K := PosEx(',', VName, 1);
+    VDesc := VDesc + Copy(VName, K, Length(VName) - K + 1);
+    VName := Copy(VName, 1, K - 1);
     // конец финта ушами
 
 
-    sfulldesc := 'https://www.openstreetmap.org/browse/' + string(osm_type) + '/' + string(osm_id);
+    VFullDesc := 'https://www.openstreetmap.org/browse/' + string(VOsmType) + '/' + string(VOsmId);
 
     //    Получение ссылки на иконку объекта, (на будущее), дабы обозначать найденные объекты...
     //    k := PosEx('icon=''', AStr, i);
@@ -150,12 +152,12 @@ begin
     //    end else sfulldesc:='';
 
     try
-      VPoint.Y := StrToFloatA(slat, VFormatSettings);
-      VPoint.X := StrToFloatA(slon, VFormatSettings);
+      VPoint.Y := StrToFloatA(VLat, VFormatSettings);
+      VPoint.X := StrToFloatA(VLon, VFormatSettings);
     except
-      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
+      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLat, VLon]);
     end;
-    VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
+    VPlace := PlacemarkFactory.Build(VPoint, VName, VDesc, VFullDesc, 4);
     VList.Add(VPlace);
   end;
   Result := VList;
@@ -165,22 +167,10 @@ function TGeoCoderByOSM.PrepareRequest(
   const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
-var
-  VSearch: String;
-  VProjection: IProjection;
-  VMapRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
 begin
-  VSearch := ASearch;
-  VProjection := ALocalConverter.Projection;
-  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-  VProjection.ValidatePixelRectFloat(VMapRect);
-  VLonLatRect := VProjection.PixelRectFloat2LonLatRect(VMapRect);
-
-  //https://nominatim.openstreetmap.org/search?q=%D0%A2%D1%8E%D0%BC%D0%B5%D0%BD%D1%8C&format=xml
   Result :=
     PrepareRequestByURL(
-      'https://nominatim.openstreetmap.org/search?q=' + URLEncode(AnsiToUtf8(VSearch)) + '&format=xml'
+      'https://nominatim.openstreetmap.org/search?q=' + URLEncode(AnsiToUtf8(ASearch)) + '&format=xml'
     );
 end;
 
