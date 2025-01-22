@@ -196,7 +196,7 @@ end;
 
 function getAzimuth(const H, phi, dec: Double): Double; inline;
 begin
-  Result := ArcTan2(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi));
+  Result := Pi + ArcTan2(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi));
 end;
 
 function getAltitude(const H, phi, dec: Double): Double; inline;
@@ -280,7 +280,7 @@ end;
 
 function getSolarTransitJ(const ds, M, L: Double): Double; inline;
 begin
-  Result := J2000 + ds + 0.0053 * sin(M) - 0.0069 * sin(2 * L);
+  Result := J2000 + ds + 0.0053 * sin(M) - 0.0068 * sin(2 * L);
 end;
 
 function getHourAngle(const h, phi, d: Double): Double; inline;
@@ -323,7 +323,7 @@ begin
 
   if not IsNan(Jnoon) then begin
     Result[solarNoon].Value := fromJulian(Jnoon);
-    Result[nadir].Value     := fromJulian(Jnoon - 0.5);
+    Result[nadir].Value     := fromJulian(Jnoon + 0.5);
   end;
 
   for i := Low(Result) to High(Result) do begin

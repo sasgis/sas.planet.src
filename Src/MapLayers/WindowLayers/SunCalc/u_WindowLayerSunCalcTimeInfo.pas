@@ -108,7 +108,7 @@ begin
     if FSunCalcConfig.ShowCaptionNearSun then begin
       VSunPos := FSunCalcDataProvider.GetPosition(FDateTime, FLocation);
 
-      VAzimuth := Format('%.2f°', [RadToDeg(VSunPos.Azimuth + Pi)]);
+      VAzimuth := Format('%.2f°', [RadToDeg(VSunPos.Azimuth)]);
       VAltitude := Format('%.2f°', [RadToDeg(VSunPos.Altitude)]);
       VText := Format('%s: %s; %s: %s', [rsAltitude, VAltitude, rsAzimuth, VAzimuth]);
 

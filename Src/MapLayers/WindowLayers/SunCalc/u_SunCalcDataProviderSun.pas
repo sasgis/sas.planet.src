@@ -448,7 +448,7 @@ begin
   end;
 
   AddRow(VRow, _('Day Length'), MinutesToStr(VUptime) );
-  AddRow(VRow, _('Azimuth'), Format('%.0f°', [RadToDeg(VPos.Azimuth + Pi)]) );
+  AddRow(VRow, _('Azimuth'), Format('%.0f°', [RadToDeg(VPos.Azimuth)]) );
   AddRow(VRow, _('Altitude'), Format('%.1f°', [RadToDeg(VPos.Altitude)]) );
   AddRow(VRow, _('Shadow, meters'), ShadowToStr(VPos.Altitude) );
 

@@ -248,7 +248,7 @@ begin
     Exit;
   end;
   VPos := FDataProvider.GetPosition(ADate, FLocation);
-  VAngle := Pi / 2 + VPos.Azimuth;
+  VAngle := VPos.Azimuth - Pi / 2;
   R := FRadius * Cos(VPos.Altitude);
   AAltitude := VPos.Altitude;
   Result.X := FCenter.X + R * Cos(VAngle);

@@ -351,7 +351,7 @@ begin
   if ATime <> 0 then begin
     if FIsDetailedView then begin
       VPos := FSunCalcDataProvider.GetPosition(ATime, FLocation);
-      VAzimuth := Format('%.0f°', [RadToDeg(VPos.Azimuth + Pi)]);
+      VAzimuth := Format('%.0f°', [RadToDeg(VPos.Azimuth)]);
       VAltitude := Format('%.1f°', [RadToDeg(VPos.Altitude)]);
     end;
     VLocalTime := TTimeZoneInfo.UTCToTzLocalTime(ATime, FTzOffset);
