@@ -249,6 +249,7 @@ var
   I: Integer;
   VIsRiseFound: Boolean;
   VIsSetFound: Boolean;
+  VTimes: array[0..1] of TMoonTimes;
 begin
   if FIsDayEventsPrepared and (FDayEventsParams = AParams) then begin
     Result := FDayEvents;
@@ -261,7 +262,7 @@ begin
   I := 0;
   SetLength(Result, 2);
 
-  FTimes[0] :=
+  VTimes[0] :=
     SunCalc.GetMoonTimes(
       AParams.StartOfTheDay,
       AParams.LonLat.Y,
@@ -269,26 +270,26 @@ begin
     );
 
   if
-    (FTimes[0].MoonRise <> 0) and
-    (FTimes[0].MoonRise >= AParams.StartOfTheDay) then
+    (VTimes[0].MoonRise <> 0) and
+    (VTimes[0].MoonRise >= AParams.StartOfTheDay) then
   begin
-    Result[I] := SunCalcDayEvent(FTimes[0].MoonRise, rsRise, False, 0, 5);
+    Result[I] := SunCalcDayEvent(VTimes[0].MoonRise, rsRise, False, 0, 5);
     Inc(I);
     VIsRiseFound := True;
   end;
 
   if
-    (FTimes[0].MoonSet <> 0) and
-    (FTimes[0].MoonSet >= AParams.StartOfTheDay) then
+    (VTimes[0].MoonSet <> 0) and
+    (VTimes[0].MoonSet >= AParams.StartOfTheDay) then
   begin
-    Result[I] := SunCalcDayEvent(FTimes[0].MoonSet, rsSet, False, 5, 0);
+    Result[I] := SunCalcDayEvent(VTimes[0].MoonSet, rsSet, False, 5, 0);
     Inc(I);
     VIsSetFound := True;
   end;
 
   if not VIsRiseFound or not VIsSetFound then begin
 
-    FTimes[1] :=
+    VTimes[1] :=
       SunCalc.GetMoonTimes(
         AParams.EndOfTheDay,
         AParams.LonLat.Y,
@@ -297,19 +298,19 @@ begin
 
     if
       not VIsRiseFound and
-      (FTimes[1].MoonRise <> 0) and
-      (FTimes[1].MoonRise <= AParams.EndOfTheDay) then
+      (VTimes[1].MoonRise <> 0) and
+      (VTimes[1].MoonRise <= AParams.EndOfTheDay) then
     begin
-      Result[I] := SunCalcDayEvent(FTimes[1].MoonRise, rsRise, False, 0, 5);
+      Result[I] := SunCalcDayEvent(VTimes[1].MoonRise, rsRise, False, 0, 5);
       Inc(I);
     end;
 
     if
       not VIsSetFound and
-      (FTimes[1].MoonSet <> 0) and
-      (FTimes[1].MoonSet <= AParams.EndOfTheDay) then
+      (VTimes[1].MoonSet <> 0) and
+      (VTimes[1].MoonSet <= AParams.EndOfTheDay) then
     begin
-      Result[I] := SunCalcDayEvent(FTimes[1].MoonSet, rsSet, False, 5, 0);
+      Result[I] := SunCalcDayEvent(VTimes[1].MoonSet, rsSet, False, 5, 0);
       Inc(I);
     end;
   end;

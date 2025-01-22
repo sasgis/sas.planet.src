@@ -516,6 +516,7 @@ begin
 
     if not VIsSameLocation or not VIsSameDate then begin
       if not FSunCalcProvider.GetTzOffset(VDateTime, VTzOffset) then begin
+        // use system timezone offset if libtz is not available
         VTzOffset := TTimeZoneInfo.GetSystemTzOffset(VDateTime);
       end;
       VIsSameTzOffset := SameValue(VTzOffset, FTzOffset);

@@ -183,6 +183,7 @@ begin
     FTimesDate := AStartOfTheDay;
     FTimesLocation := ALonLat;
     FIsTimesPrepared := True;
+    FIsDayEventsPrepared := False;
   end;
 
   Result.RiseTime := FTimes[sunrise].Value;
