@@ -5,7 +5,7 @@ interface
 {.$DEFINE TIFF_STATIC_LINK}
 
 {$IFDEF DEBUG}
-  {$DEFINE TIFF_SETUP_ERROR_HANDLERS}
+  {.$DEFINE TIFF_SETUP_ERROR_HANDLERS}
 {$ENDIF}
 
 const
@@ -420,14 +420,16 @@ uses
 {$ENDIF}
 
 {$IFDEF TIFF_SETUP_ERROR_HANDLERS}
-function vsnprintf(ABuffer: PAnsiChar; ACount: LongWord;
+function _vsnprintf(ABuffer: PAnsiChar; ACount: LongWord;
   AFmt: PAnsiChar; AArgPtr: Pointer): Integer; cdecl; external 'msvcrt.dll';
 
 procedure _TiffMsgHandler(const AMsgId: PAnsiChar; const AModule: PAnsiChar;
   const AFmt: PAnsiChar; const AArgs: Pointer);
+const
+  cSize = 4 * 1024;
 var
   VMsg: AnsiString;
-  VBuffer: array[0..4096] of AnsiChar;
+  VBuffer: Pointer;
   VCount: Integer;
 begin
   VMsg := AnsiString('[LIBTIFF ') + AMsgId + AnsiString(']: ');
@@ -435,9 +437,16 @@ begin
     VMsg := VMsg + AModule + ' - ';
   end;
 
-  VCount := vsnprintf(@VBuffer[0], SizeOf(VBuffer), AFmt, AArgs);
-  if VCount > 0 then begin
-    VMsg := VMsg + '"' + AnsiString(VBuffer) + '"';
+  VBuffer := AllocMem(cSize);
+  try
+    VCount := _vsnprintf(VBuffer, cSize - 1, AFmt, AArgs);
+    if VCount > 0 then begin
+      VMsg := VMsg + '"' + PAnsiChar(VBuffer) + '"';
+    end else begin
+      VMsg := VMsg + '"' + PAnsiChar(AFmt) + '" (_vsnprintf error: the output buffer is too small!)';
+    end;
+  finally
+    FreeMem(VBuffer);
   end;
 
   OutputDebugString(PChar(string(VMsg)));
@@ -547,11 +556,6 @@ procedure UnloadLib;
 begin
   GLock.Acquire;
   try
-    if GHandle <> 0 then begin
-      FreeLibrary(GHandle);
-      GHandle := 0;
-    end;
-
     TIFFGetVersion := nil;
     TIFFOpen := nil;
     TIFFOpenW := nil;
@@ -566,6 +570,11 @@ begin
     TIFFReadTile := nil;
     TIFFSetWarningHandler := nil;
     TIFFSetErrorHandler := nil;
+
+    if GHandle <> 0 then begin
+      FreeLibrary(GHandle);
+      GHandle := 0;
+    end;
   finally
     GIsInitialized := False;
     GLock.Release;
