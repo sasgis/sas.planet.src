@@ -40,19 +40,22 @@ type
     FFilterMode: Boolean;
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
-    FGradientDays: integer;
+    FGradientDays: Integer;
+    FFillColorPresetId: Integer;
   private
+    { IFillingMapColorer }
     function GetColor(const ATileInfo: ITileInfoBasic): TColor32; overload;
     function GetColor(const ATileInfo: TTileInfo): TColor32; overload;
   public
     constructor Create(
-      ANoTileColor: TColor32;
-      AShowTNE: Boolean;
-      ATNEColor: TColor32;
-      AFillMode: TFillMode;
-      AFilterMode: Boolean;
-      AFillFirstDay: TDateTime;
-      AFillLastDay: TDateTime
+      const ANoTileColor: TColor32;
+      const AShowTNE: Boolean;
+      const ATNEColor: TColor32;
+      const AFillMode: TFillMode;
+      const AFilterMode: Boolean;
+      const AFillFirstDay: TDateTime;
+      const AFillLastDay: TDateTime;
+      const AFillColorPresetId: Integer
     );
   end;
 
@@ -67,15 +70,18 @@ uses
 { TFillingMapColorerSimple }
 
 constructor TFillingMapColorerSimple.Create(
-  ANoTileColor: TColor32;
-  AShowTNE: Boolean;
-  ATNEColor: TColor32;
-  AFillMode: TFillMode;
-  AFilterMode: Boolean;
-  AFillFirstDay, AFillLastDay: TDateTime
+  const ANoTileColor: TColor32;
+  const AShowTNE: Boolean;
+  const ATNEColor: TColor32;
+  const AFillMode: TFillMode;
+  const AFilterMode: Boolean;
+  const AFillFirstDay: TDateTime;
+  const AFillLastDay: TDateTime;
+  const AFillColorPresetId: Integer
 );
 begin
   inherited Create;
+
   FNoTileColor := ANoTileColor;
   FShowTNE := AShowTNE;
   FTNEColor := ATNEColor;
@@ -89,6 +95,7 @@ begin
     FFillLastDay := DateOf(Now);
   end;
   FGradientDays := Trunc(FFillLastDay + 1.0 - FFillFirstDay);
+  FFillColorPresetId := AFillColorPresetId;
 end;
 
 function TFillingMapColorerSimple.GetColor(const ATileInfo: ITileInfoBasic): TColor32;
@@ -96,34 +103,31 @@ var
   VTileInfo: TTileInfo;
   VInfoWithData: ITileInfoWithData;
 begin
-  try
-    if Assigned(ATileInfo) then begin
-      VTileInfo.FLoadDate := ATileInfo.LoadDate;
-      VTileInfo.FSize := ATileInfo.Size;
-      VTileInfo.FVersionInfo := ATileInfo.VersionInfo;
-      VTileInfo.FContentType := ATileInfo.ContentType;
-      if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
-        VTileInfo.FData := VInfoWithData.TileData;
-      end;
-      if ATileInfo.IsExists then begin
-        VTileInfo.FInfoType := titExists;
-      end else if ATileInfo.IsExistsTNE then begin
-        VTileInfo.FInfoType := titTneExists;
-      end else begin
-        VTileInfo.FInfoType := titNotExists;
-      end;
+  if Assigned(ATileInfo) then begin
+    VTileInfo.FLoadDate := ATileInfo.LoadDate;
+    VTileInfo.FSize := ATileInfo.Size;
+    VTileInfo.FVersionInfo := ATileInfo.VersionInfo;
+    VTileInfo.FContentType := ATileInfo.ContentType;
+    if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
+      VTileInfo.FData := VInfoWithData.TileData;
     end else begin
-      VTileInfo.FInfoType := titNotExists;
-      VTileInfo.FVersionInfo := nil;
-      VTileInfo.FContentType := nil;
       VTileInfo.FData := nil;
     end;
-  finally
+    if ATileInfo.IsExists then begin
+      VTileInfo.FInfoType := titExists;
+    end else
+    if ATileInfo.IsExistsTNE then begin
+      VTileInfo.FInfoType := titTneExists;
+    end else begin
+      VTileInfo.FInfoType := titNotExists;
+    end;
+  end else begin
     VTileInfo.FInfoType := titNotExists;
     VTileInfo.FVersionInfo := nil;
     VTileInfo.FContentType := nil;
     VTileInfo.FData := nil;
   end;
+
   Result := GetColor(VTileInfo);
 end;
 
@@ -131,49 +135,60 @@ function TFillingMapColorerSimple.GetColor(
   const ATileInfo: TTileInfo
 ): TColor32;
 var
-  VFileExists: Boolean;
   VFileDate: TDateTime;
   VDateCompare: TValueRelationship;
   VC1, VC2: Double;
 begin
   Result := 0;
-  VFileExists := ATileInfo.FInfoType = titExists;
-  if VFileExists then begin
+  if ATileInfo.FInfoType = titExists then begin
     if FFillMode = fmExisting then begin
       if FFilterMode then begin
         VFileDate := ATileInfo.FLoadDate;
         VDateCompare := CompareDate(VFileDate, FFillLastDay);
-        if (VDateCompare < GreaterThanValue) then begin
+        if VDateCompare < GreaterThanValue then begin
           VDateCompare := CompareDate(VFileDate, FFillFirstDay);
-          if (VDateCompare > LessThanValue) then begin
+          if VDateCompare > LessThanValue then begin
             Result := FNoTileColor;
           end;
         end;
       end else begin
         Result := FNoTileColor;
       end;
-    end else if FFillMode = fmGradient then begin
+    end else
+    if FFillMode = fmGradient then begin
       VFileDate := ATileInfo.FLoadDate;
       VDateCompare := CompareDate(VFileDate, FFillLastDay);
-      if (VDateCompare <> GreaterThanValue) then begin
+      if VDateCompare <> GreaterThanValue then begin
         VDateCompare := CompareDate(VFileDate, FFillFirstDay);
-        if (VDateCompare <> LessThanValue) then begin
+        if VDateCompare <> LessThanValue then begin
           VFileDate := FFillLastDay + 1.0 - VFileDate;
           VC1 := 255.0 * (-1.0 + 2.0 * VFileDate / FGradientDays);
-          if (VC1 > 255.0) then begin
+          if VC1 > 255.0 then begin
             VC1 := 255.0;
           end;
-          if (VC1 < 0.0) then begin
+          if VC1 < 0.0 then begin
             VC1 := 0.0;
           end;
           VC2 := 255.0 * 2.0 * VFileDate / FGradientDays;
-          if (VC2 > 255.0) then begin
+          if VC2 > 255.0 then begin
             VC2 := 255.0;
           end;
-          if (VC2 < 0.0) then begin
+          if VC2 < 0.0 then begin
             VC2 := 0.0;
           end;
-          Result := Color32(Trunc(VC1), Trunc(255.0 - VC2), Trunc(VC2 - VC1), AlphaComponent(FNoTileColor));
+          case FFillColorPresetId of
+            1: begin // purple
+              Result := Color32(Trunc(255.0 - VC2), Trunc(VC1 * 0.5), Trunc(255.0 - VC1), AlphaComponent(FNoTileColor));
+            end;
+            2: begin // blue
+              Result := Color32(Trunc(VC1), Trunc(VC2), Trunc(255.0 - VC1), AlphaComponent(FNoTileColor));
+            end;
+            3: begin // red
+              Result := Color32(Trunc(255.0 - VC2), Trunc(VC1), Trunc(VC2 - VC1), AlphaComponent(FNoTileColor));
+            end;
+          else // green
+            Result := Color32(Trunc(VC1), Trunc(255.0 - VC2), Trunc(VC2 - VC1), AlphaComponent(FNoTileColor));
+          end;
         end;
       end;
     end;

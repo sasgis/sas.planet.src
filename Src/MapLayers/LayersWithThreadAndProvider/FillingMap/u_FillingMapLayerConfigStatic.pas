@@ -43,7 +43,9 @@ type
     FFilterMode: Boolean;
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
+    FFillColorPresetId: Integer;
   private
+    { IFillingMapLayerConfigStatic }
     function GetVisible: Boolean;
     function GetSelectedMap: TGUID;
     function GetUseRelativeZoom: Boolean;
@@ -55,19 +57,21 @@ type
     function GetFilterMode: Boolean;
     function GetFillFirstDay: TDateTime;
     function GetFillLastDay: TDateTime;
+    function GetFillColorPresetId: Integer;
   public
     constructor Create(
-      AVisible: Boolean;
+      const AVisible: Boolean;
       const ASelectedMap: TGUID;
-      AUseRelativeZoom: Boolean;
-      AZoom: Byte;
-      ANoTileColor: TColor32;
-      AShowTNE: Boolean;
-      ATNEColor: TColor32;
-      AFillMode: TFillMode;
-      AFilterMode: Boolean;
+      const AUseRelativeZoom: Boolean;
+      const AZoom: Byte;
+      const ANoTileColor: TColor32;
+      const AShowTNE: Boolean;
+      const ATNEColor: TColor32;
+      const AFillMode: TFillMode;
+      const AFilterMode: Boolean;
       const AFillFirstDay: TDateTime;
-      const AFillLastDay: TDateTime
+      const AFillLastDay: TDateTime;
+      const AFillColorPresetId: Integer
     );
   end;
 
@@ -76,17 +80,18 @@ implementation
 { TFillingMapLayerConfigStatic }
 
 constructor TFillingMapLayerConfigStatic.Create(
-  AVisible: Boolean;
+  const AVisible: Boolean;
   const ASelectedMap: TGUID;
-  AUseRelativeZoom: Boolean;
-  AZoom: Byte;
-  ANoTileColor: TColor32;
-  AShowTNE: Boolean;
-  ATNEColor: TColor32;
-  AFillMode: TFillMode;
-  AFilterMode: Boolean;
+  const AUseRelativeZoom: Boolean;
+  const AZoom: Byte;
+  const ANoTileColor: TColor32;
+  const AShowTNE: Boolean;
+  const ATNEColor: TColor32;
+  const AFillMode: TFillMode;
+  const AFilterMode: Boolean;
   const AFillFirstDay: TDateTime;
-  const AFillLastDay: TDateTime
+  const AFillLastDay: TDateTime;
+  const AFillColorPresetId: Integer
 );
 begin
   inherited Create;
@@ -101,6 +106,7 @@ begin
   FFilterMode := AFilterMode;
   FFillFirstDay := AFillFirstDay;
   FFillLastDay := AFillLastDay;
+  FFillColorPresetId := AFillColorPresetId;
 end;
 
 function TFillingMapLayerConfigStatic.GetNoTileColor: TColor32;
@@ -146,6 +152,11 @@ end;
 function TFillingMapLayerConfigStatic.GetFilterMode: Boolean;
 begin
   Result := FFilterMode;
+end;
+
+function TFillingMapLayerConfigStatic.GetFillColorPresetId: Integer;
+begin
+  Result := FFillColorPresetId;
 end;
 
 function TFillingMapLayerConfigStatic.GetFillFirstDay: TDateTime;

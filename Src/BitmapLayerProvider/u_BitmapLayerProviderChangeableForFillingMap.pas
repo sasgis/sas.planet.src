@@ -146,7 +146,8 @@ begin
         VConfig.FillMode,
         VConfig.FilterMode,
         VConfig.FillFirstDay,
-        VConfig.FillLastDay
+        VConfig.FillLastDay,
+        VConfig.FillColorPresetId
       );
     VResult :=
       TBitmapLayerProviderFillingMap.Create(

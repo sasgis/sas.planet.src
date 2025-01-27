@@ -65,6 +65,9 @@ type
 
     function GetFillLastDay: TDateTime;
     property FillLastDay: TDateTime read GetFillLastDay;
+
+    function GetFillColorPresetId: Integer;
+    property FillColorPresetId: Integer read GetFillColorPresetId;
   end;
 
   IFillingMapLayerConfig = interface(IConfigDataElement)
@@ -108,6 +111,10 @@ type
     function GetFillLastDay: TDateTime;
     procedure SetFillLastDay(const AValue: TDateTime);
     property FillLastDay: TDateTime read GetFillLastDay write SetFillLastDay;
+
+    function GetFillColorPresetId: Integer;
+    procedure SetFillColorPresetId(const AValue: Integer);
+    property FillColorPresetId: Integer read GetFillColorPresetId write SetFillColorPresetId;
 
     function GetThreadConfig: IThreadConfig;
     property ThreadConfig: IThreadConfig read GetThreadConfig;

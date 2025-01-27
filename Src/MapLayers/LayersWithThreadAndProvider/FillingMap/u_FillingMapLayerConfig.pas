@@ -49,6 +49,7 @@ type
     FFilterMode: Boolean;
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
+    FFillColorPresetId: Integer;
     FThreadConfig: IThreadConfig;
   protected
     function CreateStatic: IInterface; override;
@@ -56,6 +57,7 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    { IFillingMapLayerConfig }
     function GetVisible: Boolean;
     procedure SetVisible(const AValue: Boolean);
 
@@ -85,6 +87,9 @@ type
 
     function GetFillLastDay: TDateTime;
     procedure SetFillLastDay(const AValue: TDateTime);
+
+    function GetFillColorPresetId: Integer;
+    procedure SetFillColorPresetId(const AValue: Integer);
 
     function GetThreadConfig: IThreadConfig;
     function GetSourceMap: IActiveMapConfig;
@@ -121,6 +126,7 @@ begin
   FFilterMode := False;
   FFillFirstDay := EncodeDate(2000, 1, 1);
   FFillLastDay := DateOf(Now);
+  FFillColorPresetId := 0;
 
   FSourceMap := TActiveMapConfig.Create(True, CGUID_Zero);
   Add(FSourceMap, TConfigSaveLoadStrategyBasicUseProvider.Create);
@@ -145,7 +151,8 @@ begin
       FFillMode,
       FFilterMode,
       FFillFirstDay,
-      FFillLastDay
+      FFillLastDay,
+      FFillColorPresetId
     );
   Result := VStatic;
 end;
@@ -164,6 +171,7 @@ begin
     FFilterMode := AConfigData.ReadBool('DateFilter', FFilterMode);
     FFillFirstDay := AConfigData.ReadDate('FirstDay', FFillFirstDay);
     FFillLastDay := AConfigData.ReadDate('LastDay', FFillLastDay);
+    FFillColorPresetId := AConfigData.ReadInteger('FillColorPresetId', FFillColorPresetId);
 
     SetChanged;
   end;
@@ -188,6 +196,7 @@ begin
   end else begin
     AConfigData.DeleteValue('LastDay');
   end;
+  AConfigData.WriteInteger('FillColorPresetId', FFillColorPresetId);
 end;
 
 function TFillingMapLayerConfig.GetNoTileColor: TColor32;
@@ -280,6 +289,16 @@ begin
   LockRead;
   try
     Result := FFilterMode;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TFillingMapLayerConfig.GetFillColorPresetId: Integer;
+begin
+  LockRead;
+  try
+    Result := FFillColorPresetId;
   finally
     UnlockRead;
   end;
@@ -402,6 +421,19 @@ begin
   try
     if FFilterMode <> AValue then begin
       FFilterMode := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TFillingMapLayerConfig.SetFillColorPresetId(const AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FFillColorPresetId <> AValue then begin
+      FFillColorPresetId := AValue;
       SetChanged;
     end;
   finally
