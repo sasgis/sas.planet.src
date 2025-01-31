@@ -48,7 +48,6 @@ uses
   i_HtmlToHintTextConverter,
   u_BinaryData,
   u_ProjConverterFactory,
-  u_VectorDataItemBase,
   u_VectorDataFactorySimple,
   u_VectorItemSubsetBuilder,
   u_InternalPerformanceCounterFake,

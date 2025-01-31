@@ -1414,6 +1414,7 @@ uses
   u_SlsParser in 'Src\VectorLoaders\u_SlsParser.pas',
   u_VectorDataLoaderWithCounter in 'Src\VectorLoaders\u_VectorDataLoaderWithCounter.pas',
   u_WikimapiaKmlSimpleParser in 'Src\VectorLoaders\u_WikimapiaKmlSimpleParser.pas',
+  u_WikimapiaPlainTextParser in 'Src\VectorLoaders\u_WikimapiaPlainTextParser.pas',
   u_XmlInfoSimpleParser in 'Src\VectorLoaders\u_XmlInfoSimpleParser.pas',
   u_XmlVectorObjects in 'Src\VectorLoaders\u_XmlVectorObjects.pas',
   i_Appearance in 'Src\Vector\i_Appearance.pas',

@@ -1790,6 +1790,7 @@
         <DCCReference Include="Src\VectorLoaders\u_SlsParser.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_VectorDataLoaderWithCounter.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_WikimapiaKmlSimpleParser.pas"/>
+        <DCCReference Include="Src\VectorLoaders\u_WikimapiaPlainTextParser.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_XmlInfoSimpleParser.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_XmlVectorObjects.pas"/>
         <DCCReference Include="Src\Vector\i_Appearance.pas"/>

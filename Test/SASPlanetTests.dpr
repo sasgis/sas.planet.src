@@ -38,7 +38,8 @@ uses
   u_RegularExpressions_Test in 'u_RegularExpressions_Test.pas',
   u_SASTestCase in 'u_SASTestCase.pas',
   u_UpdateChecker_Test in 'u_UpdateChecker_Test.pas',
-  u_VectorItmesFactorySimple_Test in 'u_VectorItmesFactorySimple_Test.pas';
+  u_VectorItmesFactorySimple_Test in 'u_VectorItmesFactorySimple_Test.pas',
+  u_WikimapiaPlainTextParser_Test in 'u_WikimapiaPlainTextParser_Test.pas';
 
 begin
   GDllName.Init;

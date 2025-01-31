@@ -205,6 +205,7 @@
         <DCCReference Include="u_SASTestCase.pas"/>
         <DCCReference Include="u_UpdateChecker_Test.pas"/>
         <DCCReference Include="u_VectorItmesFactorySimple_Test.pas"/>
+        <DCCReference Include="u_WikimapiaPlainTextParser_Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

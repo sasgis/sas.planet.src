@@ -140,6 +140,7 @@ uses
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
   u_WikimapiaKmlSimpleParser,
+  u_WikimapiaPlainTextParser,
   u_KmzInfoSimpleParser,
   u_XmlInfoSimpleParser,
   u_GeoJsonParser,
@@ -269,6 +270,22 @@ begin
   VContentType := TContentTypeInfoVector.Create(
     'application/geo+json',
     '.geojson',
+    VParser
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+  AddByExt(VContentType, VContentType.GetDefaultExt);
+
+  // Plain text (wikimapia)
+  VParser :=
+    TWikimapiaPlainTextParser.Create(
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AVectorGeometryLonLatFactory
+    );
+
+  VContentType := TContentTypeInfoVector.Create(
+    'application/vnd.sas.wikimapia.txt',
+    '.wikitxt',
     VParser
   );
   AddByType(VContentType, VContentType.GetContentType);
