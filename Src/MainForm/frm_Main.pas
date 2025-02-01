@@ -1217,6 +1217,7 @@ uses
   i_ProjectionType,
   i_Projection,
   i_GeometryProjected,
+  i_LonLatRect,
   i_LocalCoordConverterChangeable,
   i_GUIDListStatic,
   i_ActiveMapsConfig,
@@ -1235,6 +1236,7 @@ uses
   i_MapVersionListStatic,
   i_MapLayerGridsConfig,
   i_InternalDomainOptions,
+  i_InterfaceListSimple,
   i_TileInfoBasic,
   i_TileStorage,
   i_TileStorageAbilities,
@@ -1253,6 +1255,8 @@ uses
   i_ScaleLineConfig,
   i_DoublePointsAggregator,
   i_FavoriteMapSetItemStatic,
+  u_SortFunc,
+  u_InterfaceListSimple,
   u_FavoriteMapSetHotKeyList,
   u_FavoriteMapSetHelper,
   u_StickToGrids,
@@ -1880,50 +1884,65 @@ function TfrmMain.FindItems(
   const AVisualConverter: ILocalCoordConverter;
   const ALocalPoint: TPoint
 ): IVectorItemSubset;
+
+  procedure _AddItems(const AItems: IVectorItemSubset; const ABuilder: IVectorItemSubsetBuilder);
+  var
+    I: Integer;
+    VRect: ILonLatRect;
+    VItem: IVectorDataItem;
+    VList: IInterfaceListSimple;
+    VArea: array of Integer;
+  begin
+    if AItems = nil then begin
+      Exit;
+    end;
+
+    if AItems.Count = 1 then begin
+      ABuilder.Add(AItems[0]);
+      Exit;
+    end;
+
+    // sort by area
+    VList := TInterfaceListSimple.Create;
+    VList.Capacity := AItems.Count;
+    SetLength(VArea, AItems.Count);
+    for I := 0 to AItems.Count - 1 do begin
+      VItem := AItems[I];
+      VRect := VItem.Geometry.Bounds;
+      VArea[I] := Round((VRect.Right - VRect.Left) * (VRect.Top - VRect.Bottom) * 1e6);
+      VList.Add(VItem);
+    end;
+
+    StableSortInterfaceListByIntegerMeasure(VList, VArea);
+
+    // add
+    for I := 0 to VList.Count - 1 do begin
+      ABuilder.Add( IVectorDataItem(VList[I]) );
+    end;
+  end;
+
 var
-  I: Integer;
   VSubsetBuilder: IVectorItemSubsetBuilder;
-  VVectorItems: IVectorItemSubset;
-  VEnumUnknown: IEnumUnknown;
-  VItem: IVectorDataItem;
 begin
   VSubsetBuilder := GState.VectorItemSubsetBuilderFactory.Build;
 
-  VVectorItems := FWikiLayer.FindItems(AVisualConverter, ALocalPoint);
-  if VVectorItems <> nil then begin
-    if VVectorItems.Count > 0 then begin
-      VEnumUnknown := VVectorItems.GetEnum;
-      if VEnumUnknown <> nil then begin
-        while VEnumUnknown.Next(1, VItem, @I) = S_OK do begin
-          VSubsetBuilder.Add(VItem);
-        end;
-      end;
-    end;
-  end;
+  // vector layers
+  _AddItems(
+    FWikiLayer.FindItems(AVisualConverter, ALocalPoint),
+    VSubsetBuilder
+  );
 
-  VVectorItems := FLayerSearchResults.FindItems(AVisualConverter, ALocalPoint);
-  if VVectorItems <> nil then begin
-    if VVectorItems.Count > 0 then begin
-      VEnumUnknown := VVectorItems.GetEnum;
-      if VEnumUnknown <> nil then begin
-        while VEnumUnknown.Next(1, VItem, @I) = S_OK do begin
-          VSubsetBuilder.Add(VItem);
-        end;
-      end;
-    end;
-  end;
+  // search results
+  _AddItems(
+    FLayerSearchResults.FindItems(AVisualConverter, ALocalPoint),
+    VSubsetBuilder
+  );
 
-  VVectorItems := FLayerMapMarks.FindItems(AVisualConverter, ALocalPoint);
-  if VVectorItems <> nil then begin
-    if VVectorItems.Count > 0 then begin
-      VEnumUnknown := VVectorItems.GetEnum;
-      if VEnumUnknown <> nil then begin
-        while VEnumUnknown.Next(1, VItem, @I) = S_OK do begin
-          VSubsetBuilder.Add(VItem);
-        end;
-      end;
-    end;
-  end;
+  // placemarks
+  _AddItems(
+    FLayerMapMarks.FindItems(AVisualConverter, ALocalPoint),
+    VSubsetBuilder
+  );
 
   Result := VSubsetBuilder.MakeStaticAndClear;
 end;
