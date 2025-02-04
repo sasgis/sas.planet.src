@@ -24,6 +24,7 @@ implementation
 
 uses
   Types,
+  RegularExpressions,
   c_CoordConverter,
   i_SimpleFlag,
   i_TileRequest,
@@ -84,21 +85,35 @@ begin
       FRequestBuilderConfig
     );
   try
-    FRequestBuilderConfig.UrlBase := 'https://{s}.example.com/{z}/{x}/{y}.png';
-    FRequestBuilderConfig.ServerNames := 'n1, n1 ';
+    FRequestBuilderConfig.UrlBase := 'http://{s}.example.com/{z}/{x}/{y}.png';
+    FRequestBuilderConfig.ServerNames := 'n1, n2 ';
     VUrl := VUrlTemplate.Render(VRequest);
-    Check(VUrl = 'https://n1.example.com/18/200/300.png', VUrl);
+    Check(TRegEx.IsMatch(VUrl, 'http://(n1|n2)\.example\.com/18/200/300\.png'), VUrl);
+
+    FRequestBuilderConfig.UrlBase := 'http://{a,b,c,d}.example.com/{z}/{x}/{y}.png';
+    FRequestBuilderConfig.ServerNames := '';
+    VUrl := VUrlTemplate.Render(VRequest);
+    Check(TRegEx.IsMatch(VUrl, 'http://(a|b|c|d)\.example\.com/18/200/300\.png'), VUrl);
+
+    FRequestBuilderConfig.UrlBase := 'http://example.com/{z-1}/{x*2}/{y/2}.png';
+    FRequestBuilderConfig.ServerNames := '';
+    VUrl := VUrlTemplate.Render(VRequest);
+    Check(VUrl = 'http://example.com/17/400/150.png', VUrl);
 
     FRequestBuilderConfig.UrlBase := 'http://example.com/{q}';
     VUrl := VUrlTemplate.Render(VRequest);
     Check(VUrl = 'http://example.com/000000000211203200', VUrl);
 
-    //
-    FRequestBuilderConfig.UrlBase := 'https://{s}.example.com/p?bbox={bbox}';
-    FRequestBuilderConfig.ServerNames := 'a,b,c,d';
+    FRequestBuilderConfig.UrlBase := 'http://example.com/p?bbox={bbox}';
+    FRequestBuilderConfig.ServerNames := '';
     VUrl := VUrlTemplate.Render(VRequest);
+    Check(VUrl = 'http://example.com/p?bbox=-20006933.53147518,19991493.25176157,-20006780.65741860,19991646.12581813', VUrl);
 
     FRequestBuilderConfig.UrlBase := 'http://example.com/{sas_path}.png';
+    VUrl := VUrlTemplate.Render(VRequest);
+    Check(VUrl = 'http://example.com/z19/0/x200/0/y300.png', VUrl);
+
+    FRequestBuilderConfig.UrlBase := 'http://example.com/z{z+1}/{x/1024}/x{x}/{y/1024}/y{y}.png';
     VUrl := VUrlTemplate.Render(VRequest);
     Check(VUrl = 'http://example.com/z19/0/x200/0/y300.png', VUrl);
   finally

@@ -35,7 +35,8 @@ uses
   i_TileDownloadRequestBuilderConfig,
   i_LanguageManager,
   i_Listener,
-  i_SimpleFlag;
+  i_SimpleFlag,
+  u_MathExpressionEvaluator;
 
 procedure CompileTimeReg_UrlTemplate(const APSComp: TPSPascalCompiler);
 procedure ExecTimeReg_UrlTemplate(const APSExec: TPSExec; const AObj: TObject);
@@ -45,14 +46,14 @@ type
   private
     type
       TItemValueType = (
-        ivtText, ivtS, ivtX, ivtY, ivtYb, ivtZ, ivtZp1, ivtQ, ivtBBox,
-        ivtTimeStamp, ivtX_1024, ivtY_1024, ivtVer, ivtLang, ivtSasPath
+        ivtText, ivtS, ivtX, ivtY, ivtYb, ivtZ, ivtQ, ivtBBox,
+        ivtTimeStamp, ivtVer, ivtLang, ivtSasPath, ivtMathExpression
       );
 
     const
       CKnownItemValues: array [TItemValueType] of string = (
-        '', 's', 'x', 'y', '-y', 'z', 'z+1', 'q', 'bbox',
-        'timestamp', 'x/1024', 'y/1024', 'ver', 'lang', 'sas_path'
+        '', 's', 'x', 'y', '-y', 'z', 'q', 'bbox',
+        'timestamp', 'ver', 'lang', 'sas_path', ''
       );
 
     type
@@ -66,6 +67,8 @@ type
 
     FUrlTmpl: string;
     FServerNames: array of string;
+    FMathExpressionEvaluator: TMathExpressionEvaluator;
+
     FConfigListener: IListener;
     FConfigChangeFlag: ISimpleFlag;
     FRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -157,6 +160,7 @@ begin
   FItems := nil;
   FUrlTmpl := '';
   FServerNames := nil;
+  FMathExpressionEvaluator := TMathExpressionEvaluator.Create;
 
   FConfigChangeFlag := TSimpleFlagWithInterlock.Create;
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
@@ -183,6 +187,8 @@ begin
     FLangListener := nil;
   end;
 
+  FreeAndNil(FMathExpressionEvaluator);
+
   inherited Destroy;
 end;
 
@@ -198,10 +204,10 @@ end;
 
 function TPascalScriptUrlTemplate.PSTemplateToUrl(const ATmpl: string): string;
 begin
-  Parse(ATmpl);
   if FConfigChangeFlag.CheckFlagAndReset then begin
     ParseServerNames( string(FRequestBuilderConfig.ServerNames) );
   end;
+  Parse(ATmpl);
   Result := DoRender;
 end;
 
@@ -209,8 +215,8 @@ function TPascalScriptUrlTemplate.Render(const ARequest: ITileRequest): string;
 begin
   FRequest := ARequest;
   if FConfigChangeFlag.CheckFlagAndReset then begin
-    Parse( string(FRequestBuilderConfig.UrlBase) );
     ParseServerNames( string(FRequestBuilderConfig.ServerNames) );
+    Parse( string(FRequestBuilderConfig.UrlBase) );
   end;
   Result := DoRender;
 end;
@@ -365,6 +371,9 @@ procedure TPascalScriptUrlTemplate.Parse(const ATmpl: string);
   var
     I: Integer;
   begin
+    if (AVal = '') and (AType = ivtText) then begin
+      Exit;
+    end;
     I := Length(FItems);
     SetLength(FItems, I+1);
     FItems[I].Value := AVal;
@@ -387,14 +396,31 @@ procedure TPascalScriptUrlTemplate.Parse(const ATmpl: string);
   function TagNameToType(const AName: string): TItemValueType;
   var
     I: TItemValueType;
+    J: Integer;
   begin
     Result := ivtText;
+
     for I := Low(CKnownItemValues) to High(CKnownItemValues) do begin
       if CKnownItemValues[I] = AName then begin
         Result := I;
-        Break;
+        Exit;
       end;
     end;
+
+    if Pos(',', AName) > 0 then begin
+      ParseServerNames(AName);
+      Result := ivtS;
+      Exit;
+    end;
+
+    for J := Low(AName) to High(AName) do begin
+      if CharInSet(AName[J], ['+', '-', '*', '/']) then begin
+        Result := ivtMathExpression;
+        Exit;
+      end;
+    end;
+
+    Assert(False, 'Unrecognized tag: "' + AName + '"');
   end;
 
 var
@@ -420,7 +446,7 @@ begin
         // add text before tag
         AddItem( Copy(ATmpl, K, I-K), ivtText);
         // add tag
-        AddItem('', VTagType);
+        AddItem(VTag, VTagType);
       end;
       I := J + 1;
     end else begin
@@ -462,15 +488,13 @@ begin
       ivtY:         VItem.Value := IntToStr(VTile.Y);
       ivtYb:        VItem.Value := IntToStr( (1 shl VZoom) - 1 - VTile.Y );
       ivtZ:         VItem.Value := IntToStr(VZoom);
-      ivtZp1:       VItem.Value := IntToStr(VZoom + 1);
       ivtQ:         VItem.Value := GetQuadkey(VTile.X, VTile.Y, VZoom);
       ivtBBox:      VItem.Value := GetBBox(VTile, VZoom);
       ivtTimeStamp: VItem.Value := IntToStr(DateTimeToUnix(Now));
-      ivtX_1024:    VItem.Value := IntToStr(VTile.X div 1024);
-      ivtY_1024:    VItem.Value := IntToStr(VTile.Y div 1024);
       ivtVer:       VItem.Value := GetVersionValue;
       ivtLang:      VItem.Value := GetLangValue;
       ivtSasPath:   VItem.Value := GetSasPathValue(VTile.X, VTile.Y, VZoom);
+      ivtMathExpression: VItem.Value := FMathExpressionEvaluator.Evaluate(VItem.Value, VTile.X, VTile.Y, VZoom);
     else
       Assert(False);
     end;

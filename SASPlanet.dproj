@@ -1233,6 +1233,7 @@
         <DCCReference Include="Src\PascalScript\i_PascalScriptLogger.pas"/>
         <DCCReference Include="Src\PascalScript\i_PascalScriptTileCache.pas"/>
         <DCCReference Include="Src\PascalScript\t_PascalScript.pas"/>
+        <DCCReference Include="Src\PascalScript\u_MathExpressionEvaluator.pas"/>
         <DCCReference Include="Src\PascalScript\u_PSExecEx.pas"/>
         <DCCReference Include="Src\PascalScript\u_PSPascalCompilerEx.pas"/>
         <DCCReference Include="Src\PascalScript\u_PascalScriptBase64.pas"/>

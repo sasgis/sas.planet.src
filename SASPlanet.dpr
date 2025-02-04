@@ -974,6 +974,7 @@ uses
   i_PascalScriptLogger in 'Src\PascalScript\i_PascalScriptLogger.pas',
   i_PascalScriptTileCache in 'Src\PascalScript\i_PascalScriptTileCache.pas',
   t_PascalScript in 'Src\PascalScript\t_PascalScript.pas',
+  u_MathExpressionEvaluator in 'Src\PascalScript\u_MathExpressionEvaluator.pas',
   u_PSExecEx in 'Src\PascalScript\u_PSExecEx.pas',
   u_PSPascalCompilerEx in 'Src\PascalScript\u_PSPascalCompilerEx.pas',
   u_PascalScriptBase64 in 'Src\PascalScript\u_PascalScriptBase64.pas',
