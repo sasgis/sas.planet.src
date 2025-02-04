@@ -58,6 +58,7 @@ type
 
     type
       TItemRec = record
+        Expr: string;
         Value: string;
         ValueType: TItemValueType;
       end;
@@ -367,7 +368,7 @@ end;
 
 procedure TPascalScriptUrlTemplate.Parse(const ATmpl: string);
 
-  procedure AddItem(const AVal: string; AType: TItemValueType);
+  procedure AddItem(const AExpr, AVal: string; AType: TItemValueType);
   var
     I: Integer;
   begin
@@ -376,6 +377,7 @@ procedure TPascalScriptUrlTemplate.Parse(const ATmpl: string);
     end;
     I := Length(FItems);
     SetLength(FItems, I+1);
+    FItems[I].Expr := AExpr;
     FItems[I].Value := AVal;
     FItems[I].ValueType := AType;
   end;
@@ -441,16 +443,20 @@ begin
       VTagType := TagNameToType(VTag);
       if VTagType = ivtText then begin
         // add text before tag and unrecognized tag
-        AddItem( Copy(ATmpl, K, J - K + 1), ivtText);
+        AddItem('', Copy(ATmpl, K, J - K + 1), ivtText);
       end else begin
         // add text before tag
-        AddItem( Copy(ATmpl, K, I-K), ivtText);
+        AddItem('', Copy(ATmpl, K, I-K), ivtText);
         // add tag
-        AddItem(VTag, VTagType);
+        if VTagType = ivtMathExpression then begin
+          AddItem(LowerCase(VTag), '', VTagType);
+        end else begin
+          AddItem('', '', VTagType);
+        end;
       end;
       I := J + 1;
     end else begin
-      AddItem( Copy(ATmpl, K, Length(ATmpl) - K + 1), ivtText);
+      AddItem('', Copy(ATmpl, K, Length(ATmpl) - K + 1), ivtText);
       Break;
     end;
   end;
@@ -494,7 +500,7 @@ begin
       ivtVer:       VItem.Value := GetVersionValue;
       ivtLang:      VItem.Value := GetLangValue;
       ivtSasPath:   VItem.Value := GetSasPathValue(VTile.X, VTile.Y, VZoom);
-      ivtMathExpression: VItem.Value := FMathExpressionEvaluator.Evaluate(VItem.Value, VTile.X, VTile.Y, VZoom);
+      ivtMathExpression: VItem.Value := FMathExpressionEvaluator.Evaluate(VItem.Expr, VTile.X, VTile.Y, VZoom);
     else
       Assert(False);
     end;

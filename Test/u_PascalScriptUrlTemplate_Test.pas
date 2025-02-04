@@ -51,7 +51,9 @@ var
 begin
   inherited;
 
-  FLanguageManager := TLanguageManager.Create('.\lang\');
+  if FLanguageManager = nil then begin
+    FLanguageManager := TLanguageManager.Create('.\lang\');
+  end;
 
   VHashFunction := THashFunctionByImpl.Create(THashFunctionCRC64.Create as IHashFunctionImpl);
   VDatumFactory := TDatumFactory.Create(VHashFunction);
@@ -99,6 +101,11 @@ begin
     FRequestBuilderConfig.ServerNames := '';
     VUrl := VUrlTemplate.Render(VRequest);
     Check(VUrl = 'http://example.com/17/400/150.png', VUrl);
+
+    FRequestBuilderConfig.UrlBase := 'http://example.com/{z-1}/{x*2}/{y/2}.png';
+    FRequestBuilderConfig.ServerNames := '';
+    VUrl := VUrlTemplate.Render(TTileRequest.Create(CTile, CZoom+1, nil));
+    Check(VUrl = 'http://example.com/18/400/150.png', VUrl);
 
     FRequestBuilderConfig.UrlBase := 'http://example.com/{q}';
     VUrl := VUrlTemplate.Render(VRequest);
