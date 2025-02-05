@@ -25,13 +25,11 @@ interface
 
 uses
   Types,
-  Classes,
   SysUtils,
   uPSRuntime,
   uPSCompiler,
   i_TileRequest,
   i_ProjectionSet,
-  i_TileDownloaderConfig,
   i_TileDownloadRequestBuilderConfig,
   i_LanguageManager,
   i_Listener,
@@ -409,13 +407,12 @@ procedure TPascalScriptUrlTemplate.Parse(const ATmpl: string);
       end;
     end;
 
-    if Pos(',', AName) > 0 then begin
-      ParseServerNames(AName);
-      Result := ivtS;
-      Exit;
-    end;
-
     for J := Low(AName) to High(AName) do begin
+      if AName[J] = ',' then begin
+        ParseServerNames(AName);
+        Result := ivtS;
+        Exit;
+      end else
       if CharInSet(AName[J], ['+', '-', '*', '/']) then begin
         Result := ivtMathExpression;
         Exit;
@@ -449,7 +446,7 @@ begin
         AddItem('', Copy(ATmpl, K, I-K), ivtText);
         // add tag
         if VTagType = ivtMathExpression then begin
-          AddItem(LowerCase(VTag), '', VTagType);
+          AddItem(VTag, '', VTagType);
         end else begin
           AddItem('', '', VTagType);
         end;
