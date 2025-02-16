@@ -79,7 +79,7 @@ begin
   VComp := TPSPascalCompilerEx.Create(FRegProcArray, FStoreDebugInfo);
   try
     Result := VComp.Compile(FScriptText);
-    FDebugInfo := VComp.FDebugInfo;
+    FDebugInfo := VComp.DebugInfo;
     if not Result then begin
       VCompilerMsg := '';
       if VComp.MsgCount > 0 then begin

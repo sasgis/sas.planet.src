@@ -30,14 +30,20 @@ uses
   t_PascalScript;
 
 type
+  TKnownProcsToStringFormat = (kpfNone, kpfWiki, kpfMarkdown);
+
   TPSPascalCompilerEx = class(TPSPascalCompiler)
-  public
+  private
     FDebugInfo: string;
     FStoreDebugInfo: Boolean;
     FRegProcArray: TOnCompileTimeRegProcArray;
     FUsedVars: TStringList;
-    procedure AddUsedVar(const AVarName: string); inline;
-    function IsVarUsed(const AVarName: string): Boolean; inline;
+  private
+    function KnownVarsToString: string;
+    function KnownProcsToString(const AFormat: TKnownProcsToStringFormat): string;
+    function KnownConstsToString: string;
+    function KnownTypesToString: string;
+    procedure DoStoreDebugInfo;
   public
     constructor Create(
       const ARegProcArray: TOnCompileTimeRegProcArray = nil;
@@ -46,11 +52,10 @@ type
     );
     destructor Destroy; override;
 
-    function KnownVarsToString: string;
-    function KnownProcsToString(const AWikiFormat: Boolean = True): string;
-    function KnownConstsToString: string;
-    function KnownTypesToString: string;
-    procedure DoStoreDebugInfo;
+    procedure AddUsedVar(const AVarName: string); inline;
+    function IsVarUsed(const AVarName: string): Boolean; inline;
+
+    property DebugInfo: string read FDebugInfo;
   end;
 
 implementation
@@ -188,7 +193,7 @@ begin
   end;
 end;
 
-function TPSPascalCompilerEx.KnownProcsToString(const AWikiFormat: Boolean): string;
+function TPSPascalCompilerEx.KnownProcsToString(const AFormat: TKnownProcsToStringFormat): string;
 var
   I, J: Integer;
   VProc: TPSRegProc;
@@ -196,13 +201,24 @@ var
   VBoldIdent: string;
 begin
   Result := '';
-  if AWikiFormat then begin
-    VListIdent := '  * ';
-    VBoldIdent := '**';
-  end else begin
-    VListIdent := '';
-    VBoldIdent := '';
+
+  case AFormat of
+    kpfNone: begin
+      VListIdent := '';
+      VBoldIdent := '';
+    end;
+    kpfWiki: begin
+      VListIdent := '  * ';
+      VBoldIdent := '**';
+    end;
+    kpfMarkdown: begin
+      VListIdent := ' - ';
+      VBoldIdent := '';
+    end;
+  else
+    raise Exception.CreateFmt('Unexpected format value: %d', [Integer(AFormat)]);
   end;
+
   for I := 0 to Self.GetRegProcCount - 1 do begin
     VProc := Self.GetRegProc(I);
     if I > 0 then begin
@@ -278,7 +294,10 @@ begin
     'Types (' + IntToStr(Self.GetTypeCount) + '):' + CRLF + KnownTypesToString + CRLF +
     'Const (' + IntToStr(Self.GetConstCount) + '):' + CRLF + KnownConstsToString + CRLF +
     'Var (' + IntToStr(Self.GetVarCount) + '):' + CRLF + KnownVarsToString + CRLF +
-    'Proc (' + IntToStr(Self.GetRegProcCount) + '):' + CRLF + KnownProcsToString;
+    'Proc (' + IntToStr(Self.GetRegProcCount) + '):' + CRLF + KnownProcsToString(kpfNone);
+
+  FDebugInfo := StringReplace(FDebugInfo, '!OPENARRAYOFCONST', 'array of const', [rfIgnoreCase, rfReplaceAll]);
+  FDebugInfo := StringReplace(FDebugInfo, '!OPENARRAYOFVARIANT', 'array of Variant', [rfIgnoreCase, rfReplaceAll]);
 end;
 
 end.

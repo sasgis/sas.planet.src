@@ -140,6 +140,15 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
     end
     object tbxsprtrtm3: TTBXSeparatorItem
     end
+    object tbxtmGenerateGUID: TTBXItem
+      Caption = 'GUID'
+      Hint = 'Insert GUID'
+      ShortCut = 24647
+      Stretch = True
+      OnClick = tbxtmGenerateGUIDClick
+    end
+    object tbxSep3: TTBXSeparatorItem
+    end
     object tbxtmWordWrap: TTBXItem
       AutoCheck = True
       Checked = True
@@ -150,6 +159,12 @@ object frmPascalScriptIDE: TfrmPascalScriptIDE
       Hint = 'Word Wrap'
     end
     object tbxsprtrtm1: TTBXSeparatorItem
+    end
+    object tbxtmPascalScriptEgineInfo: TTBXItem
+      Hint = 'Pascal Script Engine Info'
+      ImageIndex = 27
+      Images = frmMain.MenusImageList
+      OnClick = tbxtmPascalScriptEgineInfoClick
     end
     object tbxtmHelp: TTBXItem
       Hint = 'Online Help'

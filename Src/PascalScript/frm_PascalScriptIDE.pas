@@ -128,6 +128,9 @@ type
     lblversion: TLabel;
     edtVersion: TEdit;
     btnVersion: TButton;
+    tbxtmPascalScriptEgineInfo: TTBXItem;
+    tbxtmGenerateGUID: TTBXItem;
+    tbxSep3: TTBXSeparatorItem;
     procedure tbxtmParamsClick(Sender: TObject);
     procedure tbxtmScriptClick(Sender: TObject);
     procedure tbxtmRunClick(Sender: TObject);
@@ -150,6 +153,8 @@ type
       var CanClose: Boolean
     );
     procedure btnVersionClick(Sender: TObject);
+    procedure tbxtmPascalScriptEgineInfoClick(Sender: TObject);
+    procedure tbxtmGenerateGUIDClick(Sender: TObject);
   private
     FPrepared: Boolean;
     FNeedSavePrompt: Boolean;
@@ -198,11 +203,6 @@ type
     procedure OnBeforeRunScript(const APSExec: TPSExecEx);
     procedure OnExecSuccess;
     procedure CreateSynEditTextHighlighters;
-    procedure SynEditTextKeyHandler(
-      Sender: TObject;
-      var AKey: Word;
-      AShift: TShiftState
-    );
     procedure OnSynEditStatusChange(
       Sender: TObject;
       Changes: TSynStatusChanges
@@ -1067,6 +1067,22 @@ begin
   Compile(VByteCode);
 end;
 
+procedure TfrmPascalScriptIDE.tbxtmPascalScriptEgineInfoClick(Sender: TObject);
+var
+  VComp: TPSPascalCompilerEx;
+begin
+  tbxtmScript.Checked := True;
+  pgcMain.ActivePageIndex := 1;
+  VComp := TPSPascalCompilerEx.Create(GetCompileTimeRegProcArray, True, True);
+  try
+    VComp.Compile('begin end.');
+    FfrmDebug.mmoDbgOut.Lines.Text := VComp.DebugInfo;
+    FfrmDebug.Visible := True;
+  finally
+    VComp.Free;
+  end;
+end;
+
 procedure TfrmPascalScriptIDE.tbxtmDecompileClick(Sender: TObject);
 var
   VByteCode: TbtString;
@@ -1093,6 +1109,31 @@ procedure TfrmPascalScriptIDE.tbxtmFromZipClick(Sender: TObject);
 begin
   if dlgOpenZmpFile.Execute then begin
     InitByZmp(GetZmpFromZip(dlgOpenZmpFile.FileName));
+  end;
+end;
+
+procedure TfrmPascalScriptIDE.tbxtmGenerateGUIDClick(Sender: TObject);
+var
+  VText: string;
+  VSynEdit: TSynEdit;
+begin
+  if pgcMain.ActivePage = tsParams then begin
+    VSynEdit := synedtParams;
+  end else
+  if pgcMain.ActivePage = tsScript then begin
+    VSynEdit := synedtScript;
+  end else begin
+    Exit;
+  end;
+
+  VText := TGUID.NewGuid.ToString;
+
+  if VSynEdit.SelLength > 0 then begin
+    // replace selected text
+    VSynEdit.SelText := VText;
+  end else begin
+    // insert at caret position
+    VSynEdit.InsertBlock(VSynEdit.CaretXY, VSynEdit.CaretXY, PChar(VText), True);
   end;
 end;
 
@@ -1164,29 +1205,6 @@ begin
 
   synedtParams := TSynEditBuilder.SynEditWithIniHighlighter(Self);
   SetProps(synedtParams, pnlParamsTxt, 2);
-
-  synedtParams.AddKeyDownHandler(Self.SynEditTextKeyHandler);
-end;
-
-procedure TfrmPascalScriptIDE.SynEditTextKeyHandler(Sender: TObject; var AKey: Word; AShift: TShiftState);
-var
-  VText: string;
-  VSynEdit: TSynEdit;
-begin
-  VSynEdit := Sender as TSynEdit;
-  if Assigned(VSynEdit) and (VSynEdit.Tag = 2) then begin
-    if (AKey = vkG) and (AShift = [ssShift, ssCtrl]) then begin
-      // Ctrl + Shift + G --> insert GUID
-      VText := TGUID.NewGuid.ToString;
-      if VSynEdit.SelLength > 0 then begin
-        // replace selected text
-        VSynEdit.SelText := VText;
-      end else begin
-        // insert at caret position
-        VSynEdit.InsertBlock(VSynEdit.CaretXY, VSynEdit.CaretXY, PChar(VText), True);
-      end;
-    end;
-  end;
 end;
 
 procedure TfrmPascalScriptIDE.OnSynEditStatusChange(
