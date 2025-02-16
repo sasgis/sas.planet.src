@@ -874,7 +874,7 @@ begin
   VAllowScan := AConfig.ReadBool('AllowScan', True);
   VAllowAdd := AConfig.ReadBool('AllowAdd', not VIsReadOnly);
   VAllowDelete := AConfig.ReadBool('AllowDelete', not VIsReadOnly);
-  VAllowReplace := AConfig.ReadBool('AllowScan', not VIsReadOnly);
+  VAllowReplace := AConfig.ReadBool('AllowReplace', not VIsReadOnly);
 
   VStorageAbilities :=
     TTileStorageAbilities.Create(
