@@ -110,10 +110,16 @@ object frmMarksExplorer: TfrmMarksExplorer
             object TBXSeparatorItem4: TTBXSeparatorItem
             end
             object tbitmAllVisible: TTBXItem
+              Hint = 'Set all marks in all categories visible'
               ImageIndex = 55
               OnClick = tbitmAllVisibleClick
-              Caption = 'All Visible'
-              Hint = 'Set all marks in all categories visible'
+            end
+            object TBXSeparatorItem8: TTBXSeparatorItem
+            end
+            object tbitmFilter: TTBXItem
+              Hint = 'Filter placemarks'
+              ImageIndex = 80
+              OnClick = tbitmFilterClick
             end
           end
         end

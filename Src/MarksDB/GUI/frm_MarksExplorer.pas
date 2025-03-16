@@ -45,6 +45,7 @@ uses
   TBXGraphics,
   frm_MarkSystemConfigEdit,
   frm_MarksExportConfig,
+  frm_MarksExplorerFilter,
   i_Listener,
   i_RegionProcess,
   i_LanguageManager,
@@ -57,6 +58,7 @@ uses
   i_WindowPositionConfig,
   i_MarkId,
   i_VectorDataItemSimple,
+  i_MarksExplorerFilter,
   i_MarksExplorerConfig,
   i_MarkCategoryList,
   i_MarkCategory,
@@ -149,6 +151,8 @@ type
     TBXSeparatorItem7: TTBXSeparatorItem;
     tbitmEditMarkPosition: TTBXItem;
     tbxtmGroup: TTBXItem;
+    TBXSeparatorItem8: TTBXSeparatorItem;
+    tbitmFilter: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -240,11 +244,14 @@ type
     procedure tbxRevertSelectionClick(Sender: TObject);
     procedure tbitmEditMarkPositionClick(Sender: TObject);
     procedure tbxtmGroupClick(Sender: TObject);
+    procedure tbitmFilterClick(Sender: TObject);
   private
     type
       TCopyPasteAction = (cpNone, cpCopy, cpCut);
   private
+    FfrmMarksExplorerFilter: TfrmMarksExplorerFilter;
     FfrmMarkSystemConfigEdit: TfrmMarkSystemConfigEdit;
+
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
     FCategoryList: IMarkCategoryList;
@@ -264,6 +271,8 @@ type
     FMarksShowConfigListener: IListener;
     FConfigListener: IListener;
     FMarksSystemStateListener: IListener;
+    FMarksExplorerFilterListener: IListener;
+
     FRegionProcess: IRegionProcess;
     FMergePolygonsPresenter: IMergePolygonsPresenter;
     FSelectedCategoryInfo: TExpandInfo;
@@ -274,6 +283,8 @@ type
 
     FElevationProfilePresenter: IElevationProfilePresenter;
 
+    FMarksExplorerFilter: IMarksExplorerFilter;
+
     procedure PrepareCopyPasteBuffer(const AAction: TCopyPasteAction);
     procedure ResetCopyPasteBuffer;
 
@@ -283,6 +294,7 @@ type
     procedure OnMarksShowConfigChanged;
     procedure OnConfigChange;
     procedure OnMarkSystemStateChanged;
+    procedure OnMarksExplorerFilterChanged;
     procedure UpdateCategoryTree;
     procedure CategoryTreeViewVisible(Node: TTreeNode);
     function GetNodeCategory(const ANode: TTreeNode): IMarkCategory;
@@ -325,6 +337,7 @@ uses
   ExplorerSort,
   gnugettext,
   t_GeoTypes,
+  i_MarkDb,
   i_InterfaceListSimple,
   i_MarkCategoryTree,
   i_Category,
@@ -336,6 +349,7 @@ uses
   u_Dialogs,
   u_ClipboardFunc,
   u_MarkCategoryList,
+  u_MarksExplorerFilter,
   u_InterfaceListSimple,
   u_ListenerByEvent;
 
@@ -381,6 +395,7 @@ begin
   FMarksShowConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarksShowConfigChanged);
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FMarksSystemStateListener := TNotifyNoMmgEventListener.Create(Self.OnMarkSystemStateChanged);
+  FMarksExplorerFilterListener := TNotifyNoMmgEventListener.Create(Self.OnMarksExplorerFilterChanged);
 
   FfrmMarkSystemConfigEdit :=
     TfrmMarkSystemConfigEdit.Create(
@@ -388,6 +403,9 @@ begin
       AMarkSystemFactoryList,
       FMarkSystemConfig
     );
+
+  FMarksExplorerFilter := TMarksExplorerFilter.Create;
+  FMarksExplorerFilter.ChangeNotifier.Add(FMarksExplorerFilterListener);
 end;
 
 procedure TfrmMarksExplorer.CreateParams(var Params: TCreateParams);
@@ -419,7 +437,14 @@ begin
     FWindowConfig.ChangeNotifier.Remove(FConfigListener);
     FConfigListener := nil;
   end;
+  if Assigned(FMarksExplorerFilter) and Assigned(FMarksExplorerFilterListener) then begin
+    FMarksExplorerFilter.ChangeNotifier.Remove(FMarksExplorerFilterListener);
+    FMarksExplorerFilterListener := nil;
+  end;
+
   FreeAndNil(FfrmMarkSystemConfigEdit);
+  FreeAndNil(FfrmMarksExplorerFilter);
+
   inherited;
 end;
 
@@ -540,6 +565,7 @@ end;
 
 procedure TfrmMarksExplorer.UpdateMarksList;
 var
+  VMarkDb: IMarkDb;
   VCategory: IMarkCategory;
   VMarkId: IMarkId;
   I: Integer;
@@ -552,7 +578,8 @@ begin
   FMarksList := nil;
   VCategory := GetSelectedCategory;
   if (VCategory <> nil) then begin
-    FMarksList := FMarkDBGUI.MarksDb.MarkDb.GetMarkIdListByCategory(VCategory);
+    VMarkDb := FMarkDBGUI.MarksDb.MarkDb;
+    FMarksList := FMarksExplorerFilter.Process(VMarkDb, VMarkDb.GetMarkIdListByCategory(VCategory));
     VSortedMarksList := TStringList.Create;
     try
       VSortedMarksList.Duplicates := dupAccept;
@@ -561,7 +588,7 @@ begin
         if Assigned(FMarksList) then begin
           for I := 0 to FMarksList.Count - 1 do begin
             VMarkId := IMarkId(FMarksList.Items[I]);
-            VName := FMarkDBGUI.GetMarkIdCaption(VMarkId);
+            VName := FMarkDBGUI.MakeMarkCaption(VMarkId);
             VSortedMarksList.AddObject(VName, Pointer(VMarkId));
           end;
           VSortedMarksList.CustomSort(StringListCompare);
@@ -582,7 +609,7 @@ begin
             VNode.Text := VName;
           end;
           VNode.Data := Pointer(VMarkId);
-          if FMarkDBGUI.MarksDb.MarkDb.GetMarkVisibleByID(VMarkId) then begin
+          if VMarkDb.GetMarkVisibleByID(VMarkId) then begin
             VNode.StateIndex := 1;
             Inc(VVisibleCount);
           end else begin
@@ -673,7 +700,7 @@ begin
     VSortedList.BeginUpdate;
     try
       for I := 0 to Length(VArr) - 1 do begin
-        VName := FMarkDBGUI.GetMarkIdCaption(VArr[I]);
+        VName := FMarkDBGUI.MakeMarkCaption(VArr[I]);
         VSortedList.AddObject(VName, TObject(UIntPtr(I)));
       end;
       VSortedList.CustomSort(StringListCompare);
@@ -826,6 +853,22 @@ begin
     FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
     FMarkDBGUI.EditMarkPosition(VMark);
   end;
+end;
+
+procedure TfrmMarksExplorer.tbitmFilterClick(Sender: TObject);
+begin
+  if FMarksExplorerFilter.Enabled then begin
+    FMarksExplorerFilter.Enabled := False;
+    Exit;
+  end;
+  if not Assigned(FfrmMarksExplorerFilter) then begin
+    FfrmMarksExplorerFilter :=
+      TfrmMarksExplorerFilter.Create(
+        Self.LanguageManager,
+        FMarksExplorerFilter
+      );
+  end;
+  FfrmMarksExplorerFilter.Show;
 end;
 
 procedure TfrmMarksExplorer.btnGoToMarkClick(Sender: TObject);
@@ -1199,6 +1242,12 @@ begin
   UpdateMarksList;
 end;
 
+procedure TfrmMarksExplorer.OnMarksExplorerFilterChanged;
+begin
+  tbitmFilter.Checked := FMarksExplorerFilter.Enabled;
+  UpdateMarksList;
+end;
+
 procedure TfrmMarksExplorer.OnMarksShowConfigChanged;
 var
   VMarksConfig: IUsedMarksConfigStatic;
@@ -1328,6 +1377,9 @@ begin
   FCategoryList := nil;
   FMarksList := nil;
   FCopyPasteBuffer := nil;
+  if Assigned(FfrmMarksExplorerFilter) then begin
+    FfrmMarksExplorerFilter.Close;
+  end;
 end;
 
 procedure TfrmMarksExplorer.FormKeyPress(Sender: TObject; var Key: Char);

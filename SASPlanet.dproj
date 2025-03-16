@@ -1019,6 +1019,10 @@
         <DCCReference Include="Src\MarksDB\GUI\frm_MarksExplorer.pas">
             <Form>frmMarksExplorer</Form>
         </DCCReference>
+        <DCCReference Include="Src\MarksDB\GUI\frm_MarksExplorerFilter.pas">
+            <Form>frmMarksExplorerFilter</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="Src\MarksDB\GUI\frm_MarksExport.pas">
             <Form>frmMarksExport</Form>
         </DCCReference>
@@ -1035,9 +1039,11 @@
             <Form>frmPolygonForOperationConfig</Form>
         </DCCReference>
         <DCCReference Include="Src\MarksDB\GUI\i_MarksExplorerConfig.pas"/>
+        <DCCReference Include="Src\MarksDB\GUI\i_MarksExplorerFilter.pas"/>
         <DCCReference Include="Src\MarksDB\GUI\i_MarksGUIConfig.pas"/>
         <DCCReference Include="Src\MarksDB\GUI\u_MarkDbGUIHelper.pas"/>
         <DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerConfig.pas"/>
+        <DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerFilter.pas"/>
         <DCCReference Include="Src\MarksDB\GUI\u_MarksExplorerHelper.pas"/>
         <DCCReference Include="Src\MarksDB\GUI\u_MarksGUIConfig.pas"/>
         <DCCReference Include="Src\MarksDB\SML\i_MarkCategoryDBSmlInternal.pas"/>

@@ -111,7 +111,7 @@ type
     ): IInterfaceListStatic;
     function IsMarksDBWritable: Boolean;
   public
-    function GetMarkIdCaption(const AMarkId: IMarkId): string;
+    function MakeMarkCaption(const AMarkId: IMarkId): string;
 
     function DeleteMarkModal(
       const AMarkId: IMarkId;
@@ -603,18 +603,17 @@ begin
   FfrmMarksExport.ExportCategoryList(ACategoryList, AIgnoreMarksVisible);
 end;
 
-function TMarkDbGUIHelper.GetMarkIdCaption(const AMarkId: IMarkId): string;
+function TMarkDbGUIHelper.MakeMarkCaption(const AMarkId: IMarkId): string;
 var
   VPointCaptionFormat: string;
   VPolygonCaptionFormat: string;
   VPathCaptionFormat: string;
   VFormat: string;
-  VName: string;
   VMultiFormat: Boolean;
 begin
-  VName := AMarkId.Name;
-  if VName = '' then begin
-    VName := '(NoName)';
+  Result := AMarkId.Name;
+  if Result = '' then begin
+    Result := '(NoName)';
   end;
   if FMarksGUIConfig.IsAddTypeToCaption then begin
     VMultiFormat := (AMarkId.MultiGeometryCount > 1);
@@ -632,18 +631,14 @@ begin
       midLine: VFormat := VPathCaptionFormat;
       midPoly: VFormat := VPolygonCaptionFormat;
     else
-      begin
-        VFormat := '%0:s';
-        VMultiFormat := False;
-      end;
+      VFormat := '%0:s';
+      VMultiFormat := False;
     end;
     if VMultiFormat then begin
-      Result := Format(VFormat, [VName, AMarkId.MultiGeometryCount]);
+      Result := Format(VFormat, [Result, AMarkId.MultiGeometryCount]);
     end else begin
-      Result := Format(VFormat, [VName]);
+      Result := Format(VFormat, [Result]);
     end;
-  end else begin
-    Result := VName;
   end;
 end;
 
