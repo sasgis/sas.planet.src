@@ -85,6 +85,7 @@ type
     PopupExport: TPopupMenu;
     NExportAll: TMenuItem;
     NExportVisible: TMenuItem;
+    NExportSelected: TMenuItem;
     btnImport: TTBXButton;
     rgMarksShowMode: TRadioGroup;
     TBXDockMark: TTBXDock;
@@ -933,6 +934,8 @@ begin
     if VMarksIdList <> nil then begin
       FMarkDBGUI.ExportMarksList(VMarksIdList);
     end;
+  end else begin
+    ShowErrorMessage(_('No placemarks selected!'));
   end;
 end;
 

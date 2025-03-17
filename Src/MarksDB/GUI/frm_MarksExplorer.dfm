@@ -519,6 +519,10 @@ object frmMarksExplorer: TfrmMarksExplorer
       Caption = 'Export visible placemarks'
       OnClick = btnExportClick
     end
+    object NExportSelected: TMenuItem
+      Caption = 'Export selected placemarks'
+      OnClick = btnSaveMarkClick
+    end
   end
   object tbpmnCategories: TTBXPopupMenu
     Images = frmMain.MenusImageList
