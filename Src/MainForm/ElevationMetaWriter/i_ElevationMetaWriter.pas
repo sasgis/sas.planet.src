@@ -34,7 +34,9 @@ type
 
     procedure ProcessLineAsync(
       const ALine: IGeometryLonLatLine;
-      const AOnResult: TElevationMetaWriterResult
+      const AOnResult: TElevationMetaWriterResult;
+      const AAddIntermediatePoints: Boolean = False;
+      const AMaxDistanceForIntermediatePoint: Double = 0
     );
   end;
 

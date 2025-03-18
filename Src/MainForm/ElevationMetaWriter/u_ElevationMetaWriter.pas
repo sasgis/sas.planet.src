@@ -25,6 +25,7 @@ interface
 
 uses
   Classes,
+  i_Datum,
   i_NotifierOperation,
   i_TerrainInfo,
   i_TerrainConfig,
@@ -45,12 +46,15 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FTerrainInfo: ITerrainInfo;
     FGeometryLonLatFactory: IGeometryLonLatFactory;
+    FDatum: IDatum;
 
     FBackgroundTask: IBackgroundTask;
 
     FLine: IGeometryLonLatLine;
     FResultLine: IGeometryLonLatLine;
     FOnResult: TElevationMetaWriterResult;
+    FAddIntermediatePoints: Boolean;
+    FMaxDistanceForIntermediatePoint: Double;
 
     FProgress: IElevationMetaWriterProgress;
     FfrmElevationMetaWriterProgress: TfrmElevationMetaWriterProgress;
@@ -64,7 +68,9 @@ type
     { IElevationMetaWriter }
     procedure ProcessLineAsync(
       const ALine: IGeometryLonLatLine;
-      const AOnResult: TElevationMetaWriterResult
+      const AOnResult: TElevationMetaWriterResult;
+      const AAddIntermediatePoints: Boolean;
+      const AMaxDistanceForIntermediatePoint: Double
     );
   public
     constructor Create(
@@ -72,7 +78,8 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATerrainConfig: ITerrainConfig;
       const ATerrainProviderList: ITerrainProviderList;
-      const AGeometryLonLatFactory: IGeometryLonLatFactory
+      const AGeometryLonLatFactory: IGeometryLonLatFactory;
+      const ADatum: IDatum
     );
     destructor Destroy; override;
   end;
@@ -81,6 +88,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   t_GeoTypes,
   i_DoublePoints,
   i_DoublePointsAggregator,
@@ -89,6 +97,7 @@ uses
   u_Dialogs,
   u_BackgroundTask,
   u_DoublePointsAggregator,
+  u_DoublePointsMetaFunc,
   u_ElevationMetaWriterProgress,
   u_GeometryFunc,
   u_TerrainInfo,
@@ -104,7 +113,8 @@ constructor TElevationMetaWriter.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATerrainConfig: ITerrainConfig;
   const ATerrainProviderList: ITerrainProviderList;
-   const AGeometryLonLatFactory: IGeometryLonLatFactory
+  const AGeometryLonLatFactory: IGeometryLonLatFactory;
+  const ADatum: IDatum
 );
 begin
   inherited Create;
@@ -113,6 +123,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTerrainInfo := TTerrainInfo.Create(ATerrainConfig, ATerrainProviderList);
   FGeometryLonLatFactory := AGeometryLonLatFactory;
+  FDatum := ADatum;
 
   FProgress := TElevationMetaWriterProgress.Create;
 
@@ -127,7 +138,9 @@ end;
 
 procedure TElevationMetaWriter.ProcessLineAsync(
   const ALine: IGeometryLonLatLine;
-  const AOnResult: TElevationMetaWriterResult
+  const AOnResult: TElevationMetaWriterResult;
+  const AAddIntermediatePoints: Boolean;
+  const AMaxDistanceForIntermediatePoint: Double
 );
 begin
   // executed in the main thread
@@ -136,6 +149,23 @@ begin
     ShowInfoMessage(rsWaitUntilTheFinishOperation);
     Exit;
   end;
+
+  FLine := ALine;
+  FOnResult := AOnResult;
+  FAddIntermediatePoints := AAddIntermediatePoints and (AMaxDistanceForIntermediatePoint > 0);
+  FMaxDistanceForIntermediatePoint := AMaxDistanceForIntermediatePoint;
+
+  FProgress.Reset;
+  FProgress.Status := emwBusy;
+
+  if FfrmElevationMetaWriterProgress = nil then begin
+    FfrmElevationMetaWriterProgress :=
+      TfrmElevationMetaWriterProgress.Create(
+        FAppClosingNotifier,
+        FProgress
+      );
+  end;
+  FfrmElevationMetaWriterProgress.ShowProgress;
 
   if FBackgroundTask <> nil then begin
     FBackgroundTask.StopExecute;
@@ -149,21 +179,6 @@ begin
       );
     FBackgroundTask.Start;
   end;
-
-  FLine := ALine;
-  FOnResult := AOnResult;
-
-  FProgress.Reset;
-  FProgress.Status := emwBusy;
-
-  if FfrmElevationMetaWriterProgress = nil then begin
-    FfrmElevationMetaWriterProgress :=
-      TfrmElevationMetaWriterProgress.Create(
-        FAppClosingNotifier,
-        FProgress
-      );
-  end;
-  FfrmElevationMetaWriterProgress.ShowProgress;
 
   FBackgroundTask.StartExecute;
 end;
@@ -183,6 +198,63 @@ procedure TElevationMetaWriter.OnExecute(
     end;
   end;
 
+  function InsertIntermediatePoints(
+    const ALine: IGeometryLonLatSingleLine;
+    const AMaxDistance: Double
+  ): IGeometryLonLatSingleLine;
+  var
+    I, J: Integer;
+    VPointA, VPointB: TDoublePoint;
+    VDistance: Double;
+    VInitialBearing, VFinalBearing: Double;
+    VIntervals: Integer;
+    VStepDistance: Double;
+    VPoint: TDoublePoint;
+    VAggregator: IDoublePointsAggregator;
+    VPoints: PDoublePointArray;
+    VMeta: PDoublePointsMeta;
+    VMetaItem: TDoublePointsMetaItem;
+    VLineBuilder: IGeometryLonLatLineBuilder;
+  begin
+    if (ALine = nil) or (ALine.Count < 2) then begin
+      Result := ALine;
+      Exit;
+    end;
+
+    VPoints := ALine.Points;
+    VMeta := ALine.Meta;
+
+    VAggregator := TDoublePointsAggregator.Create(ALine.Count);
+
+    SetMetaItem(VMeta, 0, @VMetaItem);
+    VAggregator.Add(VPoints[0], @VMetaItem);
+
+    for I := 0 to ALine.Count - 2 do begin
+      VPointA := VPoints[I];
+      VPointB := VPoints[I+1];
+
+      VDistance := FDatum.CalcDist(VPointA, VPointB, VInitialBearing, VFinalBearing);
+
+      if VDistance > AMaxDistance then begin
+        VIntervals := Ceil(VDistance / AMaxDistance);
+        VStepDistance := VDistance / VIntervals;
+
+        for J := 1 to VIntervals - 1 do begin
+          VPoint := FDatum.CalcFinishPosition(VPointA, VInitialBearing, VStepDistance * J);
+          VAggregator.Add(VPoint, nil);
+        end;
+      end;
+
+      SetMetaItem(VMeta, I+1, @VMetaItem);
+      VAggregator.Add(VPointB, @VMetaItem);
+    end;
+
+    VLineBuilder := FGeometryLonLatFactory.MakeLineBuilder;
+    VLineBuilder.AddLine(VAggregator.MakeStaticAndClear);
+
+    Result := VLineBuilder.MakeStaticAndClear as IGeometryLonLatSingleLine;
+  end;
+
 var
   I: Integer;
   VPointsCountMax: Integer;
@@ -196,6 +268,7 @@ var
   VLineBuilder: IGeometryLonLatLineBuilder;
 begin
   // executed in the backgroud thread
+
   FResultLine := nil;
   VPointsCountMax := 0;
   VInfo := FProgress.Info;
@@ -204,6 +277,12 @@ begin
     VLines := GeometryLonLatLineToArray(FLine);
 
     for I := 0 to Length(VLines) - 1 do begin
+      // fill possible gaps with intermediate points
+      if FAddIntermediatePoints then begin
+        VLines[I] := InsertIntermediatePoints(VLines[I], FMaxDistanceForIntermediatePoint);
+      end;
+
+      // calc points count
       Inc(VInfo.TotalCount, VLines[I].Count);
       if VLines[I].Count > VPointsCountMax then begin
         VPointsCountMax := VLines[I].Count;
@@ -261,6 +340,7 @@ end;
 procedure TElevationMetaWriter.OnFinish;
 begin
   // executed in the main thread
+
   try
     FfrmElevationMetaWriterProgress.Hide;
     if FProgress.Status = emwDone then begin

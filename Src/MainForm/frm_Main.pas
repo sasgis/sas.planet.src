@@ -2589,7 +2589,8 @@ begin
       GState.AppClosingNotifier,
       GState.Config.TerrainConfig,
       GState.TerrainProviderList,
-      GState.VectorGeometryLonLatFactory
+      GState.VectorGeometryLonLatFactory,
+      GState.GeoCalc.GpsDatum
     );
 
   FElevationProfilePresenter :=

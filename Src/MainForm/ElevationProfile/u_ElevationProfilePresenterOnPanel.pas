@@ -232,7 +232,8 @@ begin
     esTerrainProvider: begin
       FElevationMetaWriter.ProcessLineAsync(
         AItem.Geometry as IGeometryLonLatLine,
-        Self.OnElevationMetaWrite
+        Self.OnElevationMetaWrite,
+        True, 50 // add intermediate points every 25..50 meters
       );
     end;
     esBoth: begin
