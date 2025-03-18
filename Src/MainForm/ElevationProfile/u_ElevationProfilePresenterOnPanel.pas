@@ -214,14 +214,16 @@ begin
   FItemCached := AItem;
 
   if FfrElevationProfile = nil then begin
-    FfrElevationProfile := TfrElevationProfile.Create(
-      FDrawParent,
-      Self.HideParent,
-      Self.RefreshParent,
-      FConfig,
-      FLanguageManager,
-      FMapGoTo
-    );
+    // use lazy initialization since TeeChart initialization can take a few seconds
+    FfrElevationProfile :=
+      TfrElevationProfile.Create(
+        FDrawParent,
+        Self.HideParent,
+        Self.RefreshParent,
+        FConfig,
+        FLanguageManager,
+        FMapGoTo
+      );
   end;
 
   case FConfig.ElevationSource of
@@ -235,9 +237,6 @@ begin
         Self.OnElevationMetaWrite,
         True, 50 // add intermediate points every 25..50 meters
       );
-    end;
-    esBoth: begin
-      Assert(False, 'ToDo');
     end;
   else
     Assert(False);

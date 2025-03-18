@@ -29,8 +29,7 @@ uses
 type
   TElevationSource = (
     esTrackMetadata,
-    esTerrainProvider,
-    esBoth
+    esTerrainProvider
   );
 
   IElevationProfileConfigStatic = interface

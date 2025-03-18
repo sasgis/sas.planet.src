@@ -104,7 +104,7 @@ uses
   u_ThreadConfig;
 
 resourcestring
-  rsWaitUntilTheFinishOperation = 'Please wait until the finish of the previous operation!';
+  rsWaitUntilTheFinishOperation = 'Please wait until the previous operation finishes!';
 
 { TElevationMetaWriter }
 

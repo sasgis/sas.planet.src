@@ -32,8 +32,6 @@ object frmElevationMetaWriterProgress: TfrmElevationMetaWriterProgress
     Caption = 'Cancel'
     TabOrder = 0
     OnClick = btnCancelClick
-    ExplicitLeft = 224
-    ExplicitTop = 35
   end
   object tmrProgress: TTimer
     Enabled = False

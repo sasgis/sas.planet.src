@@ -103,7 +103,7 @@ type
     function GetLinePoints(
       const AStart: TDoublePoint;
       const AFinish: TDoublePoint;
-      const APointCount: integer
+      const APointCount: Integer
     ): IEnumLonLatPoint;
   end;
 

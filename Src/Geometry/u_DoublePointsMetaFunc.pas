@@ -66,7 +66,9 @@ procedure EraseMetaItems(
   const AItemsId: TDoublePointsMetaItemIds
 );
 
-procedure ResetMetaItem(const AItem: PDoublePointsMetaItem); inline;
+procedure ResetMetaItem(
+  const AItem: PDoublePointsMetaItem
+); inline;
 
 procedure SetMetaItem(
   const AMeta: PDoublePointsMeta;
