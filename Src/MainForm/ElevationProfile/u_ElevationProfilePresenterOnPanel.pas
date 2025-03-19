@@ -214,7 +214,6 @@ begin
   FItemCached := AItem;
 
   if FfrElevationProfile = nil then begin
-    // use lazy initialization since TeeChart initialization can take a few seconds
     FfrElevationProfile :=
       TfrElevationProfile.Create(
         FDrawParent,
@@ -235,7 +234,8 @@ begin
       FElevationMetaWriter.ProcessLineAsync(
         AItem.Geometry as IGeometryLonLatLine,
         Self.OnElevationMetaWrite,
-        True, 50 // add intermediate points every 25..50 meters
+        (FConfig.MaxDistanceForIntermediatePoint > 0),
+        FConfig.MaxDistanceForIntermediatePoint
       );
     end;
   else

@@ -54,6 +54,10 @@ type
 
     function GetCenterMap: Boolean;
     property CenterMap: Boolean read GetCenterMap;
+
+    function GetMaxDistanceForIntermediatePoint: Integer;
+    property MaxDistanceForIntermediatePoint: Integer read GetMaxDistanceForIntermediatePoint;
+
   end;
 
   IElevationProfileConfig = interface(IConfigDataElement)
@@ -85,6 +89,10 @@ type
     function GetCenterMap: Boolean;
     procedure SetCenterMap(const AValue: Boolean);
     property CenterMap: Boolean read GetCenterMap write SetCenterMap;
+
+    function GetMaxDistanceForIntermediatePoint: Integer;
+    procedure SetMaxDistanceForIntermediatePoint(const AValue: Integer);
+    property MaxDistanceForIntermediatePoint: Integer read GetMaxDistanceForIntermediatePoint write SetMaxDistanceForIntermediatePoint;
 
     function GetStatic: IElevationProfileConfigStatic;
   end;
