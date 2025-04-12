@@ -2190,13 +2190,17 @@ var
 
   function GetProcAddr(const AProcName: string): Pointer;
   var
+    {$IFDEF WIN64}
+    I: Integer;
+    {$ENDIF}
     VName: string;
     VProcName: string;
   begin
     VProcName := AProcName;
     {$IFDEF WIN64}
-    if Pos('@', AProcName) > 0 then begin
-      VProcName := Copy(VProcName, 1, Pos('@', VProcName) - 1);
+    I := Pos('@', AProcName);
+    if I > 0 then begin
+      VProcName := Copy(VProcName, 1, I - 1);
     end;
     {$ENDIF}
     VName := VNamePrefix + VProcName;
