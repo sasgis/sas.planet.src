@@ -29,6 +29,7 @@ uses
   i_Bitmap32BufferFactory,
   i_Bitmap32To8Converter,
   i_InternalPerformanceCounter,
+  i_FreeImageFormatIdProvider,
   u_BaseInterfacedObject;
 
 type
@@ -39,6 +40,7 @@ type
   private
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmap32To8Converter: IBitmap32To8Converter;
+    FFreeImageFormatIdProvider: IFreeImageFormatIdProvider;
   private
      // BMP
     function CreateBmpLoader(
@@ -116,6 +118,7 @@ uses
   FreeImage,
   u_BitmapTileLibJpeg,
   u_BitmapTileFreeImage,
+  u_FreeImageFormatIdProvider,
   u_Bitmap32To8ConverterByFreeImage,
   u_Bitmap32To8ConverterByLibImageQuant,
   u_InternalPerformanceCounterFake;
@@ -144,6 +147,7 @@ begin
   except
     FBitmap32To8Converter := TBitmap32To8ConverterByFreeImage.Create;
   end;
+  FFreeImageFormatIdProvider := TFreeImageFormatIdProvider.Create;
 end;
 
 function TBitmapTileSaveLoadFactory.CreateBmpLoader(
@@ -161,7 +165,8 @@ function TBitmapTileSaveLoadFactory.CreateBmpSaver(
 ): IBitmapTileSaver;
 begin
   Result := TBitmapTileFreeImageSaverBmp.Create(
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FFreeImageFormatIdProvider
   );
 end;
 
@@ -181,7 +186,8 @@ function TBitmapTileSaveLoadFactory.CreateGifSaver(
 begin
   Result := TBitmapTileFreeImageSaverGif.Create(
     FBitmap32To8Converter,
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FFreeImageFormatIdProvider
   );
 end;
 
@@ -214,7 +220,8 @@ begin
     ACompressionLevel,
     VBpp,
     FBitmap32To8Converter,
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FFreeImageFormatIdProvider
   );
 end;
 
@@ -276,7 +283,8 @@ begin
   Result := TBitmapTileFreeImageSaverTiff.Create(
     VCompression,
     VBpp,
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FFreeImageFormatIdProvider
   );
 end;
 
@@ -297,7 +305,8 @@ function TBitmapTileSaveLoadFactory.CreateWebpSaver(
 begin
   Result := TBitmapTileFreeImageSaverWebp.Create(
     ACompressionQuality,
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FFreeImageFormatIdProvider
   );
 end;
 
@@ -306,7 +315,8 @@ function TBitmapTileSaveLoadFactory.CreateWebpLosslessSaver(
 ): IBitmapTileSaver;
 begin
   Result := TBitmapTileFreeImageSaverWebpLossless.Create(
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FFreeImageFormatIdProvider
   );
 end;
 

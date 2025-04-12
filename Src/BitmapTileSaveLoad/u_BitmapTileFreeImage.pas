@@ -23,6 +23,9 @@ unit u_BitmapTileFreeImage;
 
 interface
 
+// WARNING: Do not rely on the FREE_IMAGE_FORMAT constants (such as FIF_BMP, FIF_ICO, etc.)
+// from the FreeImage.pas unit. Use IFreeImageFormatIdProvider to get valid IDs.
+
 uses
   FreeImage,
   i_BinaryData,
@@ -30,6 +33,7 @@ uses
   i_Bitmap32BufferFactory,
   i_Bitmap32To8Converter,
   i_BitmapTileSaveLoad,
+  i_FreeImageFormatIdProvider,
   i_InternalPerformanceCounter,
   u_BaseInterfacedObject;
 
@@ -107,7 +111,7 @@ type
   public
     constructor Create(
       const AFormat: FREE_IMAGE_FORMAT;
-      const ACompress: Integer;
+      const AFlag: Integer;
       const ABitPerPixel: Byte;
       const ABitmap32To8Converter: IBitmap32To8Converter;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -117,7 +121,8 @@ type
   TBitmapTileFreeImageSaverBmp = class(TBitmapTileFreeImageSaver)
   public
     constructor Create(
-      const APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const AFormatIdProvider: IFreeImageFormatIdProvider
     );
   end;
 
@@ -125,7 +130,8 @@ type
   public
     constructor Create(
       const ABitmap32To8Converter: IBitmap32To8Converter;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const AFormatIdProvider: IFreeImageFormatIdProvider
     );
   end;
 
@@ -135,7 +141,8 @@ type
       const ACompress: Byte;
       const ABitPerPixel: Integer;
       const ABitmap32To8Converter: IBitmap32To8Converter;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const AFormatIdProvider: IFreeImageFormatIdProvider
     );
   end;
 
@@ -143,14 +150,16 @@ type
   public
     constructor Create(
       const AQuality: Byte;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const AFormatIdProvider: IFreeImageFormatIdProvider
     );
   end;
 
   TBitmapTileFreeImageSaverWebpLossless = class(TBitmapTileFreeImageSaver)
   public
     constructor Create(
-      const APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const AFormatIdProvider: IFreeImageFormatIdProvider
     );
   end;
 
@@ -159,7 +168,8 @@ type
     constructor Create(
       const ACompressionType: Cardinal;
       const ABitPerPixel: Integer;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const AFormatIdProvider: IFreeImageFormatIdProvider
     );
   end;
 
@@ -179,9 +189,6 @@ uses
 type
   EBitmapTileFreeImageLoader = class(Exception);
   EBitmapTileFreeImageSaver = class(Exception);
-
-const
-  CWebpLosslessQuality = -1;
 
 { TBitmapTileFreeImageLoader }
 
@@ -342,40 +349,23 @@ end;
 
 constructor TBitmapTileFreeImageSaver.Create(
   const AFormat: FREE_IMAGE_FORMAT;
-  const ACompress: Integer;
+  const AFlag: Integer;
   const ABitPerPixel: Byte;
   const ABitmap32To8Converter: IBitmap32To8Converter;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  if AFormat = FIF_UNKNOWN then begin
+    raise EBitmapTileFreeImageSaver.Create('Unsupported format!');
+  end;
+
   inherited Create;
+
   FFormat := AFormat;
+  FFlag := AFlag;
   FBitPerPixel := ABitPerPixel;
   FBitmap32To8Converter := ABitmap32To8Converter;
   FCounter := APerfCounterList.CreateAndAddNewCounter('Save');
-  case FFormat of
-    FIF_PNG: begin
-      case ACompress of
-        0: FFlag := PNG_Z_NO_COMPRESSION;
-        1..9: FFlag := ACompress;
-      else
-        Assert(False, 'Invalid PNG compression level: ' + IntToStr(ACompress));
-      end;
-    end;
-    FIF_TIFF: begin
-      FFlag := ACompress;
-    end;
-    FIF_WEBP: begin
-      case ACompress of
-        1..100: FFlag := ACompress;
-        CWebpLosslessQuality: FFlag := WEBP_LOSSLESS;
-      else
-        Assert(False, 'Invalid WebP quality value: ' + IntToStr(ACompress));
-      end;
-    end;
-  else // FIF_BMP, FIF_GIF
-    FFlag := 0;
-  end;
 
   InitFreeImageLib(GDllName.FreeImage);
 end;
@@ -507,11 +497,12 @@ end;
 { TBitmapTileFreeImageSaverBmp }
 
 constructor TBitmapTileFreeImageSaverBmp.Create(
-  const APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const AFormatIdProvider: IFreeImageFormatIdProvider
 );
 begin
   inherited Create(
-    FIF_BMP,
+    AFormatIdProvider.BmpFormatId,
     0,
     32,
     nil,
@@ -523,11 +514,12 @@ end;
 
 constructor TBitmapTileFreeImageSaverGif.Create(
   const ABitmap32To8Converter: IBitmap32To8Converter;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const AFormatIdProvider: IFreeImageFormatIdProvider
 );
 begin
   inherited Create(
-    FIF_GIF,
+    AFormatIdProvider.GifFormatId,
     0,
     8,
     ABitmap32To8Converter,
@@ -541,12 +533,22 @@ constructor TBitmapTileFreeImageSaverPng.Create(
   const ACompress: Byte;
   const ABitPerPixel: Integer;
   const ABitmap32To8Converter: IBitmap32To8Converter;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const AFormatIdProvider: IFreeImageFormatIdProvider
 );
+var
+  VFlag: Integer;
 begin
+  case ACompress of
+    0   : VFlag := PNG_Z_NO_COMPRESSION;
+    1..9: VFlag := ACompress;
+  else
+    raise EBitmapTileFreeImageSaver.CreateFmt('Invalid PNG compression level: %d', [ACompress]);
+  end;
+
   inherited Create(
-    FIF_PNG,
-    ACompress,
+    AFormatIdProvider.PngFormatId,
+    VFlag,
     ABitPerPixel,
     ABitmap32To8Converter,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/Png' + IntToStr(ABitPerPixel) + 'bpp')
@@ -557,11 +559,16 @@ end;
 
 constructor TBitmapTileFreeImageSaverWebp.Create(
   const AQuality: Byte;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const AFormatIdProvider: IFreeImageFormatIdProvider
 );
 begin
+  if not (AQuality in [1..100]) then begin
+    raise EBitmapTileFreeImageSaver.CreateFmt('Invalid WebP quality value: %d', [AQuality]);
+  end;
+
   inherited Create(
-    FIF_WEBP,
+    AFormatIdProvider.WebpFormatId,
     AQuality,
     32,
     nil,
@@ -572,12 +579,13 @@ end;
 { TBitmapTileFreeImageSaverWebpLossless }
 
 constructor TBitmapTileFreeImageSaverWebpLossless.Create(
-  const APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const AFormatIdProvider: IFreeImageFormatIdProvider
 );
 begin
   inherited Create(
-    FIF_WEBP,
-    CWebpLosslessQuality,
+    AFormatIdProvider.WebpFormatId,
+    WEBP_LOSSLESS,
     32,
     nil,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/WebpLossless')
@@ -589,11 +597,12 @@ end;
 constructor TBitmapTileFreeImageSaverTiff.Create(
   const ACompressionType: Cardinal;
   const ABitPerPixel: Integer;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const AFormatIdProvider: IFreeImageFormatIdProvider
 );
 begin
   inherited Create(
-    FIF_TIFF,
+    AFormatIdProvider.TiffFormatId,
     ACompressionType,
     ABitPerPixel,
     nil,
