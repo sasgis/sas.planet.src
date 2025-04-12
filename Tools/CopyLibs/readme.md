@@ -12,7 +12,6 @@ pacman -S \
   mingw-w64-i686-binutils \
   mingw-w64-i686-sqlite3 \
   mingw-w64-i686-libpng \
-  mingw-w64-i686-libimagequant \
   mingw-w64-i686-libjpeg-turbo \
   mingw-w64-i686-libwebp \
   mingw-w64-i686-libtiff
@@ -42,6 +41,8 @@ these packages are 64-bit only:
  - geotiff
  - proj
  - minizip-ng
+ - imagequant
+ - freeimage
 ```
 
 5. Periodically update packages and check for unsupported packages:

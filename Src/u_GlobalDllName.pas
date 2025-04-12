@@ -21,7 +21,10 @@
 
 unit u_GlobalDllName;
 
-{.$DEFINE FORCE_USE_WINXP_DLL}
+{$IFDEF WIN32}
+  {.$DEFINE FORCE_USE_WINXP_DLL}
+{$ENDIF}
+
 {.$DEFINE HANDLE_DELAYLOAD_ERRORS} // enable for dll's with delayed import (if any)
 
 interface
