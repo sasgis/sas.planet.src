@@ -134,7 +134,7 @@ function AzimuthToString(const AAzimuth: Double): string; inline;
 const
   cDegreeSymbol = #176;
 begin
-  Result := FloatToStrF(AAzimuth, ffNumber, 12, 2) + cDegreeSymbol;
+  Result := FloatToStrF(AAzimuth, ffNumber, 15, 2) + cDegreeSymbol;
 end;
 
 { TMapLayerCalcLineCaptions }

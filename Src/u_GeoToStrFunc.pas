@@ -28,8 +28,8 @@ uses
   t_GeoTypes,
   u_AnsiStr;
 
-function RoundEx(const ANumber: Double; const APrecision: Integer): string; inline;
-function RoundExAnsi(const ANumber: Double; const APrecision: Integer): AnsiString;
+function RoundEx(const ANumber: Double; const ADigits: Integer): string; inline;
+function RoundExAnsi(const ANumber: Double; const ADigits: Integer): AnsiString;
 
 function R2StrPoint(const r: Double): string; inline;
 function R2AnsiStrPoint(const r: Double): AnsiString;
@@ -53,21 +53,25 @@ implementation
 uses
   Math;
 
-function RoundEx(const ANumber: Double; const APrecision: Integer): string;
+function RoundEx(const ANumber: Double; const ADigits: Integer): string;
 begin
   if IsNan(ANumber) then begin
     Result := '-';
   end else begin
-    Result := FloatToStrF(ANumber, ffFixed, 18, APrecision, TGeoToStrFunc.FFormatSettings);
+    // The Precision parameter specifies the precision of the given value.
+    // It should be 7 or less for values of type Single, 15 or less for values of type 'Double,
+    // and 18 or less for values of type Extended.
+    // https://docwiki.embarcadero.com/Libraries/Sydney/en/System.SysUtils.FloatToStrF
+    Result := FloatToStrF(ANumber, ffFixed, 15, ADigits, TGeoToStrFunc.FFormatSettings);
   end;
 end;
 
-function RoundExAnsi(const ANumber: Double; const APrecision: Integer): AnsiString;
+function RoundExAnsi(const ANumber: Double; const ADigits: Integer): AnsiString;
 begin
   if IsNan(ANumber) then begin
     Result := '-';
   end else begin
-    Result := FloatToStrFA(ANumber, ffFixed, 18, APrecision, TGeoToStrFunc.FFormatSettingsA);
+    Result := FloatToStrFA(ANumber, ffFixed, 15, ADigits, TGeoToStrFunc.FFormatSettingsA);
   end;
 end;
 

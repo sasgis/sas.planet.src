@@ -140,12 +140,12 @@ const
   cIniFileName = 'DebugInfo.ini';
   cIniFileSection = 'Main';
 
-function _DoubleToStr(const AValue: Double): string;
+function _DoubleToStr(const AValue: Double): string; inline;
 begin
-  Result := FloatToStrF(AValue, ffFixed, 20, 8);
+  Result := FloatToStrF(AValue, ffFixed, 15, 8);
 end;
 
-function _TimeToStr(const ATime: TDateTime): string;
+function _TimeToStr(const ATime: TDateTime): string; inline;
 begin
   Result := FormatDateTime('nn:ss.zzz', ATime);
 end;

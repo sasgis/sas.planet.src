@@ -114,7 +114,7 @@ begin
     FRequestBuilderConfig.UrlBase := 'http://example.com/p?bbox={bbox}';
     FRequestBuilderConfig.ServerNames := '';
     VUrl := VUrlTemplate.Render(VRequest);
-    Check(VUrl = 'http://example.com/p?bbox=-20006933.53147518,19991493.25176157,-20006780.65741860,19991646.12581813', VUrl);
+    Check(VUrl = 'http://example.com/p?bbox=-20006933.53147520,19991493.25176160,-20006780.65741860,19991646.12581810', VUrl);
 
     FRequestBuilderConfig.UrlBase := 'http://example.com/{sas_path}.png';
     VUrl := VUrlTemplate.Render(VRequest);

@@ -175,7 +175,7 @@ var
   VAltitude: string;
   VThumbnailPath: string;
   VResLimit: string;
-  VExAltitude: Extended;
+  VAltitudeFloat: Double;
   VKeys: TStrings;
   VPoint: TDoublePoint;
   VJpeg: TJPEGImageEx;
@@ -255,11 +255,11 @@ begin
     if VGPSAltitude.MissingOrInvalid or (VGPSAltitude.Quotient = 0) then begin
       VAltitude := '';
     end else begin
-      VExAltitude := VGPSAltitude.Quotient;
+      VAltitudeFloat := VGPSAltitude.Quotient;
       if VGPSAltitude.Ref = alBelowSeaLevel then begin
-        VExAltitude := -VExAltitude;
+        VAltitudeFloat := -VAltitudeFloat;
       end;
-      VAltitude := FloatToStrF(VExAltitude, ffFixed, 10, 2);
+      VAltitude := FloatToStrF(VAltitudeFloat, ffFixed, 15, 2);
     end;
 
     VIPTCData := VJpeg.IPTCData;
