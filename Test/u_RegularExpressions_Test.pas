@@ -21,7 +21,6 @@ type
     procedure TestRegExprReplaceMatchSubStrSimple;
   end;
 
-
 implementation
 
 uses
@@ -111,7 +110,7 @@ const
 var
   VResult: AnsiString;
 begin
-  VResult := RegExprReplaceMatchSubStr(cExample1, 'mt\.google', 'mt'+inttostr(3)+'.google');
+  VResult := RegExprReplaceMatchSubStr(cExample1, 'mt\.google', 'mt3.google');
   CheckEquals('http://mt3.google.com/vt/lyrs=h@169000000&hl=ru', VResult);
 
   VResult := RegExprReplaceMatchSubStr(cExample2, cExpr, cRepl);
@@ -169,6 +168,6 @@ begin
 end;
 
 initialization
-  // Register any test cases with the test runner
   RegisterTest(TestRegularExpressions.Suite);
+
 end.
