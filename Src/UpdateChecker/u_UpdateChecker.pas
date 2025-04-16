@@ -95,7 +95,10 @@ function GetRequestUrl(
 ): AnsiString;
 const
   CBitBucketRequestUrl = 'https://bitbucket.org/sas_team/sas.planet.bin/downloads/';
-  CGitHubRequestUrl = 'https://api.github.com/repos/sasgis/sas.planet.src/releases/latest';
+  CGitHubRequestUrl: array [TUpdateChannel] of AnsiString = (
+    'https://api.github.com/repos/sasgis/sas.planet.src/releases/tags/nightly',
+    'https://api.github.com/repos/sasgis/sas.planet.src/releases/latest'
+  );
   CSasGisRequestUrl: array [TUpdateChannel] of AnsiString = (
     'http://www.sasgis.org/programs/sasplanet/nightly.php',
     'http://www.sasgis.org/programs/sasplanet/release.php'
@@ -109,7 +112,7 @@ begin
       Result := CBitBucketRequestUrl;
     end;
     usGitHub: begin
-      Result := CGitHubRequestUrl;
+      Result := CGitHubRequestUrl[AUpdateChannel];
     end
   else
     raise Exception.CreateFmt(

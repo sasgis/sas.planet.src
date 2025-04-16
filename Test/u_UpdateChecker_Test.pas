@@ -84,7 +84,8 @@ var
   VResult: TUpdateCheckerResult;
 begin
   VResult := ParseResponse(usGitHub, ucNightly);
-  CheckFalse(VResult.IsFound);
+  CheckTrue(VResult.IsFound);
+  CheckEquals(VResult.OutFileName, CNightlyFileName);
 
   VResult := ParseResponse(usGitHub, ucRelease);
   CheckTrue(VResult.IsFound);
@@ -104,9 +105,13 @@ const
     '<a href="https://bitbucket.org/sas_team/sas.planet.bin/downloads/SAS.Planet.Release.201212.zip">SAS.Planet.Release.201212.zip</a>'
   );
 
-  CGitHubFakeHtml: AnsiString =
-    '"browser_download_url": "https://github.com/sasgis/sas.planet.src/releases/download/v.201212/SAS.Planet.Release.201212.zip"' + #13#10 +
-    '"browser_download_url": "https://github.com/sasgis/sas.planet.src/releases/download/v.201212/SAS.Planet.Release.201212.x64.zip"';
+  CGitHubFakeHtml: array [TUpdateChannel] of AnsiString = (
+    '"browser_download_url": "https://github.com/sasgis/sas.planet.src/releases/download/nightly/SAS.Planet.Nightly.210616.10132.7z"' + #10 +
+    '"browser_download_url": "https://github.com/sasgis/sas.planet.src/releases/download/nightly/SAS.Planet.Nightly.210616.10132.x64.7z"' + #10,
+
+    '"browser_download_url": "https://github.com/sasgis/sas.planet.src/releases/download/v.201212/SAS.Planet.Release.201212.zip"' + #10 +
+    '"browser_download_url": "https://github.com/sasgis/sas.planet.src/releases/download/v.201212/SAS.Planet.Release.201212.x64.zip"' + #10
+  );
 
   CBitBucketFakeHtml: AnsiString =
     '<td class="name">' + #10 +
@@ -144,7 +149,7 @@ begin
   case AUpdateSource of
     usSasGis:    VStr := CSasGisFakeHtml[AUpdateChannel];
     usBitBucket: VStr := CBitBucketFakeHtml;
-    usGitHub:    VStr := CGitHubFakeHtml;
+    usGitHub:    VStr := CGitHubFakeHtml[AUpdateChannel];
   else
     raise Exception.CreateFmt(
       'Unexpected UpdateSource value: %d', [Integer(AUpdateSource)]
