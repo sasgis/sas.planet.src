@@ -38,6 +38,7 @@ type
     FCancelNotifier: INotifierOperation;
     FOperationID: Integer;
   private
+    { ISimpleHttpDownloader }
     function DoHttpRequest(
       const ARequestUrl, ARequestHeader, APostData: AnsiString;
       out AResponseHeader, AResponseData: AnsiString

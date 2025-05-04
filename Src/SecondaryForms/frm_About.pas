@@ -184,7 +184,7 @@ end;
 
 procedure TfrmAbout.btnLicenseClick(Sender: TObject);
 begin
-  OpenUrlInBrowser('http://www.gnu.org/licenses/gpl.html');
+  OpenUrlInBrowser('https://www.gnu.org/licenses/gpl-3.0.html');
 end;
 
 procedure TfrmAbout.btnCloseClick(Sender: TObject);
