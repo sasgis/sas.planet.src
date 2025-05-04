@@ -178,8 +178,9 @@ begin
       {$if declared(RTLVersion111)} + '.1' {$ifend} {$ifend} {$ifend}
                                     + ' Alexandria'
     {$elseif defined(VER360)} + ' 12'
+      {$if declared(RTLVersion123)} + '.3' {$else}
       {$if declared(RTLVersion122)} + '.2' {$else}
-      {$if declared(RTLVersion121)} + '.1' {$ifend} {$ifend}
+      {$if declared(RTLVersion121)} + '.1' {$ifend} {$ifend} {$ifend}
                                     + ' Athens'
     {$else} {$message hint 'Define your compiler version above!'}
     {$ifend};
