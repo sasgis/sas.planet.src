@@ -1702,6 +1702,14 @@
         <DCCReference Include="Src\TileStorage\GoogleEarth\u_TileStorageTypeGoogleEarth.pas"/>
         <DCCReference Include="Src\TileStorage\RAM\u_TileStorageInRAM.pas"/>
         <DCCReference Include="Src\TileStorage\RAM\u_TileStorageTypeInRAM.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\i_TileStorageSQLiteFileConnectionBuilder.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\t_TileStorageSQLiteFile.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\u_EnumTileInfoBySQLiteFile.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFile.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnection.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionBuilder.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionPool.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageTypeSQLiteFile.pas"/>
         <DCCReference Include="Src\TileStorage\SQLite\c_TileStorageSQLite.pas"/>
         <DCCReference Include="Src\TileStorage\SQLite\i_TileStorageSQLiteErrorLogger.pas"/>
         <DCCReference Include="Src\TileStorage\SQLite\i_TileStorageSQLiteFetcher.pas"/>

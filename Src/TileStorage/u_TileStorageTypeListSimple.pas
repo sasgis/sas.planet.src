@@ -24,6 +24,7 @@ unit u_TileStorageTypeListSimple;
 interface
 
 uses
+  t_TileStorageSQLiteFile,
   i_NotifierTime,
   i_ContentTypeManager,
   i_GlobalBerkeleyDBHelper,
@@ -51,6 +52,14 @@ type
       const ABaseName: string;
       const ANameGenerator: ITileFileNameGenerator;
       const ATileNameParser: ITileFileNameParser;
+      const AMapVersionFactoryList: IMapVersionFactoryList;
+      const AList: IInterfaceListSimple
+    );
+    procedure AddSQLiteFileTileStorageType(
+      const AName: string;
+      const ACacheId: Integer;
+      const AGuid: TGUID;
+      const AFormatId: TTileStorageSQLiteFileFormatId;
       const AMapVersionFactoryList: IMapVersionFactoryList;
       const AList: IInterfaceListSimple
     );
@@ -86,6 +95,7 @@ uses
   u_TileStorageTypeDBMS,
   u_TileStorageTypeInRAM,
   u_TileStorageTypeSQLite,
+  u_TileStorageTypeSQLiteFile,
   u_TileStorageTypeFileSystemSimple,
   u_TileStorageTypeListItem;
 
@@ -93,17 +103,19 @@ const
   CTileStorageTypeGE: TGUID = '{71C83BAA-EEA0-45E1-833E-8CCC3A8D1A1A}';
   CTileStorageTypeGETerrain: TGUID = '{C38B1837-A0E1-4139-89A3-3AB37C7ED702}';
   CTileStorageTypeGC: TGUID = '{F3163512-A190-426B-9D18-881AAD9DE61C}';
+
   CTileStorageTypeBerkeleyDB: TGUID = '{3DBF81CD-9356-40EB-9778-DE4D98E5BE61}';
   CTileStorageTypeBerkeleyDBVersioned: TGUID = '{CA3868AE-6762-4D17-B72F-6892E61E119B}';
   CTileStorageTypeDBMS: TGUID = '{5F9E2D54-A433-4853-B7EB-3EE218160263}';
   CTileStorageTypeSQLite: TGUID = '{5E8ABF86-92B4-48FA-8F71-E94E22DD7831}';
+
   CTileStorageTypeFileSystemSAS: TGUID = '{BE87ACAB-7031-4F57-9C1D-FA62C709818F}';
   CTileStorageTypeFileSystemGMV: TGUID = '{CB20D66C-FC79-4D1C-93A9-1C41A8D6B002}';
   CTileStorageTypeFileSystemES: TGUID = '{F6056405-C25C-4573-AFAC-BC4F8DF52283}';
   CTileStorageTypeFileSystemGM1: TGUID = '{E6F98BC5-8684-42C9-92DE-3D994DA8C925}';
   CTileStorageTypeFileSystemGM2: TGUID = '{4EF99AD6-D05E-4175-805C-DBBE08AC43B3}';
   CTileStorageTypeFileSystemGM3: TGUID = '{A65E31AC-7561-47FA-87B6-CE7F5603D5D1}';
-  CTileStorageTypeFileSystemMA: TGUID = '{033B64B5-008B-4BAF-9EA9-B8176EA35433}';
+  CTileStorageTypeFileSystemMobileAtlas: TGUID = '{033B64B5-008B-4BAF-9EA9-B8176EA35433}';
   CTileStorageTypeFileSystemOsmAnd: TGUID = '{A12465C1-2DB9-4309-8B48-A01E3BBDDE44}';
   CTileStorageTypeFileSystemTMS: TGUID = '{55510DF4-7FAD-4476-93AD-454F8689A109}';
 
@@ -113,11 +125,18 @@ const
   CTileStorageTypeArchiveTarGM1: TGUID = '{6DCAE4E5-5878-4CA1-A789-5E62A499254F}';
   CTileStorageTypeArchiveTarGM2: TGUID = '{AA85021B-77FB-458B-BBE6-B11B7692C82F}';
   CTileStorageTypeArchiveTarGM3: TGUID = '{5C096A4C-FFA8-416F-AA14-DAC9C4A27D6B}';
-  CTileStorageTypeArchiveTarMA: TGUID = '{11442EE8-28B7-419B-A402-3ACC56581204}';
+  CTileStorageTypeArchiveTarMobileAtlas: TGUID = '{11442EE8-28B7-419B-A402-3ACC56581204}';
   CTileStorageTypeArchiveTarOsmAnd: TGUID = '{5316452B-5B46-44CA-BF5F-D298240B350F}';
   CTileStorageTypeArchiveTarTMS: TGUID = '{4D8DE501-B764-4E24-BFB7-C108665849BE}';
 
   CTileStorageTypeInRAM: TGUID = '{717034B7-B49E-4C89-BC75-002D0523E548}';
+
+  CTileStorageTypeSQLiteFileMBTiles: TGUID = '{8C217E83-8AA8-41A4-A01A-AB80D130C748}';
+  CTileStorageTypeSQLiteFileOsmAnd: TGUID = '{110AE260-747D-423B-90C6-D83F1CE40D3F}';
+  CTileStorageTypeSQLiteFileLocus: TGUID = '{11EB8F68-5E2A-4CCA-BDA1-34E7B9FB0278}';
+  CTileStorageTypeSQLiteFileRMaps: TGUID = '{57788698-C306-416D-B374-B7B8120A0F0E}';
+  CTileStorageTypeSQLiteFileOruxMaps: TGUID = '{C50F37F3-8B2B-4F58-840A-772D004D4775}';
+
 
 resourcestring
   rsSASPlanetCacheName = 'SAS.Planet';
@@ -128,15 +147,24 @@ resourcestring
   rsGlobalMapperBingCacheName = 'GlobalMapper Bing';
   rsOsmAndCacheName = 'OsmAnd+ Tiles';
   rsTMSCacheName = 'Tile Map Service (TMS)';
+  rsMobileAtlasCacheName = 'Mobile Atlas Creator (MOBAC)';
+
   rsGoogleEarthCacheName = 'GoogleEarth';
   rsGoogleEarthTerrainCacheName = 'GoogleEarth Terrain';
   rsGeoCacherCacheName = 'GeoCacher';
+
   rsBerkeleyDBCacheName = 'BerkeleyDB';
   rsBerkeleyDBVersionedCacheName = 'BerkeleyDB (Versioned)';
-  rsMobileAtlasCacheName = 'Mobile Atlas Creator (MOBAC)';
   rsDBMSCacheName = 'DBMS';
   rsSQLiteCacheName = 'SQLite3';
+
   rsRAMCacheName = 'RAM';
+
+  rsSQLiteMBTilesCacheName = 'MBTiles (SQLite3)';
+  rsSQLiteOsmAndCacheName = 'OsmAnd (SQLite3)';
+  rsSQLiteLocusCacheName = 'Locus (SQLite3)';
+  rsSQLiteRMapsCacheName = 'RMaps (SQLite3)';
+  rsSQLiteOruxMapsCacheName = 'OruxMaps (SQLite3)';
 
 { TTileStorageTypeListSimple }
 
@@ -156,6 +184,7 @@ var
 begin
   VList := TInterfaceListSimple.Create;
 
+  // SAS.Planet (FileSystem)
   VStorageTypeConfig :=
     TTileStorageTypeConfig.Create(
       AGlobalCacheConfig.NewCPath
@@ -174,6 +203,7 @@ begin
     VList
   );
 
+  // GoogleMV (FileSystem)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.OldCPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
@@ -189,6 +219,7 @@ begin
     VList
   );
 
+  // EarthSlicer (FileSystem)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.ESCPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
@@ -204,6 +235,7 @@ begin
     VList
   );
 
+  // GlobalMapper Tiles (FileSystem)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
@@ -219,6 +251,7 @@ begin
     VList
   );
 
+  // GlobalMapper Aux (FileSystem)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
@@ -234,6 +267,7 @@ begin
     VList
   );
 
+  // GlobalMapper Bing (FileSystem)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
@@ -249,6 +283,7 @@ begin
     VList
   );
 
+  // OsmAnd+ Tiles (FileSystem)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GMTilesPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
@@ -264,13 +299,14 @@ begin
     VList
   );
 
+  // Mobile Atlas Creator (FileSystem)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.MOBACTilesPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
     AArchiveReadWriteFactory,
     VStorageTypeConfig,
-    CTileStorageTypeFileSystemMA,
-    CTileStorageTypeArchiveTarMA,
+    CTileStorageTypeFileSystemMobileAtlas,
+    CTileStorageTypeArchiveTarMobileAtlas,
     c_File_Cache_Id_MOBAC,
     rsMobileAtlasCacheName,
     TTileFileNameMOBAC.Create,
@@ -279,6 +315,7 @@ begin
     VList
   );
 
+  // TMS (FileSystem)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.TMSTilesPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
@@ -294,6 +331,7 @@ begin
     VList
   );
 
+  // BerkeleyDB
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.BDBCachePath);
   VStorageType :=
     TTileStorageTypeBerkeleyDB.Create(
@@ -315,6 +353,7 @@ begin
     );
   VList.Add(VItem);
 
+  // BerkeleyDB (Versioned)
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.BDBVerCachePath);
   VStorageType :=
     TTileStorageTypeBerkeleyDB.Create(
@@ -336,6 +375,7 @@ begin
     );
   VList.Add(VItem);
 
+  // SQLite3
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.SQLiteCachePath);
   VStorageType :=
     TTileStorageTypeSQLite.Create(
@@ -356,12 +396,13 @@ begin
     );
   VList.Add(VItem);
 
+  // GeoCacher Imagery
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GCCachePath);
   VStorageType :=
     TTileStorageTypeGoogleEarth.Create(
       AMapVersionFactoryList.GetSimpleVersionFactory,
       False, // IsTerrain
-      True, // IsGeoCacher
+      True,  // IsGeoCacher
       VStorageTypeConfig
     );
   VItem :=
@@ -375,6 +416,7 @@ begin
     );
   VList.Add(VItem);
 
+  // GoogleEarth Imagery
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GECachePath);
   VStorageType :=
     TTileStorageTypeGoogleEarth.Create(
@@ -394,11 +436,12 @@ begin
     );
   VList.Add(VItem);
 
+  // GoogleEarth Terrain
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.GECachePath);
   VStorageType :=
     TTileStorageTypeGoogleEarth.Create(
       AMapVersionFactoryList.GetSimpleVersionFactory,
-      True, // IsTerrain
+      True,  // IsTerrain
       False, // IsGeoCacher
       VStorageTypeConfig
     );
@@ -413,6 +456,7 @@ begin
     );
   VList.Add(VItem);
 
+  // DBMS
   VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.DBMSCachePath);
   VStorageType :=
     TTileStorageTypeDBMS.Create(
@@ -432,6 +476,7 @@ begin
     );
   VList.Add(VItem);
 
+  // RAM
   VStorageTypeConfig := TTileStorageTypeConfig.Create(nil);
   VStorageType :=
     TTileStorageTypeInRAM.Create(
@@ -448,6 +493,17 @@ begin
       True
     );
   VList.Add(VItem);
+
+  // MBTiles
+  AddSQLiteFileTileStorageType(
+    rsSQLiteMBTilesCacheName,
+    c_File_Cache_Id_SQLite_MBTiles,
+    CTileStorageTypeSQLiteFileMBTiles,
+    sfMBTiles,
+    AMapVersionFactoryList,
+    VList
+  );
+
   inherited Create(VList.MakeStaticAndClear);
 end;
 
@@ -507,6 +563,41 @@ begin
     );
   AList.Add(VItem);
   }
+end;
+
+procedure TTileStorageTypeListSimple.AddSQLiteFileTileStorageType(
+  const AName: string;
+  const ACacheId: Integer;
+  const AGuid: TGUID;
+  const AFormatId: TTileStorageSQLiteFileFormatId;
+  const AMapVersionFactoryList: IMapVersionFactoryList;
+  const AList: IInterfaceListSimple
+);
+var
+  VItem: ITileStorageTypeListItem;
+  VStorageTypeConfig: ITileStorageTypeConfig;
+  VStorageType: ITileStorageType;
+begin
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(nil);
+
+  VStorageType :=
+    TTileStorageTypeSQLiteFile.Create(
+      AMapVersionFactoryList.GetSimpleVersionFactory,
+      VStorageTypeConfig,
+      AFormatId
+    );
+
+  VItem :=
+    TTileStorageTypeListItem.Create(
+      AGuid,
+      ACacheId,
+      AName,
+      VStorageType,
+      True,
+      False
+    );
+
+  AList.Add(VItem);
 end;
 
 end.

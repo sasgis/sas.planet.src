@@ -64,6 +64,7 @@ type
     function BindTextCopy(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean; inline;
 
     function ClearBindings: Boolean; inline;
+    function Reset: Boolean; inline;
   end;
 
   PSQLite3DbHandler = ^TSQLite3DbHandler;
@@ -76,19 +77,21 @@ type
 
   TSQLite3DbHandler = record
   private
-    FHandle: PSQLite3;
+    FHandle: PSQLite3; // database connection handle
     procedure CheckResult(const AResult: Integer); inline;
     procedure RegisterCollationNeededCallback;
   public
     function Init: Boolean;
     function LibVersionInfo: string;
 
+    // Opening a new database connection
     procedure Open(
       const ADbFileName: string;
       const AOpenFlags: Integer;
       const ASupportLogicalCollation: Boolean = False
     );
 
+    // Closing a database connection
     procedure Close;
 
     function IsOpened: Boolean; inline;
@@ -484,6 +487,11 @@ begin
   Result := sqlite3_column_type(Stmt, ACol) = SQLITE_NULL;
 end;
 
+function TSQLite3StmtData.Reset: Boolean;
+begin
+  Result := sqlite3_reset(Stmt) = SQLITE_OK;
+end;
+
 { TSQLite3DbHandler }
 
 procedure TSQLite3DbHandler.BeginTransaction;
@@ -700,7 +708,7 @@ function TSQLite3DbHandler.OpenSql(
   const ARaiseOnOpenError: Boolean
 ): Integer;
 begin
-  Result := OpenSqlWithText(ASqlText, ACallbackProc, ACallbackPtr, ARaiseOnOpenError, False, nil, 0);
+  Result := OpenSqlWithText(ASqlText, ACallbackProc, ACallbackPtr, ARaiseOnOpenError, False, nil, 0, nil);
 end;
 
 function TSQLite3DbHandler.OpenSqlWithText(

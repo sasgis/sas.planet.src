@@ -40,13 +40,22 @@ const
   c_File_Cache_Id_TMS = 45; // "TileMapService" <ZOOM>\<X>\<Yb>.<ext> (<Yb> - starts from bottom)
 
   // other
-  c_File_Cache_Id_GE = 5;  // GE imagery cache direct access
-  c_File_Cache_Id_GEt = 51;  // GE terrain cache direct access
-  c_File_Cache_Id_BDB = 6;
-  c_File_Cache_Id_BDB_Versioned = 61;
+  c_File_Cache_Id_GE = 5; // GoogleEarth imagery cache direct access
+  c_File_Cache_Id_GEt = 51; // GoogleEarth terrain cache direct access
+
+  c_File_Cache_Id_BDB = 6; // BerkeleyDB
+  c_File_Cache_Id_BDB_Versioned = 61; // BerkeleyDB (Versioned)
   c_File_Cache_Id_DBMS = 7;
   c_File_Cache_Id_SQLite = 71;
-  c_File_Cache_Id_GC = 8;  // GeoCacher.LOCAL direct access
+
+  c_File_Cache_Id_SQLite_MBTiles = 72;
+  c_File_Cache_Id_SQLite_OsmAnd = 73;
+  c_File_Cache_Id_SQLite_Locus = 74;
+  c_File_Cache_Id_SQLite_RMaps = 75;
+  c_File_Cache_Id_SQLite_OruxMaps = 76;
+
+  c_File_Cache_Id_GC = 8;  // GeoCacher direct access
+
   c_File_Cache_Id_RAM = 9; // only in-memory cache
 
   c_File_Cache_Default_GMV  = 'cache_old';     // for 1
@@ -61,7 +70,6 @@ const
   c_File_Cache_Default_DBMS = 'SASGIS_DBMS\$'; // for 7
   c_File_Cache_Default_SQLite = 'cache_sqlite'; // for 71
   c_File_Cache_Default_GC   = 'cache_gc';      // for 8
-  c_File_Cache_Default_RAM  = '';              // for 9
 
 implementation
 
