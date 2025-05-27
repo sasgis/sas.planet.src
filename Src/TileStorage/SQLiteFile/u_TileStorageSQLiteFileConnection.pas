@@ -26,32 +26,36 @@ interface
 uses
   Types,
   SysUtils,
-  SyncObjs,
-  StrUtils,
-  System.Generics.Collections,
   i_BinaryData,
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_TileStorage,
   i_NotifierOperation,
+  i_TileStorageSQLiteFileInfo,
   u_SQLite3Handler;
 
 type
+  TStmtState = (ssNone, ssPrepared, ssError);
+  TFetchNextState = (fnsNone, fnsNext, fnsDone, fnsError);
+
+  TConnectionStatement = record
+    FState: TStmtState;
+    FText: UTF8String;
+    FStmt: TSQLite3StmtData;
+
+    procedure Init(
+      const ASqlText: UTF8String
+    ); inline;
+
+    function CheckPrepared(
+      const ASQLite3DB: TSQLite3DbHandler
+    ): Boolean;
+
+    procedure Fin;
+  end;
+
   TTileStorageSQLiteFileConnection = class
-  private
-    type
-      TStmtState = (ssNone, ssPrepared, ssError);
-      TFetchNextState = (fnsNone, fnsNext, fnsDone, fnsError);
-
-      TMetadataDictionary = TDictionary<string, string>;
-
-      TConnectionStatement = record
-        FState: TStmtState;
-        FText: UTF8String;
-        FStmt: TSQLite3StmtData;
-      end;
-      PConnectionStatement = ^TConnectionStatement;
-  private
+  protected
     FEnabled: Boolean;
     FSQLite3DB: TSQLite3DbHandler;
     FTileDataStmt: TConnectionStatement;
@@ -60,27 +64,18 @@ type
     FEnumTilesStmt: TConnectionStatement;
     FFetchNextState: TFetchNextState;
     FMainContentType: IContentTypeInfoBasic;
-    FIsXYZSchema: Boolean;
-  private
-    function BlobToBinaryData(const AStmt: TSQLite3StmtData; const AColNum: Integer): IBinaryData;
+    FFileInfo: ITileStorageSQLiteFileInfo;
+    FFileDate: TDateTime;
+  protected
+    function BlobToBinaryData(
+      const AStmt: TSQLite3StmtData;
+      const AColNum: Integer
+    ): IBinaryData;
 
-    function CoordToValue(const AZoom: Byte; const Y: Integer): Integer; inline;
-    function ValueToCoord(const AZoom: Byte; const Y: Integer): Integer; inline;
+    function CoordToValue(const AZoom: Byte; const Y: Integer): Integer; virtual;
+    function ValueToCoord(const AZoom: Byte; const Y: Integer): Integer; virtual;
 
-    procedure SetupStatement(
-      const AStmt: PConnectionStatement;
-      const ASqlText: UTF8String
-    );
-
-    function CheckStatement(
-      const AStmt: PConnectionStatement
-    ): Boolean;
-
-    procedure FetchMetadataCallback(
-      const AHandler: PSQLite3DbHandler;
-      const ACallbackPtr: Pointer;
-      const AStmtData: PSQLite3StmtData
-    );
+    procedure FetchMetadata; virtual; abstract;
   public
     function FetchOne(
       const AXY: TPoint;
@@ -98,9 +93,12 @@ type
     function FetchNext(
       var ATileInfo: TTileInfo
     ): Boolean;
+
+    property FileInfo: ITileStorageSQLiteFileInfo read FFileInfo;
   public
     constructor Create(
       const AFileName: string;
+      const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic
     );
     destructor Destroy; override;
@@ -109,113 +107,58 @@ type
 implementation
 
 uses
+  IOUtils,
   libsqlite3,
   u_BinaryData,
   u_TileInfoBasic,
-  u_TileRectInfoShort;
+  u_TileRectInfoShort,
+  u_TileStorageSQLiteFileInfo;
 
 { TTileStorageSQLiteFileConnection }
 
 constructor TTileStorageSQLiteFileConnection.Create(
   const AFileName: string;
+  const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic
 );
-var
-  VValue: string;
-  VMetadata: TMetadataDictionary;
 begin
   inherited Create;
 
+  FFileInfo := AFileInfo;
   FMainContentType := AMainContentType;
 
-  if not FileExists(AFileName) then begin
-    raise Exception.CreateFmt('File not found: %s', [AFileName]);
-  end;
-
   if not FSQLite3DB.Init then begin
-    Exit;
+    raise Exception.Create('SQLite3 library initialization error!');
   end;
 
-  // open db
   FSQLite3Db.Open(
     'file:///' + AFileName + '?immutable=1',
     SQLITE_OPEN_READONLY or SQLITE_OPEN_URI or SQLITE_OPEN_NOMUTEX,
     False
   );
 
-  // read metadata
-  VMetadata := TMetadataDictionary.Create;
-  try
-    FSQLite3Db.OpenSql(
-      'SELECT name, value FROM metadata', Self.FetchMetadataCallback, Pointer(VMetadata), True
-    );
+  if FFileInfo = nil then begin
+    FFileDate := TFile.GetCreationTime(AFileName);
+    FFileInfo := TTileStorageSQLiteFileInfo.Create(AFileName, FFileDate);
 
-    if VMetadata.TryGetValue('format', VValue) then begin
-      if not SameText(FMainContentType.GetDefaultExt, '.' + VValue) then begin
-        raise Exception.CreateFmt(
-          'The detected tile format "%s" does not match the provided content type "%s"',
-          [VValue, FMainContentType.GetContentType]
-        );
-      end;
-    end;
-
-    if VMetadata.TryGetValue('scheme', VValue) then begin
-      FIsXYZSchema := SameText(VValue, 'xyz');
-    end;
-  finally
-    VMetadata.Free;
+    Self.FetchMetadata;
+  end else begin
+    FFileDate := FFileInfo.FileDate;
   end;
-
-  // statements
-  Self.SetupStatement(
-    @FTileDataStmt,
-    'SELECT tile_data FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?;'
-  );
-
-  Self.SetupStatement(
-    @FTileInfoStmt,
-    'SELECT length(tile_data) FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?;'
-  );
-
-  Self.SetupStatement(
-    @FRectInfoStmt,
-    'SELECT tile_column, tile_row, length(tile_data) FROM tiles ' +
-    'WHERE zoom_level = ? AND tile_column >= ? AND tile_column < ? AND ' +
-    IfThen(FIsXYZSchema, 'tile_row >= ? AND tile_row < ?', 'tile_row <= ? AND tile_row > ?') + ';'
-  );
-
-  Self.SetupStatement(
-    @FEnumTilesStmt,
-    'SELECT zoom_level, tile_column, tile_row, tile_data FROM tiles;'
-  );
-
-  if not CheckStatement(@FTileDataStmt) or not CheckStatement(@FTileInfoStmt) then begin
-    Exit;
-  end;
-
-  FEnabled := True;
 end;
 
 destructor TTileStorageSQLiteFileConnection.Destroy;
 begin
-  if FEnabled and FSQLite3DB.IsOpened then begin
+  FTileDataStmt.Fin;
+  FTileInfoStmt.Fin;
+  FRectInfoStmt.Fin;
+  FEnumTilesStmt.Fin;
+
+  if FSQLite3DB.IsOpened then begin
     FSQLite3DB.Close;
   end;
+
   inherited Destroy;
-end;
-
-procedure TTileStorageSQLiteFileConnection.FetchMetadataCallback(
-  const AHandler: PSQLite3DbHandler;
-  const ACallbackPtr: Pointer;
-  const AStmtData: PSQLite3StmtData
-);
-var
-  VName, VValue: string;
-begin
-  VName := LowerCase(AStmtData.ColumnAsString(0));
-  VValue := AStmtData.ColumnAsString(1);
-
-  TMetadataDictionary(ACallbackPtr).AddOrSetValue(VName, VValue);
 end;
 
 function TTileStorageSQLiteFileConnection.FetchOne(
@@ -259,10 +202,10 @@ begin
 
     if AMode = gtimWithData then begin
       VBinaryData := BlobToBinaryData(VStmt, 0);
-      Result := TTileInfoBasicExistsWithTile.Create(0, VBinaryData, nil, FMainContentType);
+      Result := TTileInfoBasicExistsWithTile.Create(FFileDate, VBinaryData, nil, FMainContentType);
     end else begin
       VBlobSize := VStmt.ColumnInt(0);
-      Result := TTileInfoBasicExists.Create(0, VBlobSize, nil, FMainContentType);
+      Result := TTileInfoBasicExists.Create(FFileDate, VBlobSize, nil, FMainContentType);
     end;
   finally
     VStmt.Reset;
@@ -291,7 +234,7 @@ begin
     Exit;
   end;
 
-  if not CheckStatement(@FRectInfoStmt) then begin
+  if not FRectInfoStmt.CheckPrepared(FSQLite3DB) then begin
     FEnabled := False;
     Exit;
   end;
@@ -334,6 +277,7 @@ begin
       if VIndex >= 0 then begin
         VItems[VIndex].FInfoType := titExists;
         VItems[VIndex].FSize := VTileSize;
+        VItems[VIndex].FLoadDate := FFileDate;
       end;
     end;
   finally
@@ -361,7 +305,7 @@ begin
   end;
 
   if FFetchNextState = fnsNone then begin
-    if CheckStatement(@FEnumTilesStmt) then begin
+    if FEnumTilesStmt.CheckPrepared(FSQLite3DB) then begin
       FFetchNextState := fnsNext;
     end else begin
       FFetchNextState := fnsError;
@@ -382,7 +326,7 @@ begin
       ATileInfo.FZoom := VStmt.ColumnInt(0);
       ATileInfo.FTile.X := VStmt.ColumnInt(1);
       ATileInfo.FTile.Y := ValueToCoord(ATileInfo.FZoom, VStmt.ColumnInt(2));
-      ATileInfo.FLoadDate := 0;
+      ATileInfo.FLoadDate := FFileDate;
       ATileInfo.FVersionInfo := nil;
       ATileInfo.FData := BlobToBinaryData(VStmt, 3);
       ATileInfo.FContentType := FMainContentType;
@@ -426,46 +370,43 @@ begin
   end;
 end;
 
-procedure TTileStorageSQLiteFileConnection.SetupStatement(
-  const AStmt: PConnectionStatement;
-  const ASqlText: UTF8String
-);
-begin
-  AStmt.FState := ssNone;
-  AStmt.FText := ASqlText;
-end;
-
-function TTileStorageSQLiteFileConnection.CheckStatement(
-  const AStmt: PConnectionStatement
-): Boolean;
-begin
-  if AStmt.FState = ssNone then begin
-    if FSQLite3DB.PrepareStatement(@AStmt.FStmt, AStmt.FText) then begin
-      AStmt.FState := ssPrepared;
-    end else begin
-      AStmt.FState := ssError;
-      FSQLite3DB.RaiseSQLite3Error;
-    end;
-  end;
-  Result := (AStmt.FState = ssPrepared);
-end;
-
 function TTileStorageSQLiteFileConnection.CoordToValue(const AZoom: Byte; const Y: Integer): Integer;
 begin
-  if FIsXYZSchema then begin
-    Result := Y;
-  end else begin
-    Result := (1 shl AZoom) - Y - 1;
-  end;
+  Result := Y;
 end;
 
 function TTileStorageSQLiteFileConnection.ValueToCoord(const AZoom: Byte; const Y: Integer): Integer;
 begin
-  if FIsXYZSchema then begin
-    Result := Y;
-  end else begin
-    Result := (1 shl AZoom) - Y - 1;
+  Result := Y;
+end;
+
+{ TConnectionStatement }
+
+procedure TConnectionStatement.Init(const ASqlText: UTF8String);
+begin
+  FState := ssNone;
+  FText := ASqlText;
+end;
+
+procedure TConnectionStatement.Fin;
+begin
+  if FState = ssPrepared then begin
+    FStmt.Fin;
+    FState := ssNone;
   end;
+end;
+
+function TConnectionStatement.CheckPrepared(const ASQLite3DB: TSQLite3DbHandler): Boolean;
+begin
+  if FState = ssNone then begin
+    if ASQLite3DB.PrepareStatement(@FStmt, FText) then begin
+      FState := ssPrepared;
+    end else begin
+      FState := ssError;
+      ASQLite3DB.RaiseSQLite3Error;
+    end;
+  end;
+  Result := (FState = ssPrepared);
 end;
 
 end.

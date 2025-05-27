@@ -26,6 +26,7 @@ interface
 uses
   Types,
   SysUtils,
+  t_TileStorageSQLiteFile,
   i_BinaryData,
   i_MapVersionInfo,
   i_MapVersionFactory,
@@ -108,7 +109,8 @@ type
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic;
-      const AFileName: string
+      const AFileName: string;
+      const AFormatId: TTileStorageSQLiteFileFormatId
     );
     destructor Destroy; override;
   end;
@@ -131,7 +133,8 @@ constructor TTileStorageSQLiteFile.Create(
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic;
-  const AFileName: string
+  const AFileName: string;
+  const AFormatId: TTileStorageSQLiteFileFormatId
 );
 begin
   inherited Create(
@@ -156,7 +159,8 @@ begin
   FConnectionBuilder :=
     TTileStorageSQLiteFileConnectionBuilder.Create(
       FFileName,
-      AMainContentType
+      AMainContentType,
+      AFormatId
     );
 
   FConnectionPool := TTileStorageSQLiteFileConnectionPool.Create(FConnectionBuilder);

@@ -65,6 +65,7 @@ type
 
     function ClearBindings: Boolean; inline;
     function Reset: Boolean; inline;
+    function Fin: Boolean; inline;
   end;
 
   PSQLite3DbHandler = ^TSQLite3DbHandler;
@@ -480,6 +481,11 @@ end;
 procedure TSQLite3StmtData.Init;
 begin
   FillChar(Self, SizeOf(Self), 0);
+end;
+
+function TSQLite3StmtData.Fin: Boolean;
+begin
+  Result := sqlite3_finalize(Stmt) = SQLITE_OK;
 end;
 
 function TSQLite3StmtData.IsNull(const ACol: Integer): Boolean;

@@ -112,7 +112,8 @@ begin
       ATileNotifier,
       GetMapVersionFactory,
       AMainContentType,
-      APath
+      APath,
+      FFormatId
     );
 end;
 
