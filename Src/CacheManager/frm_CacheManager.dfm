@@ -123,7 +123,8 @@ object frmCacheManager: TfrmCacheManager
           Text = 'Folder'
           Items.Strings = (
             'Archive'
-            'Folder')
+            'Folder'
+            'File')
         end
         object cbbExt: TComboBox
           Left = 176

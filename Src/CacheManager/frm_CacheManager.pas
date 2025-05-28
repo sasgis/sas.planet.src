@@ -106,7 +106,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     type
-      TSrcType = (stArchive, stFolder);
+      TSrcType = (stArchive, stFolder, stFile);
       TDestType = (dtArchiveZip, dtArchiveTar, dtFolder);
       TArchiveType = (atUndef, atTar, atZip);
   private
@@ -464,6 +464,16 @@ begin
         edtPath.Text := IncludeTrailingPathDelimiter(VPath);
       end;
     end;
+    stFile: begin
+      dlgOpenFile.Filter := 'All|*.*';
+      dlgOpenFile.DefaultExt := '*.*';
+      if dlgOpenFile.Execute then begin
+        dlgOpenFile.InitialDir := ExtractFileDir(dlgOpenFile.FileName);
+        edtPath.Text := dlgOpenFile.FileName;
+      end;
+    end;
+  else
+    Assert(False);
   end;
 end;
 
@@ -508,7 +518,7 @@ procedure TfrmCacheManager.btnStartClick(Sender: TObject);
     // source
     if Trim(edtPath.Text) = '' then begin
       case FSrcType of
-        stArchive: ShowErrorMessage(_('Source cache file is not specified!'));
+        stArchive, stFile: ShowErrorMessage(_('Source cache file is not specified!'));
         stFolder: ShowErrorMessage(_('Source cache path is not specified!'));
       else
         Assert(False);
@@ -579,8 +589,15 @@ begin
       FSrcType := stFolder;
       lblPath.Caption := _('Path:');
       chkRemove.Enabled := True;
-      FfrSrcCacheTypesList.FilterOptions := CTileStorageTypeClassAll - [tstcInMemory];
-    end
+      FfrSrcCacheTypesList.FilterOptions := CTileStorageTypeClassAll - [tstcInMemory] - [tstcOneFile];
+    end;
+    2: begin
+      FSrcType := stFile;
+      lblPath.Caption := _('File:');
+      chkRemove.Checked := False;
+      chkRemove.Enabled := False;
+      FfrSrcCacheTypesList.FilterOptions := [tstcOneFile];
+    end;
   else
     Assert(False);
   end;
@@ -709,6 +726,9 @@ begin
     end;
     stFolder: begin
       VSourcePath := IncludeTrailingPathDelimiter(VSourcePath);
+    end;
+    stFile: begin
+      // nothing to do
     end;
   else
     Assert(False);
