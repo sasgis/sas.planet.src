@@ -160,6 +160,7 @@ begin
     TTileStorageSQLiteFileConnectionBuilder.Create(
       FFileName,
       AMainContentType,
+      AProjectionSet,
       AFormatId
     );
 

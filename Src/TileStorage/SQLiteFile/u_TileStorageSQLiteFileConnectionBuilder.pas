@@ -28,6 +28,7 @@ uses
   SysUtils,
   t_TileStorageSQLiteFile,
   i_ContentTypeInfo,
+  i_ProjectionSet,
   i_TileStorageSQLiteFileInfo,
   i_TileStorageSQLiteFileConnectionBuilder,
   u_BaseInterfacedObject;
@@ -38,6 +39,7 @@ type
     FIsFailed: Boolean;
     FFileName: string;
     FMainContentType: IContentTypeInfoBasic;
+    FProjectionSet: IProjectionSet;
     FFormatId: TTileStorageSQLiteFileFormatId;
     FFileInfo: ITileStorageSQLiteFileInfo;
     FLock: TCriticalSection;
@@ -49,6 +51,7 @@ type
     constructor Create(
       const AFileName: string;
       const AMainContentType: IContentTypeInfoBasic;
+      const AProjectionSet: IProjectionSet;
       const AFormatId: TTileStorageSQLiteFileFormatId
     );
     destructor Destroy; override;
@@ -59,13 +62,15 @@ implementation
 uses
   u_TileStorageSQLiteFileConnection,
   u_TileStorageSQLiteFileConnectionMBTiles,
-  u_TileStorageSQLiteFileConnectionRMaps;
+  u_TileStorageSQLiteFileConnectionRMaps,
+  u_TileStorageSQLiteFileConnectionOruxMaps;
 
 { TTileStorageSQLiteFileConnectionBuilder }
 
 constructor TTileStorageSQLiteFileConnectionBuilder.Create(
   const AFileName: string;
   const AMainContentType: IContentTypeInfoBasic;
+  const AProjectionSet: IProjectionSet;
   const AFormatId: TTileStorageSQLiteFileFormatId
 );
 begin
@@ -73,6 +78,7 @@ begin
 
   FFileName := AFileName;
   FMainContentType := AMainContentType;
+  FProjectionSet := AProjectionSet;
   FFormatId := AFormatId;
 
   FLock := TCriticalSection.Create;
@@ -88,8 +94,6 @@ function TTileStorageSQLiteFileConnectionBuilder.MakeNewConnection: TObject;
 var
   VConnection: TTileStorageSQLiteFileConnection;
 begin
-  VConnection := nil;
-
   if FIsFailed then begin
     raise Exception.CreateFmt(
       'Can''t open file: "%s" as %s database!', [FFileName, GetDbNameById(FFormatId)]
@@ -119,16 +123,15 @@ begin
         end;
 
         sfOruxMaps: begin
-          // todo
+          VConnection :=
+            TTileStorageSQLiteFileConnectionOruxMaps.Create(
+              FFileName, FFileInfo, FMainContentType, FProjectionSet
+            );
         end;
       else
         raise Exception.CreateFmt(
           Self.ClassName + ': ' + 'Unexpected FormatID = %d', [Integer(FFormatId)]
         );
-      end;
-
-      if VConnection = nil then begin
-        raise Exception.Create('This format is not supported yet!');
       end;
 
       if FFileInfo = nil then begin

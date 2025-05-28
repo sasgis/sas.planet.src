@@ -534,6 +534,16 @@ begin
     VList
   );
 
+  // OruxMaps (SQLite3)
+  AddSQLiteFileTileStorageType(
+    rsSQLiteOruxMapsCacheName,
+    c_File_Cache_Id_SQLite_OruxMaps,
+    CTileStorageTypeSQLiteFileOruxMaps,
+    sfOruxMaps,
+    AMapVersionFactoryList,
+    VList
+  );
+
   inherited Create(VList.MakeStaticAndClear);
 end;
 
