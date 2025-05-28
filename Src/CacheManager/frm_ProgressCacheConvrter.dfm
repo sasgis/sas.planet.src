@@ -116,16 +116,16 @@ object frmProgressCacheConverter: TfrmProgressCacheConverter
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 0
-    object btnQuit: TButton
+    object btnAbort: TButton
       AlignWithMargins = True
       Left = 231
       Top = 3
       Width = 75
       Height = 20
       Align = alRight
-      Caption = 'Quit'
+      Caption = 'Abort'
       TabOrder = 2
-      OnClick = btnQuitClick
+      OnClick = btnAbortClick
     end
     object btnPause: TButton
       AlignWithMargins = True

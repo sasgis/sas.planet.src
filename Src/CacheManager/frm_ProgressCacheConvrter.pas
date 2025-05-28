@@ -25,11 +25,8 @@ interface
 
 uses
   Windows,
-  Messages,
   SysUtils,
-  Variants,
   Classes,
-  Graphics,
   Controls,
   Forms,
   StdCtrls,
@@ -47,7 +44,7 @@ uses
 type
   TfrmProgressCacheConverter = class(TFormWitghLanguageManager)
     pnlBottom: TPanel;
-    btnQuit: TButton;
+    btnAbort: TButton;
     btnPause: TButton;
     btnMinimize: TButton;
     lblProcessedName: TLabel;
@@ -70,7 +67,7 @@ type
     );
     procedure btnMinimizeClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
-    procedure btnQuitClick(Sender: TObject);
+    procedure btnAbortClick(Sender: TObject);
   private
     FConverterThread: TThreadCacheConverter;
     FAppClosingNotifier: INotifierOneOperation;
@@ -100,6 +97,7 @@ type
 implementation
 
 uses
+  gnugettext,
   u_Dialogs,
   u_ListenerByEvent,
   u_ListenerTime,
@@ -127,7 +125,7 @@ begin
   FProgressInfo := AProgressInfo;
   FValueToStringConverter := AValueToStringConverter;
 
-  FTimerListener := TListenerTimeCheck.Create(Self.OnTimerTick, 1000);
+  FTimerListener := TListenerTimeCheck.Create(Self.OnTimerTick, 250);
   FTimerNoifier.Add(FTimerListener);
 
   FFinished := False;
@@ -203,7 +201,7 @@ begin
   end;
 end;
 
-procedure TfrmProgressCacheConverter.btnQuitClick(Sender: TObject);
+procedure TfrmProgressCacheConverter.btnAbortClick(Sender: TObject);
 begin
   FFinished := True;
   CancelOperation;
@@ -229,8 +227,10 @@ begin
     lblSizeValue.Caption := VValueConverter.DataSizeConvert(FProgressInfo.TilesSize / 1024);
     lblLastTileValue.Caption := FProgressInfo.LastTileName;
     if FProgressInfo.Finished then begin
-      Self.Caption := SAS_STR_Finished;
       FFinished := True;
+      btnPause.Visible := False;
+      btnAbort.Caption := _('Close');
+      Self.Caption := SAS_STR_Finished;
       if FProgressInfo.ProgressAbortErrorStr <> '' then begin
         ShowErrorMessage(FProgressInfo.ProgressAbortErrorStr);
       end else begin

@@ -68,7 +68,7 @@ type
     tsConverter: TTabSheet;
     pnlBottomButtons: TPanel;
     btnStart: TButton;
-    btnCancel: TButton;
+    btnClose: TButton;
     grpSrc: TGroupBox;
     lblPath: TLabel;
     edtPath: TEdit;
@@ -100,7 +100,7 @@ type
     procedure btnStartClick(Sender: TObject);
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
-    procedure btnCancelClick(Sender: TObject);
+    procedure btnCloseClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnArchiveWriterConfigClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -567,7 +567,7 @@ begin
   end;
 end;
 
-procedure TfrmCacheManager.btnCancelClick(Sender: TObject);
+procedure TfrmCacheManager.btnCloseClick(Sender: TObject);
 begin
   Self.Close;
 end;

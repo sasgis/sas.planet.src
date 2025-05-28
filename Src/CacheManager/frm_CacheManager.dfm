@@ -263,7 +263,7 @@ object frmCacheManager: TfrmCacheManager
       TabOrder = 1
       OnClick = btnStartClick
     end
-    object btnCancel: TButton
+    object btnClose: TButton
       AlignWithMargins = True
       Left = 491
       Top = 6
@@ -271,9 +271,9 @@ object frmCacheManager: TfrmCacheManager
       Height = 25
       Align = alRight
       Cancel = True
-      Caption = 'Cancel'
+      Caption = 'Close'
       TabOrder = 2
-      OnClick = btnCancelClick
+      OnClick = btnCloseClick
     end
     object tbxtlbrDontClose: TTBXToolbar
       Left = 4
