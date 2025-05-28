@@ -35,46 +35,63 @@ uses
   u_SQLite3Handler;
 
 type
-  TStmtState = (ssNone, ssPrepared, ssError);
-  TFetchNextState = (fnsNone, fnsNext, fnsDone, fnsError);
-
-  TConnectionStatement = record
+  TConnectionStatement = class
+  public
+    type TStmtState = (ssNone, ssPrepared, ssError);
+  public
     FState: TStmtState;
     FText: UTF8String;
     FStmt: TSQLite3StmtData;
+    FIsInvertedY: Boolean;
+    FIsInvertedZ: Boolean;
+  public
+    function BlobToBinaryData(const AColNum: Integer): IBinaryData;
+    function CheckPrepared(const ASQLite3DB: TSQLite3DbHandler): Boolean;
+  public
+    constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+    destructor Destroy; override;
+  end;
 
-    procedure Init(
-      const ASqlText: UTF8String
-    ); inline;
+  TTileDataConnectionStatement = class(TConnectionStatement)
+  public
+    function BindParams(X, Y, Z: Integer): Boolean; virtual; abstract;
+    procedure GetResult(out ABlob: IBinaryData); virtual; abstract;
+  end;
 
-    function CheckPrepared(
-      const ASQLite3DB: TSQLite3DbHandler
-    ): Boolean;
+  TTileInfoConnectionStatement = class(TConnectionStatement)
+  public
+    function BindParams(X, Y, Z: Integer): Boolean; virtual; abstract;
+    procedure GetResult(out ABlobSize: Integer); virtual; abstract;
+  end;
 
-    procedure Fin;
+  TRectInfoConnectionStatement = class(TConnectionStatement)
+  protected
+    FZoom: Integer; // may be necessary for GetResult
+  public
+    function BindParams(const ARect: TRect; Z: Integer): Boolean; virtual; abstract;
+    procedure GetResult(out X, Y: Integer; out ASize: Integer); virtual; abstract;
+  end;
+
+  TEnumTilesConnectionStatement = class(TConnectionStatement)
+  public
+    procedure GetResult(out X, Y, Z: Integer; out ABlob: IBinaryData); virtual; abstract;
   end;
 
   TTileStorageSQLiteFileConnection = class
+  private
+    type TFetchNextState = (fnsNone, fnsNext, fnsDone, fnsError);
   protected
     FEnabled: Boolean;
     FSQLite3DB: TSQLite3DbHandler;
-    FTileDataStmt: TConnectionStatement;
-    FTileInfoStmt: TConnectionStatement;
-    FRectInfoStmt: TConnectionStatement;
-    FEnumTilesStmt: TConnectionStatement;
+    FTileDataStmt: TTileDataConnectionStatement;
+    FTileInfoStmt: TTileInfoConnectionStatement;
+    FRectInfoStmt: TRectInfoConnectionStatement;
+    FEnumTilesStmt: TEnumTilesConnectionStatement;
     FFetchNextState: TFetchNextState;
     FMainContentType: IContentTypeInfoBasic;
     FFileInfo: ITileStorageSQLiteFileInfo;
     FFileDate: TDateTime;
   protected
-    function BlobToBinaryData(
-      const AStmt: TSQLite3StmtData;
-      const AColNum: Integer
-    ): IBinaryData;
-
-    function CoordToValue(const AZoom: Byte; const Y: Integer): Integer; virtual;
-    function ValueToCoord(const AZoom: Byte; const Y: Integer): Integer; virtual;
-
     procedure FetchMetadata; virtual; abstract;
   public
     function FetchOne(
@@ -149,10 +166,10 @@ end;
 
 destructor TTileStorageSQLiteFileConnection.Destroy;
 begin
-  FTileDataStmt.Fin;
-  FTileInfoStmt.Fin;
-  FRectInfoStmt.Fin;
-  FEnumTilesStmt.Fin;
+  FreeAndNil(FTileDataStmt);
+  FreeAndNil(FTileInfoStmt);
+  FreeAndNil(FRectInfoStmt);
+  FreeAndNil(FEnumTilesStmt);
 
   if FSQLite3DB.IsOpened then begin
     FSQLite3DB.Close;
@@ -170,7 +187,7 @@ var
   VBindResult: Boolean;
   VBlobSize: Integer;
   VBinaryData: IBinaryData;
-  VStmt: TSQLite3StmtData;
+  VStmtData: TSQLite3StmtData;
 begin
   Result := nil;
 
@@ -180,35 +197,33 @@ begin
 
   if AMode = gtimWithData then begin
     Assert(FTileDataStmt.FState = ssPrepared);
-    VStmt := FTileDataStmt.FStmt;
+    VBindResult := FTileDataStmt.BindParams(AXY.X, AXY.Y, AZoom);
+    VStmtData := FTileDataStmt.FStmt;
   end else begin
     Assert(FTileInfoStmt.FState = ssPrepared);
-    VStmt := FTileInfoStmt.FStmt;
+    VBindResult := FTileInfoStmt.BindParams(AXY.X, AXY.Y, AZoom);
+    VStmtData := FTileInfoStmt.FStmt;
   end;
-
-  VBindResult :=
-    VStmt.BindInt(1, AZoom) and
-    VStmt.BindInt(2, AXY.X) and
-    VStmt.BindInt(3, CoordToValue(AZoom, AXY.Y));
 
   if not VBindResult then begin
     FSQLite3DB.RaiseSQLite3Error;
   end;
 
   try
-    if sqlite3_step(VStmt.Stmt) <> SQLITE_ROW then begin
+    if sqlite3_step(VStmtData.Stmt) <> SQLITE_ROW then begin
       Exit;
     end;
 
     if AMode = gtimWithData then begin
-      VBinaryData := BlobToBinaryData(VStmt, 0);
+      FTileDataStmt.GetResult(VBinaryData);
+      Assert(VBinaryData <> nil);
       Result := TTileInfoBasicExistsWithTile.Create(FFileDate, VBinaryData, nil, FMainContentType);
     end else begin
-      VBlobSize := VStmt.ColumnInt(0);
+      FTileInfoStmt.GetResult(VBlobSize);
       Result := TTileInfoBasicExists.Create(FFileDate, VBlobSize, nil, FMainContentType);
     end;
   finally
-    VStmt.Reset;
+    VStmtData.Reset;
   end;
 end;
 
@@ -219,9 +234,7 @@ function TTileStorageSQLiteFileConnection.FetchRectInfo(
   const ACancelNotifier: INotifierOperation
 ): ITileRectInfo;
 var
-  VTile: TPoint;
-  VBindResult: Boolean;
-  VTop, VBottom: Integer;
+  X, Y: Integer;
   VCount: Integer;
   VTileSize: Integer;
   VItems: TArrayOfTileInfoShortInternal;
@@ -239,19 +252,7 @@ begin
     Exit;
   end;
 
-  VStmt := FRectInfoStmt.FStmt;
-
-  VTop := CoordToValue(AZoom, ARect.Top);
-  VBottom := CoordToValue(AZoom, ARect.Bottom);
-
-  VBindResult :=
-    VStmt.BindInt(1, AZoom) and
-    VStmt.BindInt(2, ARect.Left) and
-    VStmt.BindInt(3, ARect.Right) and
-    VStmt.BindInt(4, VTop) and
-    VStmt.BindInt(5, VBottom);
-
-  if not VBindResult then begin
+  if not FRectInfoStmt.BindParams(ARect, AZoom) then begin
     FSQLite3DB.RaiseSQLite3Error;
   end;
 
@@ -259,6 +260,7 @@ begin
   SetLength(VItems, (ARect.Right - ARect.Left) * (ARect.Bottom - ARect.Top));
   FillChar(VItems[0], SizeOf(TTileInfoShortInternal) * Length(VItems), 0);
 
+  VStmt := FRectInfoStmt.FStmt;
   try
     while sqlite3_step(VStmt.Stmt) = SQLITE_ROW do begin
       Inc(VCount);
@@ -267,11 +269,9 @@ begin
         Exit;
       end;
 
-      VTile.X := VStmt.ColumnInt(0);
-      VTile.Y := ValueToCoord(AZoom, VStmt.ColumnInt(1));
-      VTileSize := VStmt.ColumnInt(2);
+      FRectInfoStmt.GetResult(X, Y, VTileSize);
 
-      VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, ARect);
+      VIndex := TTileRectInfoShort.TileInRectToIndex(Point(X, Y), ARect);
       Assert(VIndex >= 0);
 
       if VIndex >= 0 then begin
@@ -295,7 +295,9 @@ function TTileStorageSQLiteFileConnection.FetchNext(
   var ATileInfo: TTileInfo
 ): Boolean;
 var
+  X, Y, Z: Integer;
   VStepResult: Integer;
+  VBinaryData: IBinaryData;
   VStmt: TSQLite3StmtData;
 begin
   Result := False;
@@ -323,15 +325,18 @@ begin
     VStepResult := sqlite3_step(VStmt.Stmt);
 
     if VStepResult = SQLITE_ROW then begin
-      ATileInfo.FZoom := VStmt.ColumnInt(0);
-      ATileInfo.FTile.X := VStmt.ColumnInt(1);
-      ATileInfo.FTile.Y := ValueToCoord(ATileInfo.FZoom, VStmt.ColumnInt(2));
+
+      FEnumTilesStmt.GetResult(X, Y, Z, VBinaryData);
+
+      ATileInfo.FTile.X := X;
+      ATileInfo.FTile.Y := Y;
+      ATileInfo.FZoom := Z;
       ATileInfo.FLoadDate := FFileDate;
       ATileInfo.FVersionInfo := nil;
-      ATileInfo.FData := BlobToBinaryData(VStmt, 3);
+      ATileInfo.FData := VBinaryData;
       ATileInfo.FContentType := FMainContentType;
-      if ATileInfo.FData <> nil then begin
-        ATileInfo.FSize := ATileInfo.FData.Size;
+      if VBinaryData <> nil then begin
+        ATileInfo.FSize := VBinaryData.Size;
         ATileInfo.FInfoType := titExists;
       end else begin
         ATileInfo.FSize := 0;
@@ -351,16 +356,33 @@ begin
   end;
 end;
 
-function TTileStorageSQLiteFileConnection.BlobToBinaryData(
-  const AStmt: TSQLite3StmtData;
-  const AColNum: Integer
-): IBinaryData;
+{ TConnectionStatement }
+
+constructor TConnectionStatement.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+begin
+  inherited Create;
+  FState := ssNone;
+  FText := '';
+  FIsInvertedY := AIsInvertedY;
+  FIsInvertedZ := AIsInvertedZ;
+end;
+
+destructor TConnectionStatement.Destroy;
+begin
+  if FState = ssPrepared then begin
+    FStmt.Fin;
+    FState := ssNone;
+  end;
+  inherited Destroy;
+end;
+
+function TConnectionStatement.BlobToBinaryData(const AColNum: Integer): IBinaryData;
 var
   VBlobSize: Integer;
   VBlobData: Pointer;
 begin
-  VBlobSize := AStmt.ColumnBlobSize(AColNum);
-  VBlobData := AStmt.ColumnBlobData(AColNum);
+  VBlobSize := FStmt.ColumnBlobSize(AColNum);
+  VBlobData := FStmt.ColumnBlobData(AColNum);
 
   if (VBlobSize > 0) and (VBlobData <> nil) then begin
     Result := TBinaryData.Create(VBlobSize, VBlobData);
@@ -370,35 +392,10 @@ begin
   end;
 end;
 
-function TTileStorageSQLiteFileConnection.CoordToValue(const AZoom: Byte; const Y: Integer): Integer;
-begin
-  Result := Y;
-end;
-
-function TTileStorageSQLiteFileConnection.ValueToCoord(const AZoom: Byte; const Y: Integer): Integer;
-begin
-  Result := Y;
-end;
-
-{ TConnectionStatement }
-
-procedure TConnectionStatement.Init(const ASqlText: UTF8String);
-begin
-  FState := ssNone;
-  FText := ASqlText;
-end;
-
-procedure TConnectionStatement.Fin;
-begin
-  if FState = ssPrepared then begin
-    FStmt.Fin;
-    FState := ssNone;
-  end;
-end;
-
 function TConnectionStatement.CheckPrepared(const ASQLite3DB: TSQLite3DbHandler): Boolean;
 begin
   if FState = ssNone then begin
+    Assert(FText <> '');
     if ASQLite3DB.PrepareStatement(@FStmt, FText) then begin
       FState := ssPrepared;
     end else begin

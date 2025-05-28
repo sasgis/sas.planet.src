@@ -1334,6 +1334,7 @@ uses
   u_TileStorageSQLiteFileConnectionBuilder in 'Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionBuilder.pas',
   u_TileStorageSQLiteFileConnectionMBTiles in 'Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionMBTiles.pas',
   u_TileStorageSQLiteFileConnectionPool in 'Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionPool.pas',
+  u_TileStorageSQLiteFileConnectionRMaps in 'Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionRMaps.pas',
   u_TileStorageSQLiteFileInfo in 'Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileInfo.pas',
   u_TileStorageTypeSQLiteFile in 'Src\TileStorage\SQLiteFile\u_TileStorageTypeSQLiteFile.pas',
   c_TileStorageSQLite in 'Src\TileStorage\SQLite\c_TileStorageSQLite.pas',

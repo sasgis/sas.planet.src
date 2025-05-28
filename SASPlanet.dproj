@@ -1711,6 +1711,7 @@
         <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionBuilder.pas"/>
         <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionMBTiles.pas"/>
         <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionPool.pas"/>
+        <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileConnectionRMaps.pas"/>
         <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageSQLiteFileInfo.pas"/>
         <DCCReference Include="Src\TileStorage\SQLiteFile\u_TileStorageTypeSQLiteFile.pas"/>
         <DCCReference Include="Src\TileStorage\SQLite\c_TileStorageSQLite.pas"/>

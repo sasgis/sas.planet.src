@@ -494,12 +494,42 @@ begin
     );
   VList.Add(VItem);
 
-  // MBTiles
+  // MBTiles (SQLite3)
   AddSQLiteFileTileStorageType(
     rsSQLiteMBTilesCacheName,
     c_File_Cache_Id_SQLite_MBTiles,
     CTileStorageTypeSQLiteFileMBTiles,
     sfMBTiles,
+    AMapVersionFactoryList,
+    VList
+  );
+
+  // OsmAnd (SQLite3)
+  AddSQLiteFileTileStorageType(
+    rsSQLiteOsmAndCacheName,
+    c_File_Cache_Id_SQLite_OsmAnd,
+    CTileStorageTypeSQLiteFileOsmAnd,
+    sfOsmAnd,
+    AMapVersionFactoryList,
+    VList
+  );
+
+  // Locus (SQLite3)
+  AddSQLiteFileTileStorageType(
+    rsSQLiteLocusCacheName,
+    c_File_Cache_Id_SQLite_Locus,
+    CTileStorageTypeSQLiteFileLocus,
+    sfLocus,
+    AMapVersionFactoryList,
+    VList
+  );
+
+  // RMaps (SQLite3)
+  AddSQLiteFileTileStorageType(
+    rsSQLiteRMapsCacheName,
+    c_File_Cache_Id_SQLite_RMaps,
+    CTileStorageTypeSQLiteFileRMaps,
+    sfRMaps,
     AMapVersionFactoryList,
     VList
   );

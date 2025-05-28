@@ -41,6 +41,7 @@ type
     FFormatId: TTileStorageSQLiteFileFormatId;
     FFileInfo: ITileStorageSQLiteFileInfo;
     FLock: TCriticalSection;
+    class function GetDbNameById(const AFormatId: TTileStorageSQLiteFileFormatId): string;
   private
     { ITileStorageSQLiteFileConnectionBuilder }
     function MakeNewConnection: TObject;
@@ -57,7 +58,8 @@ implementation
 
 uses
   u_TileStorageSQLiteFileConnection,
-  u_TileStorageSQLiteFileConnectionMBTiles;
+  u_TileStorageSQLiteFileConnectionMBTiles,
+  u_TileStorageSQLiteFileConnectionRMaps;
 
 { TTileStorageSQLiteFileConnectionBuilder }
 
@@ -89,14 +91,16 @@ begin
   VConnection := nil;
 
   if FIsFailed then begin
-    raise Exception.CreateFmt('Can''t open file %s as ', [FFileName]);
+    raise Exception.CreateFmt(
+      'Can''t open file: "%s" as %s database!', [FFileName, GetDbNameById(FFormatId)]
+    );
   end;
 
   try
     FLock.Acquire;
     try
       if not FileExists(FFileName) then begin
-        raise Exception.CreateFmt('File not found: %s', [FFileName]);
+        raise Exception.CreateFmt('File not found: "%s"', [FFileName]);
       end;
 
       case FFormatId of
@@ -107,16 +111,11 @@ begin
             );
         end;
 
-        sfOsmAnd: begin
-          // todo
-        end;
-
-        sfLocus: begin
-          // todo
-        end;
-
-        sfRMaps: begin
-          // todo
+        sfOsmAnd, sfLocus, sfRMaps: begin
+          VConnection :=
+            TTileStorageSQLiteFileConnectionRMaps.Create(
+              FFileName, FFileInfo, FMainContentType, FFormatId
+            );
         end;
 
         sfOruxMaps: begin
@@ -143,6 +142,19 @@ begin
   except
     FIsFailed := True;
     raise;
+  end;
+end;
+
+class function TTileStorageSQLiteFileConnectionBuilder.GetDbNameById(
+  const AFormatId: TTileStorageSQLiteFileFormatId
+): string;
+begin
+  case AFormatId of
+    sfMBTiles:  Result := 'MBTiles (SQLite3)';
+    sfOsmAnd:   Result := 'OsmAnd (SQLite3)';
+    sfLocus:    Result := 'Locus (SQLite3)';
+    sfRMaps:    Result := 'RMaps (SQLite3)';
+    sfOruxMaps: Result := 'OruxMaps (SQLite3)';
   end;
 end;
 

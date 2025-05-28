@@ -19,7 +19,7 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_TileStorageSQLiteFileConnectionMBTiles;
+unit u_TileStorageSQLiteFileConnectionRMaps;
 
 interface
 
@@ -27,19 +27,21 @@ uses
   Types,
   SysUtils,
   StrUtils,
+  t_TileStorageSQLiteFile,
   i_ContentTypeInfo,
   i_TileStorageSQLiteFileInfo,
   u_TileStorageSQLiteFileConnection;
 
 type
-  TTileStorageSQLiteFileConnectionMBTiles = class(TTileStorageSQLiteFileConnection)
+  TTileStorageSQLiteFileConnectionRMaps = class(TTileStorageSQLiteFileConnection)
   protected
     procedure FetchMetadata; override;
   public
     constructor Create(
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
-      const AMainContentType: IContentTypeInfoBasic
+      const AMainContentType: IContentTypeInfoBasic;
+      const AFormatId: TTileStorageSQLiteFileFormatId
     );
   end;
 
@@ -51,28 +53,28 @@ uses
   u_SQLite3Handler;
 
 type
-  TTileDataConnectionStatementMBTiles = class(TTileDataConnectionStatement)
+  TTileDataConnectionStatementRMaps = class(TTileDataConnectionStatement)
   public
     function BindParams(X, Y, Z: Integer): Boolean; override;
     procedure GetResult(out ABlob: IBinaryData); override;
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
-  TTileInfoConnectionStatementMBTiles = class(TTileInfoConnectionStatement)
+  TTileInfoConnectionStatementRMaps = class(TTileInfoConnectionStatement)
   public
     function BindParams(X, Y, Z: Integer): Boolean; override;
     procedure GetResult(out ABlobSize: Integer); override;
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
-  TRectInfoConnectionStatementMBTiles = class(TRectInfoConnectionStatement)
+  TRectInfoConnectionStatementRMaps = class(TRectInfoConnectionStatement)
   public
     function BindParams(const ARect: TRect; Z: Integer): Boolean; override;
     procedure GetResult(out X, Y: Integer; out ASize: Integer); override;
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
-  TEnumTilesConnectionStatementMBTiles = class(TEnumTilesConnectionStatement)
+  TEnumTilesConnectionStatementRMaps = class(TEnumTilesConnectionStatement)
   public
     procedure GetResult(out X, Y, Z: Integer; out ABlob: IBinaryData); override;
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
@@ -83,12 +85,23 @@ begin
   Result := (1 shl Z) - Y - 1;
 end;
 
-{ TTileStorageSQLiteFileConnectionMBTiles }
+function InvertZ(Z: Integer): Integer; inline;
+begin
+  Result := 17 - Z;
+end;
 
-constructor TTileStorageSQLiteFileConnectionMBTiles.Create(
+function RevertZ(Z: Integer): Integer; inline;
+begin
+  Result := Z + 17;
+end;
+
+{ TTileStorageSQLiteFileConnectionRMaps }
+
+constructor TTileStorageSQLiteFileConnectionRMaps.Create(
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
-  const AMainContentType: IContentTypeInfoBasic
+  const AMainContentType: IContentTypeInfoBasic;
+  const AFormatId: TTileStorageSQLiteFileFormatId
 );
 var
   VValue: string;
@@ -99,124 +112,135 @@ begin
 
   Assert(FFileInfo <> nil);
 
-  if FFileInfo.TryGetMetadataValue('format', VValue) then begin
-    if not SameText(FMainContentType.GetDefaultExt, '.' + VValue) then begin
-      raise Exception.CreateFmt(
-        'MBTiles: The detected tile format "%s" does not match the provided content type "%s"',
-        [VValue, FMainContentType.GetContentType]
-      );
+  case AFormatId of
+    sfOsmAnd: begin
+      VIsInvertedY :=
+        FFileInfo.TryGetMetadataValue('inverted_y', VValue) and
+        (VValue = '1');
+
+      VIsInvertedZ :=
+        FFileInfo.TryGetMetadataValue('tilenumbering', VValue) and
+        SameText(VValue, 'BigPlanet');
     end;
-  end else begin
-    raise Exception.Create('MBTiles: "format" value is not specified!');
+
+    sfLocus, sfRMaps: begin
+      VIsInvertedY := False;
+      VIsInvertedZ := True;
+    end;
+  else
+    raise Exception.CreateFmt('RMaps: Unsupported FormatID = %d', [Integer(AFormatId)]);
   end;
 
-  if FFileInfo.TryGetMetadataValue('scheme', VValue) and SameText(VValue, 'xyz') then begin
-    VIsInvertedY := False;
-  end else begin
-    VIsInvertedY := True;
-  end;
-
-  VIsInvertedZ := False;
-
-  FTileDataStmt := TTileDataConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
-  FTileInfoStmt := TTileInfoConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
-  FRectInfoStmt := TRectInfoConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
-  FEnumTilesStmt := TEnumTilesConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
+  FTileDataStmt := TTileDataConnectionStatementRMaps.Create(VIsInvertedY, VIsInvertedZ);
+  FTileInfoStmt := TTileInfoConnectionStatementRMaps.Create(VIsInvertedY, VIsInvertedZ);
+  FRectInfoStmt := TRectInfoConnectionStatementRMaps.Create(VIsInvertedY, VIsInvertedZ);
+  FEnumTilesStmt := TEnumTilesConnectionStatementRMaps.Create(VIsInvertedY, VIsInvertedZ);
 
   FEnabled :=
     FTileDataStmt.CheckPrepared(FSQLite3DB) and
     FTileInfoStmt.CheckPrepared(FSQLite3DB);
 end;
 
-procedure TTileStorageSQLiteFileConnectionMBTiles.FetchMetadata;
+procedure TTileStorageSQLiteFileConnectionRMaps.FetchMetadata;
 var
+  I: Integer;
   VStmtData: TSQLite3StmtData;
   VName, VValue: string;
 begin
   Assert(FFileInfo <> nil);
 
-  if not FSQLite3Db.PrepareStatement(@VStmtData, 'SELECT name, value FROM metadata') then begin
+  if not FSQLite3Db.PrepareStatement(@VStmtData, 'SELECT * FROM info LIMIT 1') then begin
     FSQLite3Db.RaiseSQLite3Error;
   end;
 
   try
-    while sqlite3_step(VStmtData.Stmt) = SQLITE_ROW do begin
-      VName := LowerCase(VStmtData.ColumnAsString(0));
-      VValue := VStmtData.ColumnAsString(1);
+    if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
+      for I := 0 to VStmtData.ColumnCount - 1 do begin
+        VName := UTF8ToString(VStmtData.ColumnName(I));
 
-      FFileInfo.AddOrSetMetadataValue(VName, VValue);
+        if not VStmtData.IsNull(I) then begin
+          VValue := VStmtData.ColumnAsString(I);
+        end else begin
+          VValue := '';
+        end;
+
+        FFileInfo.AddOrSetMetadataValue(LowerCase(VName), VValue);
+      end;
     end;
   finally
     VStmtData.Fin;
   end;
 end;
 
-{ TTileDataConnectionStatementMBTiles }
+{ TTileDataConnectionStatementRMaps }
 
-constructor TTileDataConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+constructor TTileDataConnectionStatementRMaps.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
 begin
   inherited;
-  FText :=
-    'SELECT tile_data FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?';
+  FText := 'SELECT image FROM tiles WHERE x = ? AND y = ? AND z = ?';
 end;
 
-function TTileDataConnectionStatementMBTiles.BindParams(X, Y, Z: Integer): Boolean;
+function TTileDataConnectionStatementRMaps.BindParams(X, Y, Z: Integer): Boolean;
 begin
   if FIsInvertedY then begin
     Y := InvertY(Y, Z);
   end;
 
+  if FIsInvertedZ then begin
+    Z := InvertZ(Z);
+  end;
+
   Result :=
-    FStmt.BindInt(1, Z) and
-    FStmt.BindInt(2, X) and
-    FStmt.BindInt(3, Y);
+    FStmt.BindInt(1, X) and
+    FStmt.BindInt(2, Y) and
+    FStmt.BindInt(3, Z);
 end;
 
-procedure TTileDataConnectionStatementMBTiles.GetResult(out ABlob: IBinaryData);
+procedure TTileDataConnectionStatementRMaps.GetResult(out ABlob: IBinaryData);
 begin
   ABlob := BlobToBinaryData(0);
 end;
 
-{ TTileInfoConnectionStatementMBTiles }
+{ TTileInfoConnectionStatementRMaps }
 
-constructor TTileInfoConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+constructor TTileInfoConnectionStatementRMaps.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
 begin
   inherited;
-  FText :=
-    'SELECT length(tile_data) FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?';
+  FText := 'SELECT length(image) FROM tiles WHERE x = ? AND y = ? AND z = ?';
 end;
 
-function TTileInfoConnectionStatementMBTiles.BindParams(X, Y, Z: Integer): Boolean;
+function TTileInfoConnectionStatementRMaps.BindParams(X, Y, Z: Integer): Boolean;
 begin
   if FIsInvertedY then begin
     Y := InvertY(Y, Z);
   end;
 
+  if FIsInvertedZ then begin
+    Z := InvertZ(Z);
+  end;
+
   Result :=
-    FStmt.BindInt(1, Z) and
-    FStmt.BindInt(2, X) and
-    FStmt.BindInt(3, Y);
+    FStmt.BindInt(1, X) and
+    FStmt.BindInt(2, Y) and
+    FStmt.BindInt(3, Z);
 end;
 
-procedure TTileInfoConnectionStatementMBTiles.GetResult(out ABlobSize: Integer);
+procedure TTileInfoConnectionStatementRMaps.GetResult(out ABlobSize: Integer);
 begin
   ABlobSize := FStmt.ColumnInt(0);
 end;
 
-{ TRectInfoConnectionStatementMBTiles }
+{ TRectInfoConnectionStatementRMaps }
 
-constructor TRectInfoConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+constructor TRectInfoConnectionStatementRMaps.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
 begin
   inherited;
   FText :=
-    'SELECT tile_column, tile_row, length(tile_data) FROM tiles ' +
-    'WHERE zoom_level = ? AND tile_column >= ? AND tile_column < ? AND ' +
-    IfThen(AIsInvertedY, 'tile_row <= ? AND tile_row > ?', 'tile_row >= ? AND tile_row < ?');
-
-  FZoom := -1;
+    'SELECT x, y, length(image) FROM tiles WHERE x >= ? AND x < ? AND ' +
+    IfThen(FIsInvertedY, 'y <= ? AND y > ?', 'y >= ? AND y < ?') + ' AND z = ?';
 end;
 
-function TRectInfoConnectionStatementMBTiles.BindParams(const ARect: TRect; Z: Integer): Boolean;
+function TRectInfoConnectionStatementRMaps.BindParams(const ARect: TRect; Z: Integer): Boolean;
 var
   VTop, VBottom: Integer;
 begin
@@ -230,40 +254,47 @@ begin
     VBottom := InvertY(VBottom, Z);
   end;
 
+  if FIsInvertedZ then begin
+    Z := InvertZ(Z);
+  end;
+
   Result :=
-    FStmt.BindInt(1, Z) and
-    FStmt.BindInt(2, ARect.Left) and
-    FStmt.BindInt(3, ARect.Right) and
-    FStmt.BindInt(4, VTop) and
-    FStmt.BindInt(5, VBottom);
+    FStmt.BindInt(1, ARect.Left) and
+    FStmt.BindInt(2, ARect.Right) and
+    FStmt.BindInt(3, VTop) and
+    FStmt.BindInt(4, VBottom) and
+    FStmt.BindInt(5, Z);
 end;
 
-procedure TRectInfoConnectionStatementMBTiles.GetResult(out X, Y, ASize: Integer);
+procedure TRectInfoConnectionStatementRMaps.GetResult(out X, Y, ASize: Integer);
 begin
   X := FStmt.ColumnInt(0);
   Y := FStmt.ColumnInt(1);
   ASize := FStmt.ColumnInt(2);
 
   if FIsInvertedY then begin
-    Assert(FZoom >= 0);
     Y := InvertY(Y, FZoom);
   end;
 end;
 
-{ TEnumTilesConnectionStatementMBTiles }
+{ TEnumTilesConnectionStatementRMaps }
 
-constructor TEnumTilesConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+constructor TEnumTilesConnectionStatementRMaps.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
 begin
   inherited;
-  FText := 'SELECT zoom_level, tile_column, tile_row, tile_data FROM tiles';
+  FText := 'SELECT x, y, z, image FROM tiles';
 end;
 
-procedure TEnumTilesConnectionStatementMBTiles.GetResult(out X, Y, Z: Integer; out ABlob: IBinaryData);
+procedure TEnumTilesConnectionStatementRMaps.GetResult(out X, Y, Z: Integer; out ABlob: IBinaryData);
 begin
-  Z := FStmt.ColumnInt(0);
-  X := FStmt.ColumnInt(1);
-  Y := FStmt.ColumnInt(2);
+  X := FStmt.ColumnInt(0);
+  Y := FStmt.ColumnInt(1);
+  Z := FStmt.ColumnInt(2);
   ABlob := BlobToBinaryData(3);
+
+  if FIsInvertedZ then begin
+    Z := RevertZ(Z);
+  end;
 
   if FIsInvertedY then begin
     Y := InvertY(Y, Z);
