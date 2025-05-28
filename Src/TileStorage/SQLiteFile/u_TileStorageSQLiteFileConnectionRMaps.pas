@@ -80,7 +80,7 @@ type
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
-function InvertY(Y, Z: Integer): Integer; inline; // same for Revert
+function InvertY(Y, Z: Integer): Integer; inline;
 begin
   Result := (1 shl Z) - Y - 1;
 end;
@@ -88,11 +88,6 @@ end;
 function InvertZ(Z: Integer): Integer; inline;
 begin
   Result := 17 - Z;
-end;
-
-function RevertZ(Z: Integer): Integer; inline;
-begin
-  Result := Z + 17;
 end;
 
 { TTileStorageSQLiteFileConnectionRMaps }
@@ -293,7 +288,7 @@ begin
   ABlob := BlobToBinaryData(3);
 
   if FIsInvertedZ then begin
-    Z := RevertZ(Z);
+    Z := InvertZ(Z);
   end;
 
   if FIsInvertedY then begin

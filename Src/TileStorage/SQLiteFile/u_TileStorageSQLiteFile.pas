@@ -152,7 +152,9 @@ begin
   end;
 
   FTileInfoMemCache := ATileInfoMemCache;
-  FTileInfoMemCache.OnTileInfoUpdate := Self.NotifyTileUpdate;
+  if Assigned(FTileInfoMemCache) then begin
+    FTileInfoMemCache.OnTileInfoUpdate := Self.NotifyTileUpdate;
+  end;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
@@ -169,7 +171,9 @@ end;
 
 destructor TTileStorageSQLiteFile.Destroy;
 begin
-  FTileInfoMemCache.OnTileInfoUpdate := nil;
+  if Assigned(FTileInfoMemCache) then begin
+    FTileInfoMemCache.OnTileInfoUpdate := nil;
+  end;
   FreeAndNil(FConnectionPool);
   inherited Destroy;
 end;
@@ -198,9 +202,11 @@ begin
     Exit;
   end;
 
-  Result := FTileInfoMemCache.Get(AXY, AZoom, nil, AMode, True);
-  if Result <> nil then begin
-    Exit;
+  if Assigned(FTileInfoMemCache) then begin
+    Result := FTileInfoMemCache.Get(AXY, AZoom, nil, AMode, True);
+    if Result <> nil then begin
+      Exit;
+    end;
   end;
 
   VConnection := FConnectionPool.Acquire;
@@ -213,7 +219,9 @@ begin
     FConnectionPool.Release(VConnection);
   end;
 
-  FTileInfoMemCache.Add(AXY, AZoom, nil, Result);
+  if Assigned(FTileInfoMemCache) then begin
+    FTileInfoMemCache.Add(AXY, AZoom, nil, Result);
+  end;
 end;
 
 function TTileStorageSQLiteFile.GetTileInfoEx(
