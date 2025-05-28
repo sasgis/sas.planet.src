@@ -143,6 +143,8 @@ type
       const AProjectionSet: IProjectionSet;
       const AFormatID: Byte
     ): ITileStorage;
+  protected
+    procedure RefreshTranslation; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -170,6 +172,7 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   SysUtils,
+  System.Generics.Collections,
   gnugettext,
   c_CacheTypeCodes,
   c_CoordConverter,
@@ -820,6 +823,42 @@ begin
     VConverterThread.Terminate;
   end else begin
     VConverterThread.Start;
+  end;
+end;
+
+procedure TfrmCacheManager.RefreshTranslation;
+type
+  TComboBoxState = TDictionary<string, Integer>;
+var
+  I: Integer;
+  VValue: Integer;
+  VComboBox: TComboBox;
+  VComboBoxState: TComboBoxState;
+begin
+  VComboBoxState := TComboBoxState.Create;
+  try
+    // save all TComboBox state
+    for I := 0 to Self.ComponentCount - 1 do begin
+      if Self.Components[I] is TComboBox then begin
+        VComboBox := TComboBox(Self.Components[I]);
+        VComboBoxState.Add(VComboBox.Name, VComboBox.ItemIndex);
+      end;
+    end;
+
+    inherited;
+
+    // restore TComboBox states
+    for I := 0 to Self.ComponentCount - 1 do begin
+      if Self.Components[I] is TComboBox then begin
+        VComboBox := TComboBox(Self.Components[I]);
+        if not VComboBoxState.TryGetValue(VComboBox.Name, VValue) then begin
+          VValue := 0;
+        end;
+        VComboBox.ItemIndex := VValue;
+      end;
+    end;
+  finally
+    VComboBoxState.Free;
   end;
 end;
 
