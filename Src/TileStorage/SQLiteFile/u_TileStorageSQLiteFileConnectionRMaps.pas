@@ -80,11 +80,6 @@ type
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
-function InvertY(Y, Z: Integer): Integer; inline;
-begin
-  Result := (1 shl Z) - Y - 1;
-end;
-
 function InvertZ(Z: Integer): Integer; inline;
 begin
   Result := 17 - Z;
@@ -107,19 +102,16 @@ begin
 
   Assert(FFileInfo <> nil);
 
+  VIsInvertedY := False;
+
   case AFormatId of
     sfOsmAnd: begin
-      VIsInvertedY :=
-        FFileInfo.TryGetMetadataValue('inverted_y', VValue) and
-        (VValue = '1');
-
       VIsInvertedZ :=
         FFileInfo.TryGetMetadataValue('tilenumbering', VValue) and
         SameText(VValue, 'BigPlanet');
     end;
 
     sfLocus, sfRMaps: begin
-      VIsInvertedY := False;
       VIsInvertedZ := True;
     end;
   else
@@ -177,10 +169,6 @@ end;
 
 function TTileDataConnectionStatementRMaps.BindParams(X, Y, Z: Integer): Boolean;
 begin
-  if FIsInvertedY then begin
-    Y := InvertY(Y, Z);
-  end;
-
   if FIsInvertedZ then begin
     Z := InvertZ(Z);
   end;
@@ -206,10 +194,6 @@ end;
 
 function TTileInfoConnectionStatementRMaps.BindParams(X, Y, Z: Integer): Boolean;
 begin
-  if FIsInvertedY then begin
-    Y := InvertY(Y, Z);
-  end;
-
   if FIsInvertedZ then begin
     Z := InvertZ(Z);
   end;
@@ -232,23 +216,11 @@ begin
   inherited;
   FText :=
     'SELECT x, y, length(image) FROM tiles WHERE x >= ? AND x < ? AND ' +
-    IfThen(FIsInvertedY, 'y <= ? AND y > ?', 'y >= ? AND y < ?') + ' AND z = ?';
+    'y >= ? AND y < ? AND z = ?';
 end;
 
 function TRectInfoConnectionStatementRMaps.BindParams(const ARect: TRect; Z: Integer): Boolean;
-var
-  VTop, VBottom: Integer;
 begin
-  FZoom := Z; // used in GetResult
-
-  VTop := ARect.Top;
-  VBottom := ARect.Bottom;
-
-  if FIsInvertedY then begin
-    VTop := InvertY(VTop, Z);
-    VBottom := InvertY(VBottom, Z);
-  end;
-
   if FIsInvertedZ then begin
     Z := InvertZ(Z);
   end;
@@ -256,8 +228,8 @@ begin
   Result :=
     FStmt.BindInt(1, ARect.Left) and
     FStmt.BindInt(2, ARect.Right) and
-    FStmt.BindInt(3, VTop) and
-    FStmt.BindInt(4, VBottom) and
+    FStmt.BindInt(3, ARect.Top) and
+    FStmt.BindInt(4, ARect.Bottom) and
     FStmt.BindInt(5, Z);
 end;
 
@@ -266,10 +238,6 @@ begin
   X := FStmt.ColumnInt(0);
   Y := FStmt.ColumnInt(1);
   ASize := FStmt.ColumnInt(2);
-
-  if FIsInvertedY then begin
-    Y := InvertY(Y, FZoom);
-  end;
 end;
 
 { TEnumTilesConnectionStatementRMaps }
@@ -289,10 +257,6 @@ begin
 
   if FIsInvertedZ then begin
     Z := InvertZ(Z);
-  end;
-
-  if FIsInvertedY then begin
-    Y := InvertY(Y, Z);
   end;
 end;
 
