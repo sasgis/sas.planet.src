@@ -29,6 +29,7 @@ uses
   t_TileStorageSQLiteFile,
   i_ContentTypeInfo,
   i_ProjectionSet,
+  i_StorageStateInternal,
   i_TileStorageSQLiteFileInfo,
   i_TileStorageSQLiteFileConnectionBuilder,
   u_BaseInterfacedObject;
@@ -38,6 +39,7 @@ type
   private
     FIsFailed: Boolean;
     FFileName: string;
+    FStorageStateInternal: IStorageStateInternal;
     FMainContentType: IContentTypeInfoBasic;
     FProjectionSet: IProjectionSet;
     FFormatId: TTileStorageSQLiteFileFormatId;
@@ -48,8 +50,14 @@ type
     { ITileStorageSQLiteFileConnectionBuilder }
     function MakeNewConnection: TObject;
   public
+    class function PrepareFileName(
+      const AFileName: string;
+      const AFormatId: TTileStorageSQLiteFileFormatId
+    ): string;
+  public
     constructor Create(
       const AFileName: string;
+      const AStorageStateInternal: IStorageStateInternal;
       const AMainContentType: IContentTypeInfoBasic;
       const AProjectionSet: IProjectionSet;
       const AFormatId: TTileStorageSQLiteFileFormatId
@@ -69,6 +77,7 @@ uses
 
 constructor TTileStorageSQLiteFileConnectionBuilder.Create(
   const AFileName: string;
+  const AStorageStateInternal: IStorageStateInternal;
   const AMainContentType: IContentTypeInfoBasic;
   const AProjectionSet: IProjectionSet;
   const AFormatId: TTileStorageSQLiteFileFormatId
@@ -77,6 +86,7 @@ begin
   inherited Create;
 
   FFileName := AFileName;
+  FStorageStateInternal := AStorageStateInternal;
   FMainContentType := AMainContentType;
   FProjectionSet := AProjectionSet;
   FFormatId := AFormatId;
@@ -92,41 +102,47 @@ end;
 
 function TTileStorageSQLiteFileConnectionBuilder.MakeNewConnection: TObject;
 var
+  VIsReadOnly: Boolean;
   VConnection: TTileStorageSQLiteFileConnection;
 begin
-  if FIsFailed then begin
-    raise Exception.CreateFmt(
-      'Can''t open file: "%s" as %s database!', [FFileName, GetDbNameById(FFormatId)]
-    );
-  end;
-
   try
     FLock.Acquire;
     try
-      if not FileExists(FFileName) then begin
-        raise Exception.CreateFmt('File not found: "%s"', [FFileName]);
+      if FIsFailed then begin
+        raise Exception.CreateFmt(
+          'Can''t open file: "%s" as %s database!', [FFileName, GetDbNameById(FFormatId)]
+        );
       end;
+
+      VIsReadOnly :=
+        not FStorageStateInternal.AddAccess and
+        not FStorageStateInternal.ReplaceAccess and
+        not FStorageStateInternal.DeleteAccess;
 
       case FFormatId of
         sfMBTiles: begin
           VConnection :=
             TTileStorageSQLiteFileConnectionMBTiles.Create(
-              FFileName, FFileInfo, FMainContentType
+              VIsReadOnly, FFileName, FFileInfo, FMainContentType
             );
         end;
 
         sfOsmAnd, sfLocus, sfRMaps: begin
           VConnection :=
             TTileStorageSQLiteFileConnectionRMaps.Create(
-              FFileName, FFileInfo, FMainContentType, FFormatId
+              VIsReadOnly, FFileName, FFileInfo, FMainContentType, FFormatId
             );
         end;
 
         sfOruxMaps: begin
-          VConnection :=
-            TTileStorageSQLiteFileConnectionOruxMaps.Create(
-              FFileName, FFileInfo, FMainContentType, FProjectionSet
-            );
+          if VIsReadOnly then begin
+            VConnection :=
+              TTileStorageSQLiteFileConnectionOruxMaps.Create(
+                FFileName, FFileInfo, FMainContentType, FProjectionSet
+              );
+          end else begin
+            raise Exception.Create('OruxMaps (SQLite3) does not support write access!');
+          end;
         end;
       else
         raise Exception.CreateFmt(
@@ -145,6 +161,54 @@ begin
   except
     FIsFailed := True;
     raise;
+  end;
+end;
+
+class function TTileStorageSQLiteFileConnectionBuilder.PrepareFileName(
+  const AFileName: string;
+  const AFormatId: TTileStorageSQLiteFileFormatId
+): string;
+
+  function GetDefaultExt: string;
+  begin
+    case AFormatId of
+      sfMBTiles:  Result := '.mbtiles';
+      sfOsmAnd:   Result := '.sqlitedb';
+      sfLocus:    Result := '.sqlitedb';
+      sfRMaps:    Result := '.sqlitedb';
+      sfOruxMaps: Result := '.db';
+    else
+      Assert(False);
+    end;
+  end;
+
+var
+  VLastDir: string;
+begin
+  // This function expects a path as input.
+  // This path can be either a folder name (directory) or a file name that ends with PathDelim.
+  // If it's a file name, we simply remove the trailing PathDelim.
+  // If it's a folder, we need to append a file name to it that matches the name of the last folder in the path.
+
+  // c:/osm/ --> c:/osm/osm.mbtiles
+  // c:/osm.mbtiles/ --> c:/osm.mbtiles
+
+  Result := AFileName;
+
+  if Result[High(Result)] = PathDelim then begin
+    SetLength(Result, Length(Result) - 1);
+  end;
+
+  if ExtractFileExt(Result) = '' then begin
+    // input is a path: create a file inside it with the same name as its last directory
+    VLastDir := ExtractFileName(Result);
+    if VLastDir <> '' then begin
+      Result := Result + PathDelim + VLastDir + GetDefaultExt;
+    end else begin
+      Result := Result + GetDefaultExt;
+    end;
+  end else begin
+    // input is a file: nothing to do anymore
   end;
 end;
 

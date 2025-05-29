@@ -71,6 +71,11 @@ const
   c_File_Cache_Default_SQLite = 'cache_sqlite'; // for 71
   c_File_Cache_Default_GC   = 'cache_gc';      // for 8
 
+  c_File_Cache_Default_SQLite_MBTiles = 'cache_mbtiles'; // for 72
+  c_File_Cache_Default_SQLite_OsmAnd = 'cache_osmand';   // for 73
+  c_File_Cache_Default_SQLite_Locus = 'cache_locus';     // for 74
+  c_File_Cache_Default_SQLite_RMaps = 'cache_rmaps';     // for 75
+
 implementation
 
 end.

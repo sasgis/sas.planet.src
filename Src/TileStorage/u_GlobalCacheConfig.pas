@@ -36,7 +36,7 @@ type
     FCacheGlobalPath: IPathConfig;
 
     //Способ храения кэша по-умолчанию.
-    FDefCache: byte;
+    FDefCache: Byte;
 
     //Пути к кэшам разных типов
     FNewCPath: IPathConfig;
@@ -51,9 +51,10 @@ type
     FBDBVerCachePath: IPathConfig;
     FDBMSCachePath: IPathConfig;
     FSQLiteCachePath: IPathConfig;
+    FSQLiteMBTilesCachePath: IPathConfig;
 
-    function GetDefCache: byte;
-    procedure SetDefCache(const AValue: byte);
+    function GetDefCache: Byte;
+    procedure SetDefCache(const AValue: Byte);
 
     function GetNewCPath: IPathConfig;
     function GetOldCPath: IPathConfig;
@@ -67,6 +68,7 @@ type
     function GetBDBVerCachePath: IPathConfig;
     function GetDBMSCachePath: IPathConfig;
     function GetSQLiteCachePath: IPathConfig;
+    function GetSQLiteMBTilesCachePath: IPathConfig;
   protected
     procedure DoReadConfig(const AConfigProvider: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigProvider: IConfigDataWriteProvider); override;
@@ -94,40 +96,43 @@ begin
   FDefCache := c_File_Cache_Id_SQLite;
 
   FOldCPath := TPathConfig.Create('GMVC', c_File_Cache_Default_GMV, FCacheGlobalPath);
-  Add(FOldCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FOldCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FNewCPath := TPathConfig.Create('SASC', c_File_Cache_Default_SAS, FCacheGlobalPath);
-  Add(FNewCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FNewCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FESCPath := TPathConfig.Create('ESC', c_File_Cache_Default_ES, FCacheGlobalPath);
-  Add(FESCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FESCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FGMTilesPath := TPathConfig.Create('GMTiles', c_File_Cache_Default_GM, FCacheGlobalPath);
-  Add(FGMTilesPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FGMTilesPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FMOBACPath := TPathConfig.Create('MOBACTiles', c_File_Cache_Default_MA, FCacheGlobalPath);
-  Add(FMOBACPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FMOBACPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FTMSPath := TPathConfig.Create('TMSTiles', c_File_Cache_Default_TMS, FCacheGlobalPath);
-  Add(FTMSPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FTMSPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FGECachePath := TPathConfig.Create('GECache', c_File_Cache_Default_GE, FCacheGlobalPath);
-  Add(FGECachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FGECachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FGCCachePath := TPathConfig.Create('GCCache', c_File_Cache_Default_GC, FCacheGlobalPath);
-  Add(FGCCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FGCCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FBDBCachePath := TPathConfig.Create('BDBCache', c_File_Cache_Default_BDB, FCacheGlobalPath);
-  Add(FBDBCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FBDBCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FBDBVerCachePath := TPathConfig.Create('BDBVerCache', c_File_Cache_Default_BDBv, FCacheGlobalPath);
-  Add(FBDBVerCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FBDBVerCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FDBMSCachePath := TPathConfig.Create('DBMSCache', c_File_Cache_Default_DBMS, FCacheGlobalPath);
-  Add(FDBMSCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FDBMSCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 
   FSQLiteCachePath := TPathConfig.Create('SQLiteCache', c_File_Cache_Default_SQLite, FCacheGlobalPath);
-  Add(FSQLiteCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  Add(FSQLiteCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
+
+  FSQLiteMBTilesCachePath := TPathConfig.Create('MBTilesCache', c_File_Cache_Default_SQLite_MBTiles, FCacheGlobalPath);
+  Add(FSQLiteMBTilesCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 end;
 
 procedure TGlobalCacheConfig.DoReadConfig(const AConfigProvider: IConfigDataProvider);
@@ -169,7 +174,7 @@ begin
   Result := FDBMSCachePath;
 end;
 
-function TGlobalCacheConfig.GetDefCache: byte;
+function TGlobalCacheConfig.GetDefCache: Byte;
 begin
   LockRead;
   try
@@ -224,7 +229,12 @@ begin
   Result := FSQLiteCachePath;
 end;
 
-procedure TGlobalCacheConfig.SetDefCache(const AValue: byte);
+function TGlobalCacheConfig.GetSQLiteMBTilesCachePath: IPathConfig;
+begin
+  Result := FSQLiteMBTilesCachePath;
+end;
+
+procedure TGlobalCacheConfig.SetDefCache(const AValue: Byte);
 begin
   LockWrite;
   try
@@ -240,8 +250,10 @@ begin
         c_File_Cache_Id_SQLite,
         c_File_Cache_Id_RAM,
         c_File_Cache_Id_BDB,
-        c_File_Cache_Id_BDB_Versioned
-      ] then begin
+        c_File_Cache_Id_BDB_Versioned,
+        c_File_Cache_Id_SQLite_MBTiles
+      ]
+    then begin
       if FDefCache <> AValue then begin
         FDefCache := AValue;
         SetChanged;

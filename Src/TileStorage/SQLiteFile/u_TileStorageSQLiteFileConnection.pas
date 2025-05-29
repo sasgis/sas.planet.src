@@ -77,21 +77,41 @@ type
     procedure GetResult(out X, Y, Z: Integer; out ABlob: IBinaryData); virtual; abstract;
   end;
 
+  TInsertOrReplaceConnectionStatement = class(TConnectionStatement)
+  public
+    function BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean; virtual; abstract;
+  end;
+
+  TInsertOrIgnoreConnectionStatement = class(TConnectionStatement)
+  public
+    function BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean; virtual; abstract;
+  end;
+
+  TDeleteTileConnectionStatement = class(TConnectionStatement)
+  public
+    function BindParams(X, Y, Z: Integer): Boolean; virtual; abstract;
+  end;
+
   TTileStorageSQLiteFileConnection = class
   private
     type TFetchNextState = (fnsNone, fnsNext, fnsDone, fnsError);
   protected
     FEnabled: Boolean;
+    FIsReadOnly: Boolean;
     FSQLite3DB: TSQLite3DbHandler;
     FTileDataStmt: TTileDataConnectionStatement;
     FTileInfoStmt: TTileInfoConnectionStatement;
     FRectInfoStmt: TRectInfoConnectionStatement;
     FEnumTilesStmt: TEnumTilesConnectionStatement;
     FFetchNextState: TFetchNextState;
+    FInsertOrReplaceStmt: TInsertOrReplaceConnectionStatement;
+    FInsertOrIgnoreStmt: TInsertOrIgnoreConnectionStatement;
+    FDeleteTileStmt: TDeleteTileConnectionStatement;
     FMainContentType: IContentTypeInfoBasic;
     FFileInfo: ITileStorageSQLiteFileInfo;
     FFileDate: TDateTime;
   protected
+    procedure CreateTables; virtual; abstract;
     procedure FetchMetadata; virtual; abstract;
   public
     function FetchOne(
@@ -111,9 +131,23 @@ type
       var ATileInfo: TTileInfo
     ): Boolean;
 
+    function Insert(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const ALoadDate: TDateTime;
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean;
+
+    function Delete(
+      const AXY: TPoint;
+      const AZoom: Byte
+    ): Boolean;
+
     property FileInfo: ITileStorageSQLiteFileInfo read FFileInfo;
   public
     constructor Create(
+      const AIsReadOnly: Boolean;
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic
@@ -134,13 +168,17 @@ uses
 { TTileStorageSQLiteFileConnection }
 
 constructor TTileStorageSQLiteFileConnection.Create(
+  const AIsReadOnly: Boolean;
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic
 );
+var
+  VNeedCreateTables: Boolean;
 begin
   inherited Create;
 
+  FIsReadOnly := AIsReadOnly;
   FFileInfo := AFileInfo;
   FMainContentType := AMainContentType;
 
@@ -148,15 +186,41 @@ begin
     raise Exception.Create('SQLite3 library initialization error!');
   end;
 
-  FSQLite3Db.Open(
-    'file:///' + AFileName + '?immutable=1',
-    SQLITE_OPEN_READONLY or SQLITE_OPEN_URI or SQLITE_OPEN_NOMUTEX,
-    False
-  );
+  VNeedCreateTables := False;
+  if FFileInfo = nil then begin
+    // this is our first attempt to open db
+    if not FileExists(AFileName) then begin
+      if FIsReadOnly then begin
+        raise Exception.CreateFmt('File not found: "%s"', [AFileName]);
+      end else begin
+        VNeedCreateTables := True;
+        if not ForceDirectories(ExtractFileDir(AFileName)) then begin
+          RaiseLastOSError;
+        end;
+      end;
+    end;
+  end;
+
+  if FIsReadOnly then begin
+    FSQLite3Db.Open(
+      'file:///' + AFileName + '?immutable=1',
+      SQLITE_OPEN_READONLY or SQLITE_OPEN_URI or SQLITE_OPEN_NOMUTEX,
+      False
+    );
+  end else begin
+    FSQLite3Db.Open(AFileName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_NOMUTEX, False);
+    FSQLite3DB.ExecSQL('PRAGMA encoding = "UTF-8"');
+    FSQLite3DB.ExecSQL('PRAGMA synchronous = NORMAL');
+    FSQLite3DB.ExecSQL('PRAGMA journal_mode = WAL');
+  end;
 
   if FFileInfo = nil then begin
     FFileDate := TFile.GetCreationTime(AFileName);
     FFileInfo := TTileStorageSQLiteFileInfo.Create(AFileName, FFileDate);
+
+    if VNeedCreateTables then begin
+      Self.CreateTables;
+    end;
 
     Self.FetchMetadata;
   end else begin
@@ -353,6 +417,80 @@ begin
     if FFetchNextState <> fnsNext then begin
       FEnumTilesStmt.FStmt.Reset;
     end;
+  end;
+end;
+
+function TTileStorageSQLiteFileConnection.Insert(
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const ALoadDate: TDateTime;
+  const AData: IBinaryData;
+  const AIsOverwrite: Boolean
+): Boolean;
+var
+  VStmt: TSQLite3StmtData;
+begin
+  Result := False;
+
+  if not FEnabled or (FInsertOrReplaceStmt = nil) or (FInsertOrIgnoreStmt = nil) then begin
+    Exit;
+  end;
+
+  if AIsOverwrite then begin
+    if not FInsertOrReplaceStmt.CheckPrepared(FSQLite3DB) then begin
+      FEnabled := False;
+      Exit;
+    end;
+
+    if not FInsertOrReplaceStmt.BindParams(AXY.X, AXY.Y, AZoom, AData) then begin
+      FSQLite3DB.RaiseSQLite3Error;
+    end;
+
+    VStmt := FInsertOrReplaceStmt.FStmt;
+  end else begin
+    if not FInsertOrIgnoreStmt.CheckPrepared(FSQLite3DB) then begin
+      FEnabled := False;
+      Exit;
+    end;
+
+    if not FInsertOrIgnoreStmt.BindParams(AXY.X, AXY.Y, AZoom, AData) then begin
+      FSQLite3DB.RaiseSQLite3Error;
+    end;
+
+    VStmt := FInsertOrIgnoreStmt.FStmt;
+  end;
+
+  try
+    Result := (sqlite3_step(VStmt.Stmt) = SQLITE_DONE);
+  finally
+    VStmt.Reset;
+  end;
+end;
+
+function TTileStorageSQLiteFileConnection.Delete(
+  const AXY: TPoint;
+  const AZoom: Byte
+): Boolean;
+begin
+  Result := False;
+
+  if not FEnabled or (FDeleteTileStmt = nil) then begin
+    Exit;
+  end;
+
+  if not FDeleteTileStmt.CheckPrepared(FSQLite3DB) then begin
+    FEnabled := False;
+    Exit;
+  end;
+
+  if not FDeleteTileStmt.BindParams(AXY.X, AXY.Y, AZoom) then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
+  try
+    Result := (sqlite3_step(FDeleteTileStmt.FStmt.Stmt) = SQLITE_DONE);
+  finally
+    FDeleteTileStmt.FStmt.Reset;
   end;
 end;
 

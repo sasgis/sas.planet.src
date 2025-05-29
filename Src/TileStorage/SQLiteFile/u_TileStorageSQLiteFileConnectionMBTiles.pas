@@ -34,9 +34,11 @@ uses
 type
   TTileStorageSQLiteFileConnectionMBTiles = class(TTileStorageSQLiteFileConnection)
   protected
+    procedure CreateTables; override;
     procedure FetchMetadata; override;
   public
     constructor Create(
+      const AIsReadOnly: Boolean;
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic
@@ -78,6 +80,24 @@ type
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
+  TInsertOrReplaceConnectionStatementMBTiles = class(TInsertOrReplaceConnectionStatement)
+  public
+    function BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean; override;
+    constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+  end;
+
+  TInsertOrIgnoreConnectionStatementMBTiles = class(TInsertOrIgnoreConnectionStatement)
+  public
+    function BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean; override;
+    constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+  end;
+
+  TDeleteTileConnectionStatementMBTiles = class(TDeleteTileConnectionStatement)
+  public
+    function BindParams(X, Y, Z: Integer): Boolean; override;
+    constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+  end;
+
 function InvertY(Y, Z: Integer): Integer; inline; // same for Revert
 begin
   Result := (1 shl Z) - Y - 1;
@@ -86,6 +106,7 @@ end;
 { TTileStorageSQLiteFileConnectionMBTiles }
 
 constructor TTileStorageSQLiteFileConnectionMBTiles.Create(
+  const AIsReadOnly: Boolean;
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic
@@ -95,7 +116,7 @@ var
   VIsInvertedY: Boolean;
   VIsInvertedZ: Boolean;
 begin
-  inherited Create(AFileName, AFileInfo, AMainContentType);
+  inherited Create(AIsReadOnly, AFileName, AFileInfo, AMainContentType);
 
   Assert(FFileInfo <> nil);
 
@@ -118,14 +139,86 @@ begin
 
   VIsInvertedZ := False;
 
+  // read access
   FTileDataStmt := TTileDataConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
   FTileInfoStmt := TTileInfoConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
   FRectInfoStmt := TRectInfoConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
   FEnumTilesStmt := TEnumTilesConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
 
+  // write access
+  if not FIsReadOnly then begin
+    FInsertOrReplaceStmt := TInsertOrReplaceConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
+    FInsertOrIgnoreStmt := TInsertOrIgnoreConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
+    FDeleteTileStmt := TDeleteTileConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
+  end;
+
   FEnabled :=
     FTileDataStmt.CheckPrepared(FSQLite3DB) and
     FTileInfoStmt.CheckPrepared(FSQLite3DB);
+end;
+
+procedure TTileStorageSQLiteFileConnectionMBTiles.CreateTables;
+const
+  CSqlTextCreate: array [0..3] of UTF8String = (
+    // metadata
+    'CREATE TABLE metadata (name text, value text)',
+    'CREATE UNIQUE INDEX metadata_idx ON metadata (name)',
+    // tiles
+    'CREATE TABLE tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)',
+    'CREATE INDEX tiles_idx on tiles (zoom_level, tile_column, tile_row)'
+  );
+
+  CSqlTextInsert: UTF8String = 'INSERT INTO metadata (name, value) VALUES (?,?)';
+
+  procedure InsertMetadataKeyVal(const AKey, AVal: UTF8String; const AStmtData: TSQLite3StmtData);
+  begin
+    if AStmtData.BindText(1, PUTF8Char(AKey), Length(AKey)) and
+       AStmtData.BindText(2, PUTF8Char(AVal), Length(AVal))
+    then begin
+      try
+        if sqlite3_step(AStmtData.Stmt) <> SQLITE_DONE then begin
+          FSQLite3DB.RaiseSQLite3Error;
+        end;
+      finally
+        AStmtData.Reset;
+      end;
+    end else begin
+      FSQLite3DB.RaiseSQLite3Error;
+    end;
+  end;
+
+  function GetFormatStr: string;
+  begin
+    Result := Copy(FMainContentType.GetDefaultExt, 2);
+    if Result = 'jpeg' then begin
+      Result := 'jpg';
+      Exit;
+    end;
+    if (Result <> 'png') and (Result <> 'jpg') and (Result <> 'webp') and (Result <> 'pbf') then begin
+      Result := FMainContentType.GetContentType;
+    end;
+  end;
+
+var
+  I: Integer;
+  VStmtData: TSQLite3StmtData;
+begin
+  // https://github.com/mapbox/mbtiles-spec/blob/master/1.3/spec.md
+
+  // create tables and indexes
+  for I := 0 to Length(CSqlTextCreate) - 1 do begin
+    FSQLite3DB.ExecSql(CSqlTextCreate[I]);
+  end;
+
+  // initialize metadata
+  if not FSQLite3Db.PrepareStatement(@VStmtData, CSqlTextInsert) then begin
+    FSQLite3Db.RaiseSQLite3Error;
+  end;
+
+  InsertMetadataKeyVal('name', 'unnamed', VStmtData);
+  InsertMetadataKeyVal('format', GetFormatStr, VStmtData);
+
+  // todo
 end;
 
 procedure TTileStorageSQLiteFileConnectionMBTiles.FetchMetadata;
@@ -268,6 +361,72 @@ begin
   if FIsInvertedY then begin
     Y := InvertY(Y, Z);
   end;
+end;
+
+{ TInsertOrReplaceConnectionStatementMBTiles }
+
+constructor TInsertOrReplaceConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+begin
+  inherited;
+  FText := 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
+end;
+
+function TInsertOrReplaceConnectionStatementMBTiles.BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean;
+begin
+  Assert(ABlob <> nil);
+
+  if FIsInvertedY then begin
+    Y := InvertY(Y, Z);
+  end;
+
+  Result :=
+    FStmt.BindInt(1, Z) and
+    FStmt.BindInt(2, X) and
+    FStmt.BindInt(3, Y) and
+    FStmt.BindBlob(4, ABlob.Buffer, ABlob.Size);
+end;
+
+{ TInsertOrIgnoreConnectionStatementMBTiles }
+
+constructor TInsertOrIgnoreConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+begin
+  inherited;
+  FText := 'INSERT OR IGNORE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
+end;
+
+function TInsertOrIgnoreConnectionStatementMBTiles.BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean;
+begin
+  Assert(ABlob <> nil);
+
+  if FIsInvertedY then begin
+    Y := InvertY(Y, Z);
+  end;
+
+  Result :=
+    FStmt.BindInt(1, Z) and
+    FStmt.BindInt(2, X) and
+    FStmt.BindInt(3, Y) and
+    FStmt.BindBlob(4, ABlob.Buffer, ABlob.Size);
+end;
+
+{ TDeleteTileConnectionStatementMBTiles }
+
+constructor TDeleteTileConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+begin
+  inherited;
+  FText := 'DELETE FROM tiles WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?';
+end;
+
+function TDeleteTileConnectionStatementMBTiles.BindParams(X, Y, Z: Integer): Boolean;
+begin
+  if FIsInvertedY then begin
+    Y := InvertY(Y, Z);
+  end;
+
+  Result :=
+    FStmt.BindInt(1, Z) and
+    FStmt.BindInt(2, X) and
+    FStmt.BindInt(3, Y);
 end;
 
 end.

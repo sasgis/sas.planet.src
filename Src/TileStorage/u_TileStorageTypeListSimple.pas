@@ -25,6 +25,7 @@ interface
 
 uses
   t_TileStorageSQLiteFile,
+  i_PathConfig,
   i_NotifierTime,
   i_ContentTypeManager,
   i_GlobalBerkeleyDBHelper,
@@ -56,6 +57,7 @@ type
       const AList: IInterfaceListSimple
     );
     procedure AddSQLiteFileTileStorageType(
+      const APath: IPathConfig;
       const AName: string;
       const ACacheId: Integer;
       const AGuid: TGUID;
@@ -185,10 +187,7 @@ begin
   VList := TInterfaceListSimple.Create;
 
   // SAS.Planet (FileSystem)
-  VStorageTypeConfig :=
-    TTileStorageTypeConfig.Create(
-      AGlobalCacheConfig.NewCPath
-    );
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(AGlobalCacheConfig.NewCPath);
   AddFileSystemTileStorageType(
     AContentTypeManager,
     AArchiveReadWriteFactory,
@@ -496,6 +495,7 @@ begin
 
   // MBTiles (SQLite3)
   AddSQLiteFileTileStorageType(
+    AGlobalCacheConfig.SQLiteMBTilesCachePath,
     rsSQLiteMBTilesCacheName,
     c_File_Cache_Id_SQLite_MBTiles,
     CTileStorageTypeSQLiteFileMBTiles,
@@ -506,6 +506,7 @@ begin
 
   // OsmAnd (SQLite3)
   AddSQLiteFileTileStorageType(
+    nil,
     rsSQLiteOsmAndCacheName,
     c_File_Cache_Id_SQLite_OsmAnd,
     CTileStorageTypeSQLiteFileOsmAnd,
@@ -516,6 +517,7 @@ begin
 
   // Locus (SQLite3)
   AddSQLiteFileTileStorageType(
+    nil,
     rsSQLiteLocusCacheName,
     c_File_Cache_Id_SQLite_Locus,
     CTileStorageTypeSQLiteFileLocus,
@@ -526,6 +528,7 @@ begin
 
   // RMaps (SQLite3)
   AddSQLiteFileTileStorageType(
+    nil,
     rsSQLiteRMapsCacheName,
     c_File_Cache_Id_SQLite_RMaps,
     CTileStorageTypeSQLiteFileRMaps,
@@ -536,6 +539,7 @@ begin
 
   // OruxMaps (SQLite3)
   AddSQLiteFileTileStorageType(
+    nil,
     rsSQLiteOruxMapsCacheName,
     c_File_Cache_Id_SQLite_OruxMaps,
     CTileStorageTypeSQLiteFileOruxMaps,
@@ -606,6 +610,7 @@ begin
 end;
 
 procedure TTileStorageTypeListSimple.AddSQLiteFileTileStorageType(
+  const APath: IPathConfig;
   const AName: string;
   const ACacheId: Integer;
   const AGuid: TGUID;
@@ -618,7 +623,7 @@ var
   VStorageTypeConfig: ITileStorageTypeConfig;
   VStorageType: ITileStorageType;
 begin
-  VStorageTypeConfig := TTileStorageTypeConfig.Create(nil);
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(APath);
 
   VStorageType :=
     TTileStorageTypeSQLiteFile.Create(

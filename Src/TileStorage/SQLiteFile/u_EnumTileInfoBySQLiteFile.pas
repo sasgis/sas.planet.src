@@ -34,13 +34,15 @@ type
   TEnumTileInfoBySQLiteFile = class(TBaseInterfacedObject, IEnumTileInfo)
   private
     FIsDone: Boolean;
+    FLock: IReadWriteSync;
     FConnection: TTileStorageSQLiteFileConnection;
     FConnectionBuilder: ITileStorageSQLiteFileConnectionBuilder;
   private
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
     constructor Create(
-      const AConnectionBuilder: ITileStorageSQLiteFileConnectionBuilder
+      const AConnectionBuilder: ITileStorageSQLiteFileConnectionBuilder;
+      const ALock: IReadWriteSync
     );
     destructor Destroy; override;
   end;
@@ -50,11 +52,13 @@ implementation
 { TEnumTileInfoBySQLiteFile }
 
 constructor TEnumTileInfoBySQLiteFile.Create(
-  const AConnectionBuilder: ITileStorageSQLiteFileConnectionBuilder
+  const AConnectionBuilder: ITileStorageSQLiteFileConnectionBuilder;
+  const ALock: IReadWriteSync
 );
 begin
   inherited Create;
   FConnectionBuilder := AConnectionBuilder;
+  FLock := ALock;
 end;
 
 destructor TEnumTileInfoBySQLiteFile.Destroy;
@@ -75,7 +79,12 @@ begin
     FConnection := TTileStorageSQLiteFileConnection(FConnectionBuilder.MakeNewConnection);
   end;
 
-  Result := FConnection.FetchNext(ATileInfo);
+  FLock.BeginRead;
+  try
+    Result := FConnection.FetchNext(ATileInfo);
+  finally
+    FLock.EndRead;
+  end;
 
   if not Result then begin
     FIsDone := True;

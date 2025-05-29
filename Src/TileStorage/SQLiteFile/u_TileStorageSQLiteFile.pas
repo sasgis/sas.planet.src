@@ -47,10 +47,12 @@ type
   TTileStorageSQLiteFile = class(TTileStorageAbstract)
   private
     FFileName: string;
+    FMainContentType: IContentTypeInfoBasic;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FConnectionPool: TTileStorageSQLiteFileConnectionPool;
     FConnectionBuilder: ITileStorageSQLiteFileConnectionBuilder;
+    FLock: IReadWriteSync;
   protected
     function GetTileFileName(
       const AXY: TPoint;
@@ -119,6 +121,7 @@ implementation
 
 uses
   u_EnumTileInfoBySQLiteFile,
+  u_Synchronizer,
   u_TileStorageSQLiteFileConnection,
   u_TileStorageSQLiteFileConnectionBuilder,
   u_TileInfoBasic;
@@ -146,10 +149,7 @@ begin
     ''
   );
 
-  FFileName := AFileName;
-  if FFileName[High(FFileName)] = PathDelim then begin
-    SetLength(FFileName, Length(FFileName) - 1);
-  end;
+  FMainContentType := AMainContentType;
 
   FTileInfoMemCache := ATileInfoMemCache;
   if Assigned(FTileInfoMemCache) then begin
@@ -158,15 +158,24 @@ begin
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
+  FFileName :=
+    TTileStorageSQLiteFileConnectionBuilder.PrepareFileName(
+      AFileName,
+      AFormatId
+    );
+
   FConnectionBuilder :=
     TTileStorageSQLiteFileConnectionBuilder.Create(
       FFileName,
-      AMainContentType,
+      StorageStateInternal,
+      FMainContentType,
       AProjectionSet,
       AFormatId
     );
 
   FConnectionPool := TTileStorageSQLiteFileConnectionPool.Create(FConnectionBuilder);
+
+  FLock := GSync.SyncStd.Make(Self.ClassName);
 end;
 
 destructor TTileStorageSQLiteFile.Destroy;
@@ -211,7 +220,12 @@ begin
 
   VConnection := FConnectionPool.Acquire;
   try
-    Result := VConnection.FetchOne(AXY, AZoom, AMode);
+    FLock.BeginRead;
+    try
+      Result := VConnection.FetchOne(AXY, AZoom, AMode);
+    finally
+      FLock.EndRead;
+    end;
     if Result = nil then begin
       Result := FTileNotExistsTileInfo;
     end;
@@ -261,7 +275,12 @@ begin
   if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin
     VConnection := FConnectionPool.Acquire;
     try
-      Result := VConnection.FetchRectInfo(ARect, AZoom, AOperationID, ACancelNotifier);
+      FLock.BeginRead;
+      try
+        Result := VConnection.FetchRectInfo(ARect, AZoom, AOperationID, ACancelNotifier);
+      finally
+        FLock.EndRead;
+      end;
     finally
       FConnectionPool.Release(VConnection);
     end;
@@ -277,8 +296,52 @@ function TTileStorageSQLiteFile.SaveTile(
   const AData: IBinaryData;
   const AIsOverwrite: Boolean
 ): Boolean;
+var
+  VConnection: TTileStorageSQLiteFileConnection;
 begin
   Result := False;
+
+  if AIsOverwrite then begin
+    if not StorageStateInternal.ReplaceAccess then begin
+      Exit;
+    end;
+  end else begin
+    if not StorageStateInternal.AddAccess then begin
+      Exit;
+    end;
+  end;
+
+  if Assigned(AContentType) then begin
+    if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
+      raise Exception.Create('Bad content type for this tile storage');
+    end;
+  end;
+
+  if Assigned(AContentType) and Assigned(AData) then begin
+    VConnection := FConnectionPool.Acquire;
+    try
+      FLock.BeginWrite;
+      try
+        Result := VConnection.Insert(AXY, AZoom, ALoadDate, AData, AIsOverwrite);
+      finally
+        FLock.EndWrite;
+      end;
+    finally
+      FConnectionPool.Release(VConnection);
+    end;
+
+    if Result then begin
+      if Assigned(FTileInfoMemCache) then begin
+        FTileInfoMemCache.Add(
+          AXY, AZoom, nil, TTileInfoBasicExistsWithTile.Create(ALoadDate, AData, nil, FMainContentType)
+        );
+      end;
+      NotifyTileUpdate(AXY, AZoom, nil);
+    end;
+  end else begin
+    // TNE is not supported, all we can do here is delete existing tile (if any)
+    Result := DeleteTile(AXY, AZoom, AVersionInfo);
+  end;
 end;
 
 function TTileStorageSQLiteFile.DeleteTile(
@@ -286,8 +349,33 @@ function TTileStorageSQLiteFile.DeleteTile(
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
+var
+  VConnection: TTileStorageSQLiteFileConnection;
 begin
   Result := False;
+
+  if not StorageStateInternal.DeleteAccess then begin
+    Exit;
+  end;
+
+  VConnection := FConnectionPool.Acquire;
+  try
+    FLock.BeginWrite;
+    try
+      Result := VConnection.Delete(AXY, AZoom);
+    finally
+      FLock.EndWrite;
+    end;
+  finally
+    FConnectionPool.Release(VConnection);
+  end;
+
+  if Result then begin
+    if Assigned(FTileInfoMemCache) then begin
+      FTileInfoMemCache.Add(AXY, AZoom, nil, FTileNotExistsTileInfo);
+    end;
+    NotifyTileUpdate(AXY, AZoom, nil);
+  end;
 end;
 
 function TTileStorageSQLiteFile.ScanTiles(
@@ -295,7 +383,7 @@ function TTileStorageSQLiteFile.ScanTiles(
 ): IEnumTileInfo;
 begin
   if StorageStateInternal.ScanAccess then begin
-    Result := TEnumTileInfoBySQLiteFile.Create(FConnectionBuilder);
+    Result := TEnumTileInfoBySQLiteFile.Create(FConnectionBuilder, FLock);
   end else begin
     Result := nil;
   end;

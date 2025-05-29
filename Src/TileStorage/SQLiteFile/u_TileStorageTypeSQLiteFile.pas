@@ -77,7 +77,7 @@ var
 begin
   VAbilities :=
     TTileStorageTypeAbilities.Create(
-      TTileStorageAbilities.Create(CTileStorageReadOnly) as ITileStorageAbilities,
+      TTileStorageAbilities.Create(CTileStorageReadWrite) as ITileStorageAbilities,
       tstvsVersionIgnored,
       False,
       stsUnicode,

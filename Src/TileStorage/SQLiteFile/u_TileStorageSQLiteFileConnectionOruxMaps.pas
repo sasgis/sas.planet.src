@@ -37,6 +37,7 @@ uses
 type
   TTileStorageSQLiteFileConnectionOruxMaps = class(TTileStorageSQLiteFileConnection)
   protected
+    procedure CreateTables; override;
     procedure FetchMetadata; override;
   public
     constructor Create(
@@ -171,7 +172,7 @@ var
   VBits: Cardinal;
   VBasePoints: TBasePointsArray;
 begin
-  inherited Create(AFileName, AFileInfo, AMainContentType);
+  inherited Create(True, AFileName, AFileInfo, AMainContentType);
 
   Assert(FFileInfo <> nil);
 
@@ -181,10 +182,16 @@ begin
 
   VBasePoints := BasePointsStrToArray(VValue, AProjectionSet, VBits);
 
+  // read access
   FTileDataStmt := TTileDataConnectionStatementOruxMaps.Create(VBits, VBasePoints);
   FTileInfoStmt := TTileInfoConnectionStatementOruxMaps.Create(VBits, VBasePoints);
   FRectInfoStmt := TRectInfoConnectionStatementOruxMaps.Create(VBits, VBasePoints);
   FEnumTilesStmt := TEnumTilesConnectionStatementOruxMaps.Create(VBits, VBasePoints);
+
+  // write access
+  FInsertOrReplaceStmt := nil;
+  FInsertOrIgnoreStmt := nil;
+  FDeleteTileStmt := nil;
 
   FEnabled :=
     FTileDataStmt.CheckPrepared(FSQLite3DB) and
@@ -281,6 +288,11 @@ begin
     VXMLDocument := nil;
     CoUninitialize;
   end;
+end;
+
+procedure TTileStorageSQLiteFileConnectionOruxMaps.CreateTables;
+begin
+  raise Exception.Create('OruxMaps: Write access is not supported!');
 end;
 
 procedure TTileStorageSQLiteFileConnectionOruxMaps.FetchMetadata;

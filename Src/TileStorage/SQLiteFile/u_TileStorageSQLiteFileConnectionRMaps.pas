@@ -35,9 +35,11 @@ uses
 type
   TTileStorageSQLiteFileConnectionRMaps = class(TTileStorageSQLiteFileConnection)
   protected
+    procedure CreateTables; override;
     procedure FetchMetadata; override;
   public
     constructor Create(
+      const AIsReadOnly: Boolean;
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic;
@@ -88,6 +90,7 @@ end;
 { TTileStorageSQLiteFileConnectionRMaps }
 
 constructor TTileStorageSQLiteFileConnectionRMaps.Create(
+  const AIsReadOnly: Boolean;
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic;
@@ -98,7 +101,7 @@ var
   VIsInvertedY: Boolean;
   VIsInvertedZ: Boolean;
 begin
-  inherited Create(AFileName, AFileInfo, AMainContentType);
+  inherited Create(AIsReadOnly, AFileName, AFileInfo, AMainContentType);
 
   Assert(FFileInfo <> nil);
 
@@ -118,14 +121,25 @@ begin
     raise Exception.CreateFmt('RMaps: Unsupported FormatID = %d', [Integer(AFormatId)]);
   end;
 
+  // read access
   FTileDataStmt := TTileDataConnectionStatementRMaps.Create(VIsInvertedY, VIsInvertedZ);
   FTileInfoStmt := TTileInfoConnectionStatementRMaps.Create(VIsInvertedY, VIsInvertedZ);
   FRectInfoStmt := TRectInfoConnectionStatementRMaps.Create(VIsInvertedY, VIsInvertedZ);
   FEnumTilesStmt := TEnumTilesConnectionStatementRMaps.Create(VIsInvertedY, VIsInvertedZ);
 
+  // write access
+  FInsertOrReplaceStmt := nil;
+  FInsertOrIgnoreStmt := nil;
+  FDeleteTileStmt := nil;
+
   FEnabled :=
     FTileDataStmt.CheckPrepared(FSQLite3DB) and
     FTileInfoStmt.CheckPrepared(FSQLite3DB);
+end;
+
+procedure TTileStorageSQLiteFileConnectionRMaps.CreateTables;
+begin
+  raise Exception.Create('RMaps: Write access is not supported yet!');
 end;
 
 procedure TTileStorageSQLiteFileConnectionRMaps.FetchMetadata;
