@@ -28,6 +28,7 @@ uses
   SysUtils,
   i_BinaryData,
   i_ContentTypeInfo,
+  i_ProjectionSet,
   i_TileInfoBasic,
   i_TileStorage,
   i_NotifierOperation,
@@ -108,11 +109,13 @@ type
     FInsertOrIgnoreStmt: TInsertOrIgnoreConnectionStatement;
     FDeleteTileStmt: TDeleteTileConnectionStatement;
     FMainContentType: IContentTypeInfoBasic;
+    FProjectionSet: IProjectionSet;
     FFileInfo: ITileStorageSQLiteFileInfo;
     FFileDate: TDateTime;
   protected
     procedure CreateTables; virtual; abstract;
     procedure FetchMetadata; virtual; abstract;
+    procedure UpdateMetadata(const AXY: TPoint; const AZoom: Byte); virtual; abstract;
   public
     function FetchOne(
       const AXY: TPoint;
@@ -150,7 +153,8 @@ type
       const AIsReadOnly: Boolean;
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
-      const AMainContentType: IContentTypeInfoBasic
+      const AMainContentType: IContentTypeInfoBasic;
+      const AProjectionSet: IProjectionSet
     );
     destructor Destroy; override;
   end;
@@ -171,7 +175,8 @@ constructor TTileStorageSQLiteFileConnection.Create(
   const AIsReadOnly: Boolean;
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
-  const AMainContentType: IContentTypeInfoBasic
+  const AMainContentType: IContentTypeInfoBasic;
+  const AProjectionSet: IProjectionSet
 );
 var
   VNeedCreateTables: Boolean;
@@ -181,6 +186,7 @@ begin
   FIsReadOnly := AIsReadOnly;
   FFileInfo := AFileInfo;
   FMainContentType := AMainContentType;
+  FProjectionSet := AProjectionSet;
 
   if not FSQLite3DB.Init then begin
     raise Exception.Create('SQLite3 library initialization error!');
@@ -234,6 +240,10 @@ begin
   FreeAndNil(FTileInfoStmt);
   FreeAndNil(FRectInfoStmt);
   FreeAndNil(FEnumTilesStmt);
+
+  FreeAndNil(FInsertOrReplaceStmt);
+  FreeAndNil(FInsertOrIgnoreStmt);
+  FreeAndNil(FDeleteTileStmt);
 
   if FSQLite3DB.IsOpened then begin
     FSQLite3DB.Close;
@@ -460,10 +470,20 @@ begin
     VStmt := FInsertOrIgnoreStmt.FStmt;
   end;
 
+  FSQLite3DB.BeginTransaction;
   try
-    Result := (sqlite3_step(VStmt.Stmt) = SQLITE_DONE);
-  finally
-    VStmt.Reset;
+    try
+      Result := (sqlite3_step(VStmt.Stmt) = SQLITE_DONE);
+      if Result then begin
+        Self.UpdateMetadata(AXY, AZoom);
+      end;
+      FSQLite3DB.CommitTransaction;
+    finally
+      VStmt.Reset;
+    end;
+  except
+    Result := False;
+    FSQLite3DB.RollbackTransaction;
   end;
 end;
 

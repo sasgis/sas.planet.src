@@ -74,10 +74,17 @@ constructor TTileStorageTypeSQLiteFile.Create(
 );
 var
   VAbilities: ITileStorageTypeAbilities;
+  VAbilitiesTypes: TTileStorageAbilitiesTypes;
 begin
+  if AFormatId = sfOruxMaps then begin
+    VAbilitiesTypes := CTileStorageReadOnly;
+  end else begin
+    VAbilitiesTypes := CTileStorageReadWrite;
+  end;
+
   VAbilities :=
     TTileStorageTypeAbilities.Create(
-      TTileStorageAbilities.Create(CTileStorageReadWrite) as ITileStorageAbilities,
+      TTileStorageAbilities.Create(VAbilitiesTypes) as ITileStorageAbilities,
       tstvsVersionIgnored,
       False,
       stsUnicode,

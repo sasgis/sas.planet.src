@@ -123,14 +123,14 @@ begin
         sfMBTiles: begin
           VConnection :=
             TTileStorageSQLiteFileConnectionMBTiles.Create(
-              VIsReadOnly, FFileName, FFileInfo, FMainContentType
+              VIsReadOnly, FFileName, FFileInfo, FMainContentType, FProjectionSet
             );
         end;
 
         sfOsmAnd, sfLocus, sfRMaps: begin
           VConnection :=
             TTileStorageSQLiteFileConnectionRMaps.Create(
-              VIsReadOnly, FFileName, FFileInfo, FMainContentType, FFormatId
+              VIsReadOnly, FFileName, FFileInfo, FMainContentType, FProjectionSet, FFormatId
             );
         end;
 

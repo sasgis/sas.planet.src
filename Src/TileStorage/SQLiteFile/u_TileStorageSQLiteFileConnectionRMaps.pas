@@ -29,6 +29,7 @@ uses
   StrUtils,
   t_TileStorageSQLiteFile,
   i_ContentTypeInfo,
+  i_ProjectionSet,
   i_TileStorageSQLiteFileInfo,
   u_TileStorageSQLiteFileConnection;
 
@@ -37,12 +38,14 @@ type
   protected
     procedure CreateTables; override;
     procedure FetchMetadata; override;
+    procedure UpdateMetadata(const AXY: TPoint; const AZoom: Byte); override;
   public
     constructor Create(
       const AIsReadOnly: Boolean;
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic;
+      const AProjectionSet: IProjectionSet;
       const AFormatId: TTileStorageSQLiteFileFormatId
     );
   end;
@@ -94,6 +97,7 @@ constructor TTileStorageSQLiteFileConnectionRMaps.Create(
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic;
+  const AProjectionSet: IProjectionSet;
   const AFormatId: TTileStorageSQLiteFileFormatId
 );
 var
@@ -101,7 +105,7 @@ var
   VIsInvertedY: Boolean;
   VIsInvertedZ: Boolean;
 begin
-  inherited Create(AIsReadOnly, AFileName, AFileInfo, AMainContentType);
+  inherited Create(AIsReadOnly, AFileName, AFileInfo, AMainContentType, AProjectionSet);
 
   Assert(FFileInfo <> nil);
 
@@ -171,6 +175,11 @@ begin
   finally
     VStmtData.Fin;
   end;
+end;
+
+procedure TTileStorageSQLiteFileConnectionRMaps.UpdateMetadata(const AXY: TPoint; const AZoom: Byte);
+begin
+  raise Exception.Create('RMaps: Write access is not supported yet!');
 end;
 
 { TTileDataConnectionStatementRMaps }

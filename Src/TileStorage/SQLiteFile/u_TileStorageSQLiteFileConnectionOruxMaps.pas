@@ -39,6 +39,7 @@ type
   protected
     procedure CreateTables; override;
     procedure FetchMetadata; override;
+    procedure UpdateMetadata(const AXY: TPoint; const AZoom: Byte); override;
   public
     constructor Create(
       const AFileName: string;
@@ -172,7 +173,7 @@ var
   VBits: Cardinal;
   VBasePoints: TBasePointsArray;
 begin
-  inherited Create(True, AFileName, AFileInfo, AMainContentType);
+  inherited Create(True, AFileName, AFileInfo, AMainContentType, AProjectionSet);
 
   Assert(FFileInfo <> nil);
 
@@ -316,6 +317,11 @@ begin
   end else begin
     raise Exception.Create('OruxMaps: Error reading XML file!');
   end;
+end;
+
+procedure TTileStorageSQLiteFileConnectionOruxMaps.UpdateMetadata(const AXY: TPoint; const AZoom: Byte);
+begin
+  raise Exception.Create('OruxMaps: Write access is not supported!');
 end;
 
 { TTileDataConnectionStatementOruxMaps }
