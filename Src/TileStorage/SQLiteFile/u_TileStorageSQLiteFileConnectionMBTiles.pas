@@ -68,6 +68,7 @@ type
 implementation
 
 uses
+  IOUtils,
   libsqlite3,
   i_BinaryData,
   u_GeoFunc,
@@ -159,10 +160,10 @@ begin
   if FFileInfo.TryGetMetadataValue('bounds', VValue) then begin
     VBounds := SplitString(VValue, ',');
     if Length(VBounds) = 4 then begin
-      FBounds.Left := StrPointToFloat(VBounds[0]);
-      FBounds.Bottom := StrPointToFloat(VBounds[1]);
-      FBounds.Right := StrPointToFloat(VBounds[2]);
-      FBounds.Top := StrPointToFloat(VBounds[3]);
+      FBounds.Left   := StrPointToFloat(Trim(VBounds[0]));
+      FBounds.Bottom := StrPointToFloat(Trim(VBounds[1]));
+      FBounds.Right  := StrPointToFloat(Trim(VBounds[2]));
+      FBounds.Top    := StrPointToFloat(Trim(VBounds[3]));
     end else begin
       raise Exception.CreateFmt('MBTiles: Invalid bounds value: "%s"', [VValue]);
     end;
@@ -253,7 +254,7 @@ begin
   // initialize metadata
   VMetadataStmt := TMetadataConnectionStatementMBTiles.Create(FSQLite3DB);
   try
-    VMetadataStmt.ExecUpsert('name', 'unnamed');
+    VMetadataStmt.ExecUpsert('name', TPath.GetFileNameWithoutExtension(FFileInfo.FileName));
     VMetadataStmt.ExecUpsert('description', 'Created by SAS.Planet');
     VMetadataStmt.ExecUpsert('format', GetFormatStr);
     VMetadataStmt.ExecUpsert('scheme', 'tms');
@@ -298,7 +299,7 @@ procedure TTileStorageSQLiteFileConnectionMBTiles.UpdateMetadata(const AXY: TPoi
     VCenter: TDoublePoint;
   begin
     VCenter := RectCenter(ARect);
-    Result := Format('%.8f, %.8f, %d', [VCenter.X, VCenter.Y, AMinZoom], FFormatSettings);
+    Result := Format('%.8f,%.8f,%d', [VCenter.X, VCenter.Y, AMinZoom], FFormatSettings);
   end;
 
   function UpdateBoundsWithRect(const R: TDoubleRect): Boolean;
@@ -334,8 +335,11 @@ procedure TTileStorageSQLiteFileConnectionMBTiles.UpdateMetadata(const AXY: TPoi
 
 var
   VRect: TDoubleRect;
+  VDoUpdateCenter: Boolean;
 begin
   // this function executed inside sql transaction
+
+  VDoUpdateCenter := False;
 
   if not FProjectionSet.CheckZoom(AZoom) then begin
     raise Exception.CreateFmt('MBTiles: Invalid zoom value: %d', [AZoom]);
@@ -345,6 +349,7 @@ begin
 
   if (FMinZoom = -1) or (FMinZoom > AZoom) then begin
     FMinZoom := AZoom;
+    VDoUpdateCenter := True;
     FMetadataStmt.ExecUpsert('minzoom', IntToStr(FMinZoom));
   end;
 
@@ -354,7 +359,11 @@ begin
   end;
 
   if UpdateBoundsWithRect(VRect) then begin
+    VDoUpdateCenter := True;
     FMetadataStmt.ExecUpsert('bounds', GetBoundsStr(FBounds));
+  end;
+
+  if VDoUpdateCenter and not IsLonLatRectEmpty(FBounds) then begin
     FMetadataStmt.ExecUpsert('center', GetCenterStr(FBounds, FMinZoom));
   end;
 end;
