@@ -77,6 +77,7 @@ type
       const AProjectionSet: IProjectionSet;
       const AFormatId: TTileStorageSQLiteFileFormatId
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -279,6 +280,12 @@ begin
   FEnabled :=
     FTileDataStmt.CheckPrepared(FSQLite3DB) and
     FTileInfoStmt.CheckPrepared(FSQLite3DB);
+end;
+
+destructor TTileStorageSQLiteFileConnectionRMaps.Destroy;
+begin
+  FreeAndNil(FMetadataStmt);
+  inherited Destroy;
 end;
 
 procedure TTileStorageSQLiteFileConnectionRMaps.CreateTables;
