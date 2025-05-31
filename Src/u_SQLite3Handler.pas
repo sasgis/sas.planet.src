@@ -60,8 +60,10 @@ type
     function BindInt64(const ACol: Integer; const AValue: Int64): Boolean; inline;
     function BindBlob(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean; inline;
     function BindBlobCopy(const ACol: Integer; const ABlob: Pointer; const ASize: Integer): Boolean; inline;
-    function BindText(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean; inline;
-    function BindTextCopy(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean; inline;
+    function BindText(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean; overload; inline;
+    function BindTextCopy(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean; overload; inline;
+    function BindText(const ACol: Integer; const AText: UTF8String): Boolean; overload; inline;
+    function BindTextCopy(const ACol: Integer; const AText: UTF8String): Boolean; overload; inline;
 
     function ClearBindings: Boolean; inline;
     function Reset: Boolean; inline;
@@ -412,6 +414,16 @@ end;
 function TSQLite3StmtData.BindTextCopy(const ACol: Integer; const AText: PUTF8Char; const ALen: Integer): Boolean;
 begin
   Result := sqlite3_bind_text(Stmt, ACol, AText, ALen, SQLITE_TRANSIENT) = SQLITE_OK;
+end;
+
+function TSQLite3StmtData.BindText(const ACol: Integer; const AText: UTF8String): Boolean;
+begin
+  Result := sqlite3_bind_text(Stmt, ACol, PUTF8Char(AText), Length(AText), SQLITE_STATIC) = SQLITE_OK;
+end;
+
+function TSQLite3StmtData.BindTextCopy(const ACol: Integer; const AText: UTF8String): Boolean;
+begin
+  Result := sqlite3_bind_text(Stmt, ACol, PUTF8Char(AText), Length(AText), SQLITE_TRANSIENT) = SQLITE_OK;
 end;
 
 function TSQLite3StmtData.ClearBindings: Boolean;
