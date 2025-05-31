@@ -38,9 +38,12 @@ type
   TMetadataConnectionStatementMBTiles = class(TConnectionStatement)
   private
     FSQLite3DB: TSQLite3DbHandler;
+    FSelectStmt: TConnectionStatement;
   public
+    function ExecSelect: TStringDynArray;
     procedure ExecUpsert(const AName, AValue: UTF8String);
     constructor Create(const ASQLite3DB: TSQLite3DbHandler);
+    destructor Destroy; override;
   end;
 
   TTileStorageSQLiteFileConnectionMBTiles = class(TTileStorageSQLiteFileConnection)
@@ -120,9 +123,33 @@ type
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
+const
+  CEmptyZoomValue = 255;
+
 function InvertY(Y, Z: Integer): Integer; inline; // same for Revert
 begin
   Result := (1 shl Z) - Y - 1;
+end;
+
+function StrToBounds(const AStr: string): TDoubleRect;
+var
+  VBoundsStr: TStringDynArray;
+begin
+  if AStr = '' then begin
+    Result := DoubleRect(0, 0, 0, 0);
+    Exit;
+  end;
+
+  VBoundsStr := SplitString(AStr, ',');
+
+  if Length(VBoundsStr) = 4 then begin
+    Result.Left   := StrPointToFloat(Trim(VBoundsStr[0]));
+    Result.Bottom := StrPointToFloat(Trim(VBoundsStr[1]));
+    Result.Right  := StrPointToFloat(Trim(VBoundsStr[2]));
+    Result.Top    := StrPointToFloat(Trim(VBoundsStr[3]));
+  end else begin
+    raise Exception.CreateFmt('MBTiles: Invalid bounds value: "%s"', [AStr]);
+  end;
 end;
 
 { TTileStorageSQLiteFileConnectionMBTiles }
@@ -136,7 +163,6 @@ constructor TTileStorageSQLiteFileConnectionMBTiles.Create(
 );
 var
   VValue: string;
-  VBounds: TStringDynArray;
   VIsInvertedY: Boolean;
   VIsInvertedZ: Boolean;
 begin
@@ -158,29 +184,17 @@ begin
   end;
 
   if FFileInfo.TryGetMetadataValue('bounds', VValue) then begin
-    VBounds := SplitString(VValue, ',');
-    if Length(VBounds) = 4 then begin
-      FBounds.Left   := StrPointToFloat(Trim(VBounds[0]));
-      FBounds.Bottom := StrPointToFloat(Trim(VBounds[1]));
-      FBounds.Right  := StrPointToFloat(Trim(VBounds[2]));
-      FBounds.Top    := StrPointToFloat(Trim(VBounds[3]));
-    end else begin
-      raise Exception.CreateFmt('MBTiles: Invalid bounds value: "%s"', [VValue]);
-    end;
+    FBounds := StrToBounds(VValue);
   end else begin
     FBounds := DoubleRect(0, 0, 0, 0);
   end;
 
-  if FFileInfo.TryGetMetadataValue('minzoom', VValue) then begin
-    FMinZoom := StrToInt(VValue);
-  end else begin
-    FMinZoom := -1;
+  if not (FFileInfo.TryGetMetadataValue('minzoom', VValue) and TryStrToInt(VValue, FMinZoom)) then begin
+    FMinZoom := CEmptyZoomValue;
   end;
 
-  if FFileInfo.TryGetMetadataValue('maxzoom', VValue) then begin
-    FMaxZoom := StrToInt(VValue);
-  end else begin
-    FMaxZoom := -1;
+  if not (FFileInfo.TryGetMetadataValue('maxzoom', VValue) and TryStrToInt(VValue, FMaxZoom)) then begin
+    FMaxZoom := CEmptyZoomValue;
   end;
 
   if FFileInfo.TryGetMetadataValue('scheme', VValue) and SameText(VValue, 'xyz') then begin
@@ -294,109 +308,139 @@ procedure TTileStorageSQLiteFileConnectionMBTiles.UpdateMetadata(const AXY: TPoi
     Result := Format('%.8f,%.8f,%.8f,%.8f', [R.Left, R.Bottom, R.Right, R.Top], FFormatSettings);
   end;
 
-  function GetCenterStr(const ARect: TDoubleRect; const AMinZoom: Byte): string;
+  function GetCenterStr(const ARect: TDoubleRect; const ACenterZoom: Byte): string;
   var
     VCenter: TDoublePoint;
   begin
     VCenter := RectCenter(ARect);
-    Result := Format('%.8f,%.8f,%d', [VCenter.X, VCenter.Y, AMinZoom], FFormatSettings);
+    Result := Format('%.8f,%.8f,%d', [VCenter.X, VCenter.Y, ACenterZoom], FFormatSettings);
   end;
 
-  function UpdateBoundsWithRect(const R: TDoubleRect): Boolean;
+  function UpdateBoundsWithRect(var ABounds: TDoubleRect; const ARect: TDoubleRect): Boolean;
   begin
     Result := False;
 
-    if IsLonLatRectEmpty(FBounds) then begin
-      FBounds := R;
+    if IsLonLatRectEmpty(ARect) then begin
+      Exit;
+    end;
+
+    if IsLonLatRectEmpty(ABounds) then begin
+      ABounds := ARect;
       Result := True;
       Exit;
     end;
 
-    if R.Left < FBounds.Left then begin
-      FBounds.Left := R.Left;
+    if ARect.Left < ABounds.Left then begin
+      ABounds.Left := ARect.Left;
       Result := True;
     end;
 
-    if R.Right > FBounds.Right then begin
-      FBounds.Right := R.Right;
+    if ARect.Right > ABounds.Right then begin
+      ABounds.Right := ARect.Right;
       Result := True;
     end;
 
-    if R.Top > FBounds.Top then begin
-      FBounds.Top := R.Top;
+    if ARect.Top > ABounds.Top then begin
+      ABounds.Top := ARect.Top;
       Result := True;
     end;
 
-    if R.Bottom < FBounds.Bottom then begin
-      FBounds.Bottom := R.Bottom;
+    if ARect.Bottom < ABounds.Bottom then begin
+      ABounds.Bottom := ARect.Bottom;
       Result := True;
     end;
   end;
 
+  procedure DoUpdateMetadata(const AName, AValue: string);
+  begin
+    FMetadataStmt.ExecUpsert(AName, AValue);
+    FFileInfo.AddOrSetMetadataValue(AName, AValue);
+  end;
+
 var
+  VStr: TStringDynArray;
   VRect: TDoubleRect;
+  VValue: string;
+  VCenterZoom: Integer;
+  VMinZoom, VMaxZoom: Integer;
+  VDoUpdate: Integer;
   VDoUpdateCenter: Boolean;
 begin
   // this function executed inside sql transaction
 
+  VDoUpdate := 0;
   VDoUpdateCenter := False;
 
   if not FProjectionSet.CheckZoom(AZoom) then begin
     raise Exception.CreateFmt('MBTiles: Invalid zoom value: %d', [AZoom]);
   end;
 
-  VRect := FProjectionSet.Zooms[AZoom].TilePos2LonLatRect(AXY);
-
-  if (FMinZoom = -1) or (FMinZoom > AZoom) then begin
+  if (FMinZoom = CEmptyZoomValue) or (FMinZoom > AZoom) then begin
     FMinZoom := AZoom;
-    VDoUpdateCenter := True;
-    FMetadataStmt.ExecUpsert('minzoom', IntToStr(FMinZoom));
+    Inc(VDoUpdate);
   end;
 
-  if (FMaxZoom = -1) or (FMaxZoom < AZoom) then begin
+  if (FMaxZoom = CEmptyZoomValue) or (FMaxZoom < AZoom) then begin
     FMaxZoom := AZoom;
-    FMetadataStmt.ExecUpsert('maxzoom', IntToStr(FMaxZoom));
+    Inc(VDoUpdate);
   end;
 
-  if UpdateBoundsWithRect(VRect) then begin
+  VRect := FProjectionSet.Zooms[AZoom].TilePos2LonLatRect(AXY);
+  if UpdateBoundsWithRect(FBounds, VRect) then begin
+    Inc(VDoUpdate);
+  end;
+
+  if VDoUpdate = 0 then begin
+    Exit;
+  end;
+
+  VStr := FMetadataStmt.ExecSelect;
+
+  // minzoom
+  if not TryStrToInt(VStr[3], VMinZoom) then begin
+    VMinZoom := CEmptyZoomValue;
+  end;
+
+  if (VMinZoom = CEmptyZoomValue) or (VMinZoom > FMinZoom) then begin
+    DoUpdateMetadata('minzoom', IntToStr(FMinZoom));
     VDoUpdateCenter := True;
-    FMetadataStmt.ExecUpsert('bounds', GetBoundsStr(FBounds));
+  end else
+  if VMinZoom < FMinZoom then begin
+    FMinZoom := VMinZoom;
   end;
 
-  if VDoUpdateCenter and not IsLonLatRectEmpty(FBounds) then begin
-    FMetadataStmt.ExecUpsert('center', GetCenterStr(FBounds, FMinZoom));
-  end;
-end;
-
-{ TMetadataConnectionStatementMBTiles }
-
-constructor TMetadataConnectionStatementMBTiles.Create(const ASQLite3DB: TSQLite3DbHandler);
-begin
-  inherited Create(False, False);
-  FSQLite3DB := ASQLite3DB;
-  FText :=
-    'INSERT INTO metadata (name, value) VALUES (?,?) ' +
-    'ON CONFLICT (name) DO UPDATE SET value = excluded.value';
-end;
-
-procedure TMetadataConnectionStatementMBTiles.ExecUpsert(const AName, AValue: UTF8String);
-begin
-  if not Self.CheckPrepared(FSQLite3DB) then begin
-    FSQLite3DB.RaiseSQLite3Error;
+  // maxzoom
+  if not TryStrToInt(VStr[2], VMaxZoom) then begin
+    VMaxZoom := CEmptyZoomValue;
   end;
 
-  if FStmt.BindText(1, PUTF8Char(AName), Length(AName)) and
-     FStmt.BindText(2, PUTF8Char(AValue), Length(AValue))
-  then begin
-    try
-      if sqlite3_step(FStmt.Stmt) <> SQLITE_DONE then begin
-        FSQLite3DB.RaiseSQLite3Error;
-      end;
-    finally
-      FStmt.Reset;
+  if (VMaxZoom = CEmptyZoomValue) or (VMaxZoom < FMaxZoom) then begin
+    DoUpdateMetadata('maxzoom', IntToStr(FMaxZoom));
+    VDoUpdateCenter := True;
+  end else
+  if VMaxZoom > FMaxZoom then begin
+    FMaxZoom := VMaxZoom;
+  end;
+
+  // bounds
+  VRect := StrToBounds(VStr[0]);
+  if IsLonLatRectEmpty(VRect) then begin
+    DoUpdateMetadata('bounds', GetBoundsStr(FBounds));
+    VDoUpdateCenter := True;
+  end else
+  if UpdateBoundsWithRect(VRect, FBounds) then begin
+    DoUpdateMetadata('bounds', GetBoundsStr(VRect));
+    FBounds := VRect;
+    VDoUpdateCenter := True;
+  end;
+
+  // center
+  if VDoUpdateCenter then begin
+    VCenterZoom := FMinZoom + ((FMaxZoom - FMinZoom) div 2);
+    VValue := GetCenterStr(FBounds, VCenterZoom);
+    if VValue <> VStr[1] then begin
+      DoUpdateMetadata('center', VValue);
     end;
-  end else begin
-    FSQLite3DB.RaiseSQLite3Error;
   end;
 end;
 
@@ -581,6 +625,84 @@ begin
     FStmt.BindInt(1, Z) and
     FStmt.BindInt(2, X) and
     FStmt.BindInt(3, Y);
+end;
+
+{ TMetadataConnectionStatementMBTiles }
+
+constructor TMetadataConnectionStatementMBTiles.Create(const ASQLite3DB: TSQLite3DbHandler);
+begin
+  inherited Create(False, False);
+
+  FSQLite3DB := ASQLite3DB;
+
+  FSelectStmt := TConnectionStatement.Create(False, False);
+
+  FSelectStmt.FText :=
+    'SELECT name, value FROM metadata WHERE name in ("bounds", "center", "maxzoom", "minzoom")';
+
+  FText :=
+    'INSERT INTO metadata (name, value) VALUES (?,?) ' +
+    'ON CONFLICT (name) DO UPDATE SET value = excluded.value';
+end;
+
+destructor TMetadataConnectionStatementMBTiles.Destroy;
+begin
+  FreeAndNil(FSelectStmt);
+  inherited Destroy;
+end;
+
+function TMetadataConnectionStatementMBTiles.ExecSelect: TStringDynArray;
+
+  function GetIndex(const AName: string): Integer;
+  begin
+    if AName = 'bounds'  then Result := 0 else
+    if AName = 'center'  then Result := 1 else
+    if AName = 'maxzoom' then Result := 2 else
+    if AName = 'minzoom' then Result := 3 else
+      raise Exception.CreateFmt('MBTiles: Invalid name parameter "%s"', [AName]);
+  end;
+
+var
+  I: Integer;
+  VName: string;
+  VStmtData: PSQLite3StmtData;
+begin
+  if not FSelectStmt.CheckPrepared(FSQLite3DB) then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
+  VStmtData := @FSelectStmt.FStmt;
+
+  SetLength(Result, 4);
+  try
+    while sqlite3_step(VStmtData.Stmt) = SQLITE_ROW do begin
+      VName := LowerCase(VStmtData.ColumnAsString(0));
+
+      I := GetIndex(VName);
+      Result[I] := VStmtData.ColumnAsString(1);
+    end;
+  finally
+    VStmtData.Reset;
+  end;
+end;
+
+procedure TMetadataConnectionStatementMBTiles.ExecUpsert(const AName, AValue: UTF8String);
+begin
+  if not Self.CheckPrepared(FSQLite3DB) then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+
+  if FStmt.BindText(1, AName) and FStmt.BindText(2, AValue) then begin
+    try
+      if sqlite3_step(FStmt.Stmt) <> SQLITE_DONE then begin
+        FSQLite3DB.RaiseSQLite3Error;
+      end;
+    finally
+      FStmt.Reset;
+    end;
+  end else begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
 end;
 
 end.
