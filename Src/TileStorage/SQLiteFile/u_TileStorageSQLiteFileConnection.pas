@@ -220,6 +220,8 @@ begin
     FSQLite3DB.ExecSQL('PRAGMA journal_mode = WAL');
   end;
 
+  FSQLite3Db.SetBusyTryCount(3);
+
   if FFileInfo = nil then begin
     FFileDate := TFile.GetCreationTime(AFileName);
     FFileInfo := TTileStorageSQLiteFileInfo.Create(AFileName, FFileDate);

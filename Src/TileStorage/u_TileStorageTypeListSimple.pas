@@ -506,7 +506,7 @@ begin
 
   // OsmAnd (SQLite3)
   AddSQLiteFileTileStorageType(
-    nil,
+    AGlobalCacheConfig.SQLiteOsmAndCachePath,
     rsSQLiteOsmAndCacheName,
     c_File_Cache_Id_SQLite_OsmAnd,
     CTileStorageTypeSQLiteFileOsmAnd,
@@ -517,7 +517,7 @@ begin
 
   // Locus (SQLite3)
   AddSQLiteFileTileStorageType(
-    nil,
+    AGlobalCacheConfig.SQLiteLocusCachePath,
     rsSQLiteLocusCacheName,
     c_File_Cache_Id_SQLite_Locus,
     CTileStorageTypeSQLiteFileLocus,
@@ -528,7 +528,7 @@ begin
 
   // RMaps (SQLite3)
   AddSQLiteFileTileStorageType(
-    nil,
+    AGlobalCacheConfig.SQLiteRMapsCachePath,
     rsSQLiteRMapsCacheName,
     c_File_Cache_Id_SQLite_RMaps,
     CTileStorageTypeSQLiteFileRMaps,

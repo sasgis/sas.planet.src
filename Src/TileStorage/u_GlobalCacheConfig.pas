@@ -52,6 +52,9 @@ type
     FDBMSCachePath: IPathConfig;
     FSQLiteCachePath: IPathConfig;
     FSQLiteMBTilesCachePath: IPathConfig;
+    FSQLiteOsmAndCachePath: IPathConfig;
+    FSQLiteLocusCachePath: IPathConfig;
+    FSQLiteRMapsCachePath: IPathConfig;
 
     function GetDefCache: Byte;
     procedure SetDefCache(const AValue: Byte);
@@ -69,6 +72,9 @@ type
     function GetDBMSCachePath: IPathConfig;
     function GetSQLiteCachePath: IPathConfig;
     function GetSQLiteMBTilesCachePath: IPathConfig;
+    function GetSQLiteOsmAndCachePath: IPathConfig;
+    function GetSQLiteLocusCachePath: IPathConfig;
+    function GetSQLiteRMapsCachePath: IPathConfig;
   protected
     procedure DoReadConfig(const AConfigProvider: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigProvider: IConfigDataWriteProvider); override;
@@ -133,6 +139,15 @@ begin
 
   FSQLiteMBTilesCachePath := TPathConfig.Create('MBTilesCache', c_File_Cache_Default_SQLite_MBTiles, FCacheGlobalPath);
   Add(FSQLiteMBTilesCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
+
+  FSQLiteOsmAndCachePath := TPathConfig.Create('OsmAndCache', c_File_Cache_Default_SQLite_OsmAnd, FCacheGlobalPath);
+  Add(FSQLiteOsmAndCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
+
+  FSQLiteLocusCachePath := TPathConfig.Create('LocusCache', c_File_Cache_Default_SQLite_Locus, FCacheGlobalPath);
+  Add(FSQLiteLocusCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
+
+  FSQLiteRMapsCachePath := TPathConfig.Create('RMaps', c_File_Cache_Default_SQLite_RMaps, FCacheGlobalPath);
+  Add(FSQLiteRMapsCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToCache'), False, False, False, False);
 end;
 
 procedure TGlobalCacheConfig.DoReadConfig(const AConfigProvider: IConfigDataProvider);
@@ -229,9 +244,24 @@ begin
   Result := FSQLiteCachePath;
 end;
 
+function TGlobalCacheConfig.GetSQLiteLocusCachePath: IPathConfig;
+begin
+  Result := FSQLiteLocusCachePath;
+end;
+
 function TGlobalCacheConfig.GetSQLiteMBTilesCachePath: IPathConfig;
 begin
   Result := FSQLiteMBTilesCachePath;
+end;
+
+function TGlobalCacheConfig.GetSQLiteOsmAndCachePath: IPathConfig;
+begin
+  Result := FSQLiteOsmAndCachePath;
+end;
+
+function TGlobalCacheConfig.GetSQLiteRMapsCachePath: IPathConfig;
+begin
+  Result := FSQLiteRMapsCachePath;
 end;
 
 procedure TGlobalCacheConfig.SetDefCache(const AValue: Byte);
@@ -251,7 +281,10 @@ begin
         c_File_Cache_Id_RAM,
         c_File_Cache_Id_BDB,
         c_File_Cache_Id_BDB_Versioned,
-        c_File_Cache_Id_SQLite_MBTiles
+        c_File_Cache_Id_SQLite_MBTiles,
+        c_File_Cache_Id_SQLite_OsmAnd,
+        c_File_Cache_Id_SQLite_Locus,
+        c_File_Cache_Id_SQLite_RMaps
       ]
     then begin
       if FDefCache <> AValue then begin

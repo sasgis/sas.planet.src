@@ -74,6 +74,15 @@ type
 
     function GetSQLiteMBTilesCachePath: IPathConfig;
     property SQLiteMBTilesCachePath: IPathConfig read GetSQLiteMBTilesCachePath;
+
+    function GetSQLiteOsmAndCachePath: IPathConfig;
+    property SQLiteOsmAndCachePath: IPathConfig read GetSQLiteOsmAndCachePath;
+
+    function GetSQLiteLocusCachePath: IPathConfig;
+    property SQLiteLocusCachePath: IPathConfig read GetSQLiteLocusCachePath;
+
+    function GetSQLiteRMapsCachePath: IPathConfig;
+    property SQLiteRMapsCachePath: IPathConfig read GetSQLiteRMapsCachePath;
   end;
 
 implementation
