@@ -223,7 +223,8 @@ object frmCacheManager: TfrmCacheManager
           Items.Strings = (
             'Archive (zip)'
             'Archive (tar)'
-            'Folder')
+            'Folder'
+            'File')
         end
         object btnArchiveWriterConfig: TTBXButton
           Left = 175

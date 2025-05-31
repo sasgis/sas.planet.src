@@ -107,7 +107,7 @@ type
   private
     type
       TSrcType = (stArchive, stFolder, stFile);
-      TDestType = (dtArchiveZip, dtArchiveTar, dtFolder);
+      TDestType = (dtArchiveZip, dtArchiveTar, dtFolder, dtFile);
       TArchiveType = (atUndef, atTar, atZip);
   private
     FSrcType: TSrcType;
@@ -503,8 +503,14 @@ begin
         edtDestPath.Text := IncludeTrailingPathDelimiter(VPath);
       end;
     end;
+    dtFile: begin
+      dlgSaveFile.Filter := 'All|*.*';
+      dlgSaveFile.DefaultExt := '*.*';
+    end;
+  else
+    Assert(False);
   end;
-  if FDestType in [dtArchiveZip, dtArchiveTar] then begin
+  if FDestType in [dtArchiveZip, dtArchiveTar, dtFile] then begin
     if dlgSaveFile.Execute then begin
       dlgSaveFile.InitialDir := ExtractFileDir(dlgSaveFile.FileName);
       edtDestPath.Text := dlgSaveFile.FileName;
@@ -540,7 +546,7 @@ procedure TfrmCacheManager.btnStartClick(Sender: TObject);
     // dest
     if Trim(edtDestPath.Text) = '' then begin
       case FDestType of
-        dtArchiveZip, dtArchiveTar: begin
+        dtArchiveZip, dtArchiveTar, dtFile: begin
           ShowErrorMessage(_('Dest cache file is not specified!'));
         end;
         dtFolder: ShowErrorMessage(_('Dest cache path is not specified!'));
@@ -633,7 +639,15 @@ begin
       chkOverwrite.Enabled := True;
       FfrDestCacheTypesList.FilterOptions := CTileStorageTypeClassAll - [tstcInMemory];
       btnArchiveWriterConfig.Visible := False;
-    end
+    end;
+    3: begin
+      FDestType := dtFile;
+      lblDestPath.Caption := _('File:');
+      chkOverwrite.Checked := False;
+      chkOverwrite.Enabled := True;
+      FfrDestCacheTypesList.FilterOptions := [tstcOneFile];
+      btnArchiveWriterConfig.Visible := False;
+    end;
   else
     Assert(False);
   end;
@@ -691,6 +705,17 @@ procedure TfrmCacheManager.ProcessCacheConverter;
     Result := True;
   end;
 
+  function PreparePath(const APath: string): string;
+  begin
+    Result := APath;
+    if IsRelativePath(Result) then begin
+      Result := RelativeToAbsolutePath(FBaseApplicationPath.FullPath, Result);
+    end;
+    if not ForceDirectories(Result) then begin
+      RaiseLastOSError;
+    end;
+  end;
+
 var
   VProgressInfo: ICacheConverterProgressInfo;
   VCancelNotifierInternal: INotifierOperationInternal;
@@ -703,6 +728,7 @@ var
   VDestVersion: IMapVersionInfo;
   VSourcePath: string;
   VDestPath: string;
+  VDestFile: string;
   VDefExtension: string;
   VArchiveType: TArchiveType;
 begin
@@ -759,14 +785,13 @@ begin
     end;
     dtFolder: begin
       if FfrDestCacheTypesList.IntCode <> c_File_Cache_Id_DBMS then begin
-        if IsRelativePath(VDestPath) then begin
-          VDestPath := RelativeToAbsolutePath(FBaseApplicationPath.FullPath, VDestPath);
-        end;
-        if not ForceDirectories(VDestPath) then begin
-          RaiseLastOSError;
-        end;
+        VDestPath := PreparePath(VDestPath);
       end;
       VDestPath := IncludeTrailingPathDelimiter(VDestPath);
+    end;
+    dtFile: begin
+      VDestFile := VDestPath;
+      VDestPath := PreparePath(ExtractFilePath(VDestFile)) + ExtractFileName(VDestFile);
     end;
   else
     Assert(False);
