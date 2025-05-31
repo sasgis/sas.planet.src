@@ -109,6 +109,13 @@ begin
     FLock.Acquire;
     try
       if FIsFailed then begin
+        // disable access to the storage
+        FStorageStateInternal.ReadAccess := False;
+        FStorageStateInternal.ScanAccess := False;
+        FStorageStateInternal.AddAccess := False;
+        FStorageStateInternal.DeleteAccess := False;
+        FStorageStateInternal.ReplaceAccess := False;
+
         raise Exception.CreateFmt(
           'Can''t open file: "%s" as %s database!', [FFileName, GetDbNameById(FFormatId)]
         );
