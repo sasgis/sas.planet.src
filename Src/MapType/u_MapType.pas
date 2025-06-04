@@ -130,15 +130,15 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      IgnoreError: Boolean;
+      const AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadTileOrPreZ(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      IgnoreError: Boolean;
-      AUsePre: Boolean;
+      const AIgnoreError: Boolean;
+      const AUsePre: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
@@ -152,43 +152,43 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      IgnoreError: Boolean;
+      const AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadOneTileVector(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      AIgnoreError: Boolean;
+      const AIgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
     ): IVectorItemSubset;
     function LoadTileVector(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      AUsePre: Boolean;
-      AIgnoreError: Boolean;
+      const AUsePre: Boolean;
+      const AIgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
     ): IVectorItemSubset;
     function LoadTileUni(
       const AXY: TPoint;
       const AProjection: IProjection;
       const AVersion: IMapVersionRequest;
-      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const AUsePre, AAllowPartial, AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadBitmap(
       const APixelRectTarget: TRect;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const AUsePre, AAllowPartial, AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadBitmapUni(
       const APixelRectTarget: TRect;
       const AProjection: IProjection;
       const AVersion: IMapVersionRequest;
-      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const AUsePre, AAllowPartial, AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
 
@@ -685,7 +685,7 @@ function TMapType.LoadTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersion: IMapVersionRequest;
-  IgnoreError: Boolean;
+  const AIgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
@@ -751,7 +751,7 @@ begin
       end;
     end;
   except
-    if not IgnoreError then begin
+    if not AIgnoreError then begin
       raise;
     end else begin
       Result := nil;
@@ -763,7 +763,7 @@ function TMapType.LoadOneTileVector(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersion: IMapVersionRequest;
-  AIgnoreError: Boolean;
+  const AIgnoreError: Boolean;
   const ACache: ITileObjCacheVector
 ): IVectorItemSubset;
 begin
@@ -838,7 +838,7 @@ function TMapType.LoadTileFromPreZ(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersion: IMapVersionRequest;
-  IgnoreError: Boolean;
+  const AIgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
@@ -868,7 +868,7 @@ begin
     for i := AZoom - 1 downto VMinZoom do begin
       VParentProjection := FProjectionSet.Zooms[i];
       VTileParent := PointFromDoublePoint(VParentProjection.Relative2TilePosFloat(VRelative), prToTopLeft);
-      VBmp := LoadTile(VTileParent, VParentProjection.Zoom, AVersion, IgnoreError, ACache);
+      VBmp := LoadTile(VTileParent, VParentProjection.Zoom, AVersion, AIgnoreError, ACache);
       if VBmp <> nil then begin
         VTargetTilePixelRect := VProjection.TilePos2PixelRect(AXY);
         VRelativeRect := VProjection.PixelRect2RelativeRect(VTargetTilePixelRect);
@@ -907,7 +907,7 @@ begin
             end;
             Break;
           except
-            if not IgnoreError then begin
+            if not AIgnoreError then begin
               raise;
             end;
           end;
@@ -923,15 +923,15 @@ function TMapType.LoadTileOrPreZ(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersion: IMapVersionRequest;
-  IgnoreError: Boolean;
-  AUsePre: Boolean;
+  const AIgnoreError: Boolean;
+  const AUsePre: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 begin
-  Result := LoadTile(AXY, AZoom, AVersion, IgnoreError, ACache);
+  Result := LoadTile(AXY, AZoom, AVersion, AIgnoreError, ACache);
   if Result = nil then begin
     if AUsePre then begin
-      Result := LoadTileFromPreZ(AXY, AZoom, AVersion, IgnoreError, ACache);
+      Result := LoadTileFromPreZ(AXY, AZoom, AVersion, AIgnoreError, ACache);
     end;
   end;
 end;
@@ -940,7 +940,7 @@ function TMapType.LoadBitmap(
   const APixelRectTarget: TRect;
   const AZoom: byte;
   const AVersion: IMapVersionRequest;
-  AUsePre, AAllowPartial, IgnoreError: Boolean;
+  const AUsePre, AAllowPartial, AIgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
@@ -969,7 +969,7 @@ begin
     (VTileRect.Top = VTileRect.Bottom - 1) then begin
     VPixelRectCurrTile := VProjection.TilePos2PixelRect(VTileRect.TopLeft);
     if Types.EqualRect(VPixelRectCurrTile, APixelRectTarget) then begin
-      Result := LoadTileOrPreZ(VTileRect.TopLeft, AZoom, AVersion, IgnoreError, AUsePre, ACache);
+      Result := LoadTileOrPreZ(VTileRect.TopLeft, AZoom, AVersion, AIgnoreError, AUsePre, ACache);
       Exit;
     end;
   end;
@@ -980,7 +980,7 @@ begin
 
     VIterator.Init(VTileRect);
     while VIterator.Next(VTile) do begin
-      VSpr := LoadTileOrPreZ(VTile, AZoom, AVersion, IgnoreError, AUsePre, ACache);
+      VSpr := LoadTileOrPreZ(VTile, AZoom, AVersion, AIgnoreError, AUsePre, ACache);
       if VSpr <> nil then begin
         VPixelRectCurrTile := VProjection.TilePos2PixelRect(VTile);
 
@@ -1056,7 +1056,7 @@ function TMapType.LoadBitmapUni(
   const APixelRectTarget: TRect;
   const AProjection: IProjection;
   const AVersion: IMapVersionRequest;
-  AUsePre, AAllowPartial, IgnoreError: Boolean;
+  const AUsePre, AAllowPartial, AIgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
@@ -1073,7 +1073,7 @@ begin
   VProjection := FProjectionSet.GetSuitableProjection(AProjection);
 
   if VProjection.ProjectionType.IsSame(AProjection.ProjectionType) then begin
-    Result := LoadBitmap(APixelRectTarget, AProjection.Zoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
+    Result := LoadBitmap(APixelRectTarget, AProjection.Zoom, AVersion, AUsePre, AAllowPartial, AIgnoreError, ACache);
   end else begin
     VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
     VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
@@ -1093,7 +1093,7 @@ begin
         rrToTopLeft
       );
 
-    VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VProjection.Zoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
+    VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VProjection.Zoom, AVersion, AUsePre, AAllowPartial, AIgnoreError, ACache);
     if VSpr <> nil then begin
       VResampler := FResamplerChangeProjection.GetStatic.CreateResampler;
       try
@@ -1123,21 +1123,21 @@ function TMapType.LoadTileUni(
   const AXY: TPoint;
   const AProjection: IProjection;
   const AVersion: IMapVersionRequest;
-  AUsePre, AAllowPartial, IgnoreError: Boolean;
+  const AUsePre, AAllowPartial, AIgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
   VPixelRect: TRect;
 begin
   VPixelRect := AProjection.TilePos2PixelRect(AXY);
-  Result := LoadBitmapUni(VPixelRect, AProjection, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
+  Result := LoadBitmapUni(VPixelRect, AProjection, AVersion, AUsePre, AAllowPartial, AIgnoreError, ACache);
 end;
 
 function TMapType.LoadTileVector(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersion: IMapVersionRequest;
-  AUsePre, AIgnoreError: Boolean;
+  const AUsePre, AIgnoreError: Boolean;
   const ACache: ITileObjCacheVector
 ): IVectorItemSubset;
 var

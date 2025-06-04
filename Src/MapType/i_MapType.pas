@@ -59,44 +59,50 @@ type
     property GUID: TGUID read GetGUID;
 
     procedure ClearMemCache;
+
     function GetTileShowName(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): string;
+
     function LoadTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      IgnoreError: Boolean;
+      const AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
+
     function LoadTileVector(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      AUsePre, AIgnoreError: Boolean;
+      const AUsePre, AIgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
     ): IVectorItemSubset;
+
     function LoadTileUni(
       const AXY: TPoint;
       const AProjection: IProjection;
       const AVersion: IMapVersionRequest;
-      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const AUsePre, AAllowPartial, AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
+
     function LoadBitmap(
       const APixelRectTarget: TRect;
       const AZoom: byte;
       const AVersion: IMapVersionRequest;
-      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const AUsePre, AAllowPartial, AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
+
     function LoadBitmapUni(
       const APixelRectTarget: TRect;
       const AProjection: IProjection;
       const AVersion: IMapVersionRequest;
-      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const AUsePre, AAllowPartial, AIgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
 
@@ -108,42 +114,58 @@ type
 
     function GetProjectionSet: IProjectionSet;
     property ProjectionSet: IProjectionSet read GetProjectionSet;
+
     function GetViewProjectionSet: IProjectionSet;
     property ViewProjectionSet: IProjectionSet read GetViewProjectionSet;
+
     function GetVersionFactory: IMapVersionFactoryChangeable;
     property VersionFactory: IMapVersionFactoryChangeable read GetVersionFactory;
+
     function GetVersionRequestConfig: IMapVersionRequestConfig;
     property VersionRequestConfig: IMapVersionRequestConfig read GetVersionRequestConfig;
+
     function GetVersionRequest: IMapVersionRequestChangeable;
     property VersionRequest: IMapVersionRequestChangeable read GetVersionRequest;
+
     function GetContentType: IContentTypeInfoBasic;
     property ContentType: IContentTypeInfoBasic read GetContentType;
 
     function GetAbilities: IMapAbilitiesConfig;
     property Abilities: IMapAbilitiesConfig read GetAbilities;
+
     function GetStorageConfig: ISimpleTileStorageConfig;
     property StorageConfig: ISimpleTileStorageConfig read GetStorageConfig;
+
     function GetIsBitmapTiles: Boolean;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
+
     function GetIsKmlTiles: Boolean;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
 
     function GetTileDownloadSubsystem: ITileDownloadSubsystem;
     property TileDownloadSubsystem: ITileDownloadSubsystem read GetTileDownloadSubsystem;
+
     function GetTileStorage: ITileStorage;
     property TileStorage: ITileStorage read GetTileStorage;
+
     function GetGUIConfig: IMapTypeGUIConfig;
     property GUIConfig: IMapTypeGUIConfig read GetGUIConfig;
+
     function GetLayerDrawConfig: ILayerDrawConfig;
     property LayerDrawConfig: ILayerDrawConfig read GetLayerDrawConfig;
+
     function GetTileDownloaderConfig: ITileDownloaderConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
+
     function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read GetTileDownloadRequestBuilderConfig;
+
     function GetCacheBitmap: ITileObjCacheBitmap;
     property CacheBitmap: ITileObjCacheBitmap read GetCacheBitmap;
+
     function GetCacheVector: ITileObjCacheVector;
     property CacheVector: ITileObjCacheVector read GetCacheVector;
+
     function GetCacheTileInfo: ITileInfoBasicMemCache;
     property CacheTileInfo: ITileInfoBasicMemCache read GetCacheTileInfo;
 
