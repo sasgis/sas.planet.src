@@ -1607,6 +1607,7 @@ begin
   FMapTypeEditor :=
     TMapTypeConfigModalEditByForm.Create(
       GState.Config.LanguageManager,
+      FMainMapState,
       GState.TileStorageTypeList
     );
 
@@ -2249,6 +2250,7 @@ begin
       TfrmSettings.Create(
         GState.Config.LanguageManager,
         FConfig,
+        FMainMapState,
         GState.Config.GeoCoderConfig,
         FSensorList,
         FShortCutManager,

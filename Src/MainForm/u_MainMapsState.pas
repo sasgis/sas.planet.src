@@ -71,7 +71,8 @@ type
     FMiniMapActiveBitmapLayersList: IMapTypeListChangeable;
 
     FFillingMapActiveMap: IMapTypeChangeable;
-  protected
+  private
+    { IMainMapsState }
     function GetMapsSet: IMapTypeSet;
     function GetLayersSet: IMapTypeSet;
     function GetAllMapsSet: IMapTypeSet;
@@ -94,6 +95,8 @@ type
     function GetMiniMapActiveBitmapLayersList: IMapTypeListChangeable;
 
     function GetFillingMapActiveMap: IMapTypeChangeable;
+
+    function DeActivateMap(const AMapGuid: TGUID): Boolean;
   public
     constructor Create(
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
@@ -111,6 +114,7 @@ type
 implementation
 
 uses
+  SysUtils,
   c_ZeroGUID,
   u_MapTypeChangeableByConfig,
   u_MapTypeSetChangeable,
@@ -283,6 +287,51 @@ begin
       FActiveMap,
       FFillingMapConfig
     );
+end;
+
+function TMainMapsState.DeActivateMap(const AMapGuid: TGUID): Boolean;
+
+  function FindFirstEnabledMapGuid(out AGuid: TGUID): Boolean;
+  var
+    I: Integer;
+    VMapType: IMapType;
+  begin
+    Result := False;
+    for I := 0 to FMapsSet.Count - 1 do begin
+      VMapType := FMapsSet.Items[I];
+      if VMapType.GUIConfig.Enabled and not IsEqualGUID(AMapGuid, VMapType.GUID) then begin
+        AGuid := VMapType.GUID;
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+
+var
+  VMapGuid: TGUID;
+begin
+  Result := True;
+
+  if IsEqualGUID(AMapGuid, FMainMapConfig.MainMapGUID) then begin
+    if FindFirstEnabledMapGuid(VMapGuid) then begin
+      FMainMapConfig.MainMapGUID := VMapGuid;
+    end else begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  FMainLayersConfig.UnSelectLayerByGUID(AMapGuid);
+
+  if IsEqualGUID(AMapGuid, FMiniMapConfig.MainMapGUID) then begin
+    FMiniMapConfig.MainMapGUID := FMainMapConfig.MainMapGUID;
+  end;
+
+  FMiniLayersConfig.UnSelectLayerByGUID(AMapGuid);
+
+  if IsEqualGUID(AMapGuid, FFillingMapConfig.MainMapGUID) then begin
+    FFillingMapConfig.MainMapGUID := FMainMapConfig.MainMapGUID;
+  end;
 end;
 
 function TMainMapsState.GetActiveBitmapLayersList: IMapTypeListChangeable;

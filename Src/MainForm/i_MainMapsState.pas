@@ -82,6 +82,8 @@ type
 
     function GetFillingMapActiveMap: IMapTypeChangeable;
     property FillingMapActiveMap: IMapTypeChangeable read GetFillingMapActiveMap;
+
+    function DeActivateMap(const AMapGuid: TGUID): Boolean;
   end;
 
 implementation

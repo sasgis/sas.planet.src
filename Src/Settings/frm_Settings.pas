@@ -44,6 +44,7 @@ uses
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
   i_LanguageManager,
+  i_MainMapsState,
   i_MainFormConfig,
   i_SensorList,
   i_FavoriteMapSetHelper,
@@ -335,13 +336,14 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMainFormConfig: IMainFormConfig;
+      const AMainMapsState: IMainMapsState;
       const AGeoCoderConfig: IGeoCoderConfig;
       const ASensorList: ISensorList;
       const AShortCutManager: TShortcutManager;
       const AMapTypeEditor: IMapTypeConfigModalEdit;
       const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
       const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
-      AOnSave: TNotifyEvent
+      const AOnSave: TNotifyEvent
     ); reintroduce;
     destructor Destroy; override;
     procedure SetProxy;
@@ -379,13 +381,14 @@ const
 constructor TfrmSettings.Create(
   const ALanguageManager: ILanguageManager;
   const AMainFormConfig: IMainFormConfig;
+  const AMainMapsState: IMainMapsState;
   const AGeoCoderConfig: IGeoCoderConfig;
   const ASensorList: ISensorList;
   const AShortCutManager: TShortcutManager;
   const AMapTypeEditor: IMapTypeConfigModalEdit;
   const AFavoriteMapSetHelper: IFavoriteMapSetHelper;
   const AFavoriteMapSetEditor: TfrmFavoriteMapSetEditor;
-  AOnSave: TNotifyEvent
+  const AOnSave: TNotifyEvent
 );
 begin
   inherited Create(ALanguageManager);
@@ -395,6 +398,7 @@ begin
   FGeoCoderConfig := AGeoCoderConfig;
   FSensorList := ASensorList;
   FOnSave := AOnSave;
+
   FLinksList := TListenerNotifierLinksList.Create;
 
   FfrShortCutList :=
@@ -406,7 +410,7 @@ begin
     TfrMapsList.Create(
       ALanguageManager,
       GState.InternalBrowser,
-      GState.MapType.FullMapsSet,
+      AMainMapsState,
       GState.MapType.GUIConfigList,
       AMapTypeEditor
     );

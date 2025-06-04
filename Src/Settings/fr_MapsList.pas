@@ -45,6 +45,7 @@ uses
   i_MapTypeConfigModalEdit,
   i_InternalBrowser,
   i_MapTypeSet,
+  i_MainMapsState,
   u_CommonFormAndFrameParents;
 
 type
@@ -105,7 +106,7 @@ type
   private
     FChanged: Boolean;
     FMapTypeEditor: IMapTypeConfigModalEdit;
-    FFullMapsSet: IMapTypeSet;
+    FMainMapsState: IMainMapsState;
     FGUIConfigList: IMapTypeGUIConfigList;
     FInternalBrowser: IInternalBrowser;
     FPrevSortColumnIndex: Integer;
@@ -123,7 +124,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AInternalBrowser: IInternalBrowser;
-      const AFullMapsSet: IMapTypeSet;
+      const AMainMapsState: IMainMapsState;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeEditor: IMapTypeConfigModalEdit
     ); reintroduce;
@@ -141,6 +142,7 @@ uses
   c_InternalBrowser,
   i_GUIDListStatic,
   i_MapType,
+  u_Dialogs,
   u_ResStrings;
 
 {$R *.dfm}
@@ -274,17 +276,20 @@ end;
 
 procedure TfrMapsList.CancelChanges;
 begin
+  // nothing to do
 end;
 
 procedure TfrMapsList.ResetMapsNumber;
 var
   I: Integer;
   VMap: IMapType;
+  VFullMapsSet: IMapTypeSet;
 begin
+  VFullMapsSet := FMainMapsState.AllMapsSet;
   FGUIConfigList.LockWrite;
   try
-    for I := 0 to FFullMapsSet.Count - 1 do begin
-      VMap := FFullMapsSet.Items[I];
+    for I := 0 to VFullMapsSet.Count - 1 do begin
+      VMap := VFullMapsSet.Items[I];
       VMap.GUIConfig.SortIndex := VMap.Zmp.GUI.SortIndex;
     end;
   finally
@@ -314,14 +319,14 @@ end;
 constructor TfrMapsList.Create(
   const ALanguageManager: ILanguageManager;
   const AInternalBrowser: IInternalBrowser;
-  const AFullMapsSet: IMapTypeSet;
+  const AMainMapsState: IMainMapsState;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeEditor: IMapTypeConfigModalEdit
 );
 begin
   inherited Create(ALanguageManager);
   FInternalBrowser := AInternalBrowser;
-  FFullMapsSet := AFullMapsSet;
+  FMainMapsState := AMainMapsState;
   FMapTypeEditor := AMapTypeEditor;
   FGUIConfigList := AGUIConfigList;
   MapList.DoubleBuffered := True;
@@ -468,14 +473,16 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
   VItem: TListItem;
+  VFullMapsSet: IMapTypeSet;
 begin
+  VFullMapsSet := FMainMapsState.AllMapsSet;
   VPrevSelectedIndex := MapList.ItemIndex;
   _BeginUpdate;
   try
     VGUIDList := FGUIConfigList.OrderedMapGUIDList;
     for i := 0 to VGUIDList.Count - 1 do begin
       VGUID := VGUIDList.Items[i];
-      VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
+      VMapType := VFullMapsSet.GetMapTypeByGUID(VGUID);
       if i < MapList.Items.Count then begin
         VItem := MapList.Items[i];
       end else begin
@@ -544,10 +551,21 @@ procedure TfrMapsList.MapListItemChecked(
 );
 var
   VMapType: IMapType;
+  VEnabled: Boolean;
 begin
   VMapType := IMapType(Item.Data);
   if VMapType <> nil then begin
-    VMapType.GUIConfig.Enabled := Item.Checked;
+    VEnabled := Item.Checked;
+
+    if not VEnabled then begin
+      if not FMainMapsState.DeActivateMap(VMapType.GUID) then begin
+        Item.Checked := True; // revert value
+        ShowErrorMessage(SAS_ERR_CantDisableLastMap);
+        Exit;
+      end;
+    end;
+
+    VMapType.GUIConfig.Enabled := VEnabled;
   end;
 end;
 

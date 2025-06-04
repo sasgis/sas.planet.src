@@ -156,6 +156,8 @@ resourcestring
     'Error: "%s: %s"' + #13#10 + #13#10 +
     'Do you want to continue?';
 
+  SAS_ERR_CantDisableLastMap = 'You can''t disable last map!';
+
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';
   SAS_STR_load = 'Downloaded';

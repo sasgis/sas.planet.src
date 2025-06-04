@@ -33,6 +33,7 @@ uses
   Spin,
   SynEdit,
   i_MapType,
+  i_MainMapsState,
   i_LanguageManager,
   i_TileStorageTypeList,
   u_CommonFormAndFrameParents,
@@ -142,6 +143,7 @@ type
     FfrCacheTypesList: TfrCacheTypeList;
     FNeedRestart: Boolean;
     FInAccessClick: Boolean;
+    FMainMapsState: IMainMapsState;
     procedure BuildTreeViewMenu;
     procedure CreateSynEditTextHighlighters;
     function IsCacheTypeChangable: Boolean;
@@ -150,6 +152,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AMainMapsState: IMainMapsState;
       const ATileStorageTypeList: ITileStorageTypeListStatic
     );
     destructor Destroy; override;
@@ -176,10 +179,15 @@ uses
 
 constructor TfrmMapTypeEdit.Create(
   const ALanguageManager: ILanguageManager;
+  const AMainMapsState: IMainMapsState;
   const ATileStorageTypeList: ITileStorageTypeListStatic
 );
 begin
   inherited Create(ALanguageManager);
+
+  FMainMapsState := AMainMapsState;
+  FTileStorageTypeList := ATileStorageTypeList;
+
   FfrCacheTypesList :=
     TfrCacheTypeList.Create(
       ALanguageManager,
@@ -188,7 +196,7 @@ begin
       CTileStorageTypeClassAll,
       [tsacRead]
     );
-  FTileStorageTypeList := ATileStorageTypeList;
+
   BuildTreeViewMenu;
   CreateSynEditTextHighlighters;
 end;
@@ -215,6 +223,17 @@ begin
 end;
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
+
+  procedure ValidateEnabled;
+  begin
+    if not CheckEnabled.Checked then begin
+      if not FMainMapsState.DeActivateMap(FMapType.GUID) then begin
+        CheckEnabled.Checked := True;
+        ShowErrorMessage(SAS_ERR_CantDisableLastMap);
+      end;
+    end;
+  end;
+
 begin
   FMapType.TileDownloadRequestBuilderConfig.LockWrite;
   try
@@ -228,8 +247,10 @@ begin
   try
     FMapType.GUIConfig.ParentSubMenu.Value := EditParSubMenu.Text;
     FMapType.GUIConfig.HotKey := EditHotKey.HotKey;
-    FMapType.GUIConfig.Enabled := CheckEnabled.Checked;
     FMapType.GUIConfig.Separator := chkBoxSeparator.Checked;
+
+    ValidateEnabled;
+    FMapType.GUIConfig.Enabled := CheckEnabled.Checked;
   finally
     FMapType.GUIConfig.UnlockWrite;
   end;

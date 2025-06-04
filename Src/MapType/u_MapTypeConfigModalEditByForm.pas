@@ -27,6 +27,7 @@ uses
   Windows,
   i_LanguageManager,
   i_MapType,
+  i_MainMapsState,
   i_TileStorageTypeList,
   i_MapTypeConfigModalEdit,
   u_BaseInterfacedObject,
@@ -36,6 +37,7 @@ type
   TMapTypeConfigModalEditByForm = class(TBaseInterfacedObject, IMapTypeConfigModalEdit)
   private
     FLanguageManager: ILanguageManager;
+    FMainMapsState: IMainMapsState;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FEditCounter: Longint;
     FfrmMapTypeEdit: TfrmMapTypeEdit;
@@ -44,6 +46,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AMainMapsState: IMainMapsState;
       const ATileStorageTypeList: ITileStorageTypeListStatic
     );
     destructor Destroy; override;
@@ -58,11 +61,13 @@ uses
 
 constructor TMapTypeConfigModalEditByForm.Create(
   const ALanguageManager: ILanguageManager;
+  const AMainMapsState: IMainMapsState;
   const ATileStorageTypeList: ITileStorageTypeListStatic
 );
 begin
   inherited Create;
   FLanguageManager := ALanguageManager;
+  FMainMapsState := AMainMapsState;
   FTileStorageTypeList := ATileStorageTypeList;
   FEditCounter := 0;
 end;
@@ -88,6 +93,7 @@ begin
         FfrmMapTypeEdit :=
           TfrmMapTypeEdit.Create(
             FLanguageManager,
+            FMainMapsState,
             FTileStorageTypeList
           );
       end;
