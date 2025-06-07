@@ -148,6 +148,7 @@ uses
   u_Dialogs,
   u_MapTypeGUIConfigList,
   u_MapType,
+  u_MapTypeProxy,
   u_GeoFunc,
   u_ResStrings;
 
@@ -294,33 +295,64 @@ begin
     try
       VZmp := FZmpInfoSet.GetZmpByGUID(VGUID);
       VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
-      VMapType :=
-        TMapType.Create(
-          ALanguageManager,
-          VZmp,
-          AMapVersionFactoryList,
-          AMainMemCacheConfig,
-          AGlobalCacheConfig,
-          ATileStorageTypeList,
-          AGCNotifier,
-          AAppClosingNotifier,
-          AInetConfig,
-          FTileLoadResampler,
-          FTileGetPrevResampler,
-          FTileReprojectResampler,
-          FTileDownloadResampler,
-          ABitmap32StaticFactory,
-          AHashFunction,
-          ADownloadConfig,
-          ADownloaderThreadConfig,
-          ADownloaderFactory,
-          AContentTypeManager,
-          AProjectionSetFactory,
-          AInvisibleBrowser,
-          AProjFactory,
-          VLocalMapConfig,
-          FPerfCounterList
-        );
+
+      if not Supports(VZmp, IZmpInfoProxy) then begin
+        VMapType :=
+          TMapType.Create(
+            ALanguageManager,
+            VZmp,
+            AMapVersionFactoryList,
+            AMainMemCacheConfig,
+            AGlobalCacheConfig,
+            ATileStorageTypeList,
+            AGCNotifier,
+            AAppClosingNotifier,
+            AInetConfig,
+            FTileLoadResampler,
+            FTileGetPrevResampler,
+            FTileReprojectResampler,
+            FTileDownloadResampler,
+            ABitmap32StaticFactory,
+            AHashFunction,
+            ADownloadConfig,
+            ADownloaderThreadConfig,
+            ADownloaderFactory,
+            AContentTypeManager,
+            AProjectionSetFactory,
+            AInvisibleBrowser,
+            AProjFactory,
+            VLocalMapConfig,
+            FPerfCounterList
+          );
+      end else begin
+        VMapType :=
+          TMapTypeProxy.Create(
+            ALanguageManager,
+            IZmpInfoProxy(VZmp),
+            AMapVersionFactoryList,
+            AMainMemCacheConfig,
+            AGlobalCacheConfig,
+            ATileStorageTypeList,
+            AGCNotifier,
+            AAppClosingNotifier,
+            AInetConfig,
+            FTileLoadResampler,
+            FTileGetPrevResampler,
+            FTileReprojectResampler,
+            FTileDownloadResampler,
+            ABitmap32StaticFactory,
+            AHashFunction,
+            ADownloadConfig,
+            ADownloaderThreadConfig,
+            ADownloaderFactory,
+            AContentTypeManager,
+            AProjectionSetFactory,
+            AInvisibleBrowser,
+            AProjFactory,
+            nil,
+            FPerfCounterList
+          ) as IMapType;
+      end;
       VFullMapsList.Add(VMapType);
     except
       if ExceptObject <> nil then begin
@@ -430,7 +462,7 @@ procedure TMapTypesMainList.SaveMaps(
   const AMapsListConfig: IConfigDataWriteProvider
 );
 var
-  i: integer;
+  I: Integer;
   VGUIDString: string;
   VMapType: IMapType;
   VSubItem: IConfigDataWriteProvider;
@@ -438,9 +470,12 @@ var
   VGUIDList: IGUIDListStatic;
 begin
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  for i := 0 to VGUIDList.Count - 1 do begin
-    VGUID := VGUIDList.Items[i];
+  for I := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[I];
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
+    if Supports(VMapType, IMapTypeProxy) then begin
+      Continue;
+    end;
     VGUIDString := GUIDToString(VGUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VMapType.SaveConfig(VSubItem);

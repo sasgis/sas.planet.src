@@ -146,6 +146,9 @@ begin
     VList.Capacity := VCount;
     for I := 0 to FMapsSet.Count - 1 do begin
       VMap := FMapsSet.Items[I];
+      if Supports(VMap, IMapTypeProxy) and not IMapTypeProxy(VMap).IsInitialized then begin
+        Continue;
+      end;
       VList.Add(VMap);
     end;
     VCount := VList.GetCount;

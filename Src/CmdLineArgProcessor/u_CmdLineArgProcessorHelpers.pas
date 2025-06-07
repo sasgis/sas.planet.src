@@ -38,7 +38,8 @@ uses
   i_AppearanceOfMarkFactory,
   i_AppearanceOfVectorItem,
   i_VectorItemTreeImporterList,
-  u_MarkDbGUIHelper;
+  u_MarkDbGUIHelper,
+  u_TileStorageImporter;
 
 function GetLonLat(
   const AStr: AnsiString;
@@ -85,7 +86,8 @@ procedure ProcessOpenFiles(
   const AMarkDBGUIHelper: TMarkDBGUIHelper = nil;
   const AMarkSystem: IMarkSystem = nil;
   const AImporterList: IVectorItemTreeImporterListChangeable = nil;
-  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory = nil
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory = nil;
+  const ATileStorageImporter: TTileStorageImporter = nil
 );
 
 function GetArgsAsList(const AArgs: string): TStringList;
@@ -567,55 +569,76 @@ procedure ProcessOpenFiles(
   const AMarkDBGUIHelper: TMarkDBGUIHelper;
   const AMarkSystem: IMarkSystem;
   const AImporterList: IVectorItemTreeImporterListChangeable;
-  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const ATileStorageImporter: TTileStorageImporter
 );
 var
   I: Integer;
+  VFileExt: string;
   VFileName: string;
   VProcessed: Boolean;
   VList: IInterfaceListStatic;
   VLastMark: IVectorDataItem;
   VPolygon: IGeometryLonLatPolygon;
 begin
-  if Assigned(AFiles) and (AFiles.Count > 0) then begin
-    // Download session(s)
-    VProcessed := False;
-    for I := 0 to AFiles.Count - 1 do begin
-      VFileName := AFiles.Items[I];
-      if LowerCase(ExtractFileExt(VFileName)) = '.sls' then begin
-        ARegionProcess.StartSlsFromFile(VFileName, AStartSlsPaused);
-        VProcessed := True;
-      end;
+  if not Assigned(AFiles) or (AFiles.Count <= 0) then begin
+    Exit;
+  end;
+
+  // Download session(s)
+  VProcessed := False;
+  for I := 0 to AFiles.Count - 1 do begin
+    VFileName := AFiles.Items[I];
+    if LowerCase(ExtractFileExt(VFileName)) = '.sls' then begin
+      ARegionProcess.StartSlsFromFile(VFileName, AStartSlsPaused);
+      VProcessed := True;
     end;
-    if VProcessed then begin
+  end;
+  if VProcessed then begin
+    Exit;
+  end;
+
+  // Selection region
+  if AFiles.Count = 1 then begin
+    VFileName := AFiles.Items[0];
+    if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
+      ARegionProcess.LoadSelFromFile(VFileName, VPolygon);
+      if Assigned(VPolygon) then begin
+        AMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
+      end;
       Exit;
     end;
-    // Selection region
-    if AFiles.Count = 1 then begin
-      VFileName := AFiles.Items[0];
-      if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
-        ARegionProcess.LoadSelFromFile(VFileName, VPolygon);
-        if Assigned(VPolygon) then begin
-          AMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
+  end;
+
+  // SQLite3 based cache (MBTiles, OsmAnd, Locus, RMaps, OruxMaps)
+  if Assigned(ATileStorageImporter) then begin
+    for I := 0 to AFiles.Count - 1 do begin
+      VFileName := AFiles.Items[I];
+      VFileExt := LowerCase(ExtractFileExt(VFileName));
+      if (VFileExt = '.mbtiles') or (VFileExt = '.sqlitedb') or
+         (VFileExt = '.db') or (VFileExt = '.rmaps')
+      then begin
+        if ATileStorageImporter.ProcessFile(VFileName) then begin
+          Exit;
         end;
-        Exit;
       end;
     end;
-    // Mark(s)
-    if AShowImportDlg then begin
-      if Assigned(AMarkDBGUIHelper) then begin
-        VList := AMarkDBGUIHelper.ImportFilesModal(AFiles);
-      end;
-    end else begin
-      if Assigned(AMarkSystem) and Assigned(AImporterList) and Assigned(AAppearanceOfMarkFactory) then begin
-        VList := ImportFiles(AFiles, AImporterList.GetStatic, AMarkSystem, AAppearanceOfMarkFactory);
-      end;
+  end;
+
+  // Mark(s)
+  if AShowImportDlg then begin
+    if Assigned(AMarkDBGUIHelper) then begin
+      VList := AMarkDBGUIHelper.ImportFilesModal(AFiles);
     end;
-    if (VList <> nil) and (VList.Count > 0) then begin
-      VLastMark := IVectorDataItem(VList[VList.Count - 1]);
-      if Assigned(VLastMark) then begin
-        AMapGoto.FitRectToScreen(VLastMark.Geometry.Bounds.Rect);
-      end;
+  end else begin
+    if Assigned(AMarkSystem) and Assigned(AImporterList) and Assigned(AAppearanceOfMarkFactory) then begin
+      VList := ImportFiles(AFiles, AImporterList.GetStatic, AMarkSystem, AAppearanceOfMarkFactory);
+    end;
+  end;
+  if (VList <> nil) and (VList.Count > 0) then begin
+    VLastMark := IVectorDataItem(VList[VList.Count - 1]);
+    if Assigned(VLastMark) then begin
+      AMapGoto.FitRectToScreen(VLastMark.Geometry.Bounds.Rect);
     end;
   end;
 end;

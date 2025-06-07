@@ -120,6 +120,7 @@ uses
   u_ShortcutManager,
   u_MarksDbMenu,
   u_MarkDbGUIHelper,
+  u_TileStorageImporter,
   u_FavoriteMapSetMenu,
   u_MainFormLayersList,
   u_SearchToolbarContainer,
@@ -989,6 +990,8 @@ type
     FMarkDBGUI: TMarkDbGUIHelper;
     FPlacemarkPlayerPlugin: IPlayerPlugin;
 
+    FTileStorageImporter: TTileStorageImporter;
+
     FTileErrorLogger: ITileErrorLogger;
     FTileErrorLogProvider: ITileErrorLogProviedrStuped;
 
@@ -1775,6 +1778,15 @@ begin
       GState.ValueToStringConverter,
       FViewPortState.View
     );
+
+  FTileStorageImporter :=
+    TTileStorageImporter.Create(
+      FMainMapState.AllMapsSet,
+      FConfig.MainMapConfig,
+      FConfig.MapLayersConfig,
+      GState.ContentTypeManager,
+      GState.ArchiveReadWriteFactory
+    );
 end;
 
 procedure TfrmMain.CreateWnd;
@@ -1858,7 +1870,8 @@ begin
       FConfig,
       GState.VectorGeometryLonLatFactory,
       GState.AppearanceOfMarkFactory,
-      GState.ImporterList
+      GState.ImporterList,
+      FTileStorageImporter
     );
 
   FFavoriteMapSetMenu :=
@@ -2918,6 +2931,7 @@ begin
   FreeAndNil(FFavoriteMapSetMenu);
   FreeAndNil(FfrmFavoriteMapSetManager);
   FreeAndNil(FfrmFavoriteMapSetEditor);
+  FreeAndNil(FTileStorageImporter);
   inherited;
 end;
 
@@ -6062,7 +6076,11 @@ begin
       FFormRegionProcess,
       True, // start downloads from *.sls in paused state
       True, // show import dialog for vector data (*.kml/*.gpx/etc.)
-      FMarkDBGUI
+      FMarkDBGUI,
+      nil,
+      nil,
+      nil,
+      FTileStorageImporter
     );
   end;
 end;

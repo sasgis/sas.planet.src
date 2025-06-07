@@ -863,6 +863,9 @@
         <DCCReference Include="Src\MapLayers\u_PolygonCaptionsLayerConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_UseTilePrevZoomConfig.pas"/>
         <DCCReference Include="Src\MapLayers\u_VectorItemDrawConfig.pas"/>
+        <DCCReference Include="Src\MapType\MapTypeProxy\u_MapTypeGuiConfigProxy.pas"/>
+        <DCCReference Include="Src\MapType\MapTypeProxy\u_MapTypeProxy.pas"/>
+        <DCCReference Include="Src\MapType\MapTypeProxy\u_ZmpInfoProxy.pas"/>
         <DCCReference Include="Src\MapType\frm_MapTypeEdit.pas">
             <Form>frmMapTypeEdit</Form>
         </DCCReference>
@@ -1763,6 +1766,7 @@
         <DCCReference Include="Src\TileStorage\u_TileFileNameParsersSimpleList.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageAbilities.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageAbstract.pas"/>
+        <DCCReference Include="Src\TileStorage\u_TileStorageImporter.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageInfo.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageOfMapType.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageTypeBase.pas"/>

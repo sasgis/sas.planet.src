@@ -83,6 +83,15 @@ type
     function GetStatic: IMapTypeGUIConfigStatic;
   end;
 
+  IMapTypeGuiConfigProxy = interface(IMapTypeGUIConfig)
+    ['{DABE0348-73D0-4345-B982-44EF3042D089}']
+    procedure Initialize;
+    procedure Reset;
+
+    function GetIsInitialized: Boolean;
+    property IsInitialized: Boolean read GetIsInitialized;
+  end;
+
 implementation
 
 end.

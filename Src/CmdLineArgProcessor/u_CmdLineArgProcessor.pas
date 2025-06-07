@@ -38,6 +38,7 @@ uses
   i_AppearanceOfMarkFactory,
   i_VectorItemTreeImporterList,
   i_CmdLineArgProcessor,
+  u_TileStorageImporter,
   u_BaseInterfacedObject;
 
 type
@@ -52,19 +53,23 @@ type
     FGeometryLonLatFactory: IGeometryLonLatFactory;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FImporterList: IVectorItemTreeImporterListChangeable;
+    FTileStorageImporter: TTileStorageImporter;
     function ProcessInternal(
       const AList: TStringList;
       const ARegionProcess: IRegionProcessFromFile
     ): Integer;
     function IsArgsInUTF8(const AArgs: AnsiString): Boolean;
   private
+    { ICmdLineArgProcessor }
     function Process(
       const ARegionProcess: IRegionProcessFromFile = nil
     ): Integer; overload;
+
     function Process(
       const AArgs: AnsiString;
       const ARegionProcess: IRegionProcessFromFile = nil
     ): Integer; overload;
+
     function GetArguments: string;
     function GetErrorFromCode(const ACode: Integer): string;
   public
@@ -77,7 +82,8 @@ type
       const AMainFormConfig: IMainFormConfig;
       const AGeometryLonLatFactory: IGeometryLonLatFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AImporterList: IVectorItemTreeImporterListChangeable
+      const AImporterList: IVectorItemTreeImporterListChangeable;
+      const ATileStorageImporter: TTileStorageImporter
     );
   end;
 
@@ -104,7 +110,8 @@ constructor TCmdLineArgProcessor.Create(
   const AMainFormConfig: IMainFormConfig;
   const AGeometryLonLatFactory: IGeometryLonLatFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AImporterList: IVectorItemTreeImporterListChangeable
+  const AImporterList: IVectorItemTreeImporterListChangeable;
+  const ATileStorageImporter: TTileStorageImporter
 );
 begin
   inherited Create;
@@ -117,6 +124,7 @@ begin
   FGeometryLonLatFactory := AGeometryLonLatFactory;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FImporterList := AImporterList;
+  FTileStorageImporter := ATileStorageImporter;
 end;
 
 function TCmdLineArgProcessor.GetArguments: string;
@@ -320,10 +328,10 @@ begin
           nil,
           FMarkSystem,
           FImporterList,
-          FAppearanceOfMarkFactory
+          FAppearanceOfMarkFactory,
+          FTileStorageImporter
         );
       end;
-
     finally
       VParseResult.Free;
     end;

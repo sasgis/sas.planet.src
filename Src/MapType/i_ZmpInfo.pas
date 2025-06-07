@@ -135,6 +135,27 @@ type
     property DataProvider: IConfigDataProvider read GetDataProvider;
   end;
 
+  IZmpInfoGuiProxy = interface(IZmpInfoGUI)
+    ['{32B78F13-146C-4C54-BD9F-E0E7275C9699}']
+    procedure Initialize(const AZmpMapConfig: IConfigDataProvider);
+    procedure Reset;
+
+    function GetIsInitialized: Boolean;
+    property IsInitialized: Boolean read GetIsInitialized;
+  end;
+
+  IZmpInfoProxy = interface(IZmpInfo)
+    ['{7B7A2A4C-A618-47C5-924A-4ED81ECF195A}']
+    procedure Initialize(const AZmpMapConfig: IConfigDataProvider);
+    procedure Reset;
+
+    function GetIsInitialized: Boolean;
+    property IsInitialized: Boolean read GetIsInitialized;
+
+    function GetIsBitmapTiles: Boolean;
+    function GetIsKmlTiles: Boolean;
+  end;
+
 implementation
 
 end.

@@ -32,10 +32,12 @@ type
     function Process(
       const ARegionProcess: IRegionProcessFromFile = nil
     ): Integer; overload;
+
     function Process(
       const AArgs: AnsiString;
       const ARegionProcess: IRegionProcessFromFile = nil
     ): Integer; overload;
+
     function GetArguments: string;
     function GetErrorFromCode(const ACode: Integer): string;
   end;

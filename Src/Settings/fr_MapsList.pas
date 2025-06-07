@@ -566,6 +566,11 @@ begin
     end;
 
     VMapType.GUIConfig.Enabled := VEnabled;
+
+    if not VEnabled and Supports(VMapType, IMapTypeProxy) then begin
+      IMapTypeProxy(VMapType).Reset;
+      UpdateList;
+    end;
   end;
 end;
 

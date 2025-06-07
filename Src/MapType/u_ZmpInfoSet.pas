@@ -73,7 +73,11 @@ uses
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByZip,
   u_ZmpInfo,
+  u_ZmpInfoProxy,
   u_ResStrings;
+
+const
+  CMaxReservedZmpCount = 32; // todo: get this value from config
 
 function IsHiddenZmp(const AName: string): Boolean;
 var
@@ -102,6 +106,8 @@ constructor TZmpInfoSet.Create(
 );
 var
   I: Integer;
+  VIsLayer: Boolean;
+  VIsBitmapTiles: Boolean;
   VFileName: string;
   VRootFolder: string;
   VFullFileName: string;
@@ -113,14 +119,14 @@ var
   VFileNameList: TStringList;
 begin
   inherited Create;
-  
+
   VMapTypeCount := 0;
   FList := TGUIDInterfaceSetOrdered.Create;
 
   VFileNameList := TStringList.Create;
   try
     VRootFolder := AFilesIterator.GetRootFolderName;
-    
+
     while AFilesIterator.Next(VFileName) do begin
       if not IsHiddenZmp(VFileName) then begin
         VFileNameList.Add(VFileName);
@@ -177,8 +183,27 @@ begin
       end;
       if VZmp <> nil then begin
         FList.Add(VZmp.GUID, VZmp);
-        inc(VMapTypeCount);
+        Inc(VMapTypeCount);
       end;
+    end;
+
+    for I := 0 to CMaxReservedZmpCount - 1 do begin
+      VIsLayer := I > (CMaxReservedZmpCount div 2);
+      VIsBitmapTiles := not VIsLayer or (VIsLayer and (I mod 2 = 0));
+      VZmp := TZmpInfoProxy.Create(
+        AZmpConfig,
+        ALanguageManager,
+        AProjectionSetFactory,
+        AContentTypeManager,
+        AAppearanceOfMarkFactory,
+        AMarkPictureList,
+        ABitmapFactory,
+        VMapTypeCount,
+        VIsBitmapTiles,
+        VIsLayer
+      ) as IZmpInfo;
+      FList.Add(VZmp.GUID, VZmp);
+      Inc(VMapTypeCount);
     end;
   finally
     VFileNameList.Free;

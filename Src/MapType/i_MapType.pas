@@ -26,6 +26,7 @@ interface
 uses
   Types,
   i_Changeable,
+  i_ConfigDataProvider,
   i_MapVersionInfo,
   i_MapVersionFactory,
   i_MapVersionRequest,
@@ -168,7 +169,15 @@ type
 
     function GetCacheTileInfo: ITileInfoBasicMemCache;
     property CacheTileInfo: ITileInfoBasicMemCache read GetCacheTileInfo;
+  end;
 
+  IMapTypeProxy = interface(IMapType)
+    ['{CBBCF337-CDE8-468D-BCE1-1D6BEE783700}']
+    procedure Initialize(const AZmpMapConfig: IConfigDataProvider);
+    procedure Reset;
+
+    function GetIsInitialized: Boolean;
+    property IsInitialized: Boolean read GetIsInitialized;
   end;
 
   IMapTypeChangeable = interface(IChangeable)
