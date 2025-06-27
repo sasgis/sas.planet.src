@@ -406,21 +406,23 @@ var
 begin
   Self.Enabled := True;
 
-  if not FCancelNotifier.IsOperationCanceled(FCurrentOperation) then begin
-    FCancelNotifier.NextOperation;
-    FMergePolygonsProgress.GetProgress(
-      VPolygonsCount, VHolesCount, VTime, VVectorItem);
-    if Assigned(VVectorItem) then begin
-      FMergeResultInternal := VVectorItem;
-      FMergePolygonsResult.Polygon := (VVectorItem.Geometry as IGeometryLonLatPolygon);
-      VMessage := Format(rsMergeFinish, [VPolygonsCount, VHolesCount]);
-      {$IFDEF DEBUG}
-      VMessage := VMessage + #13#10 + #13#10 + Format(rsProcessedAt, [VTime]);
-      {$ENDIF}
-      ShowInfoMessage(VMessage);
-    end else begin
-      ShowErrorMessage(rsMergeFail);
-    end;
+  if FCancelNotifier.IsOperationCanceled(FCurrentOperation) then begin
+    Exit;
+  end;
+
+  FCancelNotifier.NextOperation;
+  FMergePolygonsProgress.GetProgress(VPolygonsCount, VHolesCount, VTime, VVectorItem);
+
+  if Assigned(VVectorItem) then begin
+    FMergeResultInternal := VVectorItem;
+    FMergePolygonsResult.Polygon := (VVectorItem.Geometry as IGeometryLonLatPolygon);
+    VMessage := Format(rsMergeFinish, [VPolygonsCount, VHolesCount]);
+    {$IFDEF DEBUG}
+    VMessage := VMessage + #13#10 + #13#10 + Format(rsProcessedAt, [VTime]);
+    {$ENDIF}
+    ShowInfoMessage(VMessage);
+  end else begin
+    ShowErrorMessage(rsMergeFail);
   end;
 end;
 
