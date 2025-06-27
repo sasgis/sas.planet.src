@@ -431,16 +431,20 @@ begin
 end;
 
 procedure TfrMergePolygons.tbtmSaveClick(Sender: TObject);
+var
+  VMark: IVectorDataItem;
 begin
-  if Assigned(FMergeResultInternal) then begin
-    FMarkDBGUI.SaveMarkModal(
-      FMergeResultInternal,
-      FMergeResultInternal.Geometry,
-      True
-    );
-  end else begin
+  if not Assigned(FMergeResultInternal) then begin
     ShowErrorMessage(rsErrorNeedMerge);
+    Exit;
   end;
+
+  VMark := FMergeResultInternal;
+  if (VMark.MainInfo = nil) or (VMark.Appearance = nil) then begin
+    VMark := nil;
+  end;
+
+  FMarkDBGUI.SaveMarkModal(VMark, FMergeResultInternal.Geometry, True);
 end;
 
 procedure TfrMergePolygons.tbtmSelectClick(Sender: TObject);
