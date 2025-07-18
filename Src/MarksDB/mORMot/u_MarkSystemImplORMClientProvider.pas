@@ -98,6 +98,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  gnugettext,
   u_GlobalDllName,
   u_FileSystemFunc,
   u_MarkSystemORMTools;
@@ -206,6 +207,12 @@ var
   VFileName: string;
 begin
   VFileName := GetSQLite3DatabaseFileName(FBasePath, FImplConfig.FileName);
+  if not DirectoryExists(ExtractFileDir(VFileName)) then begin
+    raise EMarkSystemORMError.CreateFmt(_('Directory does not exists: %s'), [ExtractFileDir(VFileName)]);
+  end;
+  if FImplConfig.IsReadOnly and not FileExists(VFileName) then begin
+    raise EMarkSystemORMError.CreateFmt(_('File does not exists: %s'), [VFileName]);
+  end;
   FModel := CreateModelSQLite3;
   FClientDB := TSQLRestClientDB.Create(FModel, nil, VFileName, TSQLRestServerDB);
   FClientDB.DB.WALMode := True; // for multi-user access
