@@ -32,6 +32,7 @@ uses
   i_MapVersionFactory,
   i_MapVersionRequest,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_TileInfoBasic,
   i_ProjectionSet,
   i_NotifierOperation,
@@ -111,6 +112,7 @@ type
       const ATileNotifier: INotifierTilePyramidUpdateInternal;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic;
+      const AContentTypeManager: IContentTypeManager;
       const AFileName: string;
       const AFormatId: TTileStorageSQLiteFileFormatId
     );
@@ -136,6 +138,7 @@ constructor TTileStorageSQLiteFile.Create(
   const ATileNotifier: INotifierTilePyramidUpdateInternal;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic;
+  const AContentTypeManager: IContentTypeManager;
   const AFileName: string;
   const AFormatId: TTileStorageSQLiteFileFormatId
 );
@@ -169,6 +172,7 @@ begin
       FFileName,
       StorageStateInternal,
       FMainContentType,
+      AContentTypeManager,
       AProjectionSet,
       AFormatId
     );

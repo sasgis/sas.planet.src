@@ -30,6 +30,7 @@ uses
   t_GeoTypes,
   t_TileStorageSQLiteFile,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_ProjectionSet,
   i_TileStorageSQLiteFileInfo,
   u_SQLite3Handler,
@@ -74,6 +75,7 @@ type
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic;
+      const AContentTypeManager: IContentTypeManager;
       const AProjectionSet: IProjectionSet;
       const AFormatId: TTileStorageSQLiteFileFormatId
     );
@@ -208,6 +210,7 @@ constructor TTileStorageSQLiteFileConnectionRMaps.Create(
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic;
+  const AContentTypeManager: IContentTypeManager;
   const AProjectionSet: IProjectionSet;
   const AFormatId: TTileStorageSQLiteFileFormatId
 );
@@ -218,7 +221,7 @@ var
 begin
   FFormatId := AFormatId;
 
-  inherited Create(AIsReadOnly, AFileName, AFileInfo, AMainContentType, AProjectionSet);
+  inherited Create(AIsReadOnly, AFileName, AFileInfo, AMainContentType, AContentTypeManager, AProjectionSet);
 
   Assert(FFileInfo <> nil);
 

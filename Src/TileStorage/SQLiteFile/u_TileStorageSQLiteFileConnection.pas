@@ -28,6 +28,7 @@ uses
   SysUtils,
   i_BinaryData,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_ProjectionSet,
   i_TileInfoBasic,
   i_TileStorage,
@@ -109,9 +110,11 @@ type
     FInsertOrIgnoreStmt: TInsertOrIgnoreConnectionStatement;
     FDeleteTileStmt: TDeleteTileConnectionStatement;
     FMainContentType: IContentTypeInfoBasic;
+    FContentTypeManager: IContentTypeManager;
     FProjectionSet: IProjectionSet;
     FFileInfo: ITileStorageSQLiteFileInfo;
     FFileDate: TDateTime;
+    function GetTileContentTypeInfo(const AData: IBinaryData): IContentTypeInfoBasic;
   protected
     procedure CreateTables; virtual; abstract;
     procedure FetchMetadata; virtual; abstract;
@@ -154,6 +157,7 @@ type
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic;
+      const AContentTypeManager: IContentTypeManager;
       const AProjectionSet: IProjectionSet
     );
     destructor Destroy; override;
@@ -165,6 +169,7 @@ uses
   IOUtils,
   libsqlite3,
   u_BinaryData,
+  u_ContentDetecter,
   u_TileInfoBasic,
   u_TileRectInfoShort,
   u_TileStorageSQLiteFileInfo;
@@ -176,6 +181,7 @@ constructor TTileStorageSQLiteFileConnection.Create(
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic;
+  const AContentTypeManager: IContentTypeManager;
   const AProjectionSet: IProjectionSet
 );
 var
@@ -186,6 +192,7 @@ begin
   FIsReadOnly := AIsReadOnly;
   FFileInfo := AFileInfo;
   FMainContentType := AMainContentType;
+  FContentTypeManager := AContentTypeManager;
   FProjectionSet := AProjectionSet;
 
   if not FSQLite3DB.Init then begin
@@ -254,6 +261,24 @@ begin
   inherited Destroy;
 end;
 
+function TTileStorageSQLiteFileConnection.GetTileContentTypeInfo(
+  const AData: IBinaryData
+): IContentTypeInfoBasic;
+var
+  VContentType: AnsiString;
+begin
+  Result := nil;
+  if (AData <> nil) and (AData.Size > 0) and (AData.Buffer <> nil) then begin
+    VContentType := TryDetectContentType(AData.Buffer, AData.Size, FMainContentType.GetContentType);
+    if VContentType <> '' then begin
+      Result := FContentTypeManager.GetInfo(VContentType);
+    end;
+  end;
+  if Result = nil then begin
+    Result := FMainContentType;
+  end;
+end;
+
 function TTileStorageSQLiteFileConnection.FetchOne(
   const AXY: TPoint;
   const AZoom: Byte;
@@ -264,6 +289,7 @@ var
   VBlobSize: Integer;
   VBinaryData: IBinaryData;
   VStmtData: TSQLite3StmtData;
+  VContentType: IContentTypeInfoBasic;
 begin
   Result := nil;
 
@@ -293,7 +319,8 @@ begin
     if AMode = gtimWithData then begin
       FTileDataStmt.GetResult(VBinaryData);
       Assert(VBinaryData <> nil);
-      Result := TTileInfoBasicExistsWithTile.Create(FFileDate, VBinaryData, nil, FMainContentType);
+      VContentType := GetTileContentTypeInfo(VBinaryData);
+      Result := TTileInfoBasicExistsWithTile.Create(FFileDate, VBinaryData, nil, VContentType);
     end else begin
       FTileInfoStmt.GetResult(VBlobSize);
       Result := TTileInfoBasicExists.Create(FFileDate, VBlobSize, nil, FMainContentType);
@@ -410,7 +437,7 @@ begin
       ATileInfo.FLoadDate := FFileDate;
       ATileInfo.FVersionInfo := nil;
       ATileInfo.FData := VBinaryData;
-      ATileInfo.FContentType := FMainContentType;
+      ATileInfo.FContentType := GetTileContentTypeInfo(VBinaryData);;
       if VBinaryData <> nil then begin
         ATileInfo.FSize := VBinaryData.Size;
         ATileInfo.FInfoType := titExists;

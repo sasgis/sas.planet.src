@@ -27,6 +27,7 @@ uses
   t_TileStorageSQLiteFile,
   i_ProjectionSet,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_TileInfoBasicMemCache,
   i_MapVersionFactory,
   i_ConfigDataProvider,
@@ -40,6 +41,7 @@ type
   TTileStorageTypeSQLiteFile = class(TTileStorageTypeBase)
   private
     FFormatId: TTileStorageSQLiteFileFormatId;
+    FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
@@ -53,6 +55,7 @@ type
   public
     constructor Create(
       const AMapVersionFactory: IMapVersionFactory;
+      const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig;
       const AFormatId: TTileStorageSQLiteFileFormatId
     );
@@ -69,6 +72,7 @@ uses
 
 constructor TTileStorageTypeSQLiteFile.Create(
   const AMapVersionFactory: IMapVersionFactory;
+  const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig;
   const AFormatId: TTileStorageSQLiteFileFormatId
 );
@@ -97,6 +101,7 @@ begin
     AConfig
   );
 
+  FContentTypeManager := AContentTypeManager;
   FFormatId := AFormatId;
 end;
 
@@ -119,6 +124,7 @@ begin
       ATileNotifier,
       GetMapVersionFactory,
       AMainContentType,
+      FContentTypeManager,
       APath,
       FFormatId
     );

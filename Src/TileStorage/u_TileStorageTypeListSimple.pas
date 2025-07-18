@@ -63,6 +63,7 @@ type
       const AGuid: TGUID;
       const AFormatId: TTileStorageSQLiteFileFormatId;
       const AMapVersionFactoryList: IMapVersionFactoryList;
+      const AContentTypeManager: IContentTypeManager;
       const AList: IInterfaceListSimple
     );
   public
@@ -501,6 +502,7 @@ begin
     CTileStorageTypeSQLiteFileMBTiles,
     sfMBTiles,
     AMapVersionFactoryList,
+    AContentTypeManager,
     VList
   );
 
@@ -512,6 +514,7 @@ begin
     CTileStorageTypeSQLiteFileOsmAnd,
     sfOsmAnd,
     AMapVersionFactoryList,
+    AContentTypeManager,
     VList
   );
 
@@ -523,6 +526,7 @@ begin
     CTileStorageTypeSQLiteFileLocus,
     sfLocus,
     AMapVersionFactoryList,
+    AContentTypeManager,
     VList
   );
 
@@ -534,6 +538,7 @@ begin
     CTileStorageTypeSQLiteFileRMaps,
     sfRMaps,
     AMapVersionFactoryList,
+    AContentTypeManager,
     VList
   );
 
@@ -545,6 +550,7 @@ begin
     CTileStorageTypeSQLiteFileOruxMaps,
     sfOruxMaps,
     AMapVersionFactoryList,
+    AContentTypeManager,
     VList
   );
 
@@ -616,6 +622,7 @@ procedure TTileStorageTypeListSimple.AddSQLiteFileTileStorageType(
   const AGuid: TGUID;
   const AFormatId: TTileStorageSQLiteFileFormatId;
   const AMapVersionFactoryList: IMapVersionFactoryList;
+  const AContentTypeManager: IContentTypeManager;
   const AList: IInterfaceListSimple
 );
 var
@@ -628,6 +635,7 @@ begin
   VStorageType :=
     TTileStorageTypeSQLiteFile.Create(
       AMapVersionFactoryList.GetSimpleVersionFactory,
+      AContentTypeManager,
       VStorageTypeConfig,
       AFormatId
     );

@@ -29,6 +29,7 @@ uses
   StrUtils,
   t_GeoTypes,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_ProjectionSet,
   i_TileStorageSQLiteFileInfo,
   u_SQLite3Handler,
@@ -63,6 +64,7 @@ type
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic;
+      const AContentTypeManager: IContentTypeManager;
       const AProjectionSet: IProjectionSet
     );
     destructor Destroy; override;
@@ -159,6 +161,7 @@ constructor TTileStorageSQLiteFileConnectionMBTiles.Create(
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic;
+  const AContentTypeManager: IContentTypeManager;
   const AProjectionSet: IProjectionSet
 );
 var
@@ -166,7 +169,7 @@ var
   VIsInvertedY: Boolean;
   VIsInvertedZ: Boolean;
 begin
-  inherited Create(AIsReadOnly, AFileName, AFileInfo, AMainContentType, AProjectionSet);
+  inherited Create(AIsReadOnly, AFileName, AFileInfo, AMainContentType, AContentTypeManager, AProjectionSet);
 
   FFormatSettings.DecimalSeparator := '.';
 
@@ -179,8 +182,6 @@ begin
         [VValue, FMainContentType.GetContentType]
       );
     end;
-  end else begin
-    raise Exception.Create('MBTiles: "format" value is not specified!');
   end;
 
   if FFileInfo.TryGetMetadataValue('bounds', VValue) then begin

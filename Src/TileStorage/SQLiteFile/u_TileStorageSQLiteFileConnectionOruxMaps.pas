@@ -30,6 +30,7 @@ uses
   StrUtils,
   t_TileStorageSQLiteFile,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_ProjectionSet,
   i_TileStorageSQLiteFileInfo,
   u_TileStorageSQLiteFileConnection;
@@ -45,6 +46,7 @@ type
       const AFileName: string;
       const AFileInfo: ITileStorageSQLiteFileInfo;
       const AMainContentType: IContentTypeInfoBasic;
+      const AContentTypeManager: IContentTypeManager;
       const AProjectionSet: IProjectionSet
     );
   end;
@@ -166,6 +168,7 @@ constructor TTileStorageSQLiteFileConnectionOruxMaps.Create(
   const AFileName: string;
   const AFileInfo: ITileStorageSQLiteFileInfo;
   const AMainContentType: IContentTypeInfoBasic;
+  const AContentTypeManager: IContentTypeManager;
   const AProjectionSet: IProjectionSet
 );
 var
@@ -173,7 +176,7 @@ var
   VBits: Cardinal;
   VBasePoints: TBasePointsArray;
 begin
-  inherited Create(True, AFileName, AFileInfo, AMainContentType, AProjectionSet);
+  inherited Create(True, AFileName, AFileInfo, AMainContentType, AContentTypeManager, AProjectionSet);
 
   Assert(FFileInfo <> nil);
 

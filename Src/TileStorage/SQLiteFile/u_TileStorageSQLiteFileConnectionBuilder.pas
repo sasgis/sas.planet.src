@@ -28,6 +28,7 @@ uses
   SysUtils,
   t_TileStorageSQLiteFile,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_ProjectionSet,
   i_StorageStateInternal,
   i_TileStorageSQLiteFileInfo,
@@ -41,6 +42,7 @@ type
     FFileName: string;
     FStorageStateInternal: IStorageStateInternal;
     FMainContentType: IContentTypeInfoBasic;
+    FContentTypeManager: IContentTypeManager;
     FProjectionSet: IProjectionSet;
     FFormatId: TTileStorageSQLiteFileFormatId;
     FFileInfo: ITileStorageSQLiteFileInfo;
@@ -59,6 +61,7 @@ type
       const AFileName: string;
       const AStorageStateInternal: IStorageStateInternal;
       const AMainContentType: IContentTypeInfoBasic;
+      const AContentTypeManager: IContentTypeManager;
       const AProjectionSet: IProjectionSet;
       const AFormatId: TTileStorageSQLiteFileFormatId
     );
@@ -79,6 +82,7 @@ constructor TTileStorageSQLiteFileConnectionBuilder.Create(
   const AFileName: string;
   const AStorageStateInternal: IStorageStateInternal;
   const AMainContentType: IContentTypeInfoBasic;
+  const AContentTypeManager: IContentTypeManager;
   const AProjectionSet: IProjectionSet;
   const AFormatId: TTileStorageSQLiteFileFormatId
 );
@@ -88,6 +92,7 @@ begin
   FFileName := AFileName;
   FStorageStateInternal := AStorageStateInternal;
   FMainContentType := AMainContentType;
+  FContentTypeManager := AContentTypeManager;
   FProjectionSet := AProjectionSet;
   FFormatId := AFormatId;
 
@@ -130,14 +135,14 @@ begin
         sfMBTiles: begin
           VConnection :=
             TTileStorageSQLiteFileConnectionMBTiles.Create(
-              VIsReadOnly, FFileName, FFileInfo, FMainContentType, FProjectionSet
+              VIsReadOnly, FFileName, FFileInfo, FMainContentType, FContentTypeManager, FProjectionSet
             );
         end;
 
         sfOsmAnd, sfLocus, sfRMaps: begin
           VConnection :=
             TTileStorageSQLiteFileConnectionRMaps.Create(
-              VIsReadOnly, FFileName, FFileInfo, FMainContentType, FProjectionSet, FFormatId
+              VIsReadOnly, FFileName, FFileInfo, FMainContentType, FContentTypeManager, FProjectionSet, FFormatId
             );
         end;
 
@@ -145,7 +150,7 @@ begin
           if VIsReadOnly then begin
             VConnection :=
               TTileStorageSQLiteFileConnectionOruxMaps.Create(
-                FFileName, FFileInfo, FMainContentType, FProjectionSet
+                FFileName, FFileInfo, FMainContentType, FContentTypeManager, FProjectionSet
               );
           end else begin
             raise Exception.Create('OruxMaps (SQLite3) does not support write access!');
