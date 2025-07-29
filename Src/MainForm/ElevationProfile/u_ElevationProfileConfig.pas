@@ -136,7 +136,7 @@ begin
   FUseDataFiltering := False;
   FCenterMap := True;
   FMaxDistanceForIntermediatePoint := 50; // meters
-  FStatInfoSet := [epsTrackName, epsDist,  epsTime, epsElevMinAvgMax, epsSpeedMinAvgMax];
+  FStatInfoSet := [epsDist, epsTime, epsElevMinAvgMax, epsSpeedMinAvgMax];
 end;
 
 procedure TElevationProfileConfig.DoReadConfig(const AConfigData: IConfigDataProvider);

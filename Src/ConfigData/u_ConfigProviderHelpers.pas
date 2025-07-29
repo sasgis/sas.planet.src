@@ -661,5 +661,4 @@ begin
   AConfigProvider.WriteInteger(AIdent, VValue);
 end;
 
-
 end.
