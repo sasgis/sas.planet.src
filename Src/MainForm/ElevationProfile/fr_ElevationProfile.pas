@@ -137,6 +137,16 @@ type
     mniTrackData: TMenuItem;
     mniDEMData: TMenuItem;
     mniN3: TMenuItem;
+    N4: TMenuItem;
+    mniStatistics: TMenuItem;
+    mniTrackName: TMenuItem;
+    mniDistance: TMenuItem;
+    mniDuration: TMenuItem;
+    mniElevationMinAvgMax: TMenuItem;
+    mniAscentDescent: TMenuItem;
+    mniMaxSlope: TMenuItem;
+    mniAverageSlope: TMenuItem;
+    mniSpeedMinAvgMax: TMenuItem;
     procedure btnCloseClick(Sender: TObject);
     procedure mniShowSpeedClick(Sender: TObject);
     procedure mniResetZoomClick(Sender: TObject);
@@ -158,6 +168,7 @@ type
     procedure mniScaleElevToDistClick(Sender: TObject);
     procedure mniTrackDataClick(Sender: TObject);
     procedure mniDEMDataClick(Sender: TObject);
+    procedure mniStatisticsItemClick(Sender: TObject);
   private
     FDatum: IDatum;
     FMapGoTo: IMapViewGoto;
@@ -200,8 +211,12 @@ type
 
     procedure OnConfigChange;
 
+    procedure UpdateUI;
+
     class procedure InitInfo(out AInfo: TProfileInfoRec); static;
     class procedure ResetInfo(out AInfo: TProfileInfoRec); static; inline;
+  protected
+    procedure RefreshTranslation; override;
   public
     procedure ShowProfile(
       const ADatum: IDatum;
@@ -235,13 +250,13 @@ uses
 
 resourcestring
   rsElevationProfileDistFmt = 'Distance: %.2f %s';
+  rsElevationProfileTimeFmt = 'Time: %s';
   rsElevationProfileElevFmt = 'Elevation: %d, %d, %d m';
   rsElevationProfileElevAscentFmt = 'Ascent: %d m';
   rsElevationProfileElevDescentFmt = 'Descent: %d m';
   rsElevationProfileElevMaxSlopeFmt = 'Max Slope: %.1f%%, %.1f%%';
   rsElevationProfileElevAvgSlopeFmt = 'Avg Slope: %.1f%%, %.1f%%';
   rsElevationProfileSpeedFmt = 'Speed: %.2f, %.2f, %.2f km/h';
-  rsElevationProfileTimeFmt = 'Time: %s';
 
 const
   CElevationSeriesColor = clRed;
@@ -286,6 +301,8 @@ begin
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigChangeListener);
   OnConfigChange;
+
+  UpdateUI;
 end;
 
 destructor TfrElevationProfile.Destroy;
@@ -298,6 +315,24 @@ begin
   inherited Destroy;
 end;
 
+procedure TfrElevationProfile.UpdateUI;
+const
+  CMsgCtxt = 'ElevationProfile';
+begin
+  mniDistance.Caption := pgettext(CMsgCtxt, 'Distance');
+end;
+
+procedure TfrElevationProfile.RefreshTranslation;
+begin
+  inherited;
+
+  if Visible then begin
+    UpdateUI;
+    ShowInfo;
+    ShowPointInfo;
+  end;
+end;
+
 procedure TfrElevationProfile.OnConfigChange;
 begin
   FConfigStatic := FConfig.GetStatic;
@@ -308,6 +343,15 @@ begin
   mniDEMData.Checked := FConfigStatic.ElevationSource = esTerrainProvider;
   mniFilterData.Checked := FConfigStatic.UseDataFiltering;
   mniCenterMap.Checked := FConfigStatic.CenterMap;
+
+  mniTrackName.Checked := epsTrackName in FConfigStatic.StatInfoSet;
+  mniDistance.Checked := epsDist in FConfigStatic.StatInfoSet;
+  mniDuration.Checked := epsTime in FConfigStatic.StatInfoSet;
+  mniElevationMinAvgMax.Checked := epsElevMinAvgMax in FConfigStatic.StatInfoSet;
+  mniAscentDescent.Checked := epsElevAscentDescent in FConfigStatic.StatInfoSet;
+  mniMaxSlope.Checked := epsElevSlopeMaxGainLoss in FConfigStatic.StatInfoSet;
+  mniAverageSlope.Checked := epsElevSlopeAvgGainLoss in FConfigStatic.StatInfoSet;
+  mniSpeedMinAvgMax.Checked := epsSpeedMinAvgMax in FConfigStatic.StatInfoSet;
 
   {$IFDEF HAS_TEE_ZOOM_OPT}
   mniZoomWithMouseWheel.Checked := FConfigStatic.ZoomWithMouseWheel;
@@ -489,6 +533,26 @@ begin
   mniTrackData.Checked := True;
   FConfig.ElevationSource := esTrackMetadata;
   FOnRefresh;
+end;
+
+procedure TfrElevationProfile.mniStatisticsItemClick(Sender: TObject);
+var
+  VItem: TMenuItem;
+  VStat: TElevationProfileStatInfoSet;
+  VValue: TElevationProfileStatInfo;
+begin
+  if Sender is TMenuItem then begin
+    VItem := Sender as TMenuItem;
+    VStat := FConfig.StatInfoSet;
+    VValue := TElevationProfileStatInfo(VItem.Tag);
+    if VItem.Checked then begin
+      Exclude(VStat, VValue);
+    end else begin
+      Include(VStat, VValue);
+    end;
+    FConfig.StatInfoSet := VStat;
+    ShowInfo;
+  end;
 end;
 
 procedure TfrElevationProfile.mniDEMDataClick(Sender: TObject);

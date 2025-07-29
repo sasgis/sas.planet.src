@@ -211,5 +211,50 @@ object frElevationProfile: TfrElevationProfile
       Caption = 'Reset Zoom'
       OnClick = mniResetZoomClick
     end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object mniStatistics: TMenuItem
+      Caption = 'Statistics'
+      object mniTrackName: TMenuItem
+        Caption = 'Track Name'
+        OnClick = mniStatisticsItemClick
+      end
+      object mniDistance: TMenuItem
+        Tag = 1
+        Caption = 'Distance'
+        OnClick = mniStatisticsItemClick
+      end
+      object mniDuration: TMenuItem
+        Tag = 2
+        Caption = 'Duration'
+        OnClick = mniStatisticsItemClick
+      end
+      object mniElevationMinAvgMax: TMenuItem
+        Tag = 3
+        Caption = 'Elevation Min, Avg, Max'
+        OnClick = mniStatisticsItemClick
+      end
+      object mniAscentDescent: TMenuItem
+        Tag = 4
+        Caption = 'Ascent and Descent'
+        OnClick = mniStatisticsItemClick
+      end
+      object mniMaxSlope: TMenuItem
+        Tag = 5
+        Caption = 'Max Slope'
+        OnClick = mniStatisticsItemClick
+      end
+      object mniAverageSlope: TMenuItem
+        Tag = 6
+        Caption = 'Average Slope'
+        OnClick = mniStatisticsItemClick
+      end
+      object mniSpeedMinAvgMax: TMenuItem
+        Tag = 7
+        Caption = 'Speed Min, Avg, Max'
+        OnClick = mniStatisticsItemClick
+      end
+    end
   end
 end
