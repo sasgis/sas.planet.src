@@ -32,6 +32,19 @@ type
     esTerrainProvider
   );
 
+  TElevationProfileStatInfo = (
+    epsTrackName,
+    epsDist,
+    epsTime,
+    epsElevMinAvgMax,
+    epsElevAscentDescent,
+    epsElevSlopeMaxGainLoss,
+    epsElevSlopeAvgGainLoss,
+    epsSpeedMinAvgMax
+  );
+
+  TElevationProfileStatInfoSet = set of TElevationProfileStatInfo;
+
   IElevationProfileConfigStatic = interface
     ['{BFE69AB6-3549-4B80-9C8D-A130C0A38862}']
     function GetElevationSource: TElevationSource;
@@ -58,6 +71,8 @@ type
     function GetMaxDistanceForIntermediatePoint: Integer;
     property MaxDistanceForIntermediatePoint: Integer read GetMaxDistanceForIntermediatePoint;
 
+    function GetStatInfoSet: TElevationProfileStatInfoSet;
+    property StatInfoSet: TElevationProfileStatInfoSet read GetStatInfoSet;
   end;
 
   IElevationProfileConfig = interface(IConfigDataElement)
@@ -93,6 +108,10 @@ type
     function GetMaxDistanceForIntermediatePoint: Integer;
     procedure SetMaxDistanceForIntermediatePoint(const AValue: Integer);
     property MaxDistanceForIntermediatePoint: Integer read GetMaxDistanceForIntermediatePoint write SetMaxDistanceForIntermediatePoint;
+
+    function GetStatInfoSet: TElevationProfileStatInfoSet;
+    procedure SetStatInfoSet(const AValue: TElevationProfileStatInfoSet);
+    property StatInfoSet: TElevationProfileStatInfoSet read GetStatInfoSet write SetStatInfoSet;
 
     function GetStatic: IElevationProfileConfigStatic;
   end;

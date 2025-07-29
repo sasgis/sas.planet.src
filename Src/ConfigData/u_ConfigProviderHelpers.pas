@@ -108,6 +108,20 @@ procedure WriteAppearancePolygon(
   const AAppearance: IAppearance
 );
 
+procedure ReadSet(
+  const AConfigProvider: IConfigDataProvider;
+  const AIdent: string;
+  var ASet;
+  const ASetSize: Integer
+);
+
+procedure WriteSet(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AIdent: string;
+  const ASet;
+  const ASetSize: Integer
+);
+
 implementation
 
 uses
@@ -597,6 +611,54 @@ begin
   if Supports(AAppearance, IAppearancePolygonFill, VFillAppearance) then begin
     WriteColor32(AConfigProvider, 'FillColor', VFillAppearance.FillColor);
   end;
+end;
+
+function SetToInt(const ASet; const ASetSize: Integer): Integer;
+begin
+  case ASetSize of
+    1: Result := PByte(@ASet)^;
+    2: Result := PWord(@ASet)^;
+    4: Result := PInteger(@ASet)^;
+  else
+    raise Exception.CreateFmt('Set with size %d can''t be converted to Integer type!', [ASetSize]);
+  end;
+end;
+
+procedure IntToSet(const AValue: Integer; var ASet; const ASetSize: Integer);
+begin
+  case ASetSize of
+    1: PByte(@ASet)^ := Byte(AValue);
+    2: PWord(@ASet)^ := Word(AValue);
+    4: PInteger(@ASet)^ := AValue;
+  else
+    raise Exception.CreateFmt('Set with size %d can''t be converted from Integer type!', [ASetSize]);
+  end;
+end;
+
+procedure ReadSet(
+  const AConfigProvider: IConfigDataProvider;
+  const AIdent: string;
+  var ASet;
+  const ASetSize: Integer
+);
+var
+  VValue: Integer;
+begin
+  VValue := AConfigProvider.ReadInteger(AIdent, SetToInt(ASet, ASetSize));
+  IntToSet(VValue, ASet, ASetSize);
+end;
+
+procedure WriteSet(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AIdent: string;
+  const ASet;
+  const ASetSize: Integer
+);
+var
+  VValue: Integer;
+begin
+  VValue := SetToInt(ASet, ASetSize);
+  AConfigProvider.WriteInteger(AIdent, VValue);
 end;
 
 

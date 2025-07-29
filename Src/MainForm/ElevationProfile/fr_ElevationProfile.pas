@@ -180,6 +180,8 @@ type
 
     FAxisValuesFormatDef: string;
     FFormatSettings: TFormatSettings;
+
+    FTrackName: string;
   private
     procedure SetupChart;
 
@@ -203,7 +205,8 @@ type
   public
     procedure ShowProfile(
       const ADatum: IDatum;
-      const ALines: TArrayOfGeometryLonLatSingleLine
+      const ALines: TArrayOfGeometryLonLatSingleLine;
+      const AName: string
     );
     procedure SetLocation(const ALonLat: TDoublePoint);
     procedure SetFocusOnChart;
@@ -394,11 +397,13 @@ end;
 
 procedure TfrElevationProfile.ShowProfile(
   const ADatum: IDatum;
-  const ALines: TArrayOfGeometryLonLatSingleLine
+  const ALines: TArrayOfGeometryLonLatSingleLine;
+  const AName: string
 );
 begin
   FDatum := ADatum;
   FLines := ALines;
+  FTrackName := AName;
 
   HidePointInfo;
   ShowSeries;
@@ -910,41 +915,75 @@ end;
 // Info panel
 
 procedure TfrElevationProfile.ShowInfo;
-const
-  CSep = ' | ';
+
+  procedure _AppendStr(var AInfo: string; const AStr: string);
+  begin
+    if AInfo <> '' then begin
+      AInfo := AInfo + ' | ' + AStr;
+    end else begin
+      AInfo := AStr;
+    end;
+  end;
+
 var
   VInfo: string;
   VDistVal: Double;
   VDistUnit: string;
+  VStat: TElevationProfileStatInfoSet;
 begin
-  // distance
-  if FInfo.Dist > 1000 then begin
-    VDistVal := FInfo.Dist / 1000;
-    VDistUnit := SAS_UNITS_km;
-  end else begin
-    VDistVal := FInfo.Dist;
-    VDistUnit := SAS_UNITS_m;
+  VStat := FConfigStatic.StatInfoSet;
+
+  VInfo := '';
+
+  // name
+  if (epsTrackName in VStat) and (FTrackName <> '') then begin
+    _AppendStr(VInfo, FTrackName);
   end;
 
-  VInfo := Format(rsElevationProfileDistFmt, [VDistVal, VDistUnit], FFormatSettings);
+  // distance
+  if epsDist in VStat then begin
+    if FInfo.Dist > 1000 then begin
+      VDistVal := FInfo.Dist / 1000;
+      VDistUnit := SAS_UNITS_km;
+    end else begin
+      VDistVal := FInfo.Dist;
+      VDistUnit := SAS_UNITS_m;
+    end;
+    _AppendStr(VInfo, Format(rsElevationProfileDistFmt, [VDistVal, VDistUnit], FFormatSettings));
+  end;
+
+  // duration
+  if (epsTime in VStat) and (FInfo.Seconds > 0) then begin
+    _AppendStr(VInfo, Format(rsElevationProfileTimeFmt, [FormatDateTime('hh:nn:ss', FInfo.Seconds / SecsPerDay)]));
+  end;
 
   // elevation
   if FConfigStatic.ShowElevation then begin
-    VInfo := VInfo + CSep +
-      Format(rsElevationProfileElevFmt, [Round(FInfo.Elev.Min),
-        Round(FInfo.Elev.Avg), Round(FInfo.Elev.Max)], FFormatSettings
-      ) + CSep +
-      Format(rsElevationProfileElevAscentFmt, [Round(FInfo.ElevAscent)]) + CSep +
-      Format(rsElevationProfileElevDescentFmt, [Round(FInfo.ElevDescent)]) + CSep +
-      Format(rsElevationProfileElevMaxSlopeFmt, [FInfo.MaxSlope.Gain, FInfo.MaxSlope.Loss], FFormatSettings) + CSep +
-      Format(rsElevationProfileElevAvgSlopeFmt, [FInfo.AvgSlope.Gain, FInfo.AvgSlope.Loss], FFormatSettings);
+    // min, avg, max
+    if epsElevMinAvgMax in VStat then begin
+      _AppendStr(VInfo, Format(rsElevationProfileElevFmt, [Round(FInfo.Elev.Min), Round(FInfo.Elev.Avg), Round(FInfo.Elev.Max)], FFormatSettings));
+    end;
+
+    // ascent and descent
+    if epsElevAscentDescent in VStat then begin
+      _AppendStr(VInfo, Format(rsElevationProfileElevAscentFmt, [Round(FInfo.ElevAscent)]));
+      _AppendStr(VInfo, Format(rsElevationProfileElevDescentFmt, [Round(FInfo.ElevDescent)]));
+    end;
+
+    // max slope
+    if epsElevSlopeMaxGainLoss in VStat then begin
+      _AppendStr(VInfo, Format(rsElevationProfileElevMaxSlopeFmt, [FInfo.MaxSlope.Gain, FInfo.MaxSlope.Loss], FFormatSettings));
+    end;
+
+    // avg slope
+    if epsElevSlopeAvgGainLoss in VStat then begin
+      _AppendStr(VInfo, Format(rsElevationProfileElevAvgSlopeFmt, [FInfo.AvgSlope.Gain, FInfo.AvgSlope.Loss], FFormatSettings));
+    end;
   end;
 
-  // speed and time
-  if FConfigStatic.ShowSpeed and (FInfo.Seconds > 0) then begin
-    VInfo := VInfo + CSep +
-      Format(rsElevationProfileSpeedFmt, [FInfo.Speed.Min, FInfo.Speed.Avg, FInfo.Speed.Max], FFormatSettings) + CSep +
-      Format(rsElevationProfileTimeFmt, [FormatDateTime('hh:nn:ss', FInfo.Seconds / SecsPerDay)]);
+  // speed min, avg, max
+  if FConfigStatic.ShowSpeed and (FInfo.Seconds > 0) and (epsSpeedMinAvgMax in VStat) then begin
+    _AppendStr(VInfo, Format(rsElevationProfileSpeedFmt, [FInfo.Speed.Min, FInfo.Speed.Avg, FInfo.Speed.Max], FFormatSettings));
   end;
 
   // show

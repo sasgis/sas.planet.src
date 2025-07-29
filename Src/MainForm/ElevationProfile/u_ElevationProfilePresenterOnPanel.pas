@@ -247,7 +247,7 @@ procedure TElevationProfilePresenterOnPanel.ShowProfileInternal(
   const ALines: TArrayOfGeometryLonLatSingleLine
 );
 begin
-  FfrElevationProfile.ShowProfile(FGeoCalc.Datum, ALines);
+  FfrElevationProfile.ShowProfile(FGeoCalc.Datum, ALines, FItemCached.Name);
   FfrElevationProfile.Visible := True;
 
   FDrawParent.Visible := True;

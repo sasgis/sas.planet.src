@@ -40,6 +40,7 @@ type
     FUseDataFiltering: Boolean;
     FCenterMap: Boolean;
     FMaxDistanceForIntermediatePoint: Integer;
+    FStatInfoSet: TElevationProfileStatInfoSet;
   private
     { IElevationProfileConfig }
     function GetElevationSource: TElevationSource;
@@ -66,6 +67,9 @@ type
     function GetMaxDistanceForIntermediatePoint: Integer;
     procedure SetMaxDistanceForIntermediatePoint(const AValue: Integer);
 
+    function GetStatInfoSet: TElevationProfileStatInfoSet;
+    procedure SetStatInfoSet(const AValue: TElevationProfileStatInfoSet);
+
     function GetStatic: IElevationProfileConfigStatic;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -78,6 +82,7 @@ type
 implementation
 
 uses
+  u_ConfigProviderHelpers,
   u_BaseInterfacedObject;
 
 type
@@ -91,6 +96,7 @@ type
     FUseDataFiltering: Boolean;
     FCenterMap: Boolean;
     FMaxDistanceForIntermediatePoint: Integer;
+    FStatInfoSet: TElevationProfileStatInfoSet;
   private
     { IElevationProfileConfigStatic }
     function GetElevationSource: TElevationSource;
@@ -101,6 +107,7 @@ type
     function GetUseDataFiltering: Boolean;
     function GetCenterMap: Boolean;
     function GetMaxDistanceForIntermediatePoint: Integer;
+    function GetStatInfoSet: TElevationProfileStatInfoSet;
   public
     constructor Create(
       const AElevationSource: TElevationSource;
@@ -110,7 +117,8 @@ type
       const AZoomWithMouseWheel: Boolean;
       const AUseDataFiltering: Boolean;
       const ACenterMap: Boolean;
-      const AMaxDistanceForIntermediatePoint: Integer
+      const AMaxDistanceForIntermediatePoint: Integer;
+      const AStatInfoSet: TElevationProfileStatInfoSet
     );
   end;
 
@@ -128,6 +136,7 @@ begin
   FUseDataFiltering := False;
   FCenterMap := True;
   FMaxDistanceForIntermediatePoint := 50; // meters
+  FStatInfoSet := [epsTrackName, epsDist,  epsTime, epsElevMinAvgMax, epsSpeedMinAvgMax];
 end;
 
 procedure TElevationProfileConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -148,6 +157,7 @@ begin
     FUseDataFiltering := AConfigData.ReadBool('UseDataFiltering', FUseDataFiltering);
     FCenterMap := AConfigData.ReadBool('CenterMap', FCenterMap);
     FMaxDistanceForIntermediatePoint := AConfigData.ReadInteger('MaxDistanceForIntermediatePoint', FMaxDistanceForIntermediatePoint);
+    ReadSet(AConfigData, 'StatInfoSet', FStatInfoSet, SizeOf(FStatInfoSet));
 
     SetChanged;
   finally
@@ -169,6 +179,7 @@ begin
     AConfigData.WriteBool('UseDataFiltering', FUseDataFiltering);
     AConfigData.WriteBool('CenterMap', FCenterMap);
     AConfigData.WriteInteger('MaxDistanceForIntermediatePoint', FMaxDistanceForIntermediatePoint);
+    WriteSet(AConfigData, 'StatInfoSet', FStatInfoSet, SizeOf(FStatInfoSet));
   finally
     UnlockRead;
   end;
@@ -254,6 +265,16 @@ begin
   end;
 end;
 
+function TElevationProfileConfig.GetStatInfoSet: TElevationProfileStatInfoSet;
+begin
+  LockRead;
+  try
+    Result := FStatInfoSet;
+  finally
+    UnlockRead;
+  end;
+end;
+
 procedure TElevationProfileConfig.SetMaxDistanceForIntermediatePoint(const AValue: Integer);
 begin
   LockWrite;
@@ -332,6 +353,19 @@ begin
   end;
 end;
 
+procedure TElevationProfileConfig.SetStatInfoSet(const AValue: TElevationProfileStatInfoSet);
+begin
+  LockWrite;
+  try
+    if FStatInfoSet <> AValue then begin
+      FStatInfoSet := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TElevationProfileConfig.SetUseDataFiltering(const AValue: Boolean);
 begin
   LockWrite;
@@ -370,7 +404,8 @@ begin
       FZoomWithMouseWheel,
       FUseDataFiltering,
       FCenterMap,
-      FMaxDistanceForIntermediatePoint
+      FMaxDistanceForIntermediatePoint,
+      FStatInfoSet
     );
   finally
     UnlockRead;
@@ -381,9 +416,14 @@ end;
 
 constructor TElevationProfileConfigStatic.Create(
   const AElevationSource: TElevationSource;
-  const AShowElevation, AShowSpeed, AKeepAspectRatio,
-  AZoomWithMouseWheel, AUseDataFiltering, ACenterMap: Boolean;
-  const AMaxDistanceForIntermediatePoint: Integer
+  const AShowElevation: Boolean;
+  const AShowSpeed: Boolean;
+  const AKeepAspectRatio: Boolean;
+  const AZoomWithMouseWheel: Boolean;
+  const AUseDataFiltering: Boolean;
+  const ACenterMap: Boolean;
+  const AMaxDistanceForIntermediatePoint: Integer;
+  const AStatInfoSet: TElevationProfileStatInfoSet
 );
 begin
   inherited Create;
@@ -396,6 +436,7 @@ begin
   FUseDataFiltering := AUseDataFiltering;
   FCenterMap := ACenterMap;
   FMaxDistanceForIntermediatePoint := AMaxDistanceForIntermediatePoint;
+  FStatInfoSet := AStatInfoSet;
 end;
 
 function TElevationProfileConfigStatic.GetCenterMap: Boolean;
@@ -436,6 +477,11 @@ end;
 function TElevationProfileConfigStatic.GetMaxDistanceForIntermediatePoint: Integer;
 begin
   Result := FMaxDistanceForIntermediatePoint;
+end;
+
+function TElevationProfileConfigStatic.GetStatInfoSet: TElevationProfileStatInfoSet;
+begin
+  Result := FStatInfoSet;
 end;
 
 end.
