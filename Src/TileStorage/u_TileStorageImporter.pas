@@ -90,6 +90,7 @@ uses
   i_ZmpInfo,
   u_BinaryData,
   u_SQLite3Handler,
+  u_ContentDetecter,
   u_ConfigDataProviderByZip;
 
 type
@@ -363,6 +364,47 @@ begin
   end;
 end;
 
+function TryDetectContentType(
+  const ASQLite3: TSQLite3DbHandler;
+  const ACacheTypeCode: Integer;
+  const ADefault: RawByteString
+): RawByteString;
+var
+  VData: Pointer;
+  VSize: Integer;
+  VStmtData: TSQLite3StmtData;
+  VSqlText: UTF8String;
+begin
+  Result := ADefault;
+
+  case ACacheTypeCode of
+    c_File_Cache_Id_SQLite_MBTiles: begin
+      VSqlText := 'SELECT tile_data FROM tiles LIMIT 1';
+    end;
+    c_File_Cache_Id_SQLite_OsmAnd,
+    c_File_Cache_Id_SQLite_Locus,
+    c_File_Cache_Id_SQLite_RMaps,
+    c_File_Cache_Id_SQLite_OruxMaps: begin
+      VSqlText := 'SELECT image FROM tiles LIMIT 1';
+    end;
+  else
+    raise Exception.CreateFmt('Unexpected CacheTypeCode: %d', [ACacheTypeCode]);
+  end;
+
+  PrepareStmt(ASQLite3, VStmtData, VSqlText);
+  try
+    if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
+      VData := VStmtData.ColumnBlobData(0);
+      VSize := VStmtData.ColumnBlobSize(0);
+      if (VData <> nil) and (VSize > 0) then begin
+        Result := u_ContentDetecter.TryDetectContentType(VData, VSize, Result);
+      end;
+    end;
+  finally
+    VStmtData.Fin;
+  end;
+end;
+
 function TTileStorageImporter.GetFileInfo(
   const AFileName: string;
   out AFileInfo: TTileStorageImporterFileInfo
@@ -410,56 +452,61 @@ begin
       end else begin
         Exit;
       end;
-    finally
-      VSQLite3.Close;
-    end;
 
-    if VMetadataInfo.TryGetValue('sasgis_epsg', VValue) and (VValue <> '') then begin
-      AFileInfo.FProjectionEpsg := StrToInt(VValue);
-    end else
-    if VMetadataInfo.TryGetValue('crs', VValue) and (VValue <> '') then begin
-      I := Pos(':', VValue);
-      if I > 0 then begin
-        VValue := Copy(VValue, I+1);
+      // projection
+      if VMetadataInfo.TryGetValue('sasgis_epsg', VValue) and (VValue <> '') then begin
+        AFileInfo.FProjectionEpsg := StrToInt(VValue);
+      end else
+      if VMetadataInfo.TryGetValue('crs', VValue) and (VValue <> '') then begin
+        I := Pos(':', VValue);
+        if I > 0 then begin
+          VValue := Copy(VValue, I+1);
+        end;
+        AFileInfo.FProjectionEpsg := StrToInt(VValue);
+      end else
+      if VMetadataInfo.TryGetValue('ellipsoid', VValue) and (VValue = '1') then begin
+        AFileInfo.FProjectionEpsg := 3395;
       end;
-      AFileInfo.FProjectionEpsg := StrToInt(VValue);
-    end else
-    if VMetadataInfo.TryGetValue('ellipsoid', VValue) and (VValue = '1') then begin
-      AFileInfo.FProjectionEpsg := 3395;
-    end;
 
-    if VMetadataInfo.TryGetValue('sasgis_format', VValue) and (VValue <> '') then begin
-      VContentType := AnsiString(VValue);
-    end else
-    if VMetadataInfo.TryGetValue('format', VValue) and (VValue <> '') then begin
-      if Pos('/', VValue) > 0 then begin
+      // content-type
+      if VMetadataInfo.TryGetValue('sasgis_format', VValue) and (VValue <> '') then begin
         VContentType := AnsiString(VValue);
-      end else begin
-        VContentTypeInfo := FContentTypeManager.GetInfoByExt('.' + AnsiString(VValue));
-        if VContentTypeInfo <> nil then begin
-          VContentType := VContentTypeInfo.GetContentType;
+      end else
+      if VMetadataInfo.TryGetValue('format', VValue) and (VValue <> '') then begin
+        if Pos('/', VValue) > 0 then begin
+          VContentType := AnsiString(VValue);
         end else begin
-          VContentType := ''; // unsupported content-type
+          VContentTypeInfo := FContentTypeManager.GetInfoByExt('.' + AnsiString(VValue));
+          if VContentTypeInfo <> nil then begin
+            VContentType := VContentTypeInfo.GetContentType;
+          end else begin
+            VContentType := ''; // unsupported content-type
+          end;
+        end;
+      end else begin
+        VContentType := TryDetectContentType(VSQLite3, AFileInfo.FCacheTypeCode, VContentType);
+      end;
+
+      if VContentType <> '' then begin
+        AFileInfo.FContentType := VContentType;
+        AFileInfo.FIsBitmapTile := FContentTypeManager.GetIsBitmapType(VContentType);
+
+        VContentTypeInfo := FContentTypeManager.GetInfo(VContentType);
+        if VContentTypeInfo <> nil then begin
+          AFileInfo.FExt := VContentTypeInfo.GetDefaultExt;
+        end else begin
+          AFileInfo.FExt := '';
         end;
       end;
-    end;
 
-    if (AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles) and
-       VMetadataInfo.TryGetValue('type', VValue)
-    then begin
-      VIsLayer := SameText(VValue, 'overlay');
-    end;
-
-    if VContentType <> '' then begin
-      AFileInfo.FContentType := VContentType;
-      AFileInfo.FIsBitmapTile := FContentTypeManager.GetIsBitmapType(VContentType);
-
-      VContentTypeInfo := FContentTypeManager.GetInfo(VContentType);
-      if VContentTypeInfo <> nil then begin
-        AFileInfo.FExt := VContentTypeInfo.GetDefaultExt;
-      end else begin
-        AFileInfo.FExt := '';
+      // base layer / overlay
+      if (AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles) and
+        VMetadataInfo.TryGetValue('type', VValue)
+      then begin
+        VIsLayer := SameText(VValue, 'overlay');
       end;
+    finally
+      VSQLite3.Close;
     end;
 
     AFileInfo.FNameInCache := AFileName;
