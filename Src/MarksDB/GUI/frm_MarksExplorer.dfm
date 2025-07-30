@@ -659,6 +659,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     end
     object tbxShowElevProfile: TTBXItem
       Caption = 'Show Elevation Profile'
+      ImageIndex = 81
       OnClick = tbxShowElevProfileClick
     end
   end
