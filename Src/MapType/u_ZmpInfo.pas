@@ -911,7 +911,7 @@ var
   VMaxConnectToServerCount: Cardinal;
   VIteratorSubRectSize: TPoint;
   VRestartDownloaderOnMemCacheTTL: Boolean;
-  fL: TStringList;
+  VList: TStringList;
 begin
   VUseDownload := AConfig.ReadBool('UseDwn', True);
   VAllowUseCookie := AConfig.ReadBool('AllowUseCookie', False);
@@ -921,21 +921,19 @@ begin
   VExpectedMIMETypes := AConfig.ReadAnsiString('ContentType', 'image/jpg');
   VWaitInterval := AConfig.ReadInteger('Sleep', 0);
   VRestartDownloaderOnMemCacheTTL := AConfig.ReadBool('RestartDownloadOnMemCacheTTL', False);
-  VMaxConnectToServerCount :=
-    AConfig.ReadInteger(
-      'MaxConnectToServerCount',
-      FZmpConfig.MaxConnectToServerCount
-    );
-  fL := TStringList.Create;
+  VMaxConnectToServerCount := AConfig.ReadInteger('MaxConnectToServerCount', FZmpConfig.MaxConnectToServerCount);
+
+  VList := TStringList.Create;
   try
-    fL.Delimiter := ',';
-    fL.StrictDelimiter := True;
-    fL.DelimitedText := AConfig.ReadString('IteratorSubRectSize', '1,1');
-    VIteratorSubRectSize.x := StrToInt(fL[0]);
-    VIteratorSubRectSize.y := StrToInt(fL[1]);
+    VList.Delimiter := ',';
+    VList.StrictDelimiter := True;
+    VList.DelimitedText := AConfig.ReadString('IteratorSubRectSize', '1,1');
+    VIteratorSubRectSize.X := StrToInt(VList[0]);
+    VIteratorSubRectSize.Y := StrToInt(VList[1]);
   finally
-    fL.Free
+    VList.Free
   end;
+
   FTileDownloaderConfig :=
     TTileDownloaderConfigStatic.Create(
       nil,
