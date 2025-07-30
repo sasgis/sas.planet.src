@@ -26,6 +26,7 @@ interface
 uses
   Types,
   Classes,
+  Math,
   t_GeoTypes,
   i_MarkPicture,
   i_MarkSystem,
@@ -113,6 +114,7 @@ uses
   i_Appearance,
   i_JpegWithExifImportConfig,
   u_JpegWithExifImportConfig,
+  u_GeoFunc,
   u_GeoToStrFunc,
   u_ImportConfig,
   u_NotifierOperation,
@@ -580,6 +582,7 @@ var
   VList: IInterfaceListStatic;
   VLastMark: IVectorDataItem;
   VPolygon: IGeometryLonLatPolygon;
+  VGoToInfo: TTileStorageImporterGoToInfo;
 begin
   if not Assigned(AFiles) or (AFiles.Count <= 0) then begin
     Exit;
@@ -618,7 +621,10 @@ begin
       if (VFileExt = '.mbtiles') or (VFileExt = '.sqlitedb') or
          (VFileExt = '.db') or (VFileExt = '.rmaps')
       then begin
-        if ATileStorageImporter.ProcessFile(VFileName) then begin
+        if ATileStorageImporter.ProcessFile(VFileName, AShowImportDlg, VGoToInfo) then begin
+          if not PointIsEmpty(VGoToInfo.FLonLatPoint) and (VGoToInfo.FProjection <> nil) then begin
+            AMapGoto.GotoPos(VGoToInfo.FLonLatPoint, VGoToInfo.FProjection, False);
+          end;
           Exit;
         end;
       end;

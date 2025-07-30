@@ -24,13 +24,23 @@ unit u_TileStorageImporter;
 interface
 
 uses
+  Types,
+  t_GeoTypes,
   i_MapTypeSet,
+  i_Projection,
   i_ConfigDataProvider,
   i_ContentTypeManager,
   i_ActiveMapsConfig,
   i_ArchiveReadWriteFactory;
 
 type
+  TTileStorageImporterGoToInfo = record
+    FLonLatPoint: TDoublePoint;
+    FProjection: IProjection;
+  end;
+
+  TTileStorageImporterGoToResult = (gtrError, gtrPointOk, gtrLonLatOk);
+
   TTileStorageImporterFileInfo = record
     FCacheTypeCode: Integer;
     FContentType: string;
@@ -41,6 +51,11 @@ type
     FNameInCache: string;
     FName: string;
     FParentSubMenu: string;
+
+    FGotoResult: TTileStorageImporterGoToResult;
+    FGotoPoint: TPoint;
+    FGotoLonLat: TDoublePoint;
+    FGotoZoom: Byte;
   end;
 
   TTileStorageImporter = class
@@ -53,6 +68,7 @@ type
 
     function GetFileInfo(
       const AFileName: string;
+      const AShowImportDlg: Boolean;
       out AFileInfo: TTileStorageImporterFileInfo
     ): Boolean;
 
@@ -61,7 +77,11 @@ type
       const AFileInfo: TTileStorageImporterFileInfo
     ): IConfigDataProvider;
   public
-    function ProcessFile(const AFileName: string): Boolean;
+    function ProcessFile(
+      const AFileName: string;
+      const AShowImportDlg: Boolean;
+      out AGoToInfo: TTileStorageImporterGoToInfo
+    ): Boolean;
   public
     constructor Create(
       const AAllMapsSet:  IMapTypeSet;
@@ -75,8 +95,8 @@ type
 implementation
 
 uses
-  Types,
   SysUtils,
+  StrUtils,
   Classes,
   IOUtils,
   Generics.Collections,
@@ -89,6 +109,8 @@ uses
   i_MapType,
   i_ZmpInfo,
   u_BinaryData,
+  u_GeoFunc,
+  u_GeoToStrFunc,
   u_SQLite3Handler,
   u_ContentDetecter,
   u_ConfigDataProviderByZip;
@@ -116,7 +138,11 @@ begin
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
-function TTileStorageImporter.ProcessFile(const AFileName: string): Boolean;
+function TTileStorageImporter.ProcessFile(
+  const AFileName: string;
+  const AShowImportDlg: Boolean;
+  out AGoToInfo: TTileStorageImporterGoToInfo
+): Boolean;
 var
   I: Integer;
   VMapType: IMapType;
@@ -127,7 +153,10 @@ var
 begin
   Result := False;
 
-  if not GetFileInfo(AFileName, VFileInfo) then begin
+  AGoToInfo.FLonLatPoint := CEmptyDoublePoint;
+  AGoToInfo.FProjection := nil;
+
+  if not GetFileInfo(AFileName, AShowImportDlg, VFileInfo) then begin
     // usupported file format
     Exit;
   end;
@@ -148,6 +177,16 @@ begin
           FMainLayersConfig.SelectLayerByGUID(VMapTypeProxy.GUID);
         end else begin
           FMainMapConfig.MainMapGUID := VMapTypeProxy.GUID;
+        end;
+
+        if VFileInfo.FGotoResult <> gtrError then begin
+          AGoToInfo.FProjection := VMapTypeProxy.ProjectionSet.Zooms[VFileInfo.FGotoZoom];
+        end;
+        if VFileInfo.FGotoResult = gtrLonLatOk then begin
+          AGoToInfo.FLonLatPoint := VFileInfo.FGotoLonLat;
+        end else
+        if VFileInfo.FGotoResult = gtrPointOk then begin
+          AGoToInfo.FLonLatPoint := AGoToInfo.FProjection.TilePos2LonLat(VFileInfo.FGotoPoint);
         end;
 
         Result := True;
@@ -405,8 +444,111 @@ begin
   end;
 end;
 
+procedure TryDetectGoToPoint(
+  const ASQLite3: TSQLite3DbHandler;
+  const AMetadataInfo: TMetadataInfo;
+  var AFileInfo: TTileStorageImporterFileInfo
+);
+
+  function InvertY(Y, Z: Integer): Integer;
+  begin
+    Result := (1 shl Z) - Y - 1;
+  end;
+
+var
+  VValue: string;
+  VPoint: TPoint;
+  VLonLat: TDoublePoint;
+  VBounds: TDoubleRect;
+  VZoom: Integer;
+  VItems: TStringDynArray;
+  VStmtData: TSQLite3StmtData;
+begin
+  VZoom := -1;
+
+  if AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles then begin
+
+    if AMetadataInfo.TryGetValue('center', VValue) and (VValue <> '') then begin
+      VItems := SplitString(VValue, ',');
+      if Length(VItems) = 3 then begin
+        if TryStrPointToFloat(Trim(VItems[0]), VLonLat.X) and
+           TryStrPointToFloat(Trim(VItems[1]), VLonLat.Y) and
+           TryStrToInt(Trim(VItems[2]), VZoom)
+        then begin
+          AFileInfo.FGotoLonLat := VLonLat;
+          AFileInfo.FGotoZoom := VZoom;
+          AFileInfo.FGotoResult := gtrLonLatOk;
+          Exit;
+        end;
+      end;
+    end;
+
+    if AMetadataInfo.TryGetValue('minzoom', VValue) and (VValue <> '') then begin
+      VZoom := StrToIntDef(Trim(VValue), -1);
+    end;
+    if VZoom = -1 then begin
+      PrepareStmt(ASQLite3, VStmtData, 'SELECT DISTINCT zoom_level FROM tiles ORDER BY zoom_level ASC LIMIT 1');
+      try
+        if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
+          VZoom := VStmtData.ColumnInt(0);
+        end;
+      finally
+        VStmtData.Fin;
+      end;
+    end;
+    if VZoom = -1 then begin
+      Exit;
+    end;
+
+    if AMetadataInfo.TryGetValue('bounds', VValue) and (VValue <> '') then begin
+      VItems := SplitString(VValue, ',');
+      if Length(VItems) = 4 then begin
+        if TryStrPointToFloat(Trim(VItems[0]), VBounds.Left) and
+           TryStrPointToFloat(Trim(VItems[1]), VBounds.Bottom) and
+           TryStrPointToFloat(Trim(VItems[2]), VBounds.Right) and
+           TryStrPointToFloat(Trim(VItems[3]), VBounds.Top)
+        then begin
+          AFileInfo.FGotoLonLat := RectCenter(VBounds);
+          AFileInfo.FGotoZoom := VZoom;
+          AFileInfo.FGotoResult := gtrLonLatOk;
+          Exit;
+        end;
+      end;
+    end;
+
+    PrepareStmt(ASQLite3, VStmtData, 'SELECT zoom_level, tile_column, tile_row FROM tiles LIMIT 1');
+    try
+      if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
+        VZoom := VStmtData.ColumnInt(0);
+        VPoint.X := VStmtData.ColumnInt(1);
+        VPoint.Y := VStmtData.ColumnInt(2);
+
+        if AMetadataInfo.TryGetValue('scheme', VValue) and SameText(VValue, 'xyz') then begin
+          // nothing to do
+        end else begin
+          VPoint.Y := InvertY(VPoint.Y, VZoom);
+        end;
+
+        AFileInfo.FGotoPoint := VPoint;
+        AFileInfo.FGotoZoom := VZoom;
+        AFileInfo.FGotoResult := gtrPointOk;
+        Exit;
+      end;
+    finally
+      VStmtData.Fin;
+    end;
+  end else
+  if AFileInfo.FCacheTypeCode in [c_File_Cache_Id_SQLite_OsmAnd, c_File_Cache_Id_SQLite_Locus, c_File_Cache_Id_SQLite_RMaps] then begin
+    // todo
+  end else
+  if AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_OruxMaps then begin
+    // todo
+  end;
+end;
+
 function TTileStorageImporter.GetFileInfo(
   const AFileName: string;
+  const AShowImportDlg: Boolean;
   out AFileInfo: TTileStorageImporterFileInfo
 ): Boolean;
 var
@@ -426,6 +568,8 @@ begin
   AFileInfo.FContentType := '';
   AFileInfo.FIsBitmapTile := False;
   AFileInfo.FExt := '';
+
+  AFileInfo.FGotoResult := gtrError;
 
   VIsLayer := False;
   VContentType := 'image/jpg';
@@ -505,6 +649,9 @@ begin
       then begin
         VIsLayer := SameText(VValue, 'overlay');
       end;
+
+      // goto location
+      TryDetectGoToPoint(VSQLite3, VMetadataInfo, AFileInfo);
     finally
       VSQLite3.Close;
     end;
@@ -514,7 +661,9 @@ begin
     AFileInfo.FName := TPath.GetFileNameWithoutExtension(AFileName);
     AFileInfo.FParentSubMenu := '';
 
-    // todo: show import dialog
+    if AShowImportDlg then begin
+      // todo: show import dialog
+    end;
 
     Result := True;
   finally
