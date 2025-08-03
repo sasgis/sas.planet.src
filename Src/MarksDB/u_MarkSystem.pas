@@ -56,11 +56,9 @@ type
   TMarkSystem = class(TBaseInterfacedObject, IMarkSystem)
   private
     FNotifierInternal: INotifierInternal;
-    FMarkPictureList: IMarkPictureList;
     FSystemImpl: IMarkSystemImplChangeable;
     FMarkDb: IMarkDb;
     FCategoryDB: IMarkCategoryDB;
-    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FImplFactoryList: IMarkSystemImplFactoryListStatic;
   private
     function GetErrorNotifier: INotifier;
@@ -138,8 +136,6 @@ var
   VSaveDbCounter: IInternalPerformanceCounter;
 begin
   inherited Create;
-  FMarkPictureList := AMarkPictureList;
-  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   FNotifierInternal := TNotifierBase.Create(GSync.SyncStd.Make('MarkSystemErrorNotifier'));
 
