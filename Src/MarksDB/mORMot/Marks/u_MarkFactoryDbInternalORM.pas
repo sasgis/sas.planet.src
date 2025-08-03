@@ -173,14 +173,20 @@ var
   VAppearance: IAppearance;
   VMainInfo: IVectorDataItemMainInfo;
 begin
-  VPicName := APicName;
   VPicIndex := FMarkPictureList.GetIndexByName(APicName);
+
   if VPicIndex >= 0 then begin
     VPic := FMarkPictureList.Get(VPicIndex);
+  end else begin
+    VPic := FMarkPictureList.GetDefaultPicture;
+  end;
+
+  if VPic <> nil then begin
     VPicName := VPic.GetName;
   end else begin
-    VPic := nil;
+    VPicName := APicName;
   end;
+
   VAppearance :=
     FAppearanceOfMarkFactory.CreatePointAppearance(
       ATextColor,
@@ -190,6 +196,7 @@ begin
       VPic,
       AMarkerSize
     );
+
   VHash := FHashFunction.CalcHashByString(AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
   VMainInfo :=
