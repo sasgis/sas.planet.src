@@ -443,7 +443,7 @@ begin
       GState.TileStorageTypeList,
       False,
       CTileStorageTypeClassAll,
-      [tsacRead]
+      [tsacRead, tsacUseAsDefault]
     );
 
   // Path tab

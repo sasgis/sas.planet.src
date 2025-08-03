@@ -64,7 +64,8 @@ type
       const AFormatId: TTileStorageSQLiteFileFormatId;
       const AMapVersionFactoryList: IMapVersionFactoryList;
       const AContentTypeManager: IContentTypeManager;
-      const AList: IInterfaceListSimple
+      const AList: IInterfaceListSimple;
+      const ACanUseAsDefault: Boolean = True
     );
   public
     constructor Create(
@@ -551,7 +552,8 @@ begin
     sfOruxMaps,
     AMapVersionFactoryList,
     AContentTypeManager,
-    VList
+    VList,
+    False
   );
 
   inherited Create(VList.MakeStaticAndClear);
@@ -623,7 +625,8 @@ procedure TTileStorageTypeListSimple.AddSQLiteFileTileStorageType(
   const AFormatId: TTileStorageSQLiteFileFormatId;
   const AMapVersionFactoryList: IMapVersionFactoryList;
   const AContentTypeManager: IContentTypeManager;
-  const AList: IInterfaceListSimple
+  const AList: IInterfaceListSimple;
+  const ACanUseAsDefault: Boolean
 );
 var
   VItem: ITileStorageTypeListItem;
@@ -646,7 +649,7 @@ begin
       ACacheId,
       AName,
       VStorageType,
-      True,
+      ACanUseAsDefault,
       False
     );
 

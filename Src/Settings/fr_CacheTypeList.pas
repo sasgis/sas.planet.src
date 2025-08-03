@@ -47,7 +47,7 @@ const
   CTileStorageTypeClassAll = [tstcInMemory, tstcOneFile, tstcFolder, tstcInSeparateFiles, tstcOther];
 
 type
-  TTileStorageAbilitiesClass = (tsacRead, tsacScan, tsacAdd, tsacDelete, tsacReplace);
+  TTileStorageAbilitiesClass = (tsacRead, tsacScan, tsacAdd, tsacDelete, tsacReplace, tsacUseAsDefault);
   TTileStorageAbilitiesClassSet = set of TTileStorageAbilitiesClass;
 
 type
@@ -132,7 +132,7 @@ var
 begin
   Result := False;
 
-  if not AItem.CanUseAsDefault then begin
+  if not AItem.CanUseAsDefault and (tsacUseAsDefault in FRequaredAbilities) then begin
     Exit;
   end;
 
