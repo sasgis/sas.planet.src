@@ -192,7 +192,6 @@ type
     pnlResizeTileMatrixDraft: TPanel;
     lblResizeTileMatrixDraft: TLabel;
     cbbResizeTileMatrixDraft: TComboBox;
-    lbDBMSCachePath: TLabel;
     flwpnl1: TFlowPanel;
     lbl1: TLabel;
     seSleepOnResetConnection: TSpinEdit;
@@ -214,15 +213,11 @@ type
     pnlEScPath: TPanel;
     pnlGMTilesPath: TPanel;
     pnlGECachePath: TPanel;
-    pnledtBDBCachePath: TPanel;
-    pnledtBDBVerCachePath: TPanel;
-    pnledtGCCachePath: TPanel;
-    pnlDBMSPath: TPanel;
+    pnlBDBCachePath: TPanel;
+    pnlBDBVerCachePath: TPanel;
+    pnlGCCachePath: TPanel;
     pnlBaseCahcePath: TPanel;
     pnlDefCache: TPanel;
-    edtDBMSCachePath: TEdit;
-    pnlButtnos: TPanel;
-    BtnDef: TButton;
     lbl: TLabel;
     pnlMATilesPath: TPanel;
     pnlCacheTypesList: TPanel;
@@ -259,6 +254,10 @@ type
     dlgFont: TFontDialog;
     chkMarksCaptionVisible: TCheckBox;
     chkAddTimeToMarkDescription: TCheckBox;
+    pnlMBTilesCachePath: TPanel;
+    pnlOsmAndCachePath: TPanel;
+    pnlLocusCachePath: TPanel;
+    pnlDBMSCachePath: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -272,7 +271,6 @@ type
     );
     procedure btnImageProcessResetClick(Sender: TObject);
     procedure btnResetUserAgentStringClick(Sender: TObject);
-    procedure BtnDefClick(Sender: TObject);
     procedure rbProxyClick(Sender: TObject);
     procedure cbbNetworkEngineChange(Sender: TObject);
     procedure btnMarkCaptionFontClick(Sender: TObject);
@@ -309,6 +307,10 @@ type
     FfrBDBVerCachePath: TfrPathSelect;
     FfrSQLiteCachePath: TfrPathSelect;
     FfrGCCachePath: TfrPathSelect;
+    FfrDBMSCachePath: TfrPathSelect;
+    FfrMBTilesCachePath: TfrPathSelect;
+    FfrOsmAndCachePath: TfrPathSelect;
+    FfrLocusCachePath: TfrPathSelect;
 
     FfrCacheTypesList: TfrCacheTypeList;
     FfrFavoriteMapSetManager: TfrFavoriteMapSetManager;
@@ -562,6 +564,31 @@ begin
       gettext_NoOp('GeoCacher root folder:'),
       GState.CacheConfig.GCCachePath
     );
+  FfrDBMSCachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('DBMS root:'),
+      GState.CacheConfig.DBMSCachePath,
+      [psoNotAutoIncludeDelimeters, psoNotShowSelectPathBtn]
+    );
+  FfrMBTilesCachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('MBTiles (SQLite3) cache root folder:'),
+      GState.CacheConfig.SQLiteMBTilesCachePath
+    );
+  FfrOsmAndCachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('OsmAnd (SQLite3) cache root folder:'),
+      GState.CacheConfig.SQLiteOsmAndCachePath
+    );
+  FfrLocusCachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('Locus (SQLite3) cache root folder:'),
+      GState.CacheConfig.SQLiteLocusCachePath
+    );
 
   // Search tab
   FfrGoogleApiKey :=
@@ -592,11 +619,6 @@ begin
   FfrFavoriteMapSetManager.CancelChanges;
   FfrGPSConfig.CancelChanges;
   Close;
-end;
-
-procedure TfrmSettings.BtnDefClick(Sender: TObject);
-begin
-  edtDBMSCachePath.Text := c_File_Cache_Default_DBMS; // without delimiter(s)
 end;
 
 procedure TfrmSettings.btnImageProcessResetClick(Sender: TObject);
@@ -830,8 +852,10 @@ begin
   FfrBDBVerCachePath.ApplyChanges;
   FfrSQLiteCachePath.ApplyChanges;
   FfrGCCachePath.ApplyChanges;
-
-  GState.CacheConfig.DBMSCachePath.Path := edtDBMSCachePath.Text; // do not add delimiter(s)
+  FfrDBMSCachePath.ApplyChanges;
+  FfrMBTilesCachePath.ApplyChanges;
+  FfrOsmAndCachePath.ApplyChanges;
+  FfrLocusCachePath.ApplyChanges;
 
   FfrMapPathSelect.ApplyChanges;
   FfrTerrainDataPathSelect.ApplyChanges;
@@ -951,6 +975,10 @@ begin
   FreeAndNil(FfrBDBVerCachePath);
   FreeAndNil(FfrSQLiteCachePath);
   FreeAndNil(FfrGCCachePath);
+  FreeAndNil(FfrDBMSCachePath);
+  FreeAndNil(FfrMBTilesCachePath);
+  FreeAndNil(FfrOsmAndCachePath);
+  FreeAndNil(FfrLocusCachePath);
 
   FreeAndNil(FfrGoogleApiKey);
   FreeAndNil(FfrYandexApiKey);
@@ -993,10 +1021,14 @@ begin
   FfrMobileAtlasTilesPath.Show(pnlMATilesPath);
   FfrTMSTilesPath.Show(pnlTMSPath);
   FfrGECachePath.Show(pnlGECachePath);
-  FfrBDBCachePath.Show(pnledtBDBCachePath);
-  FfrBDBVerCachePath.Show(pnledtBDBVerCachePath);
+  FfrBDBCachePath.Show(pnlBDBCachePath);
+  FfrBDBVerCachePath.Show(pnlBDBVerCachePath);
   FfrSQLiteCachePath.Show(pnlSQLiteCachePath);
-  FfrGCCachePath.Show(pnledtGCCachePath);
+  FfrGCCachePath.Show(pnlGCCachePath);
+  FfrDBMSCachePath.Show(pnlDBMSCachePath);
+  FfrMBTilesCachePath.Show(pnlMBtilesCachePath);
+  FfrOsmAndCachePath.Show(pnlOsmAndCachePath);
+  FfrLocusCachePath.Show(pnlLocusCachePath);
 
   FfrCacheTypesList.Show(pnlCacheTypesList);
 
@@ -1112,7 +1144,6 @@ begin
   end;
 
   FfrCacheTypesList.IntCode := GState.CacheConfig.DefCache;
-  edtDBMSCachePath.text := GState.CacheConfig.DBMSCachePath.Path;
 
   InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeMethod);
   cbbResizeMethod.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.ImageResamplerConfig.ActiveGUID);
