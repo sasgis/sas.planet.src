@@ -29,6 +29,7 @@ uses
   i_HashFunction,
   i_PathConfig,
   i_ContentTypeManager,
+  i_ConfigDataProvider,
   i_MarkPicture,
   i_MarkPictureConfig,
   i_BitmapTileSaveLoad,
@@ -46,7 +47,9 @@ type
     FMediaDataPath: IPathConfig;
     FContentTypeManager: IContentTypeManagerBitmap;
     FMarkPictureConfig: IMarkPictureConfig;
+    FDefaultPicture: IMarkPicture;
     procedure Clear;
+    function LoadDefaultPicture(const AResourceProvider: IConfigDataProvider): IMarkPicture;
     function _GetFromRuntimeList(AIndex: Integer): IMarkPicture;
     function _TryAddToRuntimeList(const AValue: string): Integer;
   private
@@ -68,7 +71,8 @@ type
       const AMarkPictureConfig: IMarkPictureConfig;
       const ABasePath: IPathConfig;
       const AMediaDataPath: IPathConfig;
-      const AContentTypeManager: IContentTypeManagerBitmap
+      const AContentTypeManager: IContentTypeManagerBitmap;
+      const AResourceProvider: IConfigDataProvider
     );
     destructor Destroy; override;
   end;
@@ -81,6 +85,7 @@ uses
   t_GeoTypes,
   c_MarkPictureAnchor,
   c_InternalBrowser,
+  u_GeoFunc,
   u_Synchronizer,
   u_MarkPictureSimple;
 
@@ -132,12 +137,14 @@ constructor TMarkPictureListSimple.Create(
   const AMarkPictureConfig: IMarkPictureConfig;
   const ABasePath: IPathConfig;
   const AMediaDataPath: IPathConfig;
-  const AContentTypeManager: IContentTypeManagerBitmap
+  const AContentTypeManager: IContentTypeManagerBitmap;
+  const AResourceProvider: IConfigDataProvider
 );
 begin
   Assert(AMarkPictureConfig <> nil);
 
   inherited Create;
+
   FMarkPictureConfig := AMarkPictureConfig;
   FHashFunction := AHashFunction;
   FBasePath := ABasePath;
@@ -152,6 +159,8 @@ begin
   ListSetUp(FBaseList);
   ListSetUp(FRuntimeList);
   ListSetUp(FRuntimeFailList);
+
+  FDefaultPicture := LoadDefaultPicture(AResourceProvider);
 end;
 
 destructor TMarkPictureListSimple.Destroy;
@@ -180,6 +189,37 @@ begin
     end;
     FRuntimeList.Clear;
   end;
+end;
+
+function TMarkPictureListSimple.LoadDefaultPicture(
+  const AResourceProvider: IConfigDataProvider
+): IMarkPicture;
+const
+  CDefaultPicResName = 'YLW_PUSHPIN'; // RCDATA from Resources\Common\Common.rc
+  CDefaultPicFileName = 'ylw-pushpin.png';
+var
+  VHash: THashValue;
+  VAnchor: TDoublePoint;
+  VLoader: IBitmapTileLoader;
+begin
+  if AResourceProvider = nil then begin
+    Result := nil;
+    Exit;
+  end;
+
+  VAnchor := DoublePoint(0.5, 1);
+  VHash := FHashFunction.CalcHashByString(CDefaultPicFileName);
+  VLoader := FContentTypeManager.GetBitmapLoaderByFileName(CDefaultPicFileName);
+
+  Result :=
+    TMarkPictureSimple.Create(
+      VHash,
+      CDefaultPicResName,
+      CDefaultPicFileName,
+      VLoader,
+      VAnchor,
+      AResourceProvider
+    );
 end;
 
 procedure TMarkPictureListSimple.LoadList;
@@ -232,6 +272,11 @@ begin
     end;
   finally
     VFilesList.Free;
+  end;
+
+  if (FBaseList.Count = 0) and (FDefaultPicture <> nil) then begin
+    FDefaultPicture._AddRef;
+    FBaseList.AddObject(FDefaultPicture.GetName, TObject(Pointer(FDefaultPicture)));
   end;
 end;
 
@@ -314,9 +359,10 @@ end;
 
 function TMarkPictureListSimple.GetDefaultPicture: IMarkPicture;
 begin
-  Result := nil;
   if FBaseList.Count > 0 then begin
     Result := IMarkPicture(Pointer(FBaseList.Objects[0]));
+  end else begin
+    Result := FDefaultPicture;
   end;
 end;
 

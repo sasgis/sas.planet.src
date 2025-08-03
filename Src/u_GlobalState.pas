@@ -535,6 +535,8 @@ begin
 
   FGlobalConfig.ReadConfig(FMainConfigProvider);
 
+  FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
+
   FVectorItemSubsetBuilderFactory :=
     TVectorItemSubsetBuilderFactory.Create(
       FHashFunction
@@ -574,7 +576,8 @@ begin
       FGlobalConfig.MarkPictureConfig,
       FGlobalConfig.MarksIconsPath,
       FGlobalConfig.MediaDataPath,
-      VContentTypeManagerBitmapInternal
+      VContentTypeManagerBitmapInternal,
+      FResourceProvider
     );
   FMarkPictureList := FMarkPictureListInternal;
 
@@ -598,7 +601,6 @@ begin
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
-  FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FVectorGeometryProjectedFactory := TGeometryProjectedFactory.Create;
   FVectorGeometryLonLatFactory :=
     TGeometryLonLatFactory.Create(

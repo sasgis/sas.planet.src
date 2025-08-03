@@ -33,6 +33,7 @@ uses
   i_BitmapMarker,
   i_BitmapTileSaveLoad,
   i_MarkPicture,
+  i_ConfigDataProvider,
   u_BaseInterfacedObject;
 
 type
@@ -42,6 +43,7 @@ type
     FFullFileName: string;
     FName: string;
     FLoader: IBitmapTileLoader;
+    FResourceProvider: IConfigDataProvider;
 
     FCS: IReadWriteSync;
     FBitmapMarker: IBitmapMarker;
@@ -66,7 +68,8 @@ type
       const AFullFileName: string;
       const AName: string;
       const ALoader: IBitmapTileLoader;
-      const APicAnchor: TDoublePoint
+      const APicAnchor: TDoublePoint;
+      const AResourceProvider: IConfigDataProvider = nil
     );
   end;
 
@@ -81,20 +84,24 @@ uses
   u_Synchronizer;
 
 { TMarkPictureSimple }
+
 constructor TMarkPictureSimple.Create(
   const AHash: THashValue;
   const AFullFileName: string;
   const AName: string;
   const ALoader: IBitmapTileLoader;
-  const APicAnchor: TDoublePoint
+  const APicAnchor: TDoublePoint;
+  const AResourceProvider: IConfigDataProvider
 );
 begin
   inherited Create;
+
   FHash := AHash;
   FFullFileName := AFullFileName;
   FName := AName;
   FLoader := ALoader;
   FPicAnchor := APicAnchor;
+  FResourceProvider := AResourceProvider;
 
   FCS := GSync.SyncSymmetrical.Make(Self.ClassName);
   FInitedFlag := TSimpleFlagWithInterlock.Create;
@@ -120,14 +127,20 @@ begin
     FCS.BeginWrite;
     try
       if not FInitedFlag.CheckFlag then begin
-        VMemStream := TMemoryStream.Create;
-        try
-          VMemStream.LoadFromFile(FFullFileName);
-          FSource := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-          VMemStream := nil;
-        finally
-          VMemStream.Free;
+        if FResourceProvider <> nil then begin
+          FSource := FResourceProvider.ReadBinary(FFullFileName);
+        end else begin
+          VMemStream := TMemoryStream.Create;
+          try
+            VMemStream.LoadFromFile(FFullFileName);
+            FSource := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+            VMemStream := nil;
+          finally
+            VMemStream.Free;
+          end;
         end;
+
+        Assert(FSource <> nil);
         VBitmap := FLoader.Load(FSource);
 
         VAnchor := AnchorRelativeToAbsolute(FPicAnchor, VBitmap.Size);
