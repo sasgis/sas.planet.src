@@ -177,7 +177,6 @@ begin
 
   if VPicIndex >= 0 then begin
     VPic := FMarkPictureList.Get(VPicIndex);
-    VPicName := VPic.GetName;
   end else begin
     VPic := FMarkPictureList.GetDefaultPicture;
   end;
