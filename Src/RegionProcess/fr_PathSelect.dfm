@@ -5,7 +5,7 @@ object frPathSelect: TfrPathSelect
   Height = 304
   Align = alClient
   TabOrder = 0
-  object pnlmain: TPanel
+  object pnlMain: TPanel
     Left = 0
     Top = 0
     Width = 451
@@ -23,7 +23,7 @@ object frPathSelect: TfrPathSelect
       BevelEdges = []
       BevelOuter = bvNone
       TabOrder = 1
-      object EPath: TEdit
+      object edtPath: TEdit
         AlignWithMargins = True
         Left = 0
         Top = 0
@@ -45,7 +45,7 @@ object frPathSelect: TfrPathSelect
         BevelKind = bkTile
         BevelOuter = bvNone
         TabOrder = 1
-        object BtnDef: TButton
+        object btnDef: TButton
           Tag = 2
           Left = 2
           Top = 2
@@ -54,9 +54,9 @@ object frPathSelect: TfrPathSelect
           Align = alCustom
           Caption = '<>'
           TabOrder = 0
-          OnClick = BtnDefClick
+          OnClick = btnDefClick
         end
-        object BtnSelectPath: TButton
+        object btnSelectPath: TButton
           Tag = 2
           Left = 25
           Top = 2
@@ -65,7 +65,7 @@ object frPathSelect: TfrPathSelect
           Align = alCustom
           Caption = '...'
           TabOrder = 1
-          OnClick = BtnSelectPathClick
+          OnClick = btnSelectPathClick
         end
       end
     end
@@ -78,7 +78,7 @@ object frPathSelect: TfrPathSelect
       BevelEdges = []
       BevelOuter = bvNone
       TabOrder = 0
-      object LCaption: TLabel
+      object lblCaption: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3

@@ -37,25 +37,36 @@ uses
   u_CommonFormAndFrameParents;
 
 type
+  TfrPathSelectOptions = (
+    psoNotAutoIncludeDelimeters,
+    psoNotShowResetToDefaultBtn,
+    psoNotShowSelectPathBtn
+  );
+
+  TfrPathSelectOptionsSet = set of TfrPathSelectOptions;
+
   TfrPathSelect = class(TFrame)
-    BtnDef: TButton;
-    BtnSelectPath: TButton;
-    LCaption: TLabel;
-    EPath: TEdit;
+    btnDef: TButton;
+    btnSelectPath: TButton;
+    lblCaption: TLabel;
+    edtPath: TEdit;
     pnlPath: TPanel;
-    pnlmain: TPanel;
+    pnlMain: TPanel;
     pnlCaption: TPanel;
     pnlButtnos: TPanel;
-    procedure BtnSelectPathClick(Sender: TObject);
-    procedure BtnDefClick(Sender: TObject);
+    procedure btnSelectPathClick(Sender: TObject);
+    procedure btnDefClick(Sender: TObject);
   private
     FPathConfig: IPathConfig;
     FCaption: string;
+    FOptions: TfrPathSelectOptionsSet;
+    function IncludePathDelim(const APath: string): string;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const ACaption: string;
-      const APathConfig: IPathConfig
+      const APathConfig: IPathConfig;
+      const AFrameOptions: TfrPathSelectOptionsSet = []
     ); reintroduce;
     procedure RefreshTranslation; override;
     procedure CancelChanges;
@@ -72,53 +83,68 @@ uses
 
 { TfrPathSelect }
 
-procedure TfrPathSelect.CancelChanges;
-begin
-end;
-
 constructor TfrPathSelect.Create(
   const ALanguageManager: ILanguageManager;
   const ACaption: string;
-  const APathConfig: IPathConfig
+  const APathConfig: IPathConfig;
+  const AFrameOptions: TfrPathSelectOptionsSet
 );
 begin
   inherited Create(ALanguageManager);
   FCaption := ACaption;
   FPathConfig := APathConfig;
+  FOptions := AFrameOptions;
 
-  LCaption.Caption := _(FCaption);
+  btnDef.Visible := not (psoNotShowResetToDefaultBtn in FOptions);
+  btnSelectPath.Visible := not (psoNotShowSelectPathBtn in FOptions);
+
+  lblCaption.Caption := _(FCaption);
+end;
+
+function TfrPathSelect.IncludePathDelim(const APath: string): string;
+begin
+  if psoNotAutoIncludeDelimeters in FOptions then begin
+    Result := APath;
+  end else begin
+    Result := IncludeTrailingPathDelimiter(APath);
+  end;
 end;
 
 procedure TfrPathSelect.RefreshTranslation;
 begin
   inherited;
-  LCaption.Caption := _(FCaption);
+  lblCaption.Caption := _(FCaption);
 end;
 
 procedure TfrPathSelect.ApplyChanges;
 begin
-  FPathConfig.Path := IncludeTrailingPathDelimiter(EPath.Text);
+  FPathConfig.Path := IncludePathDelim(edtPath.Text);
 end;
 
-procedure TfrPathSelect.BtnDefClick(Sender: TObject);
+procedure TfrPathSelect.btnDefClick(Sender: TObject);
 begin
-  EPath.Text := IncludeTrailingPathDelimiter(FPathConfig.DefaultPath);
+  edtPath.Text := IncludePathDelim(FPathConfig.DefaultPath);
 end;
 
-procedure TfrPathSelect.BtnSelectPathClick(Sender: TObject);
+procedure TfrPathSelect.btnSelectPathClick(Sender: TObject);
 var
-  TempPath: string;
+  VTempPath: string;
 begin
-  TempPath := FPathConfig.FullPath;
-  if SelectDirectory(FCaption, '', TempPath) then begin
-    EPath.Text := StringReplace(IncludeTrailingPathDelimiter(TempPath), FPathConfig.BasePathConfig.Path, '.\', [rfIgnoreCase]);
+  VTempPath := FPathConfig.FullPath;
+  if SelectDirectory(FCaption, '', VTempPath) then begin
+    edtPath.Text := StringReplace(IncludePathDelim(VTempPath), FPathConfig.BasePathConfig.Path, '.\', [rfIgnoreCase]);
   end;
 end;
 
 procedure TfrPathSelect.Show(AParent: TWinControl);
 begin
-  EPath.Text := IncludeTrailingPathDelimiter(FPathConfig.path);
+  edtPath.Text := IncludePathDelim(FPathConfig.Path);
   Parent := AParent;
+end;
+
+procedure TfrPathSelect.CancelChanges;
+begin
+  //
 end;
 
 end.
