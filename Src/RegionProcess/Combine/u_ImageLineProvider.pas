@@ -53,7 +53,7 @@ type
       const ABitmap: IBitmap32Static;
       const ATile: TPoint
     );
-    procedure PrepareBufferMem(ARect: TRect);
+    procedure PrepareBufferMem(const ARect: TRect);
     procedure ClearBuffer;
     function GetMapRectForLine(ALine: Integer): TRect;
     procedure PrepareBufferData(
@@ -306,7 +306,7 @@ begin
   end;
 end;
 
-procedure TImageLineProviderAbstract.PrepareBufferMem(ARect: TRect);
+procedure TImageLineProviderAbstract.PrepareBufferMem(const ARect: TRect);
 var
   VLinesExists: Integer;
   VLinesNeed: Integer;
