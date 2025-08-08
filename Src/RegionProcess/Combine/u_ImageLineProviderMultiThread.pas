@@ -241,7 +241,7 @@ constructor TImageLineProviderMultiThreadAbstract.Create(
 );
 var
   VTileRectSize: TPoint;
-  i: Integer;
+  I: Integer;
 begin
   Assert(Assigned(AImageProvider));
   Assert(AThreadCount > 1);
@@ -266,18 +266,18 @@ begin
   SetLength(FFinishEventHandles, FThreadCount);
   SetLength(FThreads, FThreadCount);
 
-  for i := 0 to FThreadCount - 1 do begin
-    FThreadColPos[i] := FFullTileRect.Left + Trunc(Int64(i) * VTileRectSize.X / FThreadCount);
-    FStartEvents[i] := TEvent.Create;
-    FFinishEvents[i] := TEvent.Create;
-    FFinishEventHandles[i] := FFinishEvents[i].Handle;
-    FThreads[i] :=
+  for I := 0 to FThreadCount - 1 do begin
+    FThreadColPos[I] := FFullTileRect.Left + Trunc(Int64(I) * VTileRectSize.X / FThreadCount);
+    FStartEvents[I] := TEvent.Create;
+    FFinishEvents[I] := TEvent.Create;
+    FFinishEventHandles[I] := FFinishEvents[I].Handle;
+    FThreads[I] :=
       TWorkingThread.Create(
-        i,
-        FStartEvents[i],
-        FFinishEvents[i],
+        I,
+        FStartEvents[I],
+        FFinishEvents[I],
         tpLower,
-        'ImageLineProviderMultiThread_' + IntToStr(i),
+        'ImageLineProviderMultiThread_' + IntToStr(I),
         Self.PrepareBufferDataPart
       );
   end;
@@ -286,20 +286,20 @@ end;
 
 destructor TImageLineProviderMultiThreadAbstract.Destroy;
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i := 0 to FThreadCount - 1 do begin
-    FThreads[i].Terminate;
+  for I := 0 to FThreadCount - 1 do begin
+    FThreads[I].Terminate;
   end;
-  for i := 0 to FThreadCount - 1 do begin
-    FStartEvents[i].SetEvent;
+  for I := 0 to FThreadCount - 1 do begin
+    FStartEvents[I].SetEvent;
   end;
   ClearBuffer;
-  for i := 0 to FThreadCount - 1 do begin
-    FThreads[i].WaitFor;
-    FreeAndNil(FStartEvents[i]);
-    FreeAndNil(FFinishEvents[i]);
-    FreeAndNil(FThreads[i]);
+  for I := 0 to FThreadCount - 1 do begin
+    FThreads[I].WaitFor;
+    FreeAndNil(FStartEvents[I]);
+    FreeAndNil(FFinishEvents[I]);
+    FreeAndNil(FThreads[I]);
   end;
   inherited;
 end;
@@ -309,7 +309,7 @@ procedure TImageLineProviderMultiThreadAbstract.AddTile(
   const ATile: TPoint
 );
 var
-  i: Integer;
+  I: Integer;
   VTileMapRect: TRect;
   VTileSize: TPoint;
   VCopyRectSize: TPoint;
@@ -329,11 +329,11 @@ begin
   VCopyRectAtTarget := RectMove(VCopyMapRect, FPreparedMapRect.TopLeft);
   VCopyRectAtSource := RectMove(VCopyMapRect, VTileMapRect.TopLeft);
 
-  for i := 0 to VCopyRectSize.Y - 1 do begin
-    VSourceLine := @ABitmap.Data[VCopyRectAtSource.Left + (i + VCopyRectAtSource.Top) * VTileSize.X];
+  for I := 0 to VCopyRectSize.Y - 1 do begin
+    VSourceLine := @ABitmap.Data[VCopyRectAtSource.Left + (I + VCopyRectAtSource.Top) * VTileSize.X];
     PreparePixleLine(
       VSourceLine,
-      Pointer(UIntPtr(FPreparedData[i + VCopyRectAtTarget.Top]) + NativeUInt(VCopyRectAtTarget.Left * FBytesPerPixel)),
+      Pointer(UIntPtr(FPreparedData[I + VCopyRectAtTarget.Top]) + NativeUInt(VCopyRectAtTarget.Left * FBytesPerPixel)),
       VCopyRectSize.X
     );
   end;
@@ -341,12 +341,12 @@ end;
 
 procedure TImageLineProviderMultiThreadAbstract.ClearBuffer;
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i := 0 to Length(FPreparedData) - 1 do begin
-    if FPreparedData[i] <> nil then begin
-      FreeMem(FPreparedData[i]);
-      FPreparedData[i] := nil;
+  for I := 0 to Length(FPreparedData) - 1 do begin
+    if FPreparedData[I] <> nil then begin
+      FreeMem(FPreparedData[I]);
+      FPreparedData[I] := nil;
     end;
   end;
   FPreparedData := nil;
@@ -416,7 +416,7 @@ procedure TImageLineProviderMultiThreadAbstract.PrepareBufferData(
   const AMapRect: TRect
 );
 var
-  i: Integer;
+  I: Integer;
 begin
   PrepareBufferMem(AMapRect);
   FPreparedTileRect := FProjection.PixelRect2TileRect(AMapRect);
@@ -425,13 +425,13 @@ begin
   end;
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
-  for i := 0 to FThreadCount - 1 do begin
-    FStartEvents[i].SetEvent;
+  for I := 0 to FThreadCount - 1 do begin
+    FStartEvents[I].SetEvent;
   end;
   // Start PrepareBufferDataPart for all parts
   WaitForMultipleObjects(FThreadCount, @FFinishEventHandles[0], True, INFINITE);
-  for i := 0 to FThreadCount - 1 do begin
-    FFinishEvents[i].ResetEvent;
+  for I := 0 to FThreadCount - 1 do begin
+    FFinishEvents[I].ResetEvent;
   end;
   FCancelNotifier := nil;
 end;
@@ -462,18 +462,18 @@ end;
 
 procedure TImageLineProviderMultiThreadAbstract.PrepareBufferMem(const ARect: TRect);
 var
+  I: Integer;
   VLinesExists: Integer;
   VLinesNeed: Integer;
   VWidth: Integer;
-  i: Integer;
 begin
   VWidth := ARect.Right - ARect.Left;
   VLinesNeed := ARect.Bottom - ARect.Top;
   VLinesExists := Length(FPreparedData);
   if VLinesExists < VLinesNeed then begin
     SetLength(FPreparedData, VLinesNeed);
-    for i := VLinesExists to VLinesNeed - 1 do begin
-      GetMem(FPreparedData[i], (VWidth + 1) * FBytesPerPixel);
+    for I := VLinesExists to VLinesNeed - 1 do begin
+      GetMem(FPreparedData[I], (VWidth + 1) * FBytesPerPixel);
     end;
   end;
 end;
@@ -552,8 +552,6 @@ type
     A: Byte;
   end;
 
-
-
 { TImageLineProviderRGB }
 
 procedure TImageLineProviderRGBMultiThread.PreparePixleLine(
@@ -562,14 +560,14 @@ procedure TImageLineProviderRGBMultiThread.PreparePixleLine(
   ACount: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VSource: PColor32Entry;
   VTarget: ^TRGB;
 begin
   Assert(Assigned(ASource));
   VSource := PColor32Entry(ASource);
   VTarget := ATarget;
-  for i := 0 to ACount - 1 do begin
+  for I := 0 to ACount - 1 do begin
     VTarget.B := VSource.B;
     VTarget.G := VSource.G;
     VTarget.R := VSource.R;
@@ -586,14 +584,14 @@ procedure TImageLineProviderBGRMultiThread.PreparePixleLine(
   ACount: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VSource: PColor32Entry;
   VTarget: ^TBGR;
 begin
   Assert(Assigned(ASource));
   VSource := PColor32Entry(ASource);
   VTarget := ATarget;
-  for i := 0 to ACount - 1 do begin
+  for I := 0 to ACount - 1 do begin
     VTarget.B := VSource.B;
     VTarget.G := VSource.G;
     VTarget.R := VSource.R;
@@ -610,14 +608,14 @@ procedure TImageLineProviderRGBAMultiThread.PreparePixleLine(
   ACount: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VSource: PColor32Entry;
   VTarget: ^TRGBA;
 begin
   Assert(Assigned(ASource));
   VSource := PColor32Entry(ASource);
   VTarget := ATarget;
-  for i := 0 to ACount - 1 do begin
+  for I := 0 to ACount - 1 do begin
     VTarget.B := VSource.B;
     VTarget.G := VSource.G;
     VTarget.R := VSource.R;

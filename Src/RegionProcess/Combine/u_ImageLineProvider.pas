@@ -183,7 +183,7 @@ procedure TImageLineProviderAbstract.AddTile(
   const ATile: TPoint
 );
 var
-  i: Integer;
+  I: Integer;
   VTileMapRect: TRect;
   VTileSize: TPoint;
   VCopyRectSize: TPoint;
@@ -203,11 +203,11 @@ begin
   VCopyRectAtTarget := RectMove(VCopyMapRect, FPreparedMapRect.TopLeft);
   VCopyRectAtSource := RectMove(VCopyMapRect, VTileMapRect.TopLeft);
 
-  for i := 0 to VCopyRectSize.Y - 1 do begin
-    VSourceLine := @ABitmap.Data[VCopyRectAtSource.Left + (i + VCopyRectAtSource.Top) * VTileSize.X];
+  for I := 0 to VCopyRectSize.Y - 1 do begin
+    VSourceLine := @ABitmap.Data[VCopyRectAtSource.Left + (I + VCopyRectAtSource.Top) * VTileSize.X];
     PreparePixleLine(
       VSourceLine,
-      Pointer(UIntPtr(FPreparedData[i + VCopyRectAtTarget.Top]) + NativeUInt(VCopyRectAtTarget.Left * FBytesPerPixel)),
+      Pointer(UIntPtr(FPreparedData[I + VCopyRectAtTarget.Top]) + NativeUInt(VCopyRectAtTarget.Left * FBytesPerPixel)),
       VCopyRectSize.X
     );
   end;
@@ -215,12 +215,12 @@ end;
 
 procedure TImageLineProviderAbstract.ClearBuffer;
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i := 0 to Length(FPreparedData) - 1 do begin
-    if FPreparedData[i] <> nil then begin
-      FreeMem(FPreparedData[i]);
-      FPreparedData[i] := nil;
+  for I := 0 to Length(FPreparedData) - 1 do begin
+    if FPreparedData[I] <> nil then begin
+      FreeMem(FPreparedData[I]);
+      FPreparedData[I] := nil;
     end;
   end;
   FPreparedData := nil;
@@ -264,6 +264,7 @@ begin
       FPrepareDataCounter.FinishOperation(VContext);
     end;
   end;
+
   VContext := FGetLineCounter.StartOperation;
   try
     Result := GetLocalLine(ALine);
@@ -308,18 +309,18 @@ end;
 
 procedure TImageLineProviderAbstract.PrepareBufferMem(const ARect: TRect);
 var
+  I: Integer;
   VLinesExists: Integer;
   VLinesNeed: Integer;
   VWidth: Integer;
-  i: Integer;
 begin
   VWidth := ARect.Right - ARect.Left;
   VLinesNeed := ARect.Bottom - ARect.Top;
   VLinesExists := Length(FPreparedData);
   if VLinesExists < VLinesNeed then begin
     SetLength(FPreparedData, VLinesNeed);
-    for i := VLinesExists to VLinesNeed - 1 do begin
-      GetMem(FPreparedData[i], (VWidth + 1) * FBytesPerPixel);
+    for I := VLinesExists to VLinesNeed - 1 do begin
+      GetMem(FPreparedData[I], (VWidth + 1) * FBytesPerPixel);
     end;
   end;
 end;
@@ -394,8 +395,6 @@ type
     A: Byte;
   end;
 
-
-
 { TImageLineProviderRGB }
 
 procedure TImageLineProviderRGB.PreparePixleLine(
@@ -404,14 +403,14 @@ procedure TImageLineProviderRGB.PreparePixleLine(
   ACount: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VSource: PColor32Entry;
   VTarget: ^TRGB;
 begin
   Assert(Assigned(ASource));
   VSource := PColor32Entry(ASource);
   VTarget := ATarget;
-  for i := 0 to ACount - 1 do begin
+  for I := 0 to ACount - 1 do begin
     VTarget.B := VSource.B;
     VTarget.G := VSource.G;
     VTarget.R := VSource.R;
@@ -428,14 +427,14 @@ procedure TImageLineProviderBGR.PreparePixleLine(
   ACount: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VSource: PColor32Entry;
   VTarget: ^TBGR;
 begin
   Assert(Assigned(ASource));
   VSource := PColor32Entry(ASource);
   VTarget := ATarget;
-  for i := 0 to ACount - 1 do begin
+  for I := 0 to ACount - 1 do begin
     VTarget.B := VSource.B;
     VTarget.G := VSource.G;
     VTarget.R := VSource.R;
@@ -452,14 +451,14 @@ procedure TImageLineProviderRGBA.PreparePixleLine(
   ACount: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VSource: PColor32Entry;
   VTarget: ^TRGBA;
 begin
   Assert(Assigned(ASource));
   VSource := PColor32Entry(ASource);
   VTarget := ATarget;
-  for i := 0 to ACount - 1 do begin
+  for I := 0 to ACount - 1 do begin
     VTarget.B := VSource.B;
     VTarget.G := VSource.G;
     VTarget.R := VSource.R;
