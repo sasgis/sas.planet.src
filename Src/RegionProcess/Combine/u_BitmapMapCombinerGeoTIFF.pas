@@ -558,7 +558,7 @@ begin
     end;
   end;
 
-  Result := AData <> nil;
+  Result := (AData <> nil) and not FCancelNotifier.IsOperationCanceled(FOperationID);
 end;
 
 { TBitmapMapCombinerGeoTiffTiled }
@@ -746,7 +746,7 @@ begin
     FProgressUpdate.Update(FProcessedTiles / FTotalTiles);
   end;
 
-  Result := AData <> nil;
+  Result := (AData <> nil) and not FCancelNotifier.IsOperationCanceled(FOperationID);
 end;
 
 { TBitmapMapCombinerFactoryGeoTiffStripped }

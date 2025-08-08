@@ -441,6 +441,7 @@ procedure TImageLineProviderMultiThreadAbstract.PrepareBufferDataPart(
 );
 var
   VTile: TPoint;
+  VBitmap: IBitmap32Static;
   VIterator: TTileIteratorByRectRecord;
   VLeft, VRight: Integer;
   VTileRect: TRect;
@@ -451,10 +452,11 @@ begin
   VTileRect := Rect(VLeft, FPreparedTileRect.Top, VRight, FPreparedTileRect.Bottom);
   VIterator.Init(VTileRect);
   while VIterator.Next(VTile) do begin
-    AddTile(
-      FImageProvider.GetTile(FOperationID, FCancelNotifier, VTile),
-      VTile
-    );
+    VBitmap := FImageProvider.GetTile(FOperationID, FCancelNotifier, VTile);
+    if (VBitmap = nil) or FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+      Exit;
+    end;
+    AddTile(VBitmap, VTile);
   end;
 end;
 

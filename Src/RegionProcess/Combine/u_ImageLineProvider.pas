@@ -291,16 +291,18 @@ procedure TImageLineProviderAbstract.PrepareBufferData(
 );
 var
   VTile: TPoint;
+  VBitmap: IBitmap32Static;
   VIterator: TTileIteratorByRectRecord;
 begin
   PrepareBufferMem(AMapRect);
   FPreparedTileRect := FProjection.PixelRect2TileRect(AMapRect);
   VIterator.Init(FPreparedTileRect);
   while VIterator.Next(VTile) do begin
-    AddTile(
-      FImageProvider.GetTile(AOperationID, ACancelNotifier, VTile),
-      VTile
-    );
+    VBitmap := FImageProvider.GetTile(AOperationID, ACancelNotifier, VTile);
+    if (VBitmap = nil) or ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Exit;
+    end;
+    AddTile(VBitmap, VTile);
   end;
 end;
 
