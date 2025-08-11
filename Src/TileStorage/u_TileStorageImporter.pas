@@ -455,6 +455,78 @@ procedure TryDetectGoToPoint(
     Result := (1 shl Z) - Y - 1;
   end;
 
+  function InvertZ(Z: Integer): Integer;
+  begin
+    Result := 17 - Z;
+  end;
+
+  function SelectMinZoom(const AMetadataKey: string; const ASqlText: UTF8String; out AZoom: Integer;
+    const AInvertZ: Boolean): Boolean;
+  var
+    VValue: string;
+    VStmtData: TSQLite3StmtData;
+  begin
+    // read metadata (if any)
+    Result :=
+      (AMetadataKey <> '') and
+      AMetadataInfo.TryGetValue(AMetadataKey, VValue) and
+      TryStrToInt(VValue, AZoom);
+
+    if Result then begin
+      if AInvertZ then begin
+        AZoom := InvertZ(AZoom);
+      end;
+      Exit;
+    end;
+
+    // fetch from db
+    PrepareStmt(ASQLite3, VStmtData, ASqlText);
+    try
+      Result := sqlite3_step(VStmtData.Stmt) = SQLITE_ROW;
+
+      if not Result then begin
+        Exit;
+      end;
+
+      AZoom := VStmtData.ColumnInt(0);
+
+      if AInvertZ then begin
+        AZoom := InvertZ(AZoom);
+      end;
+    finally
+      VStmtData.Fin;
+    end;
+  end;
+
+  function SelectXYZ(const ASqlText: UTF8String; out APoint: TPoint; out AZoom: Integer;
+    const AInvertY: Boolean; const AInvertZ: Boolean): Boolean;
+  var
+    VStmtData: TSQLite3StmtData;
+  begin
+    PrepareStmt(ASQLite3, VStmtData, ASqlText);
+    try
+      Result := sqlite3_step(VStmtData.Stmt) = SQLITE_ROW;
+
+      if not Result then begin
+        Exit;
+      end;
+
+      APoint.X := VStmtData.ColumnInt(0);
+      APoint.Y := VStmtData.ColumnInt(1);
+      AZoom    := VStmtData.ColumnInt(2);
+
+      if AInvertZ then begin
+        AZoom := InvertZ(AZoom);
+      end;
+
+      if AInvertY then begin
+        APoint.Y := InvertY(APoint.Y, AZoom);
+      end;
+    finally
+      VStmtData.Fin;
+    end;
+  end;
+
 var
   VValue: string;
   VPoint: TPoint;
@@ -462,12 +534,14 @@ var
   VBounds: TDoubleRect;
   VZoom: Integer;
   VItems: TStringDynArray;
-  VStmtData: TSQLite3StmtData;
+  VSqlText: UTF8String;
+  VInvertY: Boolean;
+  VInvertZ: Boolean;
 begin
-  VZoom := -1;
-
+  // MBTiles
   if AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles then begin
 
+    // using center (lon, lat, zoom)
     if AMetadataInfo.TryGetValue('center', VValue) and (VValue <> '') then begin
       VItems := SplitString(VValue, ',');
       if Length(VItems) = 3 then begin
@@ -483,23 +557,7 @@ begin
       end;
     end;
 
-    if AMetadataInfo.TryGetValue('minzoom', VValue) and (VValue <> '') then begin
-      VZoom := StrToIntDef(Trim(VValue), -1);
-    end;
-    if VZoom = -1 then begin
-      PrepareStmt(ASQLite3, VStmtData, 'SELECT DISTINCT zoom_level FROM tiles ORDER BY zoom_level ASC LIMIT 1');
-      try
-        if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
-          VZoom := VStmtData.ColumnInt(0);
-        end;
-      finally
-        VStmtData.Fin;
-      end;
-    end;
-    if VZoom = -1 then begin
-      Exit;
-    end;
-
+    // using bounds (left, bottom, right, top) and minzoom
     if AMetadataInfo.TryGetValue('bounds', VValue) and (VValue <> '') then begin
       VItems := SplitString(VValue, ',');
       if Length(VItems) = 4 then begin
@@ -508,39 +566,61 @@ begin
            TryStrPointToFloat(Trim(VItems[2]), VBounds.Right) and
            TryStrPointToFloat(Trim(VItems[3]), VBounds.Top)
         then begin
-          AFileInfo.FGotoLonLat := RectCenter(VBounds);
-          AFileInfo.FGotoZoom := VZoom;
-          AFileInfo.FGotoResult := gtrLonLatOk;
-          Exit;
+          VSqlText := 'SELECT DISTINCT zoom_level FROM tiles ORDER BY zoom_level ASC LIMIT 1';
+          if SelectMinZoom('minzoom', VSqlText, VZoom, False) then begin
+            AFileInfo.FGotoLonLat := RectCenter(VBounds);
+            AFileInfo.FGotoZoom := VZoom;
+            AFileInfo.FGotoResult := gtrLonLatOk;
+            Exit;
+          end;
         end;
       end;
     end;
 
-    PrepareStmt(ASQLite3, VStmtData, 'SELECT zoom_level, tile_column, tile_row FROM tiles LIMIT 1');
-    try
-      if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
-        VZoom := VStmtData.ColumnInt(0);
-        VPoint.X := VStmtData.ColumnInt(1);
-        VPoint.Y := VStmtData.ColumnInt(2);
+    // using the first available tile's coordinates
+    VSqlText := 'SELECT tile_column, tile_row, zoom_level FROM tiles LIMIT 1';
+    VInvertY := not (AMetadataInfo.TryGetValue('scheme', VValue) and SameText(VValue, 'xyz'));
+    if SelectXYZ(VSqlText, VPoint, VZoom, VInvertY, False) then begin
+      AFileInfo.FGotoPoint := VPoint;
+      AFileInfo.FGotoZoom := VZoom;
+      AFileInfo.FGotoResult := gtrPointOk;
+      Exit;
+    end;
+  end else // OsmAnd, Locus, RMaps
+  if AFileInfo.FCacheTypeCode in [c_File_Cache_Id_SQLite_OsmAnd, c_File_Cache_Id_SQLite_Locus, c_File_Cache_Id_SQLite_RMaps] then begin
 
-        if AMetadataInfo.TryGetValue('scheme', VValue) and SameText(VValue, 'xyz') then begin
-          // nothing to do
-        end else begin
-          VPoint.Y := InvertY(VPoint.Y, VZoom);
-        end;
+    if AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_OsmAnd then begin
+      VInvertZ := AMetadataInfo.TryGetValue('tilenumbering', VValue) and SameText(VValue, 'BigPlanet');
+    end else begin
+      VInvertZ := True;
+    end;
 
-        AFileInfo.FGotoPoint := VPoint;
+    // using center_x, center_y and minzoom
+    if AMetadataInfo.TryGetValue('center_x', VValue) and TryStrPointToFloat(VValue, VLonLat.Y) and
+       AMetadataInfo.TryGetValue('center_y', VValue) and TryStrPointToFloat(VValue, VLonLat.X)
+    then begin
+      if VInvertZ then begin
+        VSqlText := 'SELECT DISTINCT z FROM tiles ORDER BY z DESC LIMIT 1';
+      end else begin
+        VSqlText := 'SELECT DISTINCT z FROM tiles ORDER BY z ASC LIMIT 1';
+      end;
+      if SelectMinZoom('', VSqlText, VZoom, VInvertZ) then begin
+        AFileInfo.FGotoLonLat := VLonLat;
         AFileInfo.FGotoZoom := VZoom;
-        AFileInfo.FGotoResult := gtrPointOk;
+        AFileInfo.FGotoResult := gtrLonLatOk;
         Exit;
       end;
-    finally
-      VStmtData.Fin;
     end;
-  end else
-  if AFileInfo.FCacheTypeCode in [c_File_Cache_Id_SQLite_OsmAnd, c_File_Cache_Id_SQLite_Locus, c_File_Cache_Id_SQLite_RMaps] then begin
-    // todo
-  end else
+
+    // using the first available tile's coordinates
+    VSqlText := 'SELECT x, y, z FROM tiles LIMIT 1';
+    if SelectXYZ(VSqlText, VPoint, VZoom, False, VInvertZ) then begin
+      AFileInfo.FGotoPoint := VPoint;
+      AFileInfo.FGotoZoom := VZoom;
+      AFileInfo.FGotoResult := gtrPointOk;
+      Exit;
+    end;
+  end else // OruxMaps
   if AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_OruxMaps then begin
     // todo
   end;
