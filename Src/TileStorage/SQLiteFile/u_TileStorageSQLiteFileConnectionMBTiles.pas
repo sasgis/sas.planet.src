@@ -362,7 +362,6 @@ var
   VStr: TStringDynArray;
   VRect: TDoubleRect;
   VValue: string;
-  VCenterZoom: Integer;
   VMinZoom, VMaxZoom: Integer;
   VDoUpdate: Integer;
   VDoUpdateCenter: Boolean;
@@ -417,7 +416,6 @@ begin
 
   if (VMaxZoom = CEmptyZoomValue) or (VMaxZoom < FMaxZoom) then begin
     DoUpdateMetadata('maxzoom', IntToStr(FMaxZoom));
-    VDoUpdateCenter := True;
   end else
   if VMaxZoom > FMaxZoom then begin
     FMaxZoom := VMaxZoom;
@@ -437,8 +435,7 @@ begin
 
   // center
   if VDoUpdateCenter then begin
-    VCenterZoom := FMinZoom + ((FMaxZoom - FMinZoom) div 2);
-    VValue := GetCenterStr(FBounds, VCenterZoom);
+    VValue := GetCenterStr(FBounds, FMinZoom);
     if VValue <> VStr[1] then begin
       DoUpdateMetadata('center', VValue);
     end;
