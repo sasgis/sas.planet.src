@@ -145,6 +145,7 @@ function TGeometryHintInfoProvider.GetLineHintInfo(
   var
     VDistA, VDistB: Double;
     VTimeA, VTimeB: TDateTime;
+    VSeconds: Int64;
   begin
     Result := 0;
 
@@ -178,7 +179,12 @@ function TGeometryHintInfoProvider.GetLineHintInfo(
 
     until (VTimeA <> VTimeB) and (VDistB <> VDistA);
 
-    Result := Abs(VDistB - VDistA) / SecondsBetween(VTimeA, VTimeB); // m/s
+    VSeconds := SecondsBetween(VTimeA, VTimeB);
+    if VSeconds = 0 then begin
+      Exit;
+    end;
+
+    Result := Abs(VDistB - VDistA) / VSeconds; // m/s
 
     Result := Result * 3.6; // km/h
   end;
