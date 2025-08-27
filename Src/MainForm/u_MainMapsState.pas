@@ -136,13 +136,13 @@ constructor TMainMapsState.Create(
   const AFillingMapConfig: IActiveMapConfig
 );
 var
+  I: Integer;
   VMapType: IMapType;
   VAllMapsSet: IMapTypeSetBuilder;
   VBitmapLayersSet: IMapTypeSetBuilder;
   VKmlLayersSet: IMapTypeSetBuilder;
   VMiniMapMapsSet: IMapTypeSetBuilder;
   VMiniMapLayersSet: IMapTypeSetBuilder;
-  i: Integer;
   VGUID: TGUID;
 begin
   Assert(Assigned(AMapTypeSetBuilderFactory));
@@ -153,7 +153,9 @@ begin
   Assert(Assigned(AMiniMapConfig));
   Assert(Assigned(AMiniLayersConfig));
   Assert(Assigned(AFillingMapConfig));
+
   inherited Create;
+
   FMapsSet := AMapsSet;
   FLayersSet := ALayersSet;
   FFirstMainMapGUID := AFirstMainMapGUID;
@@ -169,16 +171,17 @@ begin
 
   VMiniMapMapsSet := AMapTypeSetBuilderFactory.Build(False);
   VMiniMapLayersSet := AMapTypeSetBuilderFactory.Build(False);
-  for i := 0 to AMapsSet.Count - 1 do begin
-    VMapType := AMapsSet.Items[i];
+  for I := 0 to AMapsSet.Count - 1 do begin
+    VMapType := AMapsSet.Items[I];
     VAllMapsSet.Add(VMapType);
     if VMapType.Abilities.IsShowOnSmMap and VMapType.IsBitmapTiles then begin
       VMiniMapMapsSet.Add(VMapType);
     end;
   end;
+
   if Assigned(ALayersSet) then begin
-    for i := 0 to ALayersSet.Count - 1 do begin
-      VMapType := ALayersSet.Items[i];
+    for I := 0 to ALayersSet.Count - 1 do begin
+      VMapType := ALayersSet.Items[I];
       VAllMapsSet.Add(VMapType);
       if VMapType.IsBitmapTiles then begin
         if VMapType.Abilities.IsShowOnSmMap then begin
@@ -190,15 +193,16 @@ begin
       end;
     end;
   end;
+
   FAllMapsSet := VAllMapsSet.MakeAndClear;
   FBitmapLayersSet := VBitmapLayersSet.MakeAndClear;
   FKmlLayersSet := VKmlLayersSet.MakeAndClear;
-
 
   VGUID := FMainMapConfig.MainMapGUID;
   if not FMapsSet.IsExists(VGUID) then begin
     FMainMapConfig.MainMapGUID := FFirstMainMapGUID;
   end;
+
   FActiveMap :=
     TMapTypeChangeableByConfig.Create(
       FMainMapConfig,

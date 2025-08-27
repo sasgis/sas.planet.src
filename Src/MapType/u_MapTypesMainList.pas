@@ -210,8 +210,8 @@ begin
   for I := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[I];
     if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
-      result := VGUID;
-      exit;
+      Result := VGUID;
+      Exit;
     end;
   end;
 end;
