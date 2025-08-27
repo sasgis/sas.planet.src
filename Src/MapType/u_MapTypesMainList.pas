@@ -324,6 +324,11 @@ begin
             VLocalMapConfig,
             FPerfCounterList
           );
+
+        if not VMapType.Zmp.IsLayer then begin
+          Inc(VMapOnlyCount);
+        end;
+        Inc(VMapTypeCount);
       end else begin
         VMapType :=
           TMapTypeProxy.Create(
@@ -358,13 +363,6 @@ begin
       if ExceptObject <> nil then begin
         ShowErrorMessage((ExceptObject as Exception).Message);
       end;
-      VMapType := nil;
-    end;
-    if VMapType <> nil then begin
-      if not VMapType.Zmp.IsLayer then begin
-        Inc(VMapOnlyCount);
-      end;
-      inc(VMapTypeCount);
     end;
   end;
 
@@ -386,6 +384,8 @@ begin
   FGUIConfigList.ReadConfig(AMapsListConfig);
 
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  Assert(VGUIDList <> nil);
+
   FGUIConfigList.LockWrite;
   try
     for i := 0 to VGUIDList.Count - 1 do begin
