@@ -1381,7 +1381,7 @@ begin
       GState.MapTypeListBuilderFactory,
       GState.MapType.MapsSet,
       GState.MapType.LayersSet,
-      GState.MapType.FirstMainMapGUID,
+      GState.MapType.DefaultMainMapGUID,
       FConfig.MainMapConfig,
       FConfig.MapLayersConfig,
       FConfig.LayersConfig.MiniMapLayerConfig.MapConfig,
