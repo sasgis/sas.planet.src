@@ -411,22 +411,33 @@ function TMapTypesMainList.NextMapWithTile(
 ): IMapType;
 var
   I: Integer;
+  VMapIndex: Integer;
   VMapType: IMapType;
   VProjection: IProjection;
   VMapProjection: IProjection;
-  VMapTile: Tpoint;
+  VMapTile: TPoint;
   VVersion: IMapVersionRequest;
   VTileInfo: ITileInfoBasic;
   VLonLat: TDoublePoint;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
-  VLoopCnt: Integer;
 begin
   Result := nil;
 
+  if AStep = 0 then begin
+    Assert(False);
+    Exit;
+  end;
+
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  if VGUIDList.Count = 0 then begin
+    Exit;
+  end;
+
+  VMapIndex := -1;
   for I := 0 to VGUIDList.Count - 1 do begin
     if IsEqualGUID(AActiveMap.GUID, VGUIDList.Items[I]) then begin
+      VMapIndex := I;
       Break;
     end;
   end;
@@ -434,32 +445,31 @@ begin
   VProjection := AView.Projection;
   VLonLat := AView.GetCenterLonLat;
 
-  VLoopCnt := 0;
-  while VLoopCnt < VGUIDList.Count do begin
-    Inc(VLoopCnt);
-    I := I + AStep;
-    if I < 0 then begin
-      I := VGUIDList.Count - 1;
+  for I := 0 to VGUIDList.Count - 1 do begin
+    VMapIndex := VMapIndex + AStep;
+
+    if VMapIndex < 0 then begin
+      VMapIndex := VGUIDList.Count - 1;
+    end else
+    if VMapIndex > VGUIDList.Count - 1 then begin
+      VMapIndex := 0;
     end;
-    if I > VGUIDList.Count - 1 then begin
-      I := 0;
-    end;
-    VGUID := VGUIDList.Items[I];
+
+    VGUID := VGUIDList.Items[VMapIndex];
     VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
-    if VMapType <> nil then begin
-      if not VMapType.Zmp.IsLayer and VMapType.GUIConfig.Enabled then begin
-        VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
-        VMapTile :=
-          PointFromDoublePoint(
-            VMapProjection.LonLat2TilePosFloat(VLonLat),
-            prToTopLeft
-          );
-        VVersion := VMapType.VersionRequest.GetStatic;
-        VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VMapProjection.Zoom, VVersion, gtimAsIs);
-        if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
-          Result := VMapType;
-          Break;
-        end;
+
+    if Assigned(VMapType) and not VMapType.Zmp.IsLayer and VMapType.GUIConfig.Enabled then begin
+      VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
+      VMapTile :=
+        PointFromDoublePoint(
+          VMapProjection.LonLat2TilePosFloat(VLonLat),
+          prToTopLeft
+        );
+      VVersion := VMapType.VersionRequest.GetStatic;
+      VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VMapProjection.Zoom, VVersion, gtimAsIs);
+      if Assigned(VTileInfo) and VTileInfo.IsExists then begin
+        Result := VMapType;
+        Exit;
       end;
     end;
   end;
