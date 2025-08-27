@@ -182,16 +182,21 @@ end;
 
 function TMapTypesMainList.GetDefaultMainMapGUID: TGUID;
 const
-  CDefaultMainMapGUID: TGUID = '{CBA03063-23D9-4FA4-931A-9182B98644B1}';
+  CDefaultMainMapGUID: array [0..2] of TGUID = (
+    '{CBA03063-23D9-4FA4-931A-9182B98644B1}', // Google Maps
+    '{D643C5A1-4331-4387-9BE2-DDDF185C117E}', // OpenStreetMap
+    '{8238C84A-D37E-45E1-A735-FBCFBCD4168C}'  // Yandex Maps
+  );
 var
   VGUID: TGUID;
 begin
-  VGUID := CDefaultMainMapGUID;
-  if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
-    Result := VGUID;
-  end else begin
-    Result := GetFirstMainMapGUID;
+  for VGUID in CDefaultMainMapGUID do begin
+    if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
+      Result := VGUID;
+      Exit;
+    end;
   end;
+  Result := GetFirstMainMapGUID;
 end;
 
 function TMapTypesMainList.GetFirstMainMapGUID: TGUID;
