@@ -94,7 +94,7 @@ type
     function NextMapWithTile(
       const AView: ILocalCoordConverter;
       const AActiveMap: IMapType;
-      AStep: integer
+      AStep: Integer
     ): IMapType;
 
     property FullMapsSetChangeable: IMapTypeSetChangeable read FFullMapsSetChangeable;
@@ -196,14 +196,14 @@ end;
 
 function TMapTypesMainList.GetFirstMainMapGUID: TGUID;
 var
-  i: integer;
+  I: Integer;
   VGUID: TGUID;
   VGUIDList: IGUIDListStatic;
 begin
   Result := CGUID_Zero;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  for i := 0 to VGUIDList.Count - 1 do begin
-    VGUID := VGUIDList.Items[i];
+  for I := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[I];
     if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
       result := VGUID;
       exit;
@@ -213,15 +213,15 @@ end;
 
 procedure TMapTypesMainList.BuildMapsLists;
 var
-  i: Integer;
+  I: Integer;
   VMapType: IMapType;
   VMapsList: IMapTypeSetBuilder;
   VLayersList: IMapTypeSetBuilder;
 begin
   VMapsList := FMapTypeSetBuilderFactory.Build(False);
   VLayersList := FMapTypeSetBuilderFactory.Build(False);
-  for i := 0 to FFullMapsSet.Count - 1 do begin
-    VMapType := FFullMapsSet.Items[i];
+  for I := 0 to FFullMapsSet.Count - 1 do begin
+    VMapType := FFullMapsSet.Items[I];
     if VMapType.Zmp.IsLayer then begin
       VLayersList.Add(VMapType);
     end else begin
@@ -255,16 +255,16 @@ procedure TMapTypesMainList.LoadMaps(
   const AMapsListConfig: IConfigDataProvider
 );
 var
+  I: Integer;
   VMapType: IMapType;
-  VMapOnlyCount: integer;
+  VMapOnlyCount: Integer;
   VLocalMapConfig: IConfigDataProvider;
-  VMapTypeCount: integer;
+  VMapTypeCount: Integer;
   VZmp: IZmpInfo;
   VEnum: IEnumGUID;
   VGUID: TGUID;
   VGetCount: Cardinal;
   VGUIDList: IGUIDListStatic;
-  i: Integer;
   VFullMapsList: IMapTypeSetBuilder;
 begin
   VMapOnlyCount := 0;
@@ -282,15 +282,18 @@ begin
   if VMapTypeCount = 0 then begin
     raise EMapTypesNoMaps.Create(SAS_ERR_NoMaps);
   end;
+
   if VMapOnlyCount = 0 then begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
+
   VEnum.Reset;
   VFullMapsList := FMapTypeSetBuilderFactory.Build(False);
   VFullMapsList.Capacity := VMapTypeCount;
 
   VMapOnlyCount := 0;
   VMapTypeCount := 0;
+
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
     try
       VZmp := FZmpInfoSet.GetZmpByGUID(VGUID);
@@ -358,6 +361,7 @@ begin
             FPerfCounterList
           ) as IMapType;
       end;
+
       VFullMapsList.Add(VMapType);
     except
       if ExceptObject <> nil then begin
@@ -369,13 +373,15 @@ begin
   if VMapTypeCount = 0 then begin
     raise EMapTypesNoMaps.Create(SAS_ERR_NoMaps);
   end;
+
   if VMapOnlyCount = 0 then begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
+
   FFullMapsSet := VFullMapsList.MakeAndClear;
 
   BuildMapsLists;
-  
+
   FGUIConfigList :=
     TMapTypeGUIConfigList.Create(
       ALanguageManager,
@@ -388,10 +394,10 @@ begin
 
   FGUIConfigList.LockWrite;
   try
-    for i := 0 to VGUIDList.Count - 1 do begin
-      VGUID := VGUIDList.Items[i];
+    for I := 0 to VGUIDList.Count - 1 do begin
+      VGUID := VGUIDList.Items[I];
       VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
-      VMapType.GUIConfig.SortIndex := i + 1;
+      VMapType.GUIConfig.SortIndex := I + 1;
     end;
   finally
     FGUIConfigList.UnlockWrite;
@@ -401,9 +407,10 @@ end;
 function TMapTypesMainList.NextMapWithTile(
   const AView: ILocalCoordConverter;
   const AActiveMap: IMapType;
-  AStep: integer
+  AStep: Integer
 ): IMapType;
 var
+  I: Integer;
   VMapType: IMapType;
   VProjection: IProjection;
   VMapProjection: IProjection;
@@ -413,33 +420,34 @@ var
   VLonLat: TDoublePoint;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
-  i: Integer;
   VLoopCnt: Integer;
 begin
   Result := nil;
-  VProjection := AView.Projection;
-  VLonLat := AView.GetCenterLonLat;
+
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  VLoopCnt := 0;
-  for i := 0 to VGUIDList.Count - 1 do begin
-    if IsEqualGUID(AActiveMap.GUID, VGUIDList.Items[i]) then begin
+  for I := 0 to VGUIDList.Count - 1 do begin
+    if IsEqualGUID(AActiveMap.GUID, VGUIDList.Items[I]) then begin
       Break;
     end;
   end;
 
-  while (VLoopCnt < VGUIDList.Count) do begin
+  VProjection := AView.Projection;
+  VLonLat := AView.GetCenterLonLat;
+
+  VLoopCnt := 0;
+  while VLoopCnt < VGUIDList.Count do begin
     Inc(VLoopCnt);
-    i := i + AStep;
-    if i < 0 then begin
-      i := VGUIDList.Count - 1;
+    I := I + AStep;
+    if I < 0 then begin
+      I := VGUIDList.Count - 1;
     end;
-    if i > VGUIDList.Count - 1 then begin
-      i := 0;
+    if I > VGUIDList.Count - 1 then begin
+      I := 0;
     end;
-    VGUID := VGUIDList.Items[i];
+    VGUID := VGUIDList.Items[I];
     VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
     if VMapType <> nil then begin
-      if (not VMapType.Zmp.IsLayer) and (VMapType.GUIConfig.Enabled) then begin
+      if not VMapType.Zmp.IsLayer and VMapType.GUIConfig.Enabled then begin
         VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
         VMapTile :=
           PointFromDoublePoint(
@@ -450,7 +458,7 @@ begin
         VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VMapProjection.Zoom, VVersion, gtimAsIs);
         if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
           Result := VMapType;
-          break;
+          Break;
         end;
       end;
     end;
