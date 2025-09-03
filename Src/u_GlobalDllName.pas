@@ -96,6 +96,22 @@ procedure TGlobalDllName.Init;
     Result := {$IFDEF FORCE_USE_WINXP_DLL} True {$ELSE} Win32MajorVersion = 5 {$ENDIF};
   end;
 
+  procedure _SetDllDirectory(const APath: UnicodeString);
+  var
+    VHandle: THandle;
+    VSetDirProc: function(lpPathName: LPCWSTR): BOOL; stdcall;
+  begin
+    VHandle := GetModuleHandle('kernel32.dll');
+    if VHandle <> 0 then begin
+      VSetDirProc := GetProcAddress(VHandle, 'SetDllDirectoryW');
+      if Addr(VSetDirProc) <> nil then begin
+        if not VSetDirProc(PWideChar(APath)) then begin
+          RaiseLastOSError;
+        end;
+      end;
+    end;
+  end;
+
 var
   VPath: string;
   VAppPath: string;
@@ -146,9 +162,7 @@ begin
   end;
 
   if VPath <> '' then begin
-    if not SetDllDirectory(PChar(VPath)) then begin
-      RaiseLastOSError;
-    end;
+    _SetDllDirectory(VPath);
   end;
 end;
 
