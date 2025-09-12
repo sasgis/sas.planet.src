@@ -465,8 +465,10 @@ begin
     ETS_ROO_TILE_EXISTS // always create!
   );
 
-  // add this version to list
-  PEnumTileVersionsCallbackInfo(ACallbackPointer)^.TileVersionsList.Add(VVersion);
+  if not FEmptyVersion.IsSame(VVersion) then begin
+    // add this version to list
+    PEnumTileVersionsCallbackInfo(ACallbackPointer)^.TileVersionsList.Add(VVersion);
+  end;
 end;
 
 function TTileStorageETS.CallbackLib_GetTileRectInfo(
@@ -992,7 +994,11 @@ begin
   until FALSE;
 
   // make result
-  Result := TMapVersionListStatic.Create(VObj.TileVersionsList.MakeStaticAndClear);
+  if VObj.TileVersionsList <> nil then begin
+    Result := TMapVersionListStatic.Create(VObj.TileVersionsList.MakeStaticAndClear);
+  end else begin
+    Result := nil;
+  end;
 end;
 
 function TTileStorageETS.GetTileFileName(
@@ -1112,7 +1118,7 @@ begin
       end
       else begin
         // failed
-        raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
+        raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError + ' (' + IntToStr(VResult) + ')');
       end;
     end;
   until FALSE;
@@ -1381,7 +1387,10 @@ begin
   if (ASelectBufferOut^.ptTileBuffer <> nil) then
   if (ASelectBufferOut^.dwTileSize > 0) then begin
     // make TileBody object
-    Result := TBinaryData.Create(ASelectBufferOut^.dwTileSize, ASelectBufferOut^.ptTileBuffer);
+    Result := TBinaryData.Create(
+      ASelectBufferOut^.dwTileSize,
+      ASelectBufferOut^.ptTileBuffer
+    );
     Exit;
   end;
 
@@ -1456,8 +1465,12 @@ begin
         // version is WideString
         VResponseVersion := WideString(PWideChar(AVersionStr));
       end;
-      // make version
-      Result := MapVersionFactory.CreateByStoreString(VResponseVersion);
+      if VResponseVersion = '' then begin
+        Result := FEmptyVersion;
+      end else begin
+        // make version
+        Result := MapVersionFactory.CreateByStoreString(VResponseVersion);
+      end;
     end;
   end else begin
     // neither tile nor tne
