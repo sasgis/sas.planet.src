@@ -27,6 +27,8 @@ uses
   Types,
   SysUtils,
   Windows,
+  t_ETS_Tiles,
+  t_ETS_Provider,
   i_BinaryData,
   i_MapVersionInfo,
   i_MapVersionFactory,
@@ -44,9 +46,7 @@ uses
   i_NotifierTime,
   i_ListenerTime,
   i_TileInfoBasicMemCache,
-  u_TileStorageAbstract,
-  t_ETS_Tiles,
-  t_ETS_Provider;
+  u_TileStorageAbstract;
 
 type
   TTileStorageETS = class(TTileStorageAbstract, IInternalDomainOptions)
@@ -70,11 +70,11 @@ type
     FDLLProvHandle: TETS_Provider_Handle;
 
     // routines
-    FETS_Sync: Pointer;       // TETS_Sync (OPTIONAL)
-    FETS_SelectTile: Pointer; // TETS_SelectTile
-    FETS_InsertTile: Pointer; // TETS_InsertTile
-    FETS_InsertTNE: Pointer;  // TETS_InsertTile (OPTIONAL)
-    FETS_DeleteTile: Pointer; // TETS_DeleteTile
+    FETS_Sync: Pointer;             // TETS_Sync (OPTIONAL)
+    FETS_SelectTile: Pointer;       // TETS_SelectTile
+    FETS_InsertTile: Pointer;       // TETS_InsertTile
+    FETS_InsertTNE: Pointer;        // TETS_InsertTile (OPTIONAL)
+    FETS_DeleteTile: Pointer;       // TETS_DeleteTile
     FETS_SetInformation: Pointer;   // TETS_SetInformation
     FETS_EnumTileVersions: Pointer; // TETS_EnumTileVersions (OPTIONAL)
     FETS_GetTileRectInfo: Pointer;  // TETS_GetTileRectInfo (OPTIONAL)
@@ -230,7 +230,6 @@ type
       const AIgnoreTNE: Boolean;
       const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
-
   public
     constructor Create(
       const AStorageTypeAbilities: ITileStorageTypeAbilities;
