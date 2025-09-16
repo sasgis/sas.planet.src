@@ -70,6 +70,7 @@ type
 implementation
 
 uses
+  u_ExceptionManager,
   u_Notifier,
   u_NotifierOperation,
   u_Synchronizer,
@@ -151,7 +152,11 @@ begin
           VOperatonID := FCancelNotifier.CurrentOperation;
 
           if Assigned(FOnExecute) then begin
-            FOnExecute(VOperatonID, FCancelNotifier);
+            try
+              FOnExecute(VOperatonID, FCancelNotifier);
+            except
+              TExceptionManager.ShowExceptionInfo;
+            end;
           end;
 
           if Terminated then begin
