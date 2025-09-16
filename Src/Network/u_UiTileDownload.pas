@@ -350,6 +350,7 @@ var
   VTileInfo: ITileInfoBasic;
   VCurrentOperation: Integer;
   VStorage: ITileStorage;
+  VError: ITileErrorInfo;
 begin
   FTTLListener.UpdateUseTime;
 
@@ -380,9 +381,24 @@ begin
       while FRequestManager.Acquire(VTile) do begin
         VNeedDownload := False;
         if (FUseDownload = tsCache) then begin
-          break;
+          Break;
         end;
-        VTileInfo := VStorage.GetTileInfoEx(VTile, VZoom, VVersionInfo, gtimWithoutData);
+
+        try
+          VTileInfo := VStorage.GetTileInfoEx(VTile, VZoom, VVersionInfo, gtimWithoutData);
+        except
+          on E: Exception do begin
+            FRequestManager.Release(VTile, VZoom, VVersionInfo.BaseVersion, False);
+            if FErrorLogger <> nil then begin
+              VError := TTileErrorInfo.Create(FMapType.Zmp.GUID, VZoom, VTile, E.Message);
+              FErrorLogger.LogError(VError);
+              Exit;
+            end else begin
+              raise;
+            end;
+          end;
+        end;
+
         if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
           if FUseDownload = tsInternet then begin
             if Now - VTileInfo.LoadDate > FTileMaxAgeInInternet then begin
