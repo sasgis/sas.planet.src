@@ -1678,13 +1678,8 @@
         <DCCReference Include="Src\TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBConfigStatic.pas"/>
         <DCCReference Include="Src\TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBHelper.pas"/>
         <DCCReference Include="Src\TileStorage\BerkeleyDB\u_TileStorageTypeBerkeleyDB.pas"/>
-        <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\t_ETS_AuthFunc.pas"/>
-        <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\t_ETS_AuthKind.pas"/>
-        <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\t_ETS_Path.pas"/>
         <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\t_ETS_Provider.pas"/>
         <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\t_ETS_Tiles.pas"/>
-        <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\u_ETS_Path.pas"/>
-        <DCCReference Include="Src\TileStorage\DBMS\ExtTileStorages\u_ETS_Tiles.pas"/>
         <DCCReference Include="Src\TileStorage\DBMS\u_TileStorageDBMS.pas"/>
         <DCCReference Include="Src\TileStorage\DBMS\u_TileStorageTypeDBMS.pas"/>
         <DCCReference Include="Src\TileStorage\FileSystem\u_EnumTileInfoByFileIterator.pas"/>
