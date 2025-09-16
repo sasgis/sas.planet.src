@@ -147,12 +147,16 @@ var
   i: Integer;
 begin
   // check
-  if (nil = FTerrainDataPath) then begin
+  if FTerrainDataPath = nil then begin
     Exit;
   end;
+
   VFileName := FTerrainDataPath.FullPath + '\SASTerrain.ini';
-  if (not FileExists(VFileName)) then begin
-    Exit;
+  if not FileExists(VFileName) then begin
+    VFileName := ChangeFileExt(VFileName, '.Default.ini');
+    if not FileExists(VFileName) then begin
+      Exit;
+    end;
   end;
 
   // load
