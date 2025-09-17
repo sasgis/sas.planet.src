@@ -175,13 +175,19 @@ begin
     {$elseif defined(VER350)} + ' 11'
       {$if declared(RTLVersion113)} + '.3' {$else}
       {$if declared(RTLVersion112)} + '.2' {$else}
-      {$if declared(RTLVersion111)} + '.1' {$ifend} {$ifend} {$ifend}
+      {$if declared(RTLVersion111)} + '.1' {$else}
+                                    + '.0' {$ifend} {$ifend} {$ifend}
                                     + ' Alexandria'
     {$elseif defined(VER360)} + ' 12'
       {$if declared(RTLVersion123)} + '.3' {$else}
       {$if declared(RTLVersion122)} + '.2' {$else}
-      {$if declared(RTLVersion121)} + '.1' {$ifend} {$ifend} {$ifend}
+      {$if declared(RTLVersion121)} + '.1' {$else}
+                                    + '.0' {$ifend} {$ifend} {$ifend}
                                     + ' Athens'
+    {$elseif defined(VER370)} + ' 13'
+      {$if declared(RTLVersion131)} + '.1' {$else}
+                                    + '.0' {$ifend}
+                                    + ' Florence'
     {$else} {$message hint 'Define your compiler version above!'}
     {$ifend};
 end;
