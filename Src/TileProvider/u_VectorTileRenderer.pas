@@ -199,11 +199,13 @@ begin
     VBitmapMarker := FMarkerIconProvider.GetMarker(VAppearanceIcon);
   end;
 
-  if not Assigned(VBitmapMarker) and Assigned(FPointBitmapMarker) then begin
-    VBitmapMarker := FPointBitmapMarker;
-  end else begin
-    Assert(FPointMarkerDrawable <> nil);
-    VMarkerDrawable := FPointMarkerDrawable.GetStatic;
+  if not Assigned(VBitmapMarker) then begin
+    if Assigned(FPointBitmapMarker) then begin
+      VBitmapMarker := FPointBitmapMarker;
+    end else begin
+      Assert(FPointMarkerDrawable <> nil);
+      VMarkerDrawable := FPointMarkerDrawable.GetStatic;
+    end;
   end;
 
   if Assigned(VBitmapMarker) then begin
