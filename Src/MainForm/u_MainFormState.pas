@@ -37,7 +37,7 @@ type
     FState: TStateEnum;
     FMapMovingCount: Integer;
     {$IFDEF ENABLE_STATE_LOGGING}
-    procedure LogChanges;
+    procedure LogChanges(const AProcName: string);
     {$ENDIF}
   private
     { IMainFormState }
@@ -76,11 +76,11 @@ begin
 
   if FMapMovingCount = 1 then begin
     DoChangeNotify;
-
-    {$IFDEF ENABLE_STATE_LOGGING}
-    LogChanges;
-    {$ENDIF}
   end;
+
+  {$IFDEF ENABLE_STATE_LOGGING}
+  LogChanges('begin');
+  {$ENDIF}
 end;
 
 procedure TMainFormState.MapMovingEnd;
@@ -94,11 +94,11 @@ begin
 
   if FMapMovingCount = 0 then begin
     DoChangeNotify;
-
-    {$IFDEF ENABLE_STATE_LOGGING}
-    LogChanges;
-    {$ENDIF}
   end;
+
+  {$IFDEF ENABLE_STATE_LOGGING}
+  LogChanges('end');
+  {$ENDIF}
 end;
 
 function TMainFormState.GetIsMapMoving: Boolean;
@@ -116,15 +116,15 @@ begin
   if FState <> AValue then begin
     FState := AValue;
     DoChangeNotify;
-
-    {$IFDEF ENABLE_STATE_LOGGING}
-    LogChanges;
-    {$ENDIF}
   end;
+
+  {$IFDEF ENABLE_STATE_LOGGING}
+  LogChanges('state');
+  {$ENDIF}
 end;
 
 {$IFDEF ENABLE_STATE_LOGGING}
-procedure TMainFormState.LogChanges;
+procedure TMainFormState.LogChanges(const AProcName: string);
 const
   cStateId: array [TStateEnum] of string = (
     'ao_movemap',
@@ -139,8 +139,10 @@ const
   );
 begin
   OutputDebugString(PChar(
+    '[' + AProcName + '] ' +
     'State: ' + cStateId[FState] + '; ' +
-    'IsMapMoving: ' + BoolToStr(FMapMovingCount > 0, True)
+    'IsMapMoving: ' + BoolToStr(FMapMovingCount > 0, True) + '; ' +
+    'MapMovingCount: ' + IntToStr(FMapMovingCount)
   ));
 end;
 {$ENDIF}
