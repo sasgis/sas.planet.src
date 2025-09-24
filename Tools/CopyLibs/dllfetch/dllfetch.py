@@ -11,7 +11,9 @@ DLL_REGEX = re.compile(r"DLL Name:\s*(\S+)")
 
 SYSTEM_DLL = ["msvcrt.dll", "kernel32.dll", "user32.dll", "oleaut32.dll",
               "ntdll.dll", "advapi32.dll", "ws2_32.dll", "bcrypt.dll",
-              "userenv.dll", "shell32.dll", "crypt32.dll", "wldap32.dll"]
+              "userenv.dll", "shell32.dll", "crypt32.dll", "wldap32.dll",
+              "secur32.dll", "iphlpapi.dll"
+              ]
 
 
 def check_file(filename):

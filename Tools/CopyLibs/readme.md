@@ -7,6 +7,7 @@ pacman -Suy
 3. Install 32-bit packages:
 ```
 pacman -S \
+  mingw-w64-i686-7zip \
   mingw-w64-i686-bzip2 \
   mingw-w64-i686-curl \
   mingw-w64-i686-binutils \
@@ -37,7 +38,6 @@ pacman -S \
 
 these packages are 64-bit only:
 ```
- - 7zip
  - geotiff
  - proj
  - minizip-ng
