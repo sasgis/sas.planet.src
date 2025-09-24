@@ -4957,8 +4957,7 @@ begin
       end;
     end;
     if FState.IsMapMoving then begin
-      Assert(False, 'Unexpected state: IsMapMoving = True');
-      //FState.MapMovingEnd;
+      FState.MapMovingEnd;
     end;
     FViewPortState.ChangeMapPixelToVisualPoint(r);
   end;
@@ -5363,7 +5362,7 @@ begin
     Exit;
   end;
 
-  if (VIsClickInMap) and (Button = mbright) and (FState.State = ao_movemap) then begin
+  if (VIsClickInMap) and (Button = mbRight) and (FState.State = ao_movemap) then begin
     VVectorItem := nil;
     VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x, y));
     if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
@@ -5485,7 +5484,14 @@ begin
     Exit;
   end;
 
-  VIsMapMoving := FState.IsMapMoving and (FMapMovingButton = Button);
+  // In TImage32, the handling of OnMouseDown and OnMouseUp events differs from the usual
+  // behavior: https://github.com/graphics32/graphics32/issues/381 (the number of OnMouseUp
+  // events is not always equal to the number of OnMouseDown events). A situation is possible
+  // where two OnMouseDown events correspond to only one OnMouseUp event.
+  // Taking this into account, the check for (FMapMovingButton = Button) is disabled here.
+  // Otherwise, FState.MapMovingEnd might never be executed...
+
+  VIsMapMoving := FState.IsMapMoving {and (FMapMovingButton = Button)};
 
   if VIsMapMoving then begin
     FState.MapMovingEnd;

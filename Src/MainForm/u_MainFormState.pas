@@ -88,7 +88,8 @@ begin
   Dec(FMapMovingCount);
 
   if FMapMovingCount < 0 then begin
-    Assert(False);
+    // It is OK if this happens.
+    // It is a workaround for the TImage32 mouse events handling behavior
     FMapMovingCount := 0;
   end;
 
