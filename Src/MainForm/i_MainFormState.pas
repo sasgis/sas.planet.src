@@ -48,6 +48,7 @@ type
 
     procedure MapMovingBegin;
     procedure MapMovingEnd;
+    procedure MapMovingReset;
 
     function GetIsMapMoving: Boolean;
     property IsMapMoving: Boolean read GetIsMapMoving;

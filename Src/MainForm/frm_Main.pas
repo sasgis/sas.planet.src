@@ -4957,7 +4957,7 @@ begin
       end;
     end;
     if FState.IsMapMoving then begin
-      FState.MapMovingEnd;
+      FState.MapMovingReset;
     end;
     FViewPortState.ChangeMapPixelToVisualPoint(r);
   end;
@@ -5484,14 +5484,7 @@ begin
     Exit;
   end;
 
-  // In TImage32, the handling of OnMouseDown and OnMouseUp events differs from the usual
-  // behavior: https://github.com/graphics32/graphics32/issues/381 (the number of OnMouseUp
-  // events is not always equal to the number of OnMouseDown events). A situation is possible
-  // where two OnMouseDown events correspond to only one OnMouseUp event.
-  // Taking this into account, the check for (FMapMovingButton = Button) is disabled here.
-  // Otherwise, FState.MapMovingEnd might never be executed...
-
-  VIsMapMoving := FState.IsMapMoving {and (FMapMovingButton = Button)};
+  VIsMapMoving := FState.IsMapMoving and (FMapMovingButton = Button);
 
   if VIsMapMoving then begin
     FState.MapMovingEnd;
@@ -5677,6 +5670,24 @@ begin
   VMousePosPrev := FMouseState.CurentPos;
   FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
   VMousePos := FMouseState.CurentPos;
+
+  if FState.IsMapMoving and
+     not FMapMoveAnimtion and
+     not FMapZoomAnimtion and
+     not (ssLeft in Shift) and
+     not (ssRight in Shift)
+  then begin
+    // A rare case when the map may "stick" to the mouse cursor due to unbalanced
+    // OnMouseDown and OnMouseUp calls:
+    // - Press and hold the left mouse button;
+    // - Drag the pointer to the layer with popup menu (for example, to the status bar);
+    // - Without releasing the left mouse button, press the right mouse button to bring up the menu;
+    // - Close the menu with the Esc key.
+    // In this scenario, OnMouseUp will only fire once, for the right mouse button.
+    // There will be no OnMouseUp event for the left mouse button.
+    // To compensate for this effect, we will reset the map movement flag here.
+    FState.MapMovingReset;
+  end;
 
   if not FState.IsMapMoving and (Layer <> nil) then begin
     Exit;

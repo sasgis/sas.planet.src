@@ -46,6 +46,7 @@ type
 
     procedure MapMovingBegin;
     procedure MapMovingEnd;
+    procedure MapMovingReset;
 
     function GetIsMapMoving: Boolean;
   public
@@ -88,8 +89,6 @@ begin
   Dec(FMapMovingCount);
 
   if FMapMovingCount < 0 then begin
-    // It is OK if this happens.
-    // It is a workaround for the TImage32 mouse events handling behavior
     FMapMovingCount := 0;
   end;
 
@@ -99,6 +98,18 @@ begin
 
   {$IFDEF ENABLE_STATE_LOGGING}
   LogChanges('end');
+  {$ENDIF}
+end;
+
+procedure TMainFormState.MapMovingReset;
+begin
+  if FMapMovingCount <> 0 then begin
+    FMapMovingCount := 0;
+    DoChangeNotify;
+  end;
+
+  {$IFDEF ENABLE_STATE_LOGGING}
+  LogChanges('reset');
   {$ENDIF}
 end;
 
