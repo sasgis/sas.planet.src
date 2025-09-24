@@ -3996,8 +3996,7 @@ begin
       until
         (VAnimationTime >= VAnimationTimeMax) or
         (AZoom <> FViewPortState.View.GetStatic.Projection.Zoom) or
-        (AMousePos.X <> FMouseState.GetLastUpPos(FMapMovingButton).X) or
-        (AMousePos.Y <> FMouseState.GetLastUpPos(FMapMovingButton).Y);
+        not IsPointsEqual(AMousePos, FMouseState.GetLastUpPos(FMapMovingButton));
     end;
   finally
     FState.MapMovingEnd;
