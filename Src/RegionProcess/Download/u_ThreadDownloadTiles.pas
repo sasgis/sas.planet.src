@@ -382,9 +382,9 @@ begin
           end;
         except
           on E: Exception do begin
-            FProgressInfo.Log.WriteText(E.Message, 0);
-            VGotoNextTile := True;
-            FProgressInfo.AddProcessedTile(VTile);
+            FProgressInfo.Log.WriteText(E.ClassName + ': ' + E.Message, 0);
+            VGotoNextTile := False;
+            FProgressInfo.NeedPause := True;
           end;
         end;
       end;
