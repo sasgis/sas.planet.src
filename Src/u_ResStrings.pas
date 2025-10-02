@@ -98,6 +98,7 @@ resourcestring
   SAS_ERR_TileNotExists = 'Tile is not found!';
   SAS_ERR_Noconnectionstointernet = 'Error connecting to server';
   SAS_ERR_FileExistsShort = 'The tile already exists';
+  SAS_ERR_TneExistsShort = 'The tne already exists';
   SAS_ERR_BadMIMEForDownloadRastr = 'Server returned type "%0:s", this is not bitmap image';
   SAS_ERR_BadMIME = 'Server returned unexpected type "%0:s"';
   SAS_ERR_MapGUIDEmpty = 'Empty GUID';

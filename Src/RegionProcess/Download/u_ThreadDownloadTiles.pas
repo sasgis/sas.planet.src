@@ -84,6 +84,7 @@ type
     FRES_TileNotExists: string;
     FRES_Noconnectionstointernet: string;
     FRES_FileExistsShort: string;
+    FRES_TneExistsShort: string;
     FRES_ProcessFilesComplete: string;
 
     FOperationID: Integer;
@@ -140,6 +141,7 @@ uses
   i_DownloadResult,
   i_TileInfoBasic,
   i_TileDownloaderState,
+  i_TileDownloadSubsystem,
   i_TileStorage,
   i_InterfaceListStatic,
   u_NotifierOperation,
@@ -280,9 +282,14 @@ var
   VTileInfo: ITileInfoBasic;
   VGotoNextTile: Boolean;
   VProcessingTileMsg: string;
+  VTileStorage: ITileStorage;
+  VTileDownloadSubsystem: ITileDownloadSubsystem;
 begin
   VZoom := FMapType.ProjectionSet.GetSuitableZoom(ATileIterator.TilesRect.Projection);
   FProgressInfo.SetZoom(VZoom);
+
+  VTileStorage := FMapType.TileStorage;
+  VTileDownloadSubsystem := FMapType.TileDownloadSubsystem;
 
   while ATileIterator.Next(VTile) do begin
     VGotoNextTile := False;
@@ -303,13 +310,13 @@ begin
         Exit;
       end;
 
-      // notify about current tile
       VProcessingTileMsg := Format('[z%d/x%d/y%d]' + #13#10 + '%s',
         [VZoom + 1, VTile.X, VTile.Y, FMapType.GetTileShowName(VTile, VZoom, FVersionForDownload)]);
       FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [VProcessingTileMsg]), 0);
 
-      // if gtimWithData - tile will be loaded, so we use gtimAsIs
-      VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, VZoom, FVersionForCheck, gtimAsIs);
+      // we're only interested in the tile metadata, so gtimAsIs is used here
+      VTileInfo := VTileStorage.GetTileInfoEx(VTile, VZoom, FVersionForCheck, gtimAsIs);
+
       if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
         if VTileInfo.IsExists then begin
           if FReplaceExistTiles then begin
@@ -320,21 +327,22 @@ begin
           end;
           if not VGotoNextTile then begin
             if FCheckExistTileDate and (VTileInfo.LoadDate >= FCheckTileDate) then begin
-              // skip existing newer tile
+              // skip (existing tile is newer than required)
               FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
               VGotoNextTile := True;
             end;
           end;
-        end else if VTileInfo.IsExistsTNE then begin
+        end else
+        if VTileInfo.IsExistsTNE then begin
           if FSecondLoadTNE then begin
             FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
           end else begin
-            FProgressInfo.Log.WriteText('(tne exists)', 0);
+            FProgressInfo.Log.WriteText(FRES_TneExistsShort, 0);
             VGotoNextTile := True;
           end;
           if not VGotoNextTile then begin
             if FCheckTneOlderDate and (VTileInfo.LoadDate >= FReplaceTneOlderDate) then begin
-              // skip existing newer tne
+              // skip (existing tne is newer than required)
               FProgressInfo.Log.WriteText(FRES_TneBeCreateTime, 0);
               VGotoNextTile := True;
             end;
@@ -346,9 +354,8 @@ begin
       if VGotoNextTile then begin
         FProgressInfo.AddProcessedTile(VTile);
       end else begin
-        try
-          // download tile
-          VRequestTask := FMapType.TileDownloadSubsystem.GetRequestTask(
+        try // download tile
+          VRequestTask := VTileDownloadSubsystem.GetRequestTask(
             ACancelNotifier,
             FCancelNotifier,
             FOperationID,
@@ -360,7 +367,7 @@ begin
           );
           if VRequestTask <> nil then begin
             FTileRequestResult := nil;
-            FMapType.TileDownloadSubsystem.Download(VRequestTask);
+            VTileDownloadSubsystem.Download(VRequestTask);
             if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
               Exit;
             end;
@@ -376,7 +383,7 @@ begin
               FProgressInfo.AddProcessedTile(VTile);
             end;
           end else begin
-            FProgressInfo.Log.WriteText('Download disabled', 0);
+            FProgressInfo.Log.WriteText('Error: Downloading is disabled for this map!', 0);
             VGotoNextTile := False;
             FProgressInfo.NeedPause := True;
           end;
@@ -388,7 +395,6 @@ begin
           end;
         end;
       end;
-
       if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
         Exit;
       end;
@@ -487,6 +493,7 @@ begin
   FRES_TileNotExists := SAS_ERR_TileNotExists;
   FRES_Noconnectionstointernet := SAS_ERR_Noconnectionstointernet;
   FRES_FileExistsShort := SAS_ERR_FileExistsShort;
+  FRES_TneExistsShort := SAS_ERR_TneExistsShort;
   FRES_ProcessFilesComplete := SAS_MSG_ProcessFilesComplete;
 end;
 
@@ -504,41 +511,47 @@ begin
     FFinishEvent.ResetEvent;
     if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VResultOk) then begin
       if Supports(AResult, ITileRequestResultError, VResultError) then begin
-        // tile downloaded successfully downloaded, but not saved
+        // tile downloaded successfully, but was not saved
         FProgressInfo.Log.WriteText('Error: ' + VResultError.ErrorText, 0);
         FProgressInfo.NeedPause := True;
         Result := False;
       end else begin
-        // tile downloaded successfully
+        // tile downloaded and saved successfully
         FProgressInfo.Log.WriteText('(Ok!)', 0);
         FProgressInfo.AddDownloadedTile(AResult.Request.Tile, VResultOk.Data.Size);
         Result := True;
       end;
       FDownloadInfo.Add(1, VResultOk.Data.Size);
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
-      // same file size - assuming file the same
+    end else
+    if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
+      // same file size - assuming the tiles are identical
       FProgressInfo.Log.WriteText(FRES_FileBeCreateLen, 0);
       FProgressInfo.AddNotNecessaryTile(AResult.Request.Tile);
       Result := True;
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultProxyError) then begin
+    end else
+    if Supports(VResultWithDownload.DownloadResult, IDownloadResultProxyError) then begin
       FProgressInfo.Log.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime, [FProxyAuthErrorSleepTime div 1000]), 10);
       SleepCancelable(FProxyAuthErrorSleepTime);
-      Result := false;
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultBanned) then begin
+      Result := False;
+    end else
+    if Supports(VResultWithDownload.DownloadResult, IDownloadResultBanned) then begin
       FProgressInfo.Log.WriteText(FRES_Ban + #13#10 + Format(FRES_WaitTime, [FBanSleepTime div 1000]), 10);
       SleepCancelable(FBanSleepTime);
-      Result := false;
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultBadContentType, VResultBadContentType) then begin
+      Result := False;
+    end else
+    if Supports(VResultWithDownload.DownloadResult, IDownloadResultBadContentType, VResultBadContentType) then begin
       FProgressInfo.Log.WriteText(Format(FRES_BadMIME, [VResultBadContentType.ContentType]), 1);
       Result := True;
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists) then begin
+    end else
+    if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists) then begin
       FProgressInfo.Log.WriteText(FRES_TileNotExists, 1);
       Result := True;
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
+    end else
+    if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
       if Supports(VResultWithDownload.DownloadResult, IDownloadResultNoConnetctToServer) then begin
         FProgressInfo.Log.WriteText(VResultDownloadError.ErrorText + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
         SleepCancelable(FDownloadErrorSleepTime);
-        Result := false;
+        Result := False;
       end else begin
         FProgressInfo.Log.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
         SleepCancelable(FDownloadErrorSleepTime);
@@ -549,7 +562,7 @@ begin
         end;
       end;
     end else begin
-      FProgressInfo.Log.WriteText('Unknown download result', 10);
+      FProgressInfo.Log.WriteText('Error: Unknown download result!', 10);
       Result := False;
     end;
   end else begin
