@@ -1,5 +1,10 @@
 unit libge;
 
+{$ifdef FPC}
+  {$mode DELPHI}
+  {$H+}
+{$endif}
+
 interface
 
 uses
@@ -109,7 +114,7 @@ type
   IGoogleEarthCacheProvider = interface
     ['{74439293-C057-4E64-8F93-A0C64BA203B8}']
     function GetTileInfo(
-      const APoint: TPoint;
+      {$ifndef FPC}const{$endif} APoint: TPoint;
       const AZoom: Byte;
       const AVersion: Word;
       const ADate: TDateTime;
@@ -123,7 +128,7 @@ type
     ): Boolean; safecall;
 
     function GetListOfTileVersions(
-      const APoint: TPoint;
+      {$ifndef FPC}const{$endif} APoint: TPoint;
       const AZoom: Byte;
       const AVersion: Word;
       const ADate: TDateTime
@@ -248,7 +253,7 @@ end;
 procedure RaiseGoogleEarthExceptionIfError(const AErrorMsg: WideString);
 begin
   if AErrorMsg <> '' then begin
-    raise EGoogleEarthException.Create(AErrorMsg);
+    raise EGoogleEarthException.Create(string(AErrorMsg));
   end;
 end;
 
