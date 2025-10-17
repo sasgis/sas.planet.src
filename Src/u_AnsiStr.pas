@@ -26,6 +26,7 @@ interface
 uses
   SysUtils,
   AnsiStrings,
+  Alcinoe.Localization,
   Alcinoe.StringUtils,
   Alcinoe.StringList;
 
@@ -71,7 +72,7 @@ function FormatA(const Format: AnsiString; const Args: array of const;
 
 //----------------- Alcinoe ---------------------------------------------------
 type
-  TFormatSettingsA = Alcinoe.StringUtils.TALFormatSettingsA;
+  TFormatSettingsA = Alcinoe.Localization.TALFormatSettingsA;
 
   TStringListA = class(Alcinoe.StringList.TALStringListA)
   public
