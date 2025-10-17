@@ -234,8 +234,8 @@ begin
     VParser.AddArgument('--move-xyz', saStore);         // --move-xyz=({x},{y},{z})
     VParser.AddArgument('--navigate', saStore);         // --navigate=({lon},{lat})
     VParser.AddArgument('--show-placemarks', saStore);  // --show-placemarks={0/1}
-    VParser.AddArgument('--insert-placemark', saStore); // --insert-placemark="{name}";({lon},{lat});"{desc}"
-    VParser.AddArgument('--insert-placemark-with-icon', saStore); // --insert-placemark-with-icon="{name}";({lon},{lat});"{icon}";"{desc}"
+    VParser.AddArgument('--insert-placemark', saStore); // --insert-placemark="{name}";({lon},{lat});"{description}"
+    VParser.AddArgument('--insert-placemark-with-icon', saStore); // --insert-placemark-with-icon="{name}";({lon},{lat});"{icon-name}";"{description}"
     VParser.AddArgument('--sls-autostart', saBool);     // --sls-autostart
 
     VParseResult := VParser.ParseArgs(AList);

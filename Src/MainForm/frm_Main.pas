@@ -4208,8 +4208,6 @@ var
   VDroppedFileCount: Integer;
   VFileName: string;
   VFileNameLength: Integer;
-  VImportConfig: IImportConfig;
-  VLastMark: IVectorDataItem;
   VFiles: TStringList;
   VList: IStringListStatic;
 begin
@@ -4217,8 +4215,6 @@ begin
   Msg.Result := 0;
   VDropH := Msg.Drop;
   try
-    VLastMark := nil;
-    VImportConfig := nil;
     VDroppedFileCount := DragQueryFile(VDropH, $FFFFFFFF, nil, 0);
     VFiles := TStringList.Create;
     try
