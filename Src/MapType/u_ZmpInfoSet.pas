@@ -188,8 +188,13 @@ begin
     end;
 
     for I := 0 to CMaxReservedZmpCount - 1 do begin
-      VIsLayer := I > (CMaxReservedZmpCount div 2);
-      VIsBitmapTiles := not VIsLayer or (VIsLayer and (I mod 2 = 0));
+      // reserve slots for the offline maps:
+      //   50% for the raster maps
+      //   35% for the rater layers
+      //   15% for the vector layers
+      VIsLayer := I >= Trunc(CMaxReservedZmpCount * 0.5);
+      VIsBitmapTiles := not VIsLayer or (VIsLayer and (I < Trunc(CMaxReservedZmpCount * (0.5 + 0.35))));
+
       VZmp := TZmpInfoProxy.Create(
         AZmpConfig,
         ALanguageManager,
@@ -202,6 +207,7 @@ begin
         VIsBitmapTiles,
         VIsLayer
       ) as IZmpInfo;
+
       FList.Add(VZmp.GUID, VZmp);
       Inc(VMapTypeCount);
     end;
