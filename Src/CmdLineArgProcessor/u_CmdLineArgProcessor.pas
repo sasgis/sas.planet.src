@@ -201,12 +201,12 @@ function TCmdLineArgProcessor.ProcessInternal(
 ): Integer;
 
 var
+  I: Integer;
   VGUID: TGUID;
   VZoom: Byte;
   VLonLat: TDoublePoint;
   VPoint: TPoint;
   VMap: IMapType;
-  i: Integer;
   VStrValue: string;
   VFilesList: TStringList;
   VFiles: IStringListStatic;
@@ -308,12 +308,12 @@ begin
 
       VStartSlsPaused := not VParseResult.HasArgument('sls-autostart');
 
-      // unnamed arguments -> files: sls/hlg/kml/gpx/sml etc.
+      // treat unnamed arguments as files: sls, hlg, kml, gpx, sml, etc.
       if VParseResult.Args.Count > 0 then begin
         VFilesList := TStringList.Create;
         try
-          for i := 0 to VParseResult.Args.Count - 1 do begin
-            VFilesList.Add(GetUnquotedStr(VParseResult.Args[i]));
+          for I := 0 to VParseResult.Args.Count - 1 do begin
+            VFilesList.Add(GetUnquotedStr(VParseResult.Args[I]));
           end;
           VFiles := TStringListStatic.CreateWithOwn(VFilesList);
         finally
@@ -324,7 +324,7 @@ begin
           FMapGoTo,
           ARegionProcess,
           VStartSlsPaused,
-          False, // import in silent mode
+          False, // open files silently (without showing any UI dialogs)
           nil,
           FMarkSystem,
           FImporterList,

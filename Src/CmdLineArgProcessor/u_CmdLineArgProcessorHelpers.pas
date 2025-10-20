@@ -576,7 +576,6 @@ procedure ProcessOpenFiles(
 );
 var
   I: Integer;
-  VFileExt: string;
   VFileName: string;
   VProcessed: Boolean;
   VList: IInterfaceListStatic;
@@ -617,10 +616,7 @@ begin
   if Assigned(ATileStorageImporter) then begin
     for I := 0 to AFiles.Count - 1 do begin
       VFileName := AFiles.Items[I];
-      VFileExt := LowerCase(ExtractFileExt(VFileName));
-      if (VFileExt = '.mbtiles') or (VFileExt = '.sqlitedb') or
-         (VFileExt = '.db') or (VFileExt = '.rmaps')
-      then begin
+      if ATileStorageImporter.IsSupportedFileExt(ExtractFileExt(VFileName)) then begin
         if ATileStorageImporter.ProcessFile(VFileName, AShowImportDlg, VGoToInfo) then begin
           if not PointIsEmpty(VGoToInfo.FLonLatPoint) and (VGoToInfo.FProjection <> nil) then begin
             AMapGoto.GotoPos(VGoToInfo.FLonLatPoint, VGoToInfo.FProjection, False);

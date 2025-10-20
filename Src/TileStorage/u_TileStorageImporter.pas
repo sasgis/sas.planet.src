@@ -82,6 +82,8 @@ type
       const AShowImportDlg: Boolean;
       out AGoToInfo: TTileStorageImporterGoToInfo
     ): Boolean;
+
+    class function IsSupportedFileExt(const AExt: string): Boolean;
   public
     constructor Create(
       const AAllMapsSet:  IMapTypeSet;
@@ -800,6 +802,24 @@ begin
     VZipStream := nil;
   finally
     VZipStream.Free;
+  end;
+end;
+
+class function TTileStorageImporter.IsSupportedFileExt(const AExt: string): Boolean;
+const
+  CSupportedExt: array [0..3] of string = (
+    '.mbtiles', '.sqlietedb', '.db', '.rmaps'
+  );
+var
+  VExt, VExtLower: string;
+begin
+  Result := False;
+  VExtLower := LowerCase(AExt);
+  for VExt in CSupportedExt do  begin
+    if VExtLower = VExt then begin
+      Result := True;
+      Exit;
+    end;
   end;
 end;
 
