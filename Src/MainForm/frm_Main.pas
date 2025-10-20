@@ -638,6 +638,8 @@ type
     TBSeparatorItem5: TTBSeparatorItem;
     TBSeparatorItem6: TTBSeparatorItem;
     tbxCopyUrlToGoogleEarthWeb: TTBXItem;
+    tbitmOpenOfflineMap: TTBXItem;
+    actOfflineMapOpen: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -900,6 +902,7 @@ type
     procedure tbxCopyUrlToNakarteMeClick(Sender: TObject);
     procedure tbitmCopyToClipboardCoordinatesAndElevClick(Sender: TObject);
     procedure tbxCopyUrlToGoogleEarthWebClick(Sender: TObject);
+    procedure actOfflineMapOpenExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -7191,6 +7194,16 @@ var
   VList: IStringListStatic;
 begin
   VList := FMarkDBGUI.ImportFileDialog(Self.Handle);
+  if Assigned(VList) then begin
+    ProcessOpenFiles(VList);
+  end;
+end;
+
+procedure TfrmMain.actOfflineMapOpenExecute(Sender: TObject);
+var
+  VList: IStringListStatic;
+begin
+  VList := FTileStorageImporter.OpenFileDialogExecute(Self.Handle);
   if Assigned(VList) then begin
     ProcessOpenFiles(VList);
   end;

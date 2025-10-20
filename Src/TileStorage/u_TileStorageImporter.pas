@@ -25,13 +25,16 @@ interface
 
 uses
   Types,
+  Dialogs,
+  Windows,
   t_GeoTypes,
   i_MapTypeSet,
   i_Projection,
   i_ConfigDataProvider,
   i_ContentTypeManager,
   i_ActiveMapsConfig,
-  i_ArchiveReadWriteFactory;
+  i_ArchiveReadWriteFactory,
+  i_StringListStatic;
 
 type
   TTileStorageImporterGoToInfo = record
@@ -58,6 +61,12 @@ type
     FGotoZoom: Byte;
   end;
 
+  TTileStorageImporterFormatInfo = record
+    Name: string;
+    SupportedExt: TStringDynArray;
+  end;
+  TTileStorageImporterFormatsInfo = array of TTileStorageImporterFormatInfo;
+
   TTileStorageImporter = class
   private
     FAllMapsSet:  IMapTypeSet;
@@ -65,6 +74,11 @@ type
     FMainLayersConfig: IActiveLayersConfig;
     FContentTypeManager: IContentTypeManager;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FFormatsInfo: TTileStorageImporterFormatsInfo;
+    FOpenDialog: TOpenDialog;
+
+    procedure PrepareFormatsInfo;
+    function IsSupportedFileExt(const AFileName: string): Boolean;
 
     function GetFileInfo(
       const AFileName: string;
@@ -77,13 +91,15 @@ type
       const AFileInfo: TTileStorageImporterFileInfo
     ): IConfigDataProvider;
   public
+    function OpenFileDialogExecute(
+      const AParentWnd: HWND
+    ): IStringListStatic;
+
     function ProcessFile(
       const AFileName: string;
       const AShowImportDlg: Boolean;
       out AGoToInfo: TTileStorageImporterGoToInfo
     ): Boolean;
-
-    class function IsSupportedFileExt(const AExt: string): Boolean;
   public
     constructor Create(
       const AAllMapsSet:  IMapTypeSet;
@@ -92,6 +108,7 @@ type
       const AContentTypeManager: IContentTypeManager;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -102,6 +119,7 @@ uses
   Classes,
   IOUtils,
   Generics.Collections,
+  gnugettext,
   libsqlite3,
   superobject,
   c_CacheTypeCodes,
@@ -111,8 +129,10 @@ uses
   i_MapType,
   i_ZmpInfo,
   u_BinaryData,
+  u_Dialogs,
   u_GeoFunc,
   u_GeoToStrFunc,
+  u_StringListStatic,
   u_SQLite3Handler,
   u_ContentDetecter,
   u_ConfigDataProviderByZip;
@@ -138,6 +158,62 @@ begin
   FMainLayersConfig := AMainLayersConfig;
   FContentTypeManager := AContentTypeManager;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+
+  PrepareFormatsInfo;
+end;
+
+destructor TTileStorageImporter.Destroy;
+begin
+  FreeAndNil(FOpenDialog);
+  inherited Destroy;
+end;
+
+procedure TTileStorageImporter.PrepareFormatsInfo;
+
+  procedure _AddItem(var ACount: Integer; const AName: string; const AExtArr: TStringDynArray);
+  begin
+    if ACount >= Length(FFormatsInfo) then begin
+      SetLength(FFormatsInfo, Length(FFormatsInfo) + 1);
+    end;
+    with FFormatsInfo[ACount] do begin
+      Name := AName;
+      SupportedExt := AExtArr;
+    end;
+    Inc(ACount);
+  end;
+
+var
+  VCount: Integer;
+begin
+  SetLength(FFormatsInfo, 3);
+
+  VCount := 0;
+
+  _AddItem(VCount, 'MBTiles (SQLite3)', ['mbtiles']);
+  _AddItem(VCount, 'OsmAnd, Locus, RMaps (SQLite3)', ['sqlitedb', 'rmap']);
+  _AddItem(VCount, 'OruxMaps (SQLite3)', ['db']);
+
+  SetLength(FFormatsInfo, VCount);
+end;
+
+function TTileStorageImporter.IsSupportedFileExt(const AFileName: string): Boolean;
+var
+  I: Integer;
+  VExt, VExtLower: string;
+begin
+  Result := False;
+  VExtLower := LowerCase(ExtractFileExt(AFileName));
+  if (VExtLower <> '') and (VExtLower[1] = '.') then begin
+    VExtLower := Copy(VExtLower, 2); // remove the leading dot
+  end;
+  for I := 0 to Length(FFormatsInfo) - 1 do begin
+    for VExt in FFormatsInfo[I].SupportedExt do  begin
+      if VExtLower = VExt then begin
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
 end;
 
 function TTileStorageImporter.ProcessFile(
@@ -147,6 +223,7 @@ function TTileStorageImporter.ProcessFile(
 ): Boolean;
 var
   I: Integer;
+  VMsg: string;
   VMapType: IMapType;
   VMapTypeProxy: IMapTypeProxy;
   VZmpInfoProxy: IZmpInfoProxy;
@@ -158,8 +235,14 @@ begin
   AGoToInfo.FLonLatPoint := CEmptyDoublePoint;
   AGoToInfo.FProjection := nil;
 
+  // check the file's extention first
+  if not IsSupportedFileExt(AFileName) then begin
+    Exit;
+  end;
+
+  // try to open and read the contents of the file
   if not GetFileInfo(AFileName, AShowImportDlg, VFileInfo) then begin
-    // usupported file format
+    // unsupported file format
     Exit;
   end;
 
@@ -192,13 +275,18 @@ begin
         end;
 
         Result := True;
-        Break;
+        Exit; // done
       end;
     end;
   end;
 
   if not Result then begin
-    // error: no free slots for this map type
+    if VFileInfo.FIsLayer then begin
+      VMsg := IfThen(VFileInfo.FIsBitmapTile, _('raster layer'), _('vector layer'));
+    end else begin
+      VMsg := _('base map');
+    end;
+    ShowErrorMessageSync(Format(_('Error: No available slots for the offline maps (%s)!'), [VMsg]));
   end;
 end;
 
@@ -805,20 +893,51 @@ begin
   end;
 end;
 
-class function TTileStorageImporter.IsSupportedFileExt(const AExt: string): Boolean;
-const
-  CSupportedExt: array [0..3] of string = (
-    '.mbtiles', '.sqlietedb', '.db', '.rmaps'
-  );
+function TTileStorageImporter.OpenFileDialogExecute(const AParentWnd: HWND): IStringListStatic;
+
+  function _Cleanup(const AStr: string): string;
+  begin
+    Result := StringReplace(AStr, ';', ' ', [rfReplaceAll]);
+  end;
+
+  function _GetFilterStr: string;
+  var
+    I: Integer;
+    VExtStr: string;
+    VFilterStr: string;
+    VAllFormats: string;
+  begin
+    VFilterStr := '';
+    VAllFormats := '';
+    for I := 0 to Length(FFormatsInfo) - 1 do begin
+      VExtStr := '*.' + string.Join(';*.', FFormatsInfo[I].SupportedExt);
+      VFilterStr := VFilterStr + '|' + FFormatsInfo[I].Name + ' (' + _Cleanup(VExtStr) + ')|' + VExtStr;
+      if I > 0 then begin
+        VAllFormats := VAllFormats + ';';
+      end;
+      VAllFormats := VAllFormats + VExtStr;
+    end;
+    Result := _('All supported formats') + ' (' + _Cleanup(VAllFormats) + ')|' + VAllFormats + VFilterStr;
+  end;
+
 var
-  VExt, VExtLower: string;
+  VStrings: TStrings;
 begin
-  Result := False;
-  VExtLower := LowerCase(AExt);
-  for VExt in CSupportedExt do  begin
-    if VExtLower = VExt then begin
-      Result := True;
-      Exit;
+  Result := nil;
+
+  if not Assigned(FOpenDialog) then begin
+    FOpenDialog := TOpenDialog.Create(nil);
+    FOpenDialog.Name := 'dlgOpen' + Self.ClassName;
+    FOpenDialog.Options := [ofEnableSizing];
+
+    FOpenDialog.Filter := _GetFilterStr;
+    FOpenDialog.FilterIndex := 0;
+  end;
+
+  if FOpenDialog.Execute(AParentWnd) then begin
+    VStrings := FOpenDialog.Files;
+    if Assigned(VStrings) and (VStrings.Count > 0) then begin
+      Result := TStringListStatic.CreateByStrings(VStrings);
     end;
   end;
 end;

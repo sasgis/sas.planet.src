@@ -218,6 +218,11 @@ object frmMain: TfrmMain
           Action = actFileOpen
           Images = MenusImageList
         end
+        object tbitmOpenOfflineMap: TTBXItem
+          Action = actOfflineMapOpen
+          ImageIndex = 34
+          Images = MenusImageList
+        end
         object TBXSeparatorItem6: TTBXSeparatorItem
         end
         object NZoomIn: TTBXItem
@@ -3827,6 +3832,11 @@ object frmMain: TfrmMain
       Caption = 'Open...'
       ImageIndex = 34
       OnExecute = actFileOpenExecute
+    end
+    object actOfflineMapOpen: TAction
+      Category = 'Operations'
+      Caption = 'Open Offline Map...'
+      OnExecute = actOfflineMapOpenExecute
     end
     object actZoomIn: TAction
       Category = 'Operations'
