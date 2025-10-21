@@ -19,29 +19,23 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_TileStorageImporter;
+unit u_TileStorageSQLiteFileImporter;
 
 interface
 
 uses
   Types,
-  Dialogs,
-  Windows,
+  SysUtils,
   t_GeoTypes,
   i_MapTypeSet,
   i_Projection,
   i_ConfigDataProvider,
   i_ContentTypeManager,
-  i_ActiveMapsConfig,
   i_ArchiveReadWriteFactory,
-  i_StringListStatic;
+  i_TileStorageImporter,
+  u_BaseInterfacedObject;
 
 type
-  TTileStorageImporterGoToInfo = record
-    FLonLatPoint: TDoublePoint;
-    FProjection: IProjection;
-  end;
-
   TTileStorageImporterGoToResult = (gtrError, gtrPointOk, gtrLonLatOk);
 
   TTileStorageImporterFileInfo = record
@@ -56,29 +50,15 @@ type
     FParentSubMenu: string;
 
     FGotoResult: TTileStorageImporterGoToResult;
+    FGotoZoom: Byte;
     FGotoPoint: TPoint;
     FGotoLonLat: TDoublePoint;
-    FGotoZoom: Byte;
   end;
 
-  TTileStorageImporterFormatInfo = record
-    Name: string;
-    SupportedExt: TStringDynArray;
-  end;
-  TTileStorageImporterFormatsInfo = array of TTileStorageImporterFormatInfo;
-
-  TTileStorageImporter = class
+  TTileStorageSQLiteFileImporter = class(TBaseInterfacedObject, ITileStorageImporter)
   private
-    FAllMapsSet:  IMapTypeSet;
-    FMainMapConfig: IActiveMapConfig;
-    FMainLayersConfig: IActiveLayersConfig;
     FContentTypeManager: IContentTypeManager;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
-    FFormatsInfo: TTileStorageImporterFormatsInfo;
-    FOpenDialog: TOpenDialog;
-
-    procedure PrepareFormatsInfo;
-    function IsSupportedFileExt(const AFileName: string): Boolean;
 
     function GetFileInfo(
       const AFileName: string;
@@ -90,31 +70,25 @@ type
       const AGuid: string;
       const AFileInfo: TTileStorageImporterFileInfo
     ): IConfigDataProvider;
-  public
-    function OpenFileDialogExecute(
-      const AParentWnd: HWND
-    ): IStringListStatic;
-
+  private
+    { ITileStorageImporter }
     function ProcessFile(
       const AFileName: string;
       const AShowImportDlg: Boolean;
-      out AGoToInfo: TTileStorageImporterGoToInfo
-    ): Boolean;
+      const AAllMapsSet: IMapTypeSet
+    ): TTileStorageImportResult;
   public
     constructor Create(
-      const AAllMapsSet:  IMapTypeSet;
-      const AMainMapConfig: IActiveMapConfig;
-      const AMainLayersConfig: IActiveLayersConfig;
       const AContentTypeManager: IContentTypeManager;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory
     );
-    destructor Destroy; override;
   end;
+
+  ETileStorageSQLiteFileImporter = class(Exception);
 
 implementation
 
 uses
-  SysUtils,
   StrUtils,
   Classes,
   IOUtils,
@@ -132,7 +106,6 @@ uses
   u_Dialogs,
   u_GeoFunc,
   u_GeoToStrFunc,
-  u_StringListStatic,
   u_SQLite3Handler,
   u_ContentDetecter,
   u_ConfigDataProviderByZip;
@@ -141,113 +114,47 @@ type
   TTablesInfo = TDictionary<string, TStringDynArray>;
   TMetadataInfo = TDictionary<string, string>;
 
-{ TTileStorageImporter }
+{ TTileStorageSQLiteFileImporter }
 
-constructor TTileStorageImporter.Create(
-  const AAllMapsSet: IMapTypeSet;
-  const AMainMapConfig: IActiveMapConfig;
-  const AMainLayersConfig: IActiveLayersConfig;
+constructor TTileStorageSQLiteFileImporter.Create(
   const AContentTypeManager: IContentTypeManager;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory
 );
 begin
   inherited Create;
 
-  FAllMapsSet := AAllMapsSet;
-  FMainMapConfig := AMainMapConfig;
-  FMainLayersConfig := AMainLayersConfig;
   FContentTypeManager := AContentTypeManager;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
-
-  PrepareFormatsInfo;
 end;
 
-destructor TTileStorageImporter.Destroy;
-begin
-  FreeAndNil(FOpenDialog);
-  inherited Destroy;
-end;
-
-procedure TTileStorageImporter.PrepareFormatsInfo;
-
-  procedure _AddItem(var ACount: Integer; const AName: string; const AExtArr: TStringDynArray);
-  begin
-    if ACount >= Length(FFormatsInfo) then begin
-      SetLength(FFormatsInfo, Length(FFormatsInfo) + 1);
-    end;
-    with FFormatsInfo[ACount] do begin
-      Name := AName;
-      SupportedExt := AExtArr;
-    end;
-    Inc(ACount);
-  end;
-
-var
-  VCount: Integer;
-begin
-  SetLength(FFormatsInfo, 3);
-
-  VCount := 0;
-
-  _AddItem(VCount, 'MBTiles (SQLite3)', ['mbtiles']);
-  _AddItem(VCount, 'OsmAnd, Locus, RMaps (SQLite3)', ['sqlitedb', 'rmap']);
-  _AddItem(VCount, 'OruxMaps (SQLite3)', ['db']);
-
-  SetLength(FFormatsInfo, VCount);
-end;
-
-function TTileStorageImporter.IsSupportedFileExt(const AFileName: string): Boolean;
-var
-  I: Integer;
-  VExt, VExtLower: string;
-begin
-  Result := False;
-  VExtLower := LowerCase(ExtractFileExt(AFileName));
-  if (VExtLower <> '') and (VExtLower[1] = '.') then begin
-    VExtLower := Copy(VExtLower, 2); // remove the leading dot
-  end;
-  for I := 0 to Length(FFormatsInfo) - 1 do begin
-    for VExt in FFormatsInfo[I].SupportedExt do  begin
-      if VExtLower = VExt then begin
-        Result := True;
-        Exit;
-      end;
-    end;
-  end;
-end;
-
-function TTileStorageImporter.ProcessFile(
+function TTileStorageSQLiteFileImporter.ProcessFile(
   const AFileName: string;
   const AShowImportDlg: Boolean;
-  out AGoToInfo: TTileStorageImporterGoToInfo
-): Boolean;
+  const AAllMapsSet: IMapTypeSet
+): TTileStorageImportResult;
 var
   I: Integer;
   VMsg: string;
   VMapType: IMapType;
   VMapTypeProxy: IMapTypeProxy;
   VZmpInfoProxy: IZmpInfoProxy;
+  VProjection: IProjection;
   VFileInfo: TTileStorageImporterFileInfo;
   VZmpMapConfig: IConfigDataProvider;
 begin
-  Result := False;
-
-  AGoToInfo.FLonLatPoint := CEmptyDoublePoint;
-  AGoToInfo.FProjection := nil;
-
-  // check the file's extention first
-  if not IsSupportedFileExt(AFileName) then begin
-    Exit;
-  end;
+  Result.Status := tsiInternalError;
+  Result.MapType := nil;
+  Result.GoToPoint := CEmptyDoublePoint;
 
   // try to open and read the contents of the file
   if not GetFileInfo(AFileName, AShowImportDlg, VFileInfo) then begin
     // unsupported file format
+    Result.Status := tsiUnsupportedFormat;
     Exit;
   end;
 
-  for I := 0 to FAllMapsSet.Count - 1 do begin
-    VMapType := FAllMapsSet.Items[I];
+  for I := 0 to AAllMapsSet.Count - 1 do begin
+    VMapType := AAllMapsSet.Items[I];
     if Supports(VMapType, IMapTypeProxy, VMapTypeProxy) and
        not VMapTypeProxy.IsInitialized
     then begin
@@ -258,29 +165,36 @@ begin
         VZmpMapConfig := MakeZmpMapConfig(VZmpInfoProxy.GUID.ToString, VFileInfo);
         VMapTypeProxy.Initialize(VZmpMapConfig);
 
-        if VMapTypeProxy.Zmp.IsLayer then begin
-          FMainLayersConfig.SelectLayerByGUID(VMapTypeProxy.GUID);
-        end else begin
-          FMainMapConfig.MainMapGUID := VMapTypeProxy.GUID;
+        Result.MapType := VMapTypeProxy;
+
+        case VFileInfo.FGotoResult of
+          gtrError: begin
+            Result.GoToPoint := CEmptyDoublePoint;
+          end;
+
+          gtrPointOk: begin
+            Result.GoToZoom := VFileInfo.FGotoZoom;
+            VProjection := VMapTypeProxy.ProjectionSet.Zooms[VFileInfo.FGotoZoom];
+            Result.GoToPoint := VProjection.TilePos2LonLat(VFileInfo.FGotoPoint);
+          end;
+
+          gtrLonLatOk: begin
+            Result.GoToZoom := VFileInfo.FGotoZoom;
+            Result.GoToPoint := VFileInfo.FGotoLonLat;
+          end;
+        else
+          raise ETileStorageSQLiteFileImporter.CreateFmt(
+            'Unexpected GotoResult value: %d', [Integer(VFileInfo.FGotoResult)]
+          );
         end;
 
-        if VFileInfo.FGotoResult <> gtrError then begin
-          AGoToInfo.FProjection := VMapTypeProxy.ProjectionSet.Zooms[VFileInfo.FGotoZoom];
-        end;
-        if VFileInfo.FGotoResult = gtrLonLatOk then begin
-          AGoToInfo.FLonLatPoint := VFileInfo.FGotoLonLat;
-        end else
-        if VFileInfo.FGotoResult = gtrPointOk then begin
-          AGoToInfo.FLonLatPoint := AGoToInfo.FProjection.TilePos2LonLat(VFileInfo.FGotoPoint);
-        end;
-
-        Result := True;
+        Result.Status := tsiOk;
         Exit; // done
       end;
     end;
   end;
 
-  if not Result then begin
+  if Result.Status = tsiInternalError then begin
     if VFileInfo.FIsLayer then begin
       VMsg := IfThen(VFileInfo.FIsBitmapTile, _('raster layer'), _('vector layer'));
     end else begin
@@ -716,7 +630,7 @@ begin
   end;
 end;
 
-function TTileStorageImporter.GetFileInfo(
+function TTileStorageSQLiteFileImporter.GetFileInfo(
   const AFileName: string;
   const AShowImportDlg: Boolean;
   out AFileInfo: TTileStorageImporterFileInfo
@@ -841,7 +755,7 @@ begin
   end;
 end;
 
-function TTileStorageImporter.MakeZmpMapConfig(
+function TTileStorageSQLiteFileImporter.MakeZmpMapConfig(
   const AGuid: string;
   const AFileInfo: TTileStorageImporterFileInfo
 ): IConfigDataProvider;
@@ -890,55 +804,6 @@ begin
     VZipStream := nil;
   finally
     VZipStream.Free;
-  end;
-end;
-
-function TTileStorageImporter.OpenFileDialogExecute(const AParentWnd: HWND): IStringListStatic;
-
-  function _Cleanup(const AStr: string): string;
-  begin
-    Result := StringReplace(AStr, ';', ' ', [rfReplaceAll]);
-  end;
-
-  function _GetFilterStr: string;
-  var
-    I: Integer;
-    VExtStr: string;
-    VFilterStr: string;
-    VAllFormats: string;
-  begin
-    VFilterStr := '';
-    VAllFormats := '';
-    for I := 0 to Length(FFormatsInfo) - 1 do begin
-      VExtStr := '*.' + string.Join(';*.', FFormatsInfo[I].SupportedExt);
-      VFilterStr := VFilterStr + '|' + FFormatsInfo[I].Name + ' (' + _Cleanup(VExtStr) + ')|' + VExtStr;
-      if I > 0 then begin
-        VAllFormats := VAllFormats + ';';
-      end;
-      VAllFormats := VAllFormats + VExtStr;
-    end;
-    Result := _('All supported formats') + ' (' + _Cleanup(VAllFormats) + ')|' + VAllFormats + VFilterStr;
-  end;
-
-var
-  VStrings: TStrings;
-begin
-  Result := nil;
-
-  if not Assigned(FOpenDialog) then begin
-    FOpenDialog := TOpenDialog.Create(nil);
-    FOpenDialog.Name := 'dlgOpen' + Self.ClassName;
-    FOpenDialog.Options := [ofEnableSizing];
-
-    FOpenDialog.Filter := _GetFilterStr;
-    FOpenDialog.FilterIndex := 0;
-  end;
-
-  if FOpenDialog.Execute(AParentWnd) then begin
-    VStrings := FOpenDialog.Files;
-    if Assigned(VStrings) and (VStrings.Count > 0) then begin
-      Result := TStringListStatic.CreateByStrings(VStrings);
-    end;
   end;
 end;
 

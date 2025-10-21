@@ -1652,6 +1652,12 @@
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForMarksLayer.pas"/>
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForVectorMaps.pas"/>
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererForMarks.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\i_TileStorageImporter.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\i_TileStorageImporterList.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\u_TileStorageImporter.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\u_TileStorageImporterList.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\u_TileStorageImporterListSimple.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\u_TileStorageSQLiteFileImporter.pas"/>
         <DCCReference Include="Src\TileStorage\Archive\u_TileStorageArchive.pas"/>
         <DCCReference Include="Src\TileStorage\Archive\u_TileStorageTypeArchive.pas"/>
         <DCCReference Include="Src\TileStorage\BerkeleyDB\i_BerkeleyDB.pas"/>
@@ -1761,7 +1767,6 @@
         <DCCReference Include="Src\TileStorage\u_TileFileNameParsersSimpleList.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageAbilities.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageAbstract.pas"/>
-        <DCCReference Include="Src\TileStorage\u_TileStorageImporter.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageInfo.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageOfMapType.pas"/>
         <DCCReference Include="Src\TileStorage\u_TileStorageTypeBase.pas"/>

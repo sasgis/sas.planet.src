@@ -1784,11 +1784,10 @@ begin
 
   FTileStorageImporter :=
     TTileStorageImporter.Create(
+      GState.TileStorageImporterList,
       FMainMapState.AllMapsSet,
       FConfig.MainMapConfig,
-      FConfig.MapLayersConfig,
-      GState.ContentTypeManager,
-      GState.ArchiveReadWriteFactory
+      FConfig.MapLayersConfig
     );
 end;
 

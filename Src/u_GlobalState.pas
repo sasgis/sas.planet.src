@@ -100,6 +100,7 @@ uses
   i_VectorItemTreeImporterList,
   i_VectorItemTreeExporterList,
   i_TileStorageTypeList,
+  i_TileStorageImporterList,
   i_LastSearchResult,
   i_ImageResamplerFactory,
   i_BuildInfo,
@@ -201,6 +202,7 @@ type
     FBuildInfo: IBuildInfo;
     FInternalBrowserContent: IInternalBrowserLastContent;
     FTileStorageTypeList: ITileStorageTypeListStatic;
+    FTileStorageImporterList: ITileStorageImporterListChangeable;
     FLastSelectionInfo: ILastSelectionInfo;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FLastSearchResult: ILastSearchResult;
@@ -286,6 +288,7 @@ type
     property MapVersionFactoryList: IMapVersionFactoryList read FMapVersionFactoryList;
     property BuildInfo: IBuildInfo read FBuildInfo;
     property TileStorageTypeList: ITileStorageTypeListStatic read FTileStorageTypeList;
+    property TileStorageImporterList: ITileStorageImporterListChangeable read FTileStorageImporterList;
     property ImageResamplerFactoryList: IImageResamplerFactoryList read FImageResamplerFactoryList;
     property LastSearchResult: ILastSearchResult read FLastSearchResult;
     property CoordFromStringParser: ICoordFromStringParser read FCoordFromStringParser;
@@ -431,6 +434,7 @@ uses
   u_InternalBrowserLastContent,
   u_ComponentPropertyStorage,
   u_TileStorageTypeListSimple,
+  u_TileStorageImporterListSimple,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -949,6 +953,11 @@ begin
       FCacheConfig,
       FGlobalBerkeleyDBHelper,
       FBGTimerNotifier
+    );
+  FTileStorageImporterList :=
+    TTileStorageImporterListSimple.Create(
+      FContentTypeManager,
+      FArchiveReadWriteFactory
     );
   FFavoriteMapSetConfig := TFavoriteMapSetConfig.Create;
 end;

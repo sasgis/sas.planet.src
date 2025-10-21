@@ -581,7 +581,6 @@ var
   VList: IInterfaceListStatic;
   VLastMark: IVectorDataItem;
   VPolygon: IGeometryLonLatPolygon;
-  VGoToInfo: TTileStorageImporterGoToInfo;
 begin
   if not Assigned(AFiles) or (AFiles.Count <= 0) then begin
     Exit;
@@ -616,10 +615,7 @@ begin
   if Assigned(ATileStorageImporter) then begin
     for I := 0 to AFiles.Count - 1 do begin
       VFileName := AFiles.Items[I];
-      if ATileStorageImporter.ProcessFile(VFileName, AShowImportDlg, VGoToInfo) then begin
-        if not PointIsEmpty(VGoToInfo.FLonLatPoint) and (VGoToInfo.FProjection <> nil) then begin
-          AMapGoto.GotoPos(VGoToInfo.FLonLatPoint, VGoToInfo.FProjection, False);
-        end;
+      if ATileStorageImporter.ProcessFile(VFileName, AShowImportDlg, AMapGoto) then begin
         Exit;
       end;
     end;
