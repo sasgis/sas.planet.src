@@ -35,6 +35,8 @@ type
 
   TTileStorageImporterFileInfo = class
   public
+    FFileName: string;
+
     FCacheTypeCode: Integer;
     FContentType: string;
     FProjectionEpsg: Integer;
@@ -52,7 +54,7 @@ type
 
     FMetadata: TTileStorageImporterMetadataInfo;
   public
-    constructor Create;
+    constructor Create(const AFileName: string);
     destructor Destroy; override;
   end;
 
@@ -63,9 +65,11 @@ uses
 
 { TTileStorageImporterFileInfo }
 
-constructor TTileStorageImporterFileInfo.Create;
+constructor TTileStorageImporterFileInfo.Create(const AFileName: string);
 begin
   inherited Create;
+
+  FFileName := AFileName;
 
   FCacheTypeCode := 0;
   FProjectionEpsg := 3857;

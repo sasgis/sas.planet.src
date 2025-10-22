@@ -26,6 +26,7 @@ interface
 uses
   Types,
   SysUtils,
+  Math,
   t_GeoTypes,
   t_TileStorageImporter,
   i_MapTypeSet,
@@ -43,7 +44,6 @@ type
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
 
     function GetFileInfo(
-      const AFileName: string;
       const AShowImportDlg: Boolean;
       const AFileInfo: TTileStorageImporterFileInfo
     ): Boolean;
@@ -72,6 +72,7 @@ uses
   gnugettext,
   libsqlite3,
   superobject,
+  OruxMapsXmlFile,
   c_CacheTypeCodes,
   i_ContentTypeInfo,
   i_MapType,
@@ -118,10 +119,10 @@ begin
   Result.MapType := nil;
   Result.GoToPoint := CEmptyDoublePoint;
 
-  VFileInfo := TTileStorageImporterFileInfo.Create;
+  VFileInfo := TTileStorageImporterFileInfo.Create(AFileName);
   try
     // try to open and read the contents of the file
-    if not GetFileInfo(AFileName, AShowImportDlg, VFileInfo) then begin
+    if not GetFileInfo(AShowImportDlg, VFileInfo) then begin
       // unsupported file format
       Result.Status := tsiUnsupportedFormat;
       Exit;
@@ -258,9 +259,21 @@ begin
   end;
 end;
 
+function TryGetOruxMapsXmlFileName(const AFileName: string): string;
+var
+  VItems: TStringDynArray;
+begin
+  VItems := TDirectory.GetFiles(ExtractFileDir(AFileName), '*.otrk2.xml');
+  if Length(VItems) > 0 then begin
+    Result := VItems[0];
+  end else begin
+    Result := '';
+  end;
+end;
+
 function TryDetectCacheTypeCode(
   const AFileName: string;
-  const AInfo: TTablesInfo
+  const ATablesInfo: TTablesInfo
 ): Integer;
 var
   VItems: TStringDynArray;
@@ -270,9 +283,9 @@ begin
   VFileExt := LowerCase(ExtractFileExt(AFileName));
 
   if (VFileExt = '.mbtiles') and
-     AInfo.TryGetValue('metadata', VItems) and
+     ATablesInfo.TryGetValue('metadata', VItems) and
      IsContainsAll(VItems, ['name','value']) and
-     AInfo.TryGetValue('tiles', VItems) and
+     ATablesInfo.TryGetValue('tiles', VItems) and
      IsContainsAll(VItems, ['zoom_level','tile_column','tile_row','tile_data'])
   then begin
     Result := c_File_Cache_Id_SQLite_MBTiles;
@@ -280,9 +293,9 @@ begin
   end;
 
   if (VFileExt = '.rmaps') and
-     AInfo.TryGetValue('info', VItems) and
+     ATablesInfo.TryGetValue('info', VItems) and
      IsContainsAll(VItems, ['minzoom','maxzoom']) and
-     AInfo.TryGetValue('tiles', VItems) and
+     ATablesInfo.TryGetValue('tiles', VItems) and
      IsContainsAll(VItems, ['x','y','z','s','image'])
   then begin
     Result := c_File_Cache_Id_SQLite_RMaps;
@@ -290,11 +303,11 @@ begin
   end;
 
   if (VFileExt = '.sqlitedb') and
-     AInfo.TryGetValue('tiles', VItems) and
+     ATablesInfo.TryGetValue('tiles', VItems) and
      IsContainsAll(VItems, ['x','y','z','s','image'])
   then begin
     Result := c_File_Cache_Id_SQLite_RMaps;
-    if AInfo.TryGetValue('info', VItems) then begin
+    if ATablesInfo.TryGetValue('info', VItems) then begin
       if IsContainsAny(VItems, ['zooms','center_x','center_y','provider']) then begin
         Result := c_File_Cache_Id_SQLite_Locus;
       end else
@@ -306,23 +319,20 @@ begin
   end;
 
   if (VFileExt = '.db') and
-     AInfo.TryGetValue('tiles', VItems) and
-     IsContainsAll(VItems, ['x','y','z','image'])
+     ATablesInfo.TryGetValue('tiles', VItems) and
+     IsContainsAll(VItems, ['x','y','z','image']) and
+     (TryGetOruxMapsXmlFileName(AFileName) <> '')
   then begin
-    VItems := TDirectory.GetFiles(ExtractFileDir(AFileName), '*.otrk2.xml');
-    if Length(VItems) > 0 then begin
-      Result := c_File_Cache_Id_SQLite_OruxMaps;
-    end;
+    Result := c_File_Cache_Id_SQLite_OruxMaps;
   end;
 end;
 
 procedure ReadMetadata(
   const ASQLite3: TSQLite3DbHandler;
-  const ACacheTypeCode: Integer;
-  var AInfo: TTileStorageImporterMetadataInfo
+  const AFileInfo: TTileStorageImporterFileInfo
 );
 
-  procedure TryParseSasGisJson(const AJson: string);
+  procedure TryParseSasGisJson(const AJson: string; const AMetadata: TTileStorageImporterMetadataInfo);
   var
     VKey, VVal: string;
     VJsonObject: ISuperObject;
@@ -331,33 +341,70 @@ procedure ReadMetadata(
     for VKey in ['epsg', 'format'] do begin
       VVal := VJsonObject.S[VKey];
       if VVal <> '' then begin
-        AInfo.AddOrSetValue('sasgis_' + VKey, VVal);
+        AMetadata.AddOrSetValue('sasgis_' + VKey, VVal);
       end;
     end;
+  end;
+
+  function GetOruxBoundsStr(const AOruxLayer: TOruxMapsLayer): string;
+  begin
+    Result :=
+      RoundEx(AOruxLayer.MinLon, 8) + ',' + RoundEx(AOruxLayer.MinLat, 8) +
+      RoundEx(AOruxLayer.MaxLon, 8) + ',' + RoundEx(AOruxLayer.MaxLat, 8);
+  end;
+
+  function GetOruxCenterStr(const AOruxLayers: TOruxMapsLayers): string;
+  var
+    I: Integer;
+    VLayer: POruxMapsLayer;
+  begin
+    if Length(AOruxLayers) = 0 then begin
+      Result := '';
+      Exit;
+    end;
+
+    VLayer := @AOruxLayers[0];
+    for I := 1 to Length(AOruxLayers) - 1 do begin
+      if AOruxLayers[I].Zoom < VLayer.Zoom then begin
+        VLayer := @AOruxLayers[I];
+      end;
+    end;
+
+     Result :=
+      RoundEx((VLayer.MinLon + VLayer.MaxLon) / 2, 8) + ',' +
+      RoundEx((VLayer.MinLat + VLayer.MaxLat) / 2, 8) + ',' +
+      IntToStr(VLayer.Zoom);
   end;
 
 var
   I: Integer;
   VKey, VValue: string;
   VStmtData: TSQLite3StmtData;
+  VMetadata: TTileStorageImporterMetadataInfo;
+  VCacheTypeCode: Integer;
+  VOruxXmlFileName: string;
+  VOruxInfo: TOruxMapsCalibrationInfo;
 begin
-  AInfo.Clear;
+  VMetadata := AFileInfo.FMetadata;
+  VCacheTypeCode := AFileInfo.FCacheTypeCode;
 
-  if ACacheTypeCode = c_File_Cache_Id_SQLite_MBTiles then begin
+  VMetadata.Clear;
+
+  if VCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles then begin
     PrepareStmt(ASQLite3, VStmtData, 'SELECT name, value FROM metadata');
     try
       while sqlite3_step(VStmtData.Stmt) = SQLITE_ROW do begin
         VKey := LowerCase(VStmtData.ColumnAsString(0));
         VValue := VStmtData.ColumnAsString(1);
         if VKey <> '' then begin
-          AInfo.AddOrSetValue(VKey, VVAlue);
+          VMetadata.AddOrSetValue(VKey, VVAlue);
         end;
       end;
     finally
       VStmtData.Fin;
     end;
   end else
-  if ACacheTypeCode in [c_File_Cache_Id_SQLite_OsmAnd, c_File_Cache_Id_SQLite_Locus, c_File_Cache_Id_SQLite_RMaps] then begin
+  if VCacheTypeCode in [c_File_Cache_Id_SQLite_OsmAnd, c_File_Cache_Id_SQLite_Locus, c_File_Cache_Id_SQLite_RMaps] then begin
     PrepareStmt(ASQLite3, VStmtData, 'SELECT * FROM info LIMIT 1');
     try
       if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
@@ -365,7 +412,7 @@ begin
           VKey := LowerCase(VStmtData.ColumnName(I));
           VValue := VStmtData.ColumnAsString(I);
           if VKey <> '' then begin
-            AInfo.AddOrSetValue(VKey, VVAlue);
+            VMetadata.AddOrSetValue(VKey, VVAlue);
           end;
         end;
       end;
@@ -373,14 +420,26 @@ begin
       VStmtData.Fin;
     end;
   end else
-  if ACacheTypeCode = c_File_Cache_Id_SQLite_OruxMaps then begin
-    // todo
+  if VCacheTypeCode = c_File_Cache_Id_SQLite_OruxMaps then begin
+    VOruxXmlFileName := TryGetOruxMapsXmlFileName(AFileInfo.FFileName);
+    if (VOruxXmlFileName <> '') and TOruxMapsXmlFile.Parse(VOruxXmlFileName, VOruxInfo) then begin
+      VMetadata.AddOrSetValue('map_name', Trim(VOruxInfo.MapName));
+      VMetadata.AddOrSetValue('center', GetOruxCenterStr(VOruxInfo.Layers));
+      VMetadata.AddOrSetValue('layers_count', IntToStr(Length(VOruxInfo.Layers)));
+      for I := 0 to Length(VOruxInfo.Layers) - 1 do begin
+        VKey := 'layer_' + IntToStr(I) + '_';
+        VMetadata.AddOrSetValue(VKey + 'datum', Trim(VOruxInfo.Layers[I].Datum));
+        VMetadata.AddOrSetValue(VKey + 'projection', Trim(VOruxInfo.Layers[I].Projection));
+        VMetadata.AddOrSetValue(VKey + 'zoom', IntToStr(VOruxInfo.Layers[I].Zoom));
+        VMetadata.AddOrSetValue(VKey + 'bounds', GetOruxBoundsStr(VOruxInfo.Layers[I]));
+      end;
+    end;
   end else begin
     Assert(False);
   end;
 
-  if AInfo.TryGetValue('sasgis', VValue) then begin
-    TryParseSasGisJson(VValue);
+  if VMetadata.TryGetValue('sasgis', VValue) then begin
+    TryParseSasGisJson(VValue, VMetadata);
   end;
 end;
 
@@ -603,12 +662,25 @@ begin
     end;
   end else // OruxMaps
   if AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_OruxMaps then begin
-    // todo
+    // using center (lon, lat, zoom)
+    if AMetadataInfo.TryGetValue('center', VValue) and (VValue <> '') then begin
+      VItems := SplitString(VValue, ',');
+      if Length(VItems) = 3 then begin
+        if TryStrPointToFloat(Trim(VItems[0]), VLonLat.X) and
+           TryStrPointToFloat(Trim(VItems[1]), VLonLat.Y) and
+           TryStrToInt(Trim(VItems[2]), VZoom)
+        then begin
+          AFileInfo.FGotoLonLat := VLonLat;
+          AFileInfo.FGotoZoom := VZoom;
+          AFileInfo.FGotoResult := gtrLonLatOk;
+          Exit;
+        end;
+      end;
+    end;
   end;
 end;
 
 function TTileStorageSQLiteFileImporter.GetFileInfo(
-  const AFileName: string;
   const AShowImportDlg: Boolean;
   const AFileInfo: TTileStorageImporterFileInfo
 ): Boolean;
@@ -620,56 +692,58 @@ var
   VContentTypeInfo: IContentTypeInfoBasic;
   VSQLite3: TSQLite3DbHandler;
   VTablesInfo: TTablesInfo;
-  VMetadataInfo: TTileStorageImporterMetadataInfo;
+  VMetadata: TTileStorageImporterMetadataInfo;
+  VFileName: string;
 begin
   Result := False;
 
   VIsLayer := False;
   VContentType := 'image/jpg';
 
+  VFileName := AFileInfo.FFileName;
+  VMetadata := AFileInfo.FMetadata;
+
   if not VSQLite3.Init then begin
     VSQLite3.RaiseSQLite3Error;
   end;
 
-  VSQLite3.Open('file:///' + AFileName + '?immutable=1',
+  VSQLite3.Open('file:///' + VFileName + '?immutable=1',
     SQLITE_OPEN_READONLY or SQLITE_OPEN_URI or SQLITE_OPEN_NOMUTEX);
   try
     VTablesInfo := TTablesInfo.Create;
     try
       GetTablesInfo(VSQLite3, VTablesInfo);
-      AFileInfo.FCacheTypeCode := TryDetectCacheTypeCode(AFileName, VTablesInfo);
+      AFileInfo.FCacheTypeCode := TryDetectCacheTypeCode(VFileName, VTablesInfo);
     finally
       VTablesInfo.Free;
     end;
 
     if AFileInfo.FCacheTypeCode <> 0 then begin
-      ReadMetadata(VSQLite3, AFileInfo.FCacheTypeCode, AFileInfo.FMetadata);
+      ReadMetadata(VSQLite3, AFileInfo);
     end else begin
       Exit;
     end;
 
-    VMetadataInfo := AFileInfo.FMetadata;
-
     // projection
-    if VMetadataInfo.TryGetValue('sasgis_epsg', VValue) and (VValue <> '') then begin
+    if VMetadata.TryGetValue('sasgis_epsg', VValue) and (VValue <> '') then begin
       AFileInfo.FProjectionEpsg := StrToInt(VValue);
     end else
-    if VMetadataInfo.TryGetValue('crs', VValue) and (VValue <> '') then begin
+    if VMetadata.TryGetValue('crs', VValue) and (VValue <> '') then begin
       I := Pos(':', VValue);
       if I > 0 then begin
         VValue := Copy(VValue, I+1);
       end;
       AFileInfo.FProjectionEpsg := StrToInt(VValue);
     end else
-    if VMetadataInfo.TryGetValue('ellipsoid', VValue) and (VValue = '1') then begin
+    if VMetadata.TryGetValue('ellipsoid', VValue) and (VValue = '1') then begin
       AFileInfo.FProjectionEpsg := 3395;
     end;
 
     // content-type
-    if VMetadataInfo.TryGetValue('sasgis_format', VValue) and (VValue <> '') then begin
+    if VMetadata.TryGetValue('sasgis_format', VValue) and (VValue <> '') then begin
       VContentType := AnsiString(VValue);
     end else
-    if VMetadataInfo.TryGetValue('format', VValue) and (VValue <> '') then begin
+    if VMetadata.TryGetValue('format', VValue) and (VValue <> '') then begin
       if Pos('/', VValue) > 0 then begin
         VContentType := AnsiString(VValue);
       end else begin
@@ -698,28 +772,32 @@ begin
 
     // base layer / overlay
     if (AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles) and
-      VMetadataInfo.TryGetValue('type', VValue)
+      VMetadata.TryGetValue('type', VValue)
     then begin
       VIsLayer := SameText(VValue, 'overlay');
     end;
 
     // goto location
-    TryDetectGoToPoint(VSQLite3, VMetadataInfo, AFileInfo);
+    TryDetectGoToPoint(VSQLite3, VMetadata, AFileInfo);
   finally
     VSQLite3.Close;
   end;
 
-  AFileInfo.FNameInCache := AFileName;
+  AFileInfo.FNameInCache := VFileName;
   AFileInfo.FIsLayer := VIsLayer;
   AFileInfo.FParentSubMenu := '';
 
   if AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_OruxMaps then begin
-    AFileInfo.FName := ExtractFileName(TPath.GetDirectoryName(AFileName));
-    if AFileInfo.FName = '' then begin
-      AFileInfo.FName := TPath.GetFileNameWithoutExtension(AFileName);
+    if VMetadata.TryGetValue('map_name', VValue) and (VValue <> '') then begin
+      AFileInfo.FName := VValue;
+    end else begin
+      AFileInfo.FName := ExtractFileName(TPath.GetDirectoryName(VFileName));
+      if AFileInfo.FName = '' then begin
+        AFileInfo.FName := TPath.GetFileNameWithoutExtension(VFileName);
+      end;
     end;
   end else begin
-    AFileInfo.FName := TPath.GetFileNameWithoutExtension(AFileName);
+    AFileInfo.FName := TPath.GetFileNameWithoutExtension(VFileName);
   end;
 
   if AShowImportDlg then begin

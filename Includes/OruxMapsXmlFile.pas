@@ -12,6 +12,8 @@ type
     Zoom: Integer;
     MinLat, MaxLat, MinLon, MaxLon: Double;
   end;
+  POruxMapsLayer = ^TOruxMapsLayer;
+
   TOruxMapsLayers = array of TOruxMapsLayer;
 
   TOruxMapsCalibrationInfo = record
