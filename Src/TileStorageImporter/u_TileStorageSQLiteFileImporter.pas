@@ -27,6 +27,7 @@ uses
   Types,
   SysUtils,
   t_GeoTypes,
+  t_TileStorageImporter,
   i_MapTypeSet,
   i_Projection,
   i_ConfigDataProvider,
@@ -36,25 +37,6 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TTileStorageImporterGoToResult = (gtrError, gtrPointOk, gtrLonLatOk);
-
-  TTileStorageImporterFileInfo = record
-    FCacheTypeCode: Integer;
-    FContentType: string;
-    FProjectionEpsg: Integer;
-    FIsBitmapTile: Boolean;
-    FIsLayer: Boolean;
-    FExt: string;
-    FNameInCache: string;
-    FName: string;
-    FParentSubMenu: string;
-
-    FGotoResult: TTileStorageImporterGoToResult;
-    FGotoZoom: Byte;
-    FGotoPoint: TPoint;
-    FGotoLonLat: TDoublePoint;
-  end;
-
   TTileStorageSQLiteFileImporter = class(TBaseInterfacedObject, ITileStorageImporter)
   private
     FContentTypeManager: IContentTypeManager;
@@ -63,13 +45,8 @@ type
     function GetFileInfo(
       const AFileName: string;
       const AShowImportDlg: Boolean;
-      out AFileInfo: TTileStorageImporterFileInfo
-    ): Boolean;
-
-    function MakeZmpMapConfig(
-      const AGuid: string;
       const AFileInfo: TTileStorageImporterFileInfo
-    ): IConfigDataProvider;
+    ): Boolean;
   private
     { ITileStorageImporter }
     function ProcessFile(
@@ -90,29 +67,24 @@ implementation
 
 uses
   StrUtils,
-  Classes,
   IOUtils,
   Generics.Collections,
   gnugettext,
   libsqlite3,
   superobject,
   c_CacheTypeCodes,
-  i_ArchiveReadWrite,
-  i_BinaryData,
   i_ContentTypeInfo,
   i_MapType,
   i_ZmpInfo,
-  u_BinaryData,
   u_Dialogs,
   u_GeoFunc,
   u_GeoToStrFunc,
   u_SQLite3Handler,
   u_ContentDetecter,
-  u_ConfigDataProviderByZip;
+  u_TileStorageImporterFunc;
 
 type
   TTablesInfo = TDictionary<string, TStringDynArray>;
-  TMetadataInfo = TDictionary<string, string>;
 
 { TTileStorageSQLiteFileImporter }
 
@@ -146,61 +118,66 @@ begin
   Result.MapType := nil;
   Result.GoToPoint := CEmptyDoublePoint;
 
-  // try to open and read the contents of the file
-  if not GetFileInfo(AFileName, AShowImportDlg, VFileInfo) then begin
-    // unsupported file format
-    Result.Status := tsiUnsupportedFormat;
-    Exit;
-  end;
+  VFileInfo := TTileStorageImporterFileInfo.Create;
+  try
+    // try to open and read the contents of the file
+    if not GetFileInfo(AFileName, AShowImportDlg, VFileInfo) then begin
+      // unsupported file format
+      Result.Status := tsiUnsupportedFormat;
+      Exit;
+    end;
 
-  for I := 0 to AAllMapsSet.Count - 1 do begin
-    VMapType := AAllMapsSet.Items[I];
-    if Supports(VMapType, IMapTypeProxy, VMapTypeProxy) and
-       not VMapTypeProxy.IsInitialized
-    then begin
-      VZmpInfoProxy := VMapTypeProxy.Zmp as IZmpInfoProxy;
-      if (VFileInfo.FIsBitmapTile = VZmpInfoProxy.GetIsBitmapTiles) and
-         (VFileInfo.FIsLayer = VZmpInfoProxy.IsLayer)
+    for I := 0 to AAllMapsSet.Count - 1 do begin
+      VMapType := AAllMapsSet.Items[I];
+      if Supports(VMapType, IMapTypeProxy, VMapTypeProxy) and
+         not VMapTypeProxy.IsInitialized
       then begin
-        VZmpMapConfig := MakeZmpMapConfig(VZmpInfoProxy.GUID.ToString, VFileInfo);
-        VMapTypeProxy.Initialize(VZmpMapConfig);
+        VZmpInfoProxy := VMapTypeProxy.Zmp as IZmpInfoProxy;
+        if (VFileInfo.FIsBitmapTile = VZmpInfoProxy.GetIsBitmapTiles) and
+           (VFileInfo.FIsLayer = VZmpInfoProxy.IsLayer)
+        then begin
+          VZmpMapConfig := MakeZmpMapConfig(VZmpInfoProxy.GUID.ToString, VFileInfo, FArchiveReadWriteFactory);
+          VMapTypeProxy.Initialize(VZmpMapConfig);
 
-        Result.MapType := VMapTypeProxy;
+          Result.MapType := VMapTypeProxy;
 
-        case VFileInfo.FGotoResult of
-          gtrError: begin
-            Result.GoToPoint := CEmptyDoublePoint;
+          case VFileInfo.FGotoResult of
+            gtrError: begin
+              Result.GoToPoint := CEmptyDoublePoint;
+            end;
+
+            gtrPointOk: begin
+              Result.GoToZoom := VFileInfo.FGotoZoom;
+              VProjection := VMapTypeProxy.ProjectionSet.Zooms[VFileInfo.FGotoZoom];
+              Result.GoToPoint := VProjection.TilePos2LonLat(VFileInfo.FGotoPoint);
+            end;
+
+            gtrLonLatOk: begin
+              Result.GoToZoom := VFileInfo.FGotoZoom;
+              Result.GoToPoint := VFileInfo.FGotoLonLat;
+            end;
+          else
+            raise ETileStorageSQLiteFileImporter.CreateFmt(
+              'Unexpected GotoResult value: %d', [Integer(VFileInfo.FGotoResult)]
+            );
           end;
 
-          gtrPointOk: begin
-            Result.GoToZoom := VFileInfo.FGotoZoom;
-            VProjection := VMapTypeProxy.ProjectionSet.Zooms[VFileInfo.FGotoZoom];
-            Result.GoToPoint := VProjection.TilePos2LonLat(VFileInfo.FGotoPoint);
-          end;
-
-          gtrLonLatOk: begin
-            Result.GoToZoom := VFileInfo.FGotoZoom;
-            Result.GoToPoint := VFileInfo.FGotoLonLat;
-          end;
-        else
-          raise ETileStorageSQLiteFileImporter.CreateFmt(
-            'Unexpected GotoResult value: %d', [Integer(VFileInfo.FGotoResult)]
-          );
+          Result.Status := tsiOk;
+          Exit; // done
         end;
-
-        Result.Status := tsiOk;
-        Exit; // done
       end;
     end;
-  end;
 
-  if Result.Status = tsiInternalError then begin
-    if VFileInfo.FIsLayer then begin
-      VMsg := IfThen(VFileInfo.FIsBitmapTile, _('raster layer'), _('vector layer'));
-    end else begin
-      VMsg := _('base map');
+    if Result.Status = tsiInternalError then begin
+      if VFileInfo.FIsLayer then begin
+        VMsg := IfThen(VFileInfo.FIsBitmapTile, _('raster layer'), _('vector layer'));
+      end else begin
+        VMsg := _('base map');
+      end;
+      ShowErrorMessageSync(Format(_('Error: No available slots for the offline maps (%s)!'), [VMsg]));
     end;
-    ShowErrorMessageSync(Format(_('Error: No available slots for the offline maps (%s)!'), [VMsg]));
+  finally
+    VFileInfo.Free;
   end;
 end;
 
@@ -342,7 +319,7 @@ end;
 procedure ReadMetadata(
   const ASQLite3: TSQLite3DbHandler;
   const ACacheTypeCode: Integer;
-  var AInfo: TMetadataInfo
+  var AInfo: TTileStorageImporterMetadataInfo
 );
 
   procedure TryParseSasGisJson(const AJson: string);
@@ -450,8 +427,8 @@ end;
 
 procedure TryDetectGoToPoint(
   const ASQLite3: TSQLite3DbHandler;
-  const AMetadataInfo: TMetadataInfo;
-  var AFileInfo: TTileStorageImporterFileInfo
+  const AMetadataInfo: TTileStorageImporterMetadataInfo;
+  const AFileInfo: TTileStorageImporterFileInfo
 );
 
   function InvertY(Y, Z: Integer): Integer;
@@ -633,7 +610,7 @@ end;
 function TTileStorageSQLiteFileImporter.GetFileInfo(
   const AFileName: string;
   const AShowImportDlg: Boolean;
-  out AFileInfo: TTileStorageImporterFileInfo
+  const AFileInfo: TTileStorageImporterFileInfo
 ): Boolean;
 var
   I: Integer;
@@ -643,17 +620,9 @@ var
   VContentTypeInfo: IContentTypeInfoBasic;
   VSQLite3: TSQLite3DbHandler;
   VTablesInfo: TTablesInfo;
-  VMetadataInfo: TMetadataInfo;
+  VMetadataInfo: TTileStorageImporterMetadataInfo;
 begin
   Result := False;
-
-  AFileInfo.FCacheTypeCode := 0;
-  AFileInfo.FProjectionEpsg := 3857;
-  AFileInfo.FContentType := '';
-  AFileInfo.FIsBitmapTile := False;
-  AFileInfo.FExt := '';
-
-  AFileInfo.FGotoResult := gtrError;
 
   VIsLayer := False;
   VContentType := 'image/jpg';
@@ -662,149 +631,102 @@ begin
     VSQLite3.RaiseSQLite3Error;
   end;
 
-  VMetadataInfo := TMetadataInfo.Create;
+  VSQLite3.Open('file:///' + AFileName + '?immutable=1',
+    SQLITE_OPEN_READONLY or SQLITE_OPEN_URI or SQLITE_OPEN_NOMUTEX);
   try
-    VSQLite3.Open('file:///' + AFileName + '?immutable=1',
-      SQLITE_OPEN_READONLY or SQLITE_OPEN_URI or SQLITE_OPEN_NOMUTEX);
+    VTablesInfo := TTablesInfo.Create;
     try
-      VTablesInfo := TTablesInfo.Create;
-      try
-        GetTablesInfo(VSQLite3, VTablesInfo);
-        AFileInfo.FCacheTypeCode := TryDetectCacheTypeCode(AFileName, VTablesInfo);
-      finally
-        VTablesInfo.Free;
-      end;
-
-      if AFileInfo.FCacheTypeCode <> 0 then begin
-        ReadMetadata(VSQLite3, AFileInfo.FCacheTypeCode, VMetadataInfo);
-      end else begin
-        Exit;
-      end;
-
-      // projection
-      if VMetadataInfo.TryGetValue('sasgis_epsg', VValue) and (VValue <> '') then begin
-        AFileInfo.FProjectionEpsg := StrToInt(VValue);
-      end else
-      if VMetadataInfo.TryGetValue('crs', VValue) and (VValue <> '') then begin
-        I := Pos(':', VValue);
-        if I > 0 then begin
-          VValue := Copy(VValue, I+1);
-        end;
-        AFileInfo.FProjectionEpsg := StrToInt(VValue);
-      end else
-      if VMetadataInfo.TryGetValue('ellipsoid', VValue) and (VValue = '1') then begin
-        AFileInfo.FProjectionEpsg := 3395;
-      end;
-
-      // content-type
-      if VMetadataInfo.TryGetValue('sasgis_format', VValue) and (VValue <> '') then begin
-        VContentType := AnsiString(VValue);
-      end else
-      if VMetadataInfo.TryGetValue('format', VValue) and (VValue <> '') then begin
-        if Pos('/', VValue) > 0 then begin
-          VContentType := AnsiString(VValue);
-        end else begin
-          VContentTypeInfo := FContentTypeManager.GetInfoByExt('.' + AnsiString(VValue));
-          if VContentTypeInfo <> nil then begin
-            VContentType := VContentTypeInfo.GetContentType;
-          end else begin
-            VContentType := ''; // unsupported content-type
-          end;
-        end;
-      end else begin
-        VContentType := TryDetectContentType(VSQLite3, AFileInfo.FCacheTypeCode, VContentType);
-      end;
-
-      if VContentType <> '' then begin
-        AFileInfo.FContentType := VContentType;
-        AFileInfo.FIsBitmapTile := FContentTypeManager.GetIsBitmapType(VContentType);
-
-        VContentTypeInfo := FContentTypeManager.GetInfo(VContentType);
-        if VContentTypeInfo <> nil then begin
-          AFileInfo.FExt := VContentTypeInfo.GetDefaultExt;
-        end else begin
-          AFileInfo.FExt := '';
-        end;
-      end;
-
-      // base layer / overlay
-      if (AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles) and
-        VMetadataInfo.TryGetValue('type', VValue)
-      then begin
-        VIsLayer := SameText(VValue, 'overlay');
-      end;
-
-      // goto location
-      TryDetectGoToPoint(VSQLite3, VMetadataInfo, AFileInfo);
+      GetTablesInfo(VSQLite3, VTablesInfo);
+      AFileInfo.FCacheTypeCode := TryDetectCacheTypeCode(AFileName, VTablesInfo);
     finally
-      VSQLite3.Close;
+      VTablesInfo.Free;
     end;
 
-    AFileInfo.FNameInCache := AFileName;
-    AFileInfo.FIsLayer := VIsLayer;
+    if AFileInfo.FCacheTypeCode <> 0 then begin
+      ReadMetadata(VSQLite3, AFileInfo.FCacheTypeCode, AFileInfo.FMetadata);
+    end else begin
+      Exit;
+    end;
+
+    VMetadataInfo := AFileInfo.FMetadata;
+
+    // projection
+    if VMetadataInfo.TryGetValue('sasgis_epsg', VValue) and (VValue <> '') then begin
+      AFileInfo.FProjectionEpsg := StrToInt(VValue);
+    end else
+    if VMetadataInfo.TryGetValue('crs', VValue) and (VValue <> '') then begin
+      I := Pos(':', VValue);
+      if I > 0 then begin
+        VValue := Copy(VValue, I+1);
+      end;
+      AFileInfo.FProjectionEpsg := StrToInt(VValue);
+    end else
+    if VMetadataInfo.TryGetValue('ellipsoid', VValue) and (VValue = '1') then begin
+      AFileInfo.FProjectionEpsg := 3395;
+    end;
+
+    // content-type
+    if VMetadataInfo.TryGetValue('sasgis_format', VValue) and (VValue <> '') then begin
+      VContentType := AnsiString(VValue);
+    end else
+    if VMetadataInfo.TryGetValue('format', VValue) and (VValue <> '') then begin
+      if Pos('/', VValue) > 0 then begin
+        VContentType := AnsiString(VValue);
+      end else begin
+        VContentTypeInfo := FContentTypeManager.GetInfoByExt('.' + AnsiString(VValue));
+        if VContentTypeInfo <> nil then begin
+          VContentType := VContentTypeInfo.GetContentType;
+        end else begin
+          VContentType := ''; // unsupported content-type
+        end;
+      end;
+    end else begin
+      VContentType := TryDetectContentType(VSQLite3, AFileInfo.FCacheTypeCode, VContentType);
+    end;
+
+    if VContentType <> '' then begin
+      AFileInfo.FContentType := VContentType;
+      AFileInfo.FIsBitmapTile := FContentTypeManager.GetIsBitmapType(VContentType);
+
+      VContentTypeInfo := FContentTypeManager.GetInfo(VContentType);
+      if VContentTypeInfo <> nil then begin
+        AFileInfo.FExt := VContentTypeInfo.GetDefaultExt;
+      end else begin
+        AFileInfo.FExt := '';
+      end;
+    end;
+
+    // base layer / overlay
+    if (AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles) and
+      VMetadataInfo.TryGetValue('type', VValue)
+    then begin
+      VIsLayer := SameText(VValue, 'overlay');
+    end;
+
+    // goto location
+    TryDetectGoToPoint(VSQLite3, VMetadataInfo, AFileInfo);
+  finally
+    VSQLite3.Close;
+  end;
+
+  AFileInfo.FNameInCache := AFileName;
+  AFileInfo.FIsLayer := VIsLayer;
+  AFileInfo.FParentSubMenu := '';
+
+  if AFileInfo.FCacheTypeCode = c_File_Cache_Id_SQLite_OruxMaps then begin
+    AFileInfo.FName := ExtractFileName(TPath.GetDirectoryName(AFileName));
+    if AFileInfo.FName = '' then begin
+      AFileInfo.FName := TPath.GetFileNameWithoutExtension(AFileName);
+    end;
+  end else begin
     AFileInfo.FName := TPath.GetFileNameWithoutExtension(AFileName);
-    AFileInfo.FParentSubMenu := '';
-
-    if AShowImportDlg then begin
-      // todo: show import dialog
-    end;
-
-    Result := True;
-  finally
-    VMetadataInfo.Free;
   end;
-end;
 
-function TTileStorageSQLiteFileImporter.MakeZmpMapConfig(
-  const AGuid: string;
-  const AFileInfo: TTileStorageImporterFileInfo
-): IConfigDataProvider;
-const
-  CParamsTxtFmt =
-    '[PARAMS]'         + #13#10 +
-    'GUID=%s'          + #13#10 +
-    'asLayer=%s'       + #13#10 +
-    'Name=%s'          + #13#10 +
-    'ParentSubMenu=%s' + #13#10 +
-    'NameInCache=%s'   + #13#10 +
-    'ContentType=%s'   + #13#10 +
-    'Ext=%s'           + #13#10 +
-    'Epsg=%d'          + #13#10 +
-    'CacheType=%d'     + #13#10 +
-    'UseDwn=0'         + #13#10 +
-    'IsReadOnly=1'     + #13#10;
-var
-  VParamsTxt: string;
-  VBinaryData: IBinaryData;
-  VZipStream: TStream;
-  VZip: IArchiveType;
-  VZipWriter: IArchiveWriter;
-  VZipReader: IArchiveReader;
-begin
-  VZip := FArchiveReadWriteFactory.Zip;
-
-  VZipStream := TMemoryStream.Create;
-  try
-    VParamsTxt := Format(CParamsTxtFmt, [AGuid, AFileInfo.FIsLayer.ToString,
-      AFileInfo.FName, AFileInfo.FParentSubMenu, AFileInfo.FNameInCache,
-      AFileInfo.FContentType, AFileInfo.FExt, AFileInfo.FProjectionEpsg,
-      AFileInfo.FCacheTypeCode]
-    );
-
-    VBinaryData := TBinaryData.CreateByAnsiString(UTF8Encode(VParamsTxt));
-
-    VZipWriter :=  VZip.WriterFactory.BuildByStream(VZipStream);
-    VZipWriter.AddFile(VBinaryData, 'params.txt', Now);
-    VZipWriter := nil;
-
-    VZipStream.Position := 0;
-    VZipReader := VZip.ReaderFactory.BuildByStreamWithOwn(VZipStream);
-    Result := TConfigDataProviderByArchive.Create('', VZipReader);
-
-    VZipStream := nil;
-  finally
-    VZipStream.Free;
+  if AShowImportDlg then begin
+    // todo: show import dialog
   end;
+
+  Result := True;
 end;
 
 end.

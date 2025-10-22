@@ -1,0 +1,83 @@
+{******************************************************************************}
+{* This file is part of SAS.Planet project.                                   *}
+{*                                                                            *}
+{* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
+{*                                                                            *}
+{* SAS.Planet is free software: you can redistribute it and/or modify         *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* SAS.Planet is distributed in the hope that it will be useful,              *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the               *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with SAS.Planet. If not, see <http://www.gnu.org/licenses/>.         *}
+{*                                                                            *}
+{* https://github.com/sasgis/sas.planet.src                                   *}
+{******************************************************************************}
+
+unit t_TileStorageImporter;
+
+interface
+
+uses
+  Types,
+  Generics.Collections,
+  t_GeoTypes;
+
+type
+  TTileStorageImporterGoToResult = (gtrError, gtrPointOk, gtrLonLatOk);
+
+  TTileStorageImporterMetadataInfo = TDictionary<string, string>;
+
+  TTileStorageImporterFileInfo = class
+  public
+    FCacheTypeCode: Integer;
+    FContentType: string;
+    FProjectionEpsg: Integer;
+    FIsBitmapTile: Boolean;
+    FIsLayer: Boolean;
+    FExt: string;
+    FNameInCache: string;
+    FName: string;
+    FParentSubMenu: string;
+
+    FGotoResult: TTileStorageImporterGoToResult;
+    FGotoZoom: Byte;
+    FGotoPoint: TPoint;
+    FGotoLonLat: TDoublePoint;
+
+    FMetadata: TTileStorageImporterMetadataInfo;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+implementation
+
+uses
+  SysUtils;
+
+{ TTileStorageImporterFileInfo }
+
+constructor TTileStorageImporterFileInfo.Create;
+begin
+  inherited Create;
+
+  FCacheTypeCode := 0;
+  FProjectionEpsg := 3857;
+  FGotoResult := gtrError;
+
+  FMetadata := TTileStorageImporterMetadataInfo.Create;
+end;
+
+destructor TTileStorageImporterFileInfo.Destroy;
+begin
+  FreeAndNil(FMetadata);
+  inherited Destroy;
+end;
+
+end.

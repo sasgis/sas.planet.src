@@ -1654,7 +1654,9 @@
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererForMarks.pas"/>
         <DCCReference Include="Src\TileStorageImporter\i_TileStorageImporter.pas"/>
         <DCCReference Include="Src\TileStorageImporter\i_TileStorageImporterList.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\t_TileStorageImporter.pas"/>
         <DCCReference Include="Src\TileStorageImporter\u_TileStorageImporter.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\u_TileStorageImporterFunc.pas"/>
         <DCCReference Include="Src\TileStorageImporter\u_TileStorageImporterList.pas"/>
         <DCCReference Include="Src\TileStorageImporter\u_TileStorageImporterListSimple.pas"/>
         <DCCReference Include="Src\TileStorageImporter\u_TileStorageSQLiteFileImporter.pas"/>
