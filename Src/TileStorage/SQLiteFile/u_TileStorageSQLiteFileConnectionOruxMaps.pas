@@ -126,26 +126,20 @@ var
   I: Integer;
   VZoom: Integer;
   VLon, VLat: Double;
-  VItems, VSubItems: TStringDynArray;
+  VInfo: TOruxMapsCalibrationInfo;
 begin
   ABits := 0;
 
-  VItems := SplitString(AStr, ' ');
+  VInfo.LoadFromBase64String(AStr);
 
-  for I := 0 to Length(VItems) - 1 do begin
-    VSubItems := SplitString(VItems[I], ';');
+  for I := 0 to Length(VInfo.Layers) - 1 do begin
 
-    if Length(VSubItems) <> 3 then begin
-      Assert(False, 'OruxMaps: Invalid Items string "' + VItems[I] + '"');
-      Continue;
-    end;
-
-    VZoom := StrToInt(VSubItems[0]);
-    VLon := StrPointToFloat(VSubItems[1]);
-    VLat := StrPointToFloat(VSubItems[2]);
+    VZoom := VInfo.Layers[I].Zoom;
+    VLon  := VInfo.Layers[I].MinLon;
+    VLat  := VInfo.Layers[I].MaxLat;
 
     if not AProjectionSet.CheckZoom(VZoom) then begin
-      Assert(False, 'OruxMaps: Invalid zoom value = ' + VItems[I]);
+      Assert(False, 'OruxMaps: Invalid zoom value = ' + IntToStr(VZoom));
       Continue;
     end;
 
@@ -209,21 +203,17 @@ const
   CXmlFileMask = '*.otrk2.xml';
 var
   VXmlFiles: TStringDynArray;
-  VBasePoints: string;
+  VInfo: TOruxMapsCalibrationInfo;
 begin
-  VBasePoints := '';
-
   VXmlFiles := TDirectory.GetFiles(ExtractFilePath(FFileInfo.FileName), CXmlFileMask);
   if Length(VXmlFiles) > 0 then begin
-    VBasePoints := TOruxMapsXmlFile.Parse(VXmlFiles[0]);
+    if TOruxMapsXmlFile.Parse(VXmlFiles[0], VInfo) then begin
+      FFileInfo.AddOrSetMetadataValue(CBasePointsKey, VInfo.SaveToBase64String);
+    end else begin
+      raise Exception.Create('OruxMaps: Error reading XML file!');
+    end;
   end else begin
     raise Exception.Create('OruxMaps: .otrk2.xml file not found!');
-  end;
-
-  if VBasePoints <> '' then begin
-    FFileInfo.AddOrSetMetadataValue(CBasePointsKey, VBasePoints);
-  end else begin
-    raise Exception.Create('OruxMaps: Error reading XML file!');
   end;
 end;
 
