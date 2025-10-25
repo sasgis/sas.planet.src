@@ -76,7 +76,7 @@ begin
   VZipStream := TMemoryStream.Create;
   try
     VParamsTxt := Format(CParamsTxtFmt, [AGuid, AFileInfo.FIsLayer.ToString,
-      AFileInfo.FName, AFileInfo.FParentSubMenu, AFileInfo.FNameInCache,
+      AFileInfo.FMapName, AFileInfo.FParentSubMenu, AFileInfo.FNameInCache,
       AFileInfo.FContentType, AFileInfo.FExt, AFileInfo.FProjectionEpsg,
       AFileInfo.FCacheTypeCode]
     );

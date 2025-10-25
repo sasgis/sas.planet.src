@@ -29,9 +29,15 @@ uses
   t_GeoTypes;
 
 type
-  TTileStorageImporterGoToResult = (gtrError, gtrPointOk, gtrLonLatOk);
 
   TTileStorageImporterMetadataInfo = TDictionary<string, string>;
+
+  TTileStorageImporterGotoInfo = record
+    Zoom: Integer;
+    LonLat: TDoublePoint;
+    TilePos: TPoint;
+    Status: (gtsError, gtsTilePos, gtsLonLat);
+  end;
 
   TTileStorageImporterFileInfo = class
   public
@@ -44,13 +50,10 @@ type
     FIsLayer: Boolean;
     FExt: string;
     FNameInCache: string;
-    FName: string;
+    FMapName: string;
     FParentSubMenu: string;
 
-    FGotoResult: TTileStorageImporterGoToResult;
-    FGotoZoom: Byte;
-    FGotoPoint: TPoint;
-    FGotoLonLat: TDoublePoint;
+    FGotoInfo: TTileStorageImporterGotoInfo;
 
     FMetadata: TTileStorageImporterMetadataInfo;
   public
@@ -73,7 +76,7 @@ begin
 
   FCacheTypeCode := 0;
   FProjectionEpsg := 3857;
-  FGotoResult := gtrError;
+  FGotoInfo.Status := gtsError;
 
   FMetadata := TTileStorageImporterMetadataInfo.Create;
 end;

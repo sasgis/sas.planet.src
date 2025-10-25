@@ -205,7 +205,7 @@ begin
       Result := False;
     end;
 
-    tsiCanceled, tsiInternalError: begin
+    tsiCanceled, tsiInternalError, tsiUnsupportedContentType: begin
       Result := True;
     end;
   else

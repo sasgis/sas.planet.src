@@ -32,6 +32,7 @@ type
   TTileStorageImportResultStatus = (
     tsiOk,
     tsiUnsupportedFormat,
+    tsiUnsupportedContentType,
     tsiCanceled,
     tsiInternalError
   );
