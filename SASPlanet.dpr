@@ -1275,6 +1275,7 @@ uses
   u_VectorTileRendererChangeableForMarksLayer in 'Src\TileProvider\u_VectorTileRendererChangeableForMarksLayer.pas',
   u_VectorTileRendererChangeableForVectorMaps in 'Src\TileProvider\u_VectorTileRendererChangeableForVectorMaps.pas',
   u_VectorTileRendererForMarks in 'Src\TileProvider\u_VectorTileRendererForMarks.pas',
+  frm_TileStorageImporter in 'Src\TileStorageImporter\frm_TileStorageImporter.pas' {frmTileStorageImporter},
   i_TileStorageImporter in 'Src\TileStorageImporter\i_TileStorageImporter.pas',
   i_TileStorageImporterList in 'Src\TileStorageImporter\i_TileStorageImporterList.pas',
   t_TileStorageImporter in 'Src\TileStorageImporter\t_TileStorageImporter.pas',

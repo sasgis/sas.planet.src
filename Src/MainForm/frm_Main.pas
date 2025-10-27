@@ -1784,6 +1784,10 @@ begin
 
   FTileStorageImporter :=
     TTileStorageImporter.Create(
+      GState.Config.LanguageManager,
+      GState.ContentTypeManager,
+      GState.ProjectionSetList,
+      GState.TileStorageTypeList,
       GState.TileStorageImporterList,
       FMainMapState.AllMapsSet,
       FConfig.MainMapConfig,
@@ -7203,8 +7207,10 @@ var
   VList: IStringListStatic;
 begin
   VList := FTileStorageImporter.OpenFileDialogExecute(Self.Handle);
-  if Assigned(VList) then begin
-    ProcessOpenFiles(VList);
+  if Assigned(VList) and (VList.Count > 0) then begin
+    if not FTileStorageImporter.ProcessFile(VList.Items[0], FMapGoto, True) then begin
+      ShowErrorMessage(_('Unsupported file format!'));
+    end;
   end;
 end;
 

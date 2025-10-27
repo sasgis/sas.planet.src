@@ -615,7 +615,7 @@ begin
   if Assigned(ATileStorageImporter) then begin
     for I := 0 to AFiles.Count - 1 do begin
       VFileName := AFiles.Items[I];
-      if ATileStorageImporter.ProcessFile(VFileName, AShowImportDlg, AMapGoto) then begin
+      if ATileStorageImporter.ProcessFile(VFileName, AMapGoto, AShowImportDlg) then begin
         Exit;
       end;
     end;

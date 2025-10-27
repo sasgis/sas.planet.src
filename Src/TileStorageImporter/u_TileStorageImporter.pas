@@ -26,22 +26,34 @@ interface
 uses
   Windows,
   Dialogs,
+  t_TileStorageImporter,
   i_ActiveMapsConfig,
   i_MapTypeSet,
   i_MapViewGoto,
+  i_LanguageManager,
   i_StringListStatic,
+  i_ContentTypeManager,
+  i_ProjectionSetList,
+  i_TileStorageTypeList,
   i_TileStorageImporter,
-  i_TileStorageImporterList;
+  i_TileStorageImporterList,
+  frm_TileStorageImporter;
 
 type
   TTileStorageImporter = class
   private
+    FLanguageManager: ILanguageManager;
+    FContentTypeManager: IContentTypeManager;
+    FProjectionSetList: IProjectionSetList;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
+
     FImportersList: ITileStorageImporterListStatic;
     FAllMapsSet: IMapTypeSet;
     FMainMapConfig: IActiveMapConfig;
     FMainLayersConfig: IActiveLayersConfig;
 
     FOpenDialog: TOpenDialog;
+    FfrmImport: TfrmTileStorageImporter;
 
     procedure InitOpenDialog;
   public
@@ -49,13 +61,22 @@ type
       const AParentWnd: HWND
     ): IStringListStatic;
 
+    procedure ShowImportDialog(
+      const AFileInfo: TTileStorageImporterFileInfo;
+      out AIsCanceled: Boolean
+    );
+
     function ProcessFile(
       const AFileName: string;
-      const AShowImportDlg: Boolean;
-      const AMapGoto: IMapViewGoto
+      const AMapGoto: IMapViewGoto;
+      const AShowImportDialog: Boolean
     ): Boolean;
   public
     constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const AContentTypeManager: IContentTypeManager;
+      const AProjectionSetList: IProjectionSetList;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AImportersList: ITileStorageImporterListChangeable;
       const AAllMapsSet: IMapTypeSet;
       const AMainMapConfig: IActiveMapConfig;
@@ -79,6 +100,10 @@ uses
 { TTileStorageImporter }
 
 constructor TTileStorageImporter.Create(
+  const ALanguageManager: ILanguageManager;
+  const AContentTypeManager: IContentTypeManager;
+  const AProjectionSetList: IProjectionSetList;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AImportersList: ITileStorageImporterListChangeable;
   const AAllMapsSet: IMapTypeSet;
   const AMainMapConfig: IActiveMapConfig;
@@ -86,6 +111,11 @@ constructor TTileStorageImporter.Create(
 );
 begin
   inherited Create;
+
+  FLanguageManager := ALanguageManager;
+  FContentTypeManager := AContentTypeManager;
+  FProjectionSetList := AProjectionSetList;
+  FTileStorageTypeList := ATileStorageTypeList;
 
   FImportersList := AImportersList.GetStatic;
   FAllMapsSet := AAllMapsSet;
@@ -99,6 +129,7 @@ end;
 destructor TTileStorageImporter.Destroy;
 begin
   FreeAndNil(FOpenDialog);
+  FreeAndNil(FfrmImport);
   inherited Destroy;
 end;
 
@@ -152,10 +183,30 @@ begin
   end;
 end;
 
+procedure TTileStorageImporter.ShowImportDialog(
+  const AFileInfo: TTileStorageImporterFileInfo;
+  out AIsCanceled: Boolean
+);
+begin
+  Assert(GetCurrentThreadId = MainThreadID);
+
+  if not Assigned(FfrmImport) then begin
+    FfrmImport :=
+      TfrmTileStorageImporter.Create(
+        FLanguageManager,
+        FContentTypeManager,
+        FProjectionSetList,
+        FTileStorageTypeList
+      );
+  end;
+
+  AIsCanceled := not FfrmImport.ShowFileInfoModal(AFileInfo);
+ end;
+
 function TTileStorageImporter.ProcessFile(
   const AFileName: string;
-  const AShowImportDlg: Boolean;
-  const AMapGoto: IMapViewGoto
+  const AMapGoto: IMapViewGoto;
+  const AShowImportDialog: Boolean
 ): Boolean;
 var
   VMapType: IMapType;
@@ -174,7 +225,7 @@ begin
     Exit;
   end;
 
-  VImportResult := VImporter.ProcessFile(AFileName, AShowImportDlg, FAllMapsSet);
+  VImportResult := VImporter.ProcessFile(AFileName, FAllMapsSet, AShowImportDialog, Self.ShowImportDialog);
 
   case VImportResult.Status of
     tsiOk: begin

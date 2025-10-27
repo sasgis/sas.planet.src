@@ -1652,6 +1652,10 @@
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForMarksLayer.pas"/>
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererChangeableForVectorMaps.pas"/>
         <DCCReference Include="Src\TileProvider\u_VectorTileRendererForMarks.pas"/>
+        <DCCReference Include="Src\TileStorageImporter\frm_TileStorageImporter.pas">
+            <Form>frmTileStorageImporter</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="Src\TileStorageImporter\i_TileStorageImporter.pas"/>
         <DCCReference Include="Src\TileStorageImporter\i_TileStorageImporterList.pas"/>
         <DCCReference Include="Src\TileStorageImporter\t_TileStorageImporter.pas"/>

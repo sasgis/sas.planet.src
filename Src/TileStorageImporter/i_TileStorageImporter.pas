@@ -25,6 +25,7 @@ interface
 
 uses
   t_GeoTypes,
+  t_TileStorageImporter,
   i_MapType,
   i_MapTypeSet;
 
@@ -44,12 +45,18 @@ type
     GoToPoint: TDoublePoint;
   end;
 
+  TDoShowImportDialog = procedure(
+    const AFileInfo: TTileStorageImporterFileInfo;
+    out AIsCanceled: Boolean
+  ) of object;
+
   ITileStorageImporter = interface
     ['{8F520C27-B41E-41E6-A357-959E05D04B9C}']
     function ProcessFile(
       const AFileName: string;
-      const AShowImportDlg: Boolean;
-      const AAllMapsSet: IMapTypeSet
+      const AAllMapsSet: IMapTypeSet;
+      const AShowImportDialod: Boolean = False;
+      const ADoShowImportDialog: TDoShowImportDialog = nil
     ): TTileStorageImportResult;
   end;
 

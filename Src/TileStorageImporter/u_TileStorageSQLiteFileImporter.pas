@@ -50,8 +50,9 @@ type
     { ITileStorageImporter }
     function ProcessFile(
       const AFileName: string;
-      const AShowImportDlg: Boolean;
-      const AAllMapsSet: IMapTypeSet
+      const AAllMapsSet: IMapTypeSet;
+      const AShowImportDialod: Boolean = False;
+      const ADoShowImportDialog: TDoShowImportDialog = nil
     ): TTileStorageImportResult;
   public
     constructor Create(
@@ -65,6 +66,7 @@ type
 implementation
 
 uses
+  Classes,
   StrUtils,
   IOUtils,
   Generics.Collections,
@@ -101,8 +103,9 @@ end;
 
 function TTileStorageSQLiteFileImporter.ProcessFile(
   const AFileName: string;
-  const AShowImportDlg: Boolean;
-  const AAllMapsSet: IMapTypeSet
+  const AAllMapsSet: IMapTypeSet;
+  const AShowImportDialod: Boolean;
+  const ADoShowImportDialog: TDoShowImportDialog
 ): TTileStorageImportResult;
 var
   I: Integer;
@@ -113,6 +116,7 @@ var
   VProjection: IProjection;
   VFileInfo: TTileStorageImporterFileInfo;
   VZmpMapConfig: IConfigDataProvider;
+  VIsCanceled: Boolean;
 begin
   Result.Status := tsiInternalError;
   Result.MapType := nil;
@@ -135,8 +139,18 @@ begin
       Exit;
     end;
 
-    if AShowImportDlg then begin
-      // todo: show import dialog
+    if AShowImportDialod and Assigned(ADoShowImportDialog) then begin
+      TThread.Synchronize(nil,
+        procedure
+        begin
+          ADoShowImportDialog(VFileInfo, VIsCanceled);
+        end
+      );
+      if VIsCanceled then begin
+        // canceled by user
+        Result.Status := tsiCanceled;
+        Exit;
+      end;
     end;
 
     for I := 0 to AAllMapsSet.Count - 1 do begin
@@ -360,7 +374,7 @@ procedure ReadMetadata(
   function GetOruxBoundsStr(const AOruxLayer: TOruxMapsLayer): string;
   begin
     Result :=
-      RoundEx(AOruxLayer.MinLon, 8) + ',' + RoundEx(AOruxLayer.MinLat, 8) +
+      RoundEx(AOruxLayer.MinLon, 8) + ',' + RoundEx(AOruxLayer.MinLat, 8) + ',' +
       RoundEx(AOruxLayer.MaxLon, 8) + ',' + RoundEx(AOruxLayer.MaxLat, 8);
   end;
 
@@ -381,7 +395,7 @@ procedure ReadMetadata(
       end;
     end;
 
-     Result :=
+    Result :=
       RoundEx((VLayer.MinLon + VLayer.MaxLon) / 2, 8) + ',' +
       RoundEx((VLayer.MinLat + VLayer.MaxLat) / 2, 8) + ',' +
       IntToStr(VLayer.Zoom);
