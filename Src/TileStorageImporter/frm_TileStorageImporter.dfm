@@ -79,7 +79,7 @@ object frmTileStorageImporter: TfrmTileStorageImporter
         Width = 360
         Height = 13
         Align = alTop
-        Caption = 'Parent Sub Menu:'
+        Caption = 'Parent Submenu:'
       end
       object lblExtension: TLabel
         AlignWithMargins = True

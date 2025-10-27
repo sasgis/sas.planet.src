@@ -134,7 +134,7 @@ begin
     if (VFileInfo.FContentType = '') or (VFileInfo.FExt = '') then begin
       // unsupported tile format
       VMsg := IfThen(VFileInfo.FContentType <> '', VFileInfo.FContentType, VFileInfo.FExt);
-      ShowErrorMessageSync(Format(_('Error: Unsupported tile format: "%s"!'), [VMsg]));
+      ShowErrorMessageSync(Format(_('Unsupported tile format: "%s"!'), [VMsg]));
       Result.Status := tsiUnsupportedContentType;
       Exit;
     end;
@@ -200,7 +200,7 @@ begin
       end else begin
         VMsg := _('base map');
       end;
-      ShowErrorMessageSync(Format(_('Error: No available slots for the offline maps (%s)!'), [VMsg]));
+      ShowErrorMessageSync(Format(_('No available slots for the offline maps (%s)!'), [VMsg]));
     end;
   finally
     VFileInfo.Free;

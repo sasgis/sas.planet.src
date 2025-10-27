@@ -7208,9 +7208,7 @@ var
 begin
   VList := FTileStorageImporter.OpenFileDialogExecute(Self.Handle);
   if Assigned(VList) and (VList.Count > 0) then begin
-    if not FTileStorageImporter.ProcessFile(VList.Items[0], FMapGoto, True) then begin
-      ShowErrorMessage(_('Unsupported file format!'));
-    end;
+    FTileStorageImporter.ProcessFileUI(VList.Items[0], FMapGoto);
   end;
 end;
 

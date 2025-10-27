@@ -71,6 +71,11 @@ type
       const AMapGoto: IMapViewGoto;
       const AShowImportDialog: Boolean
     ): Boolean;
+
+    procedure ProcessFileUI(
+      const AFileName: string;
+      const AMapGoto: IMapViewGoto
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -94,6 +99,7 @@ uses
   gnugettext,
   t_GeoTypes,
   i_MapType,
+  u_Dialogs,
   u_GeoFunc,
   u_StringListStatic;
 
@@ -261,6 +267,16 @@ begin
     end;
   else
     Assert(False);
+  end;
+end;
+
+procedure TTileStorageImporter.ProcessFileUI(
+  const AFileName: string;
+  const AMapGoto: IMapViewGoto
+);
+begin
+  if not ProcessFile(AFileName, AMapGoto, True) then begin
+    ShowErrorMessage(_('Unsupported file format!'));
   end;
 end;
 
