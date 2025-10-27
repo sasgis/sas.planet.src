@@ -42,6 +42,7 @@ uses
   i_ArchiveReadWrite,
   i_BinaryData,
   u_BinaryData,
+  u_StrFunc,
   u_ConfigDataProviderByZip;
 
 function MakeZmpMapConfig(
@@ -64,6 +65,7 @@ const
     'UseDwn=0'         + #13#10 +
     'IsReadOnly=1'     + #13#10;
 var
+  VBytes: TBytes;
   VParamsTxt: string;
   VBinaryData: IBinaryData;
   VZipStream: TStream;
@@ -81,7 +83,8 @@ begin
       AFileInfo.FCacheTypeCode]
     );
 
-    VBinaryData := TBinaryData.CreateByAnsiString(UTF8Encode(VParamsTxt));
+    VBytes := StringToUtf8WithBOM(VParamsTxt);
+    VBinaryData := TBinaryData.Create(Length(VBytes), VBytes);
 
     VZipWriter :=  VZip.WriterFactory.BuildByStream(VZipStream);
     VZipWriter.AddFile(VBinaryData, 'params.txt', Now);

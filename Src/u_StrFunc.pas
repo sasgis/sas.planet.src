@@ -23,6 +23,9 @@ unit u_StrFunc;
 
 interface
 
+uses
+  SysUtils;
+
 function GetAfter(const SubStr, Str: AnsiString): AnsiString; inline;
 function GetBefore(const SubStr, Str: AnsiString): AnsiString; inline;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString; inline;
@@ -31,6 +34,8 @@ procedure SwapStr(var A, B: string); inline;
 procedure SwapStrA(var A, B: AnsiString); inline;
 
 function Utf8DataToUnicodeString(const AData: Pointer; const ASize: Integer): UnicodeString;
+
+function StringToUtf8WithBOM(const S: string): TBytes;
 
 implementation
 
@@ -99,6 +104,11 @@ begin
   end else begin
     Result := '';
   end;
+end;
+
+function StringToUtf8WithBOM(const S: string): TBytes;
+begin
+  Result := TEncoding.UTF8.GetPreamble + TEncoding.UTF8.GetBytes(S);
 end;
 
 end.
