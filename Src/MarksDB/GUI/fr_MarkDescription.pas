@@ -113,6 +113,18 @@ begin
     WordWrap := True;
     DoubleBuffered := True;
   end;
+
+  OpenPictureDialog.Filter :=
+    'All (*.bmp;*.gif;*.ico;*.jpeg;*.jpg;*.png;*.svg;*.tif;*.tiff;*.wbmp;*.webp)|*.bmp;*.gif;*.ico;*.jpeg;*.jpg;*.png;*.svg;*.tif;*.tiff;*.wbmp;*.webp|' +
+    'Bitmaps (*.bmp)|*.bmp|' +
+    'GIF Image (*.gif)|*.gif|' +
+    'Icons (*.ico)|*.ico|' +
+    'JPEG Image File (*.jpeg;*.jpg)|*.jpeg;*.jpg|' +
+    'Portable Network Graphics (*.png)|*.png|' +
+    'Scalable Vector Graphics (*.svg)|*.svg|' +
+    'TIFF Images (*.tif;*.tiff)|*.tif;*.tiff|' +
+    'WBMP Images (*.wbmp)|*.wbmp|' +
+    'WebP Images (*.webp)|*.webp|';
 end;
 
 procedure TfrMarkDescription.EditCommentKeyDown(
