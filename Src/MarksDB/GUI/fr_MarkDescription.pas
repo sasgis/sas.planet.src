@@ -32,6 +32,7 @@ uses
   StdCtrls,
   ExtCtrls,
   ExtDlgs,
+  ImageList,
   TBX,
   TBXGraphics,
   ImgList,
@@ -69,7 +70,7 @@ type
     );
   private
     FMediaPath: IPathConfig;
-    EditComment: TSynEdit;
+    FEditComment: TSynEdit;
     function GetDescription: string;
     procedure SetDescription(const Value: string);
   public
@@ -100,9 +101,11 @@ constructor TfrMarkDescription.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
   FMediaPath := AMediaPath;
-  EditComment := TSynEditBuilder.SynEditWithHtmlHighlighter(Self);
-  with EditComment do begin
+
+  FEditComment := TSynEditBuilder.SynEditWithHtmlHighlighter(Self);
+  with FEditComment do begin
     Parent := Self;
     AlignWithMargins := True;
     Align := alClient;
@@ -133,42 +136,44 @@ procedure TfrMarkDescription.EditCommentKeyDown(
   Shift: TShiftState
 );
 var
-  s: string;
+  VText: string;
   VSelStart: integer;
   Form: TCustomForm;
 begin
-  if (Key = VK_RETURN) then begin
+  if Key = VK_RETURN then begin
     if (ssCtrl in Shift) then begin
       Key := 0;
-      s := EditComment.Text;
-      VSelStart := EditComment.SelStart;
-      Insert('<BR>', s, VSelStart + 1);
-      EditComment.Text := s;
-      EditComment.SelStart := VSelStart + 4;
+      VText := FEditComment.Text;
+      VSelStart := FEditComment.SelStart;
+      Insert('<BR>', VText, VSelStart + 1);
+      FEditComment.Text := VText;
+      FEditComment.SelStart := VSelStart + 4;
     end;
-  end else if Key = VK_ESCAPE then begin
+  end else
+  if Key = VK_ESCAPE then begin
     Form := GetParentForm(Self);
     if Form <> nil then begin
       Form.ModalResult := mrCancel;
     end;
-  end else if (Key = $41) and (ssCtrl in Shift) then begin
-    EditComment.SelectAll;
+  end else
+  if (Key = $41) and (ssCtrl in Shift) then begin
+    FEditComment.SelectAll;
   end;
 end;
 
 function TfrMarkDescription.GetDescription: string;
 begin
-  Result := EditComment.Text;
+  Result := FEditComment.Text;
 end;
 
 procedure TfrMarkDescription.SetDescription(const Value: string);
 begin
-  EditComment.Text := Value;
+  FEditComment.Text := Value;
 end;
 
 procedure TfrMarkDescription.TBXItem1Click(Sender: TObject);
 var
-  s: string;
+  VText: string;
   VSelStart: integer;
   VSelLen: integer;
   VSelectedText: string;
@@ -178,12 +183,13 @@ var
   VMediaPath: string;
   VFileName: string;
 begin
-  s := EditComment.Text;
-  VSelStart := EditComment.SelStart;
-  VSelLen := EditComment.SelLength;
-  VSelectedText := EditComment.SelText;
+  VText := FEditComment.Text;
+  VSelStart := FEditComment.SelStart;
+  VSelLen := FEditComment.SelLength;
+  VSelectedText := FEditComment.SelText;
   VTextBeforeSelection := '';
   VTextAfterSelection := '';
+
   case TEditBtn(TTBXItem(Sender).Tag) of
     ebB: begin
       VTextBeforeSelection := '<b>';
@@ -206,9 +212,8 @@ begin
         VTextAfterSelection := '</a>';
       end;
     end;
-    ebImg:
-    begin
-      if (OpenPictureDialog.Execute) and (OpenPictureDialog.FileName <> '') then begin
+    ebImg: begin
+      if OpenPictureDialog.Execute and (OpenPictureDialog.FileName <> '') then begin
         VImageUrl := OpenPictureDialog.FileName;
         VMediaPath := IncludeTrailingPathDelimiter(FMediaPath.FullPath);
         if LeftStr(VImageUrl, Length(VMediaPath)) = VMediaPath then begin
@@ -222,38 +227,30 @@ begin
         VTextAfterSelection := '';
       end;
     end;
-    ebCenter:
-    begin
+    ebCenter: begin
       VTextBeforeSelection := '<CENTER>';
       VTextAfterSelection := '</CENTER>';
     end;
-    ebLeft:
-    begin
+    ebLeft: begin
       VTextBeforeSelection := '<div ALIGN=LEFT>';
       VTextAfterSelection := '</div>';
     end;
-    ebRight:
-    begin
+    ebRight: begin
       VTextBeforeSelection := '<div ALIGN=RIGHT>';
       VTextAfterSelection := '</div>';
     end;
-    ebCut:
-    begin
+    ebCut: begin
       VTextBeforeSelection := '<!-- sas.cut -->' + #13#10;
       VTextAfterSelection := '';
     end;
   end;
-  if (VTextBeforeSelection <> '') or (VTextAfterSelection <> '') then begin
-    Insert(VTextBeforeSelection, s, VSelStart + 1);
-    Insert(VTextAfterSelection, s, VSelStart + VSelLen + length(VTextBeforeSelection) + 1);
-    EditComment.Text := s;
-    EditComment.SelStart :=
-      VSelStart +
-      VSelLen +
-      length(VTextBeforeSelection) +
-      Length(VTextAfterSelection);
-  end;
 
+  if (VTextBeforeSelection <> '') or (VTextAfterSelection <> '') then begin
+    Insert(VTextBeforeSelection, VText, VSelStart + 1);
+    Insert(VTextAfterSelection, VText, VSelStart + VSelLen + Length(VTextBeforeSelection) + 1);
+    FEditComment.Text := VText;
+    FEditComment.SelStart := VSelStart + VSelLen + Length(VTextBeforeSelection) + Length(VTextAfterSelection);
+  end;
 end;
 
 end.
