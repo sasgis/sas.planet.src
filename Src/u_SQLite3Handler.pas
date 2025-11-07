@@ -149,6 +149,10 @@ type
       const ASqlText: UTF8String
     ): Boolean; inline;
 
+    function StepPrepared(
+      const AStmtData: PSQLite3StmtData
+    ): Integer; inline;
+
     function FetchPrepared(
       const AStmtData: PSQLite3StmtData;
       const ACallbackProc: TSQLiteOpenStatementProc;
@@ -795,6 +799,11 @@ function TSQLite3DbHandler.PrepareStatement(
 begin
   AStmtData.Init;
   Result := sqlite3_prepare_v2(FHandle, PUTF8Char(ASqlText), Length(ASqlText), AStmtData.Stmt, nil) = SQLITE_OK;
+end;
+
+function TSQLite3DbHandler.StepPrepared(const AStmtData: PSQLite3StmtData): Integer;
+begin
+  Result := sqlite3_step(AStmtData.Stmt);
 end;
 
 procedure TSQLite3DbHandler.RegisterCollationNeededCallback;

@@ -50,6 +50,12 @@ uses
 type
   IRegionProcessParamsFrameMBTilesExport = interface(IRegionProcessParamsFrameBase)
     ['{AF048EAA-5AE3-45CD-94FD-443DFCB580B6}']
+    function GetForceDropTarget: Boolean;
+    property ForceDropTarget: Boolean read GetForceDropTarget;
+
+    function GetReplaceExistingTiles: Boolean;
+    property ReplaceExistingTiles: Boolean read GetReplaceExistingTiles;
+
     function GetDirectTilesCopy: Boolean;
     property DirectTilesCopy: Boolean read GetDirectTilesCopy;
 
@@ -107,6 +113,8 @@ type
     dlgSaveTo: TSaveDialog;
     chkAddVisibleLayers: TCheckBox;
     chkMakeTileMillStruct: TCheckBox;
+    chkForceDropTarget: TCheckBox;
+    chkReplaceExistingTiles: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
   private
@@ -128,6 +136,9 @@ type
     function GetMapType: IMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
+    function GetForceDropTarget: Boolean;
+    function GetReplaceExistingTiles: Boolean;
+    property ReplaceExistingTiles: Boolean read GetReplaceExistingTiles;
     function GetDirectTilesCopy: Boolean;
     function GetAllowExport(const AMapType: IMapType): Boolean;
     function GetProvider: IBitmapTileUniProvider;
@@ -365,6 +376,11 @@ begin
   Result := Result and (FfrImageFormatSelect.SelectedFormat = iftAuto);
 end;
 
+function TfrExportMBTiles.GetForceDropTarget: Boolean;
+begin
+  Result := chkForceDropTarget.Checked;
+end;
+
 function TfrExportMBTiles.GetZoomArray: TByteDynArray;
 begin
   Result := FfrZoomsSelect.GetZoomList;
@@ -411,6 +427,11 @@ begin
       chkUsePrevZoom.Checked,
       chkUsePrevZoom.Checked
     );
+end;
+
+function TfrExportMBTiles.GetReplaceExistingTiles: Boolean;
+begin
+  Result := chkReplaceExistingTiles.Checked;
 end;
 
 procedure TfrExportMBTiles.GetBitmapTileSaver(out ASaver: IBitmapTileSaver; out AFormat: string);

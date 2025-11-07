@@ -146,6 +146,7 @@ var
   VTileStorage: ITileStorage;
   VName, VDesc, VAttr, VImgFormat: string;
   VIsLayer, VUseXYZScheme: Boolean;
+  VForceDropTarget, VReplaceExistingTiles: Boolean;
   VMakeTileMillCompatibility: Boolean;
 begin
   inherited;
@@ -163,6 +164,8 @@ begin
   end;
 
   with (ParamsFrame as IRegionProcessParamsFrameMBTilesExport) do begin
+    VForceDropTarget := ForceDropTarget;
+    VReplaceExistingTiles := not VForceDropTarget and ReplaceExistingTiles;
     VDirectTilesCopy := DirectTilesCopy;
     VName := Name;
     VDesc := Description;
@@ -192,7 +195,9 @@ begin
       VDesc,
       VAttr,
       VIsLayer,
-      VImgFormat
+      VImgFormat,
+      VForceDropTarget,
+      VReplaceExistingTiles
     );
 end;
 

@@ -79,7 +79,9 @@ type
       const ADescription: string;
       const AAttribution: string;
       const AIsLayer: Boolean;
-      const AImgFormat: string
+      const AImgFormat: string;
+      const AForceDropTarget: Boolean;
+      const AReplaceTiles: Boolean
     );
     destructor Destroy; override;
   end;
@@ -92,6 +94,7 @@ uses
   i_Projection,
   i_Bitmap32Static,
   i_TileRect,
+  u_Dialogs,
   u_ResStrings;
 
 { TExportTaskToMBTiles }
@@ -114,7 +117,9 @@ constructor TExportTaskToMBTiles.Create(
   const ADescription: string;
   const AAttribution: string;
   const AIsLayer: Boolean;
-  const AImgFormat: string
+  const AImgFormat: string;
+  const AForceDropTarget: Boolean;
+  const AReplaceTiles: Boolean
 );
 const
   cSQLiteStorageTypes: array [Boolean] of TSQLiteStorageMBTilesBaseClass = (
@@ -150,7 +155,9 @@ begin
       AAttribution,
       AIsLayer,
       AImgFormat,
-      AUseXYZScheme
+      AUseXYZScheme,
+      AForceDropTarget,
+      AReplaceTiles
     );
 end;
 
@@ -210,7 +217,16 @@ begin
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
 
-  FSQLiteStorage.Open(GetLonLatRect(VTileIterators[0]), FZooms);
+  try
+    FSQLiteStorage.Open(GetLonLatRect(VTileIterators[0]), FZooms);
+  except
+    on E: ESQLiteStorageMBTiles do begin
+      ShowErrorMessageSync(E.Message);
+      Exit;
+    end else
+      raise;
+  end;
+
   try
     ProgressInfo.SetCaption(SAS_STR_ExportTiles);
     ProgressInfo.SetFirstLine(

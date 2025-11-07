@@ -50,19 +50,24 @@ type
     FExportPath: string;
     FExportFileName: string;
 
+    FForceDropTarget: Boolean;
+    FReplaceTiles: Boolean;
+
     FSQLite3DB: TSQLite3DbHandler;
     FSQLiteAvailable: Boolean;
 
     FFormatSettings: TFormatSettings;
-  protected
-    procedure InsertMetaKeyVal(const AKey, AValue: string);
 
+    FExistingMinZoom: Integer;
+    FExistingMaxZoom: Integer;
+    FExistingBounds: TDoubleRect;
+  protected
+    procedure WriteMetaKeyVal(const AKey, AValue: string; const ASql: AnsiString); inline;
+
+    procedure ReadMetadata;
     procedure WriteMetadata(const AKeyValList: TStringList);
 
-    function KeyValToStr(
-      const AKey, AValue: string;
-      const ASep: Char = cKeyValSep
-    ): string; inline;
+    function KeyValToStr(const AKey, AValue: string; const ASep: Char = cKeyValSep): string; inline;
 
     function GetBoundsStr(const ALonLatRect: TDoubleRect): string;
 
@@ -73,7 +78,7 @@ type
 
     function GetTileXY(const ATile: TPoint; const AZoom: Byte): TPoint; inline;
 
-    procedure OpenInternal(const ATablesDDL: array of AnsiString);
+    procedure OpenInternal(const ATablesDDL: array of AnsiString; const ADeleteIfExists: Boolean);
   public
     constructor Create(
       const AExportPath: string;
@@ -83,7 +88,9 @@ type
       const AAttribution: string;
       const AIsLayer: Boolean;
       const AImgFormat: string;
-      const AUseXYZScheme: Boolean
+      const AUseXYZScheme: Boolean;
+      const AForceDropTarget: Boolean;
+      const AReplaceTiles: Boolean
     );
 
     procedure Add(
@@ -143,13 +150,17 @@ type
     procedure Close; override;
   end;
 
+  ESQLiteStorageMBTiles = class(Exception);
+
 implementation
 
 uses
+  StrUtils,
   SynCrypto,
   SynCommons,
   u_AnsiStr,
-  u_GeoFunc;
+  u_GeoFunc,
+  u_GeoToStrFunc;
 
 const
   cCRLF = #10;
@@ -157,6 +168,7 @@ const
 const
   // metadata
   INSERT_METADATA_SQL = 'INSERT INTO metadata (name, value) VALUES (%s,%s)';
+  INSERT_METADATA_SQL_REPLACE = 'INSERT OR REPLACE INTO metadata (name, value) VALUES (%s,%s)';
 
 { TSQLiteStorageMBTilesBase }
 
@@ -168,13 +180,18 @@ constructor TSQLiteStorageMBTilesBase.Create(
   const AAttribution: string;
   const AIsLayer: Boolean;
   const AImgFormat: string;
-  const AUseXYZScheme: Boolean
+  const AUseXYZScheme: Boolean;
+  const AForceDropTarget: Boolean;
+  const AReplaceTiles: Boolean
 );
 begin
   inherited Create;
 
   FExportPath := AExportPath;
   FExportFileName := AExportFileName;
+
+  FForceDropTarget := AForceDropTarget;
+  FReplaceTiles := AReplaceTiles;
 
   FName := AName;
   if FName = '' then begin
@@ -225,35 +242,91 @@ begin
   end;
 end;
 
-function TSQLiteStorageMBTilesBase.KeyValToStr(
-  const AKey, AValue: string;
-  const ASep: Char
-): string;
+function TSQLiteStorageMBTilesBase.KeyValToStr(const AKey, AValue: string; const ASep: Char): string;
 begin
   Result := AKey + ASep + AValue;
 end;
 
-procedure TSQLiteStorageMBTilesBase.InsertMetaKeyVal(const AKey, AValue: string);
+procedure TSQLiteStorageMBTilesBase.WriteMetaKeyVal(const AKey, AValue: string; const ASql: AnsiString);
 begin
   FSQLite3DB.ExecSQL(
-    FormatA(
-      INSERT_METADATA_SQL,
-      [ '''' + UTF8Encode(AKey) + '''', '''' + UTF8Encode(AValue) + '''']
-    )
+    FormatA(ASql, [ '''' + UTF8Encode(AKey) + '''', '''' + UTF8Encode(AValue) + ''''])
   );
+end;
+
+procedure TSQLiteStorageMBTilesBase.ReadMetadata;
+var
+  VKey, VVal: string;
+  VStmt: TSQLite3StmtData;
+  VItems: Types.TStringDynArray;
+  VBounds: TDoubleRect;
+begin
+  FExistingMinZoom := -1;
+  FExistingMaxZoom := -1;
+  FExistingBounds := DoubleRect(0, 0, 0, 0);
+
+  if not FSQLite3DB.PrepareStatement(@VStmt, 'SELECT name, value FROM metadata') then begin
+    FSQLite3DB.RaiseSQLite3Error;
+  end;
+  try
+    while FSQLite3DB.StepPrepared(@VStmt) = SQLITE_ROW do begin
+      VKey := LowerCase(Trim(VStmt.ColumnAsString(0)));
+      VVal := LowerCase(Trim(VStmt.ColumnAsString(1)));
+
+      if VKey = 'format' then begin
+        if VVal <> FImgFormat then
+          raise ESQLiteStorageMBTiles.CreateFmt('Invalid "format" value! Expected "%s" but found "%s"', [FImgFormat, VVal]);
+      end else
+      if VKey = 'type' then begin
+        if VVal <> FImgType then
+          raise ESQLiteStorageMBTiles.CreateFmt('Invalid "type" value! Expected "%s" but found "%s"', [FImgType, VVal]);
+      end else
+      if VKey = 'scheme' then begin
+        if VVal <> FScheme then
+          raise ESQLiteStorageMBTiles.CreateFmt('Invalid "scheme" value! Expected "%s" but found "%s"', [FScheme, VVal]);
+      end else
+      if VKey = 'minzoom' then begin
+        FExistingMinZoom := StrToIntDef(VVal, -1);
+      end else
+      if VKey = 'maxzoom' then begin
+        FExistingMaxZoom := StrToIntDef(VVal, -1);
+      end else
+      if VKey = 'bounds' then begin
+        VItems := SplitString(VVal, ',');
+        if Length(VItems) = 4 then begin
+          if TryStrPointToFloat(Trim(VItems[0]), VBounds.Left) and
+             TryStrPointToFloat(Trim(VItems[1]), VBounds.Bottom) and
+             TryStrPointToFloat(Trim(VItems[2]), VBounds.Right) and
+             TryStrPointToFloat(Trim(VItems[3]), VBounds.Top)
+          then begin
+            FExistingBounds := VBounds;
+          end;
+        end;
+      end;
+    end;
+  finally
+    FSQLite3DB.ClosePrepared(@VStmt);
+  end;
 end;
 
 procedure TSQLiteStorageMBTilesBase.WriteMetadata(const AKeyValList: TStringList);
 var
   I: Integer;
   VKey, VVal: string;
+  VSql: AnsiString;
 begin
+  if FForceDropTarget then begin
+    VSql := INSERT_METADATA_SQL;
+  end else begin
+    VSql := INSERT_METADATA_SQL_REPLACE;
+  end;
+
   FSQLite3DB.BeginTransaction;
   try
     for I := 0 to AKeyValList.Count - 1 do begin
       VKey := AKeyValList.Names[I];
       VVal := AKeyValList.ValueFromIndex[I];
-      InsertMetaKeyVal(VKey, VVal);
+      WriteMetaKeyVal(VKey, VVal, VSql);
     end;
     FSQLite3DB.CommitTransaction;
   except
@@ -282,7 +355,7 @@ begin
   VRectCenter := RectCenter(ALonLatRect);
   Result :=
     Format(
-      '%.8f, %.8f, %d',
+      '%.8f,%.8f,%d',
       [VRectCenter.X, VRectCenter.Y, AMinZoom],
       FFormatSettings
     );
@@ -299,22 +372,22 @@ begin
   end;
 end;
 
-procedure TSQLiteStorageMBTilesBase.OpenInternal(const ATablesDDL: array of AnsiString);
+procedure TSQLiteStorageMBTilesBase.OpenInternal(const ATablesDDL: array of AnsiString; const ADeleteIfExists: Boolean);
 var
   I: Integer;
   VFileName: string;
 begin
   if not FSQLiteAvailable then begin
-    raise ESQLite3SimpleError.Create('The SQLite3 library is not available!');
+    raise ESQLiteStorageMBTiles.Create('The SQLite3 library is not available!');
   end;
 
   Close;
 
   VFileName := FExportPath + FExportFileName;
 
-  if FileExists(VFileName) then begin
+  if ADeleteIfExists and FileExists(VFileName) then begin
     if not DeleteFile(VFileName) then begin
-      raise ESQLite3SimpleError.CreateFmt('Can''t delete database: %s', [VFileName]);
+      raise ESQLiteStorageMBTiles.CreateFmt('Can''t delete database: %s', [VFileName]);
     end;
   end;
 
@@ -342,7 +415,8 @@ const
     'CREATE TABLE IF NOT EXISTS tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)'
   );
 
-  INSERT_TILES_SQL = 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
+  INSERT_TILES_SQL_REPLACE = 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
+  INSERT_TILES_SQL_IGNORE = 'INSERT OR IGNORE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
 
   CREATE_INDEX_SQL = 'CREATE INDEX IF NOT EXISTS tiles_idx on tiles (zoom_level, tile_column, tile_row)';
 
@@ -352,8 +426,32 @@ procedure TSQLiteStorageMBTilesClassic.Open(
 );
 var
   VMetadata: TStringList;
+  VInsertSQL: AnsiString;
+  VMinZoom, VMaxZoom: Byte;
+  VBounds: TDoubleRect;
 begin
-  OpenInternal(CMBTilesDDL);
+  OpenInternal(CMBTilesDDL, FForceDropTarget);
+
+  VMinZoom := AZooms[Low(AZooms)];
+  VMaxZoom := AZooms[High(AZooms)];
+
+  VBounds := ALonLatRect;
+
+  if not FForceDropTarget then begin
+    ReadMetadata;
+
+    if not IsLonLatRectEmpty(FExistingBounds) then begin
+      VBounds := UnionLonLatRects(FExistingBounds, ALonLatRect);
+    end;
+
+    if (FExistingMinZoom <> -1) and (VMinZoom > FExistingMinZoom) then begin
+      VMinZoom := FExistingMinZoom;
+    end;
+
+    if (FExistingMaxZoom <> -1) and (VMaxZoom < FExistingMaxZoom) then begin
+      VMaxZoom := FExistingMaxZoom;
+    end;
+  end;
 
   VMetadata := TStringList.Create;
   try
@@ -370,15 +468,16 @@ begin
 
     // 1.1
     VMetadata.Add( KeyValToStr('format', FImgFormat) );
-    VMetadata.Add( KeyValToStr('bounds', GetBoundsStr(ALonLatRect)) );
+    VMetadata.Add( KeyValToStr('bounds', GetBoundsStr(VBounds)) );
 
     // 1.2
     VMetadata.Add( KeyValToStr('attribution', FAttribution) );
 
     // 1.3
-    VMetadata.Add( KeyValToStr('minzoom', IntToStr(AZooms[Low(AZooms)])) );
-    VMetadata.Add( KeyValToStr('maxzoom', IntToStr(AZooms[High(AZooms)])) );
-    VMetadata.Add( KeyValToStr('center', GetCenterStr(ALonLatRect, AZooms[Low(AZooms)])) );
+    VMetadata.Add( KeyValToStr('minzoom', IntToStr(VMinZoom)) );
+    VMetadata.Add( KeyValToStr('maxzoom', IntToStr(VMaxZoom)) );
+
+    VMetadata.Add( KeyValToStr('center', GetCenterStr(ALonLatRect, VMinZoom)) );
 
     // additional fields from TileJSON standart
     // https://github.com/mapbox/tilejson-spec/tree/master/2.1.0
@@ -390,7 +489,13 @@ begin
     VMetadata.Free;
   end;
 
-  FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, INSERT_TILES_SQL);
+  if FReplaceTiles then begin
+    VInsertSQL := INSERT_TILES_SQL_REPLACE;
+  end else begin
+    VInsertSQL := INSERT_TILES_SQL_IGNORE;
+  end;
+
+  FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, VInsertSQL);
   if not FIsInsertStmtPrepared then begin
     FSQLite3DB.RaiseSQLite3Error;
   end;
@@ -452,23 +557,23 @@ const
   cTileMillDDL: array [0..14] of AnsiString = (
 
     // grid_key
-    'CREATE TABLE grid_key (grid_id TEXT, key_name TEXT);',
-    'CREATE UNIQUE INDEX grid_key_lookup ON grid_key (grid_id, key_name);',
+    'CREATE TABLE IF NOT EXISTS grid_key (grid_id TEXT, key_name TEXT);',
+    'CREATE UNIQUE INDEX IF NOT EXISTS grid_key_lookup ON grid_key (grid_id, key_name);',
 
     // grid_utfgrid
-    'CREATE TABLE grid_utfgrid (grid_id TEXT, grid_utfgrid BLOB);',
-    'CREATE UNIQUE INDEX grid_utfgrid_lookup ON grid_utfgrid (grid_id);',
+    'CREATE TABLE IF NOT EXISTS grid_utfgrid (grid_id TEXT, grid_utfgrid BLOB);',
+    'CREATE UNIQUE INDEX IF NOT EXISTS grid_utfgrid_lookup ON grid_utfgrid (grid_id);',
 
     // images
-    'CREATE TABLE images (tile_data blob, tile_id text);',
-    'CREATE UNIQUE INDEX images_id ON images (tile_id);',
+    'CREATE TABLE IF NOT EXISTS images (tile_data blob, tile_id text);',
+    'CREATE UNIQUE INDEX IF NOT EXISTS images_id ON images (tile_id);',
 
     // keymap
-    'CREATE TABLE keymap (key_name TEXT, key_json TEXT);',
-    'CREATE UNIQUE INDEX keymap_lookup ON keymap (key_name);',
+    'CREATE TABLE IF NOT EXISTS keymap (key_name TEXT, key_json TEXT);',
+    'CREATE UNIQUE INDEX IF NOT EXISTS keymap_lookup ON keymap (key_name);',
 
     // map
-    'CREATE TABLE map ('                                              + cCRLF +
+    'CREATE TABLE IF NOT EXISTS map ('                                + cCRLF +
     '   zoom_level INTEGER,'                                          + cCRLF +
     '   tile_column INTEGER,'                                         + cCRLF +
     '   tile_row INTEGER,'                                            + cCRLF +
@@ -476,14 +581,14 @@ const
     '   grid_id TEXT'                                                 + cCRLF +
     ');',
 
-    'CREATE UNIQUE INDEX map_index ON map (zoom_level, tile_column, tile_row);',
+    'CREATE UNIQUE INDEX IF NOT EXISTS map_index ON map (zoom_level, tile_column, tile_row);',
 
     // metadata
-    'CREATE TABLE metadata (name text, value text);',
-    'CREATE UNIQUE INDEX name ON metadata (name);',
+    'CREATE TABLE IF NOT EXISTS metadata (name text, value text);',
+    'CREATE UNIQUE INDEX IF NOT EXISTS name ON metadata (name);',
 
     // grid_data
-    'CREATE VIEW grid_data AS'                                        + cCRLF +
+    'CREATE VIEW IF NOT EXISTS grid_data AS'                          + cCRLF +
     '    SELECT'                                                      + cCRLF +
     '        map.zoom_level AS zoom_level,'                           + cCRLF +
     '        map.tile_column AS tile_column,'                         + cCRLF +
@@ -495,7 +600,7 @@ const
     '    JOIN keymap ON grid_key.key_name = keymap.key_name;',
 
     // grids
-    'CREATE VIEW grids AS'                                            + cCRLF +
+    'CREATE VIEW IF NOT EXISTS grids AS'                              + cCRLF +
     '    SELECT'                                                      + cCRLF +
     '        map.zoom_level AS zoom_level,'                           + cCRLF +
     '        map.tile_column AS tile_column,'                         + cCRLF +
@@ -505,7 +610,7 @@ const
     '    JOIN grid_utfgrid ON grid_utfgrid.grid_id = map.grid_id;',
 
     // tiles
-    'CREATE VIEW tiles AS'                                            + cCRLF +
+    'CREATE VIEW IF NOT EXISTS tiles AS'                              + cCRLF +
     '    SELECT'                                                      + cCRLF +
     '        map.zoom_level AS zoom_level,'                           + cCRLF +
     '        map.tile_column AS tile_column,'                         + cCRLF +
@@ -516,8 +621,10 @@ const
   );
 
 const
-  INSERT_IMAGES_SQL = 'INSERT OR REPLACE INTO images (tile_id, tile_data) VALUES (?,?)';
-  INSERT_MAP_SQL = 'INSERT OR REPLACE INTO map (zoom_level, tile_column, tile_row, tile_id) VALUES (?,?,?,?)';
+  INSERT_IMAGES_SQL_REPLACE = 'INSERT OR REPLACE INTO images (tile_id, tile_data) VALUES (?,?)';
+  INSERT_IMAGES_SQL_IGNORE = 'INSERT OR IGNORE INTO images (tile_id, tile_data) VALUES (?,?)';
+  INSERT_MAP_SQL_REPLACE = 'INSERT OR REPLACE INTO map (zoom_level, tile_column, tile_row, tile_id) VALUES (?,?,?,?)';
+  INSERT_MAP_SQL_IGNORE = 'INSERT OR IGNORE INTO map (zoom_level, tile_column, tile_row, tile_id) VALUES (?,?,?,?)';
 
 procedure TSQLiteStorageMBTilesTileMill.Open(
   const ALonLatRect: TDoubleRect;
@@ -525,8 +632,33 @@ procedure TSQLiteStorageMBTilesTileMill.Open(
 );
 var
   VMetadata: TStringList;
+  VInsertMapSQL: AnsiString;
+  VInsertImagesSQL: AnsiString;
+  VMinZoom, VMaxZoom: Byte;
+  VBounds: TDoubleRect;
 begin
-  OpenInternal(cTileMillDDL);
+  OpenInternal(cTileMillDDL, FForceDropTarget);
+
+  VMinZoom := AZooms[Low(AZooms)];
+  VMaxZoom := AZooms[High(AZooms)];
+
+  VBounds := ALonLatRect;
+
+  if not FForceDropTarget then begin
+    ReadMetadata;
+
+    if not IsLonLatRectEmpty(FExistingBounds) then begin
+      VBounds := UnionLonLatRects(FExistingBounds, ALonLatRect);
+    end;
+
+    if (FExistingMinZoom <> -1) and (VMinZoom > FExistingMinZoom) then begin
+      VMinZoom := FExistingMinZoom;
+    end;
+
+    if (FExistingMaxZoom <> -1) and (VMaxZoom < FExistingMaxZoom) then begin
+      VMaxZoom := FExistingMaxZoom;
+    end;
+  end;
 
   VMetadata := TStringList.Create;
   try
@@ -537,12 +669,12 @@ begin
     VMetadata.Add( KeyValToStr('version', '1.0.0') );
     VMetadata.Add( KeyValToStr('description', FDescription) );
     VMetadata.Add( KeyValToStr('format', FImgFormat) );
-    VMetadata.Add( KeyValToStr('bounds', GetBoundsStr(ALonLatRect)) );
+    VMetadata.Add( KeyValToStr('bounds', GetBoundsStr(VBounds)) );
     VMetadata.Add( KeyValToStr('attribution', FAttribution) );
     VMetadata.Add( KeyValToStr('scheme', FScheme) );
-    VMetadata.Add( KeyValToStr('minzoom', IntToStr(AZooms[Low(AZooms)])) );
-    VMetadata.Add( KeyValToStr('maxzoom', IntToStr(AZooms[High(AZooms)])) );
-    VMetadata.Add( KeyValToStr('center', GetCenterStr(ALonLatRect, AZooms[Low(AZooms)])) );
+    VMetadata.Add( KeyValToStr('minzoom', IntToStr(VMinZoom)) );
+    VMetadata.Add( KeyValToStr('maxzoom', IntToStr(VMaxZoom)) );
+    VMetadata.Add( KeyValToStr('center', GetCenterStr(ALonLatRect, VMinZoom)) );
     VMetadata.Add( KeyValToStr('template', '') );
 
     WriteMetadata(VMetadata)
@@ -550,9 +682,17 @@ begin
     VMetadata.Free;
   end;
 
+  if FReplaceTiles then begin
+    VInsertMapSQL := INSERT_MAP_SQL_REPLACE;
+    VInsertImagesSQL := INSERT_IMAGES_SQL_REPLACE;
+  end else begin
+    VInsertMapSQL := INSERT_MAP_SQL_IGNORE;
+    VInsertImagesSQL := INSERT_IMAGES_SQL_IGNORE;
+  end;
+
   FIsInsertStmtPrepared :=
-    FSQLite3DB.PrepareStatement(@FInsertMapStmt, INSERT_MAP_SQL) and
-    FSQLite3DB.PrepareStatement(@FInsertImagesStmt, INSERT_IMAGES_SQL);
+    FSQLite3DB.PrepareStatement(@FInsertMapStmt, VInsertMapSQL) and
+    FSQLite3DB.PrepareStatement(@FInsertImagesStmt, VInsertImagesSQL);
 
   if not FIsInsertStmtPrepared then begin
     FSQLite3DB.RaiseSQLite3Error;
