@@ -367,7 +367,7 @@ begin
 
   VText := 'INSERT OR ' + VText + ' INTO tiles (x,y,z,s,image) VALUES (?,?,?,0,?)';
 
-  FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, VText);
+  FIsInsertStmtPrepared := FSQLite3DB.TryPrepareStatement(@FInsertStmt, VText);
   if not FIsInsertStmtPrepared then begin
     FSQLite3DB.RaiseSQLite3Error;
   end;

@@ -288,7 +288,7 @@ var
   VBindResult: Boolean;
   VBlobSize: Integer;
   VBinaryData: IBinaryData;
-  VStmtData: TSQLite3StmtData;
+  VStmt: PSQLite3StmtData;
   VContentType: IContentTypeInfoBasic;
 begin
   Result := nil;
@@ -300,11 +300,11 @@ begin
   if AMode = gtimWithData then begin
     Assert(FTileDataStmt.FState = ssPrepared);
     VBindResult := FTileDataStmt.BindParams(AXY.X, AXY.Y, AZoom);
-    VStmtData := FTileDataStmt.FStmt;
+    VStmt := @FTileDataStmt.FStmt;
   end else begin
     Assert(FTileInfoStmt.FState = ssPrepared);
     VBindResult := FTileInfoStmt.BindParams(AXY.X, AXY.Y, AZoom);
-    VStmtData := FTileInfoStmt.FStmt;
+    VStmt := @FTileInfoStmt.FStmt;
   end;
 
   if not VBindResult then begin
@@ -312,7 +312,7 @@ begin
   end;
 
   try
-    if sqlite3_step(VStmtData.Stmt) <> SQLITE_ROW then begin
+    if FSQLite3DB.StepPrepared(VStmt) <> SQLITE_ROW then begin
       Exit;
     end;
 
@@ -326,7 +326,7 @@ begin
       Result := TTileInfoBasicExists.Create(FFileDate, VBlobSize, nil, FMainContentType);
     end;
   finally
-    VStmtData.Reset;
+    VStmt.Reset;
   end;
 end;
 
@@ -342,7 +342,7 @@ var
   VTileSize: Integer;
   VItems: TArrayOfTileInfoShortInternal;
   VIndex: Integer;
-  VStmt: TSQLite3StmtData;
+  VStmt: PSQLite3StmtData;
 begin
   Result := nil;
 
@@ -363,9 +363,9 @@ begin
   SetLength(VItems, (ARect.Right - ARect.Left) * (ARect.Bottom - ARect.Top));
   FillChar(VItems[0], SizeOf(TTileInfoShortInternal) * Length(VItems), 0);
 
-  VStmt := FRectInfoStmt.FStmt;
+  VStmt := @FRectInfoStmt.FStmt;
   try
-    while sqlite3_step(VStmt.Stmt) = SQLITE_ROW do begin
+    while FSQLite3DB.StepPrepared(VStmt) = SQLITE_ROW do begin
       Inc(VCount);
 
       if (VCount mod 1024 = 0) and ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -401,7 +401,7 @@ var
   X, Y, Z: Integer;
   VStepResult: Integer;
   VBinaryData: IBinaryData;
-  VStmt: TSQLite3StmtData;
+  VStmt: PSQLite3StmtData;
 begin
   Result := False;
 
@@ -423,9 +423,9 @@ begin
     Exit;
   end;
 
-  VStmt := FEnumTilesStmt.FStmt;
+  VStmt := @FEnumTilesStmt.FStmt;
   try
-    VStepResult := sqlite3_step(VStmt.Stmt);
+    VStepResult := FSQLite3DB.StepPrepared(VStmt);
 
     if VStepResult = SQLITE_ROW then begin
 
@@ -454,7 +454,7 @@ begin
     end;
   finally
     if FFetchNextState <> fnsNext then begin
-      FEnumTilesStmt.FStmt.Reset;
+      VStmt.Reset;
     end;
   end;
 end;
@@ -467,7 +467,7 @@ function TTileStorageSQLiteFileConnection.Insert(
   const AIsOverwrite: Boolean
 ): Boolean;
 var
-  VStmt: TSQLite3StmtData;
+  VStmt: PSQLite3StmtData;
 begin
   Result := False;
 
@@ -485,7 +485,7 @@ begin
       FSQLite3DB.RaiseSQLite3Error;
     end;
 
-    VStmt := FInsertOrReplaceStmt.FStmt;
+    VStmt := @FInsertOrReplaceStmt.FStmt;
   end else begin
     if not FInsertOrIgnoreStmt.CheckPrepared(FSQLite3DB) then begin
       FEnabled := False;
@@ -496,13 +496,13 @@ begin
       FSQLite3DB.RaiseSQLite3Error;
     end;
 
-    VStmt := FInsertOrIgnoreStmt.FStmt;
+    VStmt := @FInsertOrIgnoreStmt.FStmt;
   end;
 
   FSQLite3DB.BeginTransaction;
   try
     try
-      Result := (sqlite3_step(VStmt.Stmt) = SQLITE_DONE);
+      Result := FSQLite3DB.StepPrepared(VStmt) = SQLITE_DONE;
       if Result then begin
         Self.UpdateMetadata(AXY, AZoom);
       end;
@@ -520,6 +520,8 @@ function TTileStorageSQLiteFileConnection.Delete(
   const AXY: TPoint;
   const AZoom: Byte
 ): Boolean;
+var
+  VStmt: PSQLite3StmtData;
 begin
   Result := False;
 
@@ -536,10 +538,11 @@ begin
     FSQLite3DB.RaiseSQLite3Error;
   end;
 
+  VStmt := @FDeleteTileStmt.FStmt;
   try
-    Result := (sqlite3_step(FDeleteTileStmt.FStmt.Stmt) = SQLITE_DONE);
+    Result := FSQLite3DB.StepPrepared(VStmt) = SQLITE_DONE;
   finally
-    FDeleteTileStmt.FStmt.Reset;
+    VStmt.Reset;
   end;
 end;
 
@@ -582,11 +585,11 @@ end;
 function TConnectionStatement.CheckPrepared(const ASQLite3DB: TSQLite3DbHandler): Boolean;
 begin
   if FState = ssNone then begin
+    FState := ssError;
     Assert(FText <> '');
-    if ASQLite3DB.PrepareStatement(@FStmt, FText) then begin
+    if ASQLite3DB.TryPrepareStatement(@FStmt, FText) then begin
       FState := ssPrepared;
     end else begin
-      FState := ssError;
       ASQLite3DB.RaiseSQLite3Error;
     end;
   end;

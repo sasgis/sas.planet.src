@@ -434,7 +434,7 @@ begin
   FSQLite3DB.ExecSQL(TABLE_ANDROID_METADATA_DDL);
   FSQLite3DB.ExecSQL('INSERT INTO android_metadata VALUES (' + cLocale + ')');
 
-  FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, INSERT_SQL);
+  FIsInsertStmtPrepared := FSQLite3DB.TryPrepareStatement(@FInsertStmt, INSERT_SQL);
   if not FIsInsertStmtPrepared then begin
     FSQLite3DB.RaiseSQLite3Error;
   end;

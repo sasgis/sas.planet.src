@@ -207,14 +207,6 @@ begin
   end;
 end;
 
-procedure PrepareStmt(const ASQLite3: TSQLite3DbHandler; const AStmtData: TSQLite3StmtData;
-  const ASqlText: UTF8String);
-begin
-  if not ASQLite3.PrepareStatement(@AStmtData, ASqlText) then begin
-    ASQLite3.RaiseSQLite3Error;
-  end;
-end;
-
 procedure GetTablesInfo(const ASQLite3: TSQLite3DbHandler; var AInfo: TTablesInfo);
 var
   I: Integer;
@@ -222,22 +214,22 @@ var
   VKey, VValue: string;
   VValueArr: TStringDynArray;
 begin
-  PrepareStmt(ASQLite3, VStmtData, 'SELECT name FROM sqlite_master WHERE type="table"');
+  ASQLite3.PrepareStatement(@VStmtData, 'SELECT name FROM sqlite_master WHERE type="table"');
   try
-    while sqlite3_step(VStmtData.Stmt) = SQLITE_ROW do begin
+    while ASQLite3.StepPrepared(@VStmtData) = SQLITE_ROW do begin
       VKey := LowerCase(VStmtData.ColumnAsString(0));
       if VKey <> '' then begin
         AInfo.AddOrSetValue(VKey, nil);
       end;
     end;
   finally
-    VStmtData.Fin;
+    ASQLite3.ClosePrepared(@VStmtData);
   end;
 
   for VKey in AInfo.Keys do begin
-    PrepareStmt(ASQLite3, VStmtData, 'SELECT * FROM ' + QuotedStr(VKey) + ' LIMIT 1');
+    ASQLite3.PrepareStatement(@VStmtData, 'SELECT * FROM ' + QuotedStr(VKey) + ' LIMIT 1');
     try
-      if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
+      if ASQLite3.StepPrepared(@VStmtData) = SQLITE_ROW then begin
         VValueArr := nil;
         for I := 0 to VStmtData.ColumnCount - 1 do begin
           VValue := LowerCase(VStmtData.ColumnName(I));
@@ -251,7 +243,7 @@ begin
         end;
       end;
     finally
-      VStmtData.Fin;
+      ASQLite3.ClosePrepared(@VStmtData);
     end;
   end;
 end;
@@ -416,9 +408,9 @@ begin
   VMetadata.Clear;
 
   if VCacheTypeCode = c_File_Cache_Id_SQLite_MBTiles then begin
-    PrepareStmt(ASQLite3, VStmtData, 'SELECT name, value FROM metadata');
+    ASQLite3.PrepareStatement(@VStmtData, 'SELECT name, value FROM metadata');
     try
-      while sqlite3_step(VStmtData.Stmt) = SQLITE_ROW do begin
+      while ASQLite3.StepPrepared(@VStmtData) = SQLITE_ROW do begin
         VKey := LowerCase(VStmtData.ColumnAsString(0));
         VValue := VStmtData.ColumnAsString(1);
         if VKey <> '' then begin
@@ -426,13 +418,13 @@ begin
         end;
       end;
     finally
-      VStmtData.Fin;
+      ASQLite3.ClosePrepared(@VStmtData);
     end;
   end else
   if VCacheTypeCode in [c_File_Cache_Id_SQLite_OsmAnd, c_File_Cache_Id_SQLite_Locus, c_File_Cache_Id_SQLite_RMaps] then begin
-    PrepareStmt(ASQLite3, VStmtData, 'SELECT * FROM info LIMIT 1');
+    ASQLite3.PrepareStatement(@VStmtData, 'SELECT * FROM info LIMIT 1');
     try
-      if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
+      if ASQLite3.StepPrepared(@VStmtData) = SQLITE_ROW then begin
         for I := 0 to VStmtData.ColumnCount - 1 do begin
           VKey := LowerCase(VStmtData.ColumnName(I));
           VValue := VStmtData.ColumnAsString(I);
@@ -442,7 +434,7 @@ begin
         end;
       end;
     finally
-      VStmtData.Fin;
+      ASQLite3.ClosePrepared(@VStmtData);
     end;
   end else
   if VCacheTypeCode = c_File_Cache_Id_SQLite_OruxMaps then begin
@@ -495,9 +487,9 @@ begin
     raise Exception.CreateFmt('Unexpected CacheTypeCode: %d', [ACacheTypeCode]);
   end;
 
-  PrepareStmt(ASQLite3, VStmtData, VSqlText);
+  ASQLite3.PrepareStatement(@VStmtData, VSqlText);
   try
-    if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
+    if ASQLite3.StepPrepared(@VStmtData) = SQLITE_ROW then begin
       VData := VStmtData.ColumnBlobData(0);
       VSize := VStmtData.ColumnBlobSize(0);
       if (VData <> nil) and (VSize > 0) then begin
@@ -505,7 +497,7 @@ begin
       end;
     end;
   finally
-    VStmtData.Fin;
+    ASQLite3.ClosePrepared(@VStmtData);
   end;
 end;
 
@@ -545,9 +537,9 @@ procedure TryDetectGoToPoint(
     end;
 
     // fetch from db
-    PrepareStmt(ASQLite3, VStmtData, ASqlText);
+    ASQLite3.PrepareStatement(@VStmtData, ASqlText);
     try
-      Result := sqlite3_step(VStmtData.Stmt) = SQLITE_ROW;
+      Result := ASQLite3.StepPrepared(@VStmtData) = SQLITE_ROW;
 
       if not Result then begin
         Exit;
@@ -559,7 +551,7 @@ procedure TryDetectGoToPoint(
         AZoom := InvertZ(AZoom);
       end;
     finally
-      VStmtData.Fin;
+      ASQLite3.ClosePrepared(@VStmtData);
     end;
   end;
 
@@ -568,9 +560,9 @@ procedure TryDetectGoToPoint(
   var
     VStmtData: TSQLite3StmtData;
   begin
-    PrepareStmt(ASQLite3, VStmtData, ASqlText);
+    ASQLite3.PrepareStatement(@VStmtData, ASqlText);
     try
-      Result := sqlite3_step(VStmtData.Stmt) = SQLITE_ROW;
+      Result := ASQLite3.StepPrepared(@VStmtData) = SQLITE_ROW;
 
       if not Result then begin
         Exit;
@@ -588,7 +580,7 @@ procedure TryDetectGoToPoint(
         APoint.Y := InvertY(APoint.Y, AZoom);
       end;
     finally
-      VStmtData.Fin;
+      ASQLite3.ClosePrepared(@VStmtData);
     end;
   end;
 

@@ -187,7 +187,7 @@ var
 begin
   InternalClose;
   VSQLText := GetSQL_SelectEntire;
-  FPrepared := (Length(VSQLText) > 0) and FSQLite3DbHandlerPtr.PrepareStatement(@FStmtData, VSQLText);
+  FPrepared := (Length(VSQLText) > 0) and FSQLite3DbHandlerPtr.TryPrepareStatement(@FStmtData, VSQLText);
 end;
 
 function TTileStorageSQLiteFetcher.Opened: Boolean;

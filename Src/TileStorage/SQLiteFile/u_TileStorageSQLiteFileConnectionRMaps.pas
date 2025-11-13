@@ -348,12 +348,9 @@ var
 begin
   Assert(FFileInfo <> nil);
 
-  if not FSQLite3Db.PrepareStatement(@VStmtData, 'SELECT * FROM info LIMIT 1') then begin
-    FSQLite3Db.RaiseSQLite3Error;
-  end;
-
+  FSQLite3Db.PrepareStatement(@VStmtData, 'SELECT * FROM info LIMIT 1');
   try
-    if sqlite3_step(VStmtData.Stmt) = SQLITE_ROW then begin
+    if FSQLite3Db.StepPrepared(@VStmtData) = SQLITE_ROW then begin
       for I := 0 to VStmtData.ColumnCount - 1 do begin
         VName := UTF8ToString(VStmtData.ColumnName(I));
 
@@ -367,7 +364,7 @@ begin
       end;
     end;
   finally
-    VStmtData.Fin;
+    FSQLite3Db.ClosePrepared(@VStmtData);
   end;
 end;
 
@@ -620,6 +617,7 @@ var
   VBindResult: Boolean;
   VMinZoom, VMaxZoom: Integer;
   VDoUpdate: Boolean;
+  VSelectStmt: PSQLite3StmtData;
 begin
   VDoUpdate := False;
 
@@ -630,14 +628,15 @@ begin
   end;
 
   // read actual data from db
+  VSelectStmt := @FSelectStmt.FStmt;
   try
-    if sqlite3_step(FSelectStmt.FStmt.Stmt) = SQLITE_ROW then begin
+    if FSQLite3Db.StepPrepared(VSelectStmt) = SQLITE_ROW then begin
       VMinZoom := GetZoomValue(0);
       VMaxZoom := GetZoomValue(1);
 
       if FFormatId = sfLocus then begin
         SwapMinMaxZoom(VMinZoom, VMaxZoom);
-        VZoomsStr := FSelectStmt.FStmt.ColumnAsString(2);
+        VZoomsStr := VSelectStmt.ColumnAsString(2);
         VZoomsArr := StrToZooms(VZoomsStr, FIsInvertedZ);
       end;
     end else begin
@@ -647,7 +646,7 @@ begin
       VZoomsArr := nil;
     end;
   finally
-    FSelectStmt.FStmt.Reset;
+    VSelectStmt.Reset;
   end;
 
   // compare and sync local values with values from db
@@ -708,7 +707,7 @@ begin
   end;
 
   try
-    if sqlite3_step(FStmt.Stmt) <> SQLITE_DONE then begin
+    if FSQLite3Db.StepPrepared(@FStmt) <> SQLITE_DONE then begin
       FSQLite3DB.RaiseSQLite3Error;
     end;
   finally

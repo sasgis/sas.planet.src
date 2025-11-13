@@ -265,9 +265,7 @@ begin
   FExistingMaxZoom := -1;
   FExistingBounds := DoubleRect(0, 0, 0, 0);
 
-  if not FSQLite3DB.PrepareStatement(@VStmt, 'SELECT name, value FROM metadata') then begin
-    FSQLite3DB.RaiseSQLite3Error;
-  end;
+  FSQLite3DB.PrepareStatement(@VStmt, 'SELECT name, value FROM metadata');
   try
     while FSQLite3DB.StepPrepared(@VStmt) = SQLITE_ROW do begin
       VKey := LowerCase(Trim(VStmt.ColumnAsString(0)));
@@ -495,7 +493,7 @@ begin
     VInsertSQL := INSERT_TILES_SQL_IGNORE;
   end;
 
-  FIsInsertStmtPrepared := FSQLite3DB.PrepareStatement(@FInsertStmt, VInsertSQL);
+  FIsInsertStmtPrepared := FSQLite3DB.TryPrepareStatement(@FInsertStmt, VInsertSQL);
   if not FIsInsertStmtPrepared then begin
     FSQLite3DB.RaiseSQLite3Error;
   end;
@@ -691,8 +689,8 @@ begin
   end;
 
   FIsInsertStmtPrepared :=
-    FSQLite3DB.PrepareStatement(@FInsertMapStmt, VInsertMapSQL) and
-    FSQLite3DB.PrepareStatement(@FInsertImagesStmt, VInsertImagesSQL);
+    FSQLite3DB.TryPrepareStatement(@FInsertMapStmt, VInsertMapSQL) and
+    FSQLite3DB.TryPrepareStatement(@FInsertImagesStmt, VInsertImagesSQL);
 
   if not FIsInsertStmtPrepared then begin
     FSQLite3DB.RaiseSQLite3Error;

@@ -286,19 +286,16 @@ var
 begin
   Assert(FFileInfo <> nil);
 
-  if not FSQLite3Db.PrepareStatement(@VStmtData, 'SELECT name, value FROM metadata') then begin
-    FSQLite3Db.RaiseSQLite3Error;
-  end;
-
+  FSQLite3Db.PrepareStatement(@VStmtData, 'SELECT name, value FROM metadata');
   try
-    while sqlite3_step(VStmtData.Stmt) = SQLITE_ROW do begin
+    while FSQLite3Db.StepPrepared(@VStmtData) = SQLITE_ROW do begin
       VName := LowerCase(VStmtData.ColumnAsString(0));
       VValue := VStmtData.ColumnAsString(1);
 
       FFileInfo.AddOrSetMetadataValue(VName, VValue);
     end;
   finally
-    VStmtData.Fin;
+    FSQLite3Db.ClosePrepared(@VStmtData);
   end;
 end;
 
@@ -673,7 +670,7 @@ begin
 
   SetLength(Result, 4);
   try
-    while sqlite3_step(VStmtData.Stmt) = SQLITE_ROW do begin
+    while FSQLite3Db.StepPrepared(VStmtData) = SQLITE_ROW do begin
       VName := LowerCase(VStmtData.ColumnAsString(0));
 
       I := GetIndex(VName);
@@ -692,7 +689,7 @@ begin
 
   if FStmt.BindText(1, AName) and FStmt.BindText(2, AValue) then begin
     try
-      if sqlite3_step(FStmt.Stmt) <> SQLITE_DONE then begin
+      if FSQLite3Db.StepPrepared(@FStmt) <> SQLITE_DONE then begin
         FSQLite3DB.RaiseSQLite3Error;
       end;
     finally

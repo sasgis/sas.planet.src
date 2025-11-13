@@ -144,7 +144,12 @@ type
       const ARaiseOnOpenError: Boolean
     ): Integer;
 
-    function PrepareStatement(
+    procedure PrepareStatement(
+      const AStmtData: PSQLite3StmtData;
+      const ASqlText: UTF8String
+    ); inline;
+
+    function TryPrepareStatement(
       const AStmtData: PSQLite3StmtData;
       const ASqlText: UTF8String
     ): Boolean; inline;
@@ -792,7 +797,17 @@ begin
   end;
 end;
 
-function TSQLite3DbHandler.PrepareStatement(
+procedure TSQLite3DbHandler.PrepareStatement(
+  const AStmtData: PSQLite3StmtData;
+  const ASqlText: UTF8String
+);
+begin
+  if not TryPrepareStatement(AStmtData, ASqlText) then begin
+    RaiseSQLite3Error;
+  end;
+end;
+
+function TSQLite3DbHandler.TryPrepareStatement(
   const AStmtData: PSQLite3StmtData;
   const ASqlText: UTF8String
 ): Boolean;
