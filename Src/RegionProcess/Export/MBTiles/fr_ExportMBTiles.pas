@@ -138,7 +138,6 @@ type
     function GetPath: string;
     function GetForceDropTarget: Boolean;
     function GetReplaceExistingTiles: Boolean;
-    property ReplaceExistingTiles: Boolean read GetReplaceExistingTiles;
     function GetDirectTilesCopy: Boolean;
     function GetAllowExport(const AMapType: IMapType): Boolean;
     function GetProvider: IBitmapTileUniProvider;

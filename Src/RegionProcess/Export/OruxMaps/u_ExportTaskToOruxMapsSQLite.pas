@@ -103,11 +103,9 @@ uses
   i_Projection,
   i_Bitmap32Static,
   i_TileRect,
-  u_AnsiStr,
   u_Dialogs,
   u_TileRect,
   u_TileIteratorByRect,
-  u_TileIteratorByPolygon,
   u_GeoFunc,
   u_ResStrings;
 
