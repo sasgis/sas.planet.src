@@ -182,11 +182,11 @@ var
   VRequest: IDownloadRequest;
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
+  VResultError: IDownloadResultError;
 begin
-  Result := True;
+  Result := False;
 
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-    Result := False;
     Exit;
   end;
 
@@ -194,12 +194,15 @@ begin
   VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
 
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-    Result := False;
+    Exit;
+  end;
+
+  if Supports(VResult, IDownloadResultError, VResultError) then begin
+    AErrorMessage := VResultError.ErrorText;
     Exit;
   end;
 
   if not Supports(VResult, IDownloadResultOk, VResultOk) then begin
-    Result := False;
     Exit;
   end;
 
@@ -208,6 +211,8 @@ begin
   if APointsAggregator.Count > 0 then begin
     ABuilder.AddLine(APointsAggregator.MakeStaticAndClear);
   end;
+
+  Result := True;
 end;
 
 end.

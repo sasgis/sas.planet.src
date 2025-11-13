@@ -128,7 +128,8 @@ begin
           VBuilder,
           AErrorMessage
         );
-    end else if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
+    end else
+    if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) then begin
       for I := 0 to VMultiLine.Count - 1 do begin
         if
           ProcessSingleLine(
