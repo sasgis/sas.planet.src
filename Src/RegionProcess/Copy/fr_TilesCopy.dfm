@@ -234,8 +234,8 @@ object frTilesCopy: TfrTilesCopy
             Width = 474
             Height = 17
             Align = alTop
-            Caption = 'Add visible Placemarks, Grids etc.'
-            TabOrder = 4
+            Caption = 'Add visible Placemarks, Grids, Cached Tiles Map'
+            TabOrder = 3
             OnClick = chkAddVisibleLayersClick
           end
           object chkUseRecolor: TCheckBox
@@ -245,7 +245,7 @@ object frTilesCopy: TfrTilesCopy
             Height = 17
             Align = alTop
             Caption = 'Use postprocessing settings'
-            TabOrder = 5
+            TabOrder = 4
           end
         end
       end
