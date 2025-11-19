@@ -27,7 +27,6 @@ uses
   Types,
   Windows,
   SysUtils,
-  Classes,
   t_GeoTypes,
   i_BinaryData,
   i_NotifierOperation,
@@ -40,7 +39,7 @@ uses
   i_TileIterator,
   i_MapVersionRequest,
   i_BitmapTileSaveLoad,
-  i_BitmapLayerProvider,
+  i_BitmapTileProvider,
   u_StorageExportToMBTiles,
   u_ExportTaskAbstract;
 
@@ -53,7 +52,7 @@ type
     FTileStorage: ITileStorage;
     FMapVersion: IMapVersionRequest;
     FBitmapTileSaver: IBitmapTileSaver;
-    FBitmapProvider: IBitmapTileUniProvider;
+    FBitmapTileProviderArr: TBitmapTileProviderDynArray;
     FDirectTilesCopy: Boolean;
     FSQLiteStorage: TSQLiteStorageMBTilesBase;
   private
@@ -71,7 +70,7 @@ type
       const ATileStorage: ITileStorage;
       const AMapVersion: IMapVersionRequest;
       const ABitmapTileSaver: IBitmapTileSaver;
-      const ABitmapProvider: IBitmapTileUniProvider;
+      const ABitmapTileProviderArr: TBitmapTileProviderDynArray;
       const ADirectTilesCopy: Boolean;
       const AUseXYZScheme: Boolean;
       const AMakeTileMillCompatibility: Boolean;
@@ -109,7 +108,7 @@ constructor TExportTaskToMBTiles.Create(
   const ATileStorage: ITileStorage;
   const AMapVersion: IMapVersionRequest;
   const ABitmapTileSaver: IBitmapTileSaver;
-  const ABitmapProvider: IBitmapTileUniProvider;
+  const ABitmapTileProviderArr: TBitmapTileProviderDynArray;
   const ADirectTilesCopy: Boolean;
   const AUseXYZScheme: Boolean;
   const AMakeTileMillCompatibility: Boolean;
@@ -141,7 +140,7 @@ begin
   FTileStorage := ATileStorage;
   FMapVersion := AMapVersion;
   FBitmapTileSaver := ABitmapTileSaver;
-  FBitmapProvider := ABitmapProvider;
+  FBitmapTileProviderArr := ABitmapTileProviderArr;
   FDirectTilesCopy := ADirectTilesCopy;
 
   VSQLiteStorageClass := cSQLiteStorageTypes[AMakeTileMillCompatibility];
@@ -182,13 +181,14 @@ var
   VBitmapTile: IBitmap32Static;
   VTileData: IBinaryData;
   VProjection: IProjection;
+  VBitmapProvider: IBitmapTileProvider;
 begin
   inherited;
 
   VDoDirectCopy := FDirectTilesCopy and Assigned(FTileStorage);
 
   if not VDoDirectCopy then begin
-    Assert(FBitmapProvider <> nil);
+    Assert(FBitmapTileProviderArr <> nil);
     Assert(FBitmapTileSaver <> nil);
   end;
 
@@ -238,8 +238,8 @@ begin
     for I := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[I];
       VTileIterator := VTileIterators[I];
+      VBitmapProvider := FBitmapTileProviderArr[I];
       if Assigned(VTileIterator) then begin
-        VProjection := VTileIterator.TilesRect.Projection;
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             Exit;
@@ -251,10 +251,9 @@ begin
             end;
           end else begin
             VBitmapTile :=
-              FBitmapProvider.GetTile(
+              VBitmapProvider.GetTile(
                 Self.OperationID,
                 Self.CancelNotifier,
-                VProjection,
                 VTile
               );
             if Assigned(VBitmapTile) then begin

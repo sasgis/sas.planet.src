@@ -24,17 +24,23 @@ unit u_ExportProviderMBTiles;
 interface
 
 uses
+  Types,
   Forms,
-  i_GeometryLonLat,
-  i_TileIteratorFactory,
   i_LanguageManager,
-  i_RegionProcessTask,
-  i_RegionProcessProgressInfo,
-  i_RegionProcessProgressInfoInternalFactory,
-  i_ProjectionSetFactory,
+  i_BitmapTileProvider,
+  i_BitmapTileProviderBuilder,
   i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
+  i_TileIteratorFactory,
+  i_RegionProcessProgressInfoInternalFactory,
+  i_GeometryLonLat,
+  i_RegionProcessTask,
+  i_RegionProcessProgressInfo,
+  i_MapType,
   i_MapTypeListChangeable,
+  i_GlobalViewMainConfig,
+  i_GeometryProjectedFactory,
+  i_ProjectionSetFactory,
   u_ExportProviderAbstract,
   fr_MapSelect,
   fr_ExportMBTiles;
@@ -46,6 +52,14 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FProjectionSetFactory: IProjectionSetFactory;
+    FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
+    FViewConfig: IGlobalViewMainConfig;
+    FGeometryProjectedFactory: IGeometryProjectedFactory;
+    function PrepareBitmapTileProviders(
+      const AMapType: IMapType;
+      const APolygon: IGeometryLonLatPolygon;
+      const AZoomArr: TByteDynArray
+    ): TBitmapTileProviderDynArray;
   protected
     function CreateFrame: TFrame; override;
   protected
@@ -63,22 +77,22 @@ type
       const ATileIteratorFactory: ITileIteratorFactory;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const AProjectionSetFactory: IProjectionSetFactory
+      const AProjectionSetFactory: IProjectionSetFactory;
+      const AViewConfig: IGlobalViewMainConfig;
+      const AGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder
     );
   end;
 
 implementation
 
 uses
-  Types,
-  Classes,
   SysUtils,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
   i_TileStorage,
   i_MapVersionRequest,
-  i_MapType,
   u_ExportTaskToMBTiles,
   u_ResStrings;
 
@@ -92,7 +106,10 @@ constructor TExportProviderMBTiles.Create(
   const ATileIteratorFactory: ITileIteratorFactory;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const AProjectionSetFactory: IProjectionSetFactory
+  const AProjectionSetFactory: IProjectionSetFactory;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ABitmapTileProviderBuilder: IBitmapTileProviderBuilder
 );
 begin
   Assert(Assigned(ABitmap32StaticFactory));
@@ -106,6 +123,9 @@ begin
   FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FProjectionSetFactory := AProjectionSetFactory;
+  FViewConfig := AViewConfig;
+  FGeometryProjectedFactory := AGeometryProjectedFactory;
+  FBitmapTileProviderBuilder := ABitmapTileProviderBuilder;
 end;
 
 function TExportProviderMBTiles.CreateFrame: TFrame;
@@ -131,6 +151,40 @@ begin
   Result := SAS_STR_ExportMBTilesExportCaption;
 end;
 
+function TExportProviderMBTiles.PrepareBitmapTileProviders(
+  const AMapType: IMapType;
+  const APolygon: IGeometryLonLatPolygon;
+  const AZoomArr: TByteDynArray
+): TBitmapTileProviderDynArray;
+var
+  I: Integer;
+  VParams: IRegionProcessParamsFrameMBTilesExport;
+  VUniProvider: IBitmapTileUniProvider;
+begin
+  VUniProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
+  if VUniProvider = nil then begin
+    Result := nil;
+    Exit;
+  end;
+  VParams := ParamsFrame as IRegionProcessParamsFrameMBTilesExport;
+  SetLength(Result, Length(AZoomArr));
+  for I := 0 to Length(AZoomArr) - 1 do begin
+    Result[I] :=
+      FBitmapTileProviderBuilder.Build(
+        VParams.UseMarks,
+        VParams.UseRecolor,
+        VParams.UseFillingMap,
+        VParams.UseGrids,
+        VParams.UsePreciseCropping,
+        FViewConfig.BackGroundColor,
+        FViewConfig.BackGroundColor,
+        VUniProvider,
+        APolygon,
+        AMapType.TileStorage.ProjectionSet.Zooms[AZoomArr[I]]
+      );
+  end;
+end;
+
 function TExportProviderMBTiles.PrepareTask(
   const APolygon: IGeometryLonLatPolygon;
   const AProgressInfo: IRegionProcessProgressInfoInternal
@@ -140,7 +194,6 @@ var
   VZoomArr: TByteDynArray;
   VDirectTilesCopy: Boolean;
   VBitmapTileSaver: IBitmapTileSaver;
-  VBitmapProvider: IBitmapTileUniProvider;
   VMapType: IMapType;
   VMapVersion: IMapVersionRequest;
   VTileStorage: ITileStorage;
@@ -148,13 +201,14 @@ var
   VIsLayer, VUseXYZScheme: Boolean;
   VForceDropTarget, VReplaceExistingTiles: Boolean;
   VMakeTileMillCompatibility: Boolean;
+  VBitmapTileProviderArr: TBitmapTileProviderDynArray;
 begin
   inherited;
 
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-  VBitmapProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
+  VBitmapTileProviderArr := PrepareBitmapTileProviders(VMapType, APolygon, VZoomArr);
 
   VTileStorage := nil;
   VMapVersion := nil;
@@ -187,7 +241,7 @@ begin
       VTileStorage,
       VMapVersion,
       VBitmapTileSaver,
-      VBitmapProvider,
+      VBitmapTileProviderArr,
       VDirectTilesCopy,
       VUseXYZScheme,
       VMakeTileMillCompatibility,

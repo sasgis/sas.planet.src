@@ -47,30 +47,6 @@ object frExportMBTiles: TfrExportMBTiles
         Align = alTop
         Caption = 'Overlay layer:'
       end
-      object lblDesc: TLabel
-        Left = 3
-        Top = 262
-        Width = 461
-        Height = 13
-        Align = alTop
-        Caption = 'Description:'
-      end
-      object lblName: TLabel
-        Left = 3
-        Top = 228
-        Width = 461
-        Height = 13
-        Align = alTop
-        Caption = 'Name:'
-      end
-      object lblAttr: TLabel
-        Left = 3
-        Top = 296
-        Width = 461
-        Height = 13
-        Align = alTop
-        Caption = 'Attribution:'
-      end
       object pnlMap: TPanel
         Left = 3
         Top = 19
@@ -89,97 +65,168 @@ object frExportMBTiles: TfrExportMBTiles
         BevelOuter = bvNone
         TabOrder = 1
       end
-      object pnlImageFormat: TPanel
-        Left = 3
-        Top = 180
-        Width = 461
-        Height = 48
-        Align = alTop
-        BevelOuter = bvNone
-        TabOrder = 8
-      end
-      object chkUsePrevZoom: TCheckBox
-        Left = 3
-        Top = 129
-        Width = 461
-        Height = 17
-        Align = alTop
-        Caption = 'Use tiles from lower zooms (on unavalible tile)'
-        TabOrder = 5
-      end
-      object chkUseXYZScheme: TCheckBox
-        Left = 3
-        Top = 146
-        Width = 461
-        Height = 17
-        Align = alTop
-        Caption = 'Use XYZ scheme'
-        TabOrder = 6
-      end
-      object edtDesc: TEdit
-        Left = 3
-        Top = 275
-        Width = 461
-        Height = 21
-        Align = alTop
-        TabOrder = 10
-      end
-      object edtName: TEdit
-        Left = 3
-        Top = 241
-        Width = 461
-        Height = 21
-        Align = alTop
-        TabOrder = 9
-      end
-      object edtAttr: TEdit
-        Left = 3
-        Top = 309
-        Width = 461
-        Height = 21
-        Align = alTop
-        TabOrder = 11
-      end
-      object chkAddVisibleLayers: TCheckBox
+      object pgcMain: TPageControl
         Left = 3
         Top = 78
         Width = 461
-        Height = 17
+        Height = 259
+        ActivePage = tsSettings
         Align = alTop
-        Caption = 'Add visible Layers'
         TabOrder = 2
-        OnClick = chkAddVisibleLayersClick
-      end
-      object chkMakeTileMillStruct: TCheckBox
-        Left = 3
-        Top = 163
-        Width = 461
-        Height = 17
-        Align = alTop
-        Caption = 'Make TileMill compatible structure'
-        TabOrder = 7
-      end
-      object chkForceDropTarget: TCheckBox
-        Left = 3
-        Top = 95
-        Width = 461
-        Height = 17
-        Align = alTop
-        Caption = 'Recreate target database if exists'
-        Checked = True
-        State = cbChecked
-        TabOrder = 3
-      end
-      object chkReplaceExistingTiles: TCheckBox
-        Left = 3
-        Top = 112
-        Width = 461
-        Height = 17
-        Align = alTop
-        Caption = 'Replace existing tiles'
-        Checked = True
-        State = cbChecked
-        TabOrder = 4
+        StyleElements = [seFont, seClient]
+        object tsSettings: TTabSheet
+          Caption = 'Settings'
+          object chkAddVisibleLayers: TCheckBox
+            Left = 0
+            Top = 0
+            Width = 453
+            Height = 17
+            Align = alTop
+            Caption = 'Add visible Layers'
+            TabOrder = 0
+            OnClick = chkAddVisibleLayersClick
+          end
+          object chkAddVisibleOverlays: TCheckBox
+            Left = 0
+            Top = 17
+            Width = 453
+            Height = 17
+            Align = alTop
+            Caption = 'Add visible Placemarks, Grids, Cached Tiles Map'
+            TabOrder = 1
+          end
+          object chkForceDropTarget: TCheckBox
+            Left = 0
+            Top = 34
+            Width = 453
+            Height = 17
+            Align = alTop
+            Caption = 'Recreate target database if exists'
+            Checked = True
+            State = cbChecked
+            TabOrder = 2
+          end
+          object chkMakeTileMillStruct: TCheckBox
+            Left = 0
+            Top = 119
+            Width = 453
+            Height = 17
+            Align = alTop
+            Caption = 'Make TileMill compatible structure'
+            TabOrder = 7
+          end
+          object chkReplaceExistingTiles: TCheckBox
+            Left = 0
+            Top = 51
+            Width = 453
+            Height = 17
+            Align = alTop
+            Caption = 'Replace existing tiles'
+            Checked = True
+            State = cbChecked
+            TabOrder = 3
+          end
+          object chkUsePrevZoom: TCheckBox
+            Left = 0
+            Top = 85
+            Width = 453
+            Height = 17
+            Align = alTop
+            Caption = 'Use tiles from lower zooms (on unavalible tile)'
+            TabOrder = 5
+          end
+          object chkUseRecolor: TCheckBox
+            Left = 0
+            Top = 68
+            Width = 453
+            Height = 17
+            Align = alTop
+            Caption = 'Use postprocessing settings'
+            TabOrder = 4
+          end
+          object chkUseXYZScheme: TCheckBox
+            Left = 0
+            Top = 102
+            Width = 453
+            Height = 17
+            Align = alTop
+            Caption = 'Use XYZ scheme'
+            TabOrder = 6
+          end
+          object pnlImageFormat: TPanel
+            Left = 0
+            Top = 136
+            Width = 453
+            Height = 48
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 8
+          end
+        end
+        object tsMapParams: TTabSheet
+          Caption = 'Map'
+          ImageIndex = 1
+          object lblName: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 447
+            Height = 13
+            Margins.Bottom = 0
+            Align = alTop
+            Caption = 'Name:'
+          end
+          object lblDesc: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 43
+            Width = 447
+            Height = 13
+            Margins.Bottom = 0
+            Align = alTop
+            Caption = 'Description:'
+          end
+          object lblAttr: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 83
+            Width = 447
+            Height = 13
+            Margins.Bottom = 0
+            Align = alTop
+            Caption = 'Attribution:'
+          end
+          object edtName: TEdit
+            AlignWithMargins = True
+            Left = 3
+            Top = 19
+            Width = 447
+            Height = 21
+            Margins.Bottom = 0
+            Align = alTop
+            TabOrder = 0
+          end
+          object edtDesc: TEdit
+            AlignWithMargins = True
+            Left = 3
+            Top = 59
+            Width = 447
+            Height = 21
+            Margins.Bottom = 0
+            Align = alTop
+            TabOrder = 1
+          end
+          object edtAttr: TEdit
+            AlignWithMargins = True
+            Left = 3
+            Top = 99
+            Width = 447
+            Height = 21
+            Margins.Bottom = 0
+            Align = alTop
+            TabOrder = 2
+          end
+        end
       end
     end
     object pnlZoom: TPanel

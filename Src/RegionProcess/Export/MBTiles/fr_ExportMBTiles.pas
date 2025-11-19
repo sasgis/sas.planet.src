@@ -32,6 +32,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  ComCtrls,
   Spin,
   i_LanguageManager,
   i_GeometryLonLat,
@@ -78,6 +79,21 @@ type
     property MakeTileMillCompatibility: Boolean read GetMakeTileMillCompatibility;
 
     procedure GetBitmapTileSaver(out ASaver: IBitmapTileSaver; out AFormat: string);
+
+    function GetUseMarks: Boolean;
+    property UseMarks: Boolean read GetUseMarks;
+
+    function GetUseRecolor: Boolean;
+    property UseRecolor: Boolean read GetUseRecolor;
+
+    function GetUseFillingMap: Boolean;
+    property UseFillingMap: Boolean read GetUseFillingMap;
+
+    function GetUseGrids: Boolean;
+    property UseGrids: Boolean read GetUseGrids;
+
+    function GetUsePreciseCropping: Boolean;
+    property UsePreciseCropping: Boolean read GetUsePreciseCropping;
   end;
 
 type
@@ -115,6 +131,11 @@ type
     chkMakeTileMillStruct: TCheckBox;
     chkForceDropTarget: TCheckBox;
     chkReplaceExistingTiles: TCheckBox;
+    chkAddVisibleOverlays: TCheckBox;
+    chkUseRecolor: TCheckBox;
+    pgcMain: TPageControl;
+    tsSettings: TTabSheet;
+    tsMapParams: TTabSheet;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAddVisibleLayersClick(Sender: TObject);
   private
@@ -148,6 +169,11 @@ type
     function GetIsLayer: Boolean;
     function GetMakeTileMillCompatibility: Boolean;
     procedure GetBitmapTileSaver(out ASaver: IBitmapTileSaver; out AFormat: string);
+    function GetUseMarks: Boolean;
+    function GetUseRecolor: Boolean;
+    function GetUseFillingMap: Boolean;
+    function GetUseGrids: Boolean;
+    function GetUsePreciseCropping: Boolean;
   protected
     procedure OnShow(const AIsFirstTime: Boolean); override;
     procedure OnHide; override;
@@ -252,6 +278,8 @@ begin
   FPropertyState := CreateComponentPropertyState(
     Self, [pnlTop, pnlZoom], [], True, False, True, True
   );
+
+  pgcMain.ActivePageIndex := 0;
 end;
 
 destructor TfrExportMBTiles.Destroy;
@@ -346,6 +374,15 @@ end;
 
 function TfrExportMBTiles.GetDirectTilesCopy: Boolean;
 
+  function _IsTileReencodingRequired: Boolean;
+  begin
+    Result :=
+      chkAddVisibleLayers.Checked or
+      chkAddVisibleOverlays.Checked or
+      chkUseRecolor.Checked or
+      chkUsePrevZoom.Checked;
+  end;
+
   function _IsValidMap(const AMapType: IMapType): Boolean;
   var
     VContentType: TMBTilesContentType;
@@ -362,16 +399,21 @@ var
   VLayer: IMapType;
 begin
   Result := False;
-  if chkAddVisibleLayers.Checked or chkUsePrevZoom.Checked then begin
+
+  if _IsTileReencodingRequired then begin
     Exit;
   end;
+
   VMap := FfrMapSelect.GetSelectedMapType;
   VLayer := FfrOverlaySelect.GetSelectedMapType;
+
   if Assigned(VMap) and not Assigned(VLayer) then begin
     Result := _IsValidMap(VMap);
-  end else if not Assigned(VMap) and Assigned(VLayer) then begin
+  end else
+  if not Assigned(VMap) and Assigned(VLayer) then begin
     Result := _IsValidMap(VLayer);
   end;
+
   Result := Result and (FfrImageFormatSelect.SelectedFormat = iftAuto);
 end;
 
@@ -470,6 +512,31 @@ begin
       AFormat := cPNG;
     end;
   end;
+end;
+
+function TfrExportMBTiles.GetUseFillingMap: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrExportMBTiles.GetUseGrids: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrExportMBTiles.GetUseMarks: Boolean;
+begin
+  Result := chkAddVisibleOverlays.Checked;
+end;
+
+function TfrExportMBTiles.GetUsePreciseCropping: Boolean;
+begin
+  Result := False;
+end;
+
+function TfrExportMBTiles.GetUseRecolor: Boolean;
+begin
+  Result := chkUseRecolor.Checked;
 end;
 
 procedure TfrExportMBTiles.Init;

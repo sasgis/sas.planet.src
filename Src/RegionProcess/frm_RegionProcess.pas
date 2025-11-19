@@ -969,7 +969,10 @@ begin
       FTileIteratorFactory,
       ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
-      AProjectionSetFactory
+      AProjectionSetFactory,
+      AViewConfig,
+      AVectorGeometryProjectedFactory,
+      FBitmapTileProviderBuilder
     );
   VList.Add(VProvider);
 
