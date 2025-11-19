@@ -62,7 +62,7 @@ type
     FExistingMaxZoom: Integer;
     FExistingBounds: TDoubleRect;
   protected
-    procedure WriteMetaKeyVal(const AKey, AValue: string; const ASql: AnsiString); inline;
+    procedure WriteMetaKeyVal(const AKey, AValue: string; const ASql: string); inline;
 
     procedure ReadMetadata;
     procedure WriteMetadata(const AKeyValList: TStringList);
@@ -158,7 +158,6 @@ uses
   StrUtils,
   SynCrypto,
   SynCommons,
-  u_AnsiStr,
   u_GeoFunc,
   u_GeoToStrFunc;
 
@@ -247,11 +246,9 @@ begin
   Result := AKey + ASep + AValue;
 end;
 
-procedure TSQLiteStorageMBTilesBase.WriteMetaKeyVal(const AKey, AValue: string; const ASql: AnsiString);
+procedure TSQLiteStorageMBTilesBase.WriteMetaKeyVal(const AKey, AValue: string; const ASql: string);
 begin
-  FSQLite3DB.ExecSQL(
-    FormatA(ASql, [ '''' + UTF8Encode(AKey) + '''', '''' + UTF8Encode(AValue) + ''''])
-  );
+  FSQLite3DB.ExecSQL(UTF8Encode(Format(ASql, ['''' + AKey + '''', '''' + AValue + ''''])));
 end;
 
 procedure TSQLiteStorageMBTilesBase.ReadMetadata;
@@ -311,7 +308,7 @@ procedure TSQLiteStorageMBTilesBase.WriteMetadata(const AKeyValList: TStringList
 var
   I: Integer;
   VKey, VVal: string;
-  VSql: AnsiString;
+  VSql: string;
 begin
   if FForceDropTarget then begin
     VSql := INSERT_METADATA_SQL;
