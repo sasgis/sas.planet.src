@@ -109,7 +109,7 @@ object frExportKml: TfrExportKml
         Caption = 'Extract tiles from cache'
         Checked = True
         State = cbChecked
-        TabOrder = 3
+        TabOrder = 8
         OnClick = chkExtractTilesClick
       end
       object pnlFileNameGenerator: TPanel
@@ -119,7 +119,7 @@ object frExportKml: TfrExportKml
         Height = 42
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 4
+        TabOrder = 9
         object lblFileNameGenerator: TLabel
           AlignWithMargins = True
           Left = 0
@@ -138,8 +138,8 @@ object frExportKml: TfrExportKml
         Width = 418
         Height = 17
         Align = alTop
-        Caption = 'Add visible Placemarks, Grids etc.'
-        TabOrder = 5
+        Caption = 'Add visible Placemarks, Grids, Cached Tiles Map'
+        TabOrder = 4
       end
       object chkUsePrevZoom: TCheckBox
         Left = 3
@@ -169,7 +169,7 @@ object frExportKml: TfrExportKml
         Height = 50
         Align = alTop
         BevelOuter = bvNone
-        TabOrder = 8
+        TabOrder = 10
       end
       object chkUseRecolor: TCheckBox
         Left = 3
@@ -178,7 +178,7 @@ object frExportKml: TfrExportKml
         Height = 17
         Align = alTop
         Caption = 'Use postprocessing settings'
-        TabOrder = 9
+        TabOrder = 5
       end
       object chkAddVisibleLayers: TCheckBox
         Left = 3
@@ -187,7 +187,7 @@ object frExportKml: TfrExportKml
         Height = 17
         Align = alTop
         Caption = 'Add visible Layers'
-        TabOrder = 10
+        TabOrder = 3
       end
     end
   end
