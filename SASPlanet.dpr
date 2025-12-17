@@ -249,6 +249,7 @@ uses
   u_BaseInterfacedObjectDebug in 'Src\Debug\u_BaseInterfacedObjectDebug.pas',
   u_DebugInfoSubSystem in 'Src\Debug\u_DebugInfoSubSystem.pas',
   u_DebugInfoWindow in 'Src\Debug\u_DebugInfoWindow.pas',
+  u_DebugLogger in 'Src\Debug\u_DebugLogger.pas',
   u_ExceptionManager in 'Src\Debug\u_ExceptionManager.pas',
   u_InternalDebugConfig in 'Src\Debug\u_InternalDebugConfig.pas',
   i_GPS in 'Src\GPS\i_GPS.pas',

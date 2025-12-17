@@ -430,6 +430,7 @@
         <DCCReference Include="Src\Debug\u_BaseInterfacedObjectDebug.pas"/>
         <DCCReference Include="Src\Debug\u_DebugInfoSubSystem.pas"/>
         <DCCReference Include="Src\Debug\u_DebugInfoWindow.pas"/>
+        <DCCReference Include="Src\Debug\u_DebugLogger.pas"/>
         <DCCReference Include="Src\Debug\u_ExceptionManager.pas"/>
         <DCCReference Include="Src\Debug\u_InternalDebugConfig.pas"/>
         <DCCReference Include="Src\GPS\i_GPS.pas"/>
