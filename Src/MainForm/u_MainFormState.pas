@@ -35,7 +35,7 @@ type
   TMainFormState = class(TChangeableBase, IMainFormState)
   private
     FState: TStateEnum;
-    FMapMovingCount: Integer;
+    FCount: array [TMapMovingReason] of Integer;
     {$IFDEF ENABLE_STATE_LOGGING}
     procedure LogChanges(const AProcName: string);
     {$ENDIF}
@@ -44,11 +44,15 @@ type
     function GetState: TStateEnum;
     procedure SetState(const AValue: TStateEnum);
 
-    procedure MapMovingBegin;
-    procedure MapMovingEnd;
+    procedure MapMovingBegin(const AReason: TMapMovingReason);
+    procedure MapMovingEnd(const AReason: TMapMovingReason);
     procedure MapMovingReset;
 
     function GetIsMapMoving: Boolean;
+
+    function GetIsMapZooming: Boolean;
+    function GetIsMapDragging: Boolean;
+    function GetIsMapPanning: Boolean;
   public
     constructor Create;
   end;
@@ -68,14 +72,14 @@ constructor TMainFormState.Create;
 begin
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FState := ao_movemap;
-  FMapMovingCount := 0;
+  FillChar(FCount[Low(TMapMovingReason)], Length(FCount) * SizeOf(Integer), 0);
 end;
 
-procedure TMainFormState.MapMovingBegin;
+procedure TMainFormState.MapMovingBegin(const AReason: TMapMovingReason);
 begin
-  Inc(FMapMovingCount);
+  Inc(FCount[AReason]);
 
-  if FMapMovingCount = 1 then begin
+  if FCount[AReason] = 1 then begin
     DoChangeNotify;
   end;
 
@@ -84,15 +88,15 @@ begin
   {$ENDIF}
 end;
 
-procedure TMainFormState.MapMovingEnd;
+procedure TMainFormState.MapMovingEnd(const AReason: TMapMovingReason);
 begin
-  Dec(FMapMovingCount);
+  Dec(FCount[AReason]);
 
-  if FMapMovingCount < 0 then begin
-    FMapMovingCount := 0;
+  if FCount[AReason] < 0 then begin
+    FCount[AReason] := 0;
   end;
 
-  if FMapMovingCount = 0 then begin
+  if FCount[AReason] = 0 then begin
     DoChangeNotify;
   end;
 
@@ -102,9 +106,20 @@ begin
 end;
 
 procedure TMainFormState.MapMovingReset;
+var
+  I: TMapMovingReason;
+  VDoNotify: Boolean;
 begin
-  if FMapMovingCount <> 0 then begin
-    FMapMovingCount := 0;
+  VDoNotify := False;
+
+  for I := Low(TMapMovingReason) to High(TMapMovingReason) do begin
+    if FCount[I] <> 0 then begin
+      FCount[I] := 0;
+      VDoNotify := True;
+    end;
+  end;
+
+  if VDoNotify then begin
     DoChangeNotify;
   end;
 
@@ -114,8 +129,31 @@ begin
 end;
 
 function TMainFormState.GetIsMapMoving: Boolean;
+var
+  I: TMapMovingReason;
 begin
-  Result := FMapMovingCount > 0;
+  for I := Low(TMapMovingReason) to High(TMapMovingReason) do begin
+    if FCount[I] <> 0 then begin
+      Result := True;
+      Exit;
+    end;
+  end;
+  Result := False;
+end;
+
+function TMainFormState.GetIsMapZooming: Boolean;
+begin
+  Result := FCount[mmrZooming] > 0;
+end;
+
+function TMainFormState.GetIsMapDragging: Boolean;
+begin
+  Result := FCount[mmrDragging] > 0;
+end;
+
+function TMainFormState.GetIsMapPanning: Boolean;
+begin
+  Result := FCount[mmrPanning] > 0;
 end;
 
 function TMainFormState.GetState: TStateEnum;
@@ -153,8 +191,10 @@ begin
   OutputDebugString(PChar(
     '[' + AProcName + '] ' +
     'State: ' + cStateId[FState] + '; ' +
-    'IsMapMoving: ' + BoolToStr(FMapMovingCount > 0, True) + '; ' +
-    'MapMovingCount: ' + IntToStr(FMapMovingCount)
+    'IsMapMoving: ' + BoolToStr(GetIsMapMoving, True) + ' (' +
+    'Zooming: ' + IntToStr(FCount[mmrZooming]) + '; ' +
+    'Dragging: ' + IntToStr(FCount[mmrDragging]) + '; ' +
+    'Panning: ' + IntToStr(FCount[mmrPanning]) + ')'
   ));
 end;
 {$ENDIF}

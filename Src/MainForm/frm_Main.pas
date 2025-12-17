@@ -956,8 +956,6 @@ type
     FElevationProfilePresenter: IElevationProfilePresenter;
 
     FMapMovingButton: TMouseButton;
-    FMapZoomAnimtion: Boolean;
-    FMapMoveAnimtion: Boolean;
     FMovePoint: Boolean;
     FSelectedMark: IVectorDataItem;
     FSelectedWiki: IVectorDataItem;
@@ -1355,7 +1353,6 @@ begin
 
   FStartedNormal := False;
   FMovePoint := False;
-  FMapZoomAnimtion := False;
   FTimer := GState.Timer;
   FLinksList := TListenerNotifierLinksList.Create;
   FState := TMainFormState.Create;
@@ -3634,14 +3631,13 @@ begin
   end;
 end;
 
-//Обработка нажатий кнопоки и калесика
 procedure TfrmMain.DoMessageEvent(
   var Msg: TMsg;
   var Handled: Boolean
 );
 begin
   if Self.Active then begin
-    if not FMapZoomAnimtion then begin
+    if not FState.IsMapZooming then begin
       FKeyMovingHandler.DoMessageEvent(Msg, Handled);
     end;
   end;
@@ -3883,12 +3879,11 @@ var
   VScaleFinish: Double;
   VScaleStart: Double;
 begin
-  if (FMapZoomAnimtion) or (ANewZoom > 23) then begin
+  if (FState.IsMapZooming) or (ANewZoom > 23) then begin
     Exit;
   end;
 
-  FMapZoomAnimtion := True;
-  FState.MapMovingBegin;
+  FState.MapMovingBegin(mmrZooming);
   try
     VZoom := FViewPortState.View.GetStatic.Projection.Zoom;
     if VZoom <> ANewZoom then begin
@@ -3928,8 +3923,7 @@ begin
       end;
     end;
   finally
-    FState.MapMovingEnd;
-    FMapZoomAnimtion := False;
+    FState.MapMovingEnd(mmrZooming);
   end;
 end;
 
@@ -3950,8 +3944,7 @@ var
   VMousePPS: Double;
   VLastTime: Double;
 begin
-  FMapMoveAnimtion := True;
-  FState.MapMovingBegin;
+  FState.MapMovingBegin(mmrPanning);
   try
     VMousePPS := Sqrt(Sqr(AMouseMoveSpeed.X) + Sqr(AMouseMoveSpeed.Y));
 
@@ -4005,8 +3998,7 @@ begin
         not IsPointsEqual(AMousePos, FMouseState.GetLastUpPos(FMapMovingButton));
     end;
   finally
-    FState.MapMovingEnd;
-    FMapMoveAnimtion := False;
+    FState.MapMovingEnd(mmrPanning);
   end;
 end;
 
@@ -5148,55 +5140,58 @@ var
   VProcessGPSIfActive: Boolean;
   VDelta: Double;
 begin
-  VPosition := GState.GPSRecorder.CurrentPosition;
-
-  // no position?
-  if (not VPosition.PositionOK) then begin
+  if FState.IsMapMoving then begin
     Exit;
   end;
 
-  if not ((FState.IsMapMoving) or (FMapZoomAnimtion)) then begin
-    FConfig.GPSBehaviour.LockRead;
-    try
-      VMapMove := FConfig.GPSBehaviour.MapMove;
-      VMapMoveCentred := FConfig.GPSBehaviour.MapMoveCentered;
-      VMinDelta := FConfig.GPSBehaviour.MinMoveDelta;
-      VProcessGPSIfActive := FConfig.GPSBehaviour.ProcessGPSIfActive;
-    finally
-      FConfig.GPSBehaviour.UnlockRead;
-    end;
-    if (not VProcessGPSIfActive) or (Screen.ActiveForm = Self) then begin
-      if (VMapMove) then begin
-        VGPSNewPos := VPosition.LonLat;
-        if VMapMoveCentred then begin
-          VLocalConverter := FViewPortState.View.GetStatic;
-          VProjection := VLocalConverter.Projection;
+  VPosition := GState.GPSRecorder.CurrentPosition;
+
+  // no position?
+  if not VPosition.PositionOK then begin
+    Exit;
+  end;
+
+  FConfig.GPSBehaviour.LockRead;
+  try
+    VMapMove := FConfig.GPSBehaviour.MapMove;
+    VMapMoveCentred := FConfig.GPSBehaviour.MapMoveCentered;
+    VMinDelta := FConfig.GPSBehaviour.MinMoveDelta;
+    VProcessGPSIfActive := FConfig.GPSBehaviour.ProcessGPSIfActive;
+  finally
+    FConfig.GPSBehaviour.UnlockRead;
+  end;
+
+  if (not VProcessGPSIfActive) or (Screen.ActiveForm = Self) then begin
+    if VMapMove then begin
+      VGPSNewPos := VPosition.LonLat;
+      if VMapMoveCentred then begin
+        VLocalConverter := FViewPortState.View.GetStatic;
+        VProjection := VLocalConverter.Projection;
+        VCenterMapPoint := VLocalConverter.GetCenterMapPixelFloat;
+        VGPSMapPoint := VProjection.LonLat2PixelPosFloat(VGPSNewPos);
+        VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
+        VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
+        VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+        if VDelta > VMinDelta then begin
+          FViewPortState.ChangeLonLat(VGPSNewPos);
+        end;
+      end else begin
+        VLocalConverter := FViewPortState.View.GetStatic;
+        VProjection := VLocalConverter.Projection;
+        VGPSMapPoint := VProjection.LonLat2PixelPosFloat(VGPSNewPos);
+        if PixelPointInRect(VGPSMapPoint, VLocalConverter.GetRectInMapPixelFloat) then begin
           VCenterMapPoint := VLocalConverter.GetCenterMapPixelFloat;
-          VGPSMapPoint := VProjection.LonLat2PixelPosFloat(VGPSNewPos);
-          VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
-          VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
-          VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-          if VDelta > VMinDelta then begin
-            FViewPortState.ChangeLonLat(VGPSNewPos);
-          end;
-        end else begin
-          VLocalConverter := FViewPortState.View.GetStatic;
-          VProjection := VLocalConverter.Projection;
-          VGPSMapPoint := VProjection.LonLat2PixelPosFloat(VGPSNewPos);
-          if PixelPointInRect(VGPSMapPoint, VLocalConverter.GetRectInMapPixelFloat) then begin
-            VCenterMapPoint := VLocalConverter.GetCenterMapPixelFloat;
-            VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
-            VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
-            VPointDelta := FCenterToGPSDelta;
-            if PointIsEmpty(VPointDelta) then begin
-              FCenterToGPSDelta := VCenterToGPSDelta;
-            end else begin
-              VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
-              VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
-              VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-              if VDelta > VMinDelta then begin
-                FViewPortState.ChangeMapPixelByLocalDelta(VPointDelta);
-              end;
+          VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
+          VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
+          VPointDelta := FCenterToGPSDelta;
+          if PointIsEmpty(VPointDelta) then begin
+            FCenterToGPSDelta := VCenterToGPSDelta;
+          end else begin
+            VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
+            VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
+            VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+            if VDelta > VMinDelta then begin
+              FViewPortState.ChangeMapPixelByLocalDelta(VPointDelta);
             end;
           end;
         end;
@@ -5276,7 +5271,7 @@ begin
 
   FMouseHandler.OnMouseDown(Button, Shift, Point(X, Y));
 
-  if (FMapZoomAnimtion) or
+  if (FState.IsMapZooming) or
     (ssDouble in Shift) or
     (Button = mbMiddle) or
     (ssRight in Shift) and (ssLeft in Shift) or
@@ -5375,7 +5370,7 @@ begin
     end;
     map.PopupMenu := MainPopupMenu;
   end else begin
-    FState.MapMovingBegin;
+    FState.MapMovingBegin(mmrDragging);
     FMapMovingButton := Button;
     FMoveByMouseStartPoint := Point(X, Y);
     FSelectedMark := nil;
@@ -5460,7 +5455,7 @@ var
   VIsSelectionFinished: Boolean;
   VPoly: IGeometryLonLatPolygon;
   VPoint: IGeometryLonLatPoint;
-  VIsMapMoving: Boolean;
+  VIsMapDragging: Boolean;
   VMapType: IMapType;
   VIsValidPoint: Boolean;
   VProjection: IProjection;
@@ -5477,7 +5472,7 @@ var
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
-  if FMapZoomAnimtion then begin
+  if FState.IsMapZooming then begin
     Exit;
   end;
 
@@ -5486,18 +5481,18 @@ begin
     Exit;
   end;
 
-  VIsMapMoving := FState.IsMapMoving and (FMapMovingButton = Button);
+  VIsMapDragging := FState.IsMapDragging and (FMapMovingButton = Button);
 
-  if VIsMapMoving then begin
-    FState.MapMovingEnd;
+  if VIsMapDragging then begin
+    FState.MapMovingEnd(mmrDragging);
   end;
 
-  if not VIsMapMoving and (Layer <> nil) then begin
+  if not VIsMapDragging and (Layer <> nil) then begin
     Exit;
   end;
 
   VLocalConverter := FViewPortState.View.GetStatic;
-  if not VIsMapMoving and (Button = mbLeft) then begin
+  if not VIsMapDragging and (Button = mbLeft) then begin
     VProjection := VLocalConverter.Projection;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
     VIsValidPoint := VProjection.CheckPixelPosFloat(VMouseMapPoint);
@@ -5577,7 +5572,7 @@ begin
   VMouseDownPos := FMouseState.GetLastDownPos(Button);
   VMouseMoveDelta := Point(VMouseDownPos.x - X, VMouseDownPos.y - y);
 
-  if VIsMapMoving and ((VMouseMoveDelta.X <> 0) or (VMouseMoveDelta.Y <> 0)) then begin
+  if VIsMapDragging and ((VMouseMoveDelta.X <> 0) or (VMouseMoveDelta.Y <> 0)) then begin
     MapMoveAnimate(
       FMouseState.CurentSpeed,
       FViewPortState.View.GetStatic.Projection.Zoom,
@@ -5674,8 +5669,8 @@ begin
   VMousePos := FMouseState.CurentPos;
 
   if FState.IsMapMoving and
-     not FMapMoveAnimtion and
-     not FMapZoomAnimtion and
+     not FState.IsMapPanning and
+     not FState.IsMapZooming and
      not (ssLeft in Shift) and
      not (ssRight in Shift)
   then begin
@@ -5695,7 +5690,7 @@ begin
     Exit;
   end;
 
-  if FMapZoomAnimtion or (ssDouble in Shift) then begin
+  if FState.IsMapZooming or (ssDouble in Shift) then begin
     Exit;
   end;
 
@@ -5775,7 +5770,7 @@ begin
     end;
   end;
 
-  if FMapMoveAnimtion then begin
+  if FState.IsMapPanning then begin
     Exit;
   end;
 
@@ -5786,7 +5781,7 @@ begin
   end;
 
   // Hint
-  if (not FMapMoveAnimtion) and
+  if (not FState.IsMapPanning) and
     (not FState.IsMapMoving) and
     ((VMousePos.X <> VMousePosPrev.X) or (VMousePos.Y <> VMousePosPrev.Y)) and
     (FConfig.MainConfig.ShowHintOnMarks) and
@@ -5922,7 +5917,7 @@ begin
   if not Handled then begin
     if not FConfig.MainConfig.DisableZoomingByMouseScroll then begin
       if Types.PtInRect(map.BoundsRect, Self.ScreenToClient(MousePos)) then begin
-        if not FMapZoomAnimtion then begin
+        if not FState.IsMapZooming then begin
           VMousePos := map.ScreenToClient(MousePos);
           if FConfig.MainConfig.MouseScrollInvert then begin
             z := -1;

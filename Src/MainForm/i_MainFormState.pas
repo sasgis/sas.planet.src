@@ -39,6 +39,12 @@ type
     ao_select_line
   );
 
+  TMapMovingReason = (
+    mmrZooming,  // zooming with or without animation
+    mmrDragging, // moving without animation
+    mmrPanning   // moving with animation
+  );
+
 type
   IMainFormState = interface(IChangeable)
     ['{0CB21E1F-BBFC-4517-A328-40F36E6C1457}']
@@ -46,12 +52,21 @@ type
     procedure SetState(const AValue: TStateEnum);
     property State: TStateEnum read GetState write SetState;
 
-    procedure MapMovingBegin;
-    procedure MapMovingEnd;
+    procedure MapMovingBegin(const AReason: TMapMovingReason);
+    procedure MapMovingEnd(const AReason: TMapMovingReason);
     procedure MapMovingReset;
 
     function GetIsMapMoving: Boolean;
     property IsMapMoving: Boolean read GetIsMapMoving;
+
+    function GetIsMapZooming: Boolean;
+    property IsMapZooming: Boolean read GetIsMapZooming;
+
+    function GetIsMapDragging: Boolean;
+    property IsMapDragging: Boolean read GetIsMapDragging;
+
+    function GetIsMapPanning: Boolean;
+    property IsMapPanning: Boolean read GetIsMapPanning;
   end;
 
 implementation
