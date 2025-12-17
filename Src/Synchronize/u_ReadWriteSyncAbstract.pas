@@ -145,7 +145,8 @@ var
 implementation
 
 uses
-  Windows;
+  Windows,
+  u_DebugLogger;
 
 { TSynchronizerFake }
 
@@ -217,7 +218,7 @@ begin
   end;
   VText := FLockClassName + ' at $' + Format('%p', [Pointer(Self)]) + ' (from ' + FName + ')' + c_SEP +
     'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP + AProcedure + c_SEP + AEvent;
-  OutputDebugString(PChar(VText));
+  GLog.Write(Self, VText);
 end;
 
 procedure TReadWriteSyncDebugWrapper.EndRead;

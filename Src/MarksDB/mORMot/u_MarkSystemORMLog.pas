@@ -25,7 +25,7 @@ unit u_MarkSystemORMLog;
 
 interface
 
-procedure InitSQLLog;
+procedure InitSQLLog; {$IFNDEF SQL_LOG_ENABLE} inline; {$ENDIF}
 
 {$IFDEF SQL_LOG_ENABLE}
 function SQLLogEnter(const AInstance: TObject; const AMethod: string = ''): IInterface;
@@ -47,14 +47,19 @@ uses
   SysUtils,
   mORMot,
   SynLog,
-  SynCommons;
+  SynCommons,
+  u_DebugLogger;
 
 procedure InitSQLLog;
 var
   VLogPath: string;
 begin
-  VLogPath := ExtractFilePath(ParamStr(0)) + 'log\marks\';
-  ForceDirectories(VLogPath);
+  VLogPath := GetLogsPath + 'marks\';
+
+  if not ForceDirectories(VLogPath) then begin
+    RaiseLastOSError;
+  end;
+
   with TSQLLog.Family do begin
     {$IFDEF SQL_LOG_VERBOSE}
     Level := LOG_VERBOSE;
@@ -95,7 +100,6 @@ procedure SQLLogInfo(const AMsgFmt: string; const AMsgArgs: array of const;
 begin
   TSQLLog.Add.Log(sllInfo, StringToUtf8(AMsgFmt), AMsgArgs, AInstance);
 end;
-
 {$ELSE}
 procedure InitSQLLog;
 begin

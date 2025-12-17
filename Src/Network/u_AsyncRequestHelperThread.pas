@@ -24,7 +24,6 @@ unit u_AsyncRequestHelperThread;
 interface
 
 uses
-  Windows,
   Classes,
   SysUtils,
   i_NotifierOperation,
@@ -55,6 +54,10 @@ type
 implementation
 
 uses
+  {$IFDEF DEBUG}
+  Windows,
+  u_DebugLogger,
+  {$ENDIF}
   u_ReadableThreadNames;
 
 { TAsyncRequestHelperThread }
@@ -87,7 +90,7 @@ begin
   except
     {$IFDEF DEBUG}
     on E: Exception do begin
-      OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + E.Message));
+      GLog.Write(Self, '%d <E> %s: %s', [GetCurrentThreadId, E.ClassName, E.Message]);
     end;
     {$ENDIF}
   end;

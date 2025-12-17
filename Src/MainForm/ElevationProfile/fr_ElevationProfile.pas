@@ -34,10 +34,6 @@ interface
 {$IFEND}
 
 uses
-  {$IFDEF ENABLE_DIAGNOSTICS}
-  Windows,
-  Diagnostics,
-  {$ENDIF}
   Types,
   SysUtils,
   Classes,
@@ -243,6 +239,10 @@ implementation
 uses
   DateUtils,
   gnugettext,
+  {$IFDEF ENABLE_DIAGNOSTICS}
+  Diagnostics,
+  u_DebugLogger,
+  {$ENDIF}
   i_EnumDoublePoint,
   u_ListenerByEvent,
   u_GeoFunc,
@@ -1434,9 +1434,7 @@ procedure TfrElevationProfile.SetLocation(const ALonLat: TDoublePoint);
     end;
     {$IFDEF ENABLE_DIAGNOSTICS}
     VStopWatch.Stop;
-    OutputDebugString(PChar(
-      Self.ClassName + '.FindNearestPointMulti: ' + VStopWatch.ElapsedMilliseconds.ToString + ' ms'
-    ));
+    GLog.Write(Self, 'FindNearestPointMulti: ' + VStopWatch.ElapsedMilliseconds.ToString + ' ms');
     {$ENDIF}
   end;
 

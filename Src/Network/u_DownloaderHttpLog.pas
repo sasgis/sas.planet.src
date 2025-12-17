@@ -50,6 +50,9 @@ type
 
 implementation
 
+uses
+  u_DebugLogger;
+
 var
   GLogIdCounter: Integer = 0;
 
@@ -66,8 +69,10 @@ var
   VLogFileName: string;
 begin
   VLogId := InterlockedIncrement(GLogIdCounter);
-  VLogFileName := Format('%s\log\http\%.4d_%s.txt', [ExtractFileDir(ParamStr(0)), VLogId, ADownloaderId]);
-  ForceDirectories(ExtractFileDir(VLogFileName));
+  VLogFileName := GetLogsPath + Format('http\%.4d_%s.txt', [VLogId, ADownloaderId]);
+  if not ForceDirectories(ExtractFileDir(VLogFileName)) then begin
+    RaiseLastOSError;
+  end;
   FLogStream := TFileStream.Create(VLogFileName, fmCreate or fmShareDenyWrite);
 end;
 

@@ -61,8 +61,7 @@ implementation
 
 uses
   {$IFDEF ENABLE_STATE_LOGGING}
-  Windows,
-  SysUtils,
+  u_DebugLogger,
   {$ENDIF}
   u_Synchronizer;
 
@@ -188,14 +187,9 @@ const
     'ao_select_line'
   );
 begin
-  OutputDebugString(PChar(
-    '[' + AProcName + '] ' +
-    'State: ' + cStateId[FState] + '; ' +
-    'IsMapMoving: ' + BoolToStr(GetIsMapMoving, True) + ' (' +
-    'Zooming: ' + IntToStr(FCount[mmrZooming]) + '; ' +
-    'Dragging: ' + IntToStr(FCount[mmrDragging]) + '; ' +
-    'Panning: ' + IntToStr(FCount[mmrPanning]) + ')'
-  ));
+  GLog.Write(Self, '<%s> State: %s; IsMapMoving: %s (Zooming: %d; Dragging: %d; Panning: %d)',
+    [AProcName, cStateId[FState], GLog.ToStr(GetIsMapMoving), FCount[mmrZooming], FCount[mmrDragging], FCount[mmrPanning]]
+  );
 end;
 {$ENDIF}
 

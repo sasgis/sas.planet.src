@@ -1699,5 +1699,6 @@ begin
     end;
   finally
     GState.Free;
+    GLog := nil;
   end;
 end.

@@ -21,6 +21,12 @@
 
 unit u_DebugLogger;
 
+{$DEFINE ENABLE_ASYNC_LOG}
+
+{$IFDEF RELEASE}
+  {$UNDEF ENABLE_ASYNC_LOG} // disable this if you need full support in Release build
+{$ENDIF}
+
 interface
 
 uses
@@ -43,20 +49,24 @@ function GetLogsPath: string;
 
 implementation
 
-{$IFDEF DEBUG}
 uses
   Windows,
+  StrUtils,
+  {$IFDEF ENABLE_ASYNC_LOG}
   Classes,
   SyncObjs,
-  StrUtils,
   Generics.Collections,
+  {$ENDIF}
   u_BaseInterfacedObject;
 
 type
+  {$IFDEF ENABLE_ASYNC_LOG}
   TLogOutputType = (lotOutputDebugString, lotFile);
+  {$ENDIF}
 
   TDebugLogger = class(TBaseInterfacedObject, IDebugLogger)
   private
+    {$IFDEF ENABLE_ASYNC_LOG}
     FQueue: TThreadedQueue<string>;
     FThread: TThread;
     FOutputType: TLogOutputType;
@@ -64,6 +74,7 @@ type
     FLogFileStream: TFileStream;
 
     procedure OnLogThreadExecute;
+    {$ENDIF}
   private
     { IDebugLogger }
     function ToStr(const AValue: Boolean): string; overload;
@@ -72,10 +83,13 @@ type
     procedure Write(const AObj: TObject; const AMsg: string); overload;
     procedure Write(const AObj: TObject; const AMsg: string; const AFmt: array of const); overload;
   public
+    {$IFDEF ENABLE_ASYNC_LOG}
     constructor Create(const AOutputType: TLogOutputType);
     destructor Destroy; override;
+    {$ENDIF}
   end;
 
+{$IFDEF ENABLE_ASYNC_LOG}
 const
   CQueueDepth = 10000;
 
@@ -145,6 +159,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 procedure TDebugLogger.Write(const AObj: TObject; const AMsg: string);
 var
@@ -152,11 +167,14 @@ var
 begin
   VMsg := '[' + IfThen(AObj <> nil, AObj.ClassName, 'nil') + '] ' + AMsg;
 
+  {$IFDEF ENABLE_ASYNC_LOG}
   if FOutputType = lotFile then begin
     VMsg := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now) + ' ' + VMsg;
   end;
-
   FQueue.PushItem(VMsg);
+  {$ELSE}
+  OutputDebugString(PChar(VMsg));
+  {$ENDIF}
 end;
 
 procedure TDebugLogger.Write(const AObj: TObject; const AMsg: string; const AFmt: array of const);
@@ -173,16 +191,13 @@ function TDebugLogger.ToStr(const AValue: Integer): string;
 begin
   Result := IntToStr(AValue);
 end;
-{$ENDIF DEBUG}
 
 function GetLogsPath: string;
 begin
   Result := ExtractFilePath(ParamStr(0)) + 'log' + PathDelim;
 end;
 
-{$IFDEF DEBUG}
 initialization
-  GLog := TDebugLogger.Create(lotOutputDebugString);
-{$ENDIF}
+  GLog := TDebugLogger.Create({$IFDEF ENABLE_ASYNC_LOG} lotOutputDebugString {$ENDIF});
 
 end.

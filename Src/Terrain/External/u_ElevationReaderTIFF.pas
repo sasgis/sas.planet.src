@@ -23,7 +23,9 @@ unit u_ElevationReaderTIFF;
 
 interface
 
-{.$DEFINE DUMP_TIFF_TAGS}
+{$IFDEF DEBUG}
+  {.$DEFINE DUMP_TIFF_TAGS}
+{$ENDIF}
 
 uses
   Windows,
@@ -162,6 +164,9 @@ implementation
 
 uses
   NTFiles,
+  {$IFDEF DUMP_TIFF_TAGS}
+  u_DebugLogger,
+  {$ENDIF}
   u_ByteSwapFunc,
   u_GlobalDllName;
 
@@ -378,14 +383,12 @@ begin
       Inc(VOffset, SizeOf(VCurrentTag));
 
       {$IFDEF DUMP_TIFF_TAGS}
-      OutputDebugString(
-        PChar(
-          'tag: ' + IntToStr(VCurrentTag.tag) + ' ' +
-          'type: ' + IntToStr(VCurrentTag.type_) + ' ' +
-          'count: ' + IntToStr(VCurrentTag.count) + ' ' +
-          'value: ' + IntToStr(VCurrentTag.value) + ' ' +
-          'value: 0x' + IntToHex(VCurrentTag.value, 8)
-        )
+      GLog.Write(Self,
+        'tag: ' + IntToStr(VCurrentTag.tag) + ' ' +
+        'type: ' + IntToStr(VCurrentTag.type_) + ' ' +
+        'count: ' + IntToStr(VCurrentTag.count) + ' ' +
+        'value: ' + IntToStr(VCurrentTag.value) + ' ' +
+        'value: 0x' + IntToHex(VCurrentTag.value, 8)
       );
       {$ENDIF}
     end;
