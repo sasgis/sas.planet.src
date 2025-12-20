@@ -39,6 +39,7 @@ uses
   i_BitmapTileMatrixChangeable,
   i_InternalPerformanceCounter,
   i_HashTileMatrixBuilder,
+  i_MainFormState,
   u_WindowLayerAbstract;
 
 type
@@ -47,6 +48,7 @@ type
     FLayer: TPositionedLayer;
     FTileMatrix: IBitmapTileMatrixChangeable;
     FView: ILocalCoordConverterChangeable;
+    FMainFormState: IMainFormState;
     FDebugName: string;
 
     FShownIdMatrix: IHashTileMatrixBuilder;
@@ -81,6 +83,7 @@ type
       const AHashFunction: IHashFunction;
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrix: IBitmapTileMatrixChangeable;
+      const AMainFormState: IMainFormState;
       const AGuiSyncronizedTimerNotifier: INotifierTime;
       const ADebugName: string
     );
@@ -104,6 +107,8 @@ uses
   u_GeoFunc,
   u_BitmapFunc;
 
+const
+  CFakeHashValue: THashValue = MaxInt;
 
 { TTiledMapLayer }
 
@@ -115,6 +120,7 @@ constructor TTiledMapLayer.Create(
   const AHashFunction: IHashFunction;
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrix: IBitmapTileMatrixChangeable;
+  const AMainFormState: IMainFormState;
   const AGuiSyncronizedTimerNotifier: INotifierTime;
   const ADebugName: string
 );
@@ -131,6 +137,7 @@ begin
 
   FView := AView;
   FTileMatrix := ATileMatrix;
+  FMainFormState := AMainFormState;
   FDebugName := ADebugName;
 
   FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
@@ -167,7 +174,9 @@ var
 begin
   VLocalConverter := FView.GetStatic;
   if Assigned(VLocalConverter) then begin
+    FTileMatrixChangeFlag.CheckFlagAndReset;
     VTileMatrix := FTileMatrix.GetStatic;
+
     if Assigned(VTileMatrix) then begin
       VCounterContext := FOnPaintCounter.StartOperation;
       Buffer.BeginUpdate;
@@ -202,8 +211,6 @@ begin
 end;
 
 procedure TTiledMapLayer.OnTimer;
-const
-  CFakeHashValue: THashValue = MaxInt;
 var
   VLocalConverter: ILocalCoordConverter;
   VTileMatrix: IBitmapTileMatrix;
@@ -214,6 +221,9 @@ var
   VReadyId: THashValue;
   VIsChanged: Boolean;
 begin
+  if FMainFormState.IsMapZooming then begin
+    Exit;
+  end;
   VIsChanged := False;
   if FTileMatrixChangeFlag.CheckFlagAndReset then begin
     VTileMatrix := FTileMatrix.GetStatic;
@@ -302,6 +312,7 @@ begin
       while VTileIterator.Next(VTile) do begin
         VBitmap := ATileMatrix.GetElementByTile(VTile);
         if Assigned(VBitmap) then begin
+          FShownIdMatrix.Tiles[VTile] := VBitmap.Hash;
           if not VSameProjection then begin
             VRelativeRect := VProjectionSrc.TilePos2RelativeRect(VTile);
             VDstRect :=
@@ -354,6 +365,8 @@ begin
           end else begin
             ABuffer.Changed(VDstRect);
           end;
+        end else begin
+          FShownIdMatrix.Tiles[VTile] := CFakeHashValue;
         end;
       end;
     finally

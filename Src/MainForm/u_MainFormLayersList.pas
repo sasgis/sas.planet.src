@@ -498,6 +498,7 @@ begin
         AParams.HashFunction,
         AParams.ViewPortState.View,
         VTileMatrix,
+        AParams.MainFormState,
         AParams.GUISyncronizedTimerNotifier,
         VDebugName
       );
@@ -2272,6 +2273,7 @@ begin
       AParams.HashFunction,
       VMiniMapConverterChangeable,
       VTileMatrix,
+      AParams.MainFormState,
       AParams.GUISyncronizedTimerNotifier,
       CDebugName
     );
