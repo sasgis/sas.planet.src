@@ -21,106 +21,234 @@
 
 unit u_DebugLogger;
 
-{$DEFINE ENABLE_ASYNC_LOG}
-
-{$IFDEF RELEASE}
-  {$UNDEF ENABLE_ASYNC_LOG} // disable this if you need full support in Release build
-{$ENDIF}
-
 interface
 
-uses
-  SysUtils;
+{$I DebugLog.inc}
 
 type
-  IDebugLogger = interface
-  ['{AE1ADC4D-4EC4-46BD-8E03-80B057C92ACC}']
-    function ToStr(const AValue: Boolean): string; overload;
-    function ToStr(const AValue: Integer): string; overload;
+  TLogItem = record
+    TimeStamp: TDateTime;
+    ClassName: string;
+    MessageText: string;
+  end;
 
+  IDebugLoggerConsumer = interface
+    ['{0FDB2DFB-782A-4D35-8717-40931D3141B1}']
+    procedure Process(const AItem: TLogItem);
+  end;
+
+  IDebugLogger = interface
+    ['{AE1ADC4D-4EC4-46BD-8E03-80B057C92ACC}']
     procedure Write(const AObj: TObject; const AMsg: string); overload;
     procedure Write(const AObj: TObject; const AMsg: string; const AFmt: array of const); overload;
+
+    function GetConsumer: IDebugLoggerConsumer;
+    property Consumer: IDebugLoggerConsumer read GetConsumer;
   end;
+
+  TLog = record
+    class function BasePath: string; static;
+
+    class function ToStr(const AValue: Boolean): string; overload; static;
+    class function ToStr(const AValue: Integer): string; overload; static;
+    class function ToStr(const AValue: TDateTime; const ATimeOnly: Boolean = False): string; overload; static;
+    class function ToStr(const AValue: TLogItem; const AIncludeTimestamp: Boolean; const ATimeOnly: Boolean): string; overload; static;
+
+    class function IfThen(const AValue: Boolean; const ATrue: string; const AFalse: string = ''): string; static;
+
+    class function Format(const AFormat: string; const AArgs: array of const): string; static;
+  end;
+
+function BuildDebugLogger: IDebugLogger;
 
 var
   GLog: IDebugLogger = nil;
-
-function GetLogsPath: string;
 
 implementation
 
 uses
   Windows,
+  SysUtils,
   StrUtils,
-  {$IFDEF ENABLE_ASYNC_LOG}
   Classes,
   SyncObjs,
   Generics.Collections,
-  {$ENDIF}
+  u_ExceptionManager,
+  u_ReadableThreadNames,
   u_BaseInterfacedObject;
 
 type
-  {$IFDEF ENABLE_ASYNC_LOG}
-  TLogOutputType = (lotOutputDebugString, lotFile);
-  {$ENDIF}
-
   TDebugLogger = class(TBaseInterfacedObject, IDebugLogger)
-  private
-    {$IFDEF ENABLE_ASYNC_LOG}
-    FQueue: TThreadedQueue<string>;
-    FThread: TThread;
-    FOutputType: TLogOutputType;
-    FLogFileName: string;
-    FLogFileStream: TFileStream;
-
-    procedure OnLogThreadExecute;
-    {$ENDIF}
+  protected
+    FConsumer: IDebugLoggerConsumer;
+    procedure WriteItem(const AItem: TLogItem); virtual;
   private
     { IDebugLogger }
-    function ToStr(const AValue: Boolean): string; overload;
-    function ToStr(const AValue: Integer): string; overload;
-
     procedure Write(const AObj: TObject; const AMsg: string); overload;
     procedure Write(const AObj: TObject; const AMsg: string; const AFmt: array of const); overload;
+    function GetConsumer: IDebugLoggerConsumer;
   public
-    {$IFDEF ENABLE_ASYNC_LOG}
-    constructor Create(const AOutputType: TLogOutputType);
-    destructor Destroy; override;
-    {$ENDIF}
+    constructor Create(const AConsumer: IDebugLoggerConsumer);
   end;
 
-{$IFDEF ENABLE_ASYNC_LOG}
-const
-  CQueueDepth = 10000;
+  TDebugLoggerAsync = class(TDebugLogger)
+  private
+    const CQueueDepth = 10000;
+  private
+    FQueue: TThreadedQueue<TLogItem>;
+    FThread: TThread;
+    procedure OnExecute;
+  protected
+    procedure WriteItem(const AItem: TLogItem); override;
+  public
+    constructor Create(const AConsumer: IDebugLoggerConsumer);
+    destructor Destroy; override;
+  end;
+
+  TDebugLoggerConsumerFake = class(TBaseInterfacedObject, IDebugLoggerConsumer)
+  private
+    { IDebugLoggerConsumer }
+    procedure Process(const AItem: TLogItem);
+  end;
+
+  TDebugLoggerConsumerSimple = class(TBaseInterfacedObject, IDebugLoggerConsumer)
+  private
+    { IDebugLoggerConsumer }
+    procedure Process(const AItem: TLogItem);
+  end;
+
+  TDebugLoggerConsumerToLogFile = class(TBaseInterfacedObject, IDebugLoggerConsumer)
+  private
+    const CFileName = 'debug.txt';
+  private
+    FLock: TCriticalSection;
+    FStream: TFileStream;
+  private
+    { IDebugLoggerConsumer }
+    procedure Process(const AItem: TLogItem);
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+function BuildDebugLogger: IDebugLogger;
+var
+  VConsumer: IDebugLoggerConsumer;
+begin
+  VConsumer :=
+    {$if defined(USE_FAKE_CONSUMER)}
+    TDebugLoggerConsumerFake.Create;
+    {$elseif defined(USE_LOG_FILE_CONSUMER)}
+    TDebugLoggerConsumerToLogFile.Create;
+    {$else}
+    TDebugLoggerConsumerSimple.Create;
+    {$ifend}
+
+  {$ifdef ENABLE_ASYNC_LOGGER}
+  Result := TDebugLoggerAsync.Create(VConsumer);
+  {$else}
+  Result := TDebugLogger.Create(VConsumer);
+  {$endif}
+end;
+
+{ TLog }
+
+class function TLog.BasePath: string;
+begin
+  Result := ExtractFilePath(ParamStr(0)) + 'log' + PathDelim;
+end;
+
+class function TLog.Format(const AFormat: string; const AArgs: array of const): string;
+begin
+  Result := SysUtils.Format(AFormat, AArgs);
+end;
+
+class function TLog.IfThen(const AValue: Boolean; const ATrue, AFalse: string): string;
+begin
+  Result := StrUtils.IfThen(AValue, ATrue, AFalse);
+end;
+
+class function TLog.ToStr(const AValue: Boolean): string;
+begin
+  Result := SysUtils.BoolToStr(AValue, True);
+end;
+
+class function TLog.ToStr(const AValue: Integer): string;
+begin
+  Result := SysUtils.IntToStr(AValue);
+end;
+
+class function TLog.ToStr(const AValue: TDateTime; const ATimeOnly: Boolean): string;
+begin
+  if ATimeOnly then begin
+    Result := SysUtils.FormatDateTime('hh:nn:ss.zzz', AValue);
+  end else begin
+    Result := SysUtils.FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', AValue);
+  end;
+end;
+
+class function TLog.ToStr(const AValue: TLogItem; const AIncludeTimestamp: Boolean; const ATimeOnly: Boolean): string;
+begin
+  if AIncludeTimestamp then begin
+    Result := TLog.ToStr(AValue.TimeStamp, ATimeOnly) + ' ';
+  end else begin
+    Result := '';
+  end;
+  Result := Result + IfThen(AValue.ClassName <> '', '[' + AValue.ClassName + '] ', '') + AValue.MessageText;
+end;
 
 { TDebugLogger }
 
-constructor TDebugLogger.Create(const AOutputType: TLogOutputType);
-var
-  VLogPath: string;
+constructor TDebugLogger.Create(const AConsumer: IDebugLoggerConsumer);
 begin
+  Assert(AConsumer <> nil);
   inherited Create;
+  FConsumer := AConsumer;
+end;
 
-  FOutputType := AOutputType;
+function TDebugLogger.GetConsumer: IDebugLoggerConsumer;
+begin
+  Result := FConsumer;
+end;
 
-  if FOutputType = lotFile then begin
-    VLogPath := GetLogsPath;
+procedure TDebugLogger.WriteItem(const AItem: TLogItem);
+begin
+  FConsumer.Process(AItem);
+end;
 
-    if not ForceDirectories(VLogPath) then begin
-      RaiseLastOSError;
-    end;
+procedure TDebugLogger.Write(const AObj: TObject; const AMsg: string);
+var
+  VItem: TLogItem;
+begin
+  VItem.TimeStamp := Now;
+  VItem.MessageText := AMsg;
 
-    FLogFileName := VLogPath + 'debug.txt';
+  if AObj <> nil then begin
+    VItem.ClassName := AObj.ClassName;
   end;
 
-  FQueue := TThreadedQueue<string>.Create(CQueueDepth);
+  Self.WriteItem(VItem);
+end;
 
-  FThread := TThread.CreateAnonymousThread(Self.OnLogThreadExecute);
+procedure TDebugLogger.Write(const AObj: TObject; const AMsg: string; const AFmt: array of const);
+begin
+  Self.Write(AObj, Format(AMsg, AFmt));
+end;
+
+{ TDebugLoggerAsync }
+
+constructor TDebugLoggerAsync.Create(const AConsumer: IDebugLoggerConsumer);
+begin
+  inherited Create(AConsumer);
+
+  FQueue := TThreadedQueue<TLogItem>.Create(CQueueDepth);
+
+  FThread := TThread.CreateAnonymousThread(Self.OnExecute);
   FThread.FreeOnTerminate := False;
   FThread.Start;
 end;
 
-destructor TDebugLogger.Destroy;
+destructor TDebugLoggerAsync.Destroy;
 begin
   if FThread <> nil then begin
     FThread.Terminate;
@@ -129,75 +257,84 @@ begin
     FThread := nil;
   end;
   FreeAndNil(FQueue);
-  FreeAndNil(FLogFileStream);
   inherited Destroy;
 end;
 
-procedure TDebugLogger.OnLogThreadExecute;
+procedure TDebugLoggerAsync.OnExecute;
 var
-  VMsg: string;
-  VMsgUtf8: RawByteString;
+  VItem: TLogItem;
 begin
+  SetCurrentThreadName(Self.ClassName);
   while not TThread.CheckTerminated do begin
-    if FQueue.PopItem(VMsg) = TWaitResult.wrSignaled then begin
-      case FOutputType of
-        lotOutputDebugString: begin
-          OutputDebugString(PChar(VMsg));
-        end;
-        lotFile: begin
-          if FLogFileName <> '' then begin
-            if FLogFileStream = nil then begin
-              FLogFileStream := TFileStream.Create(FLogFileName, fmCreate or fmShareDenyWrite);
-            end;
-            VMsgUtf8 := UTF8Encode(VMsg) + sLineBreak;
-            FLogFileStream.WriteBuffer(Pointer(VMsgUtf8)^, Length(VMsgUtf8));
-          end;
-        end;
+    if FQueue.PopItem(VItem) = TWaitResult.wrSignaled then begin
+      if FConsumer <> nil then
+      try
+        FConsumer.Process(VItem);
+      except
+        FConsumer := nil;
+        FQueue.DoShutDown;
+        TExceptionManager.ShowExceptionInfo;
+        Exit;
       end;
     end else begin
       Exit;
     end;
   end;
 end;
-{$ENDIF}
 
-procedure TDebugLogger.Write(const AObj: TObject; const AMsg: string);
+procedure TDebugLoggerAsync.WriteItem(const AItem: TLogItem);
+begin
+  FQueue.PushItem(AItem);
+end;
+
+{ TDebugLoggerConsumerFake }
+
+procedure TDebugLoggerConsumerFake.Process(const AItem: TLogItem);
+begin
+ // nothing to do
+end;
+
+{ TDebugLoggerConsumerSimple }
+
+procedure TDebugLoggerConsumerSimple.Process(const AItem: TLogItem);
+begin
+  OutputDebugString(PChar(TLog.ToStr(AItem, False, False)));
+end;
+
+{ TDebugLoggerConsumerToLogFile }
+
+constructor TDebugLoggerConsumerToLogFile.Create;
+begin
+  inherited Create;
+  FLock := TCriticalSection.Create;
+end;
+
+destructor TDebugLoggerConsumerToLogFile.Destroy;
+begin
+  FreeAndNil(FLock);
+  FreeAndNil(FStream);
+  inherited Destroy;
+end;
+
+procedure TDebugLoggerConsumerToLogFile.Process(const AItem: TLogItem);
 var
-  VMsg: string;
+  VMsg: RawByteString;
+  VPath: string;
 begin
-  VMsg := '[' + IfThen(AObj <> nil, AObj.ClassName, 'nil') + '] ' + AMsg;
-
-  {$IFDEF ENABLE_ASYNC_LOG}
-  if FOutputType = lotFile then begin
-    VMsg := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now) + ' ' + VMsg;
+  FLock.Acquire;
+  try
+    if FStream = nil then begin
+      VPath := TLog.BasePath;
+      if not ForceDirectories(VPath) then begin
+        RaiseLastOSError;
+      end;
+      FStream := TFileStream.Create(VPath + CFileName, fmCreate or fmShareDenyWrite);
+    end;
+    VMsg := UTF8Encode(TLog.ToStr(AItem, True, False) + sLineBreak);
+    FStream.WriteBuffer(Pointer(VMsg)^, Length(VMsg));
+  finally
+    FLock.Release;
   end;
-  FQueue.PushItem(VMsg);
-  {$ELSE}
-  OutputDebugString(PChar(VMsg));
-  {$ENDIF}
 end;
-
-procedure TDebugLogger.Write(const AObj: TObject; const AMsg: string; const AFmt: array of const);
-begin
-  Self.Write(AObj, Format(AMsg, AFmt));
-end;
-
-function TDebugLogger.ToStr(const AValue: Boolean): string;
-begin
-  Result := BoolToStr(AValue, True);
-end;
-
-function TDebugLogger.ToStr(const AValue: Integer): string;
-begin
-  Result := IntToStr(AValue);
-end;
-
-function GetLogsPath: string;
-begin
-  Result := ExtractFilePath(ParamStr(0)) + 'log' + PathDelim;
-end;
-
-initialization
-  GLog := TDebugLogger.Create({$IFDEF ENABLE_ASYNC_LOG} lotOutputDebugString {$ENDIF});
 
 end.

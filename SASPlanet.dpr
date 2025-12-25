@@ -1237,6 +1237,7 @@ uses
   u_BitmapTileMatrixChangeableByVectorMatrix in 'Src\TileMatrix\u_BitmapTileMatrixChangeableByVectorMatrix.pas',
   u_BitmapTileMatrixChangeableComposite in 'Src\TileMatrix\u_BitmapTileMatrixChangeableComposite.pas',
   u_BitmapTileMatrixChangeableWithThread in 'Src\TileMatrix\u_BitmapTileMatrixChangeableWithThread.pas',
+  u_BitmapTileMatrixStateChangeable in 'Src\TileMatrix\u_BitmapTileMatrixStateChangeable.pas',
   u_HashMatrix in 'Src\TileMatrix\u_HashMatrix.pas',
   u_HashTileMatrix in 'Src\TileMatrix\u_HashTileMatrix.pas',
   u_HashTileMatrixBuilder in 'Src\TileMatrix\u_HashTileMatrixBuilder.pas',
@@ -1638,6 +1639,8 @@ var
   VApp: TApplication;
   VAppEnum: IAppEnum;
 begin
+  GLog := BuildDebugLogger;
+
   VAppEnum := TAppEnum.Create;
 
   if (ParamCount > 0) and (VAppEnum.Count > 1) then begin

@@ -21,11 +21,9 @@
 
 unit u_TiledMapLayer;
 
-{$IFDEF DEBUG}
-  {.$DEFINE ENABLE_TILED_MAP_LAYER_LOG}
-{$ENDIF}
-
 interface
+
+{$I DebugLog.inc}
 
 uses
   Windows,
@@ -111,7 +109,7 @@ uses
   i_TileIterator,
   i_Projection,
   i_Bitmap32Static,
-  {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
+  {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
   u_DebugLogger,
   {$ENDIF}
   u_SimpleFlagWithInterlock,
@@ -124,7 +122,7 @@ uses
 
 const
   CFakeHashValue: THashValue = MaxInt;
-  CZoomingMatrixKeepAliveTimeOut: Cardinal = 350; // milliseconds
+  CZoomingMatrixKeepAliveTimeOut: Cardinal = 250; // milliseconds
 
 { TTiledMapLayer }
 
@@ -196,12 +194,11 @@ var
   VOldClipRect: TRect;
   VNewClipRect: TRect;
 begin
-  {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
-  GLog.Write(Self, '%s: OnPaintLayer (IsMesuring = %s)', [FDebugName, GLog.ToStr(Buffer.MeasuringMode)]);
+  {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+  GLog.Write(Self, '%s: OnPaintLayer %s', [FDebugName, TLog.IfThen(Buffer.MeasuringMode, '(Measuring Mode)', '')]);
   {$ENDIF}
   VLocalConverter := FView.GetStatic;
   if Assigned(VLocalConverter) then begin
-    FTileMatrixChangeFlag.CheckFlagAndReset;
     VTileMatrix := FTileMatrix.GetStatic;
     if Assigned(VTileMatrix) or Assigned(FZoomingTileMatrix) then begin
       VCounterContext := FOnPaintCounter.StartOperation;
@@ -213,15 +210,15 @@ begin
           try
             if Assigned(FZoomingTileMatrix) then begin
               if not Assigned(VTileMatrix) or (VTileMatrix.Hash <> FZoomingTileMatrix.Hash) then begin
-                {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
-                GLog.Write(Self, '%s: Painting Zooming TileMatrix', [FDebugName]);
+                {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+                GLog.Write(Self, '%s: Painting ZOOMING TileMatrix (Zoom: %d; Hash: %x)', [FDebugName, FZoomingTileMatrix.TileRect.Zoom, FZoomingTileMatrix.Hash]);
                 {$ENDIF}
                 PaintLayerFromTileMatrix(Buffer, VLocalConverter, FZoomingTileMatrix);
               end;
             end;
             if Assigned(VTileMatrix) then begin
-              {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
-              GLog.Write(Self, '%s: Painting Regular TileMatrix', [FDebugName]);
+              {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+              GLog.Write(Self, '%s: Painting BASE TileMatrix (Zoom: %d; Hash: %x)', [FDebugName, VTileMatrix.TileRect.Zoom, VTileMatrix.Hash]);
               {$ENDIF}
               PaintLayerFromTileMatrix(Buffer, VLocalConverter, VTileMatrix);
             end;
@@ -234,7 +231,7 @@ begin
         FOnPaintCounter.FinishOperation(VCounterContext);
       end;
     end else begin
-      {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
+      {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
       GLog.Write(Self, '%s: <<<  Matrix is empty  >>>', [FDebugName]);
       {$ENDIF}
       Buffer.Changed;
@@ -248,16 +245,17 @@ begin
     Exit;
   end;
   if FMainFormState.IsMapZooming then begin
+    Assert(not FZoomingFlag.CheckFlag);
     FZoomingFlag.SetFlag;
     FZoomingTileMatrix := FTileMatrix.GetStatic;
-    {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
-    GLog.Write(Self, '%s: ZoomingTileMatrix assigned', [FDebugName]);
+    {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+    GLog.Write(Self, '%s: Zooming TileMatrix assigned (CompleteFlag: %s)', [FDebugName, TLog.ToStr(FTileMatrix.PrepareStateChangeable.State = psComplete)]);
     {$ENDIF}
   end else
   if FZoomingFlag.CheckFlagAndReset then begin
     FZoomingTileMatrixKeepAlive := GetTickCount + CZoomingMatrixKeepAliveTimeOut;
     FTileMatrixChangeFlag.SetFlag;
-    {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
+    {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
     GLog.Write(Self, '%s: Zooming keep-alive ON at %d until %d', [FDebugName, FZoomingTileMatrixKeepAlive - CZoomingMatrixKeepAliveTimeOut, FZoomingTileMatrixKeepAlive]);
     {$ENDIF}
   end;
@@ -278,6 +276,7 @@ end;
 procedure TTiledMapLayer.OnTimer;
 var
   VIsAlive: Boolean;
+  VIsComplete: Boolean;
   VLocalConverter: ILocalCoordConverter;
   VTileMatrix: IBitmapTileMatrix;
   VTileIterator: ITileIterator;
@@ -296,22 +295,22 @@ begin
   if FZoomingTileMatrixKeepAlive <> 0 then begin
     // Although zooming is complete, FTileMatrix may still be processing tiles.
     // We'll keep FZoomsTileMatrix alive until the user changes the View, or FTileMatrix completes its work.
-    // Since there are no "finished" notifications to rely on, we'll assume the job is done
-    // if we don't receive any update notifications within the CZoomingMatrixKeepAliveTimeOut period.
     VIsAlive := FZoomingTileMatrixKeepAlive > GetTickCount;
-    if not VIsAlive and FTileMatrixChangeFlag.CheckFlag then begin
+    VIsComplete := FTileMatrix.PrepareStateChangeable.State = psComplete;
+    if not (VIsComplete or VIsAlive) then begin
       VIsAlive := True;
       FZoomingTileMatrixKeepAlive := GetTickCount + CZoomingMatrixKeepAliveTimeOut;
-      {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
+      {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
       GLog.Write(Self, '%s: Zooming keep-alive ON at %d until %d', [FDebugName, FZoomingTileMatrixKeepAlive - CZoomingMatrixKeepAliveTimeOut, FZoomingTileMatrixKeepAlive]);
       {$ENDIF}
     end;
-    if not VIsAlive or FViewChangeFlag.CheckFlag then begin
+    if VIsComplete or not VIsAlive or FViewChangeFlag.CheckFlag then begin
       FZoomingTileMatrixKeepAlive := 0;
       FZoomingTileMatrix := nil;
       VIsChanged := True; // force update layer
-      {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
-      GLog.Write(Self, '%s: Zooming keep-alive OFF at %d', [FDebugName, GetTickCount]);
+      FTileMatrixChangeFlag.SetFlag;
+      {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+      GLog.Write(Self, '%s: Zooming keep-alive OFF at %d (ViewFlag: %s; CompleteFlag: %s)', [FDebugName, GetTickCount, TLog.ToStr(FViewChangeFlag.CheckFlag), TLog.ToStr(FTileMatrix.PrepareStateChangeable.State = psComplete)]);
       {$ENDIF}
     end;
   end;
@@ -349,18 +348,50 @@ begin
         FLastPaintConverter := VLocalConverter;
       end;
     end else begin
-      if FLayer.Visible then begin
+      if FLayer.Visible and not Assigned(FZoomingTileMatrix) then begin
         FLayer.Visible := False;
       end;
     end;
   end;
   if VIsChanged then begin
-    {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
-    GLog.Write(Self, '%s: Update OnTimer', [FDebugName]);
+    {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+    GLog.Write(Self, '%s: Updating by OnTimer', [FDebugName]);
     {$ENDIF}
     FLayer.Update;
   end;
 end;
+
+{$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+function GetBitmapInfo(const ABitmap: TBitmap32): string;
+const
+  CBlockSize = 64;
+  CBackgroundColor: TColor32 = clSilver32;
+var
+  X, Y: Integer;
+  VBits: PColor32Array;
+  VTotal, VBlank: Integer;
+begin
+  if ABitmap.MeasuringMode or (ABitmap.Width = 0) or (ABitmap.Height = 0) then begin
+    Result := '';
+    Exit;
+  end;
+
+  VTotal := 0;
+  VBlank := 0;
+  VBits := ABitmap.Bits;
+
+  for Y := 0 to (ABitmap.Height - 1) div CBlockSize do begin
+    for X := 0 to (ABitmap.Width - 1) div CBlockSize do begin
+      if VBits[X * CBlockSize + Y * CBlockSize * ABitmap.Width] = CBackgroundColor then begin
+        Inc(VBlank);
+      end;
+      Inc(VTotal);
+    end;
+  end;
+
+  Result := TLog.Format('Blank: %d of %d blocks (clSilver32)', [VBlank, VTotal]);
+end;
+{$ENDIF}
 
 procedure TTiledMapLayer.PaintLayerFromTileMatrix(
   const ABuffer: TBitmap32;
@@ -368,7 +399,7 @@ procedure TTiledMapLayer.PaintLayerFromTileMatrix(
   const ATileMatrix: IBitmapTileMatrix
 );
 var
-  {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
+  {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
   VTotalCount, VBlendCount, VStretchCount: Integer;
   {$ENDIF}
   VTileRectInClipRect: TRect;
@@ -385,10 +416,8 @@ var
   VMapPixelRect: TDoubleRect;
   VRelativeRect: TDoubleRect;
 begin
-  {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
-  VTotalCount := 0;
-  VBlendCount := 0;
-  VStretchCount := 0;
+  {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+  VTotalCount := 0; VBlendCount := 0; VStretchCount := 0;
   {$ENDIF}
 
   VProjectionDst := ALocalConverter.Projection;
@@ -416,7 +445,7 @@ begin
       while VTileIterator.Next(VTile) do begin
         VBitmap := ATileMatrix.GetElementByTile(VTile);
         if Assigned(VBitmap) then begin
-          {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
+          {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
           Inc(VTotalCount);
           {$ENDIF}
           if not VSameProjection then begin
@@ -449,7 +478,7 @@ begin
               finally
                 FOneTilePaintSimpleCounter.FinishOperation(VCounterContext);
               end;
-              {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
+              {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
               Inc(VBlendCount);
               {$ENDIF}
             end else begin
@@ -470,7 +499,7 @@ begin
               finally
                 FOneTilePaintResizeCounter.FinishOperation(VCounterContext);
               end;
-              {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
+              {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
               Inc(VStretchCount);
               {$ENDIF}
             end;
@@ -483,8 +512,8 @@ begin
       VResampler.Free;
     end;
   end;
-  {$IFDEF ENABLE_TILED_MAP_LAYER_LOG}
-  GLog.Write(Self, '%s: Paint %d tiles (Blend: %d; Stretch: %d)', [FDebugName, VTotalCount, VBlendCount, VStretchCount]);
+  {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
+  GLog.Write(Self, '%s: Paint %d tiles (Blend: %d; Stretch: %d) %s', [FDebugName, VTotalCount, VBlendCount, VStretchCount, GetBitmapInfo(ABuffer)]);
   {$ENDIF}
 end;
 

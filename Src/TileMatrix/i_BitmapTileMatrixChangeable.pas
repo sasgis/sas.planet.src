@@ -28,8 +28,26 @@ uses
   i_BitmapTileMatrix;
 
 type
+  TBitmapTileMatrixPrepareState = (psNone, psBusy, psComplete, psWaiting, psCancelled);
+
+  IBitmapTileMatrixStateChangeable = interface(IChangeable)
+    ['{573DCE49-46EA-4A5C-B8D6-2F834878C976}']
+    function GetState: TBitmapTileMatrixPrepareState;
+    property State: TBitmapTileMatrixPrepareState read GetState;
+  end;
+
+  IBitmapTileMatrixStateChangeableInternal = interface(IChangeable)
+    ['{8358BC40-734B-40E1-8399-BE70BA25BBFB}']
+    function GetState: TBitmapTileMatrixPrepareState;
+    procedure SetState(AState: TBitmapTileMatrixPrepareState);
+    property State: TBitmapTileMatrixPrepareState read GetState write SetState;
+  end;
+
   IBitmapTileMatrixChangeable = interface(IChangeable)
     ['{2FDE6E8A-E4D3-4DA0-AF89-99DF831BAB6B}']
+    function GetPrepareStateChangeable: IBitmapTileMatrixStateChangeable;
+    property PrepareStateChangeable: IBitmapTileMatrixStateChangeable read GetPrepareStateChangeable;
+
     function GetStatic: IBitmapTileMatrix;
   end;
 

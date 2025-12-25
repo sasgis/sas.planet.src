@@ -54,7 +54,7 @@ procedure InitSQLLog;
 var
   VLogPath: string;
 begin
-  VLogPath := GetLogsPath + 'marks\';
+  VLogPath := TLog.BasePath + 'marks\';
 
   if not ForceDirectories(VLogPath) then begin
     RaiseLastOSError;

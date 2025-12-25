@@ -56,9 +56,9 @@ uses
 var
   GLogIdCounter: Integer = 0;
 
-function _GetTimeStamp: string;
+function _GetTimeStamp: string; inline;
 begin
-  Result := FormatDateTime('hh:nn:ss.zzz', Now);
+  Result := TLog.ToStr(Now, True);
 end;
 
 { TDownloaderHttpLog }
@@ -69,7 +69,7 @@ var
   VLogFileName: string;
 begin
   VLogId := InterlockedIncrement(GLogIdCounter);
-  VLogFileName := GetLogsPath + Format('http\%.4d_%s.txt', [VLogId, ADownloaderId]);
+  VLogFileName := TLog.BasePath + Format('http\%.4d_%s.txt', [VLogId, ADownloaderId]);
   if not ForceDirectories(ExtractFileDir(VLogFileName)) then begin
     RaiseLastOSError;
   end;

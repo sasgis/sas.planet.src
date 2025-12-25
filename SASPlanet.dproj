@@ -1614,6 +1614,7 @@
         <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrixChangeableByVectorMatrix.pas"/>
         <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrixChangeableComposite.pas"/>
         <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrixChangeableWithThread.pas"/>
+        <DCCReference Include="Src\TileMatrix\u_BitmapTileMatrixStateChangeable.pas"/>
         <DCCReference Include="Src\TileMatrix\u_HashMatrix.pas"/>
         <DCCReference Include="Src\TileMatrix\u_HashTileMatrix.pas"/>
         <DCCReference Include="Src\TileMatrix\u_HashTileMatrixBuilder.pas"/>

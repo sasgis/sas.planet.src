@@ -23,6 +23,8 @@ unit u_BitmapTileMatrixChangeableWithThread;
 
 interface
 
+{$I DebugLog.inc}
+
 uses
   SysUtils,
   i_BackgroundTask,
@@ -78,6 +80,8 @@ type
     FPreparedBitmapMatrix: IBitmapTileMatrixBuilder;
     FResult: IBitmapTileMatrix;
 
+    FPrepareStateChangeable: IBitmapTileMatrixStateChangeableInternal;
+
     procedure OnAppStarted;
     procedure OnAppClosing;
     procedure OnLayerProviderChange;
@@ -90,6 +94,8 @@ type
       const ACancelNotifier: INotifierOperation
     );
   private
+    { IBitmapTileMatrixChangeable }
+    function GetPrepareStateChangeable: IBitmapTileMatrixStateChangeable;
     function GetStatic: IBitmapTileMatrix;
   public
     constructor Create(
@@ -120,12 +126,16 @@ uses
   i_Bitmap32Static,
   i_Projection,
   i_LonLatRect,
+  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  u_DebugLogger,
+  {$ENDIF}
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
   u_TileIteratorByRect,
   u_TileIteratorSpiralByRect,
   u_HashTileMatrixBuilder,
   u_BitmapTileMatrixBuilder,
+  u_BitmapTileMatrixStateChangeable,
   u_BackgroundTask,
   u_GeoFunc,
   u_Synchronizer;
@@ -145,17 +155,12 @@ constructor TBitmapTileMatrixChangeableWithThread.Create(
   const AThreadConfig: IThreadConfig;
   const ADebugName: string
 );
-var
-  VDebugName: string;
 begin
   Assert(Assigned(AAppStartedNotifier));
   Assert(Assigned(AAppClosingNotifier));
   Assert(Assigned(ATileRect));
   Assert(Assigned(ALayerProvider));
-  VDebugName := ADebugName;
-  if VDebugName = '' then begin
-    VDebugName := Self.ClassName;
-  end;
+
   inherited Create;
 
   FAppStartedNotifier := AAppStartedNotifier;
@@ -163,7 +168,13 @@ begin
   FTileRect := ATileRect;
   FLayerProvider := ALayerProvider;
   FSourceUpdateNotyfier := ASourcUpdateNotyfier;
-  FDebugName := VDebugName;
+
+  FDebugName := ADebugName;
+  if FDebugName = '' then begin
+    FDebugName := Self.ClassName;
+  end;
+
+  FVisible := False;
 
   FSourceHashMatrixCS := GSync.SyncVariable.Make(FDebugName + '\SourceUpdates');
 
@@ -173,12 +184,16 @@ begin
   FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
   FUpdateResultCounter := APerfList.CreateAndAddNewCounter('UpdateResult');
   FMatrixChangeRectCounter := APerfList.CreateAndAddNewCounter('MatrixChangeRect');
+
   if Assigned(FSourceUpdateNotyfier) then begin
     FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
   end;
 
   FSourceCounter := TCounterInterlock.Create;
   FSourceHashMatrix := THashTileMatrixBuilder.Create(AHashFunction);
+
+  FPrepareStateChangeable := TBitmapTileMatrixStateChangeable.Create(FDebugName);
+
   FPreparedHashMatrix := THashTileMatrixBuilder.Create(AHashFunction);
   FPreparedBitmapMatrix :=
     TBitmapTileMatrixBuilder.Create(
@@ -187,7 +202,6 @@ begin
       ABitmapFactory,
       AHashFunction
     );
-  FVisible := False;
 
   FDrawTask :=
     TBackgroundTask.Create(
@@ -198,11 +212,12 @@ begin
     );
 
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
-  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppStartedNotifier.Add(FAppStartedListener);
   if FAppStartedNotifier.IsExecuted then begin
     OnAppStarted;
   end;
+
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
   if FAppClosingNotifier.IsExecuted then begin
     OnAppClosing;
@@ -234,6 +249,11 @@ begin
   inherited;
 end;
 
+function TBitmapTileMatrixChangeableWithThread.GetPrepareStateChangeable: IBitmapTileMatrixStateChangeable;
+begin
+  Result := FPrepareStateChangeable as IBitmapTileMatrixStateChangeable;
+end;
+
 function TBitmapTileMatrixChangeableWithThread.GetStatic: IBitmapTileMatrix;
 begin
   CS.BeginRead;
@@ -263,6 +283,9 @@ end;
 
 procedure TBitmapTileMatrixChangeableWithThread.OnLayerProviderChange;
 begin
+  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  GLog.Write(Self, '%s: OnLayerProviderChange', [FDebugName]);
+  {$ENDIF}
   FDrawTask.StopExecute;
   FSourceHashMatrixCS.BeginWrite;
   try
@@ -275,6 +298,9 @@ end;
 
 procedure TBitmapTileMatrixChangeableWithThread.OnPosChange;
 begin
+  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  GLog.Write(Self, '%s: OnPosChange', [FDebugName]);
+  {$ENDIF}
   FDrawTask.StopExecute;
   FDrawTask.StartExecute;
 end;
@@ -294,6 +320,7 @@ var
   VSourceHash: THashValue;
   VTileRectChanged: Boolean;
 begin
+  FPrepareStateChangeable.State := psBusy;
   VProvider := FLayerProvider.GetStatic;
   if not Assigned(VProvider) then begin
     if FVisible then begin
@@ -347,6 +374,7 @@ begin
       end;
 
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        FPrepareStateChangeable.State := psCancelled;
         Exit;
       end;
 
@@ -362,6 +390,7 @@ begin
           end;
 
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            FPrepareStateChangeable.State := psCancelled;
             Exit;
           end;
 
@@ -377,6 +406,7 @@ begin
       end;
     end;
   end;
+  FPrepareStateChangeable.State := psComplete;
 end;
 
 procedure TBitmapTileMatrixChangeableWithThread.OnRectUpdate(
@@ -423,6 +453,9 @@ begin
     FSourceHashMatrixCS.EndWrite;
   end;
   if VChanged then begin
+    {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+    GLog.Write(Self, '%s: OnRectUpdate', [FDebugName]);
+    {$ENDIF}
     FDrawTask.StartExecute;
   end;
 end;
@@ -462,6 +495,9 @@ begin
       CS.EndWrite;
     end;
     if VChanged then begin
+      {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+      GLog.Write(Self, '%s: DoChangeNotify', [FDebugName]);
+      {$ENDIF}
       DoChangeNotify;
     end;
   finally

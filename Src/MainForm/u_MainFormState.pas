@@ -23,9 +23,7 @@ unit u_MainFormState;
 
 interface
 
-{$IFDEF DEBUG}
-  {.$DEFINE ENABLE_STATE_LOGGING}
-{$ENDIF}
+{$I DebugLog.inc}
 
 uses
   i_MainFormState,
@@ -36,7 +34,7 @@ type
   private
     FState: TStateEnum;
     FCount: array [TMapMovingReason] of Integer;
-    {$IFDEF ENABLE_STATE_LOGGING}
+    {$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
     procedure LogChanges(const AProcName: string);
     {$ENDIF}
   private
@@ -60,7 +58,7 @@ type
 implementation
 
 uses
-  {$IFDEF ENABLE_STATE_LOGGING}
+  {$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
   u_DebugLogger,
   {$ENDIF}
   u_Synchronizer;
@@ -82,7 +80,7 @@ begin
     DoChangeNotify;
   end;
 
-  {$IFDEF ENABLE_STATE_LOGGING}
+  {$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
   LogChanges('begin');
   {$ENDIF}
 end;
@@ -99,7 +97,7 @@ begin
     DoChangeNotify;
   end;
 
-  {$IFDEF ENABLE_STATE_LOGGING}
+  {$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
   LogChanges('end');
   {$ENDIF}
 end;
@@ -122,7 +120,7 @@ begin
     DoChangeNotify;
   end;
 
-  {$IFDEF ENABLE_STATE_LOGGING}
+  {$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
   LogChanges('reset');
   {$ENDIF}
 end;
@@ -167,12 +165,12 @@ begin
     DoChangeNotify;
   end;
 
-  {$IFDEF ENABLE_STATE_LOGGING}
+  {$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
   LogChanges('state');
   {$ENDIF}
 end;
 
-{$IFDEF ENABLE_STATE_LOGGING}
+{$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
 procedure TMainFormState.LogChanges(const AProcName: string);
 const
   cStateId: array [TStateEnum] of string = (
@@ -188,7 +186,7 @@ const
   );
 begin
   GLog.Write(Self, '<%s> State: %s; IsMapMoving: %s (Zooming: %d; Dragging: %d; Panning: %d)',
-    [AProcName, cStateId[FState], GLog.ToStr(GetIsMapMoving), FCount[mmrZooming], FCount[mmrDragging], FCount[mmrPanning]]
+    [AProcName, cStateId[FState], TLog.ToStr(GetIsMapMoving), FCount[mmrZooming], FCount[mmrDragging], FCount[mmrPanning]]
   );
 end;
 {$ENDIF}
