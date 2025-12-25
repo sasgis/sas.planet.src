@@ -153,11 +153,7 @@ begin
   );
 
   FMainContentType := AMainContentType;
-
   FTileInfoMemCache := ATileInfoMemCache;
-  if Assigned(FTileInfoMemCache) then begin
-    FTileInfoMemCache.OnTileInfoUpdate := Self.NotifyTileUpdate;
-  end;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
@@ -184,9 +180,6 @@ end;
 
 destructor TTileStorageSQLiteFile.Destroy;
 begin
-  if Assigned(FTileInfoMemCache) then begin
-    FTileInfoMemCache.OnTileInfoUpdate := nil;
-  end;
   FreeAndNil(FConnectionPool);
   inherited Destroy;
 end;
