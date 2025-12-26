@@ -59,6 +59,7 @@ implementation
 
 uses
   {$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
+  Rtti,
   u_DebugLogger,
   {$ENDIF}
   u_Synchronizer;
@@ -172,21 +173,9 @@ end;
 
 {$IFDEF ENABLE_MAIN_FORM_STATE_LOGGING}
 procedure TMainFormState.LogChanges(const AProcName: string);
-const
-  cStateId: array [TStateEnum] of string = (
-    'ao_movemap',
-    'ao_edit_point',
-    'ao_edit_line',
-    'ao_edit_poly',
-    'ao_calc_line',
-    'ao_calc_circle',
-    'ao_select_rect',
-    'ao_select_poly',
-    'ao_select_line'
-  );
 begin
   GLog.Write(Self, '<%s> State: %s; IsMapMoving: %s (Zooming: %d; Dragging: %d; Panning: %d)',
-    [AProcName, cStateId[FState], TLog.ToStr(GetIsMapMoving), FCount[mmrZooming], FCount[mmrDragging], FCount[mmrPanning]]
+    [AProcName, TRttiEnumerationType.GetName(FState), TLog.ToStr(GetIsMapMoving), FCount[mmrZooming], FCount[mmrDragging], FCount[mmrPanning]]
   );
 end;
 {$ENDIF}
