@@ -124,7 +124,7 @@ uses
   GR32,
   i_TileIterator,
   i_Projection,
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   u_DebugLogger,
   {$ENDIF}
   u_InterfaceListSimple,
@@ -285,7 +285,7 @@ end;
 
 procedure TBitmapTileMatrixChangeableComposite.OnSourceTileMatrixChange;
 begin
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   GLog.Write(Self, '%s: OnSourceTileMatrixChange', [FDebugName]);
   {$ENDIF}
   FDrawTask.StopExecute;
@@ -294,7 +294,7 @@ end;
 
 procedure TBitmapTileMatrixChangeableComposite.OnTileRectChange;
 begin
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   GLog.Write(Self, '%s: OnTileRectChange', [FDebugName]);
   {$ENDIF}
   FDrawTask.StopExecute;
@@ -520,7 +520,7 @@ begin
       CS.EndWrite;
     end;
     if VChanged then begin
-      {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+      {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
       GLog.Write(Self, '%s: DoChangeNotify', [FDebugName]);
       {$ENDIF}
       DoChangeNotify;

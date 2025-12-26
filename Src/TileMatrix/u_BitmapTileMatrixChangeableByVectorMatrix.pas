@@ -114,7 +114,7 @@ uses
   i_VectorTileRenderer,
   i_VectorTileMatrix,
   i_VectorItemSubset,
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   u_DebugLogger,
   {$ENDIF}
   u_SimpleFlagWithInterlock,
@@ -253,7 +253,7 @@ end;
 
 procedure TBitmapTileMatrixChangeableByVectorMatrix.OnSourceTileMatrixChange;
 begin
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   GLog.Write(Self, '%s: OnSourceTileMatrixChange', [FDebugName]);
   {$ENDIF}
   FDrawTask.StopExecute;
@@ -262,7 +262,7 @@ end;
 
 procedure TBitmapTileMatrixChangeableByVectorMatrix.OnTileRendererChange;
 begin
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   GLog.Write(Self, '%s: OnTileRendererChange', [FDebugName]);
   {$ENDIF}
   FDrawTask.StopExecute;
@@ -404,7 +404,7 @@ begin
       CS.EndWrite;
     end;
     if VChanged then begin
-      {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+      {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
       GLog.Write(Self, '%s: DoChangeNotify', [FDebugName]);
       {$ENDIF}
       DoChangeNotify;

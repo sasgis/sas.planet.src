@@ -126,7 +126,7 @@ uses
   i_Bitmap32Static,
   i_Projection,
   i_LonLatRect,
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   u_DebugLogger,
   {$ENDIF}
   u_SimpleFlagWithInterlock,
@@ -283,7 +283,7 @@ end;
 
 procedure TBitmapTileMatrixChangeableWithThread.OnLayerProviderChange;
 begin
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   GLog.Write(Self, '%s: OnLayerProviderChange', [FDebugName]);
   {$ENDIF}
   FDrawTask.StopExecute;
@@ -298,7 +298,7 @@ end;
 
 procedure TBitmapTileMatrixChangeableWithThread.OnPosChange;
 begin
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   GLog.Write(Self, '%s: OnPosChange', [FDebugName]);
   {$ENDIF}
   FDrawTask.StopExecute;
@@ -453,7 +453,7 @@ begin
     FSourceHashMatrixCS.EndWrite;
   end;
   if VChanged then begin
-    {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+    {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
     GLog.Write(Self, '%s: OnRectUpdate', [FDebugName]);
     {$ENDIF}
     FDrawTask.StartExecute;
@@ -495,7 +495,7 @@ begin
       CS.EndWrite;
     end;
     if VChanged then begin
-      {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+      {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
       GLog.Write(Self, '%s: DoChangeNotify', [FDebugName]);
       {$ENDIF}
       DoChangeNotify;

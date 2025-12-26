@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+  {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
   Rtti,
   u_DebugLogger,
   {$ENDIF}
@@ -130,7 +130,7 @@ begin
     if (FState = psWaiting) and IsAllSourcesComplete then begin
       FState := psComplete;
       VDoNotify := True;
-      {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+      {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
       GLog.Write(Self, '%s: State: %s', [FDebugName, TRttiEnumerationType.GetName(FState)]);
       {$ENDIF}
     end;
@@ -167,7 +167,7 @@ begin
 
     if VDoNotify then begin
       FState := AState;
-      {$IFDEF ENABLE_TILE_MATRIX_LOGGING}
+      {$IFDEF ENABLE_BITMAP_TILE_MATRIX_LOGGING}
       GLog.Write(Self, '%s: State: %s', [FDebugName, TRttiEnumerationType.GetName(FState)]);
       {$ENDIF}
     end;
