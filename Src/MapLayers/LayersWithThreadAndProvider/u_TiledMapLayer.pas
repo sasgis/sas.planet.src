@@ -26,7 +26,6 @@ interface
 {$I DebugLog.inc}
 
 uses
-  Windows,
   Types,
   GR32,
   GR32_Image,
@@ -50,6 +49,7 @@ type
   private
     FLayer: TPositionedLayer;
     FTileMatrix: IBitmapTileMatrixChangeable;
+    FTileMatrixState: IBitmapTileMatrixStateChangeable;
     FView: ILocalCoordConverterChangeable;
     FMainFormState: IMainFormState;
     FDebugName: string;
@@ -63,7 +63,6 @@ type
     FViewChangeFlag: ISimpleFlag;
     FTileMatrixChangeFlag: ISimpleFlag;
 
-    FZoomingTileMatrixKeepAlive: Cardinal;
     FZoomingTileMatrix: IBitmapTileMatrix;
 
     FLastPaintConverter: ILocalCoordConverter;
@@ -120,10 +119,6 @@ uses
   u_GeoFunc,
   u_BitmapFunc;
 
-const
-  CFakeHashValue: THashValue = MaxInt;
-  CZoomingMatrixKeepAliveTimeOut: Cardinal = 250; // milliseconds
-
 { TTiledMapLayer }
 
 constructor TTiledMapLayer.Create(
@@ -152,6 +147,7 @@ begin
 
   FView := AView;
   FTileMatrix := ATileMatrix;
+  FTileMatrixState := FTileMatrix.PrepareStateChangeable;
   FMainFormState := AMainFormState;
   FDebugName := ADebugName;
 
@@ -232,7 +228,7 @@ begin
       end;
     end else begin
       {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
-      GLog.Write(Self, '%s: <<<  Matrix is empty  >>>', [FDebugName]);
+      GLog.Write(Self, '%s: TileMatrix is empty', [FDebugName]);
       {$ENDIF}
       Buffer.Changed;
     end;
@@ -242,6 +238,8 @@ end;
 procedure TTiledMapLayer.OnMainFormStateChange;
 begin
   if FLastPaintConverter = nil then begin
+    Assert(not FZoomingFlag.CheckFlag);
+    Assert(FZoomingTileMatrix = nil);
     Exit;
   end;
   if FMainFormState.IsMapZooming then begin
@@ -253,11 +251,7 @@ begin
     {$ENDIF}
   end else
   if FZoomingFlag.CheckFlagAndReset then begin
-    FZoomingTileMatrixKeepAlive := GetTickCount + CZoomingMatrixKeepAliveTimeOut;
     FTileMatrixChangeFlag.SetFlag;
-    {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
-    GLog.Write(Self, '%s: Zooming keep-alive ON at %d until %d', [FDebugName, FZoomingTileMatrixKeepAlive - CZoomingMatrixKeepAliveTimeOut, FZoomingTileMatrixKeepAlive]);
-    {$ENDIF}
   end;
 end;
 
@@ -274,8 +268,9 @@ begin
 end;
 
 procedure TTiledMapLayer.OnTimer;
+const
+  CFakeHashValue: THashValue = MaxInt;
 var
-  VIsAlive: Boolean;
   VIsComplete: Boolean;
   VLocalConverter: ILocalCoordConverter;
   VTileMatrix: IBitmapTileMatrix;
@@ -292,25 +287,16 @@ begin
 
   VIsChanged := False;
 
-  if FZoomingTileMatrixKeepAlive <> 0 then begin
+  if Assigned(FZoomingTileMatrix) then begin
     // Although zooming is complete, FTileMatrix may still be processing tiles.
     // We'll keep FZoomsTileMatrix alive until the user changes the View, or FTileMatrix completes its work.
-    VIsAlive := FZoomingTileMatrixKeepAlive > GetTickCount;
-    VIsComplete := FTileMatrix.PrepareStateChangeable.State = psComplete;
-    if not (VIsComplete or VIsAlive) then begin
-      VIsAlive := True;
-      FZoomingTileMatrixKeepAlive := GetTickCount + CZoomingMatrixKeepAliveTimeOut;
-      {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
-      GLog.Write(Self, '%s: Zooming keep-alive ON at %d until %d', [FDebugName, FZoomingTileMatrixKeepAlive - CZoomingMatrixKeepAliveTimeOut, FZoomingTileMatrixKeepAlive]);
-      {$ENDIF}
-    end;
-    if VIsComplete or not VIsAlive or FViewChangeFlag.CheckFlag then begin
-      FZoomingTileMatrixKeepAlive := 0;
+    VIsComplete := FTileMatrixState.State = psComplete;
+    if VIsComplete or FViewChangeFlag.CheckFlag then begin
       FZoomingTileMatrix := nil;
       VIsChanged := True; // force update layer
       FTileMatrixChangeFlag.SetFlag;
       {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
-      GLog.Write(Self, '%s: Zooming keep-alive OFF at %d (ViewFlag: %s; CompleteFlag: %s)', [FDebugName, GetTickCount, TLog.ToStr(FViewChangeFlag.CheckFlag), TLog.ToStr(FTileMatrix.PrepareStateChangeable.State = psComplete)]);
+      GLog.Write(Self, '%s: Zooming TileMatrix released (ViewFlag: %s; CompleteFlag: %s)', [FDebugName, TLog.ToStr(FViewChangeFlag.CheckFlag), TLog.ToStr(VIsComplete)]);
       {$ENDIF}
     end;
   end;
@@ -366,6 +352,7 @@ function GetBitmapInfo(const ABitmap: TBitmap32): string;
 const
   CBlockSize = 64;
   CBackgroundColor: TColor32 = clSilver32;
+  {$MESSAGE HINT 'The blank blocks detector assumes that the background color is clSilver32'}
 var
   X, Y: Integer;
   VBits: PColor32Array;
@@ -389,7 +376,7 @@ begin
     end;
   end;
 
-  Result := TLog.Format('Blank: %d of %d blocks (clSilver32)', [VBlank, VTotal]);
+  Result := TLog.Format('Blank: %d of %d blocks', [VBlank, VTotal]);
 end;
 {$ENDIF}
 
