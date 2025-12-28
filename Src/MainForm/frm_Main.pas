@@ -640,6 +640,8 @@ type
     tbxCopyUrlToGoogleEarthWeb: TTBXItem;
     tbitmOpenOfflineMap: TTBXItem;
     actOfflineMapOpen: TAction;
+    tbitmGoToLayerCenter: TTBXSubmenuItem;
+    tbitmGoToMapCenter: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -903,6 +905,7 @@ type
     procedure tbitmCopyToClipboardCoordinatesAndElevClick(Sender: TObject);
     procedure tbxCopyUrlToGoogleEarthWebClick(Sender: TObject);
     procedure actOfflineMapOpenExecute(Sender: TObject);
+    procedure tbitmGoToMapCenterClick(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -939,6 +942,7 @@ type
     FNOpenDirItemList: IGUIDObjectSet; //Пункт контекстного меню Открыть папку слоя
     FNCopyLinkItemList: IGUIDObjectSet; //Пункт контекстного меню копировать ссылку на тайл слоя
     FNLayerInfoItemList: IGUIDObjectSet; //Пункт контекстного меню информация о слое
+    FNLayerCenterItemList: IGUIDObjectSet; //Пункт контекстного меню Перейти к центру слоя
 
     FShortCutManager: TShortcutManager;
     FLayersList: IMainFormLayersList;
@@ -1259,6 +1263,7 @@ uses
   i_ScaleLineConfig,
   i_DoublePointsAggregator,
   i_FavoriteMapSetItemStatic,
+  i_MapCoverageInfo,
   u_SortFunc,
   u_InterfaceListSimple,
   u_FavoriteMapSetHotKeyList,
@@ -1638,6 +1643,7 @@ begin
   TBOpenDirLayer.SubMenuImages := FMapTypeIcons18List.GetImageList;
   TBCopyLinkLayer.SubMenuImages := FMapTypeIcons18List.GetImageList;
   TBLayerInfo.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  tbitmGoToLayerCenter.SubMenuImages := FMapTypeIcons18List.GetImageList;
 
   FNLayerParamsItemList := TGUIDObjectSet.Create(False);
   FNDwnItemList := TGUIDObjectSet.Create(False);
@@ -1645,6 +1651,7 @@ begin
   FNOpenDirItemList := TGUIDObjectSet.Create(False);
   FNCopyLinkItemList := TGUIDObjectSet.Create(False);
   FNLayerInfoItemList := TGUIDObjectSet.Create(False);
+  FNLayerCenterItemList := TGUIDObjectSet.Create(False);
 
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
   FLinksList.Add(
@@ -2707,17 +2714,30 @@ begin
 end;
 
 procedure TfrmMain.CreateMapUILayerSubMenu;
+
+  procedure AddItem(
+    const ASubMenu: TTBXSubmenuItem;
+    const AGuidSet: IGUIDObjectSet;
+    const AGuid: TGUID;
+    const AMapType: IMapType;
+    const AIconIndex: Integer;
+    const AOnClickEvent: TNotifyEvent
+  );
+  var
+    VItem: TTBXItem;
+  begin
+    VItem := TTBXItem.Create(ASubMenu);
+    AGuidSet.Add(AGuid, VItem);
+    VItem.Caption := AMapType.GUIConfig.Name.Value;
+    VItem.ImageIndex := AIconIndex;
+    VItem.OnClick := AOnClickEvent;
+    VItem.Tag := NativeInt(AMapType);
+    ASubMenu.Add(VItem);
+  end;
+
 var
-  i: integer;
+  I: Integer;
   VMapType: IMapType;
-
-  NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
-  NDwnItem: TTBXItem; //Пункт контекстного меню Загрузить тайл слоя
-  NDelItem: TTBXItem; //Пункт контекстного меню Удалить тайл слоя
-  NOpenDirItem: TTBXItem;
-  NCopyLinkItem: TTBXItem;
-  NLayerInfoItem: TTBXItem;
-
   VIcon18Index: Integer;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
@@ -2728,67 +2748,36 @@ begin
   NLayerParams.Clear;
   TBCopyLinkLayer.Clear;
   TBLayerInfo.Clear;
+  tbitmGoToLayerCenter.Clear;
 
   FNLayerParamsItemList.Clear;
   FNLayerInfoItemList.Clear;
+  FNLayerCenterItemList.Clear;
   FNDwnItemList.Clear;
   FNDelItemList.Clear;
   FNOpenDirItemList.Clear;
   FNCopyLinkItemList.Clear;
 
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
-  for i := 0 to VGUIDList.Count - 1 do begin
-    VGUID := VGUIDList.Items[i];
+  for I := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[I];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     VIcon18Index := FMapTypeIcons18List.GetIconIndexByGUID(VGUID);
     if VMapType.Zmp.IsLayer then begin
-      NDwnItem := tTBXItem.Create(ldm);
-      FNDwnItemList.Add(VGUID, NDwnItem);
-      NDwnItem.Caption := VMapType.GUIConfig.Name.Value;
-      NDwnItem.ImageIndex := VIcon18Index;
-      NDwnItem.OnClick := tbitmDownloadMainMapTileClick;
-      NDwnItem.Tag := NativeInt(VMapType);
-      ldm.Add(NDwnItem);
-
-      NDelItem := tTBXItem.Create(dlm);
-      FNDelItemList.Add(VGUID, NDelItem);
-      NDelItem.Caption := VMapType.GUIConfig.Name.Value;
-      NDelItem.ImageIndex := VIcon18Index;
-      NDelItem.OnClick := NDelClick;
-      NDelItem.Tag := NativeInt(VMapType);
-      dlm.Add(NDelItem);
-
-      NOpenDirItem := tTBXItem.Create(TBOpenDirLayer);
-      FNOpenDirItemList.Add(VGUID, NOpenDirItem);
-      NOpenDirItem.Caption := VMapType.GUIConfig.Name.Value;
-      NOpenDirItem.ImageIndex := VIcon18Index;
-      NOpenDirItem.OnClick := tbitmOpenFolderMainMapTileClick;
-      NOpenDirItem.Tag := NativeInt(VMapType);
-      TBOpenDirLayer.Add(NOpenDirItem);
-
-      NCopyLinkItem := tTBXItem.Create(TBCopyLinkLayer);
-      FNCopyLinkItemList.Add(VGUID, NCopyLinkItem);
-      NCopyLinkItem.Caption := VMapType.GUIConfig.Name.Value;
-      NCopyLinkItem.ImageIndex := VIcon18Index;
-      NCopyLinkItem.OnClick := tbitmCopyToClipboardMainMapUrlClick;
-      NCopyLinkItem.Tag := NativeInt(VMapType);
-      TBCopyLinkLayer.Add(NCopyLinkItem);
-
-      NLayerParamsItem := tTBXItem.Create(NLayerParams);
-      FNLayerParamsItemList.Add(VGUID, NLayerParamsItem);
-      NLayerParamsItem.Caption := VMapType.GUIConfig.Name.Value;
-      NLayerParamsItem.ImageIndex := VIcon18Index;
-      NLayerParamsItem.OnClick := actMapsEditMapParamsExecute;
-      NLayerParamsItem.Tag := NativeInt(VMapType);
-      NLayerParams.Add(NLayerParamsItem);
-
-      NLayerInfoItem := tTBXItem.Create(TBLayerInfo);
-      FNLayerInfoItemList.Add(VGUID, NLayerInfoItem);
-      NLayerInfoItem.Caption := VMapType.GUIConfig.Name.Value;
-      NLayerInfoItem.ImageIndex := VIcon18Index;
-      NLayerInfoItem.OnClick := NMapInfoClick;
-      NLayerInfoItem.Tag := NativeInt(VMapType);
-      TBLayerInfo.Add(NLayerInfoItem);
+      // download the layer's tile
+      AddItem(ldm, FNDwnItemList, VGuid, VMapType, VIcon18Index, tbitmDownloadMainMapTileClick);
+      // delete the layer's tile
+      AddItem(dlm, FNDelItemList, VGuid, VMapType, VIcon18Index, NDelClick);
+      // open dir with the layer's tile
+      AddItem(TBOpenDirLayer, FNOpenDirItemList, VGuid, VMapType, VIcon18Index, tbitmOpenFolderMainMapTileClick);
+      // copy link to the layer's tile
+      AddItem(TBCopyLinkLayer, FNCopyLinkItemList, VGuid, VMapType, VIcon18Index, tbitmCopyToClipboardMainMapUrlClick);
+      // edit layer params
+      AddItem(NLayerParams, FNLayerParamsItemList, VGuid, VMapType, VIcon18Index, actMapsEditMapParamsExecute);
+      // show layer info
+      AddItem(TBLayerInfo, FNLayerInfoItemList, VGuid, VMapType, VIcon18Index, NMapInfoClick);
+      // go to the layer center
+      AddItem(tbitmGoToLayerCenter, FNLayerCenterItemList, VGuid, VMapType, VIcon18Index, tbitmGoToMapCenterClick);
     end;
   end;
 end;
@@ -4487,6 +4476,25 @@ begin
     VLLRect := VMark.Geometry.Bounds.Rect;
     FMapGoto.FitRectToScreen(VLLRect);
   end;
+end;
+
+procedure TfrmMain.tbitmGoToMapCenterClick(Sender: TObject);
+var
+  VMapType: IMapType;
+  VMapCoverage: IMapCoverageInfo;
+begin
+  if TComponent(Sender).Tag <> 0 then begin
+    VMapType := IMapType(TComponent(Sender).Tag);
+  end else begin
+    VMapType := FMainMapState.ActiveMap.GetStatic;
+  end;
+
+  VMapCoverage := VMapType.Zmp.Coverage;
+
+  Assert(VMapCoverage <> nil);
+  Assert(not PointIsEmpty(VMapCoverage.CenterPos));
+
+  FMapGoto.GotoPos(VMapCoverage.CenterPos, VMapType.ProjectionSet.Zooms[VMapCoverage.CenterZoom], False);
 end;
 
 procedure TfrmMain.NopendirClick(Sender: TObject);
@@ -6285,9 +6293,10 @@ end;
 
 procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);
 var
-  i: Integer;
+  I: Integer;
   VMapType: IMapType;
   VLayerIsActive: Boolean;
+  VLayerInfoVisible, VLayerCenterVisible: Boolean;
   VActiveLayersSet: IGUIDSetStatic;
   VMenuItem: TTBXItem;
   VGUID: TGUID;
@@ -6297,11 +6306,14 @@ var
   VInternalDomainOptions: IInternalDomainOptions;
 begin
   VMark := FSelectedMark;
+
   tbitmMarkEditPosition.Visible := VMark <> nil;
+
   tbitmFitMarkToScreen.Visible :=
     Assigned(VMark) and
     (Supports(VMark.Geometry, IGeometryLonLatLine) or
     Supports(VMark.Geometry, IGeometryLonLatPolygon));
+
   if VMark <> nil then begin
     tbitmHideThisMark.Visible := not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible;
   end else begin
@@ -6327,7 +6339,9 @@ begin
   NMarkNav.Visible := VMark <> nil;
   NMarkPlay.Visible := (VMark <> nil) and (FPlacemarkPlayerPlugin <> nil) and (FPlacemarkPlayerPlugin.Available);
   tbitmMarkInfo.Visible := (VMark <> nil);
+
   tbitmCopyToClipboardGenshtabName.Visible := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
+
   if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and (FConfig.NavToPoint.MarkId <> '') then begin
     VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
     if (VMarkStringID = FConfig.NavToPoint.MarkId) then begin
@@ -6338,15 +6352,21 @@ begin
   end else begin
     NMarkNav.Checked := False;
   end;
+
   ldm.Visible := False;
   dlm.Visible := False;
   TBOpenDirLayer.Visible := False;
   TBCopyLinkLayer.Visible := False;
   TBLayerInfo.Visible := False;
+  tbitmGoToLayerCenter.Visible := False;
+
+  VLayerInfoVisible := False;
+  VLayerCenterVisible := False;
+
   VActiveLayersSet := FConfig.MapLayersConfig.LayerGuids;
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
-  for i := 0 to VGUIDList.Count - 1 do begin
-    VGUID := VGUIDList.Items[i];
+  for I := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[I];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.Zmp.IsLayer) then begin
       VLayerIsActive := Assigned(VActiveLayersSet) and VActiveLayersSet.IsExists(VGUID);
@@ -6354,22 +6374,37 @@ begin
       TTBXItem(FNDelItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       TTBXItem(FNOpenDirItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       TTBXItem(FNCopyLinkItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
+
+      // show the layer info
       VMenuItem := TTBXItem(FNLayerInfoItemList.GetByGUID(VGUID));
       VMenuItem.Visible := VLayerIsActive;
-      if VLayerIsActive then begin
-        VMenuItem.Enabled := VMapType.GUIConfig.InfoUrl.Value <> '';
+      if VLayerIsActive and (VMapType.GUIConfig.InfoUrl.Value <> '') then begin
+        VLayerInfoVisible := True;
+        VMenuItem.Enabled := True;
       end;
+
+      // go to the layer center
+      VMenuItem := TTBXItem(FNLayerCenterItemList.GetByGUID(VGUID));
+      VMenuItem.Visible := VLayerIsActive;
+      if VLayerIsActive and (VMapType.Zmp.Coverage <> nil) and (not PointIsEmpty(VMapType.Zmp.Coverage.CenterPos)) then begin
+        VLayerCenterVisible := True;
+        VMenuItem.Enabled := True;
+      end;
+
       if VLayerIsActive then begin
         ldm.Visible := True;
         dlm.Visible := True;
         TBCopyLinkLayer.Visible := True;
         TBOpenDirLayer.Visible := True;
-        TBLayerInfo.Visible := True;
+        TBLayerInfo.Visible := VLayerInfoVisible;
+        tbitmGoToLayerCenter.Visible := VLayerCenterVisible;
       end;
     end;
   end;
+
   // current map
   VMapType := FMainMapState.ActiveMap.GetStatic;
+
   // allow to view map info
   NMapInfo.Enabled := VMapType.GUIConfig.InfoUrl.Value <> '';
 
@@ -6379,11 +6414,16 @@ begin
 
   // allow to clear or select versions
   tbpmiClearVersion.Visible := (0 < Length(VMapType.VersionRequest.GetStatic.BaseVersion.StoreString));
+
   // make and select version by placemark
   tbitmMakeVersionByMark.Visible := (VMark <> nil) and (VInternalDomainOptions <> nil);
   tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;
+
   // versions submenu
   tbpmiVersions.Visible := (VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions) or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
+
+  // go to map center (main map)
+  tbitmGoToMapCenter.Visible := (VMapType.Zmp.Coverage <> nil) and (not PointIsEmpty(VMapType.Zmp.Coverage.CenterPos));
 end;
 
 procedure TfrmMain.NParamsPopup(

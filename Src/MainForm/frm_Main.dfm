@@ -3573,6 +3573,13 @@ object frmMain: TfrmMain
         OnCellClick = tbtpltCenterWithZoomCellClick
       end
     end
+    object tbitmGoToMapCenter: TTBXItem
+      Caption = 'Go to Map Center'
+      OnClick = tbitmGoToMapCenterClick
+    end
+    object tbitmGoToLayerCenter: TTBXSubmenuItem
+      Caption = 'Go to Overlay Layer Center'
+    end
     object tbsprtMainPopUp2: TTBXSeparatorItem
     end
     object tbitmCopyToClipboard: TTBXSubmenuItem
