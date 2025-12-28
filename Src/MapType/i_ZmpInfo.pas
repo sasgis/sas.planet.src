@@ -33,6 +33,7 @@ uses
   i_TilePostDownloadCropConfig,
   i_SimpleTileStorageConfig,
   i_MapAbilitiesConfig,
+  i_MapCoverageInfo,
   i_BinaryDataListStatic,
   i_StringByLanguage,
   i_ImportConfig,
@@ -133,6 +134,9 @@ type
 
     function GetDataProvider: IConfigDataProvider;
     property DataProvider: IConfigDataProvider read GetDataProvider;
+
+    function GetCoverage: IMapCoverageInfo;
+    property Coverage: IMapCoverageInfo read GetCoverage;
   end;
 
   IZmpInfoGuiProxy = interface(IZmpInfoGUI)

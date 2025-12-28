@@ -43,6 +43,7 @@ uses
   i_ProjectionSetFactory,
   i_ContentTypeManager,
   i_MapAbilitiesConfig,
+  i_MapCoverageInfo,
   i_SimpleTileStorageConfig,
   i_ImportConfig,
   i_ZmpConfig,
@@ -139,6 +140,7 @@ type
     FEmptyTileSamples: IBinaryDataListStatic;
     FBanTileSamples: IBinaryDataListStatic;
     FStorageConfig: ISimpleTileStorageConfigStatic;
+    FCoverage: IMapCoverageInfo;
 
     FZmpConfig: IZmpConfig;
     FConfig: IConfigDataProvider;
@@ -158,6 +160,7 @@ type
     );
     procedure LoadCropConfig(const AConfig: IConfigDataProvider);
     procedure LoadAbilities(const AConfig: IConfigDataProvider);
+    procedure LoadCoverageInfo(const AConfig: IConfigDataProvider);
     procedure LoadStorageConfig(const AConfig: IConfigDataProvider);
     function LoadGUID(const AConfig: IConfigDataProvider): TGUID;
     procedure LoadVersion(
@@ -196,6 +199,7 @@ type
     function GetBanTileSamples: IBinaryDataListStatic;
     function GetStorageConfig: ISimpleTileStorageConfigStatic;
     function GetDataProvider: IConfigDataProvider;
+    function GetCoverage: IMapCoverageInfo;
   public
     constructor Create(
       const AZmpConfig: IZmpConfig;
@@ -236,6 +240,7 @@ uses
   u_TilePostDownloadCropConfigStatic,
   u_ContentTypeSubstByList,
   u_MapAbilitiesConfigStatic,
+  u_MapCoverageInfo,
   u_TileStorageAbilities,
   u_ImportConfig,
   u_ConfigProviderHelpers,
@@ -660,6 +665,11 @@ begin
   Result := FContentTypeSubst;
 end;
 
+function TZmpInfo.GetCoverage: IMapCoverageInfo;
+begin
+  Result := FCoverage;
+end;
+
 function TZmpInfo.GetDataProvider: IConfigDataProvider;
 begin
   Result := FConfig;
@@ -781,9 +791,18 @@ begin
   LoadCropConfig(FConfigIniParams);
   LoadStorageConfig(FConfigIniParams);
   LoadAbilities(FConfigIniParams);
+  LoadCoverageInfo(FConfigIniParams);
   LoadVectorAppearanceConfig(AAppearanceOfMarkFactory, AMarkPictureList, FConfigIniParams);
   LoadSamples(FConfig);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
+end;
+
+procedure TZmpInfo.LoadCoverageInfo(const AConfig: IConfigDataProvider);
+var
+  VCenter: string;
+begin
+  VCenter := AConfig.ReadString('MapCenter', ''); // lon,lat,zoom
+  FCoverage := TMapCoverageInfo.Create(VCenter);
 end;
 
 procedure TZmpInfo.LoadCropConfig(const AConfig: IConfigDataProvider);

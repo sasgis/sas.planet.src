@@ -44,6 +44,7 @@ uses
   i_ProjectionSetFactory,
   i_ContentTypeManager,
   i_MapAbilitiesConfig,
+  i_MapCoverageInfo,
   i_SimpleTileStorageConfig,
   i_ImportConfig,
   i_ZmpConfig,
@@ -140,6 +141,7 @@ type
     function GetBanTileSamples: IBinaryDataListStatic;
     function GetStorageConfig: ISimpleTileStorageConfigStatic;
     function GetDataProvider: IConfigDataProvider;
+    function GetCoverage: IMapCoverageInfo;
     { IZmpInfoProxy }
     procedure Initialize(const AZmpMapConfig: IConfigDataProvider);
     procedure Reset;
@@ -544,6 +546,19 @@ begin
   VZmpInfo := GetZmpInfo;
   if VZmpInfo <> nil then begin
     Result := VZmpInfo.ContentTypeSubst;
+    Exit;
+  end;
+
+  Result := nil;
+end;
+
+function TZmpInfoProxy.GetCoverage: IMapCoverageInfo;
+var
+  VZmpInfo: IZmpInfo;
+begin
+  VZmpInfo := GetZmpInfo;
+  if VZmpInfo <> nil then begin
+    Result := VZmpInfo.Coverage;
     Exit;
   end;
 

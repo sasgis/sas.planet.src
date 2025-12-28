@@ -873,6 +873,7 @@
         <DCCReference Include="Src\MapType\i_ActiveMapsConfig.pas"/>
         <DCCReference Include="Src\MapType\i_LayerDrawConfig.pas"/>
         <DCCReference Include="Src\MapType\i_MapAbilitiesConfig.pas"/>
+        <DCCReference Include="Src\MapType\i_MapCoverageInfo.pas"/>
         <DCCReference Include="Src\MapType\i_MapType.pas"/>
         <DCCReference Include="Src\MapType\i_MapTypeConfigModalEdit.pas"/>
         <DCCReference Include="Src\MapType\i_MapTypeGUIConfig.pas"/>
@@ -893,6 +894,7 @@
         <DCCReference Include="Src\MapType\u_LayerDrawConfig.pas"/>
         <DCCReference Include="Src\MapType\u_MapAbilitiesConfig.pas"/>
         <DCCReference Include="Src\MapType\u_MapAbilitiesConfigStatic.pas"/>
+        <DCCReference Include="Src\MapType\u_MapCoverageInfo.pas"/>
         <DCCReference Include="Src\MapType\u_MapType.pas"/>
         <DCCReference Include="Src\MapType\u_MapTypeChangeableByConfig.pas"/>
         <DCCReference Include="Src\MapType\u_MapTypeChangeableWithDefault.pas"/>
