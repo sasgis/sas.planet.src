@@ -39,11 +39,25 @@ implementation
 uses
   Classes,
   SysUtils,
+  Math,
   i_ArchiveReadWrite,
   i_BinaryData,
   u_BinaryData,
   u_StrFunc,
+  u_GeoToStrFunc,
   u_ConfigDataProviderByZip;
+
+function GetMapCenterStr(const AGotoInfo: TTileStorageImporterGotoInfo): string;
+begin
+  if AGotoInfo.Status = gtsLonLat then begin
+    Result :=
+      RoundEx(AGotoInfo.LonLat.X, 6) + ',' +
+      RoundEx(AGotoInfo.LonLat.Y, 6) + ',' +
+      IntToStr(AGotoInfo.Zoom);
+  end else begin
+    Result := '0,0,0';
+  end;
+end;
 
 function MakeZmpMapConfig(
   const AGuid: string;
@@ -63,6 +77,7 @@ const
     'Epsg=%d'          + #13#10 +
     'CacheType=%d'     + #13#10 +
     'UseDwn=0'         + #13#10 +
+    'MapCenter=%s'     + #13#10 +
     'IsReadOnly=1'     + #13#10;
 var
   VBytes: TBytes;
@@ -80,7 +95,7 @@ begin
     VParamsTxt := Format(CParamsTxtFmt, [AGuid, AFileInfo.FIsLayer.ToString,
       AFileInfo.FMapName, AFileInfo.FParentSubMenu, AFileInfo.FNameInCache,
       AFileInfo.FContentType, AFileInfo.FExt, AFileInfo.FProjectionEpsg,
-      AFileInfo.FCacheTypeCode]
+      AFileInfo.FCacheTypeCode, GetMapCenterStr(AFileInfo.FGotoInfo)]
     );
 
     VBytes := StringToUtf8WithBOM(VParamsTxt);

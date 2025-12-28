@@ -34,6 +34,7 @@ uses
   i_ConfigDataProvider,
   i_ContentTypeManager,
   i_ArchiveReadWriteFactory,
+  i_ProjectionSetFactory,
   i_TileStorageImporter,
   u_BaseInterfacedObject;
 
@@ -41,6 +42,7 @@ type
   TTileStorageSQLiteFileImporter = class(TBaseInterfacedObject, ITileStorageImporter)
   private
     FContentTypeManager: IContentTypeManager;
+    FProjectionSetFactory: IProjectionSetFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
 
     function GetFileInfo(
@@ -57,6 +59,7 @@ type
   public
     constructor Create(
       const AContentTypeManager: IContentTypeManager;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory
     );
   end;
@@ -75,9 +78,11 @@ uses
   superobject,
   OruxMapsXmlFile,
   c_CacheTypeCodes,
+  c_CoordConverter,
   i_ContentTypeInfo,
   i_MapType,
   i_ZmpInfo,
+  i_ProjectionSet,
   u_Dialogs,
   u_GeoFunc,
   u_GeoToStrFunc,
@@ -92,12 +97,14 @@ type
 
 constructor TTileStorageSQLiteFileImporter.Create(
   const AContentTypeManager: IContentTypeManager;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory
 );
 begin
   inherited Create;
 
   FContentTypeManager := AContentTypeManager;
+  FProjectionSetFactory := AProjectionSetFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
@@ -114,9 +121,11 @@ var
   VMapTypeProxy: IMapTypeProxy;
   VZmpInfoProxy: IZmpInfoProxy;
   VProjection: IProjection;
+  VProjectionSet: IProjectionSet;
   VFileInfo: TTileStorageImporterFileInfo;
   VZmpMapConfig: IConfigDataProvider;
   VIsCanceled: Boolean;
+  VPixelPos: TDoublePoint;
 begin
   Result.Status := tsiInternalError;
   Result.MapType := nil;
@@ -162,20 +171,25 @@ begin
         if (VFileInfo.FIsBitmapTile = VZmpInfoProxy.GetIsBitmapTiles) and
            (VFileInfo.FIsLayer = VZmpInfoProxy.IsLayer)
         then begin
-          VZmpMapConfig := MakeZmpMapConfig(VZmpInfoProxy.GUID.ToString, VFileInfo, FArchiveReadWriteFactory);
-          VMapTypeProxy.Initialize(VZmpMapConfig);
-
-          Result.MapType := VMapTypeProxy;
-
+          // goto point
           case VFileInfo.FGotoInfo.Status of
             gtsError: begin
               Result.GoToPoint := CEmptyDoublePoint;
             end;
 
             gtsTilePos: begin
-              Result.GoToZoom := VFileInfo.FGotoInfo.Zoom;
-              VProjection := VMapTypeProxy.ProjectionSet.Zooms[VFileInfo.FGotoInfo.Zoom];
-              Result.GoToPoint := VProjection.TilePos2LonLat(VFileInfo.FGotoInfo.TilePos);
+              VProjectionSet := FProjectionSetFactory.GetProjectionSetByCode(VFileInfo.FProjectionEpsg, CTileSplitQuadrate256x256);
+              if VProjectionSet <> nil then begin
+                VProjection := VProjectionSet.Zooms[VFileInfo.FGotoInfo.Zoom];
+                VPixelPos := VProjection.TilePosFloat2PixelPosFloat(DoublePoint(VFileInfo.FGotoInfo.TilePos));
+                VPixelPos.X := VPixelPos.X + 128;
+                VPixelPos.Y := VPixelPos.Y + 128;
+                VProjection.ValidatePixelPosFloat(VPixelPos, False);
+                Result.GoToPoint := VProjection.PixelPosFloat2LonLat(VPixelPos);
+                Result.GoToZoom := VFileInfo.FGotoInfo.Zoom;
+              end else begin
+                Result.GoToPoint := CEmptyDoublePoint;
+              end;
             end;
 
             gtsLonLat: begin
@@ -187,6 +201,16 @@ begin
               'Unexpected GotoInfo status: %d', [Integer(VFileInfo.FGotoInfo.Status)]
             );
           end;
+
+          if not PointIsEmpty(Result.GoToPoint) then begin
+            VFileInfo.FGotoInfo.Status := gtsLonLat;
+            VFileInfo.FGotoInfo.LonLat := Result.GoToPoint;
+          end;
+
+          VZmpMapConfig := MakeZmpMapConfig(VZmpInfoProxy.GUID.ToString, VFileInfo, FArchiveReadWriteFactory);
+          VMapTypeProxy.Initialize(VZmpMapConfig);
+
+          Result.MapType := VMapTypeProxy;
 
           Result.Status := tsiOk;
           Exit; // done
@@ -584,6 +608,11 @@ procedure TryDetectGoToPoint(
     end;
   end;
 
+  function IsLonLatEmpty(const ALonLat: TDoublePoint): Boolean;
+  begin
+    Result := SameValue(ALonLat.X, 0) and SameValue(ALonLat.Y, 0);
+  end;
+
   function GetGotoInfoByCenter(out AGotoInfo: TTileStorageImporterGotoInfo): Boolean;
   var
     VValue: string;
@@ -596,7 +625,8 @@ procedure TryDetectGoToPoint(
         (Length(VItems) = 3) and
         TryStrPointToFloat(Trim(VItems[0]), AGotoInfo.LonLat.X) and
         TryStrPointToFloat(Trim(VItems[1]), AGotoInfo.LonLat.Y) and
-        TryStrToInt(Trim(VItems[2]), AGotoInfo.Zoom);
+        TryStrToInt(Trim(VItems[2]), AGotoInfo.Zoom) and
+        not IsLonLatEmpty(AGotoInfo.LonLat);
       if Result then begin
         AGotoInfo.Status := gtsLonLat;
       end;
@@ -629,7 +659,8 @@ begin
         if TryStrPointToFloat(Trim(VItems[0]), VBounds.Left) and
            TryStrPointToFloat(Trim(VItems[1]), VBounds.Bottom) and
            TryStrPointToFloat(Trim(VItems[2]), VBounds.Right) and
-           TryStrPointToFloat(Trim(VItems[3]), VBounds.Top)
+           TryStrPointToFloat(Trim(VItems[3]), VBounds.Top) and
+           not IsLonLatEmpty(RectCenter(VBounds))
         then begin
           VSqlText := 'SELECT DISTINCT zoom_level FROM tiles ORDER BY zoom_level ASC LIMIT 1';
           if SelectMinZoom('minzoom', VSqlText, VZoom, False) then begin
@@ -662,7 +693,8 @@ begin
 
     // using center_x, center_y and minzoom
     if AMetadataInfo.TryGetValue('center_x', VValue) and TryStrPointToFloat(VValue, VLonLat.Y) and
-       AMetadataInfo.TryGetValue('center_y', VValue) and TryStrPointToFloat(VValue, VLonLat.X)
+       AMetadataInfo.TryGetValue('center_y', VValue) and TryStrPointToFloat(VValue, VLonLat.X) and
+       not IsLonLatEmpty(VLonLat)
     then begin
       if VInvertZ then begin
         VSqlText := 'SELECT DISTINCT z FROM tiles ORDER BY z DESC LIMIT 1';

@@ -957,6 +957,7 @@ begin
   FTileStorageImporterList :=
     TTileStorageImporterListSimple.Create(
       FContentTypeManager,
+      FProjectionSetFactory,
       FArchiveReadWriteFactory
     );
   FFavoriteMapSetConfig := TFavoriteMapSetConfig.Create;

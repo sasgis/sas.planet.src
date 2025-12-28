@@ -29,7 +29,6 @@ uses
   t_GeoTypes;
 
 type
-
   TTileStorageImporterMetadataInfo = TDictionary<string, string>;
 
   TTileStorageImporterGotoInfo = record

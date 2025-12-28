@@ -26,6 +26,7 @@ interface
 uses
   i_Notifier,
   i_ArchiveReadWriteFactory,
+  i_ProjectionSetFactory,
   i_ContentTypeManager,
   i_TileStorageImporter,
   i_TileStorageImporterList,
@@ -46,6 +47,7 @@ type
   public
     constructor Create(
       const AContentTypeManager: IContentTypeManager;
+      const AProjectionSetFactory: IProjectionSetFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory
     );
   end;
@@ -63,6 +65,7 @@ uses
 
 constructor TTileStorageImporterListSimple.Create(
   const AContentTypeManager: IContentTypeManager;
+  const AProjectionSetFactory: IProjectionSetFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory
 );
 var
@@ -79,6 +82,7 @@ begin
   VImporter :=
     TTileStorageSQLiteFileImporter.Create(
       AContentTypeManager,
+      AProjectionSetFactory,
       AArchiveReadWriteFactory
     );
 
