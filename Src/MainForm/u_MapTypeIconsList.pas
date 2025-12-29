@@ -23,10 +23,14 @@ unit u_MapTypeIconsList;
 
 interface
 
+{$DEFINE USE_FREE_IMAGE_RESAMPLER}
+{.$DEFINE ENABLE_RESAMPLING_DIAGNOSTIC}
+
 uses
   ActiveX,
   ImgList,
   TBXGraphics,
+  GR32,
   i_Bitmap32Static,
   i_GUIDSet,
   i_MapTypeIconsList,
@@ -37,6 +41,13 @@ type
   private
     FList: IGUIDObjectSet;
     FImageList: TTBXImageList;
+    class procedure ResampleBitmap(
+      const ASrc: IBitmap32Static;
+      const ADest: TCustomBitmap32;
+      const ADestWidth, ADestHeight: Integer
+    ); static;
+  private
+    { IMapTypeIconsList }
     function GetImageList: TCustomImageList;
     function GetIconIndexByGUID(const AGUID: TGUID): Integer;
     function GetIterator: IEnumGUID;
@@ -52,9 +63,18 @@ type
 implementation
 
 uses
+  {$IFDEF ENABLE_RESAMPLING_DIAGNOSTIC}
+  Diagnostics,
+  u_DebugLogger,
+  {$ENDIF}
   SysUtils,
-  GR32,
+  {$IFDEF USE_FREE_IMAGE_RESAMPLER}
+  FreeImage,
+  u_BitmapFuncFreeImage,
+  u_GlobalDllName,
+  {$ELSE}
   GR32_Resamplers,
+  {$ENDIF}
   u_BitmapFunc,
   u_GUIDObjectSet;
 
@@ -69,7 +89,6 @@ var
   VDib32: TDIB32;
   VPixelData32: TPixelData32;
   VValidBitmap: TCustomBitmap32;
-  VResampler: TCustomResampler;
 begin
   VDib32 := TDIB32.Create;
   try
@@ -78,19 +97,14 @@ begin
       if (ABmp.Size.X = FImageList.Width) and (ABmp.Size.Y = FImageList.Height) then begin
         AssignStaticToBitmap32(VValidBitmap, ABmp);
       end else begin
-        VResampler := TLinearResampler.Create;
-        try
-          VValidBitmap.SetSize(FImageList.Width, FImageList.Height);
-          StretchTransferFull(
-            VValidBitmap,
-            VValidBitmap.BoundsRect,
-            ABmp,
-            VResampler,
-            dmOpaque
-          );
-        finally
-          VResampler.Free;
-        end;
+        {$IFDEF ENABLE_RESAMPLING_DIAGNOSTIC}
+        var VTimer := TStopwatch.StartNew;
+        {$ENDIF}
+        ResampleBitmap(ABmp, VValidBitmap, FImageList.Width, FImageList.Height);
+        {$IFDEF ENABLE_RESAMPLING_DIAGNOSTIC}
+        VTimer.Stop;
+        GLog.Write(Self, 'ResampleBitmap: %d ticks', [VTimer.ElapsedTicks]);
+        {$ENDIF}
       end;
       VDib32.SetSize(VValidBitmap.Width, VValidBitmap.Height);
       VPixelData32.Bits := PRGBQuad(VValidBitmap.Bits);
@@ -117,6 +131,9 @@ begin
   FImageList.Width := AWidth;
   FImageList.Height := AHeight;
   FList := TGUIDObjectSet.Create(True);
+  {$IFDEF USE_FREE_IMAGE_RESAMPLER}
+  InitFreeImageLib(GDllName.FreeImage);
+  {$ENDIF}
 end;
 
 destructor TMapTypeIconsList.Destroy;
@@ -140,5 +157,67 @@ function TMapTypeIconsList.GetIconIndexByGUID(const AGUID: TGUID): Integer;
 begin
   Result := Integer(FList.GetByGUID(AGUID)) - 1;
 end;
+
+{$IFDEF USE_FREE_IMAGE_RESAMPLER}
+class procedure TMapTypeIconsList.ResampleBitmap(
+  const ASrc: IBitmap32Static;
+  const ADest: TCustomBitmap32;
+  const ADestWidth, ADestHeight: Integer
+);
+const
+  CFilter: FREE_IMAGE_FILTER = FILTER_LANCZOS3;
+var
+  VSrc, VDest: PFIBITMAP;
+begin
+  VSrc := Bitmap32StaticToFiBitmap(ASrc);
+  if not Assigned(VSrc) then begin
+    ADest.SetSize(0, 0);
+    Assert(False);
+    Exit;
+  end;
+  try
+    VDest := FreeImage_Rescale(VSrc, ADestWidth, ADestHeight, CFilter);
+    if not Assigned(VDest) then begin
+      ADest.SetSize(0, 0);
+      Assert(False);
+      Exit;
+    end;
+    try
+      FiBitmapToBitmap32(VDest, ADest);
+    finally
+      FreeImage_Unload(VDest);
+    end;
+  finally
+    FreeImage_Unload(VSrc);
+  end;
+end;
+{$ELSE}
+class procedure TMapTypeIconsList.ResampleBitmap(
+  const ASrc: IBitmap32Static;
+  const ADest: TCustomBitmap32;
+  const ADestWidth, ADestHeight: Integer
+);
+var
+  VResampler: TCustomResampler;
+begin
+  ADest.SetSize(ADestWidth, ADestHeight);
+
+  //VResampler := TKernelResampler.Create;
+  //TKernelResampler(VResampler).Kernel := TLanczosKernel.Create;
+
+  VResampler := TLinearResampler.Create;
+  try
+    StretchTransferFull(
+      ADest,
+      ADest.BoundsRect,
+      ASrc,
+      VResampler,
+      dmOpaque
+    );
+  finally
+    VResampler.Free;
+  end;
+end;
+{$ENDIF}
 
 end.

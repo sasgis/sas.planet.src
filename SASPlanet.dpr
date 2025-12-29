@@ -1538,6 +1538,7 @@ uses
   t_GeoTypes in 'Src\t_GeoTypes.pas',
   u_AnsiStr in 'Src\u_AnsiStr.pas',
   u_BitmapFunc in 'Src\u_BitmapFunc.pas',
+  u_BitmapFuncFreeImage in 'Src\u_BitmapFuncFreeImage.pas',
   u_ByteSwapFunc in 'Src\u_ByteSwapFunc.pas',
   u_Clipper in 'Src\u_Clipper.pas',
   u_FileSystemFunc in 'Src\u_FileSystemFunc.pas',
