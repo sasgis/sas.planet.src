@@ -55,7 +55,7 @@ begin
       RoundEx(AGotoInfo.LonLat.Y, 6) + ',' +
       IntToStr(AGotoInfo.Zoom);
   end else begin
-    Result := '0,0,0';
+    Result := '';
   end;
 end;
 

@@ -46,7 +46,6 @@ implementation
 
 uses
   Types,
-  Math,
   SysUtils,
   StrUtils,
   u_GeoFunc,
@@ -75,8 +74,7 @@ begin
       (Length(VItems) = 3) and
       TryStrPointToFloat(Trim(VItems[0]), FCenterPos.X) and
       TryStrPointToFloat(Trim(VItems[1]), FCenterPos.Y) and
-      TryStrToInt(Trim(VItems[2]), FCenterZoom) and
-      not (SameValue(FCenterPos.X, 0) or SameValue(FCenterPos.Y, 0));
+      TryStrToInt(Trim(VItems[2]), FCenterZoom);
   end;
 end;
 
