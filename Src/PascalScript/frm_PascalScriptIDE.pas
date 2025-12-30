@@ -1229,8 +1229,8 @@ var
 begin
   Result := AScript = '';
   if not Result then begin
-    VStr := StringReplace(AScript, #13#10, ' ', [rfReplaceAll]);
-    Result := Trim(VStr) = '';
+    VStr := SysUtils.StringReplace(AScript, #13#10, ' ', [rfReplaceAll]);
+    Result := SysUtils.Trim(VStr) = '';
   end;
 end;
 
