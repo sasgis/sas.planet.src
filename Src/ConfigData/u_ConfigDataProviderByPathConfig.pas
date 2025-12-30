@@ -82,7 +82,7 @@ implementation
 uses
   SysUtils,
   IniFiles,
-  Encodings,
+  u_Encodings,
   u_StringListStatic,
   u_BinaryDataByMemStream,
   u_ConfigDataProviderByFolder,

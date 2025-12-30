@@ -89,9 +89,9 @@ implementation
 uses
   SysUtils,
   IniFiles,
+  u_Encodings,
   u_StringListStatic,
   u_StreamReadOnlyByBinaryData,
-  Encodings,
   u_ConfigDataProviderByIniFile;
 
 { TConfigDataProviderByZip }
