@@ -139,7 +139,7 @@ begin
         VIniStream.Position := 0;
         VIniStrings := TStringList.Create;
         try
-          LoadStringsFromStream(VIniStrings, VIniStream);
+          VIniStrings.LoadFromStream(VIniStream);
           VIniFile := TMemIniFile.Create('');
           try
             VIniFile.SetStrings(VIniStrings);

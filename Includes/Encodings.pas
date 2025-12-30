@@ -3,166 +3,25 @@ unit Encodings;
 interface
 
 uses
-  Windows,
   SysUtils,
-  {$IFNDef UNICODE}
-  Compatibility,
-  {$ENDIF}
   Classes;
 
-function StringReplace(const S, OldPattern, NewPattern: String; Flags: TReplaceFlags): string; // StringReplace are slow in all Delphi versions
+function FileToText(const FileName: String; AEncoding: TEncoding = nil): String;
+function FileToString(const FileName: string): RawByteString;
 
-function FileToString(const FileName: string): RawByteString; // AnsiString in JCL is not good enough
+function StreamToText(const AStream: TStream; AEncoding: TEncoding = nil): String;
+function StreamToString(const AStream: TStream): RawByteString;
+
+procedure TextToFile(const FileName: string; const Contents: String; AEncoding: TEncoding = nil; Append: Boolean = False);
+procedure TextToStream(const AStream: TStream; const Contents: String; AEncoding: TEncoding = nil; Append: Boolean = False);
+
+function TextToString(const AString: String; AEncoding: TEncoding = nil): RawByteString;
+function StringToText(const AString: RawByteString; AEncoding: TEncoding): String;
+
 procedure StringToFile(const FileName: string; const Contents: RawByteString; Append: Boolean = False);
-function StreamToString(const AStream: TStream): RawByteString; // AnsiString in JCL is not good enough
 procedure StringToStream(const AStream: TStream; const Contents: RawByteString; Append: Boolean = False);
 
-
-procedure FreeMemAndNil(var P; const Size: Integer = 0);
-
-function GetFileEncoding(const AFileName: String): TEncoding;
-function GetStreamEncoding(const AStream: TStream): TEncoding;
-function StringToBytes(const AString: RawByteString): TBytes;
-function BytesToString(const ABytes: TBytes): RawByteString;
-function StringToText(const AString: RawByteString; AEncoding: TEncoding = nil): String;
-function TextToString(const AString: String; AEncoding: TEncoding = nil): RawByteString;
-function FileToText(const FileName: String; AEncoding: TEncoding = nil): String;
-procedure TextToFile(const FileName: string; const Contents: String; AEncoding: TEncoding = nil; Append: Boolean = False);
-function StreamToText(const AStream: TStream; AEncoding: TEncoding = nil): String;
-procedure TextToStream(const AStream: TStream; const Contents: String; AEncoding: TEncoding = nil; Append: Boolean = False);
-procedure LoadStringsFromFile(const AStrings: TStrings; const AFileName: String; const AEncoding: TEncoding = nil);
-procedure SaveStringsToFile(const AStrings: TStrings; const AFileName: String; const AEncoding: TEncoding = nil);
-procedure LoadStringsFromStream(const AStrings: TStrings; const AStream: TStream; const AEncoding: TEncoding = nil);
-procedure SaveStringsToStream(const AStrings: TStrings; const AStream: TStream; const AEncoding: TEncoding = nil);
-
-function UTF8EncodeToString(const AStr: String): String;
-
 implementation
-
-{$IFDEF UNICODE}
-uses
-  AnsiStrings;
-{$ENDIF}
-
-function StringReplace(const S, OldPattern, NewPattern: String; Flags: TReplaceFlags): string;
-var
-  OldPatternLen, TextLen, ResultLen, ResultActualSize, NewPatternLen: Integer;
-  CompareText: function(const S1, S2: PChar; const ALen: Integer): Boolean;
-
-  function CompareMemCS(const S1, S2: PChar; const ALen: Integer): Boolean;
-  begin
-    Result := CompareMem(S1, S2, ALen * SizeOf(Char));
-  end;
-
-  function CompareMemNC(const S1, S2: PChar; const ALen: Integer): Boolean;
-  begin
-    Result := (AnsiStrLIComp(S1, S2, ALen) = 0);
-  end;
-
-  procedure AddReplaceText(const Index: Integer);
-  begin
-    if NewPatternLen > 0 then
-    begin
-      if ResultLen + NewPatternLen > ResultActualSize then
-      begin
-        ResultActualSize := ResultActualSize * 2 + NewPatternLen;
-        SetLength(Result, ResultActualSize);
-      end;
-
-      MoveChars(NewPattern[1], Result[ResultLen + 1], NewPatternLen);
-
-      ResultLen := ResultLen + NewPatternLen;
-    end;
-  end;
-
-  procedure AddOriginalText(const LastIndex, Index: Integer);
-  var
-    Sz, Dest: Integer;
-
-  begin
-    Sz := Index - LastIndex;
-    if Sz <= 0 then
-      Exit;
-
-    Dest := ResultLen;
-    Inc(Dest);
-    ResultLen := ResultLen + Sz;
-
-    if ResultLen > ResultActualSize then
-    begin
-      ResultActualSize := ResultActualSize * 2;
-      SetLength(Result, ResultActualSize);
-    end;
-
-    MoveChars(S[LastIndex], Result[Dest], Sz);
-  end;
-
-var
-  Index, J, LastIndex: Integer;
-  UpperFirstChar, LowerFirstChar: Char;
-  Tmp: String;
-begin
-  if (S = '') or (OldPattern = '') then // Do Not Localize
-  begin
-    Result := S;
-    Exit;
-  end;
-
-  OldPatternLen := Length(OldPattern);
-  NewPatternLen := Length(NewPattern);
-  TextLen := Length(S);
-  ResultLen := 0;
-  ResultActualSize := TextLen;
-  SetLength(Result, ResultActualSize);
-
-  if rfIgnoreCase in Flags then
-  begin
-    Tmp := OldPattern[1];
-    UpperFirstChar := AnsiUpperCase(Tmp)[1];
-    LowerFirstChar := AnsiLowerCase(Tmp)[1];
-    CompareText := @CompareMemNC;
-  end
-  else
-  begin
-    UpperFirstChar := OldPattern[1];
-    LowerFirstChar := OldPattern[1];
-    CompareText := @CompareMemCS;
-  end;
-
-  Index := 1;
-  J := OldPatternLen;
-  LastIndex := 1;
-  while Index <= TextLen do
-  begin
-    if J > TextLen then
-      Break;
-
-    if ((S[Index] = LowerFirstChar) or
-        (S[Index] = UpperFirstChar)) and
-       ((OldPatternLen = 1) or
-        CompareText(@(PChar(Pointer(S))[Index]), @(PChar(Pointer(OldPattern))[1]), OldPatternLen - 1)) then
-    begin
-      AddOriginalText(LastIndex, Index);
-      AddReplaceText(Index);
-
-      Index := Index + OldPatternLen;
-      LastIndex := Index;
-      J := J + OldPatternLen;
-
-      if not (rfReplaceAll in Flags) then
-        Break;
-    end
-    else
-    begin
-      Inc(Index);
-      Inc(J);
-    end;
-  end;
-  AddOriginalText(LastIndex, TextLen + 1);
-
-  if Length(Result) <> ResultLen then
-    SetLength(Result, ResultLen);
-end;
 
 function FileToString(const FileName: string): RawByteString;
 var
@@ -214,33 +73,6 @@ begin
   if not Append then
     AStream.Size := Len;
 end;
-
-procedure FreeMemAndNil(var P; const Size: Integer);
-var
-  Data: Pointer;
-begin
-  Data := Pointer(P);
-  Pointer(P) := nil;
-  if Size <> 0 then
-    FreeMem(Data, Size)
-  else
-    FreeMem(Data);
-end;
-
-// __ UTF8 _____________________________________________________________________________________________________________
-
-function UTF8EncodeToString(const AStr: String): String;
-var
-  S: RawByteString;
-begin
-  S := UTF8Encode(AStr);
-  {$IFDEF UNICODE}
-  SetCodePage(S, 0, False);
-  {$ENDIF}
-  Result := String(S);
-end;
-
-// __ Files ____________________________________________________________________________________________________________
 
 function GetStreamEncoding(const AStream: TStream): TEncoding;
 const
@@ -367,56 +199,6 @@ begin
   end;
 
   StringToStream(AStream, TextToString(Content, Encoding));
-end;
-
-procedure LoadStringsFromFile(const AStrings: TStrings; const AFileName: String; const AEncoding: TEncoding);
-begin
-  {$IFDEF UNICODE}
-  AStrings.LoadFromFile(AFileName, AEncoding);
-  {$ELSE}
-  AStrings.Text := FileToText(AFileName, AEncoding);
-  {$ENDIF}
-end;
-
-procedure SaveStringsToFile(const AStrings: TStrings; const AFileName: String; const AEncoding: TEncoding);
-var
-  Encoding: TEncoding;
-begin
-  if (AEncoding = nil) and FileExists(AFileName) then
-    Encoding := GetFileEncoding(AFileName)
-  else
-    Encoding := AEncoding;
-
-  {$IFDEF UNICODE}
-  AStrings.SaveToFile(AFileName, Encoding);
-  {$ELSE}
-  TextToFile(AFileName, AStrings.Text, Encoding);
-  {$ENDIF}
-end;
-
-procedure LoadStringsFromStream(const AStrings: TStrings; const AStream: TStream; const AEncoding: TEncoding);
-begin
-  {$IFDEF UNICODE}
-  AStrings.LoadFromStream(AStream, AEncoding);
-  {$ELSE}
-  AStrings.Text := StreamToText(AStream, AEncoding);
-  {$ENDIF}
-end;
-
-procedure SaveStringsToStream(const AStrings: TStrings; const AStream: TStream; const AEncoding: TEncoding);
-var
-  Encoding: TEncoding;
-begin
-  if (AEncoding = nil) and (AStream.Size > 0)  then
-    Encoding := GetStreamEncoding(AStream)
-  else
-    Encoding := AEncoding;
-
-  {$IFDEF UNICODE}
-  AStrings.SaveToStream(AStream, Encoding);
-  {$ELSE}
-  TextToStream(AStream, AStrings.Text, Encoding);
-  {$ENDIF}
 end;
 
 end.

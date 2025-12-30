@@ -115,7 +115,7 @@ begin
       if FileExists(VFullName) then begin
         VIniStrings := TStringList.Create;
         try
-          LoadStringsFromFile(VIniStrings, VFullName);
+          VIniStrings.LoadFromFile(VFullName);
           VIniFile := TMemIniFile.Create('');
           try
             VIniFile.SetStrings(VIniStrings);
