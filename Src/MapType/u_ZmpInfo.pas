@@ -410,17 +410,17 @@ begin
   LoadInfo(ALangList, AConfig);
 end;
 
-function UpdateBMPTransp(
+function UpdateBmpTransparency(
   const ABitmapFactory: IBitmap32StaticFactory;
-  AMaskColor: TColor32;
+  const AMaskColor: TColor32;
   const ABitmap: IBitmap32Static
 ): IBitmap32Static;
 var
+  I: Integer;
+  VSize: TPoint;
   VBuffer: IBitmap32Buffer;
   VSourceLine: PColor32Array;
   VTargetLine: PColor32Array;
-  i: Integer;
-  VSize: TPoint;
 begin
   Result := nil;
   if ABitmap <> nil then begin
@@ -429,11 +429,11 @@ begin
     if VBuffer <> nil then begin
       VSourceLine := ABitmap.Data;
       VTargetLine := VBuffer.Data;
-      for i := 0 to VSize.X * VSize.Y - 1 do begin
-        if VSourceLine[i] = AMaskColor then begin
-          VTargetLine[i] := 0;
+      for I := 0 to VSize.X * VSize.Y - 1 do begin
+        if VSourceLine[I] = AMaskColor then begin
+          VTargetLine[I] := 0; // transparent black
         end else begin
-          VTargetLine[i] := VSourceLine[i];
+          VTargetLine[I] := VSourceLine[I];
         end;
       end;
       Result := ABitmapFactory.BuildWithOwnBuffer(VBuffer);
@@ -465,7 +465,7 @@ begin
       if Result <> nil then begin
         if LowerCase(ExtractFileExt(VImageName)) = '.bmp' then begin
           Result :=
-            UpdateBMPTransp(
+            UpdateBmpTransparency(
               ABitmapFactory,
               Color32(255, 0, 255, 255),
               Result
