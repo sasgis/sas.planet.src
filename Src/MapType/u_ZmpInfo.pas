@@ -483,37 +483,39 @@ procedure TZmpInfoGUI.LoadIcons(
   const ABitmapFactory: IBitmap32StaticFactory;
   Apnum: Integer
 );
-begin
-  try
-    FBmp24 :=
-      GetBitmap(
-        AContentTypeManager,
-        AConfig,
-        AConfigIniParams,
-        ABitmapFactory,
-        '24.bmp',
-        'BigIconName'
-      );
-  except
-    FBmp24 := nil;
+
+  function LoadIcon(const ADefName, AIdent: string): IBitmap32Static;
+  var
+    VExt: string;
+  begin
+    Result := nil;
+    for VExt in ['.bmp', '.png'] do begin
+      try
+        Result :=
+          GetBitmap(
+            AContentTypeManager,
+            AConfig,
+            AConfigIniParams,
+            ABitmapFactory,
+            ADefName + VExt,
+            AIdent
+          );
+        if Result <> nil then begin
+          Break;
+        end;
+      except
+        Result := nil;
+      end;
+    end;
   end;
+
+begin
+  FBmp24 := LoadIcon('24', 'BigIconName');
   if FBmp24 = nil then begin
     FBmp24 := CreateDefaultIcon(ABitmapFactory, Apnum);
   end;
 
-  try
-    FBmp18 :=
-      GetBitmap(
-        AContentTypeManager,
-        AConfig,
-        AConfigIniParams,
-        ABitmapFactory,
-        '18.bmp',
-        'SmallIconName'
-      );
-  except
-    FBmp18 := nil;
-  end;
+  FBmp18 := LoadIcon('18', 'SmallIconName');
   if FBmp18 = nil then begin
     FBmp18 := FBmp24;
   end;
