@@ -52,6 +52,11 @@ type
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
 
+    // ICO (loader only)
+    function CreateIcoLoader(
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileLoader;
+
     // PNG
     function CreatePngLoader(
       const APerfCounterList: IInternalPerformanceCounterList = nil

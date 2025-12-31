@@ -728,6 +728,16 @@ begin
   AddByType(VContentType, 'image/x-windows-bmp');
   AddByExt(VContentType, VExt);
 
+  // ico
+  VSaver := nil;
+  VLoader := ABitmapTileSaveLoadFactory.CreateIcoLoader(FLoadPerfCounterList);
+  VType := 'image/x-icon';
+  VExt := '.ico';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByType(VContentType, 'image/vnd.microsoft.icon');
+  AddByExt(VContentType, VExt);
+
   // webp
   VSaver := ABitmapTileSaveLoadFactory.CreateWebpSaver(75, FSavePerfCounterList);
   VLoader := ABitmapTileSaveLoadFactory.CreateWebpLoader(FLoadPerfCounterList);

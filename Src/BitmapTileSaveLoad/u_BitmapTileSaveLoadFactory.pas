@@ -60,6 +60,11 @@ type
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
 
+    // ICO (loader only)
+    function CreateIcoLoader(
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    ): IBitmapTileLoader;
+
     // PNG
     function CreatePngLoader(
       const APerfCounterList: IInternalPerformanceCounterList = nil
@@ -188,6 +193,15 @@ begin
     FBitmap32To8Converter,
     GetValidPerfCounterList(APerfCounterList),
     FFreeImageFormatIdProvider
+  );
+end;
+
+function TBitmapTileSaveLoadFactory.CreateIcoLoader(
+  const APerfCounterList: IInternalPerformanceCounterList): IBitmapTileLoader;
+begin
+  Result := TBitmapTileFreeImageLoaderIco.Create(
+    GetValidPerfCounterList(APerfCounterList),
+    FBitmap32StaticFactory
   );
 end;
 
