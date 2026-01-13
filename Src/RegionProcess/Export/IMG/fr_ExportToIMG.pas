@@ -512,8 +512,16 @@ begin
     exit;
   end;
 
+  edtTargetFile.Text := Trim(edtTargetFile.Text);
+
   if not IsValidFileName(edtTargetFile.Text) then begin
     ShowErrorMessage(_('Output file name is not set or incorrect!'));
+    edtTargetFile.SetFocus;
+    exit;
+  end;
+
+  if IsRelativePath(ExtractFilePath(edtTargetFile.Text)) then begin
+    ShowErrorMessage(_('Specify the full (absolute) path to the output file!'));
     edtTargetFile.SetFocus;
     exit;
   end;
