@@ -28,13 +28,13 @@ uses
   SysUtils,
   Classes,
   t_GeoTypes,
+  t_ExportToIMGTask,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_TileIteratorFactory,
   i_BitmapPostProcessing,
   i_Listener,
   i_TileIterator,
-  u_ExportToIMGTask,
   u_RegionProcessTaskAbstract;
 
 type
@@ -46,6 +46,7 @@ type
     StartLevel, EndLevel: Integer;
     FileSize: Integer;
   end;
+
   TVolumeInfo = record
     VolumeIndex: Integer;
     TileCount: Int64;
@@ -459,7 +460,7 @@ begin
             if Pos('Completion status = FATAL ERROR', VLogFileStringList[VLogFileStringList.Count - 1]) > 0 then begin
               VErrorMessage := '';
               // Compilation failed. Finding out the reason.
-              for I:=0 to VLogFileStringList.Count - 1 do begin
+              for I := 0 to VLogFileStringList.Count - 1 do begin
                 if Pos('ERROR!', VLogFileStringList[I]) > 0 then begin
                   VErrorMessage := VErrorMessage + StringReplace(VLogFileStringList[I], 'ERROR!', #13#10, []);
                 end;
@@ -473,7 +474,7 @@ begin
         end;
 
         // Checking if the map parts were made.
-        for I:=1 to 3 do begin
+        for I := 1 to 3 do begin
           if (MapFormatSubfileExts[FTask.FIMGMapFormat, I] <> '') and not FileExists(FTempFolder + AVolumeInfo.SubmapMTXNames[sk] + MapFormatSubfileExts[FTask.FIMGMapFormat, I]) then begin
             raise Exception.Create(FStrCompileErrorNoMessage);
           end;
@@ -498,7 +499,7 @@ begin
   VCommandLine := VCommandLine + '"';
 
   for sk:=skFine to skCoarse do begin
-    for I:=1 to 3 do begin
+    for I := 1 to 3 do begin
       if AVolumeInfo.SubmapsPresent[sk] and (MapFormatSubfileExts[FTask.FIMGMapFormat, I] <> '') then begin
         VCommandLine := VCommandLine + ' ' + AVolumeInfo.SubmapMTXNames[sk] + MapFormatSubfileExts[FTask.FIMGMapFormat, I];
       end;
@@ -749,8 +750,9 @@ begin
                 if not VUseFileFromCache then begin
                   VFileName := FTempFolder + VTileHash + '.jpg';
                   if not FileExists(VFileName) then begin
-                    AssignFile(VFile, VFileName); Rewrite(VFile, 1);
+                    AssignFile(VFile, VFileName);
                     try
+                      Rewrite(VFile, 1);
                       BlockWrite(VFile, VData.Buffer^, VData.Size);
                     finally
                       CloseFile(VFile);

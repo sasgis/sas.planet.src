@@ -27,7 +27,6 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ExportToIMGConfig,
-  u_BaseInterfacedObject,
   u_ConfigDataElementBase;
 
 type
@@ -72,52 +71,52 @@ uses
 
 constructor TExportToIMGConfig.Create;
 var
-  Registry: TRegistry;
-  MPCPath: String;
-  Path: String;
-  SearchRec: TSearchRec;
+  VRegistry: TRegistry;
+  VMpcPath: String;
+  VPath: String;
+  VSearchRec: TSearchRec;
 begin
   inherited Create;
 
-  Registry := TRegistry.Create;
+  VRegistry := TRegistry.Create;
   try
-    MPCPath := '';
+    VMpcPath := '';
 
-    Registry.RootKey := HKEY_LOCAL_MACHINE;
-    if Registry.OpenKeyReadOnly('SOFTWARE\Garmin\MPC') and Registry.ValueExists('InstallPath') then begin
-      MPCPath := IncludeTrailingPathDelimiter(Registry.ReadString('InstallPath'));
-      if DirectoryExists(MPCPath) then begin
-        Path := MPCPath + 'Tools\bld_gmap32\bld_gmap32.exe';
-        if FileExists(Path) then begin
-          FMapCompilerPath := Path;
+    VRegistry.RootKey := HKEY_LOCAL_MACHINE;
+    if VRegistry.OpenKeyReadOnly('SOFTWARE\Garmin\MPC') and VRegistry.ValueExists('InstallPath') then begin
+      VMpcPath := IncludeTrailingPathDelimiter(VRegistry.ReadString('InstallPath'));
+      if DirectoryExists(VMpcPath) then begin
+        VPath := VMpcPath + 'Tools\bld_gmap32\bld_gmap32.exe';
+        if FileExists(VPath) then begin
+          FMapCompilerPath := VPath;
         end;
       end;
     end;
 
-    if Registry.OpenKeyReadOnly('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1873789F-59D5-4002-8A2F-60A827B78F98}_is1') and Registry.ValueExists('InstallLocation') then begin
-      Path := IncludeTrailingPathDelimiter(Registry.ReadString('InstallLocation'));
-      if DirectoryExists(Path) then begin
-        Path := Path + 'gmt\gmt.exe';
-        if FileExists(Path) then begin
-          FGMTPath := Path;
+    if VRegistry.OpenKeyReadOnly('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1873789F-59D5-4002-8A2F-60A827B78F98}_is1') and VRegistry.ValueExists('InstallLocation') then begin
+      VPath := IncludeTrailingPathDelimiter(VRegistry.ReadString('InstallLocation'));
+      if DirectoryExists(VPath) then begin
+        VPath := VPath + 'gmt\gmt.exe';
+        if FileExists(VPath) then begin
+          FGMTPath := VPath;
         end;
       end;
     end;
 
-    Registry.RootKey := HKEY_CURRENT_USER;
-    if Registry.OpenKeyReadOnly('Software\GARMIN\ProductCreator\LastLicenseLocation') and Registry.ValueExists('Location') then begin
-      Path := Registry.ReadString('Location');
-      if FileExists(Path) then begin
-        FMapCompilerLicensePath := Path
+    VRegistry.RootKey := HKEY_CURRENT_USER;
+    if VRegistry.OpenKeyReadOnly('Software\GARMIN\ProductCreator\LastLicenseLocation') and VRegistry.ValueExists('Location') then begin
+      VPath := VRegistry.ReadString('Location');
+      if FileExists(VPath) then begin
+        FMapCompilerLicensePath := VPath
       end else begin
-        if FindFirst(MPCPath + '*.mpl', faAnyFile, SearchRec) = 0 then begin
-          FMapCompilerLicensePath := MPCPath + SearchRec.Name;
-          FindClose(SearchRec);
+        if FindFirst(VMpcPath + '*.mpl', faAnyFile, VSearchRec) = 0 then begin
+          FMapCompilerLicensePath := VMpcPath + VSearchRec.Name;
+          FindClose(VSearchRec);
         end;
       end;
     end;
   finally
-    Registry.Free;
+    VRegistry.Free;
   end;
 end;
 
@@ -267,6 +266,5 @@ begin
     UnlockWrite;
   end;
 end;
-
 
 end.

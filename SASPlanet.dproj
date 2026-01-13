@@ -1363,10 +1363,10 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\Export\IMG\i_ExportToIMGConfig.pas"/>
+        <DCCReference Include="Src\RegionProcess\Export\IMG\t_ExportToIMGTask.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportProviderIMG.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportTaskToIMG.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGConfig.pas"/>
-        <DCCReference Include="Src\RegionProcess\Export\IMG\u_ExportToIMGTask.pas"/>
         <DCCReference Include="Src\RegionProcess\Export\JNX\fr_ExportToJNX.pas">
             <Form>frExportToJNX</Form>
             <DesignClass>TFrame</DesignClass>

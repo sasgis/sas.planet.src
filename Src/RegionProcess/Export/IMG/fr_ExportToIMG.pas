@@ -45,7 +45,7 @@ uses
   i_ExportToIMGConfig,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessParamsFrame,
-  u_ExportToIMGTask,
+  t_ExportToIMGTask,
   u_CommonFormAndFrameParents,
   fr_MapSelect;
 
@@ -161,7 +161,7 @@ type
     FfrMapSelect: TfrMapSelect;
 
     function GetAllowExport(const AMapType: IMapType): boolean;
-    procedure SetSASZooms(const Str: String);
+    procedure SetSASZooms(const AStr: String);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -205,9 +205,9 @@ const
 
 function GenerateMapId: LongWord;
 const
-  Limit = $0A00;
+  CLimit = $0A00;
 begin
-  Result := Random(Limit) shl 16 + Random(Limit - 1);
+  Result := Random(CLimit) shl 16 + Random(CLimit - 1);
 end;
 
 function GetUserDefaultUILanguage: LANGID; stdcall;
@@ -217,14 +217,14 @@ const
   LOCALE_RETURN_NUMBER = $20000000;
 
 
-function FindSubstringInList(const List: TStrings; const Str: String): Integer;
+function FindSubstringInList(const AList: TStrings; const AStr: String): Integer;
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i:=0 to List.Count - 1 do begin
-    if pos(Str, List[i]) > 0 then begin
-      Result := i;
-      exit;
+  for I := 0 to AList.Count - 1 do begin
+    if Pos(AStr, AList[I]) > 0 then begin
+      Result := I;
+      Exit;
     end;
   end;
   Result := -1;
@@ -297,27 +297,27 @@ begin
   inherited;
 end;
 
-procedure TfrExportToIMG.SetSASZooms(const Str: String);
+procedure TfrExportToIMG.SetSASZooms(const AStr: String);
 var
-  StrList: TStringList;
-  i, OldIndex: Integer;
+  VStrList: TStringList;
+  I, VOldIndex: Integer;
 begin
-  StrList := TStringList.Create;
+  VStrList := TStringList.Create;
   try
-    StrList.CommaText := Str;
-    if StrList.Count = 13 then begin
-      for i:=0 to StrList.Count - 1 do begin
-        StrList.Objects[i] := Pointer(StrToIntDef(StrList[i], i + 6));
+    VStrList.CommaText := AStr;
+    if VStrList.Count = 13 then begin
+      for I := 0 to VStrList.Count - 1 do begin
+        VStrList.Objects[I] := Pointer(StrToIntDef(VStrList[I], I + 6));
       end;
 
-      OldIndex := lstSasZooms.ItemIndex;
-      lstSasZooms.Items.Assign(StrList);
-      lstSasZooms.ItemIndex := OldIndex;
+      VOldIndex := lstSasZooms.ItemIndex;
+      lstSasZooms.Items.Assign(VStrList);
+      lstSasZooms.ItemIndex := VOldIndex;
 
-      TBReset.Enabled := Str <> CDefaultSasZooms;
+      TBReset.Enabled := AStr <> CDefaultSasZooms;
     end;
   finally
-    StrList.Free;
+    VStrList.Free;
   end;
 end;
 
@@ -381,21 +381,21 @@ end;
 
 procedure TfrExportToIMG.btnAddLayerClick(Sender: TObject);
 var
-  i: integer;
-  Item: TListItem;
+  I: Integer;
+  VItem: TListItem;
 begin
   ZoomGarmin.Items.BeginUpdate;
   for I := 0 to ZoomGarmin.Items.Count - 1 do begin
-    if ZoomGarmin.Checked[i] then begin
-      ZoomGarmin.State[i] := cbGrayed;
-      ZoomGarmin.ItemEnabled[i] := false;
+    if ZoomGarmin.Checked[I] then begin
+      ZoomGarmin.State[I] := cbGrayed;
+      ZoomGarmin.ItemEnabled[I] := false;
       MapList.Items.BeginUpdate;
       try
         MapList.AddItem(FfrMapSelect.Text, nil);
-        Item := MapList.Items[MapList.Items.Count - 1];
-        Item.SubItems.AddObject(lstSasZooms.Items[i], lstSasZooms.Items.Objects[i]);
-        Item.SubItems.AddObject(ZoomGarmin.Items[i],  Pointer(i));
-        Item.Data := Pointer(FfrMapSelect.GetSelectedMapType);
+        VItem := MapList.Items[MapList.Items.Count - 1];
+        VItem.SubItems.AddObject(lstSasZooms.Items[I], lstSasZooms.Items.Objects[I]);
+        VItem.SubItems.AddObject(ZoomGarmin.Items[I],  Pointer(I));
+        VItem.Data := Pointer(FfrMapSelect.GetSelectedMapType);
       finally
         MapList.Items.EndUpdate;
       end;
@@ -412,18 +412,18 @@ end;
 
 procedure TfrExportToIMG.btnRemoveLayerClick(Sender: TObject);
 var
-  i, ZoomIndex: Integer;
+  I, VZoomIndex: Integer;
 begin
   if MapList.ItemIndex = -1 then Exit;
   ZoomGarmin.Items.BeginUpdate;
-  for i:=MapList.Items.Count - 1 downto 0 do begin
-    if MapList.Items[i].Selected then begin
-      ZoomIndex := Integer(MapList.Items[i].SubItems.Objects[1]);
-      if (ZoomIndex >= 0) and (ZoomIndex <= ZoomGarmin.Items.Count) then begin
-        ZoomGarmin.ItemEnabled[ZoomIndex] := True;
-        ZoomGarmin.State[ZoomIndex] := cbUnchecked;
+  for I := MapList.Items.Count - 1 downto 0 do begin
+    if MapList.Items[I].Selected then begin
+      VZoomIndex := Integer(MapList.Items[I].SubItems.Objects[1]);
+      if (VZoomIndex >= 0) and (VZoomIndex <= ZoomGarmin.Items.Count) then begin
+        ZoomGarmin.ItemEnabled[VZoomIndex] := True;
+        ZoomGarmin.State[VZoomIndex] := cbUnchecked;
       end;
-      MapList.Items.Delete(i);
+      MapList.Items.Delete(I);
     end;
   end;
   ZoomGarmin.Items.EndUpdate;
@@ -438,13 +438,13 @@ end;
 procedure TfrExportToIMG.MapListCustomDrawItem(Sender: TCustomListView;
   Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
 const
-  DrawColor: array [0..1] of TColor = (clWindow, cl3DLight);
+  CDrawColor: array [0..1] of TColor = (clWindow, cl3DLight);
 begin
   if not Assigned(Item) then begin
-    exit;
+    Exit;
   end;
 
-  Sender.Canvas.Brush.Color := DrawColor[Item.Index mod 2];
+  Sender.Canvas.Brush.Color := CDrawColor[Item.Index mod 2];
 end;
 
 procedure TfrExportToIMG.MapListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
@@ -474,17 +474,17 @@ end;
 
 procedure TfrExportToIMG.lstSasZoomsDblClick(Sender: TObject);
 var
-  i: integer;
-  Str: String;
+  I: Integer;
+  VStr: String;
 begin
   try
-    i := StrToInt(InputBox(_('Change source zoom'), _('Zoom'), lstSasZooms.Items[lstSasZooms.ItemIndex]));
-    if i in [1..24] then begin
-      lstSasZooms.Items[lstSasZooms.ItemIndex] := IntToStr(i);
-      lstSasZooms.Items.Objects[lstSasZooms.ItemIndex] := TObject(i);
-      Str := lstSasZooms.Items.CommaText;
+    I := StrToInt(InputBox(_('Change source zoom'), _('Zoom'), lstSasZooms.Items[lstSasZooms.ItemIndex]));
+    if I in [1..24] then begin
+      lstSasZooms.Items[lstSasZooms.ItemIndex] := IntToStr(I);
+      lstSasZooms.Items.Objects[lstSasZooms.ItemIndex] := TObject(I);
+      VStr := lstSasZooms.Items.CommaText;
       FExportToIMGConfig.SASZoomList := lstSasZooms.Items.CommaText;
-      TBReset.Enabled := Str <> CDefaultSasZooms;
+      TBReset.Enabled := VStr <> CDefaultSasZooms;
     end;
   except
   end;
@@ -509,7 +509,7 @@ begin
   if MapList.Items.Count = 0 then begin
     ShowErrorMessage(_('Empty map list. Please add the layers to export!'));
     pgcMain.ActivePage := tsMap;
-    exit;
+    Exit;
   end;
 
   edtTargetFile.Text := Trim(edtTargetFile.Text);
@@ -517,27 +517,27 @@ begin
   if not IsValidFileName(edtTargetFile.Text) then begin
     ShowErrorMessage(_('Output file name is not set or incorrect!'));
     edtTargetFile.SetFocus;
-    exit;
+    Exit;
   end;
 
   if IsRelativePath(ExtractFilePath(edtTargetFile.Text)) then begin
     ShowErrorMessage(_('Specify the full (absolute) path to the output file!'));
     edtTargetFile.SetFocus;
-    exit;
+    Exit;
   end;
 
   if not FileExists(edtMapCompilerPath.Text) then begin
     ShowErrorMessage(_('MPC compiler path is not set or incorrect!'));
     pgcMain.ActivePage := tsSettings;
     edtMapCompilerPath.SetFocus;
-    exit;
+    Exit;
   end;
 
   if not FileExists(edtGMTPath.Text) then begin
     ShowErrorMessage(_('GMT tool path is not set or incorrect!'));
     pgcMain.ActivePage := tsSettings;
     edtGMTPath.SetFocus;
-    exit;
+    Exit;
   end;
 
   Result := True;
@@ -551,12 +551,12 @@ end;
 
 procedure TfrExportToIMG.ZoomGarminClickCheck(Sender: TObject);
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i:=0 to ZoomGarmin.Items.Count - 1 do begin
-    if ZoomGarmin.Checked[i] then begin
+  for I := 0 to ZoomGarmin.Items.Count - 1 do begin
+    if ZoomGarmin.Checked[I] then begin
       btnAddLayer.Enabled := True;
-      exit;
+      Exit;
     end;
   end;
 
@@ -565,13 +565,13 @@ end;
 
 procedure TfrExportToIMG.ZoomGarminDblClick(Sender: TObject);
 var
-  i: integer;
+  I: Integer;
 begin
   for I := 0 to ZoomGarmin.Items.Count - 1 do begin
-    if ZoomGarmin.Selected[i] and (ZoomGarmin.State[i] <> cbGrayed) then begin
-      ZoomGarmin.Checked[i] := True;
+    if ZoomGarmin.Selected[I] and (ZoomGarmin.State[I] <> cbGrayed) then begin
+      ZoomGarmin.Checked[I] := True;
       btnAddLayerClick(Self);
-      break;
+      Break;
     end;
   end;
 end;
@@ -583,7 +583,7 @@ end;
 
 function TfrExportToIMG.GetTask: TExportToIMGTask;
 var
-  i: Integer;
+  I: Integer;
   VMapListItem: TListItem;
   VMap: IMapType;
   VSourceScale: Integer;
@@ -591,7 +591,7 @@ var
   VPrevMap: Pointer;
   VPrevSourceScale: Integer;
   VItemCount: Integer;
-  VItem: ^TExportToIMGTaskItem; 
+  VItem: PExportToIMGTaskItem;
 begin
   Result.FCodePageIndex := cbbCodePage.ItemIndex;
   Result.FMapName := edtMapName.Text;
@@ -611,10 +611,10 @@ begin
   VPrevMap := Nil;
   VPrevSourceScale := 0;
   VItemCount := 0;
-  Result.FItems := Nil; 
+  Result.FItems := Nil;
 
-  for i:=0 to MapList.Items.Count - 1 do begin
-    VMapListItem := MapList.Items[i];
+  for I := 0 to MapList.Items.Count - 1 do begin
+    VMapListItem := MapList.Items[I];
     VSourceScale := Integer(VMapListItem.SubItems.Objects[0]) - 1;   // 1..24 => 0..23
     VDeviceZoom  := 12 - Integer(VMapListItem.SubItems.Objects[1]);  // 0 for the most detailed level, 12 for the least detailed one.
 
@@ -626,7 +626,7 @@ begin
 
     SetLength(Result.FItems, VItemCount + 1);
     VItem := @Result.FItems[VItemCount];
-    inc(VItemCount);
+    Inc(VItemCount);
 
     VMap := IMapType(VMapListItem.Data);
     VItem.FSourceTileStorage := VMap.TileStorage;

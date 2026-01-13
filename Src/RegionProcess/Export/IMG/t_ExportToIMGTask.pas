@@ -19,7 +19,7 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_ExportToIMGTask;
+unit t_ExportToIMGTask;
 
 interface
 
@@ -35,6 +35,7 @@ type
     FSourceScale: Byte;
     FDeviceZoomStart, FDeviceZoomEnd: Byte;
   end;
+  PExportToIMGTaskItem = ^TExportToIMGTaskItem;
 
   TIMGMapFormat = (mfOld, mfOldInGMP, mfNew);  
 
@@ -48,7 +49,7 @@ type
     FItems: array of TExportToIMGTaskItem;
     FUseRecolor: Boolean;
     FBitmapTileSaver: IBitmapTileSaver;
-    FVolumeSize: LongWord;
+    FVolumeSize: LongWord; // size is limithed to 4 GB by IMG format
     FKeepTempFiles: Boolean;
 
     FMapCompilerPath: String;

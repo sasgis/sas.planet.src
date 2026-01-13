@@ -64,10 +64,9 @@ type
 implementation
 
 uses
-  Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
-  u_ExportToIMGTask,
+  t_ExportToIMGTask,
   u_ExportTaskToIMG,
   u_ResStrings;
 
