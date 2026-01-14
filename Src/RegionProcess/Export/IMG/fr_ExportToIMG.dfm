@@ -716,7 +716,7 @@ object frExportToIMG: TfrExportToIMG
           Height = 13
           Margins.Top = 0
           Align = alTop
-          Caption = 'Path to temporary files:'
+          Caption = 'Folder for temporary files:'
         end
         object pnlCompilerPath1: TPanel
           Left = 3

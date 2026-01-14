@@ -161,7 +161,7 @@ begin
   FCancelEvent := CreateEvent(nil, False, False, nil);
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnTaskCancel);
 
-  FStrPhase1Format := _('Saving tiles. %s %d %s');
+  FStrPhase1Format := _('Saving tiles. Total to save: %d tiles.');
   FStrNoTilesToExport := _('No tiles to export!');
   FStrPhase2 := _('Compiling the map(s). ');
   FStrCompileErrorFormat := _('Map compilation failed. The map compiler reported the following error: %s');
@@ -772,15 +772,20 @@ begin
       ClearVolumeInfo(VCurrentVolumeInfo);
 
       // Writing the tiles to temp folder.
-      ProgressInfo.SetFirstLine(Format(FStrPhase1Format, [SAS_STR_AllSaves, FTilesToProcess, SAS_STR_Files]));
+      ProgressInfo.SetFirstLine(Format(FStrPhase1Format, [FTilesToProcess]));
       VTilesProcessed := 0;
       ProgressFormUpdateOnProgress(VTilesProcessed, FTilesToProcess);
       VRunningTotalTileSize := 0;
 
-      VEstimatedSize := FTilesToProcess * (15*1024); // 15k per tile
-      VEstimatedSize := VEstimatedSize * 2;
+      VEstimatedSize := FTilesToProcess * (30*1024); // 30k per tile
 
-      WriteLogFmt('Estimated temporary files size: %d MB', [SizeToMb(VEstimatedSize)]);
+      if ExtractFileDrive(FTargetFileName) = ExtractFileDrive(FTempFolder) then begin
+        VEstimatedSize := VEstimatedSize * 3; // img + tiles + compiled volumes
+      end else begin
+        VEstimatedSize := VEstimatedSize * 2; // tiles + compiled volumes
+      end;
+
+      WriteLogFmt('Estimated free space required: %d MB', [SizeToMb(VEstimatedSize)]);
       WriteLogFmt('Number of tiles to process: %d', [FTilesToProcess]);
 
       if VEstimatedSize > VDiskFreeSpace then begin
@@ -898,7 +903,7 @@ begin
                 VRunningTotalTileSize := 0;
                 Inc(VCurrentVolumeInfo.VolumeIndex);
 
-                ProgressInfo.SetFirstLine(Format(FStrPhase1Format, [SAS_STR_AllSaves, FTilesToProcess, SAS_STR_Files]));
+                ProgressInfo.SetFirstLine(Format(FStrPhase1Format, [FTilesToProcess]));
               end;
 
               VCrc32 := crc32(0, VData.Buffer, VData.Size);
