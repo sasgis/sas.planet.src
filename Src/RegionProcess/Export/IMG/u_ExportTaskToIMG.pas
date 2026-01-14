@@ -118,6 +118,7 @@ uses
   Types,
   ShLwApi,
   Math,
+  IOUtils,
   libcrc32,
   gnugettext,
   i_TileStorage,
@@ -440,21 +441,21 @@ begin
   Result := True;
 end;
 
-function StartProcessAndWaitForCompletion(const ACommandLine, AStartPath, AStartError: string; AShowWindow, ACreationFlags: DWORD; CancellationEvent: THandle; AOutput: TStrings = nil): Boolean;
+function StartProcessAndWaitForCompletion(const ACommandLine, AStartPath, AStartError: string;
+  AShowWindow, ACreationFlags: DWORD; CancellationEvent: THandle; AOutput: TStrings = nil): Boolean;
 var
   VStartupInfo: TStartupInfo;
   VProcessInfo: TProcessInformation;
   VWaitObjects: array [0..1] of THandle;
   VSecurityAttributes: TSecurityAttributes;
   VStdOutPipeRead, VStdOutPipeWrite: THandle;
-  VOutputReaderThread: TThread;
+  VPipeReaderThread: TThread;
 begin
   Result := False;
 
   VStdOutPipeRead := 0;
   VStdOutPipeWrite := 0;
-  VOutputReaderThread := nil;
-
+  VPipeReaderThread := nil;
 
   FillChar(VStartupInfo, SizeOf(VStartupInfo), 0);
   VStartupInfo.cb := SizeOf(VStartupInfo);
@@ -463,11 +464,12 @@ begin
 
   if Assigned(AOutput) then begin
     // Setup security attributes for the pipe
+    FillChar(VSecurityAttributes, SizeOf(VSecurityAttributes), 0);
     VSecurityAttributes.nLength := SizeOf(VSecurityAttributes);
     VSecurityAttributes.bInheritHandle := True;
     VSecurityAttributes.lpSecurityDescriptor := nil;
 
-    // Create a single pipe for both streams
+    // Create pipes
     if not CreatePipe(VStdOutPipeRead, VStdOutPipeWrite, @VSecurityAttributes, 0) then begin
       ShowErrorMessageSync(Format(AStartError, [SysErrorMessage(GetLastError)]));
       Exit;
@@ -478,65 +480,83 @@ begin
     VStartupInfo.hStdError := VStdOutPipeWrite; // Redirect both streams to the same pipe
   end;
 
-  // Start the process
+  // Start the external process
   FillChar(VProcessInfo, SizeOf(VProcessInfo), 0);
   if not CreateProcess(nil, PChar(ACommandLine), nil, nil, True, ACreationFlags, nil, PChar(AStartPath), VStartupInfo, VProcessInfo) then begin
-    ShowErrorMessageSync(Format(AStartError, [SysErrorMessage(GetLastError)]));
     if Assigned(AOutput) then begin
       CloseHandle(VStdOutPipeRead);
       CloseHandle(VStdOutPipeWrite);
     end;
+
+    ShowErrorMessageSync(Format(AStartError, [SysErrorMessage(GetLastError)]));
     Exit;
   end;
 
   if Assigned(AOutput) then begin
-    // Close the write-end of the pipe in this process
+    // Close the write-end of the pipe in the current process
     CloseHandle(VStdOutPipeWrite);
 
     // Asynchronous stream reading
-    VOutputReaderThread := TThread.CreateAnonymousThread(
+    VPipeReaderThread := TThread.CreateAnonymousThread(
       procedure
       var
         VBuffer: array[0..4095] of AnsiChar;
         VBytesRead: DWORD;
         VOutputLine: AnsiString;
       begin
-        while ReadFile(VStdOutPipeRead, VBuffer, SizeOf(VBuffer) - 1, VBytesRead, nil) and (VBytesRead > 0) do begin
-          VBuffer[VBytesRead] := #0;
-          SetString(VOutputLine, VBuffer, VBytesRead);
-          AOutput.Add(string(VOutputLine));
-          if TThread.Current.CheckTerminated then Break;
+        try
+          while ReadFile(VStdOutPipeRead, VBuffer, SizeOf(VBuffer) - 1, VBytesRead, nil) and (VBytesRead > 0) do begin
+            VBuffer[VBytesRead] := #0;
+            SetString(VOutputLine, VBuffer, VBytesRead);
+            AOutput.Add(string(VOutputLine));
+            if TThread.Current.CheckTerminated then begin
+              Break;
+            end;
+          end;
+        finally
+          CloseHandle(VStdOutPipeRead);
         end;
       end);
-    VOutputReaderThread.FreeOnTerminate := False;
-    VOutputReaderThread.Start;
+    VPipeReaderThread.FreeOnTerminate := False;
+    VPipeReaderThread.Start;
   end;
 
   try
-    // Wait for the process to complete or for cancellation
+    // Wait for the external process to complete or for cancellation
     VWaitObjects[0] := VProcessInfo.hProcess;
     VWaitObjects[1] := CancellationEvent;
     if WaitForMultipleObjects(2, @VWaitObjects[0], False, INFINITE) = WAIT_OBJECT_0 then begin
-      Result := True
+      Result := True;
     end else begin
       TerminateProcess(VProcessInfo.hProcess, 0);
-      if Assigned(VOutputReaderThread) then begin
-        VOutputReaderThread.Terminate; // Signal the thread to terminate
+      if Assigned(VPipeReaderThread) then begin
+        VPipeReaderThread.Terminate; // Signal the thread to terminate
       end;
     end;
   finally
     // Wait for the reader thread to finish and free resources
-    if Assigned(VOutputReaderThread) then begin
-      VOutputReaderThread.WaitFor;
-      VOutputReaderThread.Free;
+    if Assigned(VPipeReaderThread) then begin
+      VPipeReaderThread.WaitFor;
+      VPipeReaderThread.Free;
     end;
-
     // Close handles
     CloseHandle(VProcessInfo.hProcess);
     CloseHandle(VProcessInfo.hThread);
-    if Assigned(AOutput) then begin
-      CloseHandle(VStdOutPipeRead);
+  end;
+end;
+
+procedure AppendStringsToFile(const AFileName: string; const AStrings: TStringList);
+begin
+  try
+    if Assigned(AStrings) and (AStrings.Count > 0) then begin
+      TFile.AppendAllText(AFileName, AStrings.Text);
     end;
+  except
+    {$IFDEF DEBUG}
+    on E: Exception do begin
+      ShowErrorMessageSync(E.ClassName + ': ' + E.Message);
+    end;
+    {$ENDIF}
   end;
 end;
 
@@ -546,7 +566,7 @@ var
   I: Integer;
   VCommandLine: string;
   VFileName: string;
-  VLogFileStringList: TStringList;
+  VLogStrings: TStringList;
   VErrorMessage: string;
 begin
   Result := False;
@@ -567,15 +587,15 @@ begin
         // Looking for errors in log file.
         VFileName := FTempFolder + AVolumeInfo.SubmapMTXNames[sk] + '.log';
         if FileExists(VFileName) then begin
-          VLogFileStringList := TStringList.Create;
+          VLogStrings := TStringList.Create;
           try
-            VLogFileStringList.LoadFromFile(VFileName);
-            if Pos('Completion status = FATAL ERROR', VLogFileStringList[VLogFileStringList.Count - 1]) > 0 then begin
+            VLogStrings.LoadFromFile(VFileName);
+            if Pos('Completion status = FATAL ERROR', VLogStrings[VLogStrings.Count - 1]) > 0 then begin
               VErrorMessage := '';
               // Compilation failed. Finding out the reason.
-              for I := 0 to VLogFileStringList.Count - 1 do begin
-                if Pos('ERROR!', VLogFileStringList[I]) > 0 then begin
-                  VErrorMessage := VErrorMessage + StringReplace(VLogFileStringList[I], 'ERROR!', #13#10, []);
+              for I := 0 to VLogStrings.Count - 1 do begin
+                if Pos('ERROR!', VLogStrings[I]) > 0 then begin
+                  VErrorMessage := VErrorMessage + StringReplace(VLogStrings[I], 'ERROR!', #13#10, []);
                 end;
               end;
 
@@ -583,7 +603,7 @@ begin
               Exit;
             end;
           finally
-            VLogFileStringList.Free;
+            FreeAndNil(VLogStrings);
           end;
         end;
 
@@ -621,25 +641,22 @@ begin
     end;
   end;
 
-  VLogFileStringList := TStringList.Create;
+  VLogStrings := {$IFDEF DEBUG} TStringList.Create {$ELSE} nil {$ENDIF};
   try
     WriteLog(VCommandLine);
-    if not StartProcessAndWaitForCompletion(VCommandLine, FTempFolder, FStrCannotStartGMT, SW_SHOWNORMAL, DETACHED_PROCESS, FCancelEvent, VLogFileStringList) then begin
-      Exit
+    if StartProcessAndWaitForCompletion(VCommandLine, FTempFolder, FStrCannotStartGMT, SW_SHOWNORMAL, DETACHED_PROCESS, FCancelEvent, VLogStrings) then begin
+      // Checking if the compilation succeeded.
+      Result := FileExists(VFileName);
+      if not Result then begin
+        ShowErrorMessageSync(FStrIMGBuildError);
+        Exit;
+      end;
+    end else begin
+      Exit;
     end;
   finally
-    try
-      VLogFileStringList.SaveToFile(FTempFolder + 'GMapTool.log');
-    finally
-      VLogFileStringList.Free;
-    end;
-  end;
-
-  // Checking if the compilation succeeded.
-  Result := FileExists(VFileName);
-
-  if not Result then begin
-    ShowErrorMessageSync(FStrIMGBuildError);
+    AppendStringsToFile(FTempFolder + 'GMapTool.log', VLogStrings);
+    FreeAndNil(VLogStrings);
   end;
 end;
 
