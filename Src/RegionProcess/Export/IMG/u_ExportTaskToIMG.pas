@@ -40,28 +40,31 @@ uses
 type
   TSubmapKind = (skFine, skCoarse);
 
-  TJPEGFileInfo = record
+  TJpegFileInfo = record
     Coords: TDoubleRect;
     FilePath: string;
-    StartLevel, EndLevel: Integer;
+    StartLevel: Integer;
+    EndLevel: Integer;
     FileSize: Integer;
   end;
+  PJpegFileInfo = ^TJpegFileInfo;
 
   TVolumeInfo = record
     VolumeIndex: Integer;
     TileCount: Int64;
-    JPEGFileInfos: array of TJPEGFileInfo;
+    JPEGFileInfos: array of TJpegFileInfo;
     SubmapsPresent: array [TSubmapKind] of Boolean;
     SubmapsTileCount: array [TSubmapKind] of Int64;
     SubmapMTXNames: array [TSubmapKind] of string;
   end;
 
-  TExportTaskToIMG = class(TRegionProcessTaskAbstract, IListener)
+  TExportTaskToIMG = class(TRegionProcessTaskAbstract)
   private
     FTask: TExportToIMGTask;
     FTargetFileName, FTargetFileExt: string;
     FBitmapPostProcessing: IBitmapPostProcessing;
     FCancelEvent: THandle;
+    FCancelListener: IListener;
     FTempFolder: string;
 
     // Derived info about the task
@@ -71,27 +74,30 @@ type
     FAvailableGeneralizationLevels: set of 0..12;
     FGeneralizationLevelCount: array [TSubmapKind] of Integer;
 
-    FStrPhase1Format: WideString;
-    FStrPhase2: WideString;
-    FStrPhase3: WideString;
-    FStrNoTilesToExport: WideString;
-    FStrCompileErrorFormat: WideString;
-    FStrCompileErrorNoMessage: WideString;
-    FStrCannotStartCompiler: WideString;
-    FStrCannotStartGMT: WideString;
-    FStrIMGBuildError: WideString;
+    FStrPhase1Format: string;
+    FStrPhase2: string;
+    FStrPhase3: string;
+    FStrNoTilesToExport: string;
+    FStrCompileErrorFormat: string;
+    FStrCompileErrorNoMessage: string;
+    FStrCannotStartCompiler: string;
+    FStrCannotStartGMT: string;
+    FStrIMGBuildError: string;
+    FStrNoFreeSpaceErrorFormat: string;
 
     FFormatSettings: TFormatSettings;
 
     FTileProcessErrorFmt: string;
 
-    // IListener
-    procedure Notification(const AMsg: IInterface);
-
     procedure InitializeTaskInternalInfo;
     procedure ClearTempFolder;
     function WriteMTXFiles(var AVolumeInfo: TVolumeInfo): Boolean;
     function CompileMaps(var AVolumeInfo: TVolumeInfo; AAddVolumeSuffix: Boolean): Boolean;
+
+    procedure OnTaskCancel;
+
+    procedure WriteLog(const AMsg: string);
+    procedure WriteLogFmt(const AMsg: string; const AFmt: array of const);
   protected
     procedure ProcessRegion; override;
   public
@@ -126,6 +132,8 @@ uses
   i_TileStorageAbilities,
   u_AnsiStr,
   u_Dialogs,
+  u_FileSystemFunc,
+  u_ListenerByEvent,
   u_ResStrings,
   u_GeoFunc;
 
@@ -143,12 +151,15 @@ begin
     APolygon,
     ATileIteratorFactory
   );
+
   FTargetFileName := ChangeFileExt(ATargetFile, '');
   FTargetFileExt := ExtractFileExt(ATargetFile);
+
   FTask := ATask;
   FBitmapPostProcessing := ABitmapPostProcessing;
 
   FCancelEvent := CreateEvent(nil, False, False, nil);
+  FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnTaskCancel);
 
   FStrPhase1Format := _('Saving tiles. %s %d %s');
   FStrNoTilesToExport := _('No tiles to export!');
@@ -160,6 +171,12 @@ begin
   FStrIMGBuildError := _('Could not build IMG file.');
   FStrPhase3 := _('Cleaning up. ');
 
+  FStrNoFreeSpaceErrorFormat := _(
+    'There is not enough free space on drive "%0:s"!' + #13#10 +
+    'Up to %1:d MB may be needed to store temporary files, but only %2:d MB is available.' + #13#10 +
+    'Are you sure you want to continue?'
+  );
+
   FTileProcessErrorFmt := '[IMG] ' + SAS_ERR_TileProcessError;
 
   // Use '.' as a floating point independently of the user's locale preferences.
@@ -170,10 +187,11 @@ end;
 destructor TExportTaskToIMG.Destroy;
 begin
   CloseHandle(FCancelEvent);
+  FCancelListener := nil;
   inherited;
 end;
 
-procedure TExportTaskToIMG.Notification(const AMsg: IInterface);
+procedure TExportTaskToIMG.OnTaskCancel;
 begin
   SetEvent(FCancelEvent);
 end;
@@ -199,7 +217,7 @@ const
 
   InvariableHeaders: array [1..19] of string = (
     'H4CP1',   'H4CS2',
-    'H4CRSAS.Planet development team@2017',
+    'H4CRSAS.Planet development team@2026',
     'H4LL0',   'H4MA  255', 'H4MB1',
     'H4MC  4', 'H4ML  255', 'H4MO0',
     'H4MT1',   'H4NB1',     'H4NT0',
@@ -242,6 +260,38 @@ const
     ('.gmp', '', ''),
     ('.gmp', '', '')
   );
+
+procedure TExportTaskToIMG.WriteLog(const AMsg: string);
+var
+  VLogFile: TextFile;
+  VLogFileName: string;
+begin
+  try
+    VLogFileName := FTempFolder + 'SASPlanet.log';
+    AssignFile(VLogFile, VLogFileName);
+    try
+      if FileExists(VLogFileName) then begin
+        Append(VLogFile);
+      end else begin
+        Rewrite(VLogFile);
+      end;
+      Writeln(VLogFile, FormatDateTime('hh:nn:ss ', Now) + StringReplace(AMsg, #13#10, ' ', [rfReplaceAll]));
+    finally
+      CloseFile(VLogFile);
+    end;
+  except
+    {$IFDEF DEBUG}
+    on E: Exception do begin
+      ShowErrorMessageSync(E.ClassName + ': ' + E.Message);
+    end;
+    {$ENDIF}
+  end;
+end;
+
+procedure TExportTaskToIMG.WriteLogFmt(const AMsg: string; const AFmt: array of const);
+begin
+  Self.WriteLog(Format(AMsg, AFmt));
+end;
 
 procedure TExportTaskToIMG.InitializeTaskInternalInfo;
 var
@@ -300,7 +350,8 @@ begin
       if AVolumeInfo.SubmapsPresent[sk] then begin
         AVolumeInfo.SubmapMTXNames[sk] := IntToHex(FTask.FMapID, 8);
         VFileName := FTempFolder + AVolumeInfo.SubmapMTXNames[sk] + '.mtx';
-        AssignFile(VMtxFiles[sk], VFileName); Rewrite(VMtxFiles[sk]);
+        AssignFile(VMtxFiles[sk], VFileName);
+        Rewrite(VMtxFiles[sk]);
 
         // H0 - Main header
         WriteLn(VMtxFiles[sk], Format('H0%.4X%10d%10d%10d%10d', [$601, 13 + FGeneralizationLevelCount[sk] + 4 * AVolumeInfo.SubmapsTileCount[sk] + Length(InvariableHeaders), AVolumeInfo.SubmapsTileCount[sk] + 1, 0, 0]));
@@ -389,42 +440,103 @@ begin
   Result := True;
 end;
 
-// Returns
-//   True - child process successfully started and finished.
-//   False - child process started, but the user canceled the export.
-// Raises an exception if the process could not be started.
-function StartProcessAndWaitForCompletion(const ACommandLine, AStartPath, AStartError: string; AShowWindow, ACreationFlags: DWORD; CancellationEvent: THandle): Boolean;
+function StartProcessAndWaitForCompletion(const ACommandLine, AStartPath, AStartError: string; AShowWindow, ACreationFlags: DWORD; CancellationEvent: THandle; AOutput: TStrings = nil): Boolean;
 var
   VStartupInfo: TStartupInfo;
   VProcessInfo: TProcessInformation;
-  VWaitObjects: array [1..2] of THandle;
+  VWaitObjects: array [0..1] of THandle;
+  VSecurityAttributes: TSecurityAttributes;
+  VStdOutPipeRead, VStdOutPipeWrite: THandle;
+  VOutputReaderThread: TThread;
 begin
   Result := False;
 
-  FillChar(VProcessInfo, SizeOf(VProcessInfo), 0);
+  VStdOutPipeRead := 0;
+  VStdOutPipeWrite := 0;
+  VOutputReaderThread := nil;
+
+
   FillChar(VStartupInfo, SizeOf(VStartupInfo), 0);
-
   VStartupInfo.cb := SizeOf(VStartupInfo);
-  VStartupInfo.dwFlags := STARTF_USESHOWWINDOW;
   VStartupInfo.wShowWindow := AShowWindow;
+  VStartupInfo.dwFlags := STARTF_USESHOWWINDOW;
 
-  if CreateProcess(Nil, PChar(ACommandLine), Nil, Nil, False, ACreationFlags, Nil, PChar(AStartPath), VStartupInfo, VProcessInfo) then begin
-    VWaitObjects[1] := VProcessInfo.hProcess;
-    VWaitObjects[2] := CancellationEvent;
-    try
-      if WaitForMultipleObjects(2, @VWaitObjects[1], False, INFINITE) <> WAIT_OBJECT_0 then begin
-        // If user has cancelled the export, terminate the child process.
-        TerminateProcess(VProcessInfo.hProcess, 0);
-        Exit;
-      end;
+  if Assigned(AOutput) then begin
+    // Setup security attributes for the pipe
+    VSecurityAttributes.nLength := SizeOf(VSecurityAttributes);
+    VSecurityAttributes.bInheritHandle := True;
+    VSecurityAttributes.lpSecurityDescriptor := nil;
 
-      Result := True;
-    finally
-      CloseHandle(VProcessInfo.hProcess);
-      CloseHandle(VProcessInfo.hThread);
+    // Create a single pipe for both streams
+    if not CreatePipe(VStdOutPipeRead, VStdOutPipeWrite, @VSecurityAttributes, 0) then begin
+      ShowErrorMessageSync(Format(AStartError, [SysErrorMessage(GetLastError)]));
+      Exit;
     end;
-  end else begin
-    raise Exception.Create(Format(AStartError, [SysErrorMessage(GetLastError)]));
+
+    VStartupInfo.dwFlags := VStartupInfo.dwFlags or STARTF_USESTDHANDLES;
+    VStartupInfo.hStdOutput := VStdOutPipeWrite;
+    VStartupInfo.hStdError := VStdOutPipeWrite; // Redirect both streams to the same pipe
+  end;
+
+  // Start the process
+  FillChar(VProcessInfo, SizeOf(VProcessInfo), 0);
+  if not CreateProcess(nil, PChar(ACommandLine), nil, nil, True, ACreationFlags, nil, PChar(AStartPath), VStartupInfo, VProcessInfo) then begin
+    ShowErrorMessageSync(Format(AStartError, [SysErrorMessage(GetLastError)]));
+    if Assigned(AOutput) then begin
+      CloseHandle(VStdOutPipeRead);
+      CloseHandle(VStdOutPipeWrite);
+    end;
+    Exit;
+  end;
+
+  if Assigned(AOutput) then begin
+    // Close the write-end of the pipe in this process
+    CloseHandle(VStdOutPipeWrite);
+
+    // Asynchronous stream reading
+    VOutputReaderThread := TThread.CreateAnonymousThread(
+      procedure
+      var
+        VBuffer: array[0..4095] of AnsiChar;
+        VBytesRead: DWORD;
+        VOutputLine: AnsiString;
+      begin
+        while ReadFile(VStdOutPipeRead, VBuffer, SizeOf(VBuffer) - 1, VBytesRead, nil) and (VBytesRead > 0) do begin
+          VBuffer[VBytesRead] := #0;
+          SetString(VOutputLine, VBuffer, VBytesRead);
+          AOutput.Add(string(VOutputLine));
+          if TThread.Current.CheckTerminated then Break;
+        end;
+      end);
+    VOutputReaderThread.FreeOnTerminate := False;
+    VOutputReaderThread.Start;
+  end;
+
+  try
+    // Wait for the process to complete or for cancellation
+    VWaitObjects[0] := VProcessInfo.hProcess;
+    VWaitObjects[1] := CancellationEvent;
+    if WaitForMultipleObjects(2, @VWaitObjects[0], False, INFINITE) = WAIT_OBJECT_0 then begin
+      Result := True
+    end else begin
+      TerminateProcess(VProcessInfo.hProcess, 0);
+      if Assigned(VOutputReaderThread) then begin
+        VOutputReaderThread.Terminate; // Signal the thread to terminate
+      end;
+    end;
+  finally
+    // Wait for the reader thread to finish and free resources
+    if Assigned(VOutputReaderThread) then begin
+      VOutputReaderThread.WaitFor;
+      VOutputReaderThread.Free;
+    end;
+
+    // Close handles
+    CloseHandle(VProcessInfo.hProcess);
+    CloseHandle(VProcessInfo.hThread);
+    if Assigned(AOutput) then begin
+      CloseHandle(VStdOutPipeRead);
+    end;
   end;
 end;
 
@@ -440,7 +552,7 @@ begin
   Result := False;
 
   // Compiling MTX files with bld_gmap32.
-  for sk:=skFine to skCoarse do begin
+  for sk := skFine to skCoarse do begin
     if AVolumeInfo.SubmapsPresent[sk] then begin
       if FTask.FMapCompilerLicensePath <> '' then begin
         VCommandLine := '/mpc "' + FTask.FMapCompilerLicensePath + '" ';
@@ -449,6 +561,7 @@ begin
       end;
 
       VCommandLine := '"' + FTask.FMapCompilerPath + '" ' + VCommandLine + '/nep ' + AVolumeInfo.SubmapMTXNames[sk] + ' .';
+      WriteLog(VCommandLine);
       if StartProcessAndWaitForCompletion(VCommandLine, FTempFolder, FStrCannotStartCompiler, SW_HIDE, 0, FCancelEvent) then begin
         // Checking if the compilation succeeded.
         // Looking for errors in log file.
@@ -466,7 +579,8 @@ begin
                 end;
               end;
 
-              raise Exception.Create(Format(FStrCompileErrorFormat, [VErrorMessage]));
+              ShowErrorMessageSync(Format(FStrCompileErrorFormat, [VErrorMessage]));
+              Exit;
             end;
           finally
             VLogFileStringList.Free;
@@ -476,7 +590,8 @@ begin
         // Checking if the map parts were made.
         for I := 1 to 3 do begin
           if (MapFormatSubfileExts[FTask.FIMGMapFormat, I] <> '') and not FileExists(FTempFolder + AVolumeInfo.SubmapMTXNames[sk] + MapFormatSubfileExts[FTask.FIMGMapFormat, I]) then begin
-            raise Exception.Create(FStrCompileErrorNoMessage);
+            ShowErrorMessageSync(FStrCompileErrorNoMessage);
+            Exit;
           end;
         end;
       end else begin
@@ -492,13 +607,13 @@ begin
   end;
   VFileName := VFileName + FTargetFileExt;
 
-  VCommandLine := '"' + FTask.FGMTPath + '" -j -o "' + VFileName + '" -m "' + FTask.FMapName;
+  VCommandLine := '"' + FTask.FGMTPath + '" -j -v -o "' + VFileName + '" -m "' + FTask.FMapName;
   if AAddVolumeSuffix then begin
     VCommandLine := VCommandLine + ' Part ' + IntToStr(AVolumeInfo.VolumeIndex + 1);
   end;
   VCommandLine := VCommandLine + '"';
 
-  for sk:=skFine to skCoarse do begin
+  for sk := skFine to skCoarse do begin
     for I := 1 to 3 do begin
       if AVolumeInfo.SubmapsPresent[sk] and (MapFormatSubfileExts[FTask.FIMGMapFormat, I] <> '') then begin
         VCommandLine := VCommandLine + ' ' + AVolumeInfo.SubmapMTXNames[sk] + MapFormatSubfileExts[FTask.FIMGMapFormat, I];
@@ -506,14 +621,25 @@ begin
     end;
   end;
 
-  if not StartProcessAndWaitForCompletion(VCommandLine, FTempFolder, FStrCannotStartGMT, SW_SHOWNORMAL, DETACHED_PROCESS, FCancelEvent) then begin
-    Exit
+  VLogFileStringList := TStringList.Create;
+  try
+    WriteLog(VCommandLine);
+    if not StartProcessAndWaitForCompletion(VCommandLine, FTempFolder, FStrCannotStartGMT, SW_SHOWNORMAL, DETACHED_PROCESS, FCancelEvent, VLogFileStringList) then begin
+      Exit
+    end;
+  finally
+    try
+      VLogFileStringList.SaveToFile(FTempFolder + 'GMapTool.log');
+    finally
+      VLogFileStringList.Free;
+    end;
   end;
-  if FileExists(VFileName) then begin
-    Result := True;
-  end else begin
-    // Checking if the compilation succeeded.
-    raise Exception.Create(FStrIMGBuildError);
+
+  // Checking if the compilation succeeded.
+  Result := FileExists(VFileName);
+
+  if not Result then begin
+    ShowErrorMessageSync(FStrIMGBuildError);
   end;
 end;
 
@@ -534,20 +660,29 @@ begin
         if VSearchRec.Attr and faDirectory = 0 then begin
           DeleteFile(FTempFolder + VSearchRec.Name);
           Inc(VFilesDeleted);
-          ProgressFormUpdateOnProgress(VFilesDeleted, FTilesToProcess);
+          if VFilesDeleted mod 256 = 0 then begin
+            ProgressFormUpdateOnProgress(VFilesDeleted, FTilesToProcess);
+          end;
         end;
       until FindNext(VSearchRec) <> 0;
     finally
       FindClose(VSearchRec);
     end;
-  end;
 
-  // Remove temp folder.
-  if not FTask.FKeepTempFiles then begin
+    ProgressFormUpdateOnProgress(VFilesDeleted, FTilesToProcess);
+
+    // Remove temp folder.
     try
-      RmDir(FTempFolder);
+      if not RemoveDir(FTempFolder) then begin
+        RaiseLastOSError;
+      end;
     except
-      // It's not a big deal if we could not delete the folder.
+      // It's not a big deal if we could not delete the temp folder.
+      {$IFDEF DEBUG}
+      on E: Exception do begin
+        ShowWarningMessageSync(E.ClassName + ': ' + E.Message + #13#10 + FTempFolder);
+      end;
+      {$ENDIF}
     end;
   end;
 end;
@@ -564,6 +699,11 @@ begin
     AVolumeInfo.SubmapsTileCount[sk] := 0;
     AVolumeInfo.SubmapMTXNames[sk] := '';
   end;
+end;
+
+function SizeToMb(const ABytes: Int64): Int64; inline;
+begin
+  Result := ABytes div (1024 * 1024);
 end;
 
 procedure TExportTaskToIMG.ProcessRegion;
@@ -594,37 +734,65 @@ var
   VRunningTotalTileSize: Int64;
   VCurrentVolumeInfo: TVolumeInfo;
   VTileHashTable: TStringList;
-  VJPEGTileInfo: ^TJPEGFileInfo;
-  VTileProcessErrorMsg: string;
+  VJpegTileInfo: PJpegFileInfo;
+  VErrorMessage: string;
+  VDiskFreeSpace: Int64;
+  VEstimatedSize: Int64;
 begin
-  inherited;
+  ProgressInfo.SetCaption(SAS_STR_ExportTiles);
 
-  SetLength(FTempFolder, MAX_PATH);
-  SetLength(FTempFolder, GetTempPath(MAX_PATH, PChar(FTempFolder)));
-  FTempFolder := FTempFolder + 'ExportToIMG_' + IntToHex(GetCurrentThreadId, 8) + '\';
-  if not DirectoryExists(FTempFolder) then begin
-    CreateDir(FTempFolder);
+  FTempFolder := FTask.FTempFilesPath + 'sasgis-tmp-' + IntToHex(GetCurrentThreadId, 8) + '\';
+
+  // Create temp folder.
+  if not ForceDirectories(FTempFolder) then begin
+    try
+      RaiseLastOSError;
+    except
+      on E: Exception do begin
+        ShowErrorMessageSync(E.ClassName + ': ' + E.Message + #13#10 + FTempFolder);
+        Exit;
+      end;
+    end;
   end;
 
-  // Preparing the internal structures used during the export.
-  InitializeTaskInternalInfo;
-  VSaver := FTask.FBitmapTileSaver;
+  VDiskFreeSpace := GetDiskFree(ExtractFileDrive(FTempFolder)[1]);
+  WriteLogFmt('Available disk space for temporary files: %d MB', [SizeToMb(VDiskFreeSpace)]);
+
+  ResetEvent(FCancelEvent);
+  CancelNotifier.AddListener(FCancelListener);
   try
-    ProgressInfo.SetCaption(SAS_STR_ExportTiles);
-    CancelNotifier.AddListener(Self);
-
-    VCurrentVolumeInfo.VolumeIndex := 0;
-    ClearVolumeInfo(VCurrentVolumeInfo);
     VTileHashTable := TStringList.Create;
-
     try
+      // Preparing the internal structures used during the export.
+      InitializeTaskInternalInfo;
+
+      VSaver := FTask.FBitmapTileSaver;
+
+      VCurrentVolumeInfo.VolumeIndex := 0;
+      ClearVolumeInfo(VCurrentVolumeInfo);
+
       // Writing the tiles to temp folder.
       ProgressInfo.SetFirstLine(Format(FStrPhase1Format, [SAS_STR_AllSaves, FTilesToProcess, SAS_STR_Files]));
       VTilesProcessed := 0;
       ProgressFormUpdateOnProgress(VTilesProcessed, FTilesToProcess);
       VRunningTotalTileSize := 0;
 
+      VEstimatedSize := FTilesToProcess * (15*1024); // 15k per tile
+      VEstimatedSize := VEstimatedSize * 2;
+
+      WriteLogFmt('Estimated temporary files size: %d MB', [SizeToMb(VEstimatedSize)]);
+      WriteLogFmt('Number of tiles to process: %d', [FTilesToProcess]);
+
+      if VEstimatedSize > VDiskFreeSpace then begin
+        VErrorMessage := Format(FStrNoFreeSpaceErrorFormat, [ExtractFileDrive(FTempFolder), SizeToMb(VEstimatedSize), SizeToMb(VDiskFreeSpace)]);
+        if ShowWarningMessageSync(VErrorMessage, MB_YESNO) <> ID_YES then begin
+          Exit;
+        end;
+      end;
+
       for I := 0 to Length(FTask.FItems) - 1 do begin
+        WriteLogFmt('Processing task %d', [I]);
+
         VTileStorage := FTask.FItems[I].FSourceTileStorage;
         VVersion := FTask.FItems[I].FSourceMapVersion;
         VZoom := FTask.FItems[I].FSourceScale;
@@ -662,11 +830,9 @@ begin
                   end;
                 except
                   on E: Exception do begin
-                    VTileProcessErrorMsg := Format(
-                      FTileProcessErrorFmt,
-                      [VTile.X, VTile.Y, VZoom + 1, E.ClassName, E.Message]
-                    );
-                    if ShowErrorMessageSync(VTileProcessErrorMsg, MB_YESNO) <> ID_YES then begin
+                    VErrorMessage := Format(FTileProcessErrorFmt, [VTile.X, VTile.Y, VZoom + 1, E.ClassName, E.Message]);
+                    WriteLog(VErrorMessage);
+                    if ShowErrorMessageSync(VErrorMessage, MB_YESNO) <> ID_YES then begin
                       Exit;
                     end;
                     VData := nil;
@@ -682,13 +848,13 @@ begin
                 VAbsolutePath := VTileStorage.GetTileFileName(VTile, VZoom, VVersion.BaseVersion);
                 if SameText(ExtractFileExt(VAbsolutePath), '.jpg') and FileExists(VAbsolutePath) then begin
                   {$IFDEF UNICODE}
-                    if not VFileCacheFlagIsValid then begin
-                      // In Unicode build, the cached files can only be used if the cache path is valid in current system locale.
-                      // We also need to check if the cache path does not contain any doule-byte symbols.
-                      if not FileExists(AnsiString(VAbsolutePath)) or (Length(AnsiString(VAbsolutePath)) <> Length(WideString(VAbsolutePath))) then begin
-                        VFileCacheFlagIsValid := True;
-                      end;
+                  if not VFileCacheFlagIsValid then begin
+                    // In Unicode build, the cached files can only be used if the cache path is valid in current system locale.
+                    // We also need to check if the cache path does not contain any doule-byte symbols.
+                    if not FileExists(AnsiString(VAbsolutePath)) or (Length(AnsiString(VAbsolutePath)) <> Length(WideString(VAbsolutePath))) then begin
+                      VFileCacheFlagIsValid := True;
                     end;
+                  end;
                   {$ENDIF}
 
                   // Checking if the cache is a plain, filesystem-based one.
@@ -735,7 +901,6 @@ begin
                 ProgressInfo.SetFirstLine(Format(FStrPhase1Format, [SAS_STR_AllSaves, FTilesToProcess, SAS_STR_Files]));
               end;
 
-
               VCrc32 := crc32(0, VData.Buffer, VData.Size);
               VTileHash := IntToHex(VCrc32, 8) + '_' + IntToHex(VData.Size, 8);
               VIndex := VTileHashTable.IndexOf(VTileHash);
@@ -769,12 +934,12 @@ begin
               end;
 
               SetLength(VCurrentVolumeInfo.JPEGFileInfos, VCurrentVolumeInfo.TileCount + 1);
-              VJPEGTileInfo := @VCurrentVolumeInfo.JPEGFileInfos[VCurrentVolumeInfo.TileCount];
-              VJPEGTileInfo.Coords := VProjectionSet.Zooms[VZoom].TilePos2LonLatRect(VTile);
-              VJPEGTileInfo.FilePath := ChangeFileExt(VFileName, '');
-              VJPEGTileInfo.StartLevel := FTask.FItems[I].FDeviceZoomStart;
-              VJPEGTileInfo.EndLevel := FTask.FItems[I].FDeviceZoomEnd;
-              VJPEGTileInfo.FileSize := VData.Size;
+              VJpegTileInfo := @VCurrentVolumeInfo.JPEGFileInfos[VCurrentVolumeInfo.TileCount];
+              VJpegTileInfo.Coords := VProjectionSet.Zooms[VZoom].TilePos2LonLatRect(VTile);
+              VJpegTileInfo.FilePath := ChangeFileExt(VFileName, '');
+              VJpegTileInfo.StartLevel := FTask.FItems[I].FDeviceZoomStart;
+              VJpegTileInfo.EndLevel := FTask.FItems[I].FDeviceZoomEnd;
+              VJpegTileInfo.FileSize := VData.Size;
 
               if FTask.FItems[I].FDeviceZoomStart <= 7 then begin
                 VCurrentVolumeInfo.SubmapsPresent[skFine] := True;
@@ -800,15 +965,18 @@ begin
 
     // If we haven't saved anything, report the user of empty export.
     if (VCurrentVolumeInfo.VolumeIndex = 0) and (VRunningTotalTileSize = 0) then begin
-      raise Exception.Create(FStrNoTilesToExport);
+      ShowErrorMessageSync(FStrNoTilesToExport);
+      Exit;
     end else begin
       // Otherwise compile the last volume (in a multi-volume case), or the only volume (in a single-volume export).
       if WriteMTXFiles(VCurrentVolumeInfo) then begin
-        CompileMaps(VCurrentVolumeInfo, VCurrentVolumeInfo.VolumeIndex > 0);
+        if not CompileMaps(VCurrentVolumeInfo, VCurrentVolumeInfo.VolumeIndex > 0) then begin
+          Exit;
+        end;
       end;
     end;
   finally
-    CancelNotifier.RemoveListener(Self);
+    CancelNotifier.RemoveListener(FCancelListener);
 
     // Deleting the files from temp folder.
     ClearTempFolder;

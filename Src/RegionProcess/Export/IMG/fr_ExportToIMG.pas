@@ -131,6 +131,11 @@ type
     seVolumeSize: TSpinEdit;
     seJpegQuality: TSpinEdit;
     lblCompression: TLabel;
+    pnlTemp: TPanel;
+    lblTempPath: TLabel;
+    pnlCompilerPath1: TPanel;
+    edtTempPath: TEdit;
+    btnSetTempPath: TButton;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure edtMapCompilePathChange(Sender: TObject);
     procedure edtMapCompilerLicensePathChange(Sender: TObject);
@@ -155,13 +160,15 @@ type
     procedure tbtmGenerateIdClick(Sender: TObject);
     procedure ZoomGarminDblClick(Sender: TObject);
     procedure lblWebSiteClick(Sender: TObject);
+    procedure btnSetTempPathClick(Sender: TObject);
+    procedure edtTempPathChange(Sender: TObject);
   private
     FExportToIMGConfig: IExportToIMGConfig;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FfrMapSelect: TfrMapSelect;
 
     function GetAllowExport(const AMapType: IMapType): boolean;
-    procedure SetSASZooms(const AStr: String);
+    procedure SetSASZooms(const AStr: string);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -190,6 +197,7 @@ implementation
 
 uses
   Windows,
+  FileCtrl,
   Graphics,
   gnugettext,
   u_Dialogs,
@@ -258,7 +266,8 @@ begin
     );
 
   cbbMapFormat.ItemIndex := 2;
-  lblWebSite.Caption := 'GMapTool';
+
+  lblWebSite.Caption := _('Download GMapTool');
   lblWebSite.Hint := CGMapToolHomepage;
 
   // Trying to autodetect the code page.
@@ -278,6 +287,7 @@ begin
   edtMapCompilerPath.Text := FExportToIMGConfig.MapCompilerPath;
   edtMapCompilerLicensePath.Text := FExportToIMGConfig.MapCompilerLicensePath;
   edtGMTPath.Text := FExportToIMGConfig.GMTPath;
+  edtTempPath.Text := FExportToIMGConfig.TempFilesPath;
 
   // Restore form preferences.
   tbSettings.Checked := FExportToIMGConfig.ZoomOptionsVisible;
@@ -287,7 +297,7 @@ begin
   SetSASZooms(FExportToIMGConfig.SASZoomList);
 
   FPropertyState := CreateComponentPropertyState(
-    Self, [pnlTop, tsMap, pnlCompiler, pnlLicense, pnlGMT, edtMapID, tbtmGenerateId], [], True, False, True, True
+    Self, [pnlTop, tsMap, pnlCompiler, pnlLicense, pnlGMT, pnlTemp, edtMapID, tbtmGenerateId], [], True, False, True, True
   );
 end;
 
@@ -297,7 +307,7 @@ begin
   inherited;
 end;
 
-procedure TfrExportToIMG.SetSASZooms(const AStr: String);
+procedure TfrExportToIMG.SetSASZooms(const AStr: string);
 var
   VStrList: TStringList;
   I, VOldIndex: Integer;
@@ -342,6 +352,11 @@ begin
   FExportToIMGConfig.MapCompilerLicensePath := edtMapCompilerLicensePath.Text;
 end;
 
+procedure TfrExportToIMG.edtTempPathChange(Sender: TObject);
+begin
+  FExportToIMGConfig.TempFilesPath := edtTempPath.Text;
+end;
+
 procedure TfrExportToIMG.edtGMTPathChange(Sender: TObject);
 begin
   FExportToIMGConfig.GMTPath := edtGMTPath.Text;
@@ -376,6 +391,16 @@ begin
   if dlgSetMapCompilerPath.Execute then begin
     dlgSetMapCompilerPath.InitialDir := ExtractFileDir(dlgSetMapCompilerPath.FileName);
     edtMapCompilerPath.Text := dlgSetMapCompilerPath.FileName;
+  end;
+end;
+
+procedure TfrExportToIMG.btnSetTempPathClick(Sender: TObject);
+var
+  VDir: string;
+begin
+  VDir := Trim(edtTempPath.Text);
+  if SelectDirectory('', '', VDir) then begin
+    edtTempPath.Text := IncludeTrailingPathDelimiter(VDir);
   end;
 end;
 
@@ -487,6 +512,7 @@ begin
       TBReset.Enabled := VStr <> CDefaultSasZooms;
     end;
   except
+    //
   end;
 end;
 
@@ -537,6 +563,14 @@ begin
     ShowErrorMessage(_('GMT tool path is not set or incorrect!'));
     pgcMain.ActivePage := tsSettings;
     edtGMTPath.SetFocus;
+    Exit;
+  end;
+
+  edtTempPath.Text := Trim(edtTempPath.Text);
+  if (edtTempPath.Text = '') or (ExtractFileDrive(edtTempPath.Text) = '') then begin
+    ShowErrorMessage(_('The path to the temporary files is not set or incorrect!'));
+    pgcMain.ActivePage := tsSettings;
+    edtTempPath.SetFocus;
     Exit;
   end;
 
@@ -604,14 +638,15 @@ begin
   Result.FVolumeSize := Cardinal(seVolumeSize.Value) * 1024 * 1024; // in bytes
   Result.FKeepTempFiles := chkKeepTempFiles.Checked;
 
-  Result.FMapCompilerPath := edtMapCompilerPath.Text;
-  Result.FMapCompilerLicensePath := edtMapCompilerLicensePath.Text;
-  Result.FGMTPath := edtGMTPath.Text;
+  Result.FMapCompilerPath := Trim(edtMapCompilerPath.Text);
+  Result.FMapCompilerLicensePath := Trim(edtMapCompilerLicensePath.Text);
+  Result.FGMTPath := Trim(edtGMTPath.Text);
+  Result.FTempFilesPath := IncludeTrailingPathDelimiter(Trim(edtTempPath.Text));
 
-  VPrevMap := Nil;
+  VPrevMap := nil;
   VPrevSourceScale := 0;
   VItemCount := 0;
-  Result.FItems := Nil;
+  Result.FItems := nil;
 
   for I := 0 to MapList.Items.Count - 1 do begin
     VMapListItem := MapList.Items[I];
@@ -621,7 +656,7 @@ begin
     // If the same source layer is used more than once in consequent device zooms, combine them to reduce the IMG file size.
     if (VItemCount > 0) and (VPrevMap = VMapListItem.Data) and (VPrevSourceScale = VSourceScale) and (Result.FItems[VItemCount - 1].FDeviceZoomStart = VDeviceZoom + 1) then begin
       Result.FItems[VItemCount - 1].FDeviceZoomStart := VDeviceZoom;
-      continue;
+      Continue;
     end;
 
     SetLength(Result.FItems, VItemCount + 1);

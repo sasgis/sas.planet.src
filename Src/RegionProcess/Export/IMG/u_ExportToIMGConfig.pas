@@ -32,31 +32,37 @@ uses
 type
   TExportToIMGConfig = class(TConfigDataElementBase, IExportToIMGConfig)
   private
-    FMapCompilerPath: String;
-    FMapCompilerLicensePath: String;
-    FGMTPath: String;
+    FMapCompilerPath: string;
+    FMapCompilerLicensePath: string;
+    FGMTPath: string;
+    FTempFilesPath: string;
     FZoomOptionsVisible: Boolean;
-    FSASZoomList: String;
+    FSASZoomList: string;
+
+    FIsInitialized: Boolean;
+    procedure DoLazyInitialize;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetMapCompilerPath: String;
-    procedure SetMapCompilerPath(const AValue: String);
+    { IExportToIMGConfig }
+    function GetMapCompilerPath: string;
+    procedure SetMapCompilerPath(const AValue: string);
 
-    function GetMapCompilerLicensePath: String;
-    procedure SetMapCompilerLicensePath(const AValue: String);
+    function GetMapCompilerLicensePath: string;
+    procedure SetMapCompilerLicensePath(const AValue: string);
 
-    function GetGMTPath: String;
-    procedure SetGMTPath(const AValue: String);
+    function GetGMTPath: string;
+    procedure SetGMTPath(const AValue: string);
+
+    function GetTempFilesPath: string;
+    procedure SetTempFilesPath(const AValue: string);
 
     function GetZoomOptionsVisible: Boolean;
     procedure SetZoomOptionsVisible(AValue: Boolean);
 
-    function GetSASZoomList: String;
-    procedure SetSASZoomList(const AValue: String);
-  public
-    constructor Create;
+    function GetSASZoomList: string;
+    procedure SetSASZoomList(const AValue: string);
   end;
 
 
@@ -69,60 +75,84 @@ uses
 
 { TExportToIMGConfig }
 
-constructor TExportToIMGConfig.Create;
+procedure TExportToIMGConfig.DoLazyInitialize;
 var
   VRegistry: TRegistry;
-  VMpcPath: String;
-  VPath: String;
+  VMpcPath: string;
+  VPath: string;
   VSearchRec: TSearchRec;
 begin
-  inherited Create;
+  if FIsInitialized then begin
+    Exit;
+  end;
 
-  VRegistry := TRegistry.Create;
+  LockWrite;
   try
-    VMpcPath := '';
-
-    VRegistry.RootKey := HKEY_LOCAL_MACHINE;
-    if VRegistry.OpenKeyReadOnly('SOFTWARE\Garmin\MPC') and VRegistry.ValueExists('InstallPath') then begin
-      VMpcPath := IncludeTrailingPathDelimiter(VRegistry.ReadString('InstallPath'));
-      if DirectoryExists(VMpcPath) then begin
-        VPath := VMpcPath + 'Tools\bld_gmap32\bld_gmap32.exe';
-        if FileExists(VPath) then begin
-          FMapCompilerPath := VPath;
-        end;
-      end;
+    if FIsInitialized then begin
+      Exit;
     end;
 
-    if VRegistry.OpenKeyReadOnly('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1873789F-59D5-4002-8A2F-60A827B78F98}_is1') and VRegistry.ValueExists('InstallLocation') then begin
-      VPath := IncludeTrailingPathDelimiter(VRegistry.ReadString('InstallLocation'));
-      if DirectoryExists(VPath) then begin
-        VPath := VPath + 'gmt\gmt.exe';
-        if FileExists(VPath) then begin
-          FGMTPath := VPath;
-        end;
-      end;
-    end;
+    VRegistry := TRegistry.Create;
+    try
+      VMpcPath := '';
 
-    VRegistry.RootKey := HKEY_CURRENT_USER;
-    if VRegistry.OpenKeyReadOnly('Software\GARMIN\ProductCreator\LastLicenseLocation') and VRegistry.ValueExists('Location') then begin
-      VPath := VRegistry.ReadString('Location');
-      if FileExists(VPath) then begin
-        FMapCompilerLicensePath := VPath
+      if FMapCompilerPath = '' then begin
+        VRegistry.RootKey := HKEY_LOCAL_MACHINE;
+        if VRegistry.OpenKeyReadOnly('SOFTWARE\Garmin\MPC') and VRegistry.ValueExists('InstallPath') then begin
+          VMpcPath := IncludeTrailingPathDelimiter(VRegistry.ReadString('InstallPath'));
+          if DirectoryExists(VMpcPath) then begin
+            VPath := VMpcPath + 'Tools\bld_gmap32\bld_gmap32.exe';
+            if FileExists(VPath) then begin
+              FMapCompilerPath := VPath;
+            end;
+          end;
+        end;
       end else begin
-        if FindFirst(VMpcPath + '*.mpl', faAnyFile, VSearchRec) = 0 then begin
-          FMapCompilerLicensePath := VMpcPath + VSearchRec.Name;
-          FindClose(VSearchRec);
+        VMpcPath := ExtractFilePath(FMapCompilerPath);
+      end;
+
+      if FGMTPath = '' then begin
+        if VRegistry.OpenKeyReadOnly('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1873789F-59D5-4002-8A2F-60A827B78F98}_is1') and VRegistry.ValueExists('InstallLocation') then begin
+          VPath := IncludeTrailingPathDelimiter(VRegistry.ReadString('InstallLocation'));
+          if DirectoryExists(VPath) then begin
+            VPath := VPath + 'gmt\gmt.exe';
+            if FileExists(VPath) then begin
+              FGMTPath := VPath;
+            end;
+          end;
         end;
       end;
+
+      if FMapCompilerLicensePath = '' then begin
+        VRegistry.RootKey := HKEY_CURRENT_USER;
+        if VRegistry.OpenKeyReadOnly('Software\GARMIN\ProductCreator\LastLicenseLocation') and VRegistry.ValueExists('Location') then begin
+          VPath := VRegistry.ReadString('Location');
+          if FileExists(VPath) then begin
+            FMapCompilerLicensePath := VPath
+          end else begin
+            if FindFirst(VMpcPath + '*.mpl', faAnyFile, VSearchRec) = 0 then begin
+              FMapCompilerLicensePath := VMpcPath + VSearchRec.Name;
+              FindClose(VSearchRec);
+            end;
+          end;
+        end;
+      end;
+
+      if FTempFilesPath = '' then begin
+        SetLength(FTempFilesPath, MAX_PATH);
+        SetLength(FTempFilesPath, Windows.GetTempPath(Length(FTempFilesPath), PChar(FTempFilesPath)));
+      end;
+    finally
+      VRegistry.Free;
     end;
+
+    FIsInitialized := True;
   finally
-    VRegistry.Free;
+    UnlockWrite;
   end;
 end;
 
-procedure TExportToIMGConfig.DoReadConfig(
-  const AConfigData: IConfigDataProvider
-);
+procedure TExportToIMGConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
 
@@ -130,27 +160,29 @@ begin
     FMapCompilerPath := AConfigData.ReadString('MapCompilerPath', FMapCompilerPath);
     FMapCompilerLicensePath := AConfigData.ReadString('MapCompilerLicensePath', FMapCompilerLicensePath);
     FGMTPath := AConfigData.ReadString('GMTPath', FGMTPath);
+    FTempFilesPath := AConfigData.ReadString('TempFilesPath', FTempFilesPath);
     FZoomOptionsVisible := AConfigData.ReadBool('ZoomOptionsVisible', FZoomOptionsVisible);
     FSASZoomList := AConfigData.ReadString('SASZoomList', FSASZoomList);
     SetChanged;
   end;
 end;
 
-procedure TExportToIMGConfig.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider
-);
+procedure TExportToIMGConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
 
   AConfigData.WriteString('MapCompilerPath', FMapCompilerPath);
   AConfigData.WriteString('MapCompilerLicensePath', FMapCompilerLicensePath);
   AConfigData.WriteString('GMTPath', FGMTPath);
+  AConfigData.WriteString('TempFilesPath', FTempFilesPath);
   AConfigData.WriteBool('ZoomOptionsVisible', FZoomOptionsVisible);
   AConfigData.WriteString('SASZoomList', FSASZoomList);
 end;
 
-function TExportToIMGConfig.GetMapCompilerPath: String;
+function TExportToIMGConfig.GetMapCompilerPath: string;
 begin
+  DoLazyInitialize;
+
   LockRead;
   try
     Result := FMapCompilerPath;
@@ -159,8 +191,10 @@ begin
   end;
 end;
 
-function TExportToIMGConfig.GetSASZoomList: String;
+function TExportToIMGConfig.GetSASZoomList: string;
 begin
+  DoLazyInitialize;
+
   LockRead;
   try
     Result := FSASZoomList;
@@ -169,8 +203,22 @@ begin
   end;
 end;
 
+function TExportToIMGConfig.GetTempFilesPath: string;
+begin
+  DoLazyInitialize;
+
+  LockRead;
+  try
+    Result := FTempFilesPath;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TExportToIMGConfig.GetZoomOptionsVisible: Boolean;
 begin
+  DoLazyInitialize;
+
   LockRead;
   try
     Result := FZoomOptionsVisible;
@@ -179,8 +227,10 @@ begin
   end;
 end;
 
-function TExportToIMGConfig.GetMapCompilerLicensePath: String;
+function TExportToIMGConfig.GetMapCompilerLicensePath: string;
 begin
+  DoLazyInitialize;
+
   LockRead;
   try
     Result := FMapCompilerLicensePath;
@@ -189,8 +239,10 @@ begin
   end;
 end;
 
-function TExportToIMGConfig.GetGMTPath: String;
+function TExportToIMGConfig.GetGMTPath: string;
 begin
+  DoLazyInitialize;
+
   LockRead;
   try
     Result := FGMTPath;
@@ -199,8 +251,7 @@ begin
   end;
 end;
 
-procedure TExportToIMGConfig.SetMapCompilerPath(
-  const AValue: String);
+procedure TExportToIMGConfig.SetMapCompilerPath(const AValue: string);
 begin
   LockWrite;
   try
@@ -213,12 +264,25 @@ begin
   end;
 end;
 
-procedure TExportToIMGConfig.SetSASZoomList(const AValue: String);
+procedure TExportToIMGConfig.SetSASZoomList(const AValue: string);
 begin
   LockWrite;
   try
     if FSASZoomList <> AValue then begin
       FSASZoomList := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TExportToIMGConfig.SetTempFilesPath(const AValue: string);
+begin
+  LockWrite;
+  try
+    if FTempFilesPath <> AValue then begin
+      FTempFilesPath := AValue;
       SetChanged;
     end;
   finally
@@ -239,8 +303,7 @@ begin
   end;
 end;
 
-procedure TExportToIMGConfig.SetMapCompilerLicensePath(
-  const AValue: String);
+procedure TExportToIMGConfig.SetMapCompilerLicensePath(const AValue: string);
 begin
   LockWrite;
   try
@@ -253,8 +316,7 @@ begin
   end;
 end;
 
-procedure TExportToIMGConfig.SetGMTPath(
-  const AValue: String);
+procedure TExportToIMGConfig.SetGMTPath(const AValue: string);
 begin
   LockWrite;
   try

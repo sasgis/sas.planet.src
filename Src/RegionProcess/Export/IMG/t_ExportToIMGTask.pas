@@ -33,28 +33,30 @@ type
     FSourceTileStorage: ITileStorage;
     FSourceMapVersion: IMapVersionRequest;
     FSourceScale: Byte;
-    FDeviceZoomStart, FDeviceZoomEnd: Byte;
+    FDeviceZoomStart: Byte;
+    FDeviceZoomEnd: Byte;
   end;
   PExportToIMGTaskItem = ^TExportToIMGTaskItem;
 
-  TIMGMapFormat = (mfOld, mfOldInGMP, mfNew);  
+  TIMGMapFormat = (mfOld, mfOldInGMP, mfNew);
 
   TExportToIMGTask = record
-    FMapName: String;
+    FMapName: string;
     FCodePageIndex: Integer;
     FIMGMapFormat: TIMGMapFormat;
     FDrawOrder: Integer;
     FMapSeries: Integer;
-    FMapID: LongWord;
+    FMapID: Cardinal;
     FItems: array of TExportToIMGTaskItem;
     FUseRecolor: Boolean;
     FBitmapTileSaver: IBitmapTileSaver;
-    FVolumeSize: LongWord; // size is limithed to 4 GB by IMG format
+    FVolumeSize: Cardinal; // size is limithed to 4 GB by IMG format
     FKeepTempFiles: Boolean;
 
-    FMapCompilerPath: String;
-    FMapCompilerLicensePath: String;
-    FGMTPath: String;
+    FMapCompilerPath: string;
+    FMapCompilerLicensePath: string;
+    FGMTPath: string;
+    FTempFilesPath: string;
   end;
 
 implementation

@@ -41,6 +41,10 @@ type
     procedure SetGMTPath(const AValue: String);
     property GMTPath: String read GetGMTPath write SetGMTPath;
 
+    function GetTempFilesPath: String;
+    procedure SetTempFilesPath(const AValue: String);
+    property TempFilesPath: String read GetTempFilesPath write SetTempFilesPath;
+
     function GetZoomOptionsVisible: Boolean;
     procedure SetZoomOptionsVisible(AValue: Boolean);
     property ZoomOptionsVisible: Boolean read GetZoomOptionsVisible write SetZoomOptionsVisible;
