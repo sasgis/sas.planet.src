@@ -234,14 +234,14 @@ function ReadPolygon(
   var
     VPoint: TDoublePoint;
   begin
-    VPoint.X := AConfigProvider.ReadFloat(AIdentLon + inttostr(AIndex), -10000);
-    VPoint.Y := AConfigProvider.ReadFloat(AIdentLat + inttostr(AIndex), -10000);
+    VPoint.X := AConfigProvider.ReadFloat(AIdentLon + IntToStr(AIndex), -10000);
+    VPoint.Y := AConfigProvider.ReadFloat(AIdentLat + IntToStr(AIndex), -10000);
 
     Result := not PointIsEmpty(VPoint) and ((Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360));
   end;
 
 var
-  i: Integer;
+  I: Integer;
   VPoint: TDoublePoint;
   VPointsAggregator: IDoublePointsAggregator;
   VIdentLon: string;
@@ -254,22 +254,22 @@ var
 begin
   VIdentLon := 'PointLon_';
   VIdentLat := 'PointLat_';
-  i := 0;
-  if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
-    i := 1;
-    if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
-      i := 0;
+  I := 0;
+  if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, I) then begin
+    I := 1;
+    if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, I) then begin
+      I := 0;
       VIdentLon := 'LLPointX_';
       VIdentLat := 'LLPointY_';
-      if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
-        i := 1;
-        if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
-          i := 0;
+      if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, I) then begin
+        I := 1;
+        if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, I) then begin
+          I := 0;
           VIdentLon := 'PointX_';
           VIdentLat := 'PointY_';
-          if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
-            i := 1;
-            if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
+          if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, I) then begin
+            I := 1;
+            if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, I) then begin
               Result := nil;
               Exit;
             end;
@@ -284,9 +284,9 @@ begin
   VIsOuter := True;
   VIsFinish := False;
   repeat
-    VPoint.X := AConfigProvider.ReadFloat(VIdentLon + inttostr(i), -10000);
-    VPoint.Y := AConfigProvider.ReadFloat(VIdentLat + inttostr(i), -10000);
-    Inc(i);
+    VPoint.X := AConfigProvider.ReadFloat(VIdentLon + IntToStr(I), -10000);
+    VPoint.Y := AConfigProvider.ReadFloat(VIdentLat + IntToStr(I), -10000);
+    Inc(I);
     VIsValidX := not IsNan(VPoint.X);
     VIsValidY := not IsNan(VPoint.Y);
     if (VIsValidX and (Abs(VPoint.X) > 360)) or (VIsValidY and (Abs(VPoint.Y) > 360)) then begin
@@ -315,14 +315,14 @@ procedure WriteContour(
   var AStartIndex: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VPoint: TDoublePoint;
   VStrIndex: string;
 begin
   Assert(Assigned(AContour));
-  for i := 0 to AContour.Count - 1 do begin
-    VPoint := AContour.Points[i];
-    VStrIndex := IntToStr(AStartIndex + i);
+  for I := 0 to AContour.Count - 1 do begin
+    VPoint := AContour.Points[I];
+    VStrIndex := IntToStr(AStartIndex + I);
     AConfigProvider.WriteFloat('PointLon_' + VStrIndex, VPoint.x);
     AConfigProvider.WriteFloat('PointLat_' + VStrIndex, VPoint.y);
   end;
@@ -335,7 +335,7 @@ procedure WriteSinglePolygon(
   var AStartIndex: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VContour: IGeometryLonLatContour;
   VStrIndex: string;
 begin
@@ -343,13 +343,13 @@ begin
   VContour := APolygon.OuterBorder;
   WriteContour(AConfigProvider, VContour, AStartIndex);
 
-  for i := 0 to APolygon.HoleCount - 1 do begin
-    VStrIndex := IntToStr(AStartIndex + i);
+  for I := 0 to APolygon.HoleCount - 1 do begin
+    VStrIndex := IntToStr(AStartIndex + I);
     AConfigProvider.WriteFloat('PointLon_' + VStrIndex, NaN);
     AConfigProvider.WriteFloat('PointLat_' + VStrIndex, -1);
     Inc(AStartIndex);
 
-    VContour := APolygon.HoleBorder[i];
+    VContour := APolygon.HoleBorder[I];
     WriteContour(AConfigProvider, VContour, AStartIndex);
   end;
 end;
@@ -360,7 +360,7 @@ procedure WriteMultiPolygon(
   var AStartIndex: Integer
 );
 var
-  i: Integer;
+  I: Integer;
   VPolygon: IGeometryLonLatSinglePolygon;
   VStrIndex: string;
 begin
@@ -369,13 +369,13 @@ begin
   VPolygon := APolygon.Item[0];
   WriteSinglePolygon(AConfigProvider, VPolygon, AStartIndex);
 
-  for i := 1 to APolygon.Count - 1 do begin
-    VStrIndex := IntToStr(AStartIndex + i);
+  for I := 1 to APolygon.Count - 1 do begin
+    VStrIndex := IntToStr(AStartIndex + I);
     AConfigProvider.WriteFloat('PointLon_' + VStrIndex, NaN);
     AConfigProvider.WriteFloat('PointLat_' + VStrIndex, NaN);
     Inc(AStartIndex);
 
-    VPolygon := APolygon.Item[i];
+    VPolygon := APolygon.Item[I];
     WriteSinglePolygon(AConfigProvider, VPolygon, AStartIndex);
   end;
 end;
@@ -386,16 +386,16 @@ procedure WritePolygon(
   const APolygon: IGeometryLonLatPolygon
 );
 var
-  i: Integer;
+  I: Integer;
   VMultiPolygon: IGeometryLonLatMultiPolygon;
   VSinglePolygon: IGeometryLonLatSinglePolygon;
 begin
   if Assigned(APolygon) then begin
-    i := 0;
+    I := 0;
     if Supports(APolygon, IGeometryLonLatSinglePolygon, VSinglePolygon) then begin
-      WriteSinglePolygon(AConfigProvider, VSinglePolygon, i);
+      WriteSinglePolygon(AConfigProvider, VSinglePolygon, I);
     end else if Supports(APolygon, IGeometryLonLatMultiPolygon, VMultiPolygon) then begin
-      WriteMultiPolygon(AConfigProvider, VMultiPolygon, i);
+      WriteMultiPolygon(AConfigProvider, VMultiPolygon, I);
     end else begin
       Assert(False);
     end;

@@ -1057,8 +1057,6 @@ begin
   VResult := FProviderAll.Validate(FPolygonLL);
   if VResult then begin
     FProviderAll.StartProcess(FPolygonLL);
-  end;
-  if VResult then begin
     if not tbtmDontClose.Checked then begin
       Close;
     end;
@@ -1115,14 +1113,14 @@ var
   VPolygon: IGeometryLonLatPolygon;
 begin
   VPolygon := FLastSelectionInfo.Polygon;
-  if (VPolygon <> nil) then begin
+  if VPolygon <> nil then begin
     FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
   end;
 end;
 
 procedure TfrmRegionProcess.tbtmSaveToMarksDbClick(Sender: TObject);
 begin
-  if (FLastSelectionInfo.Polygon <> nil) then begin
+  if FLastSelectionInfo.Polygon <> nil then begin
     FMarkDBGUI.SaveMarkModal(nil, FLastSelectionInfo.Polygon);
   end;
 end;
