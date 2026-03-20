@@ -35,6 +35,7 @@ uses
   i_MapZoomingConfig,
   i_DownloadUIConfig,
   i_MarksExplorerConfig,
+  i_RegionProcessConfig,
   i_ViewProjectionConfig,
   i_PathConfig,
   i_MainFormLayersConfig;
@@ -50,12 +51,10 @@ type
     procedure SetDisableZoomingByMouseScroll(AValue: Boolean);
     property DisableZoomingByMouseScroll: Boolean read GetDisableZoomingByMouseScroll write SetDisableZoomingByMouseScroll;
 
-    //Инвертировать направление при зуме колесом мышки
     function GetMouseScrollInvert: Boolean;
     procedure SetMouseScrollInvert(AValue: Boolean);
     property MouseScrollInvert: Boolean read GetMouseScrollInvert write SetMouseScrollInvert;
 
-    // Показывать хинты при нахождении мыши над меткой
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);
     property ShowHintOnMarks: Boolean read GetShowHintOnMarks write SetShowHintOnMarks;
@@ -126,6 +125,9 @@ type
 
     function GetMarksExplorerConfig: IMarksExplorerConfig;
     property MarksExplorerConfig: IMarksExplorerConfig read GetMarksExplorerConfig;
+
+    function GetRegionProcessConfig: IRegionProcessConfig;
+    property RegionProcessConfig: IRegionProcessConfig read GetRegionProcessConfig;
 
     function GetViewProjectionConfig: IViewProjectionConfig;
     property ViewProjectionConfig: IViewProjectionConfig read GetViewProjectionConfig;

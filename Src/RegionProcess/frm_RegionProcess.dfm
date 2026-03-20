@@ -8,12 +8,14 @@ object frmRegionProcess: TfrmRegionProcess
   Constraints.MinHeight = 400
   Constraints.MinWidth = 580
   ParentFont = True
+  OldCreateOrder = True
   PopupMode = pmExplicit
   Position = poMainFormCenter
   ShowHint = True
   OnClose = FormClose
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 96
+  TextHeight = 13
   object pnlBottomButtons: TPanel
     Left = 0
     Top = 413
@@ -22,7 +24,7 @@ object frmRegionProcess: TfrmRegionProcess
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 0
+    TabOrder = 1
     object btnStart: TButton
       AlignWithMargins = True
       Left = 438
@@ -61,6 +63,7 @@ object frmRegionProcess: TfrmRegionProcess
       object tbtmCopyBbox: TTBItem
         Hint = 'Copy BBOX coordinates'
         ImageIndex = 28
+        PopupMenu = pmCopyBboxMenu
         OnClick = tbtmCopyBboxClick
       end
       object tbtmSaveToMarksDb: TTBItem
@@ -101,7 +104,7 @@ object frmRegionProcess: TfrmRegionProcess
     Width = 600
     Height = 413
     Align = alClient
-    TabOrder = 1
+    TabOrder = 0
   end
   object dlgSaveSelection: TSaveDialog
     DefaultExt = '*.hlg'
@@ -109,5 +112,10 @@ object frmRegionProcess: TfrmRegionProcess
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 32
     Top = 48
+  end
+  object pmCopyBboxMenu: TPopupMenu
+    AutoHotkeys = maManual
+    Left = 320
+    Top = 360
   end
 end

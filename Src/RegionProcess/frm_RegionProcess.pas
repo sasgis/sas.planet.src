@@ -34,6 +34,7 @@ uses
   StdCtrls,
   ExtCtrls,
   ComCtrls,
+  Menus,
   TB2Item,
   TB2Dock,
   TB2Toolbar,
@@ -90,6 +91,7 @@ uses
   i_TileIteratorFactory,
   i_ViewProjectionConfig,
   i_BitmapTileProviderBuilder,
+  i_RegionProcessConfig,
   u_CommonFormAndFrameParents,
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
@@ -109,6 +111,7 @@ type
     tbxtlbrDontClose: TTBXToolbar;
     tbtmDontClose: TTBItem;
     pnlContent: TPanel;
+    pmCopyBboxMenu: TPopupMenu;
     procedure btnStartClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -130,6 +133,10 @@ type
     FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
     FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
+    FRegionProcessConfig: IRegionProcessConfig;
+
+    procedure PrepareCopyBboxMenu;
+    procedure OnCopyBboxMenuItemClick(Sender: TObject);
 
     function PrepareProviders(
       const ALanguageManager: ILanguageManager;
@@ -243,6 +250,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
       const ALastSelectionInfo: ILastSelectionInfo;
+      const ARegionProcessConfig: IRegionProcessConfig;
       const AMainMapConfig: IActiveMapConfig;
       const AMainLayersConfig: IActiveLayersConfig;
       const AViewProjectionConfig: IViewProjectionConfig;
@@ -295,11 +303,13 @@ implementation
 uses
   IniFiles,
   gnugettext,
+  t_GeoTypes,
   t_RMapsSQLite,
   i_InterfaceListSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_BitmapMapCombiner,
+  i_StringListStatic,
   u_BitmapTileProviderBuilder,
   u_TileIteratorFactory,
   u_ConfigDataProviderByIniFile,
@@ -342,6 +352,7 @@ constructor TfrmRegionProcess.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
   const ALastSelectionInfo: ILastSelectionInfo;
+  const ARegionProcessConfig: IRegionProcessConfig;
   const AMainMapConfig: IActiveMapConfig;
   const AMainLayersConfig: IActiveLayersConfig;
   const AViewProjectionConfig: IViewProjectionConfig;
@@ -388,6 +399,8 @@ constructor TfrmRegionProcess.Create(
 );
 begin
   inherited Create(ALanguageManager);
+
+  FRegionProcessConfig := ARegionProcessConfig;
   FLastSelectionInfo := ALastSelectionInfo;
   FPosition := APosition;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
@@ -475,6 +488,8 @@ begin
       '',
       ''
     );
+
+  PrepareCopyBboxMenu;
 
   FPropertyState := CreateComponentPropertyState(
     Self, [tbxtlbrOperations], [], True, False, True, True
@@ -1137,15 +1152,91 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.tbtmCopyBboxClick(Sender: TObject);
-VAR
-  VStr: string;
+procedure TfrmRegionProcess.PrepareCopyBboxMenu;
+
+  procedure AddMenuItem(const ATag: Integer; const ACaption: string; const AIsTmplItem: Boolean);
+  var
+    VItem: TMenuItem;
+  begin
+    VItem := pmCopyBboxMenu.CreateMenuItem;
+
+    VItem.AutoCheck := AIsTmplItem;
+    VItem.RadioItem := AIsTmplItem;
+    VItem.Caption := ACaption;
+    VItem.Tag := ATag;
+    VItem.OnClick := Self.OnCopyBboxMenuItemClick;
+
+    pmCopyBboxMenu.Items.Add(VItem);
+  end;
+
+var
+  I: Integer;
+  VTmpl: IStringListStatic;
 begin
-  VStr := '*[bbox=' +
-   (RoundEx(FLastSelectionInfo.Polygon.Bounds.Left,6)) + ',' +
-   (RoundEx(FLastSelectionInfo.Polygon.Bounds.Bottom,6)) + ',' +
-   (RoundEx(FLastSelectionInfo.Polygon.Bounds.Right,6)) + ',' +
-   (RoundEx(FLastSelectionInfo.Polygon.Bounds.Top,6)) + ']';
+  pmCopyBboxMenu.Items.Clear;
+
+  VTmpl := FRegionProcessConfig.CopyBboxTemplates;
+  if VTmpl <> nil then begin
+    for I := 0 to VTmpl.Count - 1 do begin
+      AddMenuItem(I + 100, VTmpl.Items[I], True);
+    end;
+  end;
+
+  if pmCopyBboxMenu.Items.Count = 0 then begin
+    AddMenuItem(1, '{bbox}', True);
+  end;
+
+  I := FRegionProcessConfig.CopyBboxTemplateActiveIndex;
+  if (I >= pmCopyBboxMenu.Items.Count) or (I < 0) then begin
+    I := 0;
+  end;
+  pmCopyBboxMenu.Items[I].Checked := True;
+
+  AddMenuItem(0, '-', False);
+  AddMenuItem(2, _('Edit templates'), False);
+end;
+
+procedure TfrmRegionProcess.OnCopyBboxMenuItemClick(Sender: TObject);
+var
+  VTag: NativeInt;
+begin
+  if not (Sender is TMenuItem) then begin
+    Exit;
+  end;
+
+  VTag := TMenuItem(Sender).Tag;
+
+  if VTag = 1 then begin
+    FRegionProcessConfig.CopyBboxTemplateActiveIndex := -1;
+  end else
+  if VTag = 2 then begin
+    // todo
+  end else
+  if VTag >= 100 then begin
+    FRegionProcessConfig.CopyBboxTemplateActiveIndex := VTag - 100;
+  end;
+end;
+
+procedure TfrmRegionProcess.tbtmCopyBboxClick(Sender: TObject);
+var
+  I: Integer;
+  VStr: string;
+  VTmpl: IStringListStatic;
+  VBounds: TDoubleRect;
+begin
+  VBounds := FLastSelectionInfo.Polygon.Bounds.Rect;
+
+  VStr :=
+    RoundEx(VBounds.Left, 6) + ',' + RoundEx(VBounds.Bottom, 6) + ',' +
+    RoundEx(VBounds.Right, 6) + ',' + RoundEx(VBounds.Top, 6);
+
+  VTmpl := FRegionProcessConfig.CopyBboxTemplates;
+  I := FRegionProcessConfig.CopyBboxTemplateActiveIndex;
+
+  if (VTmpl <> nil) and (VTmpl.Count > 0) and (I < VTmpl.Count) and (I >= 0) then begin
+    VStr := StringReplace(VTmpl.Items[I], '{bbox}', VStr, [rfReplaceAll, rfIgnoreCase]);
+  end;
+
   CopyStringToClipboard(Handle, VStr);
 end;
 

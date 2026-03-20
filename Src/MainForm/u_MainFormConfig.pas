@@ -37,6 +37,7 @@ uses
   i_DownloadUIConfig,
   i_ViewProjectionConfig,
   i_MarksExplorerConfig,
+  i_RegionProcessConfig,
   i_PathConfig,
   u_ConfigDataElementComplexBase;
 
@@ -58,6 +59,7 @@ type
     FMapZoomingConfig: IMapZoomingConfig;
     FMapMovingConfig: IMapMovingConfig;
     FMarksExplorerConfig: IMarksExplorerConfig;
+    FRegionProcessConfig: IRegionProcessConfig;
     FViewProjectionConfig: IViewProjectionConfig;
   private
     function GetMainConfig: IMainFormMainConfig;
@@ -75,6 +77,7 @@ type
     function GetMapZoomingConfig: IMapZoomingConfig;
     function GetMapMovingConfig: IMapMovingConfig;
     function GetMarksExplorerConfig: IMarksExplorerConfig;
+    function GetRegionProcessConfig: IRegionProcessConfig;
     function GetViewProjectionConfig: IViewProjectionConfig;
   public
     constructor Create(
@@ -103,6 +106,7 @@ uses
   u_MainFormMainConfig,
   u_ViewProjectionConfig,
   u_PathConfig,
+  u_RegionProcessConfig,
   u_MarksExplorerConfig;
 
 { TMainFormConfig }
@@ -143,6 +147,8 @@ begin
   Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
   FMarksExplorerConfig := TMarksExplorerConfig.Create;
   Add(FMarksExplorerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksExplorer'));
+  FRegionProcessConfig := TRegionProcessConfig.Create;
+  Add(FRegionProcessConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('RegionProcess'));
   FViewProjectionConfig := TViewProjectionConfig.Create;
   Add(FViewProjectionConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ViewProjection'));
 end;
@@ -210,6 +216,11 @@ end;
 function TMainFormConfig.GetNavToPoint: INavigationToPoint;
 begin
   Result := FNavToPoint;
+end;
+
+function TMainFormConfig.GetRegionProcessConfig: IRegionProcessConfig;
+begin
+  Result := FRegionProcessConfig;
 end;
 
 function TMainFormConfig.GetSearchHistory: IStringHistory;

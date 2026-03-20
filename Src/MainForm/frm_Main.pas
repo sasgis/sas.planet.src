@@ -1453,6 +1453,7 @@ begin
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
       GState.LastSelectionInfo,
+      FConfig.RegionProcessConfig,
       FConfig.MainMapConfig,
       FConfig.MapLayersConfig,
       FConfig.ViewProjectionConfig,

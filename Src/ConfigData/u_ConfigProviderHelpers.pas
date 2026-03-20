@@ -32,6 +32,7 @@ uses
   i_Appearance,
   i_AppearanceOfMarkFactory,
   i_MarkPicture,
+  i_StringListStatic,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
 
@@ -122,9 +123,22 @@ procedure WriteSet(
   const ASetSize: Integer
 );
 
+procedure WriteStringListStatic(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AIdent: string;
+  const AList: IStringListStatic
+);
+
+function ReadStringListStatic(
+  const AConfigProvider: IConfigDataProvider;
+  const AIdent: string;
+  const ADefault: IStringListStatic = nil
+): IStringListStatic;
+
 implementation
 
 uses
+  Classes,
   SysUtils,
   Graphics,
   Math,
@@ -135,6 +149,7 @@ uses
   i_AppearanceOfVectorItem,
   i_ContentTypeInfo,
   u_GeoFunc,
+  u_StringListStatic,
   u_DoublePointsAggregator;
 
 function ReadColor32(
@@ -200,7 +215,7 @@ begin
     try
       VResourceProvider := AConfigProvider.GetSubItem(VFilePath);
     except
-      Assert(False, 'Ошибка при получении пути ' + VFilePath);
+      Assert(False, 'Failed to get path: ' + VFilePath);
     end;
   end;
 
@@ -213,7 +228,7 @@ begin
           try
             Result := VBitmapContntType.GetLoader.Load(VData);
           except
-            Assert(False, 'Ошибка при загрузке картинки ' + AFullFileName);
+            Assert(False, 'Failed to load image: ' + AFullFileName);
           end;
         end;
       end;
@@ -225,6 +240,7 @@ function ReadPolygon(
   const AConfigProvider: IConfigDataProvider;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
 ): IGeometryLonLatPolygon;
+
   function CheckIsValidPoint(
     const AConfigProvider: IConfigDataProvider;
     const AIdentLon: string;
@@ -659,6 +675,56 @@ var
 begin
   VValue := SetToInt(ASet, ASetSize);
   AConfigProvider.WriteInteger(AIdent, VValue);
+end;
+
+procedure WriteStringListStatic(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AIdent: string;
+  const AList: IStringListStatic
+);
+var
+  I: Integer;
+begin
+  if AList = nil then begin
+    AConfigProvider.WriteInteger(AIdent + '_Count', 0);
+    Exit;
+  end;
+
+  AConfigProvider.WriteInteger(AIdent + '_Count', AList.Count);
+  for I := 0 to AList.Count - 1 do begin
+    AConfigProvider.WriteString(AIdent + '_' + IntToStr(I), AList.Items[I]);
+  end;
+end;
+
+function ReadStringListStatic(
+  const AConfigProvider: IConfigDataProvider;
+  const AIdent: string;
+  const ADefault: IStringListStatic
+): IStringListStatic;
+var
+  I: Integer;
+  VCount: Integer;
+  VList: TStringList;
+  VItem: string;
+begin
+  VList := TStringList.Create;
+  try
+    VCount := AConfigProvider.ReadInteger(AIdent + '_Count', 0);
+    for I := 0 to VCount - 1 do begin
+      VItem := Trim(AConfigProvider.ReadString(AIdent + '_' + IntToStr(I), ''));
+      if VItem <> '' then begin
+        VList.Add(VItem);
+      end;
+    end;
+    if VList.Count > 0 then begin
+      Result := TStringListStatic.CreateWithOwn(VList);
+      VList := nil;
+    end else begin
+      Result := ADefault;
+    end;
+  finally
+    VList.Free;
+  end;
 end;
 
 end.

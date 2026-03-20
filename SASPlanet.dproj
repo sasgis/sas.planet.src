@@ -1456,6 +1456,7 @@
             <Form>frmRegionProcess</Form>
         </DCCReference>
         <DCCReference Include="Src\RegionProcess\i_RegionProcess.pas"/>
+        <DCCReference Include="Src\RegionProcess\i_RegionProcessConfig.pas"/>
         <DCCReference Include="Src\RegionProcess\i_RegionProcessParamsFrame.pas"/>
         <DCCReference Include="Src\RegionProcess\i_RegionProcessProgressInfo.pas"/>
         <DCCReference Include="Src\RegionProcess\i_RegionProcessProgressInfoDownload.pas"/>
@@ -1463,6 +1464,7 @@
         <DCCReference Include="Src\RegionProcess\i_RegionProcessProvider.pas"/>
         <DCCReference Include="Src\RegionProcess\i_RegionProcessTask.pas"/>
         <DCCReference Include="Src\RegionProcess\u_ExportProviderAbstract.pas"/>
+        <DCCReference Include="Src\RegionProcess\u_RegionProcessConfig.pas"/>
         <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfo.pas"/>
         <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoDownload.pas"/>
         <DCCReference Include="Src\RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas"/>

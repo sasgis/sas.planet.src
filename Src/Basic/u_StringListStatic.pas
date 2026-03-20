@@ -24,6 +24,7 @@ unit u_StringListStatic;
 interface
 
 uses
+  Types,
   Classes,
   i_StringListStatic,
   u_BaseInterfacedObject;
@@ -37,6 +38,7 @@ type
     function GetItem(AIndex: Integer): string;
     function IndexOf(const S: string): Integer;
   public
+    constructor CreateByStringDynArray(const AArr: TStringDynArray);
     constructor CreateByStrings(const AList: TStrings);
     constructor CreateWithOwn(var AList: TStringList);
     constructor CreateFromFile(const AFileName: string);
@@ -50,6 +52,23 @@ uses
   SysUtils;
 
 { TStringListStatic }
+
+constructor TStringListStatic.CreateByStringDynArray(const AArr: TStringDynArray);
+var
+  I: Integer;
+  VList: TStringList;
+begin
+  VList := TStringList.Create;
+  try
+    for I := Low(AArr) to High(AArr) do begin
+      VList.Add(AArr[I]);
+    end;
+    CreateWithOwn(VList);
+    VList := nil;
+  finally
+    VList.Free;
+  end;
+end;
 
 constructor TStringListStatic.CreateByStrings(const AList: TStrings);
 var
