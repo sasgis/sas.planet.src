@@ -618,6 +618,10 @@ object frmMarksExplorer: TfrmMarksExplorer
       ImageIndex = 69
       OnClick = tbitmCopyAsTextClick
     end
+    object tbxtmCopyBboxToClipboard: TTBXItem
+      Caption = 'Copy Bounding Box to Clipboard'
+      OnClick = tbxtmCopyBboxToClipboardClick
+    end
     object TBXSeparatorItem5: TTBXSeparatorItem
     end
     object tbxSelectAllVisible: TTBXItem

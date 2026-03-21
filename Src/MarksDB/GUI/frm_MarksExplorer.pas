@@ -154,6 +154,7 @@ type
     tbxtmGroup: TTBXItem;
     TBXSeparatorItem8: TTBXSeparatorItem;
     tbitmFilter: TTBXItem;
+    tbxtmCopyBboxToClipboard: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -246,6 +247,7 @@ type
     procedure tbitmEditMarkPositionClick(Sender: TObject);
     procedure tbxtmGroupClick(Sender: TObject);
     procedure tbitmFilterClick(Sender: TObject);
+    procedure tbxtmCopyBboxToClipboardClick(Sender: TObject);
   private
     type
       TCopyPasteAction = (cpNone, cpCopy, cpCut);
@@ -1623,6 +1625,9 @@ begin
   tbxtmAddToMergePolygons.Visible :=
     (VCount[mcPoly] > 0) or
     (VCount[mcMultiPoly] > 0);
+
+  tbxtmCopyBboxToClipboard.Visible :=
+    (VCount[mcTotal] = 1);
 end;
 
 procedure TfrmMarksExplorer.tbxSelectAllVisibleClick(Sender: TObject);
@@ -1706,6 +1711,18 @@ end;
 procedure TfrmMarksExplorer.tbxtmCatAddToMergePolygonsClick(Sender: TObject);
 begin
   FMarkDBGUI.AddCategoryToMergePolygons(GetSelectedCategory, FMergePolygonsPresenter);
+end;
+
+procedure TfrmMarksExplorer.tbxtmCopyBboxToClipboardClick(Sender: TObject);
+var
+  VMark: IVectorDataItem;
+begin
+  VMark := GetSelectedMarkFull;
+  if Assigned(VMark) then begin
+    CopyStringToClipboard(Handle, FMarkDBGUI.MarkToBbox(VMark));
+  end else begin
+    Assert(False);
+  end;
 end;
 
 procedure TfrmMarksExplorer.ToggleVisible;

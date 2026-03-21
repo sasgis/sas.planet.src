@@ -28,6 +28,7 @@ uses
   Dialogs,
   Controls,
   Classes,
+  Math,
   Forms,
   i_PathConfig,
   i_LanguageManager,
@@ -193,6 +194,7 @@ type
       const ACategory: IMarkCategory;
       const AMergePolygonsPresenter: IMergePolygonsPresenter
     );
+    function MarkToBbox(AMark: IVectorDataItem): string;
     function MarkToPlainText(AMark: IVectorDataItem): string;
     function MarkIdListToText(AMarksIdList: IInterfaceListStatic): string;
 
@@ -240,6 +242,7 @@ uses
   i_MarkCategoryTree,
   i_NotifierOperation,
   i_VectorItemTreeImporter,
+  t_GeoTypes,
   u_Dialogs,
   u_ResStrings,
   u_GeometryFunc,
@@ -823,6 +826,17 @@ begin
   end;
   VList := FImporterList.GetStatic;
   Result := ImportFilesModalInternal(AFiles, VList);
+end;
+
+function TMarkDbGUIHelper.MarkToBbox(AMark: IVectorDataItem): string;
+var
+  VBounds: TDoubleRect;
+begin
+  Assert(Assigned(AMark));
+  VBounds := AMark.Geometry.Bounds.Rect;
+  Result :=
+    RoundEx(VBounds.Left, 6) + ',' + RoundEx(VBounds.Bottom, 6) + ',' +
+    RoundEx(VBounds.Right, 6) + ',' + RoundEx(VBounds.Top, 6);
 end;
 
 function TMarkDbGUIHelper.MarkToPlainText(AMark: IVectorDataItem): string;
