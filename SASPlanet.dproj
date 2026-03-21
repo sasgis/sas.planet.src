@@ -1449,6 +1449,10 @@
             <Form>frZoomsSelect</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Src\RegionProcess\frm_CopyBboxTmplEditor.pas">
+            <Form>frmCopyBboxTmplEditor</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="Src\RegionProcess\frm_ProgressSimple.pas">
             <Form>frmProgressSimple</Form>
         </DCCReference>

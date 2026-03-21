@@ -95,7 +95,8 @@ uses
   u_CommonFormAndFrameParents,
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
-  fr_MapSelect;
+  fr_MapSelect,
+  frm_CopyBboxTmplEditor;
 
 type
   TfrmRegionProcess = class(TFormWitghLanguageManager, IRegionProcess, IRegionProcessFromFile)
@@ -134,6 +135,7 @@ type
     FPosition: ILocalCoordConverterChangeable;
     FBitmapTileProviderBuilder: IBitmapTileProviderBuilder;
     FRegionProcessConfig: IRegionProcessConfig;
+    FfrmCopyBboxTmplEditor: TfrmCopyBboxTmplEditor;
 
     procedure PrepareCopyBboxMenu;
     procedure OnCopyBboxMenuItemClick(Sender: TObject);
@@ -1210,7 +1212,12 @@ begin
     FRegionProcessConfig.CopyBboxTemplateActiveIndex := -1;
   end else
   if VTag = 2 then begin
-    // todo
+    if FfrmCopyBboxTmplEditor = nil then begin
+      FfrmCopyBboxTmplEditor := TfrmCopyBboxTmplEditor.Create(Self, FRegionProcessConfig);
+    end;
+    if FfrmCopyBboxTmplEditor.ShowModal = mrOk then begin
+      PrepareCopyBboxMenu; // rebuild menu
+    end;
   end else
   if VTag >= 100 then begin
     FRegionProcessConfig.CopyBboxTemplateActiveIndex := VTag - 100;

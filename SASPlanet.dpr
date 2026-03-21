@@ -1111,6 +1111,7 @@ uses
   fr_RegionProcessComplexComboBox in 'Src\RegionProcess\fr_RegionProcessComplexComboBox.pas' {frRegionProcessComplexComboBox: TFrame},
   fr_RegionProcessComplexPageControl in 'Src\RegionProcess\fr_RegionProcessComplexPageControl.pas' {frRegionProcessComplexPageControl: TFrame},
   fr_ZoomsSelect in 'Src\RegionProcess\fr_ZoomsSelect.pas' {frZoomsSelect: TFrame},
+  frm_CopyBboxTmplEditor in 'Src\RegionProcess\frm_CopyBboxTmplEditor.pas' {frmCopyBboxTmplEditor},
   frm_ProgressSimple in 'Src\RegionProcess\frm_ProgressSimple.pas' {frmProgressSimple},
   frm_RegionProcess in 'Src\RegionProcess\frm_RegionProcess.pas' {frmRegionProcess},
   i_RegionProcess in 'Src\RegionProcess\i_RegionProcess.pas',
