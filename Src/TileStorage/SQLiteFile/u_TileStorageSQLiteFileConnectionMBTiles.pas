@@ -242,7 +242,7 @@ const
     'CREATE UNIQUE INDEX metadata_idx ON metadata (name)',
     // tiles
     'CREATE TABLE tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)',
-    'CREATE INDEX tiles_idx on tiles (zoom_level, tile_column, tile_row)'
+    'CREATE UNIQUE INDEX tiles_idx on tiles (zoom_level, tile_column, tile_row)'
   );
 
   function GetFormatStr: string;
