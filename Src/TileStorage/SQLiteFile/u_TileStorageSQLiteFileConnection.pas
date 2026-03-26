@@ -79,12 +79,12 @@ type
     procedure GetResult(out X, Y, Z: Integer; out ABlob: IBinaryData); virtual; abstract;
   end;
 
-  TInsertOrReplaceConnectionStatement = class(TConnectionStatement)
+  TInsertTileConnectionStatement = class(TConnectionStatement)
   public
     function BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean; virtual; abstract;
   end;
 
-  TInsertOrIgnoreConnectionStatement = class(TConnectionStatement)
+  TUpdateTileConnectionStatement = class(TConnectionStatement)
   public
     function BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean; virtual; abstract;
   end;
@@ -106,8 +106,8 @@ type
     FRectInfoStmt: TRectInfoConnectionStatement;
     FEnumTilesStmt: TEnumTilesConnectionStatement;
     FFetchNextState: TFetchNextState;
-    FInsertOrReplaceStmt: TInsertOrReplaceConnectionStatement;
-    FInsertOrIgnoreStmt: TInsertOrIgnoreConnectionStatement;
+    FInsertTileStmt: TInsertTileConnectionStatement;
+    FUpdateTileStmt: TUpdateTileConnectionStatement;
     FDeleteTileStmt: TDeleteTileConnectionStatement;
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
@@ -250,8 +250,8 @@ begin
   FreeAndNil(FRectInfoStmt);
   FreeAndNil(FEnumTilesStmt);
 
-  FreeAndNil(FInsertOrReplaceStmt);
-  FreeAndNil(FInsertOrIgnoreStmt);
+  FreeAndNil(FInsertTileStmt);
+  FreeAndNil(FUpdateTileStmt);
   FreeAndNil(FDeleteTileStmt);
 
   if FSQLite3DB.IsOpened then begin
@@ -466,50 +466,96 @@ function TTileStorageSQLiteFileConnection.Insert(
   const AData: IBinaryData;
   const AIsOverwrite: Boolean
 ): Boolean;
-var
-  VStmt: PSQLite3StmtData;
+
+  function IsTileExists: Boolean;
+  var
+    VStmt: PSQLite3StmtData;
+  begin
+    Assert(FTileInfoStmt.FState = ssPrepared);
+
+    if not FTileInfoStmt.BindParams(AXY.X, AXY.Y, AZoom) then begin
+      FSQLite3DB.RaiseSQLite3Error;
+    end;
+
+    VStmt := @FTileInfoStmt.FStmt;
+    try
+      Result := FSQLite3DB.StepPrepared(VStmt) = SQLITE_ROW;
+    finally
+      VStmt.Reset;
+    end;
+  end;
+
+  function InsertTile: Boolean;
+  var
+    VStmt: PSQLite3StmtData;
+  begin
+    Result := False;
+
+    if not FInsertTileStmt.CheckPrepared(FSQLite3DB) then begin
+      FEnabled := False;
+      Exit;
+    end;
+
+    if not FInsertTileStmt.BindParams(AXY.X, AXY.Y, AZoom, AData) then begin
+      FSQLite3DB.RaiseSQLite3Error;
+    end;
+
+    VStmt := @FInsertTileStmt.FStmt;
+    try
+      Result := FSQLite3DB.StepPrepared(VStmt) = SQLITE_DONE;
+    finally
+      VStmt.Reset;
+    end;
+  end;
+
+  function UpdateTile: Boolean;
+  var
+    VStmt: PSQLite3StmtData;
+  begin
+    Result := False;
+
+    if not FUpdateTileStmt.CheckPrepared(FSQLite3DB) then begin
+      FEnabled := False;
+      Exit;
+    end;
+
+    if not FUpdateTileStmt.BindParams(AXY.X, AXY.Y, AZoom, AData) then begin
+      FSQLite3DB.RaiseSQLite3Error;
+    end;
+
+    VStmt := @FUpdateTileStmt.FStmt;
+    try
+      Result := FSQLite3DB.StepPrepared(VStmt) = SQLITE_DONE;
+    finally
+      VStmt.Reset;
+    end;
+  end;
+
 begin
   Result := False;
 
-  if not FEnabled or (FInsertOrReplaceStmt = nil) or (FInsertOrIgnoreStmt = nil) then begin
+  if not FEnabled or (FInsertTileStmt = nil) or (FUpdateTileStmt = nil) then begin
     Exit;
-  end;
-
-  if AIsOverwrite then begin
-    if not FInsertOrReplaceStmt.CheckPrepared(FSQLite3DB) then begin
-      FEnabled := False;
-      Exit;
-    end;
-
-    if not FInsertOrReplaceStmt.BindParams(AXY.X, AXY.Y, AZoom, AData) then begin
-      FSQLite3DB.RaiseSQLite3Error;
-    end;
-
-    VStmt := @FInsertOrReplaceStmt.FStmt;
-  end else begin
-    if not FInsertOrIgnoreStmt.CheckPrepared(FSQLite3DB) then begin
-      FEnabled := False;
-      Exit;
-    end;
-
-    if not FInsertOrIgnoreStmt.BindParams(AXY.X, AXY.Y, AZoom, AData) then begin
-      FSQLite3DB.RaiseSQLite3Error;
-    end;
-
-    VStmt := @FInsertOrIgnoreStmt.FStmt;
   end;
 
   FSQLite3DB.BeginTransaction;
   try
-    try
-      Result := FSQLite3DB.StepPrepared(VStmt) = SQLITE_DONE;
+    if IsTileExists then begin
+      if AIsOverwrite then begin
+        // Update
+        Result := UpdateTile;
+      end else begin
+        // Ignore
+        Exit;
+      end;
+    end else begin
+      // Insert
+      Result := InsertTile;
       if Result then begin
         Self.UpdateMetadata(AXY, AZoom);
       end;
-      FSQLite3DB.CommitTransaction;
-    finally
-      VStmt.Reset;
     end;
+    FSQLite3DB.CommitTransaction;
   except
     Result := False;
     FSQLite3DB.RollbackTransaction;

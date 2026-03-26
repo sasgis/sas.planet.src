@@ -184,8 +184,8 @@ begin
   FEnumTilesStmt := TEnumTilesConnectionStatementOruxMaps.Create(VBits, VBasePoints);
 
   // write access
-  FInsertOrReplaceStmt := nil;
-  FInsertOrIgnoreStmt := nil;
+  FInsertTileStmt := nil;
+  FUpdateTileStmt := nil;
   FDeleteTileStmt := nil;
 
   FEnabled :=

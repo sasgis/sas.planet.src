@@ -107,13 +107,13 @@ type
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
-  TInsertOrReplaceConnectionStatementMBTiles = class(TInsertOrReplaceConnectionStatement)
+  TInsertTileConnectionStatementMBTiles = class(TInsertTileConnectionStatement)
   public
     function BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean; override;
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
   end;
 
-  TInsertOrIgnoreConnectionStatementMBTiles = class(TInsertOrIgnoreConnectionStatement)
+  TUpdateTileConnectionStatementMBTiles = class(TUpdateTileConnectionStatement)
   public
     function BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean; override;
     constructor Create(const AIsInvertedY, AIsInvertedZ: Boolean);
@@ -216,8 +216,8 @@ begin
 
   // write access
   if not FIsReadOnly then begin
-    FInsertOrReplaceStmt := TInsertOrReplaceConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
-    FInsertOrIgnoreStmt := TInsertOrIgnoreConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
+    FInsertTileStmt := TInsertTileConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
+    FUpdateTileStmt := TUpdateTileConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
     FDeleteTileStmt := TDeleteTileConnectionStatementMBTiles.Create(VIsInvertedY, VIsInvertedZ);
 
     FMetadataStmt := TMetadataConnectionStatementMBTiles.Create(FSQLite3DB);
@@ -558,15 +558,15 @@ begin
   end;
 end;
 
-{ TInsertOrReplaceConnectionStatementMBTiles }
+{ TInsertTileConnectionStatementMBTiles }
 
-constructor TInsertOrReplaceConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+constructor TInsertTileConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
 begin
   inherited;
-  FText := 'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
+  FText := 'INSERT INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
 end;
 
-function TInsertOrReplaceConnectionStatementMBTiles.BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean;
+function TInsertTileConnectionStatementMBTiles.BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean;
 begin
   Assert(ABlob <> nil);
 
@@ -581,15 +581,15 @@ begin
     FStmt.BindBlob(4, ABlob.Buffer, ABlob.Size);
 end;
 
-{ TInsertOrIgnoreConnectionStatementMBTiles }
+{ TUpdateTileConnectionStatementMBTiles }
 
-constructor TInsertOrIgnoreConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
+constructor TUpdateTileConnectionStatementMBTiles.Create(const AIsInvertedY, AIsInvertedZ: Boolean);
 begin
   inherited;
-  FText := 'INSERT OR IGNORE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES (?,?,?,?)';
+  FText := 'UPDATE tiles SET tile_data = ? WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?';
 end;
 
-function TInsertOrIgnoreConnectionStatementMBTiles.BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean;
+function TUpdateTileConnectionStatementMBTiles.BindParams(X, Y, Z: Integer; const ABlob: IBinaryData): Boolean;
 begin
   Assert(ABlob <> nil);
 
@@ -598,10 +598,10 @@ begin
   end;
 
   Result :=
-    FStmt.BindInt(1, Z) and
-    FStmt.BindInt(2, X) and
-    FStmt.BindInt(3, Y) and
-    FStmt.BindBlob(4, ABlob.Buffer, ABlob.Size);
+    FStmt.BindBlob(1, ABlob.Buffer, ABlob.Size) and
+    FStmt.BindInt(2, Z) and
+    FStmt.BindInt(3, X) and
+    FStmt.BindInt(4, Y);
 end;
 
 { TDeleteTileConnectionStatementMBTiles }
