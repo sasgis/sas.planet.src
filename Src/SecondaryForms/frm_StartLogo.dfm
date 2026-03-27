@@ -74,7 +74,7 @@ object frmStartLogo: TfrmStartLogo
   end
   object tmrLogo: TTimer
     Enabled = False
-    Interval = 500
+    Interval = 50
     OnTimer = tmrLogoTimer
     Left = 8
     Top = 8
