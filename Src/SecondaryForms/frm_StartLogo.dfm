@@ -27,30 +27,49 @@ object frmStartLogo: TfrmStartLogo
     ScaleMode = smResize
     TabOrder = 0
     OnClick = imgLogoClick
-    object lblVersion: TLabel
-      Left = 464
-      Top = 249
-      Width = 3
-      Height = 13
-      Alignment = taRightJustify
-      Color = clWhite
-      ParentColor = False
-      Transparent = True
-    end
-    object lblWebSite: TLabel
-      Left = 8
-      Top = 254
-      Width = 99
-      Height = 16
-      Caption = 'http://sasgis.org'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      Transparent = True
-      Layout = tlCenter
+    object pnlBottom: TPanel
+      AlignWithMargins = True
+      Left = 9
+      Top = 245
+      Width = 459
+      Height = 25
+      Margins.Left = 9
+      Margins.Right = 12
+      Margins.Bottom = 6
+      Align = alBottom
+      BevelOuter = bvNone
+      TabOrder = 0
+      object lblVersion: TLabel
+        Left = 455
+        Top = 0
+        Width = 4
+        Height = 25
+        Align = alRight
+        Alignment = taRightJustify
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+        Layout = tlBottom
+      end
+      object lblWebSite: TLabel
+        Left = 0
+        Top = 0
+        Width = 4
+        Height = 25
+        Align = alLeft
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = True
+        Layout = tlBottom
+      end
     end
   end
   object tmrLogo: TTimer

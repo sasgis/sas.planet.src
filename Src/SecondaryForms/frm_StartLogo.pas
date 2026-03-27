@@ -45,12 +45,10 @@ type
     imgLogo: TImage32;
     lblVersion: TLabel;
     lblWebSite: TLabel;
-    procedure FormClose(
-      Sender: TObject;
-      var Action: TCloseAction
-    );
-    procedure tmrLogoTimer(Sender: TObject);
+    pnlBottom: TPanel;
     procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure tmrLogoTimer(Sender: TObject);
     procedure imgLogoClick(Sender: TObject);
   private
     FBuildInfo: IBuildInfo;
@@ -123,10 +121,7 @@ begin
   inherited;
 end;
 
-procedure TfrmStartLogo.FormClose(
-  Sender: TObject;
-  var Action: TCloseAction
-);
+procedure TfrmStartLogo.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
 end;
@@ -140,7 +135,9 @@ begin
     AssignStaticToBitmap32(imgLogo.Bitmap, VBitmapStatic);
   end;
 
+  lblWebSite.Caption := 'http://sasgis.org';
   lblVersion.Caption := 'v ' + FBuildInfo.GetVersionDetaled;
+
   FReadyToHide := False;
   if FAppStartedNotifier.IsExecuted then begin
     OnAppStarted;
@@ -149,14 +146,14 @@ end;
 
 procedure TfrmStartLogo.tmrLogoTimer(Sender: TObject);
 begin
-  tmrLogo.Enabled := false;
+  tmrLogo.Enabled := False;
   Self.Close;
 end;
 
 procedure TfrmStartLogo.imgLogoClick(Sender: TObject);
 begin
   if FReadyToHide then begin
-    tmrLogo.Enabled := false;
+    tmrLogo.Enabled := False;
     Self.Close;
   end;
 end;
