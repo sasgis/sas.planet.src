@@ -133,23 +133,13 @@ end;
 
 procedure TfrmStartLogo.FormShow(Sender: TObject);
 var
-  VBitmapSize: TPoint;
   VBitmapStatic: IBitmap32Static;
 begin
   VBitmapStatic := ReadBitmapByFileRef(FConfigData, 'sas:\Resource\LOGOI.jpg', FContentTypeManager, nil);
   if VBitmapStatic <> nil then begin
     AssignStaticToBitmap32(imgLogo.Bitmap, VBitmapStatic);
   end;
-  VBitmapSize.X := imgLogo.Bitmap.Width;
-  VBitmapSize.Y := imgLogo.Bitmap.Height;
 
-  if VBitmapSize.X < 100 then begin
-    VBitmapSize.X := 480;
-  end;
-  if VBitmapSize.Y < 100 then begin
-    VBitmapSize.Y := 276;
-  end;
-  imgLogo.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
   lblVersion.Caption := 'v ' + FBuildInfo.GetVersionDetaled;
   FReadyToHide := False;
   if FAppStartedNotifier.IsExecuted then begin
