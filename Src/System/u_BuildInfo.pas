@@ -125,8 +125,8 @@ function TBuildInfo.GetVersionDetaled: string;
 begin
   Result :=
     GetVersion + ' ' + FBuildType
-    {$IFDEF DEBUG} + ' -= Debug =-' {$ENDIF}
-    {$IFDEF WIN64} + ' (x64)'{$ENDIF};
+    {$IFDEF DEBUG} + ' Debug' {$ENDIF}
+    {$IFDEF WIN64} + ' (x64)' {$ENDIF};
 end;
 
 function TBuildInfo.GetBuildDate: TDateTime;
