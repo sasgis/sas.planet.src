@@ -33,6 +33,9 @@ procedure FiBitmapToBitmap32(const AFiBitmap: PFIBITMAP; const ABitmap: TCustomB
 
 implementation
 
+uses
+  GR32_LowLevel;
+
 function Bitmap32StaticToFiBitmap(const ABitmap: IBitmap32Static): PFIBITMAP;
 var
   VWidth, VHeight: Integer;
@@ -52,7 +55,7 @@ begin
   VDest := FreeImage_GetBits(Result);
 
   if Assigned(VSrc) and Assigned(VDest) then begin
-    Move(VSrc^, VDest^, VWidth * VHeight * SizeOf(TColor32));
+    MoveLongword(VSrc^, VDest^, VWidth * VHeight);
   end else begin
     Assert(False);
   end;
@@ -73,7 +76,7 @@ begin
   VDest := ABitmap.Bits;
 
   if Assigned(VSrc) and Assigned(VDest) then begin
-    Move(VSrc^, VDest^, VWidth * VHeight * SizeOf(TColor32));
+    MoveLongword(VSrc^, VDest^, VWidth * VHeight);
   end else begin
     Assert(False);
   end;
