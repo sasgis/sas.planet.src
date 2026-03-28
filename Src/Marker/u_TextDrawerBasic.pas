@@ -186,7 +186,7 @@ begin
     if VTextSize.cy > FMaxSize then begin
       VTextSize.cy := FMaxSize;
     end;
-    FBitmapWithText.SetSize(VTextSize.cx + 2, VTextSize.cy + 2);
+    FBitmapWithText.SetSize(VTextSize.cx + 2, VTextSize.cy + 2, False);
     if ASolidBgDraw then begin
       FBitmapWithText.Clear(ATextBgColor);
       FBitmapWithText.RenderText(2, 2, AText, SetAlpha(ATextColor, 255), FAntiAliased);
@@ -197,8 +197,7 @@ begin
     end;
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VBitmap.SetSizeFrom(FBitmapWithText);
-      VBitmap.Clear(0);
+      VBitmap.SetSizeFrom(FBitmapWithText, True);
       VBitmap.Draw(0, 0, FBitmapWithText);
       Result := VBitmap.MakeAndClear;
     finally

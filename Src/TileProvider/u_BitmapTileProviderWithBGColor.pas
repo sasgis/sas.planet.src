@@ -114,7 +114,7 @@ begin
   VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VTileSize := FSourceProvider.Projection.GetTileSize(Types.Point(0, 0));
-    VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
+    VTargetBmp.SetSize(VTileSize.X, VTileSize.Y, False);
     VTargetBmp.Clear(FEmptyColor);
     FEmptyTile := VTargetBmp.MakeAndClear;
   finally
@@ -160,7 +160,7 @@ begin
       VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
         VTileSize := FProjection.GetTileSize(ATile);
-        VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
+        VTargetBmp.SetSize(VTileSize.X, VTileSize.Y, False);
         VTargetBmp.Clear(FBackGroundColor);
 
         if FUsePreciseCropping then begin
@@ -202,7 +202,7 @@ begin
     end else begin
       VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
-        VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
+        VTargetBmp.SetSize(VTileSize.X, VTileSize.Y, False);
         VTargetBmp.Clear(FEmptyColor);
         Result := VTargetBmp.MakeAndClear;
       finally

@@ -163,7 +163,7 @@ begin
         try
           VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
           try
-            VBitmap.SetSize(VSize.X, VSize.Y);
+            VBitmap.SetSize(VSize.X, VSize.Y, True);
             StretchTransferFull(
               VBitmap,
               VBitmap.BoundsRect,
@@ -183,7 +183,7 @@ begin
           (Result.Size.Y > VSize.Y) then begin
           VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
           try
-            VBitmap.SetSize(VSize.X, VSize.Y);
+            VBitmap.SetSize(VSize.X, VSize.Y, True);
             BlockTransferFull(
               VBitmap,
               0, 0,

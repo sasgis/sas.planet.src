@@ -215,7 +215,8 @@ begin
           if VBitmapSourceTile = nil then begin
             bmp_ex.SetSize(
               VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
-              VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
+              VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top,
+              False
             );
             bmp_ex.Clear(FBackGroundColor);
           end else begin

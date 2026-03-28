@@ -254,8 +254,7 @@ begin
     VTransform.Translate(-VTargetRect.Left, -VTargetRect.Top);
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
-      VBitmap.Clear(0);
+      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y, True);
       VRasterizer := TRegularRasterizer.Create;
       try
         VSampler := TLinearResampler.Create;

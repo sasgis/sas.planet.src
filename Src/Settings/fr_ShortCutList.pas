@@ -150,7 +150,7 @@ begin
     wdth := min(ABounds.Right - ABounds.Left, ABounds.Bottom - ABounds.Top);
     VBitmap := TBitmap32.Create;
     try
-      VBitmap.SetSize(wdth, wdth);
+      VBitmap.SetSize(wdth, wdth, False);
       VBitmap.Clear(clWhite32);
       VResampler := TLinearResampler.Create;
       try

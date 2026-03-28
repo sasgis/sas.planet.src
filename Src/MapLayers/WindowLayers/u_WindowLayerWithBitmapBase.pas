@@ -109,7 +109,7 @@ end;
 
 procedure TWindowLayerWithBitmapBase.DoUpdateBitmapSize(const ASize: TPoint);
 begin
-  FLayer.Bitmap.SetSize(ASize.X, ASize.Y);
+  FLayer.Bitmap.SetSize(ASize.X, ASize.Y, True);
 end;
 
 procedure TWindowLayerWithBitmapBase.DoUpdateLayerLocation(ALocation: TFloatRect);

@@ -134,7 +134,7 @@ begin
   FTextSize := FBitmap.TextExtent(FText);
 
   if not FUseTextout then begin
-    FBitmap.SetSize(GetBitmapWidth, GetBitmapHeight);
+    FBitmap.SetSize(GetBitmapWidth, GetBitmapHeight, False);
     FBitmap.Clear(FBgColor);
     FBitmap.RenderText(CBorderSize, CBorderSize, FText, AFontColor, AFontQuality = fqAntialiased);
     FBitmap.DrawMode := dmBlend;

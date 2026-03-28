@@ -127,7 +127,7 @@ begin
   if VMarker <> nil then begin
     VBitmap := TBitmap32.Create;
     try
-      VBitmap.SetSize(bound.Right - bound.Left, bound.Bottom - bound.Top);
+      VBitmap.SetSize(bound.Right - bound.Left, bound.Bottom - bound.Top, False);
       VBitmap.Clear(clWhite32);
       VSourceSize := VMarker.Size;
       VScale := Min(VBitmap.Width / VSourceSize.X, VBitmap.Height / VSourceSize.Y);

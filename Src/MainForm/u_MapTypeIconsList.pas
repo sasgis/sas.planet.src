@@ -171,14 +171,14 @@ var
 begin
   VSrc := Bitmap32StaticToFiBitmap(ASrc);
   if not Assigned(VSrc) then begin
-    ADest.SetSize(0, 0);
+    ADest.SetSize(0, 0, False);
     Assert(False);
     Exit;
   end;
   try
     VDest := FreeImage_Rescale(VSrc, ADestWidth, ADestHeight, CFilter);
     if not Assigned(VDest) then begin
-      ADest.SetSize(0, 0);
+      ADest.SetSize(0, 0, False);
       Assert(False);
       Exit;
     end;
@@ -200,7 +200,7 @@ class procedure TMapTypeIconsList.ResampleBitmap(
 var
   VResampler: TCustomResampler;
 begin
-  ADest.SetSize(ADestWidth, ADestHeight);
+  ADest.SetSize(ADestWidth, ADestHeight, True);
 
   //VResampler := TKernelResampler.Create;
   //TKernelResampler(VResampler).Kernel := TLanczosKernel.Create;

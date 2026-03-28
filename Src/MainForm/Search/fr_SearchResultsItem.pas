@@ -139,7 +139,7 @@ begin
 
   if Supports(FPlacemark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
     if Assigned(VAppearanceIcon.Pic) then begin
-      imgIcon.Bitmap.SetSizeFrom(imgIcon);
+      imgIcon.Bitmap.SetSizeFrom(imgIcon, True);
       imgIcon.Visible := True;
       CopyBitmap32StaticToBitmap32(VAppearanceIcon.Pic.GetMarker, imgIcon.Bitmap);
       VGotoLonLat := FPlacemark.Geometry.GetGoToPoint;

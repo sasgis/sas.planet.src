@@ -304,7 +304,7 @@ begin
     end;
 
     VTextSize := VTextRec.Bitmap.TextExtent(VTextRec.Text);
-    VTextRec.Bitmap.SetSize(VTextSize.cx, VTextSize.cy);
+    VTextRec.Bitmap.SetSize(VTextSize.cx, VTextSize.cy, False);
 
     VTextRec.Bitmap.Clear(FColors.BgColor);
 

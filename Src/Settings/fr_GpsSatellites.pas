@@ -156,7 +156,7 @@ procedure TfrGpsSatellites.SatellitePaintBoxResize(Sender: TObject);
 begin
   SatellitePaintBox.Bitmap.Lock;
   try
-    SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
+    SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox, True);
     UpdateDataView;
   finally
     SatellitePaintBox.Bitmap.Unlock;

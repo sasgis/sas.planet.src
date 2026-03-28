@@ -283,8 +283,7 @@ begin
   VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VSize := Types.Point(AMapRect.Right - AMapRect.Left, AMapRect.Bottom - AMapRect.Top);
-    VBitmap.SetSize(VSize.X, VSize.Y);
-    VBitmap.Clear(0);
+    VBitmap.SetSize(VSize.X, VSize.Y, True);
 
     VSourceProjectionType := ASourceProjection.ProjectionType;
     VTargetProjectionType := ATargetProjection.ProjectionType;

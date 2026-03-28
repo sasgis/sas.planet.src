@@ -139,7 +139,7 @@ begin
     VSizeTarget.Y := Trunc(VSizeSource.Y * VScale + 0.5);
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
-      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
+      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y, True);
       VSampler := TLinearResampler.Create;
       try
         StretchTransferFull(

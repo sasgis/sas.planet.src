@@ -334,7 +334,7 @@ begin
   VBitmap := TBitmap32.Create;
   try
     VNameDef := Copy(IntToStr(Apnum), 1, 2);
-    VBitmap.SetSize(32, 32);
+    VBitmap.SetSize(32, 32, False);
     VBitmap.Clear(clLightGray32);
     VTextSize := VBitmap.TextExtent(VNameDef);
     VPos.X := (VBitmap.Width - VTextSize.cx) div 2;

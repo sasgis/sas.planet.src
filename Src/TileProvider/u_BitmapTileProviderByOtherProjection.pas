@@ -263,8 +263,7 @@ begin
       VSourceImage := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
       if Assigned(VSourceImage) then begin
         VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-        VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
-        VBitmap.Clear(0);
+        VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y, True);
         TileToBufferOtherProjType(
           VTargetPixelRect,
           VProjectionTarget,
@@ -283,8 +282,7 @@ begin
         if Assigned(VSourceImage) then begin
           if not Assigned(VBitmap) then begin
             VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-            VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
-            VBitmap.Clear(0);
+            VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y, True);
           end;
           TileToBufferOtherProjType(
             VTargetPixelRect,
@@ -363,8 +361,7 @@ begin
       VSourceImage := FProvider.GetTile(AOperationID, ACancelNotifier, VSourceTile);
       if Assigned(VSourceImage) then begin
         VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-        VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
-        VBitmap.Clear(0);
+        VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y, True);
         TileToBufferSameProjType(
           VTargetPixelRect,
           VProjectionTarget,
@@ -383,8 +380,7 @@ begin
         if Assigned(VSourceImage) then begin
           if not Assigned(VBitmap) then begin
             VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
-            VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
-            VBitmap.Clear(0);
+            VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y, True);
           end;
           TileToBufferSameProjType(
             VTargetPixelRect,

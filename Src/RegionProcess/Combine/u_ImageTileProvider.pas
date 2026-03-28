@@ -314,8 +314,7 @@ begin
 
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
-      VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
-      VBitmap.Clear(0);
+      VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y, True);
 
       VIterator.Init(VTileRect);
       while VIterator.Next(VTile) do begin
@@ -475,7 +474,7 @@ begin
 
   with TBitmap32ByStaticBitmap.Create(ABitmapFactory) do
   try
-    SetSize(FTileSizeInPix.X, FTileSizeInPix.Y);
+    SetSize(FTileSizeInPix.X, FTileSizeInPix.Y, False);
     Clear(ABgColor);
     FEmptyTile := FJpegSaver.Save(MakeAndClear);
   finally

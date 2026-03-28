@@ -170,8 +170,7 @@ begin
         end;
         Inc(VSize.Y, VMessageSize.cy + 20);
         Inc(VSize.X, 20);
-        VBitmap.SetSize(VSize.X, VSize.Y);
-        VBitmap.Clear(0);
+        VBitmap.SetSize(VSize.X, VSize.Y, True);
 
         VBitmap.RenderText((VSize.X - VMapNameSize.cx) div 2, 10, VText, clBlack32, False);
         VBitmap.RenderText((VSize.X - VMessageSize.cx) div 2, 30 + VMapNameSize.cy, AErrorInfo.ErrorText, clBlack32, False);
@@ -180,8 +179,7 @@ begin
         VSize.X := VMessageSize.cx + 20;
         VSize.Y := VMessageSize.cy + 20;
 
-        VBitmap.SetSize(VSize.X, VSize.Y);
-        VBitmap.Clear(0);
+        VBitmap.SetSize(VSize.X, VSize.Y, True);
 
         VBitmap.RenderText((VSize.X - VMessageSize.cx) div 2, 10, AErrorInfo.ErrorText, clBlack32, False);
       end;

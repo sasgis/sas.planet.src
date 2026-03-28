@@ -565,7 +565,7 @@ procedure TExportTaskToRMP.ProcessSingleGeometryUni(
             end else begin
               VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
               try
-                VBitmap.SetSize(256, 256);
+                VBitmap.SetSize(256, 256, False);
                 VBitmap.Clear(clBlack32);
 
                 {$IFDEF FULL_TILES}

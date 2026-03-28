@@ -355,8 +355,7 @@ procedure TVectorTileRendererForMarks.InitBitmap(
   const ASize: TPoint
 );
 begin
-  ATargetBmp.SetSize(ASize.X, ASize.Y);
-  ATargetBmp.Clear(0);
+  ATargetBmp.SetSize(ASize.X, ASize.Y, True);
   ATargetBmp.CombineMode := cmMerge;
 end;
 

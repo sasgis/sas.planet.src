@@ -176,8 +176,7 @@ begin
           );
         if Assigned(VTileBitmap) then begin
           if VBitmap.Empty then begin
-            VBitmap.SetSize(VMapSize.X, VMapSize.Y);
-            VBitmap.Clear(0);
+            VBitmap.SetSize(VMapSize.X, VMapSize.Y, True);
           end;
           VTileMapPixelRect := VProjection.TilePos2PixelRect(VTile);
           Types.IntersectRect(VCopyRect, AMapRect, VTileMapPixelRect);

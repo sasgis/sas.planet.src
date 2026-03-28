@@ -210,7 +210,7 @@ var
 begin
   VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
-    VBitmap.SetSize(ATileSize.X, ATileSize.Y);
+    VBitmap.SetSize(ATileSize.X, ATileSize.Y, True);
     VResampler := FImageResampler.GetStatic.CreateResampler;
     try
       StretchTransfer(

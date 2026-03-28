@@ -327,7 +327,7 @@ var
   VSize: TSize;
 begin
   VSize := FTmpBitmap.TextExtent(AText);
-  FTmpBitmap.SetSize(VSize.cx + 4, VSize.cy + 4);
+  FTmpBitmap.SetSize(VSize.cx + 4, VSize.cy + 4, False);
 
   FTmpBitmap.Clear(CBackGroundColor);
   FTmpBitmap.RenderText(2, 2, AText, ATextColor, False);

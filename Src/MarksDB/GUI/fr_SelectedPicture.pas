@@ -152,7 +152,7 @@ end;
 procedure TfrSelectedPicture.UpdatePicture;
 begin
   if FPicture <> nil then begin
-    imgIcon.Bitmap.SetSizeFrom(imgIcon);
+    imgIcon.Bitmap.SetSizeFrom(imgIcon, True);
     CopyMarkerToBitmap(FPicture.GetMarker, imgIcon.Bitmap);
     imgIcon.Hint := FPicture.GetName;
   end else begin

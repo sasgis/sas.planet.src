@@ -94,8 +94,7 @@ begin
 
     VHalfSize := Types.Point(VSize.X div 2, VSize.Y div 2);
 
-    VBitmap.SetSize(VSize.X, VSize.Y);
-    VBitmap.Clear(0);
+    VBitmap.SetSize(VSize.X, VSize.Y, True);
     VBitmap.Font.Size := VFontSize - 3;
 
     I := 0;

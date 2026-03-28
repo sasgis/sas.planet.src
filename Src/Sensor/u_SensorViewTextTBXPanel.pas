@@ -603,7 +603,7 @@ begin
   FImage.Height := 45;
   FImage.Align := alClient;
   FImage.BitmapAlign := baTopLeft;
-  FImage.Bitmap.SetSizeFrom(FImage);
+  FImage.Bitmap.SetSizeFrom(FImage, True);
   FImage.OnResize := ImageResize;
 
   FBar.ClientAreaHeight := FImage.Top + FImage.Height + 2;
@@ -613,7 +613,7 @@ procedure TSensorViewGPSSatellitesTBXPanel.ImageResize(Sender: TObject);
 begin
   FImage.Bitmap.Lock;
   try
-    FImage.Bitmap.SetSizeFrom(FImage);
+    FImage.Bitmap.SetSizeFrom(FImage, True);
     UpdateDataView;
   finally
     FImage.Bitmap.Unlock;

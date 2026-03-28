@@ -212,7 +212,7 @@ var
 begin
   VBitmap := TBitmap32.Create;
   try
-    VBitmap.SetSize(32, 32);
+    VBitmap.SetSize(32, 32, False);
     VBitmap.Clear(Color32(clMenu));
     Result :=
       ABitmapFactory.Build(

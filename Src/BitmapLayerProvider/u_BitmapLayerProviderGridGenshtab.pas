@@ -107,7 +107,6 @@ begin
   FCS := GSync.SyncVariable.Make(Self.ClassName);
   FBitmapChangeFlag := TSimpleFlagWithInterlock.Create;
   FBitmap := TBitmap32.Create;
-  FBitmap.SetSize(256, 256);
   FBitmap.OnChange := Self.OnBitmapChange;
 end;
 
@@ -333,8 +332,7 @@ procedure TBitmapLayerProviderGridGenshtab.InitBitmap(
   const ASize: TPoint
 );
 begin
-  FBitmap.SetSize(ASize.X, ASize.Y);
-  FBitmap.Clear(0);
+  FBitmap.SetSize(ASize.X, ASize.Y, True);
 end;
 
 procedure TBitmapLayerProviderGridGenshtab.OnBitmapChange(Sender: TObject);

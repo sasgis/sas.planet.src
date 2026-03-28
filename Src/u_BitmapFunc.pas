@@ -162,7 +162,7 @@ var
   VSize: TPoint;
 begin
   VSize := ASource.Size;
-  ADst.SetSize(VSize.X, VSize.Y);
+  ADst.SetSize(VSize.X, VSize.Y, False);
   MoveLongword(ASource.Data[0], ADst.Bits[0], VSize.X * VSize.Y);
 end;
 
@@ -570,7 +570,7 @@ begin
   end;
 
   TStaticBackend(Result.Backend).Data := ASourceData;
-  Result.SetSize(ASourceSize.X, ASourceSize.Y);
+  Result.SetSize(ASourceSize.X, ASourceSize.Y, False);
   Result.CombineMode := ACombineMode;
   Result.MasterAlpha := AMasterAlpha;
   Result.OuterColor := AOuterColor;
@@ -580,7 +580,7 @@ procedure TBitmap32Pool.Push(
   const ABitmap: TCustomBitmap32
 );
 begin
-  ABitmap.SetSize(0, 0);
+  ABitmap.SetSize(0, 0, False);
   TStaticBackend(ABitmap.Backend).Data := nil;
 
   if ABitmap = FMainThreadItem then begin

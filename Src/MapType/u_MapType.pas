@@ -718,7 +718,7 @@ begin
           try
             VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
             try
-              VBitmap.SetSize(VSize.X, VSize.Y);
+              VBitmap.SetSize(VSize.X, VSize.Y, True);
               StretchTransferFull(
                 VBitmap,
                 VBitmap.BoundsRect,
@@ -736,7 +736,7 @@ begin
         end else begin
           VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
           try
-            VBitmap.SetSize(VSize.X, VSize.Y);
+            VBitmap.SetSize(VSize.X, VSize.Y, True);
             BlockTransferFull(
               VBitmap,
               0, 0,
@@ -892,7 +892,7 @@ begin
           try
             VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
             try
-              VBitmap.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
+              VBitmap.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom, True);
               StretchTransfer(
                 VBitmap,
                 VTileTargetBounds,
@@ -975,8 +975,7 @@ begin
   end;
   VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
-    VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
-    VBitmap.Clear(0);
+    VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y, True);
 
     VIterator.Init(VTileRect);
     while VIterator.Next(VTile) do begin
@@ -1099,8 +1098,8 @@ begin
       try
         VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
         try
-          VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
-          VBitmap.Clear(0);
+          VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y, True);
+
           StretchTransferFull(
             VBitmap,
             VBitmap.BoundsRect,

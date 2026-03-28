@@ -67,7 +67,7 @@ begin
   VWidth := FreeImage_GetWidth(AFiBitmap);
   VHeight := FreeImage_GetHeight(AFiBitmap);
 
-  ABitmap.SetSize(VWidth, VHeight);
+  ABitmap.SetSize(VWidth, VHeight, False);
 
   VSrc := FreeImage_GetBits(AFiBitmap);
   VDest := ABitmap.Bits;

@@ -205,7 +205,7 @@ begin
     VSizeTarget.X := Trunc(FIconSize.X * FScale + 0.5);
     VSizeTarget.Y := Trunc(FIconSize.Y * FScale + 0.5);
 
-    FScaledBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
+    FScaledBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y, False);
     FScaledBitmap.Clear(clWhite32);
 
     VResampler := TKernelResampler.Create;
