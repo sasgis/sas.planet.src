@@ -15,7 +15,7 @@ Version 5 is a complete rewrite of FastMM. It is designed from the ground up to 
 Homepage: https://github.com/pleriche/FastMM5
 
 ### Developed by
-Pierre le Riche, copyright 2004 - 2023, all rights reserved
+Pierre le Riche, copyright 2004 - 2025, all rights reserved
 
 ### Sponsored by
 [gs-soft AG](https://www.gs-soft.com/)
@@ -145,3 +145,9 @@ Windows, 32-bit and 64-bit
 * Add a sanity check on the class name pointer in FastMM_DetectClassInstance as an additional safety net in order to prevent blocks from being misidentified as class instances in leak and state reports
 * Fix the failure to correctly report class names in leak reports, etc. when the class name pointer is not aligned to SizeOf(Pointer).
 * Add FastMM_DebugBreakAllocationNumber: Allows triggering of a break point in the debugger if the block with the specified allocation number is allocated.
+
+##### Version 5.07
+* Enhanced the debug support DLL (FastMM_FullDebugMode.dll) so that it will invalidate the stack trace memory map whenever a DLL is loaded or unloaded. This will reduce the number of (handled) exceptions when performing stack traces.
+* Add thread safety to the event log writer, so simultaneous errors from multiple threads will be logged correctly.
+* Fix a critical bug in the AllocMem handler that could cause it to not zero-initialize blocks close to the size limit of medium blocks while debug mode (FastMM_EnterDebugMode) is enabled.
+* Fix many other minor issues reported by users or found via AI code analysis.

@@ -1,13 +1,13 @@
 {
 
-FastMM 5.06
+FastMM 5.07
 
 Description:
   A fast replacement memory manager for Embarcadero Delphi applications that scales well across multiple threads and CPU
   cores, is not prone to memory fragmentation, and supports shared memory without the use of external .DLL files.
 
 Developed by:
-  Pierre le Riche, copyright 2004 - 2023, all rights reserved
+  Pierre le Riche, copyright 2004 - 2026, all rights reserved
 
 Sponsored by:
   gs-soft AG
@@ -226,7 +226,7 @@ dynamic loading is explicitly specified.}
 const
 
   {The current version of FastMM.  The first digit is the major version, followed by a two digit minor version number.}
-  CFastMM_Version = 506;
+  CFastMM_Version = 507;
 
   {The number of arenas for small, medium and large blocks.  Increasing the number of arenas decreases the likelihood
   of thread contention happening (when the number of threads inside a GetMem call is greater than the number of arenas),
@@ -291,7 +291,7 @@ const
   CFastMM_LargeBlockArenaCount = 8;
 {$endif}
 
-  {The default name of debug support library.}
+  {The default name of the debug support library.}
   CFastMM_DefaultDebugSupportLibraryName = {$ifndef 64Bit}'FastMM_FullDebugMode.dll'{$else}'FastMM_FullDebugMode64.dll'{$endif};
 
 type
@@ -1566,6 +1566,18 @@ type
     procedure VirtualMethod72; virtual; procedure VirtualMethod73; virtual; procedure VirtualMethod74; virtual;
   end;
 
+  {-------Simple lock for shared resources--------}
+
+  {A simple lock mechanism that will spin in the Lock call until it is able to acquire the lock.  Not intended for use
+  in performance critical code.}
+  TSimpleLock = record
+  private
+    FLock: Integer;
+  public
+    procedure Lock;
+    procedure Unlock;
+  end;
+
 const
   {Structure size constants}
   CBlockStatusFlagsSize = SizeOf(TBlockStatusFlags);
@@ -1720,6 +1732,7 @@ var
   {Counts the number of time FastMM_EnterMinimumAddressAlignment less the number of times
   FastMM_ExitMinimumAddressAlignment has been called for each alignment type.}
   AlignmentRequestCounters: array[TFastMM_MinimumAddressAlignment] of Integer;
+  AlignmentRequestCountersLock: TSimpleLock;
 
   {The current optimization stategy in effect.}
   OptimizationStrategy: TFastMM_MemoryManagerOptimizationStrategy;
@@ -1755,8 +1768,8 @@ var
   {The number of entries in stack traces in debug mode.}
   DebugMode_StackTrace_EntryCount: Byte;
 
-  {A lock that allows switching between debug and normal mode to be thread safe.}
-  SettingMemoryManager: Integer; //0 = False, 1 = True;
+  {A lock that allows switching the memory manager methods between e.g. debug and normal mode in a thread safe manager.}
+  SetMemoryManagerLock: TSimpleLock;
 
   {The memory manager that was in place before this memory manager was installed.}
   PreviousMemoryManager: TMemoryManagerEx;
@@ -1773,10 +1786,11 @@ var
   EventLogFilename: array[0..CFilenameMaxLength] of WideChar;
   {The file handle for the event log while it is open.}
   EventLogFileHandle: THandle;
+  EventLogLock: TSimpleLock;
 
   {The expected memory leaks list}
   ExpectedMemoryLeaks: PExpectedMemoryLeaks;
-  ExpectedMemoryLeaksListLocked: Integer; //1 = Locked
+  ExpectedMemoryLeaksListLock: TSimpleLock;
 
 {$ifdef MSWindows}
   {A string uniquely identifying the current process (for sharing the memory manager between DLLs and the main
@@ -2491,30 +2505,31 @@ end;
 function OS_AllocateVirtualMemoryAtAddress(APAddress: Pointer; ABlockSize: NativeInt;
   AReserveOnlyNoReadWriteAccess: Boolean): Boolean;
 begin
-  if AReserveOnlyNoReadWriteAccess then
+  {Try to reserve the memory at the given address.  This will fail if the memory at that address is not free.}
+  if Winapi.Windows.VirtualAlloc(APAddress, NativeUInt(ABlockSize), MEM_RESERVE, PAGE_NOACCESS) = nil then
+    Exit(False);
+
+  {Attempt to commit the memory if it must not be reserved only.}
+  if (not AReserveOnlyNoReadWriteAccess)
+    and (Winapi.Windows.VirtualAlloc(APAddress, NativeUInt(ABlockSize), MEM_COMMIT, PAGE_READWRITE) = nil) then
   begin
-    Result := Winapi.Windows.VirtualAlloc(APAddress, NativeUInt(ABlockSize), MEM_RESERVE, PAGE_NOACCESS) <> nil;
-  end
-  else
-  begin
-    Result := (Winapi.Windows.VirtualAlloc(APAddress, NativeUInt(ABlockSize), MEM_RESERVE, PAGE_READWRITE) <> nil)
-      and (Winapi.Windows.VirtualAlloc(APAddress, NativeUInt(ABlockSize), MEM_COMMIT, PAGE_READWRITE) <> nil);
+    Winapi.Windows.VirtualFree(APAddress, 0, MEM_RELEASE);
+    Exit(False);
   end;
 
-  if Result then
+  {Update the memory usage, and check whether MemoryUsageLimit has been reached.}
+  AtomicIncrement(MemoryUsageCurrent, NativeUInt(ABlockSize));
+  if (MemoryUsageLimit > 0)
+    and (MemoryUsageCurrent > MemoryUsageLimit) then
   begin
-    AtomicIncrement(MemoryUsageCurrent, NativeUInt(ABlockSize));
+    Inc(MemoryUsageLimit, MemoryUsageLimitGraceAmount);
+    MemoryUsageLimitGraceAmount := 0;
 
-    if (MemoryUsageLimit > 0)
-      and (MemoryUsageCurrent > MemoryUsageLimit) then
-    begin
-      Inc(MemoryUsageLimit, MemoryUsageLimitGraceAmount);
-      MemoryUsageLimitGraceAmount := 0;
-
-      OS_FreeVirtualMemory(APAddress, ABlockSize);
-      Result := False;
-    end;
+    OS_FreeVirtualMemory(APAddress, ABlockSize);
+    Exit(False);
   end;
+
+  Result := True;
 end;
 
 {Determines the size and state of the virtual memory region starting at APRegionStart.}
@@ -2559,6 +2574,12 @@ current thread is unable to make any progress, because it is waiting for locked 
 procedure OS_AllowOtherThreadToRun; inline;
 begin
   Winapi.Windows.SwitchToThread;
+end;
+
+{Returns the current process ID.}
+function OS_GetCurrentProcessID: Cardinal; inline;
+begin
+  Result := Winapi.Windows.GetCurrentProcessId;
 end;
 
 {Returns the thread ID for the calling thread.}
@@ -2664,6 +2685,8 @@ end;
 {Opens the given file for writing, returning the file handle.  If the file does not exist it will be created.  The file
 pointer will be set to the current end of the file.}
 function OS_OpenOrCreateFile(APFileName: PWideChar; var AFileHandle: THandle): Boolean;
+var
+  LNewPos: Int64;
 begin
   {Try to open/create the file in read/write mode.}
   AFileHandle := Winapi.Windows.CreateFileW(APFileName, GENERIC_READ or GENERIC_WRITE, FILE_SHARE_READ, nil, OPEN_ALWAYS,
@@ -2672,7 +2695,12 @@ begin
     Exit(False);
 
   {Move the file pointer to the end of the file}
-  SetFilePointer(AFileHandle, 0, nil, FILE_END);
+  if not Winapi.Windows.SetFilePointerEx(AFileHandle, 0, @LNewPos, FILE_END) then
+  begin
+    Winapi.Windows.CloseHandle(AFileHandle);
+    AFileHandle := INVALID_HANDLE_VALUE;
+    Exit(False);
+  end;
 
   Result := True;
 end;
@@ -2682,14 +2710,14 @@ function OS_WriteFile(AFileHandle: THandle; APData: Pointer; ADataSizeInBytes: I
 var
   LBytesWritten: Cardinal;
 begin
-  Winapi.Windows.WriteFile(AFileHandle, APData^, Cardinal(ADataSizeInBytes), LBytesWritten, nil);
-  Result := LBytesWritten = Cardinal(ADataSizeInBytes);
+  Result := Winapi.Windows.WriteFile(AFileHandle, APData^, Cardinal(ADataSizeInBytes), LBytesWritten, nil)
+    and (LBytesWritten = Cardinal(ADataSizeInBytes));
 end;
 
 {Closes the given file handle}
 procedure OS_CloseFile(AFileHandle: THandle);
 begin
-  CloseHandle(AFileHandle);
+  Winapi.Windows.CloseHandle(AFileHandle);
 end;
 
 procedure OS_OutputDebugString(APDebugMessage: PWideChar); inline;
@@ -2706,6 +2734,24 @@ end;
 procedure OS_ShowMessageBox(APText, APCaption: PWideChar);
 begin
   Winapi.Windows.MessageBoxW(0, APText, APCaption, MB_OK or MB_ICONERROR or MB_TASKMODAL or MB_DEFAULT_DESKTOP_ONLY);
+end;
+
+
+{------------------------------------------}
+{--------TSimpleLock implementation--------}
+{------------------------------------------}
+
+procedure TSimpleLock.Lock;
+begin
+  {If it is unable to acquire the lock it will release the thread's timeslice and then try again until it succeeds.}
+  while AtomicCmpExchange(FLock, 1, 0) <> 0 do
+    OS_AllowOtherThreadToRun;
+end;
+
+procedure TSimpleLock.Unlock;
+begin
+  {Need a memory fence for ARM here.}
+  FLock := 0;
 end;
 
 
@@ -2777,7 +2823,7 @@ begin
           {It is a surrogate pair (4 byte) encoding:  Surrogate pairs are encoded in four bytes, with the high word
           first}
           LCode := ((LCode and $3ff) shl 10) + ((LCode shr 16) and $3ff) + $10000;
-          Result[0] := Byte((LCode shr 18) and $07) or $e0;
+          Result[0] := Byte((LCode shr 18) and $07) or $f0;
           Result[1] := Byte((LCode shr 12) and $3f) or $80;
           Result[2] := Byte((LCode shr 6) and $3f) or $80;
           Result[3] := Byte(LCode and $3f) or $80;
@@ -3824,13 +3870,18 @@ begin
   {Log the message to file, if needed.}
   if AEventType in FastMM_LogToFileEvents then
   begin
-    LEventLogFileWasOpen := EventLogFileIsOpen;
+    EventLogLock.Lock;
+    try
+      LEventLogFileWasOpen := EventLogFileIsOpen;
 
-    if LEventLogFileWasOpen or OpenEventLogFile then
-      AppendTextFile(EventLogFileHandle, LPLogHeaderStart, CharCount(LPBuffer, @LTextBuffer));
+      if LEventLogFileWasOpen or OpenEventLogFile then
+        AppendTextFile(EventLogFileHandle, LPLogHeaderStart, CharCount(LPBuffer, @LTextBuffer));
 
-    if not LEventLogFileWasOpen then
-      CloseEventLogFile;
+      if not LEventLogFileWasOpen then
+        CloseEventLogFile;
+    finally
+      EventLogLock.Unlock;
+    end;
   end;
 
   if AEventType in FastMM_OutputDebugStringEvents then
@@ -3842,7 +3893,12 @@ begin
   begin
     {Ensure that the event log file is closed before showing any dialogs, so the user can access it while the dialog is
     displayed.}
-    CloseEventLogFile;
+    EventLogLock.Lock;
+    try
+      CloseEventLogFile;
+    finally
+      EventLogLock.Unlock;
+    end;
 
     OS_ShowMessageBox(LPBodyStart, LPMessageBoxCaption);
   end;
@@ -4226,7 +4282,14 @@ var
   LPUserArea: PByte;
   LOffset, LChangeStart: NativeInt;
   LLogCount: Integer;
+  LExpectedFillPatternFirst8Bytes: UInt64;
+  LExpectedFillPatternByte: Byte;
 begin
+  {If the block is large enough to be an object then the first pointer in the block would have been set to point to the
+  TFastMM_FreedObject class.}
+  LExpectedFillPatternFirst8Bytes := UInt64($0101010101010101) * CDebugFillByteFreedBlock;
+  if APDebugBlockHeader.UserSize >= CTObjectInstanceSize then
+    PPointer(@LExpectedFillPatternFirst8Bytes)^ := TFastMM_FreedObject;
 
   LTokenValues := Default(TEventLogTokenValues);
   LPBufferPos := @LTokenValueBuffer;
@@ -4239,7 +4302,12 @@ begin
   LTokenValues[CEventLogTokenModifyAfterFreeDetail] := LPBufferPos;
   while LOffset < APDebugBlockHeader.UserSize do
   begin
-    if LPUserArea[LOffset] <> CDebugFillByteFreedBlock then
+    if LOffset < 8 then
+      LExpectedFillPatternByte := PByte(@LExpectedFillPatternFirst8Bytes)[LOffset]
+    else
+      LExpectedFillPatternByte := CDebugFillByteFreedBlock;
+
+    if LPUserArea[LOffset] <> LExpectedFillPatternByte then
     begin
 
       {Found the start of a changed block, now find the length}
@@ -4247,11 +4315,17 @@ begin
       while True do
       begin
         Inc(LOffset);
-        if (LOffset >= APDebugBlockHeader.UserSize)
-          or (LPUserArea[LOffset] = CDebugFillByteFreedBlock) then
-        begin
+
+        if LOffset >= APDebugBlockHeader.UserSize then
           Break;
-        end;
+
+        if LOffset < 8 then
+          LExpectedFillPatternByte := PByte(@LExpectedFillPatternFirst8Bytes)[LOffset]
+        else
+          LExpectedFillPatternByte := CDebugFillByteFreedBlock;
+
+        if LPUserArea[LOffset] = LExpectedFillPatternByte then
+          Break;
       end;
 
       if LLogCount > 0 then
@@ -4308,7 +4382,6 @@ begin
     Dec(LByteOffset, 8);
     Inc(LPUserArea, 8);
   end;
-
 
   if LByteOffset and 1 <> 0 then
   begin
@@ -4458,7 +4531,7 @@ begin
   {Can the block be resized in-place?}
   LAvailableSpace := FastMM_BlockMaximumUserBytes(LPActualBlock);
   LDebugFooterSize := CalculateDebugBlockFooterSize(LPActualBlock.StackTraceEntryCount);
-  if LAvailableSpace >= (ANewSize + CDebugBlockHeaderSize + LDebugFooterSize) then
+  if (LAvailableSpace - CDebugBlockHeaderSize - LDebugFooterSize) >= ANewSize then
   begin
 
     {Avoid a potential race condition here:  While the debug header and footer is being updated the block must be flagged
@@ -5971,7 +6044,7 @@ asm
 @Attempt1Failed:
 
   {--------------Attempt 2--------------
-  Try to get a block from a sequential feed span.  Splitting off a sequentisal feed block is very likely to touch a new
+  Try to get a block from a sequential feed span.  Splitting off a sequential feed block is very likely to touch a new
   memory page and thus cause an (expensive) page fault.}
 
   {edx = AMinimumBlockSize, eax = AMinimumBlockSize + CMediumBlockSpanHeaderSize}
@@ -7881,9 +7954,18 @@ begin
 end;
 
 function FastMM_FreeMem_EraseBeforeFree(APointer: Pointer): Integer;
+var
+  LBlockHeader: Integer;
 begin
-  {Fill the user area of the block with the debug fill pattern before passing the block to the regular FreeMem handler.}
-  FillChar(APointer^, FastMM_BlockMaximumUserBytes(APointer), CDebugFillByteFreedBlock);
+  {The debug block free routine will fill the freed block with the debug pattern, so there is no need to fill debug
+  blocks here.  Also skip the fill if the header is corrupt or it is a potential double free (in order to avoid making a
+  bad situation worse).}
+  LBlockHeader := PBlockStatusFlags(APointer)[-1];
+  if (LBlockHeader <> CIsDebugBlockFlag)
+    and ((LBlockHeader and CBlockIsFreeFlag) = 0) then
+  begin
+    FillChar(APointer^, FastMM_BlockMaximumUserBytes(APointer), CDebugFillByteFreedBlock);
+  end;
 
   Result := FastMM_FreeMem(APointer);
 end;
@@ -8120,7 +8202,7 @@ begin
   Result := FastMM_DebugGetMem_GetDebugBlock(ASize, False);
   {Large blocks are already zero filled}
   if (Result <> nil)
-    and (ASize <= (CMaximumMediumBlockSize - CMediumBlockHeaderSize - CDebugBlockHeaderSize - CalculateDebugBlockFooterSize(PFastMM_DebugBlockHeader(Result).StackTraceEntryCount))) then
+    and (ASize <= (CMaximumMediumBlockSize - CMediumBlockHeaderSize - CDebugBlockHeaderSize - CalculateDebugBlockFooterSize(PFastMM_DebugBlockHeader(Result)[-1].StackTraceEntryCount))) then
   begin
     FillChar(Result^, ASize, 0);
   end;
@@ -8455,20 +8537,24 @@ begin
         Continue;
       end;
 
-      LPLargeBlockHeader := LPLargeBlockManager.FirstLargeBlockHeader;
-      while NativeUInt(LPLargeBlockHeader) <> NativeUInt(LPLargeBlockManager) do
-      begin
-        LBlockInfo.BlockAddress := @PByte(LPLargeBlockHeader)[CLargeBlockHeaderSize];
-        LBlockInfo.BlockSize := LPLargeBlockHeader.ActualBlockSize;
-        LBlockInfo.UsableSize := LPLargeBlockHeader.UserAllocatedSize;
+      {The large block manager is now locked:  Use a try..finally to unlock it in case the callback raises an
+      exception.}
+      try
+        LPLargeBlockHeader := LPLargeBlockManager.FirstLargeBlockHeader;
+        while NativeUInt(LPLargeBlockHeader) <> NativeUInt(LPLargeBlockManager) do
+        begin
+          LBlockInfo.BlockAddress := @PByte(LPLargeBlockHeader)[CLargeBlockHeaderSize];
+          LBlockInfo.BlockSize := LPLargeBlockHeader.ActualBlockSize;
+          LBlockInfo.UsableSize := LPLargeBlockHeader.UserAllocatedSize;
 
-        if FastMM_WalkBlocks_CheckAndAdjustForDebugSubBlock(LBlockInfo, AMinimumAllocationGroup, AMaximumAllocationGroup) then
-          ACallBack(LBlockInfo);
+          if FastMM_WalkBlocks_CheckAndAdjustForDebugSubBlock(LBlockInfo, AMinimumAllocationGroup, AMaximumAllocationGroup) then
+            ACallBack(LBlockInfo);
 
-        LPLargeBlockHeader := LPLargeBlockHeader.NextLargeBlockHeader;
+          LPLargeBlockHeader := LPLargeBlockHeader.NextLargeBlockHeader;
+        end;
+      finally
+        LPLargeBlockManager.LargeBlockManagerLocked := 0;
       end;
-
-      LPLargeBlockManager.LargeBlockManagerLocked := 0;
     end;
 
   end;
@@ -8496,214 +8582,222 @@ begin
         Continue;
       end;
 
-      LPMediumBlockSpan := LPMediumBlockManager.FirstMediumBlockSpanHeader;
-      while NativeUInt(LPMediumBlockSpan) <> NativeUInt(LPMediumBlockManager) do
-      begin
-
-        if LPMediumBlockManager.SequentialFeedMediumBlockSpan = LPMediumBlockSpan then
+      {The medium block manager is now locked:  Use a try..finally to unlock it in case the callback raises an
+      exception.}
+      try
+        LPMediumBlockSpan := LPMediumBlockManager.FirstMediumBlockSpanHeader;
+        while NativeUInt(LPMediumBlockSpan) <> NativeUInt(LPMediumBlockManager) do
         begin
-          LBlockOffsetFromMediumSpanStart := LPMediumBlockManager.LastMediumBlockSequentialFeedOffset.IntegerValue;
-          if LBlockOffsetFromMediumSpanStart <= CMediumBlockSpanHeaderSize then
-            LBlockOffsetFromMediumSpanStart := CMediumBlockSpanHeaderSize;
 
-          {It is possible that a new medium block is in the process of being split off from the sequential feed span by
-          another thread, in which case the block size may not yet be set properly.  In this case we need to wait for
-          the other thread to complete allocation of the block.}
-          LPMediumBlock := PByte(LPMediumBlockSpan) + LBlockOffsetFromMediumSpanStart;
-          LLockWaitTimeMilliseconds := 0;
-          while (GetMediumBlockSize(LPMediumBlock) = 0)
-            and FastMM_WalkBlocks_CheckTimeout(LLockWaitTimeMilliseconds, LTimestampMilliseconds, ALockTimeoutMilliseconds) do
+          if LPMediumBlockManager.SequentialFeedMediumBlockSpan = LPMediumBlockSpan then
           begin
-            OS_AllowOtherThreadToRun;
-          end;
+            LBlockOffsetFromMediumSpanStart := LPMediumBlockManager.LastMediumBlockSequentialFeedOffset.IntegerValue;
+            if LBlockOffsetFromMediumSpanStart <= CMediumBlockSpanHeaderSize then
+              LBlockOffsetFromMediumSpanStart := CMediumBlockSpanHeaderSize;
 
-          {Has the other thread completed the allocation, or is this perhaps a memory pool corruption?}
-          if GetMediumBlockSize(LPMediumBlock) = 0 then
-          begin
-            {If there was a reasonable wait time then raise an error, otherwise skip the entire span since it is not
-            possible to walk the blocks in the span without knowing the size of the first block.}
-            if ALockTimeoutMilliseconds >= 1000 then
-              System.Error(reInvalidPtr)
-            else
-              LBlockOffsetFromMediumSpanStart := LPMediumBlockSpan.SpanSize;
-          end;
+            {It is possible that a new medium block is in the process of being split off from the sequential feed span by
+            another thread, in which case the block size may not yet be set properly.  In this case we need to wait for
+            the other thread to complete allocation of the block.}
+            LPMediumBlock := PByte(LPMediumBlockSpan) + LBlockOffsetFromMediumSpanStart;
+            LLockWaitTimeMilliseconds := 0;
+            while (GetMediumBlockSize(LPMediumBlock) = 0)
+              and FastMM_WalkBlocks_CheckTimeout(LLockWaitTimeMilliseconds, LTimestampMilliseconds, ALockTimeoutMilliseconds) do
+            begin
+              OS_AllowOtherThreadToRun;
+            end;
 
-        end
-        else
-          LBlockOffsetFromMediumSpanStart := CMediumBlockSpanHeaderSize;
+            {Has the other thread completed the allocation, or is this perhaps a memory pool corruption?}
+            if GetMediumBlockSize(LPMediumBlock) = 0 then
+            begin
+              {If there was a reasonable wait time then raise an error, otherwise skip the entire span since it is not
+              possible to walk the blocks in the span without knowing the size of the first block.}
+              if ALockTimeoutMilliseconds >= 1000 then
+                System.Error(reInvalidPtr)
+              else
+                LBlockOffsetFromMediumSpanStart := LPMediumBlockSpan.SpanSize;
+            end;
 
-        if btMediumBlockSpan in AWalkBlockTypes then
-        begin
-          LBlockInfo.BlockAddress := LPMediumBlockSpan;
-          LBlockInfo.BlockSize := LPMediumBlockSpan.SpanSize;
-          LBlockInfo.UsableSize := LPMediumBlockSpan.SpanSize - CMediumBlockSpanHeaderSize;
-          LBlockInfo.BlockType := btMediumBlockSpan;
-          LBlockInfo.BlockIsFree := False;
-          LBlockInfo.ArenaIndex := Byte(LArenaIndex);
-          if LBlockOffsetFromMediumSpanStart > CMediumBlockSpanHeaderSize then
-          begin
-            LBlockInfo.IsSequentialFeedMediumBlockSpan := True;
-            LBlockInfo.MediumBlockSequentialFeedSpanUnusedBytes := LBlockOffsetFromMediumSpanStart - CMediumBlockSpanHeaderSize;
           end
           else
+            LBlockOffsetFromMediumSpanStart := CMediumBlockSpanHeaderSize;
+
+          if btMediumBlockSpan in AWalkBlockTypes then
           begin
-            LBlockInfo.IsSequentialFeedMediumBlockSpan := False;
-            LBlockInfo.MediumBlockSequentialFeedSpanUnusedBytes := 0;
-          end;
-          LBlockInfo.SmallBlockSpanBlockSize := 0;
-          LBlockInfo.IsSequentialFeedSmallBlockSpan := False;
-          LBlockInfo.DebugInformation := nil;
-
-          ACallBack(LBlockInfo);
-        end;
-
-        {Walk all the medium blocks in the medium block span.}
-        if AWalkBlockTypes * [btMediumBlock, btSmallBlockSpan, btSmallBlock] <> [] then
-        begin
-          while LBlockOffsetFromMediumSpanStart < LPMediumBlockSpan.SpanSize do
-          begin
-            LPMediumBlock := PByte(LPMediumBlockSpan) + LBlockOffsetFromMediumSpanStart;
-            LMediumBlockSize := GetMediumBlockSize(LPMediumBlock);
-
-            LBlockInfo.BlockIsFree := BlockIsFree(LPMediumBlock);
-            if (not AWalkUsedBlocksOnly) or (not LBlockInfo.BlockIsFree) then
+            LBlockInfo.BlockAddress := LPMediumBlockSpan;
+            LBlockInfo.BlockSize := LPMediumBlockSpan.SpanSize;
+            LBlockInfo.UsableSize := LPMediumBlockSpan.SpanSize - CMediumBlockSpanHeaderSize;
+            LBlockInfo.BlockType := btMediumBlockSpan;
+            LBlockInfo.BlockIsFree := False;
+            LBlockInfo.ArenaIndex := Byte(LArenaIndex);
+            if LBlockOffsetFromMediumSpanStart > CMediumBlockSpanHeaderSize then
             begin
-              {Read the pointer to the small block manager in case this is a small block span.}
-              if (AWalkBlockTypes * [btSmallBlockSpan, btSmallBlock] <> [])
-                and PMediumBlockHeader(LPMediumBlock)[-1].IsSmallBlockSpan then
+              LBlockInfo.IsSequentialFeedMediumBlockSpan := True;
+              LBlockInfo.MediumBlockSequentialFeedSpanUnusedBytes := LBlockOffsetFromMediumSpanStart - CMediumBlockSpanHeaderSize;
+            end
+            else
+            begin
+              LBlockInfo.IsSequentialFeedMediumBlockSpan := False;
+              LBlockInfo.MediumBlockSequentialFeedSpanUnusedBytes := 0;
+            end;
+            LBlockInfo.SmallBlockSpanBlockSize := 0;
+            LBlockInfo.IsSequentialFeedSmallBlockSpan := False;
+            LBlockInfo.DebugInformation := nil;
+
+            ACallBack(LBlockInfo);
+          end;
+
+          {Walk all the medium blocks in the medium block span.}
+          if AWalkBlockTypes * [btMediumBlock, btSmallBlockSpan, btSmallBlock] <> [] then
+          begin
+            while LBlockOffsetFromMediumSpanStart < LPMediumBlockSpan.SpanSize do
+            begin
+              LPMediumBlock := PByte(LPMediumBlockSpan) + LBlockOffsetFromMediumSpanStart;
+              LMediumBlockSize := GetMediumBlockSize(LPMediumBlock);
+
+              LBlockInfo.BlockIsFree := BlockIsFree(LPMediumBlock);
+              if (not AWalkUsedBlocksOnly) or (not LBlockInfo.BlockIsFree) then
               begin
-                LPSmallBlockManager := PSmallBlockSpanHeader(LPMediumBlock).SmallBlockManager;
-
-                LLockWaitTimeMilliseconds := 0;
-                while (AtomicCmpExchange(LPSmallBlockManager.SmallBlockManagerLocked, 1, 0) <> 0)
-                  and FastMM_WalkBlocks_CheckTimeout(LLockWaitTimeMilliseconds, LTimestampMilliseconds, ALockTimeoutMilliseconds) do
+                {Read the pointer to the small block manager in case this is a small block span.}
+                if (AWalkBlockTypes * [btSmallBlockSpan, btSmallBlock] <> [])
+                  and PMediumBlockHeader(LPMediumBlock)[-1].IsSmallBlockSpan then
                 begin
-                  OS_AllowOtherThreadToRun;
-                end;
+                  LPSmallBlockManager := PSmallBlockSpanHeader(LPMediumBlock).SmallBlockManager;
 
-                if LLockWaitTimeMilliseconds > ALockTimeoutMilliseconds then
-                begin
-                  Result := False;
-                  LPSmallBlockManager := nil;
-                  LSmallBlockOffset := 0;
-                end
-                else
-                begin
-
-                  {Memory fence required for ARM}
-
-                  {The last block may have been released before the manager was locked, so we need to check whether it is
-                  still a small block span.}
-                  if PMediumBlockHeader(LPMediumBlock)[-1].IsSmallBlockSpan then
+                  LLockWaitTimeMilliseconds := 0;
+                  while (AtomicCmpExchange(LPSmallBlockManager.SmallBlockManagerLocked, 1, 0) <> 0)
+                    and FastMM_WalkBlocks_CheckTimeout(LLockWaitTimeMilliseconds, LTimestampMilliseconds, ALockTimeoutMilliseconds) do
                   begin
-                    if LPSmallBlockManager.SequentialFeedSmallBlockSpan = LPMediumBlock then
-                    begin
-                      LSmallBlockOffset := LPSmallBlockManager.LastSmallBlockSequentialFeedOffset.IntegerValue;
-                      if LSmallBlockOffset < CSmallBlockSpanHeaderSize then
-                        LSmallBlockOffset := CSmallBlockSpanHeaderSize;
-                    end
-                    else
-                      LSmallBlockOffset := CSmallBlockSpanHeaderSize;
+                    OS_AllowOtherThreadToRun;
+                  end;
+
+                  if LLockWaitTimeMilliseconds > ALockTimeoutMilliseconds then
+                  begin
+                    Result := False;
+                    LPSmallBlockManager := nil;
+                    LSmallBlockOffset := 0;
                   end
                   else
                   begin
-                    LSmallBlockOffset := 0;
-                    LPSmallBlockManager.SmallBlockManagerLocked := 0;
-                    LPSmallBlockManager := nil;
-                  end;
-                end;
-              end
-              else
-              begin
-                LPSmallBlockManager := nil;
-                LSmallBlockOffset := 0;
-              end;
 
-              if AWalkBlockTypes * [btMediumBlock, btSmallBlockSpan] <> [] then
-              begin
-                LBlockInfo.BlockAddress := LPMediumBlock;
-                LBlockInfo.BlockSize := LMediumBlockSize;
-                LBlockInfo.ArenaIndex := Byte(LArenaIndex);
-                LBlockInfo.MediumBlockSequentialFeedSpanUnusedBytes := 0;
+                    {Memory fence required for ARM}
 
-                if LPSmallBlockManager <> nil then
-                begin
-                  if btSmallBlockSpan in AWalkBlockTypes then
-                  begin
-                    LBlockInfo.BlockType := btSmallBlockSpan;
-                    LBlockInfo.UsableSize := LPSmallBlockManager.BlockSize * PSmallBlockSpanHeader(LPMediumBlock).TotalBlocksInSpan;
-                    LBlockInfo.SmallBlockSpanBlockSize := LPSmallBlockManager.BlockSize;
-                    LBlockInfo.IsSequentialFeedSmallBlockSpan := LSmallBlockOffset > CSmallBlockSpanHeaderSize;
-                    if LBlockInfo.IsSequentialFeedSmallBlockSpan then
-                      LBlockInfo.SmallBlockSequentialFeedSpanUnusedBytes := LSmallBlockOffset - CSmallBlockSpanHeaderSize
+                    {The last block may have been released before the manager was locked, so we need to check whether it
+                    is still a small block span.}
+                    if PMediumBlockHeader(LPMediumBlock)[-1].IsSmallBlockSpan then
+                    begin
+                      if LPSmallBlockManager.SequentialFeedSmallBlockSpan = LPMediumBlock then
+                      begin
+                        LSmallBlockOffset := LPSmallBlockManager.LastSmallBlockSequentialFeedOffset.IntegerValue;
+                        if LSmallBlockOffset < CSmallBlockSpanHeaderSize then
+                          LSmallBlockOffset := CSmallBlockSpanHeaderSize;
+                      end
+                      else
+                        LSmallBlockOffset := CSmallBlockSpanHeaderSize;
+                    end
                     else
-                      LBlockInfo.SmallBlockSequentialFeedSpanUnusedBytes := 0;
-                    LBlockInfo.DebugInformation := nil;
-                    ACallBack(LBlockInfo);
+                    begin
+                      LSmallBlockOffset := 0;
+                      LPSmallBlockManager.SmallBlockManagerLocked := 0;
+                      LPSmallBlockManager := nil;
+                    end;
                   end;
                 end
                 else
                 begin
-                  if btMediumBlock in AWalkBlockTypes then
-                  begin
-                    LBlockInfo.BlockType := btMediumBlock;
-                    LBlockInfo.UsableSize := LMediumBlockSize - CMediumBlockHeaderSize;
-                    LBlockInfo.SmallBlockSpanBlockSize := 0;
-                    LBlockInfo.IsSequentialFeedSmallBlockSpan := False;
-                    LBlockInfo.SmallBlockSequentialFeedSpanUnusedBytes := 0;
-                    if FastMM_WalkBlocks_CheckAndAdjustForDebugSubBlock(LBlockInfo, AMinimumAllocationGroup, AMaximumAllocationGroup) then
-                      ACallBack(LBlockInfo);
-                  end;
+                  LPSmallBlockManager := nil;
+                  LSmallBlockOffset := 0;
                 end;
 
-              end;
-
-              {If small blocks need to be walked then LPSmallBlockManager will be <> nil.}
-              if LPSmallBlockManager <> nil then
-              begin
-
-                if btSmallBlock in AWalkBlockTypes then
-                begin
-                  LLastBlockOffset := CSmallBlockSpanHeaderSize
-                    + LPSmallBlockManager.BlockSize * (PSmallBlockSpanHeader(LPMediumBlock).TotalBlocksInSpan - 1);
-                  while LSmallBlockOffset <= LLastBlockOffset do
+                {If this is a small block span then the small block manager will now be locked:  Use a try..finally to
+                unlock it in case the callback raises an exception.}
+                try
+                  if AWalkBlockTypes * [btMediumBlock, btSmallBlockSpan] <> [] then
                   begin
-                    LBlockInfo.BlockAddress := PByte(LPMediumBlock) + LSmallBlockOffset;
+                    LBlockInfo.BlockAddress := LPMediumBlock;
+                    LBlockInfo.BlockSize := LMediumBlockSize;
+                    LBlockInfo.ArenaIndex := Byte(LArenaIndex);
+                    LBlockInfo.MediumBlockSequentialFeedSpanUnusedBytes := 0;
 
-                    LBlockInfo.BlockIsFree := BlockIsFree(LBlockInfo.BlockAddress);
-                    if (not AWalkUsedBlocksOnly) or (not LBlockInfo.BlockIsFree) then
+                    if LPSmallBlockManager <> nil then
                     begin
-                      LBlockInfo.BlockSize := LPSmallBlockManager.BlockSize;
-                      LBlockInfo.UsableSize := LPSmallBlockManager.BlockSize - CSmallBlockHeaderSize;
-                      LBlockInfo.ArenaIndex := Byte((NativeInt(LPSmallBlockManager) - NativeInt(@SmallBlockManagers)) div SizeOf(TSmallBlockArena));
-                      LBlockInfo.BlockType := btSmallBlock;
-                      LBlockInfo.IsSequentialFeedMediumBlockSpan := False;
-                      LBlockInfo.MediumBlockSequentialFeedSpanUnusedBytes := 0;
-                      LBlockInfo.IsSequentialFeedSmallBlockSpan := False;
-                      LBlockInfo.SmallBlockSpanBlockSize := 0;
-                      LBlockInfo.SmallBlockSequentialFeedSpanUnusedBytes := 0;
-
-                      if FastMM_WalkBlocks_CheckAndAdjustForDebugSubBlock(LBlockInfo, AMinimumAllocationGroup, AMaximumAllocationGroup) then
+                      if btSmallBlockSpan in AWalkBlockTypes then
+                      begin
+                        LBlockInfo.BlockType := btSmallBlockSpan;
+                        LBlockInfo.UsableSize := LPSmallBlockManager.BlockSize * PSmallBlockSpanHeader(LPMediumBlock).TotalBlocksInSpan;
+                        LBlockInfo.SmallBlockSpanBlockSize := LPSmallBlockManager.BlockSize;
+                        LBlockInfo.IsSequentialFeedSmallBlockSpan := LSmallBlockOffset > CSmallBlockSpanHeaderSize;
+                        if LBlockInfo.IsSequentialFeedSmallBlockSpan then
+                          LBlockInfo.SmallBlockSequentialFeedSpanUnusedBytes := LSmallBlockOffset - CSmallBlockSpanHeaderSize
+                        else
+                          LBlockInfo.SmallBlockSequentialFeedSpanUnusedBytes := 0;
+                        LBlockInfo.DebugInformation := nil;
                         ACallBack(LBlockInfo);
+                      end;
+                    end
+                    else
+                    begin
+                      if btMediumBlock in AWalkBlockTypes then
+                      begin
+                        LBlockInfo.BlockType := btMediumBlock;
+                        LBlockInfo.UsableSize := LMediumBlockSize - CMediumBlockHeaderSize;
+                        LBlockInfo.SmallBlockSpanBlockSize := 0;
+                        LBlockInfo.IsSequentialFeedSmallBlockSpan := False;
+                        LBlockInfo.SmallBlockSequentialFeedSpanUnusedBytes := 0;
+                        if FastMM_WalkBlocks_CheckAndAdjustForDebugSubBlock(LBlockInfo, AMinimumAllocationGroup, AMaximumAllocationGroup) then
+                          ACallBack(LBlockInfo);
+                      end;
                     end;
 
-                    Inc(LSmallBlockOffset, LPSmallBlockManager.BlockSize);
                   end;
+
+                  {If small blocks must be walked then LPSmallBlockManager will be <> nil.}
+                  if (btSmallBlock in AWalkBlockTypes)
+                    and (LPSmallBlockManager <> nil) then
+                  begin
+                    LLastBlockOffset := CSmallBlockSpanHeaderSize
+                      + LPSmallBlockManager.BlockSize * (PSmallBlockSpanHeader(LPMediumBlock).TotalBlocksInSpan - 1);
+                    while LSmallBlockOffset <= LLastBlockOffset do
+                    begin
+                      LBlockInfo.BlockAddress := PByte(LPMediumBlock) + LSmallBlockOffset;
+
+                      LBlockInfo.BlockIsFree := BlockIsFree(LBlockInfo.BlockAddress);
+                      if (not AWalkUsedBlocksOnly) or (not LBlockInfo.BlockIsFree) then
+                      begin
+                        LBlockInfo.BlockSize := LPSmallBlockManager.BlockSize;
+                        LBlockInfo.UsableSize := LPSmallBlockManager.BlockSize - CSmallBlockHeaderSize;
+                        LBlockInfo.ArenaIndex := Byte((NativeInt(LPSmallBlockManager) - NativeInt(@SmallBlockManagers)) div SizeOf(TSmallBlockArena));
+                        LBlockInfo.BlockType := btSmallBlock;
+                        LBlockInfo.IsSequentialFeedMediumBlockSpan := False;
+                        LBlockInfo.MediumBlockSequentialFeedSpanUnusedBytes := 0;
+                        LBlockInfo.IsSequentialFeedSmallBlockSpan := False;
+                        LBlockInfo.SmallBlockSpanBlockSize := 0;
+                        LBlockInfo.SmallBlockSequentialFeedSpanUnusedBytes := 0;
+
+                        if FastMM_WalkBlocks_CheckAndAdjustForDebugSubBlock(LBlockInfo, AMinimumAllocationGroup, AMaximumAllocationGroup) then
+                          ACallBack(LBlockInfo);
+                      end;
+
+                      Inc(LSmallBlockOffset, LPSmallBlockManager.BlockSize);
+                    end;
+                  end;
+
+                finally
+                  if LPSmallBlockManager <> nil then
+                    LPSmallBlockManager.SmallBlockManagerLocked := 0;
                 end;
 
-                LPSmallBlockManager.SmallBlockManagerLocked := 0;
               end;
 
+              Inc(LBlockOffsetFromMediumSpanStart, LMediumBlockSize);
             end;
-
-            Inc(LBlockOffsetFromMediumSpanStart, LMediumBlockSize);
           end;
+
+          LPMediumBlockSpan := LPMediumBlockSpan.NextMediumBlockSpanHeader;
         end;
 
-        LPMediumBlockSpan := LPMediumBlockSpan.NextMediumBlockSpanHeader;
+      finally
+        LPMediumBlockManager.MediumBlockManagerLocked := 0;
       end;
-
-      LPMediumBlockManager.MediumBlockManagerLocked := 0;
     end;
 
   end;
@@ -9416,7 +9510,7 @@ procedure FastMM_BuildFileMappingObjectName;
 var
   i, LProcessID: Cardinal;
 begin
-  LProcessID := GetCurrentProcessId;
+  LProcessID := OS_GetCurrentProcessID;
   for i := 0 to 7 do
   begin
     SharingFileMappingObjectName[(High(SharingFileMappingObjectName) - 1) - i] :=
@@ -9430,21 +9524,23 @@ var
   LPMapAddress: Pointer;
   LLocalMappingObjectHandle: NativeUInt;
 begin
+  {Until proven otherwise, assume there is no shared memory manager.}
+  Result := nil;
+
   {Try to open the shared memory manager file mapping}
-  LLocalMappingObjectHandle := OpenFileMappingA(FILE_MAP_READ, False, SharingFileMappingObjectName);
+  LLocalMappingObjectHandle := Winapi.Windows.OpenFileMappingA(FILE_MAP_READ, False, @SharingFileMappingObjectName);
+
   {Is a memory manager in this process sharing its memory manager?}
-  if LLocalMappingObjectHandle = 0 then
-  begin
-    {There is no shared memory manager in the process.}
-    Result := nil;
-  end
-  else
+  if LLocalMappingObjectHandle <> 0 then
   begin
     {Map a view of the shared memory and get the address of the shared memory manager}
-    LPMapAddress := MapViewOfFile(LLocalMappingObjectHandle, FILE_MAP_READ, 0, 0, 0);
-    Result := PPointer(LPMapAddress)^;
-    UnmapViewOfFile(LPMapAddress);
-    CloseHandle(LLocalMappingObjectHandle);
+    LPMapAddress := Winapi.Windows.MapViewOfFile(LLocalMappingObjectHandle, FILE_MAP_READ, 0, 0, 0);
+    if LPMapAddress <> nil then
+    begin
+      Result := PPointer(LPMapAddress)^;
+      Winapi.Windows.UnmapViewOfFile(LPMapAddress);
+    end;
+    Winapi.Windows.CloseHandle(LLocalMappingObjectHandle);
   end;
 end;
 
@@ -9485,7 +9581,6 @@ begin
       begin
         {Memory has already been allocated using this memory manager.  We cannot rip the memory manager out from under
         live pointers.}
-
         LTokenValues := Default(TEventLogTokenValues);
         AddTokenValues_GeneralTokens(LTokenValues, @LTokenValueBuffer, @LTokenValueBuffer[High(LTokenValueBuffer)]);
         LogEvent(mmetCannotSwitchToSharedMemoryManagerWithLivePointers, LTokenValues);
@@ -9514,36 +9609,45 @@ function FastMM_ShareMemoryManager: Boolean;
 var
   LPMapAddress: Pointer;
 begin
-  if (CurrentInstallationState = mmisInstalled)
-    and (not FastMM_InstalledMemoryManagerChangedExternally)
-    and (SharingFileMappingObjectHandle = 0) then
+  {We cannot share this memory manager if it is not installed, an external memory manager has been set, or it is already
+  being shared.}
+  if (CurrentInstallationState <> mmisInstalled)
+    or FastMM_InstalledMemoryManagerChangedExternally
+    or (SharingFileMappingObjectHandle <> 0) then
   begin
-    {Is any other module already sharing its MM?}
-    if FastMM_FindSharedMemoryManager = nil then
-    begin
-      {Create the memory mapped file}
-      SharingFileMappingObjectHandle := CreateFileMappingA(INVALID_HANDLE_VALUE, nil, PAGE_READWRITE, 0,
-        SizeOf(Pointer), SharingFileMappingObjectName);
-      {Map a view of the memory}
-      LPMapAddress := MapViewOfFile(SharingFileMappingObjectHandle, FILE_MAP_WRITE, 0, 0, 0);
-      {Set a pointer to the new memory manager}
-      PPointer(LPMapAddress)^ := @InstalledMemoryManager;
-      {Unmap the file}
-      UnmapViewOfFile(LPMapAddress);
-      {Sharing this MM}
-      Result := True;
-    end
-    else
-    begin
-      {Another module is already sharing its memory manager}
-      Result := False;
-    end;
-  end
-  else
-  begin
-    {Either another memory manager has been set or this memory manager is already being shared}
-    Result := False;
+    Exit(False);
   end;
+
+  {Check whether another module is already sharing its memory manager}
+  if FastMM_FindSharedMemoryManager <> nil then
+    Exit(False);
+
+  {Create the memory mapped file.}
+  SharingFileMappingObjectHandle := Winapi.Windows.CreateFileMappingA(INVALID_HANDLE_VALUE, nil, PAGE_READWRITE, 0,
+    SizeOf(Pointer), SharingFileMappingObjectName);
+  if SharingFileMappingObjectHandle = 0 then
+    Exit(False);
+
+  {Map a view of the memory.}
+  if GetLastError <> ERROR_ALREADY_EXISTS then
+    LPMapAddress := Winapi.Windows.MapViewOfFile(SharingFileMappingObjectHandle, FILE_MAP_WRITE, 0, 0, 0)
+  else
+    LPMapAddress := nil;
+  {The file mapping should not already exist, and MapViewOfFile should never fail either, but handle potential errors
+  regardless.}
+  if LPMapAddress = nil then
+  begin
+    CloseHandle(SharingFileMappingObjectHandle);
+    SharingFileMappingObjectHandle := 0;
+    Exit(False);
+  end;
+
+  {Set a pointer to this memory manager and unmap the file.}
+  PPointer(LPMapAddress)^ := @InstalledMemoryManager;
+  Winapi.Windows.UnmapViewOfFile(LPMapAddress);
+
+  {Successfully sharing this MM}
+  Result := True;
 end;
 
 
@@ -9651,12 +9755,12 @@ begin
   end;
 end;
 
-{Locks the expected leaks.  Returns False if the list could not be allocated.}
-function LockExpectedMemoryLeaksList: Boolean;
+{Locks the expected leaks and then allocates the list if it has not already been allocated.  Returns False if the
+ExpectedMemoryLeaks list could not be allocated, True otherwise.}
+function LockAndAllocateExpectedMemoryLeaksList: Boolean;
 begin
   {Lock the expected leaks list}
-  while AtomicCmpExchange(ExpectedMemoryLeaksListLocked, 1, 0) <> 0 do
-    OS_AllowOtherThreadToRun;
+  ExpectedMemoryLeaksListLock.Lock;
 
   {Allocate the list if it does not exist}
   if ExpectedMemoryLeaks = nil then
@@ -9677,9 +9781,9 @@ begin
   LNewEntry.LeakSize := 0;
   LNewEntry.LeakCount := 1;
   {Add it to the correct list}
-  Result := LockExpectedMemoryLeaksList
+  Result := LockAndAllocateExpectedMemoryLeaksList
     and UpdateExpectedLeakList(@ExpectedMemoryLeaks.FirstEntryByAddress, @LNewEntry);
-  ExpectedMemoryLeaksListLocked := 0;
+  ExpectedMemoryLeaksListLock.Unlock;
 end;
 
 function FastMM_RegisterExpectedMemoryLeak(ALeakedObjectClass: TClass; ACount: Integer = 1): Boolean;
@@ -9692,9 +9796,9 @@ begin
   LNewEntry.LeakSize := ALeakedObjectClass.InstanceSize;
   LNewEntry.LeakCount := ACount;
   {Add it to the correct list}
-  Result := LockExpectedMemoryLeaksList
+  Result := LockAndAllocateExpectedMemoryLeaksList
     and UpdateExpectedLeakList(@ExpectedMemoryLeaks.FirstEntryByClass, @LNewEntry);
-  ExpectedMemoryLeaksListLocked := 0;
+  ExpectedMemoryLeaksListLock.Unlock;
 end;
 
 function FastMM_RegisterExpectedMemoryLeak(ALeakedBlockSize: NativeInt; ACount: Integer = 1): Boolean;
@@ -9707,9 +9811,9 @@ begin
   LNewEntry.LeakSize := ALeakedBlockSize;
   LNewEntry.LeakCount := ACount;
   {Add it to the correct list}
-  Result := LockExpectedMemoryLeaksList
+  Result := LockAndAllocateExpectedMemoryLeaksList
     and UpdateExpectedLeakList(@ExpectedMemoryLeaks.FirstEntryBySizeOnly, @LNewEntry);
-  ExpectedMemoryLeaksListLocked := 0;
+  ExpectedMemoryLeaksListLock.Unlock;
 end;
 
 function FastMM_UnregisterExpectedMemoryLeak(ALeakedPointer: Pointer): Boolean;
@@ -9722,9 +9826,9 @@ begin
   LNewEntry.LeakSize := 0;
   LNewEntry.LeakCount := -1;
   {Remove it from the list}
-  Result := LockExpectedMemoryLeaksList
+  Result := LockAndAllocateExpectedMemoryLeaksList
     and UpdateExpectedLeakList(@ExpectedMemoryLeaks.FirstEntryByAddress, @LNewEntry);
-  ExpectedMemoryLeaksListLocked := 0;
+  ExpectedMemoryLeaksListLock.Unlock;
 end;
 
 function FastMM_UnregisterExpectedMemoryLeak(ALeakedObjectClass: TClass; ACount: Integer = 1): Boolean;
@@ -9760,14 +9864,22 @@ function FastMM_GetRegisteredMemoryLeaks: TFastMM_RegisteredMemoryLeaks;
 
 begin
   SetLength(Result, 0);
-  if (ExpectedMemoryLeaks <> nil) and LockExpectedMemoryLeaksList then
-  begin
-    {Add all entries}
-    AddEntries(ExpectedMemoryLeaks.FirstEntryByAddress);
-    AddEntries(ExpectedMemoryLeaks.FirstEntryByClass);
-    AddEntries(ExpectedMemoryLeaks.FirstEntryBySizeOnly);
-    {Unlock the list}
-    ExpectedMemoryLeaksListLocked := 0;
+
+  {If there are no expected memory leaks then there's nothing to do.}
+  if ExpectedMemoryLeaks = nil then
+    Exit;
+
+  try
+    if LockAndAllocateExpectedMemoryLeaksList then
+    begin
+      {Add all registered leak entries to the array}
+      AddEntries(ExpectedMemoryLeaks.FirstEntryByAddress);
+      AddEntries(ExpectedMemoryLeaks.FirstEntryByClass);
+      AddEntries(ExpectedMemoryLeaks.FirstEntryBySizeOnly);
+    end;
+  finally
+    {This must be protected by a try...finally since the array allocations above may fail in a low memory scenario.}
+    ExpectedMemoryLeaksListLock.Unlock;
   end;
 end;
 
@@ -9940,6 +10052,7 @@ end;
 procedure FastMM_PerformMemoryLeakCheck_LogLeakSummary(var ALeakSummary: TMemoryLeakSummary);
 const
   CLeakTextMaxSize = 32768;
+  CTokenValueBufferSize = CLeakTextMaxSize + 1024; //Need space for the general tokens + the leak text
   CLifeFeed = #13#10;
   CLeakSizeSuffix = ': ';
   CLeakSeparator = ', ';
@@ -9947,7 +10060,8 @@ const
 var
   LCurrentLeakSize: NativeInt;
   LLeakIndex: Integer;
-  LLeakEntriesText, LTokenValueBuffer: array[0..CLeakTextMaxSize] of WideChar;
+  LLeakEntriesText: array[0..CLeakTextMaxSize] of WideChar;
+  LTokenValueBuffer: array[0..CTokenValueBufferSize] of WideChar;
   LPBufferPos, LPBufferEnd, LPTokenBufferPos: PWideChar;
   LTokenValues: TEventLogTokenValues;
 begin
@@ -10099,24 +10213,34 @@ procedure FastMM_EnterMinimumAddressAlignment(AMinimumAddressAlignment: TFastMM_
 var
   LOldMinimumAlignment: TFastMM_MinimumAddressAlignment;
 begin
-  LOldMinimumAlignment := FastMM_GetCurrentMinimumAddressAlignment;
-  AtomicIncrement(AlignmentRequestCounters[AMinimumAddressAlignment]);
+  AlignmentRequestCountersLock.Lock;
+  try
+    LOldMinimumAlignment := FastMM_GetCurrentMinimumAddressAlignment;
+    Inc(AlignmentRequestCounters[AMinimumAddressAlignment]);
 
-  {Rebuild the small block type lookup table if the minimum alignment changed.}
-  if LOldMinimumAlignment <> FastMM_GetCurrentMinimumAddressAlignment then
-    FastMM_BuildSmallBlockTypeLookupTable;
+    {Rebuild the small block type lookup table if the minimum alignment changed.}
+    if LOldMinimumAlignment <> FastMM_GetCurrentMinimumAddressAlignment then
+      FastMM_BuildSmallBlockTypeLookupTable;
+  finally
+    AlignmentRequestCountersLock.Unlock;
+  end;
 end;
 
 procedure FastMM_ExitMinimumAddressAlignment(AMinimumAddressAlignment: TFastMM_MinimumAddressAlignment);
 var
   LOldMinimumAlignment: TFastMM_MinimumAddressAlignment;
 begin
-  LOldMinimumAlignment := FastMM_GetCurrentMinimumAddressAlignment;
-  AtomicDecrement(AlignmentRequestCounters[AMinimumAddressAlignment]);
+  AlignmentRequestCountersLock.Lock;
+  try
+    LOldMinimumAlignment := FastMM_GetCurrentMinimumAddressAlignment;
+    Dec(AlignmentRequestCounters[AMinimumAddressAlignment]);
 
-  {Rebuild the small block type lookup table if the minimum alignment changed.}
-  if LOldMinimumAlignment <> FastMM_GetCurrentMinimumAddressAlignment then
-    FastMM_BuildSmallBlockTypeLookupTable;
+    {Rebuild the small block type lookup table if the minimum alignment changed.}
+    if LOldMinimumAlignment <> FastMM_GetCurrentMinimumAddressAlignment then
+      FastMM_BuildSmallBlockTypeLookupTable;
+  finally
+    AlignmentRequestCountersLock.Unlock;
+  end;
 end;
 
 {Returns the current minimum address alignment in effect.}
@@ -10493,20 +10617,15 @@ begin
   Result := CurrentInstallationState;
 end;
 
-function FastMM_SetNormalOrDebugMemoryManager: Boolean;
+{Configures the appropriate entry points for each of the memory manager functions according to the current settings,
+e.g. whether debug or normal mode is in effect.}
+function FastMM_SetMemoryManagerEntryPoints: Boolean;
 var
   LNewMemoryManager: TMemoryManagerEx;
 begin
-  {SetMemoryManager is not thread safe.}
-  while AtomicCmpExchange(SettingMemoryManager, 1, 0) <> 0 do
-    OS_AllowOtherThreadToRun;
-
   {Check that the memory manager has not been changed since the last time it was set.}
   if FastMM_InstalledMemoryManagerChangedExternally then
-  begin
-    SettingMemoryManager := 0;
     Exit(False);
-  end;
 
   {Debug mode or normal memory manager?}
   if DebugModeCounter <= 0 then
@@ -10537,8 +10656,6 @@ begin
   SetMemoryManager(LNewMemoryManager);
   InstalledMemoryManager := LNewMemoryManager;
 
-  SettingMemoryManager := 0;
-
   Result := True;
 end;
 
@@ -10567,7 +10684,7 @@ begin
     Exit;
   end;
 
-  if FastMM_SetNormalOrDebugMemoryManager then
+  if FastMM_SetMemoryManagerEntryPoints then
   begin
     CurrentInstallationState := mmisInstalled;
 
@@ -10596,12 +10713,12 @@ begin
   if DebugSupportLibraryHandle <> 0 then
     Exit(True);
 
-  DebugSupportLibraryHandle := LoadLibrary(FastMM_DebugSupportLibraryName);
+  DebugSupportLibraryHandle := Winapi.Windows.LoadLibrary(FastMM_DebugSupportLibraryName);
   if DebugSupportLibraryHandle <> 0 then
   begin
-    DebugLibrary_GetRawStackTrace := GetProcAddress(DebugSupportLibraryHandle, PAnsiChar('GetRawStackTrace'));
-    DebugLibrary_GetFrameBasedStackTrace := GetProcAddress(DebugSupportLibraryHandle, PAnsiChar('GetFrameBasedStackTrace'));
-    DebugLibrary_LogStackTrace_Legacy := GetProcAddress(DebugSupportLibraryHandle, PAnsiChar('LogStackTrace'));
+    DebugLibrary_GetRawStackTrace := Winapi.Windows.GetProcAddress(DebugSupportLibraryHandle, PAnsiChar('GetRawStackTrace'));
+    DebugLibrary_GetFrameBasedStackTrace := Winapi.Windows.GetProcAddress(DebugSupportLibraryHandle, PAnsiChar('GetFrameBasedStackTrace'));
+    DebugLibrary_LogStackTrace_Legacy := Winapi.Windows.GetProcAddress(DebugSupportLibraryHandle, PAnsiChar('LogStackTrace'));
 
     {Try to use the stack trace routines from the debug support library, if available.}
     if (@FastMM_GetStackTrace = @FastMM_NoOpGetStackTrace)
@@ -10651,7 +10768,7 @@ begin
   end;
 
 {$ifndef FastMM_DebugLibraryStaticDependency}
-  FreeLibrary(DebugSupportLibraryHandle);
+  Winapi.Windows.FreeLibrary(DebugSupportLibraryHandle);
   DebugSupportLibraryHandle := 0;
 
   DebugLibrary_GetRawStackTrace := nil;
@@ -10676,33 +10793,45 @@ end;
 
 function FastMM_EnterDebugMode: Boolean;
 begin
-  if CurrentInstallationState = mmisInstalled then
-  begin
-    if AtomicIncrement(DebugModeCounter) = 1 then
+  SetMemoryManagerLock.Lock;
+  try
+    if CurrentInstallationState = mmisInstalled then
     begin
-      if not DebugSupportConfigured then
-        FastMM_ConfigureDebugMode;
+      Inc(DebugModeCounter);
+      if DebugModeCounter = 1 then
+      begin
+        if not DebugSupportConfigured then
+          FastMM_ConfigureDebugMode;
 
-      Result := FastMM_SetNormalOrDebugMemoryManager;
+        Result := FastMM_SetMemoryManagerEntryPoints;
+      end
+      else
+        Result := True;
     end
     else
-      Result := True;
-  end
-  else
-    Result := False;
+      Result := False;
+  finally
+    SetMemoryManagerLock.Unlock;
+  end;
 end;
 
 function FastMM_ExitDebugMode: Boolean;
 begin
-  if CurrentInstallationState = mmisInstalled then
-  begin
-    if AtomicDecrement(DebugModeCounter) = 0 then
-      Result := FastMM_SetNormalOrDebugMemoryManager
+  SetMemoryManagerLock.Lock;
+  try
+    if CurrentInstallationState = mmisInstalled then
+    begin
+      Dec(DebugModeCounter);
+      if DebugModeCounter = 0 then
+        Result := FastMM_SetMemoryManagerEntryPoints
+      else
+        Result := True;
+    end
     else
-      Result := True;
-  end
-  else
-    Result := False;
+      Result := False;
+  finally
+    SetMemoryManagerLock.Unlock;
+  end;
 end;
 
 function FastMM_DebugModeActive: Boolean;
@@ -10725,28 +10854,40 @@ end;
 
 function FastMM_BeginEraseAllocatedBlockContent: Boolean;
 begin
-  if CurrentInstallationState = mmisInstalled then
-  begin
-    if AtomicIncrement(EraseAllocatedBlockContentCounter) = 1 then
-      Result := FastMM_SetNormalOrDebugMemoryManager
+  SetMemoryManagerLock.Lock;
+  try
+    if CurrentInstallationState = mmisInstalled then
+    begin
+      Inc(EraseAllocatedBlockContentCounter);
+      if EraseAllocatedBlockContentCounter = 1 then
+        Result := FastMM_SetMemoryManagerEntryPoints
+      else
+        Result := True;
+    end
     else
-      Result := True;
-  end
-  else
-    Result := False;
+      Result := False;
+  finally
+    SetMemoryManagerLock.Unlock;
+  end;
 end;
 
 function FastMM_EndEraseAllocatedBlockContent: Boolean;
 begin
-  if CurrentInstallationState = mmisInstalled then
-  begin
-    if AtomicDecrement(EraseAllocatedBlockContentCounter) = 0 then
-      Result := FastMM_SetNormalOrDebugMemoryManager
+  SetMemoryManagerLock.Lock;
+  try
+    if CurrentInstallationState = mmisInstalled then
+    begin
+      Dec(EraseAllocatedBlockContentCounter);
+      if EraseAllocatedBlockContentCounter = 0 then
+        Result := FastMM_SetMemoryManagerEntryPoints
+      else
+        Result := True;
+    end
     else
-      Result := True;
-  end
-  else
-    Result := False;
+      Result := False;
+  finally
+    SetMemoryManagerLock.Unlock;
+  end;
 end;
 
 function FastMM_EraseAllocatedBlockContentActive: Boolean;
@@ -10756,28 +10897,40 @@ end;
 
 function FastMM_BeginEraseFreedBlockContent: Boolean;
 begin
-  if CurrentInstallationState = mmisInstalled then
-  begin
-    if AtomicIncrement(EraseFreedBlockContentCounter) = 1 then
-      Result := FastMM_SetNormalOrDebugMemoryManager
+  SetMemoryManagerLock.Lock;
+  try
+    if CurrentInstallationState = mmisInstalled then
+    begin
+      Inc(EraseFreedBlockContentCounter);
+      if EraseFreedBlockContentCounter = 1 then
+        Result := FastMM_SetMemoryManagerEntryPoints
+      else
+        Result := True;
+    end
     else
-      Result := True;
-  end
-  else
-    Result := False;
+      Result := False;
+  finally
+    SetMemoryManagerLock.Unlock;
+  end;
 end;
 
 function FastMM_EndEraseFreedBlockContent: Boolean;
 begin
-  if CurrentInstallationState = mmisInstalled then
-  begin
-    if AtomicDecrement(EraseFreedBlockContentCounter) = 0 then
-      Result := FastMM_SetNormalOrDebugMemoryManager
+  SetMemoryManagerLock.Lock;
+  try
+    if CurrentInstallationState = mmisInstalled then
+    begin
+      Dec(EraseFreedBlockContentCounter);
+      if EraseFreedBlockContentCounter = 0 then
+        Result := FastMM_SetMemoryManagerEntryPoints
+      else
+        Result := True;
+    end
     else
-      Result := True;
-  end
-  else
-    Result := False;
+      Result := False;
+  finally
+    SetMemoryManagerLock.Unlock;
+  end;
 end;
 
 function FastMM_EraseFreedBlockContentActive: Boolean;
@@ -10853,63 +11006,73 @@ var
   LModuleFilename: array[0..CFilenameMaxLength] of WideChar;
   LPModuleFilenamePos, LPModuleFilenameStart, LPModuleFilenameEnd, LPBufferPos, LPBufferEnd: PWideChar;
 begin
-  CloseEventLogFile;
+  EventLogLock.Lock;
+  try
+    CloseEventLogFile;
 
-  {Get the module filename into a buffer.}
-  LPModuleFilenameEnd := OS_GetApplicationFilename(@LModuleFilename, @LModuleFilename[High(LModuleFilename)], False);
+    {Get the module filename into a buffer.}
+    LPModuleFilenameEnd := OS_GetApplicationFilename(@LModuleFilename, @LModuleFilename[High(LModuleFilename)], False);
 
-  {Drop the file extension from the module filename.}
-  LPModuleFilenamePos := LPModuleFilenameEnd;
-  while NativeUInt(LPModuleFilenamePos) > NativeUInt(@LModuleFilename) do
-  begin
-    if LPModuleFilenamePos^ = '.' then
+    {Drop the file extension from the module filename.}
+    LPModuleFilenamePos := LPModuleFilenameEnd;
+    while NativeUInt(LPModuleFilenamePos) > NativeUInt(@LModuleFilename) do
     begin
-      LPModuleFilenameEnd := LPModuleFilenamePos;
-      Break;
-    end;
-    Dec(LPModuleFilenamePos);
-  end;
-  LPModuleFilenameEnd^ := #0;
-
-  {Try to get the path override from the environment variable.  If there is a path override then that is used instead
-  of the application path.}
-  LPBufferEnd := @EventLogFilename[High(EventLogFilename)];
-  LPBufferPos := OS_GetEnvironmentVariableValue(CLogFilePathEnvironmentVariable, @EventLogFilename, LPBufferEnd);
-  if LPBufferPos <> @EventLogFilename then
-  begin
-    {Strip the trailing path separator from the path override.}
-    Dec(LPBufferPos);
-    if (LPBufferPos^ <> '\') and (LPBufferPos^ <> '/') then
-      Inc(LPBufferPos);
-
-    {Strip the path from the module filename.}
-    LPModuleFilenameStart := LPModuleFilenameEnd;
-    while NativeUInt(LPModuleFilenameStart) > NativeUInt(@LModuleFilename) do
-    begin
-      if (LPModuleFilenameStart^ = '\') or (LPModuleFilenameStart^ = '/') then
+      if LPModuleFilenamePos^ = '.' then
+      begin
+        LPModuleFilenameEnd := LPModuleFilenamePos;
         Break;
-      Dec(LPModuleFilenameStart);
+      end;
+      Dec(LPModuleFilenamePos);
     end;
-  end
-  else
-    LPModuleFilenameStart := @LModuleFilename;
+    LPModuleFilenameEnd^ := #0;
 
-  LPBufferPos := AppendTextToBuffer(LPModuleFilenameStart, LPBufferPos, LPBufferEnd);
-  LPBufferPos := AppendTextToBuffer(CLogFileExtension, LPBufferPos, LPBufferEnd);
-  LPBufferPos^ := #0;
+    {Try to get the path override from the environment variable.  If there is a path override then that is used instead
+    of the application path.}
+    LPBufferEnd := @EventLogFilename[High(EventLogFilename)];
+    LPBufferPos := OS_GetEnvironmentVariableValue(CLogFilePathEnvironmentVariable, @EventLogFilename, LPBufferEnd);
+    if LPBufferPos <> @EventLogFilename then
+    begin
+      {Strip the trailing path separator from the path override.}
+      Dec(LPBufferPos);
+      if (LPBufferPos^ <> '\') and (LPBufferPos^ <> '/') then
+        Inc(LPBufferPos);
+
+      {Strip the path from the module filename.}
+      LPModuleFilenameStart := LPModuleFilenameEnd;
+      while NativeUInt(LPModuleFilenameStart) > NativeUInt(@LModuleFilename) do
+      begin
+        if (LPModuleFilenameStart^ = '\') or (LPModuleFilenameStart^ = '/') then
+          Break;
+        Dec(LPModuleFilenameStart);
+      end;
+    end
+    else
+      LPModuleFilenameStart := @LModuleFilename;
+
+    LPBufferPos := AppendTextToBuffer(LPModuleFilenameStart, LPBufferPos, LPBufferEnd);
+    LPBufferPos := AppendTextToBuffer(CLogFileExtension, LPBufferPos, LPBufferEnd);
+    LPBufferPos^ := #0;
+  finally
+    EventLogLock.Unlock;
+  end;
 end;
 
 procedure FastMM_SetEventLogFilename(APEventLogFilename: PWideChar);
 var
   LPBufferPos, LPBufferEnd: PWideChar;
 begin
-  CloseEventLogFile;
-
   if APEventLogFilename <> nil then
   begin
-    LPBufferEnd := @EventLogFilename[High(EventLogFilename)];
-    LPBufferPos := AppendTextToBuffer(APEventLogFilename, @EventLogFilename, LPBufferEnd);
-    LPBufferPos^ := #0;
+    EventLogLock.Lock;
+    try
+      CloseEventLogFile;
+
+      LPBufferEnd := @EventLogFilename[High(EventLogFilename)];
+      LPBufferPos := AppendTextToBuffer(APEventLogFilename, @EventLogFilename, LPBufferEnd);
+      LPBufferPos^ := #0;
+    finally
+      EventLogLock.Unlock;
+    end;
   end
   else
     FastMM_SetDefaultEventLogFilename;
@@ -10922,14 +11085,19 @@ end;
 
 function FastMM_DeleteEventLogFile: Boolean;
 begin
-  CloseEventLogFile;
+  EventLogLock.Lock;
+  try
+    CloseEventLogFile;
 
-  Result := OS_DeleteFile(@EventLogFilename);
+    Result := OS_DeleteFile(@EventLogFilename);
+  finally
+    EventLogLock.Unlock;
+  end;
 end;
 
 function FastMM_Initialize: Boolean;
 begin
-  {Ignore attemts to initialize twice.}
+  {Ignore attempts to initialize twice.}
   if UnitCurrentlyInitialized then
     Exit(False);
   UnitCurrentlyInitialized := True;
