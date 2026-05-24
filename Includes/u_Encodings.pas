@@ -2,9 +2,24 @@ unit u_Encodings;
 
 interface
 
+{$IF CompilerVersion >= 35} // Delphi 11 and UP
+  {$DEFINE HAS_ENCODING_BOM}
+{$IFEND}
+
 uses
   SysUtils,
   Classes;
+
+{$IFNDEF HAS_ENCODING_BOM}
+type
+  TUTF8Encoding = class(SysUtils.TUTF8Encoding)
+  private
+    FUseBOM: Boolean;
+  public
+    constructor Create(UseBOM: Boolean);
+    function GetPreamble: TBytes; override;
+  end;
+{$ENDIF}
 
 function FileToText(const FileName: String; AEncoding: TEncoding = nil): String;
 function FileToString(const FileName: string): RawByteString;
@@ -22,6 +37,23 @@ procedure StringToFile(const FileName: string; const Contents: RawByteString; Ap
 procedure StringToStream(const AStream: TStream; const Contents: RawByteString; Append: Boolean = False);
 
 implementation
+
+{$IFNDEF HAS_ENCODING_BOM}
+constructor TUTF8Encoding.Create(UseBOM: Boolean);
+begin
+  inherited Create;
+  FUseBOM := UseBOM;
+end;
+
+function TUTF8Encoding.GetPreamble: TBytes;
+begin
+  if FUseBOM then begin
+    Result := inherited GetPreamble;
+  end else begin
+    Result := nil;
+  end;
+end;
+{$ENDIF}
 
 function FileToString(const FileName: string): RawByteString;
 var

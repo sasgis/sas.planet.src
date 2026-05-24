@@ -67,6 +67,7 @@ type
     FReader: Pointer;
     FRetCode: int32_t;
   private
+    { IArchiveReaderSequential }
     procedure Reset;
     function Next(
       out AFileData: IBinaryData;
@@ -86,10 +87,15 @@ type
     FWriter: Pointer;
     FCompressMethod: uint16_t;
   private
+    { IArchiveWriterSequential }
     procedure Add(
       const AFileData: IBinaryData;
       const AFileNameInArchive: string;
       const AFileDate: TDateTime
+    );
+    procedure AddFile(
+      const AFileName: string;
+      const AFileNameInArchive: string
     );
   public
     constructor Create(
@@ -225,6 +231,16 @@ begin
   end;
 
   mz_check( mz_zip_writer_add_buffer(FWriter, VData, VDataSize, @VFileInfo) );
+end;
+
+procedure TArchiveWriterSequentialZip.AddFile(const AFileName, AFileNameInArchive: string);
+var
+  VFileName, VFileNameInZip: mz_string_t;
+begin
+  VFileName := mz_string_encode(AFileName);
+  VFileNameInZip := mz_string_encode(AFileNameInArchive);
+
+  mz_check( mz_zip_writer_add_file(FWriter, Pointer(VFileName), Pointer(VFileNameInZip)) );
 end;
 
 { TArchiveReaderSequentialZip }

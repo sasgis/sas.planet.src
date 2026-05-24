@@ -19,6 +19,8 @@ uses
 function CompareStringOrdinal(const S1, S2: string): Integer;
 
 function StringListCompare(List: TStringList; Index1, Index2: Integer): Integer;
+function StringListCompareDESC(List: TStringList; Index1, Index2: Integer): Integer;
+
 function ListViewCompare(lParam1, lParam2, lParamSort: Integer): Integer stdcall;
 function TreeViewCompare(lParam1, lParam2, lParamSort: LPARAM): Integer stdcall;
 
@@ -31,6 +33,11 @@ uses
 function StringListCompare(List: TStringList; Index1, Index2: Integer): Integer;
 begin
   Result := CompareStringOrdinal(List.Strings[Index1], List.Strings[Index2]);
+end;
+
+function StringListCompareDESC(List: TStringList; Index1, Index2: Integer): Integer;
+begin
+  Result := CompareStringOrdinal(List.Strings[Index2], List.Strings[Index1]);
 end;
 
 function ListViewCompare(lParam1, lParam2, lParamSort: Integer): Integer stdcall;

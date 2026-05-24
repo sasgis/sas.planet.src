@@ -64,6 +64,7 @@ type
   private
     FTar: TTarArchive;
   private
+    { IArchiveReaderSequential }
     procedure Reset;
     function Next(
       out AFileData: IBinaryData;
@@ -82,10 +83,15 @@ type
   private
     FTar: TTarWriter;
   private
+    { IArchiveWriterSequential }
     procedure Add(
       const AFileData: IBinaryData;
       const AFileNameInArchive: string;
       const AFileDate: TDateTime
+    );
+    procedure AddFile(
+      const AFileName: string;
+      const AFileNameInArchive: string
     );
   public
     constructor Create(
@@ -139,17 +145,36 @@ procedure TArchiveWriterSequentialTar.Add(
 );
 var
   VStream: TStream;
-  VFileName: AnsiString;
+  VFileNameInArchive: AnsiString;
 begin
   if IsAscii(AFileNameInArchive) then begin
-    VFileName := AnsiString(AFileNameInArchive);
+    VFileNameInArchive := AnsiString(AFileNameInArchive);
   end else begin
-    VFileName := UTF8Encode(AFileNameInArchive);
+    VFileNameInArchive := UTF8Encode(AFileNameInArchive);
   end;
 
   VStream := TStreamReadOnlyByBinaryData.Create(AFileData);
   try
-    FTar.AddStream(VStream, VFileName, AFileDate);
+    FTar.AddStream(VStream, VFileNameInArchive, AFileDate);
+  finally
+    VStream.Free;
+  end;
+end;
+
+procedure TArchiveWriterSequentialTar.AddFile(const AFileName, AFileNameInArchive: string);
+var
+  VStream: TFileStream;
+  VFileNameInArchive: AnsiString;
+begin
+  if IsAscii(AFileNameInArchive) then begin
+    VFileNameInArchive := AnsiString(AFileNameInArchive);
+  end else begin
+    VFileNameInArchive := UTF8Encode(AFileNameInArchive);
+  end;
+
+  VStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+  try
+    FTar.AddStream(VStream, VFileNameInArchive, libtar.FileTimeGMT(AFileName));
   finally
     VStream.Free;
   end;

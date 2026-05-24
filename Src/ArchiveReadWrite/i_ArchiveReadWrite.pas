@@ -74,6 +74,10 @@ type
       const AFileNameInArchive: string;
       const AFileDate: TDateTime
     );
+    procedure AddFile(
+      const AFileName: string;
+      const AFileNameInArchive: string
+    );
   end;
 
 implementation
