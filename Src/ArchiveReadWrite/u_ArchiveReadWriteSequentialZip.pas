@@ -159,19 +159,16 @@ begin
       zclNormal  : VCompressLevel := MZ_COMPRESS_LEVEL_NORMAL;
       zclBest    : VCompressLevel := MZ_COMPRESS_LEVEL_BEST;
     else
-      raise EArchiveWriterSequentialZip.CreateFmt(
-        'Unexpected CompressionLevel value: %d', [Integer(VConfig.CompressionLevel)]
-      );
+      raise EArchiveWriterSequentialZip.CreateFmt('Unexpected CompressionLevel value: %d', [Integer(VConfig.CompressionLevel)]);
     end;
     case VConfig.CompressionMethod of
       zcmStore   : FCompressMethod := MZ_COMPRESS_METHOD_STORE;
       zcmDeflate : FCompressMethod := MZ_COMPRESS_METHOD_DEFLATE;
       zcmBZip2   : FCompressMethod := MZ_COMPRESS_METHOD_BZIP2;
       zcmLZMA    : FCompressMethod := MZ_COMPRESS_METHOD_LZMA;
+      zcmZSTD    : FCompressMethod := MZ_COMPRESS_METHOD_ZSTD;
     else
-      raise EArchiveWriterSequentialZip.CreateFmt(
-        'Unexpected CompressionMethod value: %d', [Integer(VConfig.CompressionMethod)]
-      );
+      raise EArchiveWriterSequentialZip.CreateFmt('Unexpected CompressionMethod value: %d', [Integer(VConfig.CompressionMethod)]);
     end;
     VVolumSize := VConfig.VolumeSize;
   end else begin
@@ -186,7 +183,7 @@ begin
   mz_zip_writer_set_compress_method(FWriter, FCompressMethod);
   mz_zip_writer_set_compress_level(FWriter, VCompressLevel);
 
-  mz_check( mz_zip_writer_open_file(FWriter, @VFileName[1], VVolumSize, 0) );
+  mz_check( mz_zip_writer_open_file(FWriter, Pointer(VFileName), VVolumSize, 0) );
 end;
 
 destructor TArchiveWriterSequentialZip.Destroy;
@@ -214,7 +211,7 @@ begin
   FillChar(VFileInfo, SizeOf(VFileInfo), 0);
 
   VFileNameInZip := mz_string_encode(AFileNameInArchive);
-  VFileInfo.filename := @VFileNameInZip[1];
+  VFileInfo.filename := Pointer(VFileNameInZip);
 
   VFileInfo.compression_method := FCompressMethod;
 
@@ -262,7 +259,7 @@ begin
   FReader := mz_zip_reader_create();
   mz_check(FReader);
 
-  mz_check( mz_zip_reader_open_file(FReader, @VFileName[1]) );
+  mz_check( mz_zip_reader_open_file(FReader, Pointer(VFileName)) );
 
   Reset;
 end;

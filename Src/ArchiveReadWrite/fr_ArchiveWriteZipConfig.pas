@@ -69,7 +69,7 @@ uses
 
 const
   cMegabyte: Int64 = 1024 * 1024;
-  cCompressMethodStr: array [0..2] of string = ('Deflate', 'BZip2', 'LZMA');
+  cCompressMethodStr: array [0..3] of string = ('Deflate', 'BZip2', 'LZMA', 'ZSTD');
   cVolumeSizeStr: array [0..6] of string = (
     '100M', '200M', '650M - CD', '700M - CD', '1000M', '4092M - FAT', '4480M - DVD'
   );

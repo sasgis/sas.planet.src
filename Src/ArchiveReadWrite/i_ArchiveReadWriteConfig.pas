@@ -39,7 +39,7 @@ type
   end;
 
   TZipCompressionLevel = (zclFast, zclNormal, zclBest);
-  TZipCompressionMethod = (zcmStore, zcmDeflate, zcmBZip2, zcmLZMA);
+  TZipCompressionMethod = (zcmStore, zcmDeflate, zcmBZip2, zcmLZMA, zcmZSTD);
 
   IArchiveWriteZipConfig = interface(IArchiveWriteConfig)
     ['{D6C01DE6-EE54-41BB-8137-9483C531B757}']

@@ -22,7 +22,7 @@ const
   libminizip_dll = 'libminizip.dll';
 
 const
-  MZ_VERSION = '4.0.3';
+  MZ_VERSION = '4.2.1';
 
   MZ_OK = 0;
 
@@ -66,7 +66,9 @@ const
   MZ_COMPRESS_METHOD_DEFLATE = 8;
   MZ_COMPRESS_METHOD_BZIP2 = 12;
   MZ_COMPRESS_METHOD_LZMA = 14;
+  MZ_COMPRESS_METHOD_ZSTD = 93;
   MZ_COMPRESS_METHOD_XZ = 95;
+  MZ_COMPRESS_METHOD_PPMD = 98;
   MZ_COMPRESS_METHOD_AES = 99;
 
   MZ_COMPRESS_LEVEL_DEFAULT = -(1);
@@ -329,7 +331,7 @@ var
   mz_zip_writer_set_follow_links: procedure(handle: pointer; follow_links: uint8_t); cdecl;
   mz_zip_writer_set_store_links: procedure(handle: pointer; store_links: uint8_t); cdecl;
   mz_zip_writer_set_zip_cd: procedure(handle: pointer; zip_cd: uint8_t); cdecl;
-  mz_zip_writer_set_certificate: function(handle: pointer; cert_path: p_char; cert_pwd: p_char): int32_t; cdecl;
+  //mz_zip_writer_set_certificate: function(handle: pointer; cert_path: p_char; cert_pwd: p_char): int32_t; cdecl;
   mz_zip_writer_set_overwrite_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_writer_overwrite_cb); cdecl;
   mz_zip_writer_set_password_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_writer_password_cb); cdecl;
   mz_zip_writer_set_progress_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_writer_progress_cb); cdecl;
@@ -342,7 +344,7 @@ var
 //******************************************************************************
 
 type
-  mz_string_t = {$IFDEF UNICODE} UTF8String {$ELSE} AnsiString {$ENDIF};
+  mz_string_t = UTF8String;
 
 procedure mz_check(const p: pointer); inline; overload;
 procedure mz_check(const err: int32_t); inline; overload;
@@ -564,7 +566,7 @@ begin
     mz_zip_writer_set_follow_links := LoadProc('mz_zip_writer_set_follow_links');
     mz_zip_writer_set_store_links := LoadProc('mz_zip_writer_set_store_links');
     mz_zip_writer_set_zip_cd := LoadProc('mz_zip_writer_set_zip_cd');
-    mz_zip_writer_set_certificate := LoadProc('mz_zip_writer_set_certificate');
+    //mz_zip_writer_set_certificate := LoadProc('mz_zip_writer_set_certificate');
     mz_zip_writer_set_overwrite_cb := LoadProc('mz_zip_writer_set_overwrite_cb');
     mz_zip_writer_set_password_cb := LoadProc('mz_zip_writer_set_password_cb');
     mz_zip_writer_set_progress_cb := LoadProc('mz_zip_writer_set_progress_cb');
@@ -719,7 +721,7 @@ begin
     mz_zip_writer_set_follow_links := nil;
     mz_zip_writer_set_store_links := nil;
     mz_zip_writer_set_zip_cd := nil;
-    mz_zip_writer_set_certificate := nil;
+    //mz_zip_writer_set_certificate := nil;
     mz_zip_writer_set_overwrite_cb := nil;
     mz_zip_writer_set_password_cb := nil;
     mz_zip_writer_set_progress_cb := nil;
