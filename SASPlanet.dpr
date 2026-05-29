@@ -1503,6 +1503,7 @@ uses
   u_VectorItemTreeImporterXML in 'Src\Vector\u_VectorItemTreeImporterXML.pas',
   u_VectorItemTreeImporterXmlHelpers in 'Src\Vector\u_VectorItemTreeImporterXmlHelpers.pas',
   u_VectorItemTreeMarksDb in 'Src\Vector\u_VectorItemTreeMarksDb.pas',
+  u_XmlEscape in 'Src\Vector\u_XmlEscape.pas',
   u_XmlStreamingWriter in 'Src\Vector\u_XmlStreamingWriter.pas',
   i_GlobalAppConfig in 'Src\i_GlobalAppConfig.pas',
   i_GlobalConfig in 'Src\i_GlobalConfig.pas',

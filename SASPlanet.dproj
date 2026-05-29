@@ -5,7 +5,7 @@
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
         <FrameworkType>VCL</FrameworkType>
-        <ProjectVersion>20.3</ProjectVersion>
+        <ProjectVersion>20.4</ProjectVersion>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -1888,6 +1888,7 @@
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterXML.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterXmlHelpers.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeMarksDb.pas"/>
+        <DCCReference Include="Src\Vector\u_XmlEscape.pas"/>
         <DCCReference Include="Src\Vector\u_XmlStreamingWriter.pas"/>
         <DCCReference Include="Src\i_GlobalAppConfig.pas"/>
         <DCCReference Include="Src\i_GlobalConfig.pas"/>

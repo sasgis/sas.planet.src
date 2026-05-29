@@ -97,39 +97,6 @@ uses
   u_MarkPictureAnchorFunc,
   u_StreamReadOnlyByBinaryData;
 
-function XmlTextPrepare(const AText: string): string;
-var
-  I: Integer;
-  VSrc, VDst: PChar;
-  VLen, VNewLen: Integer;
-  VCurr: Char;
-begin
-  VLen := Length(AText);
-
-  if VLen = 0 then begin
-    Result := '';
-    Exit;
-  end;
-
-  SetLength(Result, VLen);
-
-  VSrc := Pointer(AText);
-  VDst := Pointer(Result);
-  VNewLen := 0;
-
-  for I := 1 to VLen do begin
-    VCurr := VSrc^;
-    if (VCurr >= #32) or (VCurr = #9) or (VCurr = #10) or (VCurr = #13) then begin
-      VDst^ := VCurr;
-      Inc(VDst);
-      Inc(VNewLen);
-    end;
-    Inc(VSrc);
-  end;
-
-  SetLength(Result, VNewLen);
-end;
-
 { TExportMarks2KML }
 
 constructor TExportMarks2KML.Create(
@@ -285,7 +252,7 @@ begin
         if (VSubTree.SubTreeItemCount > 0) or (Assigned(VSubTree.Items) and (VSubTree.Items.Count > 0)) then begin
           FKmlWriter.StartElement('Folder');
           begin
-            FKmlWriter.WriteElementString('name', XmlTextPrepare(VSubTree.Name));
+            FKmlWriter.WriteElementString('name', VSubTree.Name);
             FKmlWriter.WriteElementString('open', '1');
 
             FKmlWriter.StartElement('Style');
@@ -603,8 +570,8 @@ var
 begin
   FKmlWriter.StartElement('Placemark');
   begin
-    FKmlWriter.WriteElementString('name', XmlTextPrepare(AMark.Name));
-    FKmlWriter.WriteElementString('description', XmlTextPrepare(AMark.Desc));
+    FKmlWriter.WriteElementString('name', AMark.Name);
+    FKmlWriter.WriteElementString('description', AMark.Desc);
 
     if Supports(AMark.Geometry, IGeometryLonLatPoint, VLonLatPoint) then begin
       AddPointAppearence(AMark.Appearance);
