@@ -24,6 +24,7 @@ unit u_GpxFakeTimeGenerator;
 interface
 
 uses
+  SysUtils,
   i_GeoCalc,
   i_GeometryLonLat,
   t_GeoTypes,
@@ -32,13 +33,22 @@ uses
 type
   IGpxFakeTimeGenerator = interface
     ['{69CB8437-8624-447C-8F9A-268BCEA60EBE}']
-
     function GetItemTimeStamp(const AIndex: Integer): TDateTime;
     property TimeStamp[const AIndex: Integer]: TDateTime read GetItemTimeStamp;
+
+    function GetStartTimeStamp: TDateTime;
+    property StartTimeStamp: TDateTime read GetStartTimeStamp;
+
+    function GetEndTimeStamp: TDateTime;
+    property EndTimeStamp: TDateTime read GetEndTimeStamp;
   end;
 
   TGpxFakeTimeGenerator = class(TBaseInterfacedObject, IGpxFakeTimeGenerator)
+  private const
+    CDummySpeedKMH = 5; // dummy speed in km per hour
+    CDummySpeedMS  = CDummySpeedKMH * 1000 / (60 * 60); // dummy speed in meters per second
   private
+    FCount: Integer;
     FStart: TDateTime;
     FDelta: TDateTime;
     FTimes: array of TDateTime;
@@ -55,6 +65,8 @@ type
   private
     { IGpxFakeTimeGenerator }
     function GetItemTimeStamp(const AIndex: Integer): TDateTime;
+    function GetStartTimeStamp: TDateTime;
+    function GetEndTimeStamp: TDateTime;
   public
     constructor Create(
       const ANowUtc: TDateTime;
@@ -63,15 +75,12 @@ type
     );
   end;
 
+  EGpxFakeTimeGenerator = class(Exception);
+
 implementation
 
 uses
-  DateUtils,
-  SysUtils;
-
-const
-  CDummySpeedKMH = 5; // dummy speed in km per hour
-  CDummySpeedMS  = CDummySpeedKMH * 1000 / (60 * 60); // dummy speed in meters per second
+  DateUtils;
 
 { TGpxFakeTimeGenerator }
 
@@ -103,10 +112,21 @@ begin
       FLines[I] := VLines.Item[I];
     end;
   end else begin
-    raise Exception.Create('Unexpected GeometryLonLatLine type!');
+    raise EGpxFakeTimeGenerator.Create('Unexpected GeometryLonLatLine type!');
   end;
 
-  FIsInitilized := False;
+  FCount := 0;
+  for I := 0 to Length(FLines) - 1 do begin
+    Inc(FCount, FLines[I].Count);
+  end;
+
+  if FCount = 0 then begin
+    FStart := FNowUtc;
+    FDelta := 0;
+    FIsInitilized := True;
+  end else begin
+    FIsInitilized := False;
+  end;
 end;
 
 function TGpxFakeTimeGenerator.GetItemTimeStamp(
@@ -117,10 +137,32 @@ begin
     LazyInit;
   end;
 
-  if Length(FTimes) > 0 then begin
+  if (Length(FTimes) > 0) and (AIndex < FCount) then begin
     Result := FTimes[AIndex];
   end else begin
     Result := FStart + FDelta * AIndex;
+  end;
+end;
+
+function TGpxFakeTimeGenerator.GetStartTimeStamp: TDateTime;
+begin
+  if not FIsInitilized then begin
+    LazyInit;
+  end;
+
+  Result := FStart;
+end;
+
+function TGpxFakeTimeGenerator.GetEndTimeStamp: TDateTime;
+begin
+  if not FIsInitilized then begin
+    LazyInit;
+  end;
+
+  if FCount > 0 then begin
+    Result := GetItemTimeStamp(FCount - 1);
+  end else begin
+    Result := FStart;
   end;
 end;
 
@@ -128,24 +170,22 @@ procedure TGpxFakeTimeGenerator.LazyInit;
 var
   I: Integer;
   VDist: Double;
-  VCount: Integer;
 begin
   Assert(not FIsInitilized);
+  Assert(FCount > 0);
+
   FIsInitilized := True;
 
   VDist := 0;
-  VCount := 0;
-
   for I := 0 to Length(FLines) - 1 do begin
     VDist := VDist + FGeoCalc.CalcSingleLineLength(FLines[I]);
-    Inc(VCount, FLines[I].Count);
   end;
 
   FStart := IncSecond(FNowUtc, -Round(VDist / CDummySpeedMS));
-  FDelta := (FNowUtc - FStart) / VCount;
+  FDelta := (FNowUtc - FStart) / FCount;
 
   if IsMetaAvailable then begin
-    DoInitTimesByMeta(VCount);
+    DoInitTimesByMeta(FCount);
   end;
 end;
 

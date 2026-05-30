@@ -1480,6 +1480,7 @@ uses
   u_ExportMarks2KMLConfig in 'Src\Vector\u_ExportMarks2KMLConfig.pas',
   u_ExportMarks2TCX in 'Src\Vector\u_ExportMarks2TCX.pas',
   u_GpxFakeTimeGenerator in 'Src\Vector\u_GpxFakeTimeGenerator.pas',
+  u_GpxMarkProperties in 'Src\Vector\u_GpxMarkProperties.pas',
   u_ImportConfig in 'Src\Vector\u_ImportConfig.pas',
   u_JpegWithExifImportConfig in 'Src\Vector\u_JpegWithExifImportConfig.pas',
   u_VectorDataFactoryForMap in 'Src\Vector\u_VectorDataFactoryForMap.pas',

@@ -59,16 +59,16 @@ type
     FRouteNumber: Integer;
     FNowUtc: TDateTime;
 
-    function AddTree(
+    procedure AddTree(
       const ACategory: string;
       const ATree: IVectorItemTree;
       const AGeometryType: TGpxGeometryType
-    ): Boolean;
-    function AddMarks(
+    );
+    procedure AddMarks(
       const ACategory: string;
       const AMarksSubset: IVectorItemSubset;
       const AGeometryType: TGpxGeometryType
-    ): Boolean;
+    );
     procedure AddMark(
       const ACategory: string;
       const AMark: IVectorDataItem;
@@ -106,8 +106,10 @@ uses
   i_BinaryData,
   i_LonLatRect,
   i_EnumDoublePoint,
+  u_Encodings,
   u_GeoToStrFunc,
   u_GeoFunc,
+  u_GpxMarkProperties,
   u_GpxFakeTimeGenerator,
   u_StreamReadOnlyByBinaryData;
 
@@ -123,17 +125,15 @@ procedure TExportMarks2GPX.WriteMetadata(const ATree: IVectorItemTree);
 
   function GetUserName: string;
   var
-    I: DWord;
+    VSize: DWord;
   begin
-    I := 4096;
-    SetLength(Result, I);
-    if Windows.GetUserName(PChar(Result), I) then
-    begin
-      if I > 0 then
-        Dec(I);
-      SetLength(Result, I);
-    end
-    else
+    VSize := 4096;
+    SetLength(Result, VSize);
+    if Windows.GetUserName(PChar(Result), VSize) then begin
+      if VSize > 0 then
+        Dec(VSize);
+      SetLength(Result, VSize);
+    end else
       Result := '';
   end;
 
@@ -154,11 +154,9 @@ procedure TExportMarks2GPX.WriteMetadata(const ATree: IVectorItemTree);
       if RegOpenKeyEx(ARoot, PChar(VKey), 0, KEY_READ, VReg) = ERROR_SUCCESS then
       try
         VSize := 0;
-        if RegQueryValueEx(VReg, PChar(AName), nil, @VDataType, nil, @VSize) = ERROR_SUCCESS then
-        begin
+        if RegQueryValueEx(VReg, PChar(AName), nil, @VDataType, nil, @VSize) = ERROR_SUCCESS then begin
           SetLength(Result, VSize div SizeOf(Char));
-          if Result <> '' then
-          begin
+          if Result <> '' then begin
             RegQueryValueEx(VReg, PChar(AName), nil, @VDataType, PByte(PChar(Result)), @VSize);
 
             // Cut the last #0 char...
@@ -172,18 +170,11 @@ procedure TExportMarks2GPX.WriteMetadata(const ATree: IVectorItemTree);
     end;
 
   begin
-    Result :=
-      RegKeyRead(HKEY_LOCAL_MACHINE,
-        '\SOFTWARE\MICROSOFT\WINDOWS NT\CURRENTVERSION',
-        'RegisteredOwner');
+    Result := RegKeyRead(HKEY_LOCAL_MACHINE, '\SOFTWARE\MICROSOFT\WINDOWS NT\CURRENTVERSION', 'RegisteredOwner');
     if Result = '' then
-      Result := RegKeyRead(HKEY_LOCAL_MACHINE,
-        '\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION',
-        'RegisteredOwner');
+      Result := RegKeyRead(HKEY_LOCAL_MACHINE, '\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION', 'RegisteredOwner');
     if Result = '' then
-      Result := RegKeyRead(HKEY_LOCAL_MACHINE,
-        '\SOFTWARE\MICROSOFT\MS SETUP (ACME)\USER INFO',
-        'DefName');
+      Result := RegKeyRead(HKEY_LOCAL_MACHINE, '\SOFTWARE\MICROSOFT\MS SETUP (ACME)\USER INFO', 'DefName');
     if Result = 'Microsoft' then
       Result := '';
     if Result = '' then
@@ -196,17 +187,14 @@ procedure TExportMarks2GPX.WriteMetadata(const ATree: IVectorItemTree);
     var
       VMark: IVectorDataItem;
       VEnumMarks: IEnumUnknown;
-      Dummy: IGeometryLonLatSingleLine;
-      I: Integer;
+      VDummy: IGeometryLonLatSingleLine;
     begin
       Result := nil;
       if Assigned(AMarksSubset) then begin
-        I := 0;
         VEnumMarks := AMarksSubset.GetEnum;
-        while (VEnumMarks.Next(1, VMark, @I) = S_OK) do begin
+        while VEnumMarks.Next(1, VMark, nil) = S_OK do begin
           if Assigned(VMark) and (VMark.Name <> '') then begin
-            if (not ALineOnly) or
-               Supports(VMark.Geometry, IGeometryLonLatSingleLine, Dummy) then begin
+            if (not ALineOnly) or Supports(VMark.Geometry, IGeometryLonLatSingleLine, VDummy) then begin
               Result := VMark;
               Break;
             end;
@@ -224,7 +212,6 @@ procedure TExportMarks2GPX.WriteMetadata(const ATree: IVectorItemTree);
       Exit;
 
     Result := FindMark(ATree.Items, ALineOnly);
-
     if Assigned(Result) then
       Exit;
 
@@ -243,14 +230,11 @@ procedure TExportMarks2GPX.WriteMetadata(const ATree: IVectorItemTree);
       VMark: IVectorDataItem;
       VEnumMarks: IEnumUnknown;
       VLonLat: IGeometryLonLat;
-      I: Integer;
     begin
       if Assigned(AMarksSubset) then begin
-        I := 0;
         VEnumMarks := AMarksSubset.GetEnum;
-        while (VEnumMarks.Next(1, VMark, @I) = S_OK) do begin
+        while VEnumMarks.Next(1, VMark, nil) = S_OK do begin
           if Assigned(VMark) then begin
-
             if Assigned(VMark.Geometry) then begin
               if (ABounds.Left = 0) and (ABounds.Right = 0) or
                  (ABounds.Top = 0) and (ABounds.Bottom = 0) then
@@ -265,7 +249,6 @@ procedure TExportMarks2GPX.WriteMetadata(const ATree: IVectorItemTree);
               else
                 ABounds := UnionLonLatRects(ABounds, VLonLat.Bounds.Rect);
             end;
-
           end;
         end;
       end;
@@ -364,6 +347,7 @@ procedure TExportMarks2GPX.ExportTreeToGPX(
   const ATree: IVectorItemTree;
   const AFileName: string
 );
+
   function GetVersion: string;
   var
     VDateTime: TDateTime;
@@ -447,46 +431,41 @@ begin
   end;
 end;
 
-function TExportMarks2GPX.AddMarks(
+procedure TExportMarks2GPX.AddMarks(
   const ACategory: string;
   const AMarksSubset: IVectorItemSubset;
   const AGeometryType: TGpxGeometryType
-): Boolean;
+);
 var
   VMark: IVectorDataItem;
   VEnumMarks: IEnumUnknown;
-  I: Integer;
 begin
-  Result := False;
   if Assigned(AMarksSubset) then begin
     VEnumMarks := AMarksSubset.GetEnum;
-    while (VEnumMarks.Next(1, VMark, @I) = S_OK) do begin
+    while VEnumMarks.Next(1, VMark, nil) = S_OK do begin
       AddMark(ACategory, VMark, AGeometryType);
-      Result := True;
     end;
   end;
 end;
 
-function TExportMarks2GPX.AddTree(
+procedure TExportMarks2GPX.AddTree(
   const ACategory: string;
   const ATree: IVectorItemTree;
   const AGeometryType: TGpxGeometryType
-): Boolean;
+);
 var
   I: Integer;
   VSubTree: IVectorItemTree;
 begin
-  Result := False;
   if not Assigned(ATree) then
     Exit;
 
   for I := 0 to ATree.SubTreeItemCount - 1 do begin
     VSubTree := ATree.GetSubTreeItem(I);
-    if AddTree(ACategory + '\' + VSubTree.Name, VSubTree, AGeometryType) then
-      Result := True;
+    AddTree(ACategory + '\' + VSubTree.Name, VSubTree, AGeometryType);
   end;
-  if AddMarks(ACategory, ATree.Items, AGeometryType) then
-    Result := True;
+
+  AddMarks(ACategory, ATree.Items, AGeometryType);
 end;
 
 procedure TExportMarks2GPX.AddMark(
@@ -494,209 +473,6 @@ procedure TExportMarks2GPX.AddMark(
   const AMark: IVectorDataItem;
   const AGeometryType: TGpxGeometryType
 );
-
-  function ExtractDesc(const ADesc: string): string;
-
-    procedure RemoveField(var AStr: string; const AFieldName: string);
-    var
-      X: Integer;
-      VPrefix: string;
-      VPre: string;
-    begin
-      VPrefix := AFieldName + ': ';
-      X := Pos(VPrefix, AStr);
-      if X > 0 then
-      begin
-        VPre := Trim(Copy(AStr, 1, X - 1));
-        AStr := Trim(Copy(AStr, X + Length(VPrefix), MaxInt));
-        X := Pos(#10, AStr);
-        if X > 0 then
-          AStr := Trim(Copy(AStr, X + 1, MaxInt));
-        AStr := Trim(VPre + sLineBreak + AStr);
-      end;
-    end;
-
-  begin
-    Result := Trim(AdjustLineBreaks(ADesc));
-
-    // Remove BR-s
-    Result := StringReplace(Result, '<br>' + sLineBreak,  sLineBreak,  [rfReplaceAll]);
-    Result := StringReplace(Result, '<br />' + sLineBreak,  sLineBreak,  [rfReplaceAll]);
-    Result := StringReplace(Result, '<br/>' + sLineBreak,  sLineBreak,  [rfReplaceAll]);
-    Result := StringReplace(Result, '<br>',  '',  [rfReplaceAll]);
-    Result := StringReplace(Result, '<br />',  '',  [rfReplaceAll]);
-    Result := StringReplace(Result, '<br/>',  '',  [rfReplaceAll]);
-
-    RemoveField(Result, 'number');
-    RemoveField(Result, 'track');
-    RemoveField(Result, 'kind');
-    RemoveField(Result, 'GPS Coordinates');
-  end;
-
-  function ExtractCmt(var ADesc: string): string;
-  var
-    X: Integer;
-    VPre: string;
-  begin
-    // Extract "cmt:" field
-    X := Pos('cmt: ', ADesc);
-    if X > 0 then
-    begin
-      VPre := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + Length('cmt: '), MaxInt));
-      X := Pos(#10, ADesc);
-      if X > 0 then
-      begin
-        Result := Trim(Copy(ADesc, 1, X - 1));
-        ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(VPre + sLineBreak + ADesc);
-      end
-      else
-      begin
-        Result := ADesc;
-        ADesc := VPre;
-      end;
-    end
-    else
-      Result := '';
-  end;
-
-  function ExtractTime(var ADesc: string): TDateTime;
-  var
-    X: Integer;
-    VPre: string;
-    VDesc: string;
-  begin
-    Result := 0;
-    if TryStrToDateTime(ADesc, Result) then
-    begin
-      ADesc := '';
-      Exit;
-    end;
-    VDesc := LowerCase(ADesc);
-
-    // Extract "time:" field
-    X := Pos('time: ', VDesc);
-    if X > 0 then
-    begin
-      VPre := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + Length('time: '), MaxInt));
-      X := Pos(#10, ADesc);
-      if X > 0 then
-      begin
-        if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
-        ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(VPre + sLineBreak + ADesc);
-      end
-      else
-      begin
-        if not TryStrToDateTime(ADesc, Result) then Result := 0;
-        ADesc := VPre;
-      end;
-    end;
-
-    if Result <> 0 then
-      Exit;
-
-    // Extract "DateTime:" field
-    X := Pos('datetime: ', VDesc);
-    if X > 0 then
-    begin
-      VPre := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + Length('time: '), MaxInt));
-      X := Pos(#10, ADesc);
-      if X > 0 then
-      begin
-        if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
-        ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(VPre + sLineBreak + ADesc);
-      end
-      else
-      begin
-        if not TryStrToDateTime(ADesc, Result) then Result := 0;
-        ADesc := VPre;
-      end;
-    end;
-
-    if Result <> 0 then
-      Exit;
-
-    // Extract "Date:" field
-    X := Pos('date: ', VDesc);
-    if X > 0 then
-    begin
-      VPre := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + Length('Date: '), MaxInt));
-      X := Pos(#10, ADesc);
-      if X > 0 then
-      begin
-        if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
-        ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(VPre + sLineBreak + ADesc);
-      end
-      else
-      begin
-        if not TryStrToDateTime(ADesc, Result) then Result := 0;
-        ADesc := VPre;
-      end;
-    end;
-  end;
-
-  function ExtractType(var ADesc: string): string;
-  var
-    X: Integer;
-    VPre: string;
-  begin
-    // Extract "type:" field
-    X := Pos('type: ', ADesc);
-    if X > 0 then
-    begin
-      VPre := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + Length('type: '), MaxInt));
-      X := Pos(#10, ADesc);
-      if X > 0 then
-      begin
-        Result := Trim(Copy(ADesc, 1, X - 1));
-        ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(VPre + sLineBreak + ADesc);
-      end
-      else
-      begin
-        Result := ADesc;
-        ADesc := VPre;
-      end;
-    end
-    else
-      Result := '';
-  end;
-
-  function ExtractSym(var ADesc: string): string;
-  var
-    X: Integer;
-    VPre: string;
-  begin
-    // Extract "sym:" field
-    X := Pos('sym: ', ADesc);
-    if X > 0 then
-    begin
-      VPre := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + Length('sym: '), MaxInt));
-      X := Pos(#10, ADesc);
-      if X > 0 then
-      begin
-        Result := Trim(Copy(ADesc, 1, X - 1));
-        ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-        ADesc := Trim(VPre + sLineBreak + ADesc);
-      end
-      else
-      begin
-        Result := ADesc;
-        ADesc := VPre;
-      end;
-    end
-    else
-      Result := '';
-  end;
 
   procedure AddCategories(const APrefix: string);
   var
@@ -716,25 +492,24 @@ procedure TExportMarks2GPX.AddMark(
 
     repeat
       X := Pos('\', VCategories);
-      if X > 0 then
-      begin
+      if X > 0 then begin
         VCategory := Trim(Copy(VCategories, 1, X - 1));
         VCategories := Trim(Copy(VCategories, X + 1, MaxInt));
-      end
-      else
-      begin
+      end else begin
         VCategory := VCategories;
         VCategories := '';
       end;
 
-      if VCategory <> '' then
+      if VCategory <> '' then begin
         FGpxWriter.WriteElementString(APrefix + ':Category', ToXmlText(VCategory));
+      end;
     until VCategories = '';
   end;
 
   procedure AddPoint(
     const AMark: IVectorDataItem;
-    const ALonLatPoint: IGeometryLonLatPoint);
+    const ALonLatPoint: IGeometryLonLatPoint
+  );
 
     function IsPhoto(const AWidth: Integer): Boolean;
     begin
@@ -743,9 +518,7 @@ procedure TExportMarks2GPX.AddMark(
 
   var
     VAppearanceIcon: IAppearancePointIcon;
-    VDesc: string;
-    VCmt: string;
-    VDateTime: TDateTime;
+    VProp: TGpxMarkProperties;
     VType: string;
     VSym: string;
     VHref: string;
@@ -755,33 +528,23 @@ procedure TExportMarks2GPX.AddMark(
       Exit;
     end;
 
+    VProp := TGpxMarkProperties.Read(AMark);
+
     FGpxWriter.StartElement('wpt');
     FGpxWriter.WriteAttribute('lat', R2StrPoint(ALonLatPoint.Point.Y));
     FGpxWriter.WriteAttribute('lon', R2StrPoint(ALonLatPoint.Point.X));
     begin
-      // Order of extraction is important
-      VDesc := ExtractDesc(AMark.Desc);
-      VCmt := ExtractCmt(VDesc);
-      VDateTime := ExtractTime(VDesc);
-      VType := ExtractType(VDesc);
-      VSym := ExtractSym(VDesc);
-
-      if VDateTime <> 0 then begin
-        FGpxWriter.WriteElementString('time', ToXmlDateTime(ToUtc(VDateTime)));
+      if VProp.Time <> 0 then begin
+        FGpxWriter.WriteElementString('time', ToXmlDateTime(ToUtc(VProp.Time)));
       end;
 
       FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name));
 
-      if (VCmt = '') and (VDesc <> '') then begin // Google Earth ignore "desc"? And shows "cmt" only
-        VCmt := VDesc;
-        VDesc := '';
-      end;
+      if VProp.Cmt <> '' then
+        FGpxWriter.WriteElementString('cmt', ToXmlText(VProp.Cmt));
 
-      if VCmt <> '' then
-        FGpxWriter.WriteElementString('cmt', ToXmlText(VCmt));
-
-      if VDesc <> '' then
-        FGpxWriter.WriteElementString('desc', ToXmlText(VDesc));
+      if VProp.Desc <> '' then
+        FGpxWriter.WriteElementString('desc', ToXmlText(VProp.Desc));
 
       if not Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
         VAppearanceIcon := nil;
@@ -789,18 +552,15 @@ procedure TExportMarks2GPX.AddMark(
 
       if (VAppearanceIcon <> nil) and (VAppearanceIcon.Pic <> nil) then begin
         VHref := SaveMarkIcon(VAppearanceIcon);
-
+        VType := VProp.TypeId;
+        VSym := VProp.Sym;
         if IsPhoto(VAppearanceIcon.Pic.GetMarker.Size.X) then begin
-          if VType = '' then
-            VType := 'photo';
-          if VSym = '' then
-            VSym := 'Scenic Area';
+          if VType = '' then VType := 'photo';
+          if VSym = '' then VSym := 'Scenic Area';
           VDisplayMode := 'SymbolAndName';
         end else begin
-          if VType = '' then
-            VType := 'user';
-          if VSym = '' then
-            VSym := FindSymByMark(AMark);
+          if VType = '' then VType := 'user';
+          if VSym = '' then VSym := FindSymByMark(AMark);
           VDisplayMode := 'SymbolOnly';
         end
       end else begin
@@ -854,7 +614,8 @@ procedure TExportMarks2GPX.AddMark(
 
   procedure AddLine(
     const AMark: IVectorDataItem;
-    const ALonLatLine: IGeometryLonLatSingleLine);
+    const ALonLatLine: IGeometryLonLatSingleLine
+  );
 
     function IsTrack: Boolean;
     var
@@ -872,8 +633,7 @@ procedure TExportMarks2GPX.AddMark(
     VPoint: TDoublePoint;
     VMeta: TDoublePointsMetaItem;
     VPointNum: Integer;
-    VDesc: string;
-    VCmt: string;
+    VProp: TGpxMarkProperties;
     VDateTime: TDateTime;
     VFakeTimeGenerator: IGpxFakeTimeGenerator;
   begin
@@ -882,23 +642,17 @@ procedure TExportMarks2GPX.AddMark(
         Exit;
       end;
 
+      VProp := TGpxMarkProperties.Read(AMark);
+
       FGpxWriter.StartElement('trk');
       begin
         FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name));
 
-        // Order of extraction is important
-        VDesc := ExtractDesc(AMark.Desc);
-        VCmt := ExtractCmt(VDesc);
-        if (VCmt = '') and (VDesc <> '') then begin // Google Earth ignore "desc"? And shows "cmt" only
-          VCmt := VDesc;
-          VDesc := '';
-        end;
+        if VProp.Cmt <> '' then
+          FGpxWriter.WriteElementString('cmt', ToXmlText(VProp.Cmt));
 
-        if VCmt <> '' then
-          FGpxWriter.WriteElementString('cmt', ToXmlText(VCmt));
-
-        if VDesc <> '' then
-          FGpxWriter.WriteElementString('desc', ToXmlText(VDesc));
+        if VProp.Desc <> '' then
+          FGpxWriter.WriteElementString('desc', ToXmlText(VProp.Desc));
 
         FGpxWriter.WriteElementString('number', IntToStr(FTrackNumber));
         Inc(FTrackNumber);
@@ -955,23 +709,17 @@ procedure TExportMarks2GPX.AddMark(
         Exit;
       end;
 
+      VProp := TGpxMarkProperties.Read(AMark);
+
       FGpxWriter.StartElement('rte');
       begin
         FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name));
 
-        // Order of extraction is important
-        VDesc := ExtractDesc(AMark.Desc);
-        VCmt := ExtractCmt(VDesc);
-        if (VCmt = '') and (VDesc <> '') then begin// Google Earth ignore "desc"? And shows "cmt" only
-          VCmt := VDesc;
-          VDesc := '';
-        end;
+        if VProp.Cmt <> '' then
+          FGpxWriter.WriteElementString('cmt', ToXmlText(VProp.Cmt));
 
-        if VCmt <> '' then
-          FGpxWriter.WriteElementString('cmt', ToXmlText(VCmt));
-
-        if VDesc <> '' then
-          FGpxWriter.WriteElementString('desc', ToXmlText(VDesc));
+        if VProp.Desc <> '' then
+          FGpxWriter.WriteElementString('desc', ToXmlText(VProp.Desc));
 
         FGpxWriter.WriteElementString('number', IntToStr(FRouteNumber));
         Inc(FRouteNumber);
@@ -1020,15 +768,15 @@ procedure TExportMarks2GPX.AddMark(
 
   procedure AddMultiLine(
     const AMark: IVectorDataItem;
-    const ALonLatPath: IGeometryLonLatMultiLine);
+    const ALonLatPath: IGeometryLonLatMultiLine
+  );
   var
     VAppearanceLine: IAppearanceLine;
     VLonLatPathLine: IGeometryLonLatSingleLine;
     VPointsEnum: IEnumLonLatPoint;
     VPoint: TDoublePoint;
     VMeta: TDoublePointsMetaItem;
-    VDesc: string;
-    VCmt: string;
+    VProp: TGpxMarkProperties;
     VDateTime: TDateTime;
     I: Integer;
     VPointNum: Integer;
@@ -1048,22 +796,17 @@ procedure TExportMarks2GPX.AddMark(
       Exit;
     end;
 
+    VProp := TGpxMarkProperties.Read(AMark);
+
     FGpxWriter.StartElement('trk');
     begin
       FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name));
 
-      VDesc := AMark.Desc;
-      VCmt := ExtractCmt(VDesc);
-      if (VCmt = '') and (VDesc <> '') then begin// Google Earth ignore "desc"? And shows "cmt" only
-        VCmt := VDesc;
-        VDesc := '';
-      end;
+      if VProp.Cmt <> '' then
+        FGpxWriter.WriteElementString('cmt', ToXmlText(VProp.Cmt));
 
-      if VCmt <> '' then
-        FGpxWriter.WriteElementString('cmt', ToXmlText(VCmt));
-
-      if VDesc <> '' then
-        FGpxWriter.WriteElementString('desc', ToXmlText(VDesc));
+      if VProp.Desc <> '' then
+        FGpxWriter.WriteElementString('desc', ToXmlText(VProp.Desc));
 
       FGpxWriter.WriteElementString('number', IntToStr(FTrackNumber));
       Inc(FTrackNumber);
@@ -1291,7 +1034,7 @@ begin
       Result := ADateTime + (VTimeZoneInfo.Bias + VTimeZoneInfo.DaylightBias) / CMinutesPerDay;
   else
     RaiseLastOSError;
-    Result := ADateTime;
+    Result := ADateTime; // make compiler happy
   end;
 end;
 
