@@ -28,7 +28,7 @@ uses
   SysUtils,
   Classes,
   ActiveX,
-  Alcinoe.XMLDoc,
+  Math,
   t_Bitmap32,
   i_GeoCalc,
   i_BuildInfo,
@@ -36,7 +36,8 @@ uses
   i_AppearanceOfVectorItem,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
-  i_VectorItemTree;
+  i_VectorItemTree,
+  u_XmlStreamingWriter;
 
 type
   TGpxGeometryType = (
@@ -50,14 +51,10 @@ type
   private
     FLineIsAlwaysTrack: Boolean;
 
-    FGPXDoc: TALXMLDocument;
+    FGpxWriter: TXmlStreamingWriter;
     FGeoCalc: IGeoCalc;
     FBuildInfo: IBuildInfo;
     FFileName: string;
-    FGPXNode: TALXMLNode;
-    FGPXMetaNode: TALXMLNode;
-    FNameNode: TALXMLNode;
-    FDescNode: TALXMLNode;
     FTrackNumber: Integer;
     FRouteNumber: Integer;
     FNowUtc: TDateTime;
@@ -79,16 +76,15 @@ type
     );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
 
-    procedure PrepareExportToFile(const AFileName: string; const ATree: IVectorItemTree);
-    procedure SaveToFile;
+    procedure WriteMetadata(const ATree: IVectorItemTree);
 
-    class function ToGpxColor(const AColor32: TColor32): AnsiString; static;
+    class function ToGpxColor(const AColor32: TColor32): string; static;
     class function ToUtc(const ADateTime: TDateTime): TDateTime; static;
-    class function ToXmlDateTime(const ADateTime: TDateTime; const ADetailed: Boolean = False): AnsiString; static;
-    class function ToXmlText(const AStr: string): AnsiString; static;
+    class function ToXmlDateTime(const ADateTime: TDateTime; const ADetailed: Boolean = False): string; static;
+    class function ToXmlText(const AStr: string): string; static; inline;
 
-    class function FindSymByName(const AName: string): AnsiString; static;
-    class function FindSymByMark(const AMark: IVectorDataItem): AnsiString; static;
+    class function FindSymByName(const AName: string): string; static;
+    class function FindSymByMark(const AMark: IVectorDataItem): string; static;
   public
     procedure ExportTreeToGPX(
       const AGeoCalc: IGeoCalc;
@@ -110,7 +106,6 @@ uses
   i_BinaryData,
   i_LonLatRect,
   i_EnumDoublePoint,
-  u_AnsiStr,
   u_GeoToStrFunc,
   u_GeoFunc,
   u_GpxFakeTimeGenerator,
@@ -124,9 +119,9 @@ begin
   FLineIsAlwaysTrack := ALineIsAlwaysTrack;
 end;
 
-procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const ATree: IVectorItemTree);
+procedure TExportMarks2GPX.WriteMetadata(const ATree: IVectorItemTree);
 
-  function GetUserName: String;
+  function GetUserName: string;
   var
     I: DWord;
   begin
@@ -142,18 +137,18 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
       Result := '';
   end;
 
-  function GetUserFullName: String;
+  function GetUserFullName: string;
 
-    function RegKeyRead(const ARoot: HKey; const AKey, AName: String; const ADefault: String = ''): String;
+    function RegKeyRead(const ARoot: HKey; const AKey, AName: string; const ADefault: string = ''): string;
     var
       VReg: HKey;
       VSize: Integer;
-      VKey: String;
+      VKey: string;
       VDataType: Integer;
     begin
-      Result := ADefault; // Do Not Localize
+      Result := ADefault;
       VKey := AKey;
-      if (VKey <> '') and (VKey[1] = '\') then // Do Not Localize
+      if (VKey <> '') and (VKey[1] = '\') then
         Delete(VKey, 1, 1);
 
       if RegOpenKeyEx(ARoot, PChar(VKey), 0, KEY_READ, VReg) = ERROR_SUCCESS then
@@ -179,18 +174,18 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
   begin
     Result :=
       RegKeyRead(HKEY_LOCAL_MACHINE,
-        '\SOFTWARE\MICROSOFT\WINDOWS NT\CURRENTVERSION', // Do Not Localize
-        'RegisteredOwner'); // Do Not Localize
+        '\SOFTWARE\MICROSOFT\WINDOWS NT\CURRENTVERSION',
+        'RegisteredOwner');
     if Result = '' then
       Result := RegKeyRead(HKEY_LOCAL_MACHINE,
-        '\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION', // Do Not Localize
-        'RegisteredOwner'); // Do Not Localize
+        '\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION',
+        'RegisteredOwner');
     if Result = '' then
       Result := RegKeyRead(HKEY_LOCAL_MACHINE,
-        '\SOFTWARE\MICROSOFT\MS SETUP (ACME)\USER INFO', // Do Not Localize
-        'DefName'); // Do Not Localize
-    if Result = 'Microsoft' then // Do Not Localize
-      Result := ''; // Do Not Localize
+        '\SOFTWARE\MICROSOFT\MS SETUP (ACME)\USER INFO',
+        'DefName');
+    if Result = 'Microsoft' then
+      Result := '';
     if Result = '' then
       Result := GetUserName;
   end;
@@ -202,7 +197,7 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
       VMark: IVectorDataItem;
       VEnumMarks: IEnumUnknown;
       Dummy: IGeometryLonLatSingleLine;
-      I: integer;
+      I: Integer;
     begin
       Result := nil;
       if Assigned(AMarksSubset) then begin
@@ -248,7 +243,7 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
       VMark: IVectorDataItem;
       VEnumMarks: IEnumUnknown;
       VLonLat: IGeometryLonLat;
-      I: integer;
+      I: Integer;
     begin
       if Assigned(AMarksSubset) then begin
         I := 0;
@@ -291,13 +286,91 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
     end;
   end;
 
-  function GetVersion: String;
+var
+  VUserEMail: string;
+  VMark: IVectorDataItem;
+  VBounds: TDoubleRect;
+begin
+  VUserEMail := GetUserFullName;
+  if (Pos('@', VUserEMail) <= 1) or
+     (Pos('.', VUserEMail) <= 1) then
+    VUserEMail := '';
+
+  FGpxWriter.StartElement('metadata');
+  begin
+    // Set name of GPX = first line mark in tree.
+    // If there is no line mark - use any mark.
+    // If there is no marks - use file name.
+    VMark := FindFirstMark(ATree, True);
+    if not Assigned(VMark) then
+      VMark := FindFirstMark(ATree, False);
+
+    if Assigned(VMark) then begin
+      FGpxWriter.WriteElementString('name', ToXmlText(VMark.Name));
+      if VMark.Desc <> '' then begin
+        FGpxWriter.WriteElementString('desc', ToXmlText(VMark.Desc));
+      end;
+    end else begin
+      FGpxWriter.WriteElementString('name', ToXmlText(ChangeFileExt(ExtractFileName(FFileName), '')));
+    end;
+
+    // Set user name = system user name
+    FGpxWriter.StartElement('author');
+    begin
+      FGpxWriter.WriteElementString('name', ToXmlText(GetUserName));
+      if VUserEMail <> '' then begin
+        FGpxWriter.StartElement('email');
+        begin
+          FGpxWriter.WriteAttribute('id', ToXmlText(Copy(VUserEMail, 1, Pos('@', VUserEMail) - 1)));
+          FGpxWriter.WriteAttribute('domain', ToXmlText(Copy(VUserEMail, Pos('@', VUserEMail) + 1, MaxInt)));
+        end;
+        FGpxWriter.EndElement; // email
+      end;
+    end;
+    FGpxWriter.EndElement; // author
+
+    // Link
+    FGpxWriter.StartElement('link');
+    begin
+      FGpxWriter.WriteAttribute('href', 'https://www.sasgis.org/');
+      FGpxWriter.WriteElementString('text', 'SAS.Planet');
+    end;
+    FGpxWriter.EndElement; // link
+
+    // Timestamp
+    FGpxWriter.WriteElementString('time', ToXmlDateTime(FNowUtc));
+
+    // Determinate bounds of all marks
+    FillChar(VBounds, SizeOf(VBounds), 0);
+    ScanBounds(VBounds, ATree);
+    if (VBounds.Left <> 0) or (VBounds.Right <> 0) or
+       (VBounds.Top <> 0) or (VBounds.Bottom <> 0) then begin
+      FGpxWriter.StartElement('bounds'); // Minimum and maximum coordinates which describe the extent of the coordinates in the file
+      begin
+        FGpxWriter.WriteAttribute('maxlat', R2StrPoint(VBounds.Bottom));
+        FGpxWriter.WriteAttribute('maxlon', R2StrPoint(VBounds.Right));
+        FGpxWriter.WriteAttribute('minlat', R2StrPoint(VBounds.Top));
+        FGpxWriter.WriteAttribute('minlon', R2StrPoint(VBounds.Left));
+      end;
+      FGpxWriter.EndElement; // bounds
+    end;
+  end;
+  FGpxWriter.EndElement; // metadata
+end;
+
+procedure TExportMarks2GPX.ExportTreeToGPX(
+  const AGeoCalc: IGeoCalc;
+  const ABuildInfo: IBuildInfo;
+  const ATree: IVectorItemTree;
+  const AFileName: string
+);
+  function GetVersion: string;
   var
     VDateTime: TDateTime;
-    VVer: String;
-    VVerMajor: String;
-    VVerMinor: String;
-    VVerBuild: String;
+    VVer: string;
+    VVerMajor: string;
+    VVerMinor: string;
+    VVerBuild: string;
   begin
     VVer := FBuildInfo.GetVersion;
     VDateTime := FBuildInfo.GetBuildDate;
@@ -310,154 +383,79 @@ procedure TExportMarks2GPX.PrepareExportToFile(const AFileName: string; const AT
   end;
 
 var
-  VAuthorNode: TALXMLNode;
-  VLinkNode: TALXMLNode;
-  VUserEMail: String;
-  VEMailNode: TALXMLNode;
-  VMark: IVectorDataItem;
-  VBounds: TDoubleRect;
-  VBoundsNode: TALXMLNode;
-begin
-  FNowUtc := ToUtc(Now);
-
-  // Windows 8+ - this is e-mail from Windows Live/Passport
-  VUserEMail := GetUserFullName;
-  if (Pos('@', VUserEMail) <= 1) or
-     (Pos('.', VUserEMail) <= 1) then
-    VUserEMail := '';
-
-  FGPXDoc.Options := [doNodeAutoIndent, doNodeAutoCreate];
-  FGPXDoc.Active := True;
-  FGPXDoc.Version := '1.0';
-  FGPXDoc.Encoding := 'UTF-8';
-  FGPXNode := FGPXDoc.AddChild('gpx');
-
-  FGPXNode.Attributes['version'] := '1.1'; // You must include the version number in your GPX document.
-  FGPXNode.Attributes['creator'] := ToXmlText('SAS.Planet ' + GetVersion);
-
-  FGPXNode.Attributes['xmlns'] := 'http://www.topografix.com/GPX/1/1';
-  FGPXNode.Attributes['xmlns:xsi'] := 'http://www.w3.org/2001/XMLSchema-instance';
-  FGPXNode.Attributes['xmlns:wptx1'] := 'http://www.garmin.com/xmlschemas/WaypointExtension/v1';
-  FGPXNode.Attributes['xmlns:gpxtrx'] := 'http://www.garmin.com/xmlschemas/GpxExtensions/v3';
-  FGPXNode.Attributes['xmlns:gpxtpx'] := 'http://www.garmin.com/xmlschemas/TrackPointExtension/v1';
-  FGPXNode.Attributes['xmlns:gpxx'] := 'http://www.garmin.com/xmlschemas/GpxExtensions/v3';
-  FGPXNode.Attributes['xsi:schemaLocation'] := 'http://www.topografix.com/GPX/1/1 ' +
-                                               'http://www.topografix.com/GPX/1/1/gpx.xsd ' +
-                                               'http://www.garmin.com/xmlschemas/WaypointExtension/v1 ' +
-                                               'http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd ' +
-                                               'http://www.garmin.com/xmlschemas/TrackPointExtension/v1 ' +
-                                               'http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd ' +
-                                               'http://www.garmin.com/xmlschemas/GpxExtensions/v3 ' +
-                                               'http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd';
-
-  FGPXMetaNode := FGPXNode.AddChild('metadata'); // Metadata about the file.
-  // FGPXNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-
-  // Set name of GPX = first line mark in tree.
-  // If there is no line mark - use any mark.
-  // If there is no marks - use file name.
-  FNameNode := FGPXMetaNode.AddChild('name');
-
-  VMark := FindFirstMark(ATree, True);
-  if not Assigned(VMark) then
-    VMark := FindFirstMark(ATree, False);
-
-  if Assigned(VMark) then begin
-    FNameNode.Text := ToXmlText(VMark.Name);
-    if VMark.Desc <> '' then begin
-      FDescNode := FGPXMetaNode.AddChild('desc');
-      FDescNode.Text := ToXmlText(VMark.Desc);
-    end;
-  end
-  else
-    FNameNode.Text := ToXmlText(ChangeFileExt(ExtractFileName(AFileName), ''));
-
-  // Set user name = system user name
-  VAuthorNode := FGPXMetaNode.AddChild('author');
-  VAuthorNode.AddChild('name').Text := ToXmlText(GetUserName);
-  if VUserEMail <> '' then begin
-    VEMailNode := VAuthorNode.AddChild('email');
-    VEMailNode.Attributes['id'] := ToXmlText(Copy(VUserEMail, 1, Pos('@', VUserEMail) - 1));
-    VEMailNode.Attributes['domain'] := ToXmlText(Copy(VUserEMail, Pos('@', VUserEMail) + 1, MaxInt));
-  end;
-
-  // FGPXMetaNode.AddChild('copyright'); // Copyright and license information governing use of the file.
-
-  // Link
-  VLinkNode := FGPXMetaNode.AddChild('link');
-  VLinkNode.Attributes['href'] := 'http://www.sasgis.org/';
-  VLinkNode.AddChild('text').Text := 'SAS.Planet';
-
-  // Timestamp
-  FGPXMetaNode.AddChild('time').Text := ToXmlDateTime(FNowUtc);
-
-  // FGPXMetaNode.AddChild('keywords'); // Keywords associated with the file. Search engines or databases can use this information to classify the data.
-
-  // Determinate bounds of all marks
-  FillChar(VBounds, SizeOf(VBounds), 0);
-  ScanBounds(VBounds, ATree);
-  if (VBounds.Left <> 0) or (VBounds.Right <> 0) or
-     (VBounds.Top <> 0) or (VBounds.Bottom <> 0) then begin
-    VBoundsNode := FGPXMetaNode.AddChild('bounds'); // Minimum and maximum coordinates which describe the extent of the coordinates in the file. <bounds minlat="56.717302" minlon="35.900255" maxlat="56.787633" maxlon="35.980514" />
-    VBoundsNode.Attributes['maxlat'] := R2AnsiStrPoint(VBounds.Bottom);
-    VBoundsNode.Attributes['maxlon'] := R2AnsiStrPoint(VBounds.Right);
-    VBoundsNode.Attributes['minlat'] := R2AnsiStrPoint(VBounds.Top);
-    VBoundsNode.Attributes['minlon'] := R2AnsiStrPoint(VBounds.Left);
-  end;
-
-  // FGPXMetaNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-
-  FFileName := AFileName;
-end;
-
-procedure TExportMarks2GPX.SaveToFile;
-var
-  VFileStream: TFileStream;
-begin
-  VFileStream := TFileStream.Create(FFileName, fmCreate);
-  try
-    FGPXDoc.SaveToStream(VFileStream);
-  finally
-    VFileStream.Free;
-  end;
-end;
-
-procedure TExportMarks2GPX.ExportTreeToGPX(
-  const AGeoCalc: IGeoCalc;
-  const ABuildInfo: IBuildInfo;
-  const ATree: IVectorItemTree;
-  const AFileName: string
-);
-var
   I: TGpxGeometryType;
+  VFileStream: TFileStream;
+  VEncoding: TEncoding;
 begin
   FGeoCalc := AGeoCalc;
   FBuildInfo := ABuildInfo;
-  FGPXDoc := TALXMLDocument.Create;
-  try
-    FTrackNumber := 1;
-    FRouteNumber := 1;
+  FFileName := AFileName;
+  FTrackNumber := 1;
+  FRouteNumber := 1;
+  FNowUtc := ToUtc(Now);
 
-    PrepareExportToFile(AFileName, ATree);
-    for I := Low(I) to High(I) do begin
-      AddTree('', ATree, I);
+  VFileStream := TFileStream.Create(FFileName, fmCreate);
+  VEncoding := TUTF8Encoding.Create(False); // UTF8 without BOM
+  try
+    FGpxWriter := TXmlStreamingWriter.Create(VFileStream, VEncoding);
+    try
+      FGpxWriter.Version := '1.0';
+      FGpxWriter.Encoding := 'UTF-8';
+      FGpxWriter.IndentChars := '  ';
+      FGpxWriter.LineBreak := #13#10;
+
+      FGpxWriter.StartDocument;
+      begin
+        FGpxWriter.StartElement('gpx');
+        FGpxWriter.WriteAttribute('version', '1.1');
+        FGpxWriter.WriteAttribute('creator', 'SAS.Planet ' + GetVersion);
+
+        FGpxWriter.WriteAttribute('xmlns', 'http://www.topografix.com/GPX/1/1');
+        FGpxWriter.WriteAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        FGpxWriter.WriteAttribute('xmlns:wptx1', 'http://www.garmin.com/xmlschemas/WaypointExtension/v1');
+        FGpxWriter.WriteAttribute('xmlns:gpxtrx', 'http://www.garmin.com/xmlschemas/GpxExtensions/v3');
+        FGpxWriter.WriteAttribute('xmlns:gpxtpx', 'http://www.garmin.com/xmlschemas/TrackPointExtension/v1');
+        FGpxWriter.WriteAttribute('xmlns:gpxx', 'http://www.garmin.com/xmlschemas/GpxExtensions/v3');
+
+        FGpxWriter.WriteAttribute('xsi:schemaLocation',
+          'http://www.topografix.com/GPX/1/1 ' +
+          'http://www.topografix.com/GPX/1/1/gpx.xsd ' +
+          'http://www.garmin.com/xmlschemas/WaypointExtension/v1 ' +
+          'http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd ' +
+          'http://www.garmin.com/xmlschemas/TrackPointExtension/v1 ' +
+          'http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd ' +
+          'http://www.garmin.com/xmlschemas/GpxExtensions/v3 ' +
+          'http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd'
+        );
+
+        WriteMetadata(ATree);
+
+        for I := Low(I) to High(I) do begin
+          AddTree('', ATree, I);
+        end;
+
+        FGpxWriter.EndElement; // gpx
+      end;
+      FGpxWriter.EndDocument;
+    finally
+      FreeAndNil(FGpxWriter);
     end;
-    SaveToFile;
   finally
-    FreeAndNil(FGPXDoc);
+    VEncoding.Free;
+    VFileStream.Free;
     FGeoCalc := nil;
   end;
 end;
 
 function TExportMarks2GPX.AddMarks(
-  const ACategory: String;
+  const ACategory: string;
   const AMarksSubset: IVectorItemSubset;
   const AGeometryType: TGpxGeometryType
 ): Boolean;
 var
   VMark: IVectorDataItem;
   VEnumMarks: IEnumUnknown;
-  I: integer;
+  I: Integer;
 begin
   Result := False;
   if Assigned(AMarksSubset) then begin
@@ -497,9 +495,9 @@ procedure TExportMarks2GPX.AddMark(
   const AGeometryType: TGpxGeometryType
 );
 
-  function ExtractDesc(const ADesc: String): string;
+  function ExtractDesc(const ADesc: string): string;
 
-    procedure RemoveField(var AStr: string; const AFieldName: String);
+    procedure RemoveField(var AStr: string; const AFieldName: string);
     var
       X: Integer;
       VPrefix: string;
@@ -535,7 +533,7 @@ procedure TExportMarks2GPX.AddMark(
     RemoveField(Result, 'GPS Coordinates');
   end;
 
-  function ExtractCmt(var ADesc: String): string;
+  function ExtractCmt(var ADesc: string): string;
   var
     X: Integer;
     VPre: string;
@@ -563,7 +561,7 @@ procedure TExportMarks2GPX.AddMark(
       Result := '';
   end;
 
-  function ExtractTime(var ADesc: String): TDateTime;
+  function ExtractTime(var ADesc: string): TDateTime;
   var
     X: Integer;
     VPre: string;
@@ -644,7 +642,7 @@ procedure TExportMarks2GPX.AddMark(
     end;
   end;
 
-  function ExtractType(var ADesc: String): string;
+  function ExtractType(var ADesc: string): string;
   var
     X: Integer;
     VPre: string;
@@ -672,7 +670,7 @@ procedure TExportMarks2GPX.AddMark(
       Result := '';
   end;
 
-  function ExtractSym(var ADesc: String): string;
+  function ExtractSym(var ADesc: string): string;
   var
     X: Integer;
     VPre: string;
@@ -700,7 +698,7 @@ procedure TExportMarks2GPX.AddMark(
       Result := '';
   end;
 
-  procedure AddCategories(const AExtensionNode: TALXMLNode; const APrefix: AnsiString);
+  procedure AddCategories(const APrefix: string);
   var
     X: Integer;
     VCategories: string;
@@ -712,7 +710,7 @@ procedure TExportMarks2GPX.AddMark(
     VCategories := Trim(VCategories);
 
     if VCategories = '' then begin
-      AExtensionNode.AddChild(APrefix + ':Category').Text := 'default';
+      FGpxWriter.WriteElementString(APrefix + ':Category', 'default');
       Exit;
     end;
 
@@ -730,7 +728,7 @@ procedure TExportMarks2GPX.AddMark(
       end;
 
       if VCategory <> '' then
-        AExtensionNode.AddChild(APrefix + ':Category').Text := ToXmlText(VCategory);
+        FGpxWriter.WriteElementString(APrefix + ':Category', ToXmlText(VCategory));
     until VCategories = '';
   end;
 
@@ -744,10 +742,7 @@ procedure TExportMarks2GPX.AddMark(
     end;
 
   var
-    VCurrentNode: TALXMLNode;
     VAppearanceIcon: IAppearancePointIcon;
-    VExtensionsNode: TALXMLNode;
-    VExtensionNode: TALXMLNode;
     VDesc: string;
     VCmt: string;
     VDateTime: TDateTime;
@@ -760,96 +755,101 @@ procedure TExportMarks2GPX.AddMark(
       Exit;
     end;
 
-    VCurrentNode := FGPXNode.AddChild('wpt');
-    VCurrentNode.Attributes['lat'] := R2AnsiStrPoint(ALonLatPoint.Point.Y); // The latitude of the point. Decimal degrees, WGS84 datum.
-    VCurrentNode.Attributes['lon'] := R2AnsiStrPoint(ALonLatPoint.Point.X); // The longitude of the point. Decimal degrees, WGS84 datum.
+    FGpxWriter.StartElement('wpt');
+    FGpxWriter.WriteAttribute('lat', R2StrPoint(ALonLatPoint.Point.Y));
+    FGpxWriter.WriteAttribute('lon', R2StrPoint(ALonLatPoint.Point.X));
+    begin
+      // Order of extraction is important
+      VDesc := ExtractDesc(AMark.Desc);
+      VCmt := ExtractCmt(VDesc);
+      VDateTime := ExtractTime(VDesc);
+      VType := ExtractType(VDesc);
+      VSym := ExtractSym(VDesc);
 
-    // VCurrentNode.ChildNodes['ele'].Text := XMLText(''); // Elevation (in meters) of the point.
+      if VDateTime <> 0 then begin
+        FGpxWriter.WriteElementString('time', ToXmlDateTime(ToUtc(VDateTime)));
+      end;
 
-    // Order of extraction is important
-    VDesc := ExtractDesc(AMark.Desc);
-    VCmt := ExtractCmt(VDesc);
-    VDateTime := ExtractTime(VDesc);
-    VType := ExtractType(VDesc);
-    VSym := ExtractSym(VDesc);
+      FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name));
 
-    if VDateTime <> 0 then begin
-      // Creation/modification timestamp for element. Date and time in are in
-      // Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601
-      // specification for date/time representation. Fractional seconds are
-      // allowed for millisecond timing in tracklogs.
-      VCurrentNode.ChildNodes['time'].Text := ToXmlDateTime(ToUtc(VDateTime));
-    end;
+      if (VCmt = '') and (VDesc <> '') then begin // Google Earth ignore "desc"? And shows "cmt" only
+        VCmt := VDesc;
+        VDesc := '';
+      end;
 
-    // VCurrentNode.ChildNodes['magvar'].Text := XMLText(''); // Magnetic variation (in degrees) at the point
-    // VCurrentNode.ChildNodes['geoidheight'].Text := XMLText(''); // Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid. As defined in NMEA GGA message.
+      if VCmt <> '' then
+        FGpxWriter.WriteElementString('cmt', ToXmlText(VCmt));
 
-    // The GPS name of the waypoint. This field will be transferred to and from the GPS.
-    // GPX does not place restrictions on the length of this field or the characters contained in it.
-    // It is up to the receiving application to validate the field before sending it to the GPS.
-    VCurrentNode.ChildNodes['name'].Text := ToXmlText(AMark.Name);
+      if VDesc <> '' then
+        FGpxWriter.WriteElementString('desc', ToXmlText(VDesc));
 
+      if not Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+        VAppearanceIcon := nil;
+      end;
 
-    if (VCmt = '') and (VDesc <> '') then begin // Google Earth ignore "desc"? And shows "cmt" only
-      VCmt := VDesc;
-      VDesc := '';
-    end;
-    if VCmt <> '' then
-      VCurrentNode.ChildNodes['cmt'].Text := ToXmlText(VCmt); // GPS waypoint comment. Sent to GPS as comment.
-    if VDesc <> '' then
-      VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
+      if (VAppearanceIcon <> nil) and (VAppearanceIcon.Pic <> nil) then begin
+        VHref := SaveMarkIcon(VAppearanceIcon);
 
-    // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data. "Garmin eTrex", "USGS quad Boston North", e.g.
-
-    if not Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
-      VAppearanceIcon := nil;
-    end;
-    if (VAppearanceIcon <> nil) and (VAppearanceIcon.Pic <> nil) then begin
-
-      VHref := SaveMarkIcon(VAppearanceIcon);
-
-      if IsPhoto(VAppearanceIcon.Pic.GetMarker.Size.X) then begin
-        if VType = '' then
-          VType := 'photo';
-        if VSym = '' then
-          VSym := 'Scenic Area';
-        VDisplayMode := 'SymbolAndName';
+        if IsPhoto(VAppearanceIcon.Pic.GetMarker.Size.X) then begin
+          if VType = '' then
+            VType := 'photo';
+          if VSym = '' then
+            VSym := 'Scenic Area';
+          VDisplayMode := 'SymbolAndName';
+        end else begin
+          if VType = '' then
+            VType := 'user';
+          if VSym = '' then
+            VSym := FindSymByMark(AMark);
+          VDisplayMode := 'SymbolOnly';
+        end
       end else begin
-        if VType = '' then
-          VType := 'user';
-        if VSym = '' then
-          VSym := FindSymByMark(AMark);
-        VDisplayMode := 'SymbolOnly';
-      end
-    end else begin
-      VHref := '';
-      VSym := '';
-      VType := '';
-      VDisplayMode := 'SymbolAndName';
+        VHref := '';
+        VSym := '';
+        VType := '';
+        VDisplayMode := 'SymbolAndName';
+      end;
+
+      if VHref <> '' then begin
+        FGpxWriter.StartElement('link');
+        begin
+          FGpxWriter.WriteAttribute('href', ToXmlText(VHref));
+        end;
+        FGpxWriter.EndElement; // link
+      end;
+
+      FGpxWriter.WriteElementString('sym', ToXmlText(VSym));
+      FGpxWriter.WriteElementString('type', ToXmlText(VType));
+      FGpxWriter.WriteElementString('fix', '2d');
+
+      // WaypointExtension
+      FGpxWriter.StartElement('extensions');
+      begin
+        FGpxWriter.StartElement('gpxx:WaypointExtension');
+        begin
+          FGpxWriter.WriteElementString('gpxx:DisplayMode', ToXmlText(VDisplayMode));
+          FGpxWriter.StartElement('gpxx:Categories');
+          begin
+            AddCategories('gpxx');
+          end;
+          FGpxWriter.EndElement; // gpxx:Categories
+        end;
+        FGpxWriter.EndElement; // gpxx:WaypointExtension
+
+        FGpxWriter.StartElement('wptx1:WaypointExtension');
+        begin
+          FGpxWriter.WriteElementString('wptx1:DisplayMode', ToXmlText(VDisplayMode));
+          FGpxWriter.StartElement('wptx1:Categories');
+          begin
+            AddCategories('wptx1');
+          end;
+          FGpxWriter.EndElement; // wptx1:Categories
+        end;
+        FGpxWriter.EndElement; // wptx1:WaypointExtension
+      end;
+      FGpxWriter.EndElement; // extensions
     end;
-
-    if VHref <> '' then begin
-      VCurrentNode.ChildNodes['link'].Attributes['href'] := ToXmlText(VHref); // Link to additional information about the waypoint.
-    end;
-    VCurrentNode.ChildNodes['sym'].Text := ToXmlText(VSym); // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.
-    VCurrentNode.ChildNodes['type'].Text := ToXmlText(VType); // Type (classification) of the waypoint.
-    VCurrentNode.ChildNodes['fix'].Text := '2d'; // Type of GPX fix. Must be one of: 'none' No fix; '2d' position only; '3d' position and elevation; 'dgps' DGPS; 'pps' Military signal used; To represent "fix type unknown", leave out fix entirely.
-
-    // VCurrentNode.ChildNodes['sat'].Text := XMLText(''); // Number of satellites used to calculate the GPX fix.
-    // VCurrentNode.ChildNodes['hdop'].Text := XMLText(''); // Horizontal dilution of precision.
-    // VCurrentNode.ChildNodes['vdop'].Text := XMLText(''); // Vertical dilution of precision.
-    // VCurrentNode.ChildNodes['pdop'].Text := XMLText(''); // Position dilution of precision.
-    // VCurrentNode.ChildNodes['ageofgpsdata'].Text := XMLText(''); // Number of seconds since last DGPS update.
-    // VCurrentNode.ChildNodes['dgpsid'].Text := XMLText(''); // ID of DGPS station used in differential correction.
-
-    // WaypointExtension
-    VExtensionsNode := VCurrentNode.AddChild('extensions'); // You can add extend GPX by adding your own elements from another schema here.
-    VExtensionNode := VExtensionsNode.AddChild('gpxx:WaypointExtension');
-    VExtensionNode.AddChild('gpxx:DisplayMode').Text := ToXmlText(VDisplayMode); // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
-    AddCategories(VExtensionNode.AddChild('gpxx:Categories'), 'gpxx');
-    VExtensionNode := VExtensionsNode.AddChild('wptx1:WaypointExtension');
-    VExtensionNode.AddChild('wptx1:DisplayMode').Text := ToXmlText(VDisplayMode); // Other possible values: 'SymbolOnly' 'SymbolAndDescription'
-    AddCategories(VExtensionNode.AddChild('wptx1:Categories'), 'wptx1');
+    FGpxWriter.EndElement; // wpt
   end;
 
   procedure AddLine(
@@ -867,14 +867,10 @@ procedure TExportMarks2GPX.AddMark(
     end;
 
   var
-    VCurrentNode: TALXMLNode;
     VAppearanceLine: IAppearanceLine;
     VPointsEnum: IEnumLonLatPoint;
     VPoint: TDoublePoint;
     VMeta: TDoublePointsMetaItem;
-    VPointNode: TALXMLNode;
-    VExtensionsNode: TALXMLNode;
-    VExtensionNode: TALXMLNode;
     VPointNum: Integer;
     VDesc: string;
     VCmt: string;
@@ -886,129 +882,139 @@ procedure TExportMarks2GPX.AddMark(
         Exit;
       end;
 
-      VCurrentNode := FGPXNode.AddChild('trk');
-      VCurrentNode.ChildNodes['name'].Text := ToXmlText(AMark.Name); // GPS name of track.
+      FGpxWriter.StartElement('trk');
+      begin
+        FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name));
 
-      // Order of extraction is important
-      VDesc := ExtractDesc(AMark.Desc);
-      VCmt := ExtractCmt(VDesc);
-      if (VCmt = '') and (VDesc <> '') then begin // Google Earth ignore "desc"? And shows "cmt" only
-        VCmt := VDesc;
-        VDesc := '';
-      end;
-      if VCmt <> '' then
-        VCurrentNode.ChildNodes['cmt'].Text := ToXmlText(VCmt); // GPS waypoint comment. Sent to GPS as comment.
-      if VDesc <> '' then
-        VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
-
-      // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
-      // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
-
-      VCurrentNode.ChildNodes['number'].Text := ToXmlText(IntToStr(FTrackNumber)); // GPS track number.
-      Inc(FTrackNumber);
-
-      // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of track.
-
-      // TrackExtension
-      if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
-        VExtensionsNode := VCurrentNode.AddChild('extensions');
-        VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
-        VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-      end;
-
-      // A Track Segment holds a list of Track Points which are logically
-      // connected in order. To represent a single GPS track where GPS reception
-      // was lost, or the GPS receiver was turned off, start a new Track Segment
-      // for each continuous span of track data.
-      VCurrentNode := VCurrentNode.AddChild('trkseg');
-
-      VFakeTimeGenerator := TGpxFakeTimeGenerator.Create(FNowUtc, FGeoCalc, ALonLatLine);
-
-      VPointNum := 0;
-      VPointsEnum := ALonLatLine.GetEnum;
-
-      while VPointsEnum.Next(VPoint, VMeta) do begin
-        VPointNode := VCurrentNode.AddChild('trkpt');
-
-        VPointNode.Attributes['lat'] := R2AnsiStrPoint(VPoint.Y);
-        VPointNode.Attributes['lon'] := R2AnsiStrPoint(VPoint.X);
-
-        if VMeta.IsElevationOk then begin
-          VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 2);
+        // Order of extraction is important
+        VDesc := ExtractDesc(AMark.Desc);
+        VCmt := ExtractCmt(VDesc);
+        if (VCmt = '') and (VDesc <> '') then begin // Google Earth ignore "desc"? And shows "cmt" only
+          VCmt := VDesc;
+          VDesc := '';
         end;
 
-        if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
-          VDateTime := VMeta.TimeStamp;
-        end else begin
-          // 'time' must be present, otherwise track is not visible in
-          // Google Earth/Strava. We do not have time, so fake it
-          VDateTime := VFakeTimeGenerator.TimeStamp[VPointNum];
-        end;
-        VPointNode.AddChild('time').Text := ToXmlDateTime(VDateTime, True);
+        if VCmt <> '' then
+          FGpxWriter.WriteElementString('cmt', ToXmlText(VCmt));
 
-        Inc(VPointNum);
+        if VDesc <> '' then
+          FGpxWriter.WriteElementString('desc', ToXmlText(VDesc));
+
+        FGpxWriter.WriteElementString('number', IntToStr(FTrackNumber));
+        Inc(FTrackNumber);
+
+        // TrackExtension
+        if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+          FGpxWriter.StartElement('extensions');
+          begin
+            FGpxWriter.StartElement('gpxx:TrackExtension');
+            begin
+              FGpxWriter.WriteElementString('gpxx:DisplayColor', ToGpxColor(VAppearanceLine.LineColor));
+            end;
+            FGpxWriter.EndElement; // gpxx:TrackExtension
+          end;
+          FGpxWriter.EndElement; // extensions
+        end;
+
+        FGpxWriter.StartElement('trkseg');
+        begin
+          VFakeTimeGenerator := TGpxFakeTimeGenerator.Create(FNowUtc, FGeoCalc, ALonLatLine);
+
+          VPointNum := 0;
+          VPointsEnum := ALonLatLine.GetEnum;
+
+          while VPointsEnum.Next(VPoint, VMeta) do begin
+            FGpxWriter.StartElement('trkpt');
+            FGpxWriter.WriteAttribute('lat', R2StrPoint(VPoint.Y));
+            FGpxWriter.WriteAttribute('lon', R2StrPoint(VPoint.X));
+            begin
+              if VMeta.IsElevationOk then begin
+                FGpxWriter.WriteElementString('ele', RoundEx(VMeta.Elevation, 2));
+              end;
+
+              if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
+                VDateTime := VMeta.TimeStamp;
+              end else begin
+                // 'time' must be present, otherwise track is not visible in
+                // Google Earth/Strava. We do not have time, so fake it
+                VDateTime := VFakeTimeGenerator.TimeStamp[VPointNum];
+              end;
+
+              FGpxWriter.WriteElementString('time', ToXmlDateTime(VDateTime, True));
+            end;
+            FGpxWriter.EndElement; // trkpt
+            Inc(VPointNum);
+          end;
+        end;
+        FGpxWriter.EndElement; // trkseg
       end;
+      FGpxWriter.EndElement; // trk
     end
     else begin
       if AGeometryType <> ggtRoute then begin
         Exit;
       end;
 
-      VCurrentNode := FGPXNode.AddChild('rte');
-      VCurrentNode.ChildNodes['name'].Text := ToXmlText(AMark.Name); // GPS name of route.
+      FGpxWriter.StartElement('rte');
+      begin
+        FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name));
 
-      // Order of extraction is important
-      VDesc := ExtractDesc(AMark.Desc);
-      VCmt := ExtractCmt(VDesc);
-      if (VCmt = '') and (VDesc <> '') then begin// Google Earth ignore "desc"? And shows "cmt" only
-        VCmt := VDesc;
-        VDesc := '';
-      end;
-      if VCmt <> '' then
-        VCurrentNode.ChildNodes['cmt'].Text := ToXmlText(VCmt); // GPS waypoint comment. Sent to GPS as comment.
-      if VDesc <> '' then
-        VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
-
-      // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
-      // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about route.
-
-      VCurrentNode.ChildNodes['number'].Text := ToXmlText(IntToStr(FRouteNumber)); // GPS route number.
-      Inc(FRouteNumber);
-
-      // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of route.
-
-      // RouteExtention
-      VExtensionsNode := VCurrentNode.AddChild('extensions');
-      VExtensionNode := VExtensionsNode.AddChild('gpxx:RouteExtension');
-      VExtensionNode.AddChild('gpxx:IsAutoNamed').Text := 'false';
-      if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
-        VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-      end;
-
-      VPointNum := 0;
-      VPointsEnum := ALonLatLine.GetEnum;
-
-      while VPointsEnum.Next(VPoint, VMeta) do begin
-        VPointNode := VCurrentNode.AddChild('rtept');
-
-        VPointNode.Attributes['lat'] := R2AnsiStrPoint(VPoint.Y);
-        VPointNode.Attributes['lon'] := R2AnsiStrPoint(VPoint.X);
-
-        if VMeta.IsElevationOk then begin
-          VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 2);
+        // Order of extraction is important
+        VDesc := ExtractDesc(AMark.Desc);
+        VCmt := ExtractCmt(VDesc);
+        if (VCmt = '') and (VDesc <> '') then begin// Google Earth ignore "desc"? And shows "cmt" only
+          VCmt := VDesc;
+          VDesc := '';
         end;
 
-        if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
-          VPointNode.AddChild('time').Text := ToXmlDateTime(VMeta.TimeStamp, True);
+        if VCmt <> '' then
+          FGpxWriter.WriteElementString('cmt', ToXmlText(VCmt));
+
+        if VDesc <> '' then
+          FGpxWriter.WriteElementString('desc', ToXmlText(VDesc));
+
+        FGpxWriter.WriteElementString('number', IntToStr(FRouteNumber));
+        Inc(FRouteNumber);
+
+        // RouteExtention
+        FGpxWriter.StartElement('extensions');
+        begin
+          FGpxWriter.StartElement('gpxx:RouteExtension');
+          begin
+            FGpxWriter.WriteElementString('gpxx:IsAutoNamed', 'false');
+            if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+              FGpxWriter.WriteElementString('gpxx:DisplayColor', ToGpxColor(VAppearanceLine.LineColor));
+            end;
+          end;
+          FGpxWriter.EndElement; // gpxx:RouteExtension
         end;
+        FGpxWriter.EndElement; // extensions
 
-        // 'name' must be present, otherwise route is not visible
-        VPointNode.AddChild('name').Text := ToXmlText(AMark.Name + ' ' + IntToStr(VPointNum + 1));
+        VPointNum := 0;
+        VPointsEnum := ALonLatLine.GetEnum;
 
-        VPointNode.AddChild('sym').Text := 'Waypoint';
+        while VPointsEnum.Next(VPoint, VMeta) do begin
+          FGpxWriter.StartElement('rtept');
+          FGpxWriter.WriteAttribute('lat', R2StrPoint(VPoint.Y));
+          FGpxWriter.WriteAttribute('lon', R2StrPoint(VPoint.X));
+          begin
+            if VMeta.IsElevationOk then begin
+              FGpxWriter.WriteElementString('ele', RoundEx(VMeta.Elevation, 2));
+            end;
 
-        Inc(VPointNum);
+            if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
+              FGpxWriter.WriteElementString('time', ToXmlDateTime(VMeta.TimeStamp, True));
+            end;
+
+            // 'name' must be present, otherwise route is not visible
+            FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name + ' ' + IntToStr(VPointNum + 1)));
+            FGpxWriter.WriteElementString('sym', 'Waypoint');
+          end;
+          FGpxWriter.EndElement; // rtept
+          Inc(VPointNum);
+        end;
       end;
+      FGpxWriter.EndElement; // rte
     end;
   end;
 
@@ -1016,16 +1022,11 @@ procedure TExportMarks2GPX.AddMark(
     const AMark: IVectorDataItem;
     const ALonLatPath: IGeometryLonLatMultiLine);
   var
-    VCurrentNode: TALXMLNode;
     VAppearanceLine: IAppearanceLine;
     VLonLatPathLine: IGeometryLonLatSingleLine;
-    VRootNode: TALXMLNode;
     VPointsEnum: IEnumLonLatPoint;
     VPoint: TDoublePoint;
     VMeta: TDoublePointsMetaItem;
-    VPointNode: TALXMLNode;
-    VExtensionsNode: TALXMLNode;
-    VExtensionNode: TALXMLNode;
     VDesc: string;
     VCmt: string;
     VDateTime: TDateTime;
@@ -1047,62 +1048,74 @@ procedure TExportMarks2GPX.AddMark(
       Exit;
     end;
 
-    VCurrentNode := FGPXNode.AddChild('trk');
-    VCurrentNode.ChildNodes['name'].Text := ToXmlText(AMark.Name); // GPS name of track.
+    FGpxWriter.StartElement('trk');
+    begin
+      FGpxWriter.WriteElementString('name', ToXmlText(AMark.Name));
 
-    VDesc := AMark.Desc;
-    VCmt := ExtractCmt(VDesc);
-    if (VCmt = '') and (VDesc <> '') then begin// Google Earth ignore "desc"? And shows "cmt" only
-      VCmt := VDesc;
-      VDesc := '';
-    end;
-    if VCmt <> '' then
-      VCurrentNode.ChildNodes['cmt'].Text := ToXmlText(VCmt); // GPS waypoint comment. Sent to GPS as comment.
-    if VDesc <> '' then
-      VCurrentNode.ChildNodes['desc'].Text := ToXmlText(VDesc); // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
+      VDesc := AMark.Desc;
+      VCmt := ExtractCmt(VDesc);
+      if (VCmt = '') and (VDesc <> '') then begin// Google Earth ignore "desc"? And shows "cmt" only
+        VCmt := VDesc;
+        VDesc := '';
+      end;
 
-    // VCurrentNode.ChildNodes['src'].Text := XMLText(''); // Source of data. Included to give user some idea of reliability and accuracy of data.
-    // VCurrentNode.ChildNodes['link'].Text := XMLText(''); // Links to external information about track.
+      if VCmt <> '' then
+        FGpxWriter.WriteElementString('cmt', ToXmlText(VCmt));
 
-    VCurrentNode.ChildNodes['number'].Text := ToXmlText(IntToStr(FTrackNumber)); // GPS track number.
-    Inc(FTrackNumber);
+      if VDesc <> '' then
+        FGpxWriter.WriteElementString('desc', ToXmlText(VDesc));
 
-    // VCurrentNode.ChildNodes['type'].Text := XMLText(''); // Type (classification) of track.
+      FGpxWriter.WriteElementString('number', IntToStr(FTrackNumber));
+      Inc(FTrackNumber);
 
-    // TrackExtension
-    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
-      VExtensionsNode := VCurrentNode.AddChild('extensions');
-      VExtensionNode := VExtensionsNode.AddChild('gpxx:TrackExtension');
-      VExtensionNode.AddChild('gpxx:DisplayColor').Text := ToGpxColor(VAppearanceLine.LineColor);
-    end;
-
-    VFakeTimeGenerator := TGpxFakeTimeGenerator.Create(FNowUtc, FGeoCalc, ALonLatPath);
-
-    VPointNum := 0;
-    for I := 0 to ALonLatPath.Count - 1 do begin
-      VLonLatPathLine := ALonLatPath.Item[I];
-      if VLonLatPathLine.Count > 0 then begin
-        VRootNode := VCurrentNode.AddChild('trkseg');
-        VPointsEnum := VLonLatPathLine.GetEnum;
-        while VPointsEnum.Next(VPoint, VMeta) do begin
-          VPointNode := VRootNode.AddChild('trkpt');
-          VPointNode.Attributes['lat'] := R2AnsiStrPoint(VPoint.Y);
-          VPointNode.Attributes['lon'] := R2AnsiStrPoint(VPoint.X);
-          if VMeta.IsElevationOk then begin
-            VPointNode.AddChild('ele').Text := RoundExAnsi(VMeta.Elevation, 2);
+      // TrackExtension
+      if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+        FGpxWriter.StartElement('extensions');
+        begin
+          FGpxWriter.StartElement('gpxx:TrackExtension');
+          begin
+            FGpxWriter.WriteElementString('gpxx:DisplayColor', ToGpxColor(VAppearanceLine.LineColor));
           end;
-          if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
-            VDateTime := VMeta.TimeStamp;
-          end else begin
-            // 'time' must be present, otherwise track is not visible in
-            // Google Earth/Strava. We do not have time, so fake it
-            VDateTime := VFakeTimeGenerator.TimeStamp[VPointNum];
-          end;
-          VPointNode.AddChild('time').Text := ToXmlDateTime(VDateTime, True);
+          FGpxWriter.EndElement; // gpxx:TrackExtension
         end;
-        Inc(VPointNum);
+        FGpxWriter.EndElement; // extensions
+      end;
+
+      VFakeTimeGenerator := TGpxFakeTimeGenerator.Create(FNowUtc, FGeoCalc, ALonLatPath);
+
+      VPointNum := 0;
+      for I := 0 to ALonLatPath.Count - 1 do begin
+        VLonLatPathLine := ALonLatPath.Item[I];
+        if VLonLatPathLine.Count > 0 then begin
+          FGpxWriter.StartElement('trkseg');
+          begin
+            VPointsEnum := VLonLatPathLine.GetEnum;
+            while VPointsEnum.Next(VPoint, VMeta) do begin
+              FGpxWriter.StartElement('trkpt');
+              FGpxWriter.WriteAttribute('lat', R2StrPoint(VPoint.Y));
+              FGpxWriter.WriteAttribute('lon', R2StrPoint(VPoint.X));
+              begin
+                if VMeta.IsElevationOk then begin
+                  FGpxWriter.WriteElementString('ele', RoundEx(VMeta.Elevation, 2));
+                end;
+
+                if VMeta.IsTimeStampOk and (VMeta.TimeStamp <> 0) then begin
+                  VDateTime := VMeta.TimeStamp;
+                end else begin
+                  VDateTime := VFakeTimeGenerator.TimeStamp[VPointNum];
+                end;
+
+                FGpxWriter.WriteElementString('time', ToXmlDateTime(VDateTime, True));
+              end;
+              FGpxWriter.EndElement; // trkpt
+            end;
+            Inc(VPointNum);
+          end;
+          FGpxWriter.EndElement; // trkseg
+        end;
       end;
     end;
+    FGpxWriter.EndElement; // trk
   end;
 
 var
@@ -1148,7 +1161,7 @@ begin
   end;
 end;
 
-class function TExportMarks2GPX.ToGpxColor(const AColor32: TColor32): AnsiString;
+class function TExportMarks2GPX.ToGpxColor(const AColor32: TColor32): string;
 type
   TGarminColor = (
     gcBlack,         // 0
@@ -1170,7 +1183,7 @@ type
     gcTransparent);  // 16
 
 const
-  GarminPalette: array[TGarminColor] of AnsiString = (
+  GarminPalette: array[TGarminColor] of string = (
     'Black',        // R: 0;   G: 0;   B: 0;     0
     'DarkRed',      // R: 128; G: 0;   B: 0;     1
     'DarkGreen',    // R: 0;   G: 128; B: 0;     2
@@ -1285,41 +1298,30 @@ end;
 class function TExportMarks2GPX.ToXmlDateTime(
   const ADateTime: TDateTime;
   const ADetailed: Boolean
-): AnsiString;
+): string;
 const
-  CFormat: array [Boolean] of AnsiString = (
+  CFormat: array [Boolean] of string = (
     'yyyy"-"mm"-"dd"T"hh":"nn":"ss"Z"',
     'yyyy"-"mm"-"dd"T"hh":"nn":"ss"."zzz"Z"'
   );
 var
   VDetailed: Boolean;
-  VFormatSettings: TFormatSettingsA;
+  VFormatSettings: TFormatSettings;
 begin
   VFormatSettings.DateSeparator := '-';
   VFormatSettings.TimeSeparator := ':';
   VDetailed := ADetailed and (MilliSecondOf(ADateTime) > 0);
-  Result := FormatDateTimeA(CFormat[VDetailed], ADateTime, VFormatSettings); // '2015-07-19T07:53:32Z'
+  Result := FormatDateTime(CFormat[VDetailed], ADateTime, VFormatSettings); // '2015-07-19T07:53:32Z'
 end;
 
-class function TExportMarks2GPX.ToXmlText(const AStr: String): AnsiString;
-var
-  VStr: string;
+class function TExportMarks2GPX.ToXmlText(const AStr: string): string;
 begin
-  VStr := AdjustLineBreaks(AStr);
-
-  // The following is performed by ALXmlDoc:
-  //VStr := StringReplace(VStr, '&',  '&amp;',  [rfReplaceAll]);
-  //VStr := StringReplace(VStr, '"',  '&quot;', [rfReplaceAll]);
-  //VStr := StringReplace(VStr, '''', '&apos;', [rfReplaceAll]);
-  //VStr := StringReplace(VStr, '<',  '&lt;',   [rfReplaceAll]);
-  //VStr := StringReplace(VStr, '>',  '&gt;',   [rfReplaceAll]);
-
-  Result := UTF8Encode(VStr);
+  Result := AdjustLineBreaks(AStr);
 end;
 
-class function TExportMarks2GPX.FindSymByName(const AName: String): AnsiString;
+class function TExportMarks2GPX.FindSymByName(const AName: string): string;
 const
-  GarminSymNames: array[0..138] of String = (
+  GarminSymNames: array[0..138] of string = (
     'Cache In Trash Out Event',
     'Earthcache',
     'Event Cache',
@@ -1597,7 +1599,7 @@ begin
     Result := 'Flag, Blue';
 end;
 
-class function TExportMarks2GPX.FindSymByMark(const AMark: IVectorDataItem): AnsiString;
+class function TExportMarks2GPX.FindSymByMark(const AMark: IVectorDataItem): string;
 var
   VAppearanceIcon: IAppearancePointIcon;
 begin
