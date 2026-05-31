@@ -974,7 +974,7 @@ function TExportMarks2TCX.IsActivity(const AMark: IVectorDataItem; const AProp: 
 
   function IsTrack(const ALine: IGeometryLonLatSingleLine; const ADesc: string): Boolean;
   begin
-    Result := ( (ALine.Count >= 500) or (Pos('track: true', ADesc) > 0) ) and (Pos('track: false', ADesc) <= 0);
+    Result := ( (ALine.Count >= 500) or (AProp.Track = 'true') ) and (AProp.Track <> 'false');
   end;
 
 var

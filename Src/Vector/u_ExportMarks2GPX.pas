@@ -617,14 +617,9 @@ procedure TExportMarks2GPX.AddMark(
     const ALonLatLine: IGeometryLonLatSingleLine
   );
 
-    function IsTrack: Boolean;
-    var
-      VDesc: string;
+    function IsTrack(const AProp: TGpxMarkProperties): Boolean;
     begin
-      VDesc := LowerCase(AMark.Desc);
-      Result :=
-        (FLineIsAlwaysTrack or (Pos('track: true', VDesc) > 0) ) and
-        (Pos('track: false', VDesc) <= 0);
+      Result := (FLineIsAlwaysTrack or (AProp.Track = 'true')) and (AProp.Track <> 'false');
     end;
 
   var
@@ -637,12 +632,12 @@ procedure TExportMarks2GPX.AddMark(
     VDateTime: TDateTime;
     VFakeTimeGenerator: IGpxFakeTimeGenerator;
   begin
-    if IsTrack then begin
+    VProp := TGpxMarkProperties.Read(AMark);
+
+    if IsTrack(VProp) then begin
       if AGeometryType <> ggtTrack then begin
         Exit;
       end;
-
-      VProp := TGpxMarkProperties.Read(AMark);
 
       FGpxWriter.StartElement('trk');
       begin
@@ -708,8 +703,6 @@ procedure TExportMarks2GPX.AddMark(
       if AGeometryType <> ggtRoute then begin
         Exit;
       end;
-
-      VProp := TGpxMarkProperties.Read(AMark);
 
       FGpxWriter.StartElement('rte');
       begin

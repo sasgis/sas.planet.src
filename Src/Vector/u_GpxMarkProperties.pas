@@ -35,12 +35,7 @@ type
     FType: string;
     FSym: string;
     FNotes: string;
-
-    function ExtractDesc(const ADesc: string): string;
-    function ExtractCmt(var ADesc: string): string;
-    function ExtractTime(var ADesc: string; const AName: string): TDateTime;
-    function ExtractType(var ADesc: string): string;
-    function ExtractSym(var ADesc: string): string;
+    FTrack: string;
   public
     class function Read(const AMark: IVectorDataItem): TGpxMarkProperties; static;
   public
@@ -50,210 +45,183 @@ type
     property TypeId: string read FType;
     property Sym: string read FSym;
     property Notes: string read FNotes;
+    property Track: string read FTrack;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  ShLwApi;
+
+function ReplaceBrTags(const AText: string): string;
+var
+  VTextPtr, VEndPtr, VOutPtr, P: PChar;
+begin
+  if AText = '' then Exit('');
+
+  SetLength(Result, Length(AText));
+
+  VTextPtr := Pointer(AText);
+  VOutPtr  := Pointer(Result);
+
+  VEndPtr  := VTextPtr + Length(AText);
+
+  while VTextPtr < VEndPtr do begin
+    if (VTextPtr + 2 < VEndPtr) and
+       (VTextPtr[0] = '<') and
+       ((VTextPtr[1] = 'b') or (VTextPtr[1] = 'B')) and
+       ((VTextPtr[2] = 'r') or (VTextPtr[2] = 'R'))
+    then begin
+      P := VTextPtr + 3;
+
+      if (P < VEndPtr) and (P[0] = ' ') then Inc(P);
+      if (P < VEndPtr) and (P[0] = '/') then Inc(P);
+
+      if (P < VEndPtr) and (P[0] = '>') then begin
+        VOutPtr^ := #13; Inc(VOutPtr);
+        VOutPtr^ := #10; Inc(VOutPtr);
+
+        VTextPtr := P + 1;
+
+        if (VTextPtr < VEndPtr) and (VTextPtr[0] = #13) and (VTextPtr + 1 < VEndPtr) and (VTextPtr[1] = #10) then
+          Inc(VTextPtr, 2);
+
+        Continue;
+      end;
+    end;
+
+    VOutPtr^ := VTextPtr^;
+    Inc(VOutPtr);
+    Inc(VTextPtr);
+  end;
+
+  SetLength(Result, Integer(VOutPtr - PChar(Result)));
+end;
+
+procedure TrimRange(const S: string; AStartIdx, AEndIdx: Integer; out ATrimStart, ATrimEnd: Integer);
+begin
+  ATrimStart := AStartIdx;
+  ATrimEnd := AEndIdx;
+  while (ATrimStart <= ATrimEnd) and (S[ATrimStart] <= ' ') do Inc(ATrimStart);
+  while (ATrimEnd >= ATrimStart) and (S[ATrimEnd] <= ' ') do Dec(ATrimEnd);
+end;
+
+function ExtractField(var AText: string; const AFieldName: string): string;
+var
+  VMatchPtr, VTextPtr, VEndPtr: PChar;
+  VMatchPos, VLineEnd, VFieldLen: Integer;
+  VStart, VEnd: Integer;
+  VLeftPart, VRightPart: string;
+begin
+  Result := '';
+  if (AText = '') or (AFieldName = '') then
+    Exit;
+
+  VTextPtr := Pointer(AText);
+
+  VMatchPtr := StrStrI(VTextPtr, Pointer(AFieldName));
+  if VMatchPtr = nil then
+    Exit;
+
+  VMatchPos := VMatchPtr - VTextPtr + 1;
+  VFieldLen := Length(AFieldName);
+
+  VEndPtr := VMatchPtr + VFieldLen;
+  while not CharInSet(VEndPtr^, [#0, #10, #13]) do
+    Inc(VEndPtr);
+  VLineEnd := VEndPtr - VTextPtr + 1;
+
+  TrimRange(AText, VMatchPos + VFieldLen, VLineEnd - 1, VStart, VEnd);
+  if VStart <= VEnd then
+    Result := Copy(AText, VStart, VEnd - VStart + 1)
+  else
+    Result := '';
+
+  TrimRange(AText, 1, VMatchPos - 1, VStart, VEnd);
+  if VStart <= VEnd then
+    VLeftPart := Copy(AText, VStart, VEnd - VStart + 1)
+  else
+    VLeftPart := '';
+
+  TrimRange(AText, VLineEnd, Length(AText), VStart, VEnd);
+  if VStart <= VEnd then
+    VRightPart := Copy(AText, VStart, VEnd - VStart + 1)
+  else
+    VRightPart := '';
+
+  if (VLeftPart = '') and (VRightPart = '') then
+    AText := ''
+  else if VLeftPart = '' then
+    AText := VRightPart
+  else if VRightPart = '' then
+    AText := VLeftPart
+  else
+    AText := VLeftPart + #13#10 + VRightPart;
+end;
+
+function ExtractTime(var AText: string; const AName: string): TDateTime;
+
+  function TryStrToDateTimeSafe(const S: string; out ADateTime: TDateTime): Boolean;
+  const
+    CMinValidDate = 36526; // 01.01.2000
+    CMaxValidDate = 73413; // 31.12.2100
+  var
+    VDummy: Double;
+  begin
+    Result :=
+      (S <> '') and
+      (not TryStrToFloat(S, VDummy)) and
+      TryStrToDateTime(S, ADateTime) and
+      (ADateTime > CMinValidDate) and
+      (ADateTime < CMaxValidDate);
+  end;
+
+var
+  VStrTime: string;
+begin
+  if TryStrToDateTimeSafe(AText, Result) then begin
+    AText := '';
+    Exit;
+  end;
+
+  VStrTime := ExtractField(AText, 'time: ');
+  if VStrTime = '' then VStrTime := ExtractField(AText, 'datetime: ');
+  if VStrTime = '' then VStrTime := ExtractField(AText, 'date: ');
+
+  if (VStrTime <> '') and TryStrToDateTimeSafe(VStrTime, Result) then begin
+    Exit;
+  end;
+
+  if not TryStrToDateTimeSafe(AName, Result) then begin
+    Result := 0;
+  end;
+end;
 
 { TGpxMarkProperties }
 
 class function TGpxMarkProperties.Read(const AMark: IVectorDataItem): TGpxMarkProperties;
 begin
-  with Result do begin
-    // Order of extraction is important
-    FDesc := ExtractDesc(AMark.Desc);
-    FCmt  := ExtractCmt(FDesc);
-    FTime := ExtractTime(FDesc, AMark.Name);
-    FType := ExtractType(FDesc);
-    FSym  := ExtractSym(FDesc);
+  Result.FDesc := Trim(AdjustLineBreaks(AMark.Desc, tlbsCRLF));
+  Result.FDesc := ReplaceBrTags(Result.FDesc);
 
-    // Google Earth ignore "desc"? And shows "cmt" only
-    if (FCmt = '') and (FDesc <> '') then begin
-      FCmt := FDesc;
-      FDesc := '';
-    end;
+  Result.FCmt  := ExtractField(Result.FDesc, 'cmt: ');
+  Result.FType := ExtractField(Result.FDesc, 'type: ');
+  Result.FSym  := ExtractField(Result.FDesc, 'sym: ');
+  Result.FTrack := LowerCase(ExtractField(Result.FDesc, 'track: '));
 
-    FNotes := Trim(FDesc + sLineBreak + FCmt);
-  end;
-end;
+  Result.FTime := ExtractTime(Result.FDesc, AMark.Name);
 
-function TGpxMarkProperties.ExtractDesc(const ADesc: string): string;
+  ExtractField(Result.FDesc, 'number: ');
+  ExtractField(Result.FDesc, 'kind: ');
+  ExtractField(Result.FDesc, 'GPS Coordinates: ');
 
-  procedure RemoveField(var AStr: string; const AFieldName: string);
-  var
-    X: Integer;
-    Prefix: string;
-    Pre: string;
-  begin
-    Prefix := AFieldName + ': ';
-    X := Pos(Prefix, AStr);
-    if X > 0 then begin
-      Pre := Trim(Copy(AStr, 1, X - 1));
-      AStr := Trim(Copy(AStr, X + Length(Prefix), MaxInt));
-      X := Pos(#10, AStr);
-      if X > 0 then
-        AStr := Trim(Copy(AStr, X + 1, MaxInt));
-      AStr := Trim(Pre + sLineBreak + AStr);
-    end;
+  if (Result.FCmt = '') and (Result.FDesc <> '') then begin
+    Result.FCmt := Result.FDesc;
+    Result.FDesc := '';
   end;
 
-begin
-  Result := Trim(AdjustLineBreaks(ADesc));
-
-  // Remove BR-s
-  Result := StringReplace(Result, '<br>' + sLineBreak,  sLineBreak,  [rfReplaceAll]);
-  Result := StringReplace(Result, '<br />' + sLineBreak,  sLineBreak,  [rfReplaceAll]);
-  Result := StringReplace(Result, '<br/>' + sLineBreak,  sLineBreak,  [rfReplaceAll]);
-  Result := StringReplace(Result, '<br>',  '',  [rfReplaceAll]);
-  Result := StringReplace(Result, '<br />',  '',  [rfReplaceAll]);
-  Result := StringReplace(Result, '<br/>',  '',  [rfReplaceAll]);
-
-  RemoveField(Result, 'number');
-  RemoveField(Result, 'type');
-  RemoveField(Result, 'kind');
-  RemoveField(Result, 'GPS Coordinates');
-end;
-
-function TGpxMarkProperties.ExtractCmt(var ADesc: string): string;
-var
-  X: Integer;
-  Pre: String;
-begin
-  // Extract "cmt:" field
-  X := Pos('cmt: ', ADesc);
-  if X > 0 then begin
-    Pre := Trim(Copy(ADesc, 1, X - 1));
-    ADesc := Trim(Copy(ADesc, X + Length('cmt: '), MaxInt));
-    X := Pos(#10, ADesc);
-    if X > 0 then begin
-      Result := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-      ADesc := Trim(Pre + sLineBreak + ADesc);
-    end else begin
-      Result := ADesc;
-      ADesc := Pre;
-    end;
-  end else
-    Result := '';
-end;
-
-function TGpxMarkProperties.ExtractTime(var ADesc: string; const AName: string): TDateTime;
-var
-  X: Integer;
-  VPre: string;
-  VDesc: string;
-begin
-  Result := 0;
-  if TryStrToDateTime(ADesc, Result) then begin
-    ADesc := '';
-    Exit;
-  end;
-  VDesc := LowerCase(ADesc);
-
-  // Extract "time:" field
-  X := Pos('time: ', VDesc);
-  if X > 0 then begin
-    VPre := Trim(Copy(ADesc, 1, X - 1));
-    ADesc := Trim(Copy(ADesc, X + Length('time: '), MaxInt));
-    X := Pos(#10, ADesc);
-    if X > 0 then begin
-      if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
-      ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-      ADesc := Trim(VPre + sLineBreak + ADesc);
-    end else begin
-      if not TryStrToDateTime(ADesc, Result) then Result := 0;
-      ADesc := VPre;
-    end;
-  end;
-
-  if Result <> 0 then
-    Exit;
-
-  // Extract "DateTime:" field
-  X := Pos('datetime: ', VDesc);
-  if X > 0 then begin
-    VPre := Trim(Copy(ADesc, 1, X - 1));
-    ADesc := Trim(Copy(ADesc, X + Length('time: '), MaxInt));
-    X := Pos(#10, ADesc);
-    if X > 0 then begin
-      if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
-      ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-      ADesc := Trim(VPre + sLineBreak + ADesc);
-    end else begin
-      if not TryStrToDateTime(ADesc, Result) then Result := 0;
-      ADesc := VPre;
-    end;
-  end;
-
-  if Result <> 0 then
-    Exit;
-
-  // Extract "Date:" field
-  X := Pos('date: ', VDesc);
-  if X > 0 then begin
-    VPre := Trim(Copy(ADesc, 1, X - 1));
-    ADesc := Trim(Copy(ADesc, X + Length('Date: '), MaxInt));
-    X := Pos(#10, ADesc);
-    if X > 0 then begin
-      if not TryStrToDateTime(Trim(Copy(ADesc, 1, X - 1)), Result) then Result := 0;
-      ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-      ADesc := Trim(VPre + sLineBreak + ADesc);
-    end else begin
-      if not TryStrToDateTime(ADesc, Result) then Result := 0;
-      ADesc := VPre;
-    end;
-  end;
-
-  if Result = 0 then
-    Result := StrToDateTimeDef(AName, 0);
-end;
-
-function TGpxMarkProperties.ExtractType(var ADesc: String): String;
-var
-  X: Integer;
-  Pre: String;
-begin
-  // Extract "type:" field
-  X := Pos('type: ', ADesc);
-  if X > 0 then begin
-    Pre := Trim(Copy(ADesc, 1, X - 1));
-    ADesc := Trim(Copy(ADesc, X + Length('type: '), MaxInt));
-    X := Pos(#10, ADesc);
-    if X > 0 then begin
-      Result := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-      ADesc := Trim(Pre + sLineBreak + ADesc);
-    end else begin
-      Result := ADesc;
-      ADesc := Pre;
-    end;
-  end else
-    Result := '';
-end;
-
-function TGpxMarkProperties.ExtractSym(var ADesc: String): String;
-var
-  X: Integer;
-  Pre: String;
-begin
-  // Extract "sym:" field
-  X := Pos('sym: ', ADesc);
-  if X > 0 then begin
-    Pre := Trim(Copy(ADesc, 1, X - 1));
-    ADesc := Trim(Copy(ADesc, X + Length('sym: '), MaxInt));
-    X := Pos(#10, ADesc);
-    if X > 0 then begin
-      Result := Trim(Copy(ADesc, 1, X - 1));
-      ADesc := Trim(Copy(ADesc, X + 1, MaxInt));
-      ADesc := Trim(Pre + sLineBreak + ADesc);
-    end else begin
-      Result := ADesc;
-      ADesc := Pre;
-    end;
-  end else
-    Result := '';
+  Result.FNotes := Trim(Result.FDesc + sLineBreak + Result.FCmt);
 end;
 
 end.
