@@ -31,7 +31,7 @@ uses
 type
   TXmlStreamingWriter = class
   private const
-    CBufferSizeKB = 4 * 1024;
+    CBufferSize = 4 * 1024 * 1024; // 4 MB
     CVersionDefault = '1.0';
     CStandAloneDefault = 'yes';
     CIndentCharsDefault = '  ';
@@ -107,7 +107,7 @@ begin
   FIndentChars := CIndentCharsDefault;
   FLineBreak := CLineBreakDefault;
 
-  FWriter := TStreamWriter.Create(AStream, AEncoding, CBufferSizeKB * 1024);
+  FWriter := TStreamWriter.Create(AStream, AEncoding, CBufferSize);
   FWriter.AutoFlush := False;
 
   FOpenTags := TStringStack.Create;
@@ -193,7 +193,7 @@ begin
   Dec(FIndentLevel);
   if FIsEmptyTag then begin
     FIsEmptyTag := False;
-    InternalWrite(' />' + FLineBreak);
+    InternalWrite('/>' + FLineBreak);
     FOpenTags.Pop;
   end else begin
     if AWriteIndent then begin
