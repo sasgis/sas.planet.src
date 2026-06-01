@@ -1140,6 +1140,15 @@
         <DCCReference Include="Src\MarksDB\u_MarkSystemImplFactoryChangeable.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkTemplateConfigBase.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkTemplates.pas"/>
+        <DCCReference Include="Src\Network\Curl\t_CurlHttpClient.pas"/>
+        <DCCReference Include="Src\Network\Curl\u_CurlHttpClient.pas"/>
+        <DCCReference Include="Src\Network\Curl\u_CurlProxyResolver.pas"/>
+        <DCCReference Include="Src\Network\Curl\u_DownloaderByCurlFactory.pas"/>
+        <DCCReference Include="Src\Network\Curl\u_DownloaderHttpByCurl.pas"/>
+        <DCCReference Include="Src\Network\WinInet\i_WinInetConfig.pas"/>
+        <DCCReference Include="Src\Network\WinInet\u_DownloaderByWinInetFactory.pas"/>
+        <DCCReference Include="Src\Network\WinInet\u_DownloaderHttpByWinInet.pas"/>
+        <DCCReference Include="Src\Network\WinInet\u_WinInetConfig.pas"/>
         <DCCReference Include="Src\Network\c_InetConfig.pas"/>
         <DCCReference Include="Src\Network\i_AntiBan.pas"/>
         <DCCReference Include="Src\Network\i_DownloadChecker.pas"/>
@@ -1172,14 +1181,10 @@
         <DCCReference Include="Src\Network\i_TileRequestProcessorPool.pas"/>
         <DCCReference Include="Src\Network\i_TileRequestResult.pas"/>
         <DCCReference Include="Src\Network\i_TileRequestTask.pas"/>
-        <DCCReference Include="Src\Network\i_WinInetConfig.pas"/>
-        <DCCReference Include="Src\Network\t_CurlHttpClient.pas"/>
         <DCCReference Include="Src\Network\u_AntiBanStuped.pas"/>
         <DCCReference Include="Src\Network\u_AsyncRequestHelperThread.pas"/>
         <DCCReference Include="Src\Network\u_ContentDecoder.pas"/>
         <DCCReference Include="Src\Network\u_ContentDetecter.pas"/>
-        <DCCReference Include="Src\Network\u_CurlHttpClient.pas"/>
-        <DCCReference Include="Src\Network\u_CurlProxyResolver.pas"/>
         <DCCReference Include="Src\Network\u_DownloadCheckerStuped.pas"/>
         <DCCReference Include="Src\Network\u_DownloadInfoSimple.pas"/>
         <DCCReference Include="Src\Network\u_DownloadRequest.pas"/>
@@ -1187,12 +1192,8 @@
         <DCCReference Include="Src\Network\u_DownloadResultFactory.pas"/>
         <DCCReference Include="Src\Network\u_DownloadResultTextProvider.pas"/>
         <DCCReference Include="Src\Network\u_DownloadUIConfig.pas"/>
-        <DCCReference Include="Src\Network\u_DownloaderByCurlFactory.pas"/>
-        <DCCReference Include="Src\Network\u_DownloaderByWinInetFactory.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderFactory.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpBase.pas"/>
-        <DCCReference Include="Src\Network\u_DownloaderHttpByCurl.pas"/>
-        <DCCReference Include="Src\Network\u_DownloaderHttpByWinInet.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpLog.pas"/>
         <DCCReference Include="Src\Network\u_DownloaderHttpWithTTL.pas"/>
         <DCCReference Include="Src\Network\u_GlobalDownloadConfig.pas"/>
@@ -1234,7 +1235,6 @@
         <DCCReference Include="Src\Network\u_UITileDownloadList.pas"/>
         <DCCReference Include="Src\Network\u_UiTileDownload.pas"/>
         <DCCReference Include="Src\Network\u_UiTileRequestManager.pas"/>
-        <DCCReference Include="Src\Network\u_WinInetConfig.pas"/>
         <DCCReference Include="Src\Network\u_WindowsCredentials.pas"/>
         <DCCReference Include="Src\PascalScript\frm_PascalScriptDbgOut.pas">
             <Form>frmPascalScriptDbgOut</Form>
