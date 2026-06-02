@@ -1146,9 +1146,11 @@
         <DCCReference Include="Src\Network\Curl\u_DownloaderByCurlFactory.pas"/>
         <DCCReference Include="Src\Network\Curl\u_DownloaderHttpByCurl.pas"/>
         <DCCReference Include="Src\Network\WinInet\i_WinInetConfig.pas"/>
+        <DCCReference Include="Src\Network\WinInet\t_WinInetHttpClient.pas"/>
         <DCCReference Include="Src\Network\WinInet\u_DownloaderByWinInetFactory.pas"/>
         <DCCReference Include="Src\Network\WinInet\u_DownloaderHttpByWinInet.pas"/>
         <DCCReference Include="Src\Network\WinInet\u_WinInetConfig.pas"/>
+        <DCCReference Include="Src\Network\WinInet\u_WinInetHttpClient.pas"/>
         <DCCReference Include="Src\Network\c_InetConfig.pas"/>
         <DCCReference Include="Src\Network\i_AntiBan.pas"/>
         <DCCReference Include="Src\Network\i_DownloadChecker.pas"/>
