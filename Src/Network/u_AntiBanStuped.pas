@@ -38,15 +38,17 @@ uses
 type
   TAntiBanStuped = class(TBaseInterfacedObject, IAntiBan)
   private
+    FIsEnabled: Boolean;
     FInvisibleBrowser: IInvisibleBrowser;
     FUsePreloadPage: integer;
     FPreloadPage: string;
     FDownloadTilesCounter: ICounter;
     FBanFlag: ISimpleFlag;
-    procedure addDwnforban;
+    procedure ProcessAntiBan;
     procedure IncDownloadedAndCheckAntiBan;
     procedure ExecOnBan(const ALastUrl: string);
   private
+    { IAntiBan }
     procedure PreDownload(
       const ARequest: IDownloadRequest
     );
@@ -63,8 +65,6 @@ type
       const AConfig: IConfigDataProvider
     );
   end;
-
-
 
 implementation
 
@@ -97,18 +97,6 @@ end;
 
 { TAntiBanStuped }
 
-procedure TAntiBanStuped.addDwnforban;
-var
-  VUrl: string;
-begin
-  if FPreloadPage = '' then begin
-    VUrl := 'http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8';
-  end else begin
-    VUrl := FPreloadPage;
-  end;
-  FInvisibleBrowser.NavigateAndWait(VUrl);
-end;
-
 constructor TAntiBanStuped.Create(
   const AInvisibleBrowser: IInvisibleBrowser;
   const AConfig: IConfigDataProvider
@@ -119,12 +107,40 @@ begin
   Assert(AInvisibleBrowser <> nil);
   Assert(AConfig <> nil);
   inherited Create;
-  FInvisibleBrowser := AInvisibleBrowser;
-  FDownloadTilesCounter := TCounterInterlock.Create;
+
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FUsePreloadPage := VParams.ReadInteger('UsePreloadPage', 0);
   FPreloadPage := VParams.ReadString('PreloadPage', '');
-  FBanFlag := TSimpleFlagWithInterlock.Create;
+
+  if (FUsePreloadPage > 0) and (FPreloadPage <> '') then begin
+    FIsEnabled := True;
+    FInvisibleBrowser := AInvisibleBrowser;
+    FDownloadTilesCounter := TCounterInterlock.Create;
+    FBanFlag := TSimpleFlagWithInterlock.Create;
+  end;
+end;
+
+procedure TAntiBanStuped.IncDownloadedAndCheckAntiBan;
+var
+  VCount: Integer;
+  VRunAntiBan: Boolean;
+begin
+  VCount := FDownloadTilesCounter.Inc;
+  if FUsePreloadPage > 0 then begin
+    if FUsePreloadPage > 1 then begin
+      VRunAntiBan := (VCount mod FUsePreloadPage) = 0;
+    end else begin
+      VRunAntiBan := (VCount = 1);
+    end;
+    if VRunAntiBan then begin
+      ProcessAntiBan;
+    end;
+  end;
+end;
+
+procedure TAntiBanStuped.ProcessAntiBan;
+begin
+  FInvisibleBrowser.NavigateAndWait(FPreloadPage);
 end;
 
 procedure TAntiBanStuped.ExecOnBan(const ALastUrl: string);
@@ -141,24 +157,6 @@ begin
   end;
 end;
 
-procedure TAntiBanStuped.IncDownloadedAndCheckAntiBan;
-var
-  cnt: Integer;
-  RunAntiBan: Boolean;
-begin
-  cnt := FDownloadTilesCounter.Inc;
-  if (FUsePreloadPage > 0) then begin
-    if (FUsePreloadPage > 1) then begin
-      RunAntiBan := (cnt mod FUsePreloadPage) = 0;
-    end else begin
-      RunAntiBan := (cnt = 1);
-    end;
-    if RunAntiBan then begin
-      addDwnforban;
-    end;
-  end;
-end;
-
 function TAntiBanStuped.PostCheckDownload(
   const AResultFactory: IDownloadResultFactory;
   const ARequest: IDownloadRequest;
@@ -168,7 +166,12 @@ function TAntiBanStuped.PostCheckDownload(
 ): IDownloadResult;
 begin
   Result := nil;
-  if false then begin // TODO: сделать хоть какую-то проверку
+
+  if not FIsEnabled then begin
+    Exit;
+  end;
+
+  if False then begin // TODO: сделать хоть какую-то проверку
     Result := AResultFactory.BuildBanned(ARequest, AStatusCode, AResponseHead);
   end;
 
@@ -183,7 +186,9 @@ procedure TAntiBanStuped.PreDownload(
   const ARequest: IDownloadRequest
 );
 begin
-  IncDownloadedAndCheckAntiBan;
+  if FIsEnabled then begin
+    IncDownloadedAndCheckAntiBan;
+  end;
 end;
 
 end.
