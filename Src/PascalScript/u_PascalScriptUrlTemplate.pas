@@ -65,6 +65,7 @@ type
     FItems: array of TItemRec;
 
     FUrlTmpl: string;
+    FServerName: string;
     FServerNames: array of string;
     FMathExpressionEvaluator: TMathExpressionEvaluator;
 
@@ -155,10 +156,6 @@ begin
   FProjectionSet := AProjectionSet;
   FRequestBuilderConfig := ARequestBuilderConfig;
 
-  FRequest := nil;
-  FItems := nil;
-  FUrlTmpl := '';
-  FServerNames := nil;
   FMathExpressionEvaluator := TMathExpressionEvaluator.Create;
 
   FConfigChangeFlag := TSimpleFlagWithInterlock.Create;
@@ -362,6 +359,8 @@ begin
       Inc(S);
     end;
   end;
+
+  FServerName := GetServerNameValue;
 end;
 
 procedure TPascalScriptUrlTemplate.Parse(const ATmpl: string);
@@ -486,7 +485,7 @@ begin
     VItem := @FItems[I];
     case VItem.ValueType of
       ivtText:      { nothing to do } ;
-      ivtS:         VItem.Value := GetServerNameValue;
+      ivtS:         VItem.Value := FServerName;
       ivtX:         VItem.Value := IntToStr(VTile.X);
       ivtY:         VItem.Value := IntToStr(VTile.Y);
       ivtYb:        VItem.Value := IntToStr( (1 shl VZoom) - 1 - VTile.Y );
