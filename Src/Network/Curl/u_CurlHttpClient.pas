@@ -48,6 +48,7 @@ type
 
     FReqMethod: TReqMethod;
     FReqHeaders: RawByteString;
+    FReqUserAgent: RawByteString;
 
     FCurlProgressCallBack: TCurlProgressCallBack;
     FCurlDebugCallBack: TCurlDebugCallBack;
@@ -246,7 +247,6 @@ begin
   FCurlSlist := nil;
 
   FReqMethod := rmGet;
-  FReqHeaders := '';
 
   FCertFileName := ACertFileName;
   if (FCertFileName <> '') and not FileExists(string(FCertFileName)) then begin
@@ -444,6 +444,7 @@ begin
     VDoCurlSetup :=
       IsOptionsChanged(FReq.Options) or
       IsProxyChanged(FReq.Proxy) or
+      (FReq.UserAgent <> FReqUserAgent) or
       (FReq.Method <> FReqMethod);
     if VDoCurlSetup then begin
       curl.easy_reset(FCurl);
@@ -480,7 +481,7 @@ begin
 
   CurlCheck( curl.easy_setopt(FCurl, coUrl, Pointer(FReq.Url)) );
 
-  if (FReq.Headers <> FReqHeaders) or (FReq.Method <> FReqMethod) then begin
+  if (FReq.Method <> FReqMethod) or (FReq.Headers <> FReqHeaders) then begin
     CurlClearSlist(FCurlSlist);
 
     if FReq.Method = rmPOST then begin
@@ -493,6 +494,7 @@ begin
 
     FReqMethod := FReq.Method;
     FReqHeaders := FReq.Headers;
+    FReqUserAgent := FReq.UserAgent;
   end;
 
   VCurlResult := curl.easy_perform(FCurl);

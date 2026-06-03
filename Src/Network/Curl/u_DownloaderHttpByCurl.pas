@@ -378,7 +378,11 @@ begin
   Result := nil;
 
   if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
-    VRequestWithChecker.Checker.BeforeRequest(FResultFactory, ARequest);
+    Result := VRequestWithChecker.Checker.BeforeRequest(FResultFactory, ARequest);
+  end;
+
+  if Result <> nil then begin
+    Exit;
   end;
 
   FHttpRequest.Url := ARequest.Url;
@@ -418,8 +422,10 @@ begin
 
   FHttpOptions.ConnectionTimeOutMS := VInetConfig.TimeOut;
 
-  if GetHeaderValueUp(FHttpRequest.Headers, 'USER-AGENT') = '' then begin
-    FHttpRequest.Headers := 'User-Agent: ' + VInetConfig.UserAgentString + #13#10 + FHttpRequest.Headers;
+  FHttpRequest.UserAgent := GetHeaderValueUp(FHttpRequest.Headers, 'USER-AGENT');
+  if FHttpRequest.UserAgent = '' then begin
+    FHttpRequest.UserAgent := VInetConfig.UserAgentString;
+    FHttpRequest.Headers := 'User-Agent: ' + FHttpRequest.UserAgent + #13#10 + FHttpRequest.Headers;
   end;
 
   if FAcceptEncoding then begin

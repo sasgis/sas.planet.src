@@ -70,6 +70,7 @@ type
   TCurlRequest = record
     Method: TReqMethod;
     Url: RawByteString;
+    UserAgent: RawByteString;
     Headers: RawByteString;
     PostData: Pointer;
     PostDataSize: Integer;

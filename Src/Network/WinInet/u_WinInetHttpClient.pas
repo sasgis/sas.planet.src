@@ -53,6 +53,7 @@ type
     FOptions: TWinInetOptions;
     FProxy: TWinInetProxy;
 
+    FUserAgent: RawByteString;
     FHostInfo: THostInfo;
     FIsHttps: Boolean;
 
@@ -206,6 +207,8 @@ begin
     (FHostInfo.HostName = AUrlInfo.HostName) and
     (FHostInfo.Port     = AUrlInfo.Port) and
     (FHostInfo.Scheme   = AUrlInfo.Scheme) and
+    // user-agent
+    (FUserAgent = AReq.UserAgent) and
     // options
     (FOptions = AReq.Options^) and
     // proxy
@@ -339,6 +342,7 @@ begin
 
     if (FInetRoot = nil) or (FInetConnect = nil) or not CanReuseConnection(FReq, VUrlInfo) then begin
       FHostInfo := VUrlInfo;
+      FUserAgent := FReq.UserAgent;
       FOptions := FReq.Options^;
       FProxy := FReq.Proxy^;
 

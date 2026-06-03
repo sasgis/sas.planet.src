@@ -330,14 +330,17 @@ begin
     INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTP or
     INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS;
 
-  if not FAllowUseCookie then
+  if not FAllowUseCookie then begin
     FHttpOptions.Flags := FHttpOptions.Flags or INTERNET_FLAG_NO_COOKIES;
-
-  if not FAllowRedirect then
+  end;
+  if not FAllowRedirect then begin
     FHttpOptions.Flags := FHttpOptions.Flags or INTERNET_FLAG_NO_AUTO_REDIRECT;
+  end;
 
-  if GetHeaderValueUp(FHttpRequest.Headers, 'USER-AGENT') = '' then begin
-    FHttpRequest.Headers := 'User-Agent: ' + VInetConfig.UserAgentString + #13#10 + FHttpRequest.Headers;
+  FHttpRequest.UserAgent := GetHeaderValueUp(FHttpRequest.Headers, 'USER-AGENT');
+  if FHttpRequest.UserAgent = '' then begin
+    FHttpRequest.UserAgent := VInetConfig.UserAgentString;
+    FHttpRequest.Headers := 'User-Agent: ' + FHttpRequest.UserAgent + #13#10 + FHttpRequest.Headers;
   end;
 
   if GetHeaderValueUp(FHttpRequest.Headers, 'ACCEPT') = '' then begin

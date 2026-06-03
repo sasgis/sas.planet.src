@@ -52,8 +52,9 @@ type
   PWinInetOptions = ^TWinInetOptions;
 
   TWinInetRequest = record
-    Url: RawByteString;
     Method: TWinInetReqMethod;
+    Url: RawByteString;
+    UserAgent: RawByteString;
     Headers: RawByteString;
     PostData: Pointer;
     PostDataSize: NativeInt;
