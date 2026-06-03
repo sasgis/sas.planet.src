@@ -382,15 +382,15 @@ begin
     end else begin
       FHttpProxy.AccessType := INTERNET_OPEN_TYPE_PROXY;
       VProxyHost := VProxyConfig.Host;
-      
+
       if VProxyConfig.ProxyType = ptSocks4 then begin
         VProxyHost := 'socks=' + VProxyHost;
       end else if VProxyConfig.ProxyType <> ptHttp then begin
         Assert(False, Format('Unsupported proxy type: %d', [Integer(VProxyConfig.ProxyType)]));
       end;
-      
+
       FHttpProxy.Host := VProxyHost;
-      
+
       if VProxyConfig.UseLogin then begin
         FHttpProxy.UserName := StringToAnsiSafe(VProxyConfig.Login);
         FHttpProxy.Password := StringToAnsiSafe(VProxyConfig.Password);
@@ -446,8 +446,7 @@ const
   function StatInfoAsStr: AnsiString;
   begin
     if AInfoLen > 0 then begin
-      SetLength(Result, AInfoLen);
-      Move(AInfo^, Result[1], AInfoLen);
+      SetString(Result, PAnsiChar(AInfo), AInfoLen - 1);
     end else begin
       Result := '<EMPTY>';
     end;

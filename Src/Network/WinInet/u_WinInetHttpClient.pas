@@ -235,7 +235,7 @@ begin
   end else begin
     if AError <> 0 then begin
       SetLength(VMsg, 256);
-      VLen := Windows.FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or FORMAT_MESSAGE_FROM_HMODULE,
+      VLen := Windows.FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or FORMAT_MESSAGE_FROM_HMODULE or FORMAT_MESSAGE_IGNORE_INSERTS,
         Pointer(GetModuleHandle('wininet.dll')), AError, 0, Pointer(VMsg), Length(VMsg), nil);
       if VLen > 0 then begin
         SetLength(VMsg, VLen);
@@ -245,11 +245,18 @@ begin
     end else begin
       VMsg := '';
     end;
-    FResp.ErrorReason := AFuncName + ' failed with error ' + IntToStr(AError) + ' ' + VMsg;
+    FResp.ErrorReason := AFuncName + ' failed with error ' + IntToStr(AError) + ' - ' + Trim(VMsg);
   end;
 end;
 
 function TWinInetHttpClient.WinInetSetup: Boolean;
+
+  procedure SetOptionA(hInet: HINTERNET; dwOption: DWORD; lpBuffer: Pointer; dwBufferLength: DWORD);
+  begin
+    if not InternetSetOptionA(hInet, dwOption, lpBuffer, dwBufferLength) then
+      SetErrorReason('InternetSetOption');
+  end;
+
 const
   HTTP_PROTOCOL_FLAG_HTTP2 = 2;
   INTERNET_OPTION_ENABLE_HTTP_PROTOCOL = 148;
@@ -293,7 +300,9 @@ begin
 
   if FOptions.TimeOutMS > 0 then begin
     VTimeout := FOptions.TimeOutMS;
-    InternetSetOptionA(FInetRoot, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeout, SizeOf(VTimeout));
+    SetOptionA(FInetRoot, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeout, SizeOf(VTimeout));
+    SetOptionA(FInetRoot, INTERNET_OPTION_SEND_TIMEOUT,    @VTimeout, SizeOf(VTimeout));
+    SetOptionA(FInetRoot, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeout, SizeOf(VTimeout));
   end;
 
   FInetConnect :=
@@ -314,17 +323,24 @@ begin
     Exit;
   end;
 
+  if FProxy.UserName <> '' then begin
+    SetOptionA(FInetConnect, INTERNET_OPTION_PROXY_USERNAME, Pointer(FProxy.UserName), Length(FProxy.UserName));
+  end;
+  if FProxy.Password <> '' then begin
+    SetOptionA(FInetConnect, INTERNET_OPTION_PROXY_PASSWORD, Pointer(FProxy.Password), Length(FProxy.Password));
+  end;
+
   Result := True;
 end;
 
 function TWinInetHttpClient.SetSecurityFlags(const ARequest: HINTERNET): Boolean;
 var
-  VFLags, VLen: DWORD;
+  VFlags, VLen: DWORD;
 begin
-  VLen := SizeOf(VFLags);
-  if InternetQueryOption(ARequest, INTERNET_OPTION_SECURITY_FLAGS, @VFlags, VLen) then begin
+  VLen := SizeOf(VFlags);
+  if InternetQueryOptionA(ARequest, INTERNET_OPTION_SECURITY_FLAGS, @VFlags, VLen) then begin
     VFlags := VFlags or SECURITY_SET_MASK;
-    Result := InternetSetOption(ARequest, INTERNET_OPTION_SECURITY_FLAGS, @VFlags, SizeOf(VFlags));
+    Result := InternetSetOptionA(ARequest, INTERNET_OPTION_SECURITY_FLAGS, @VFlags, SizeOf(VFlags));
   end else begin
     Result := False;
   end;
@@ -343,7 +359,7 @@ const
 var
   VUrlInfo: THostInfo;
   VUrlPath: AnsiString;
-  VFlags, VTimeout, VLen, VIndex, VBytesRead, VContentLen: DWORD;
+  VFlags, VLen, VIndex, VBytesRead, VContentLen: DWORD;
   VBuffer: array[0..CBufferSize-1] of Byte;
   VStream: TMemoryStream;
   VDataSize: NativeInt;
@@ -424,19 +440,6 @@ begin
   end;
 
   try
-    if FOptions.TimeOutMS > 0 then begin
-      VTimeout := FOptions.TimeOutMS;
-      InternetSetOptionA(VRequest, INTERNET_OPTION_SEND_TIMEOUT,    @VTimeout, SizeOf(VTimeout));
-      InternetSetOptionA(VRequest, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeout, SizeOf(VTimeout));
-    end;
-
-    if FProxy.UserName <> '' then begin
-      InternetSetOptionA(VRequest, INTERNET_OPTION_PROXY_USERNAME, Pointer(FProxy.UserName), Length(FProxy.UserName));
-    end;
-    if FProxy.Password <> '' then begin
-      InternetSetOptionA(VRequest, INTERNET_OPTION_PROXY_PASSWORD, Pointer(FProxy.Password), Length(FProxy.Password));
-    end;
-
     if FReq.Headers <> '' then begin
       if not HttpAddRequestHeadersA(VRequest, Pointer(FReq.Headers), Length(FReq.Headers), HTTP_ADDREQ_FLAG_ADD or HTTP_ADDREQ_FLAG_REPLACE) then begin
         SetErrorReason('HttpAddRequestHeaders');
@@ -456,7 +459,7 @@ begin
       if FIsHttps and FOptions.IgnoreSecurityErrors and TryHandleSecurityError(VRequest, VError) then begin
         // retry with disabled security flags
         VResult := HttpSendRequestA(VRequest, nil, 0, FReq.PostData, FReq.PostDataSize);
-        if not Result then VError := GetLastError;
+        if not VResult then VError := GetLastError;
       end;
       if not VResult then begin
         SetErrorReason('HttpSendRequest', VError);
