@@ -89,7 +89,7 @@ type
 
   TStrToFloatA = function(const S: AnsiString; const AFormatSettings: TALFormatSettingsA): Extended;
 
-  TIntToHexA = function(Value: Integer; Digits: Integer): AnsiString;
+  TIntToHexA = function(Value: Integer; const ADigits: Integer; const ALowerCase: Boolean = False): AnsiString;
   TIntToStrA = function(Value: Integer): AnsiString;
 
   TStrToIntA = function(const S: AnsiString): Integer;
