@@ -28,11 +28,32 @@ function IsDownloadError(const ALastError: Cardinal): Boolean;
 function IsDownloadErrorStatus(const AStatusCode: Cardinal): Boolean;
 function IsOkStatus(const AStatusCode: Cardinal): Boolean;
 function IsContentNotExistStatus(const AStatusCode: Cardinal): Boolean;
+function IsSecurityError(const ALastError: Cardinal): Boolean;
 
 implementation
 
 uses
   WinInet;
+
+function IsSecurityError(const ALastError: Cardinal): Boolean;
+begin
+  case ALastError of
+    ERROR_INTERNET_SEC_CERT_DATE_INVALID,
+    ERROR_INTERNET_SEC_CERT_CN_INVALID,
+    ERROR_INTERNET_MIXED_SECURITY,
+    ERROR_INTERNET_INVALID_CA,
+    12055 {ERROR_INTERNET_SEC_CERT_ERRORS},
+    12056 {ERROR_INTERNET_SEC_CERT_NO_REV},
+    ERROR_INTERNET_SEC_CERT_REV_FAILED,
+    ERROR_INTERNET_SEC_INVALID_CERT,
+    ERROR_INTERNET_SEC_CERT_REVOKED:
+    begin
+      Result := True;
+    end
+  else
+    Result := False;
+  end;
+end;
 
 function IsConnectError(const ALastError: Cardinal): Boolean;
 begin
@@ -62,9 +83,8 @@ begin
     begin
       Result := True;
     end;
-  else begin
+  else
     Result := False;
-  end;
   end;
 end;
 
@@ -84,9 +104,8 @@ begin
     begin
       Result := True;
     end;
-  else begin
+  else
     Result := False;
-  end;
   end;
 end;
 
@@ -101,9 +120,8 @@ begin
     begin
       Result := True;
     end;
-  else begin
+  else
     Result := False;
-  end;
   end;
 end;
 
@@ -119,9 +137,8 @@ begin
     begin
       Result := True;
     end;
-  else begin
+  else
     Result := False;
-  end;
   end;
 end;
 
@@ -134,9 +151,8 @@ begin
     begin
       Result := True;
     end;
-  else begin
+  else
     Result := False;
-  end;
   end;
 end;
 

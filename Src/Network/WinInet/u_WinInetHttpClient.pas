@@ -71,7 +71,11 @@ type
     procedure WinInetCloseConnect; inline;
     procedure WinInetCloseRoot; inline;
 
-    procedure SetErrorReason(const AFuncName: string); inline;
+    function SetSecurityFlags(const ARequest: HINTERNET): Boolean;
+    function TryHandleSecurityError(const ARequest: HINTERNET; const AError: Cardinal): Boolean;
+
+    procedure SetErrorReason(const AFuncName: string); overload; inline;
+    procedure SetErrorReason(const AFuncName: string; const AError: Cardinal); overload;
   public
     function DoRequest(const AReq: PWinInetRequest; const AResp: PWinInetResponse): Boolean;
     procedure Disconnect;
@@ -87,6 +91,7 @@ type
 implementation
 
 uses
+  u_HttpStatusChecker,
   u_Synchronizer,
   u_SimpleFlagWithInterlock;
 
@@ -217,10 +222,30 @@ end;
 
 procedure TWinInetHttpClient.SetErrorReason(const AFuncName: string);
 begin
+  SetErrorReason(AFuncName, GetLastError);
+end;
+
+procedure TWinInetHttpClient.SetErrorReason(const AFuncName: string; const AError: Cardinal);
+var
+  VMsg: string;
+  VLen: Cardinal;
+begin
   if FDoDisconnect.CheckFlag then begin
     FResp.ErrorReason := 'Disconnected by user';
   end else begin
-    FResp.ErrorReason := AFuncName + ' failed: ' + SysErrorMessage(GetLastError);
+    if AError <> 0 then begin
+      SetLength(VMsg, 256);
+      VLen := Windows.FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or FORMAT_MESSAGE_FROM_HMODULE,
+        Pointer(GetModuleHandle('wininet.dll')), AError, 0, Pointer(VMsg), Length(VMsg), nil);
+      if VLen > 0 then begin
+        SetLength(VMsg, VLen);
+      end else begin
+        VMsg := SysErrorMessage(AError);
+      end;
+    end else begin
+      VMsg := '';
+    end;
+    FResp.ErrorReason := AFuncName + ' failed with error ' + IntToStr(AError) + ' ' + VMsg;
   end;
 end;
 
@@ -230,7 +255,6 @@ const
   INTERNET_OPTION_ENABLE_HTTP_PROTOCOL = 148;
 var
   VProxyPtr: PAnsiChar;
-  VFlags: DWORD;
   VOption: DWORD;
   VTimeout: DWORD;
 begin
@@ -244,18 +268,13 @@ begin
     VProxyPtr := Pointer(FProxy.Host);
   end;
 
-  VFlags := 0;
-  if FIsHttps and FOptions.IgnoreSecurityErrors then begin
-    VFlags := SECURITY_SET_MASK;
-  end;
-
   FInetRoot :=
     InternetOpenA(
       nil, // User-Agent
       FProxy.AccessType,
       VProxyPtr,
       nil, // Proxy Bypass
-      VFlags
+      0    // Flags
     );
 
   if FInetRoot = nil then begin
@@ -285,7 +304,7 @@ begin
       nil, // FTP UserName
       nil, // FTP Password
       INTERNET_SERVICE_HTTP,
-      0,
+      0,   // Flags
       DWORD_PTR(Self)
     );
 
@@ -296,6 +315,24 @@ begin
   end;
 
   Result := True;
+end;
+
+function TWinInetHttpClient.SetSecurityFlags(const ARequest: HINTERNET): Boolean;
+var
+  VFLags, VLen: DWORD;
+begin
+  VLen := SizeOf(VFLags);
+  if InternetQueryOption(ARequest, INTERNET_OPTION_SECURITY_FLAGS, @VFlags, VLen) then begin
+    VFlags := VFlags or SECURITY_SET_MASK;
+    Result := InternetSetOption(ARequest, INTERNET_OPTION_SECURITY_FLAGS, @VFlags, SizeOf(VFlags));
+  end else begin
+    Result := False;
+  end;
+end;
+
+function TWinInetHttpClient.TryHandleSecurityError(const ARequest: HINTERNET; const AError: Cardinal): Boolean;
+begin
+  Result := IsSecurityError(AError) and SetSecurityFlags(ARequest);
 end;
 
 function TWinInetHttpClient.DoRequest(const AReq: PWinInetRequest; const AResp: PWinInetResponse): Boolean;
@@ -311,6 +348,8 @@ var
   VStream: TMemoryStream;
   VDataSize: NativeInt;
   VRequest: HINTERNET;
+  VResult: Boolean;
+  VError: Cardinal;
 begin
   Assert(AReq.Options <> nil);
   Assert(AReq.Proxy <> nil);
@@ -358,9 +397,6 @@ begin
     VFlags := FOptions.Flags;
     if FIsHttps then begin
       VFlags := VFlags or INTERNET_FLAG_SECURE;
-      if FOptions.IgnoreSecurityErrors then begin
-        VFlags := VFlags or SECURITY_SET_MASK;
-      end;
     end;
 
     Assert(FInetRequest = nil);
@@ -413,9 +449,19 @@ begin
     end;
 
     // Send request
-    if not HttpSendRequestA(VRequest, nil, 0, FReq.PostData, FReq.PostDataSize) then begin
-      SetErrorReason('HttpSendRequest');
-      Exit;
+    VResult := HttpSendRequestA(VRequest, nil, 0, FReq.PostData, FReq.PostDataSize);
+
+    if not VResult then begin
+      VError := GetLastError;
+      if FIsHttps and FOptions.IgnoreSecurityErrors and TryHandleSecurityError(VRequest, VError) then begin
+        // retry with disabled security flags
+        VResult := HttpSendRequestA(VRequest, nil, 0, FReq.PostData, FReq.PostDataSize);
+        if not Result then VError := GetLastError;
+      end;
+      if not VResult then begin
+        SetErrorReason('HttpSendRequest', VError);
+        Exit;
+      end;
     end;
 
     if FDoDisconnect.CheckFlag then begin
@@ -449,6 +495,7 @@ begin
       Exit;
     end;
 
+    // Response Content-Length
     VLen := SizeOf(VContentLen);
     VIndex := 0;
     if not HttpQueryInfoA(VRequest, HTTP_QUERY_CONTENT_LENGTH or HTTP_QUERY_FLAG_NUMBER, @VContentLen, VLen, VIndex) then begin
