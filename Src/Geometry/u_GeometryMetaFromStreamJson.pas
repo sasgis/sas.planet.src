@@ -25,7 +25,6 @@ interface
 
 uses
   Classes,
-  superobject,
   i_DoublePointsMeta,
   i_GeometryFromStream,
   u_BaseInterfacedObject;
@@ -33,66 +32,98 @@ uses
 type
   TGeometryMetaFromStreamJson = class(TBaseInterfacedObject, IGeometryMetaFromStream)
   private
-    class function IsMagicOk(const AStream: TStream): Boolean;
-    class function JsonFromStream(const AStream: TStream): ISuperObject;
-  private
     { IGeometryMetaFromStream }
-    function Parse(
-      const AStream: TStream
-    ): IDoublePointsMeta;
+    function Parse(const AStream: TStream): IDoublePointsMeta;
   end;
 
 implementation
 
 uses
   SysUtils,
-  EDBase64,
+  SynCommons,
   t_GeoTypes,
   u_GeometryMetaJson,
   u_DoublePointsMetaBuilder;
 
 { TGeometryMetaFromStreamJson }
 
-function TGeometryMetaFromStreamJson.Parse(
-  const AStream: TStream
-): IDoublePointsMeta;
+function IsMagicOk(const AStream: TStream): Boolean; inline;
+var
+  VMagic: Cardinal;
+begin
+  Result :=
+    (AStream <> nil) and
+    (AStream.Size > SizeOf(VMagic)) and
+    (AStream.Read(VMagic, SizeOf(VMagic)) = SizeOf(VMagic)) and
+    (VMagic = PCardinal(CJsonMetaMagic)^);
+end;
+
+function TGeometryMetaFromStreamJson.Parse(const AStream: TStream): IDoublePointsMeta;
 var
   I, J: Integer;
+  VStr: RawUTF8;
+  VLen: Integer;
+  VDoc: TDocVariantData;
+  VGeoArray: PDocVariantData;
+  VMetaArray: PDocVariantData;
   VPointsCount: Integer;
-  VJson: ISuperObject;
-  VGeoArray: TSuperArray;
-  VGeoItem: ISuperObject;
-  VMetaArray: TSuperArray;
-  VMetaItem: ISuperObject;
   VMetaBuilder: TDoublePointsMetaBuilder;
-  VTagName: string;
-  VTagDataType: TJsonMetaDataTypeId;
+  VTagName: RawUTF8;
+  VTagDataType: Integer;
   VMeta: TDoublePointsMeta;
-  VDataHolder: array [0..1] of AnsiString;
+  VData: RawUTF8;
+  VDataHolder: array[0..1] of RawByteString;
+  VGeoItem: PDocVariantData;
+  VMetaItem: PDocVariantData;
+  VGeometryType: Integer;
+  VVersion: Integer;
+  VHasMeta: Boolean;
 begin
   Result := nil;
 
-  VJson := Self.JsonFromStream(AStream);
-  if VJson = nil then begin
+  if not IsMagicOk(AStream) then begin
     Exit;
   end;
 
-  if VJson.I['v'] <> 1 then begin
+  VLen := AStream.Size - AStream.Position;
+  if VLen <= 0 then Exit;
+  SetLength(VStr, VLen);
+  AStream.ReadBuffer(VStr[1], VLen);
+
+  // Parse JSON
+  if (VDoc.InitJSONInPlace(Pointer(VStr), JSON_OPTIONS_FAST) = nil) or (VDoc.Kind <> dvObject) then begin
+    Assert(False, Self.ClassName + ': Invalid JSON');
     Exit;
   end;
 
-  if VJson.I['t'] <> Integer(jgLine) then begin
+  // Version
+  if not VDoc.GetAsInteger('v', VVersion) or (VVersion <> 1) then begin
+    Assert(False, Self.ClassName + ': Unknown version value ' + IntToStr(VVersion));
     Exit;
   end;
 
-  VGeoArray := VJson.O['g'].AsArray;
-  if VGeoArray = nil then begin
+  // Geometry type
+  if not VDoc.GetAsInteger('t', VGeometryType) or (VGeometryType <> Integer(jgLine)) then begin
+    Assert(False, Self.ClassName + ': Unsupported geometry type id ' + IntToStr(VGeometryType));
+    Exit;
+  end;
+
+  // Geometries array
+  if not VDoc.GetAsDocVariant('g', VGeoArray) or (VGeoArray.Kind <> dvArray) then begin
+    Assert(False, Self.ClassName + ': Geometry array not found');
     Exit;
   end;
 
   VMetaBuilder := TDoublePointsMetaBuilder.Create;
   try
-    for I := 0 to VGeoArray.Length - 1 do begin
+    for I := 0 to VGeoArray.Count - 1 do begin
+      // Geometry object
+      VGeoItem := _Safe(VGeoArray.Values[I]);
+      if VGeoItem.Kind <> dvObject then Continue;
+
+      // Points count
+      if not VGeoItem.GetAsInteger('c', VPointsCount) or (VPointsCount <= 0) then Continue;
+
       if I > 0 then begin
         // New multi-geometry segment starts.
         // We need to add a separation point in order to match the
@@ -100,49 +131,57 @@ begin
         VMetaBuilder.AddSeparationPoint;
       end;
 
-      VGeoItem := VGeoArray.O[I];
+      // Metadata array
+      VHasMeta :=
+        VGeoItem.GetAsDocVariant('m', VMetaArray) and
+        (VMetaArray.Kind = dvArray) and
+        (VMetaArray.Count > 0);
 
-      VMetaArray := VGeoItem.O['m'].AsArray;
-      VPointsCount := VGeoItem.I['c'];
+      if VHasMeta then begin
+        VDataHolder[0] := ''; // elevation
+        VDataHolder[1] := ''; // timestamp
 
-      if VMetaArray <> nil then begin
-        VDataHolder[0] := '';
-        VDataHolder[1] := '';
+        for J := 0 to VMetaArray.Count - 1 do begin
+          // Metadata object
+          VMetaItem := _Safe(VMetaArray.Values[J]);
+          if VMetaItem.Kind <> dvObject then Continue;
 
-        for J := 0 to VMetaArray.Length - 1 do begin
-          VMetaItem := VMetaArray.O[J];
+          if not VMetaItem.GetAsInteger('t', VTagDataType) then Continue;
+          if not VMetaItem.GetAsRawUTF8('n', VTagName) then Continue;
+          if not VMetaItem.GetAsRawUTF8('d', VData) then Continue;
 
-          VTagName := LowerCase(VMetaItem.S['n']);
-          VTagDataType := TJsonMetaDataTypeId(VMetaItem.I['t']);
+          VTagName := LowerCase(VTagName);
 
           if VTagName = CJsonMetaKnownGpxTags[jtEle] then begin
-            if VTagDataType = jdDouble then begin
-              VDataHolder[0] := Base64Decode(AnsiString(VMetaItem.S['d']));
+            // Elevation
+            if VTagDataType = Integer(jdDouble) then begin
+              VDataHolder[0] := Base64ToBin(VData);
               if Length(VDataHolder[0]) <> VPointsCount * SizeOf(Double) then begin
                 VDataHolder[0] := '';
-                Assert(False);
+                Assert(False, Self.ClassName + ': Invalid elevation data size');
               end;
             end else begin
-              Assert(False, 'Unexpected "ele" tag data type!');
+              Assert(False, Self.ClassName + ': Unexpected "ele" tag data type!');
             end;
           end else
           if VTagName = CJsonMetaKnownGpxTags[jtTime] then begin
-            if VTagDataType = jdDouble then begin
-              VDataHolder[1] := Base64Decode(AnsiString(VMetaItem.S['d']));
+            // Timestamp
+            if VTagDataType = Integer(jdDouble) then begin
+              VDataHolder[1] := Base64ToBin(VData);
               if Length(VDataHolder[1]) <> VPointsCount * SizeOf(TDateTime) then begin
                 VDataHolder[1] := '';
-                Assert(False);
+                Assert(False, Self.ClassName + ': Invalid timestamp data size');
               end;
             end else begin
-              Assert(False, 'Unexpected "time" tag data type!');
+              Assert(False, Self.ClassName + ': Unexpected "time" tag data type!');
             end;
           end else begin
-            Assert(False, 'Unexpected tag name: ' + VTagName);
+            Assert(False, Self.ClassName + ': Unexpected tag name: ' + string(VTagName));
           end;
         end;
 
-        VMeta.Elevation := PArrayOfDouble(VDataHolder[0]);
-        VMeta.TimeStamp := PArrayOfDateTime(VDataHolder[1]);
+        VMeta.Elevation := PArrayOfDouble(Pointer(VDataHolder[0]));
+        VMeta.TimeStamp := PArrayOfDateTime(Pointer(VDataHolder[1]));
 
         VMetaBuilder.Add(@VMeta, VPointsCount);
       end else begin
@@ -154,37 +193,6 @@ begin
     Result := VMetaBuilder.Build;
   finally
     VMetaBuilder.Free;
-  end;
-end;
-
-class function TGeometryMetaFromStreamJson.IsMagicOk(const AStream: TStream): Boolean;
-var
-  VMagic: Cardinal;
-begin
-  if AStream.Size >= 4 then begin
-    AStream.ReadBuffer(VMagic, 4);
-    Result := CompareMem(@VMagic, @CJsonMetaMagic[0], 4);
-  end else begin
-    Result := False;
-  end;
-end;
-
-class function TGeometryMetaFromStreamJson.JsonFromStream(
-  const AStream: TStream
-): ISuperObject;
-var
-  VStr: AnsiString;
-  VLen: Integer;
-begin
-  if IsMagicOk(AStream) then begin
-    VLen := AStream.Size - AStream.Position;
-    SetLength(VStr, VLen);
-
-    AStream.ReadBuffer(VStr[1], VLen);
-
-    Result := SO(VStr);
-  end else begin
-    Result := nil;
   end;
 end;
 

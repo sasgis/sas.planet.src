@@ -27,6 +27,7 @@ uses
   u_GUIDSetStatic_Test in 'u_GUIDSetStatic_Test.pas',
   u_GUIDSet_Test in 'u_GUIDSet_Test.pas',
   u_GeoJsonParser_Test in 'u_GeoJsonParser_Test.pas',
+  u_GeometryMetaSaveLoadJson_Test in 'u_GeometryMetaSaveLoadJson_Test.pas',
   u_GeometrySaveLoadWKB_Test in 'u_GeometrySaveLoadWKB_Test.pas',
   u_HashCacheWithQueuesAbstract_Test in 'u_HashCacheWithQueuesAbstract_Test.pas',
   u_MarkCategoryListToTree_Test in 'u_MarkCategoryListToTree_Test.pas',

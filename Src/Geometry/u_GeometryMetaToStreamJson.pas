@@ -30,12 +30,9 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TGeometryMetaToStreamJson = class(TBaseinterfacedObject, IGeometryMetaToStream)
+  TGeometryMetaToStreamJson = class(TBaseInterfacedObject, IGeometryMetaToStream)
   private
-    type
-      TArrayOfGeometryLonLatSingleLine = array of IGeometryLonLatSingleLine;
-  private
-    procedure SaveLines(
+    procedure DoSaveLines(
       const ALines: TArrayOfGeometryLonLatSingleLine;
       const AStream: TStream
     );
@@ -45,15 +42,19 @@ type
       const AGeometry: IGeometryLonLat;
       const AStream: TStream
     );
+  public
+    class function HasMeta(const ALine: IGeometryLonLatSingleLine): Boolean; overload; static;
+    class function HasMeta(const ALines: TArrayOfGeometryLonLatSingleLine): Boolean; overload; static;
   end;
 
 implementation
 
 uses
   SysUtils,
-  superobject,
-  EDBase64,
+  SynTable,
+  SynCommons,
   t_GeoTypes,
+  u_GeometryFunc,
   u_GeometryMetaJson;
 
 { TGeometryMetaToStreamJson }
@@ -63,29 +64,15 @@ procedure TGeometryMetaToStreamJson.Save(
   const AStream: TStream
 );
 var
-  I: Integer;
   VLine: IGeometryLonLatLine;
-  VSingleLine: IGeometryLonLatSingleLine;
-  VMultiLine: IGeometryLonLatMultiLine;
-  VArrayOfLines: TArrayOfGeometryLonLatSingleLine;
+  VLines: TArrayOfGeometryLonLatSingleLine;
 begin
   if Supports(AGeometry, IGeometryLonLatPoint) then begin
     // points have no meta
   end else
   if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
-    if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
-      SetLength(VArrayOfLines, 1);
-      VArrayOfLines[0] := VSingleLine;
-      SaveLines(VArrayOfLines, AStream);
-    end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
-      SetLength(VArrayOfLines, VMultiLine.Count);
-      for I := 0 to Length(VArrayOfLines) - 1 do begin
-        VArrayOfLines[I] := VMultiLine.Item[I];
-      end;
-      SaveLines(VArrayOfLines, AStream);
-    end else begin
-      Assert(False, 'Unknown GeometryLonLatLine type!');
-    end;
+    VLines := GeometryLonLatLineToArray(VLine);
+    DoSaveLines(VLines, AStream);
   end else
   if Supports(AGeometry, IGeometryLonLatPolygon) then begin
     // polygons have no meta
@@ -94,69 +81,113 @@ begin
   end;
 end;
 
-function ArrayOfDoubleToString(const AArr: Pointer; const ACount: Integer): string; inline;
+function ArrayOfDoubleToBase64(const AArr: Pointer; const ACount: Integer): RawUTF8; inline;
 begin
-  Result := Base64Encode(AArr, ACount * SizeOf(Double));
+  Result := BinToBase64(AArr, ACount * SizeOf(Double));
 end;
 
-procedure TGeometryMetaToStreamJson.SaveLines(
+procedure WriteItem(const AJson: TJSONWriter; const AType: TJsonMetaDataTypeId; const ATag: TJsonMetaKnownGpxTagsId;
+  const AData: RawByteString); inline;
+begin
+  AJson.Add('{"t":%,"n":"%","d":"', [Integer(AType), CJsonMetaKnownGpxTags[ATag]]);
+  AJson.FlushToStream;
+  AJson.Stream.WriteBuffer(Pointer(AData)^, Length(AData));
+  AJson.AddShort('"}');
+end;
+
+procedure TGeometryMetaToStreamJson.DoSaveLines(
   const ALines: TArrayOfGeometryLonLatSingleLine;
   const AStream: TStream
 );
 var
   I: Integer;
-  VJson: ISuperObject;
-  VGeoItem: ISuperObject;
-  VMetaItem: ISuperObject;
+  VJson: TJSONWriter;
   VLine: IGeometryLonLatSingleLine;
-  VIsMetaEmpty: Boolean;
 begin
-  VIsMetaEmpty := True;
+  if not HasMeta(ALines) then begin
+    Exit;
+  end;
 
-  VJson := SO; // root object
-  VJson.I['v'] := 1; // version
-  VJson.I['t'] := Integer(jgLine); // geometry type
-  VJson.O['g'] := SA([]); // array of geometries
+  // Write magic
+  AStream.WriteBuffer(Pointer(CJsonMetaMagic)^, Length(CJsonMetaMagic));
 
-  for I := 0 to Length(ALines) - 1 do begin
-    VLine := ALines[I];
+  VJson := TJSONWriter.Create(AStream, False, False);
+  try
+    // Write root object opening brace
+    VJson.Add('{');
 
-    VGeoItem := SO; // geometry item object
-    VGeoItem.O['m'] := SA([]); // array of meta
+    // Write version field
+    VJson.Add('"v":%,', [1]);
 
-    if VLine.Meta <> nil then begin
-      VIsMetaEmpty := False;
+    // Write geometry type field
+    VJson.Add('"t":%,', [Integer(jgLine)]);
 
-      VGeoItem.I['c'] := VLine.Count; // points count
+    // Start geometries array
+    VJson.AddShort('"g":[');
 
-      if VLine.Meta.Elevation <> nil then begin
-        VMetaItem := SO; // meta item object
+    for I := 0 to Length(ALines) - 1 do begin
+      VLine := ALines[I];
 
-        VMetaItem.I['t'] := Integer(jdDouble);
-        VMetaItem.S['n'] := CJsonMetaKnownGpxTags[jtEle];
-        VMetaItem.S['d'] := ArrayOfDoubleToString(VLine.Meta.Elevation, VLine.Count);
-
-        VGeoItem.A['m'].Add(VMetaItem);
+      // Add comma separator between array items (except before first item)
+      if I > 0 then begin
+        VJson.Add(',');
       end;
 
-      if VLine.Meta.TimeStamp <> nil then begin
-        VMetaItem := SO; // meta item object
+      // Start geometry object with points count
+      VJson.Add('{"c":%,', [VLine.Count]);
 
-        VMetaItem.I['t'] := Integer(jdDouble);
-        VMetaItem.S['n'] := CJsonMetaKnownGpxTags[jtTime];
-        VMetaItem.S['d'] := ArrayOfDoubleToString(VLine.Meta.TimeStamp, VLine.Count);
+      // Start metadata array for this geometry
+      // Note: Even if it's empty (VLine.Meta = nil), we still need it
+      // for backward compatibility with the legacy parser
+      VJson.AddShort('"m":[');
 
-        VGeoItem.A['m'].Add(VMetaItem);
+      if VLine.Meta <> nil then begin
+        // Write elevation
+        if VLine.Meta.Elevation <> nil then begin
+          WriteItem(VJson, jdDouble, jtEle, ArrayOfDoubleToBase64(VLine.Meta.Elevation, VLine.Count));
+        end;
+
+        // Write timestamp
+        if VLine.Meta.TimeStamp <> nil then begin
+          if VLine.Meta.Elevation <> nil then begin
+            VJson.Add(',');
+          end;
+          WriteItem(VJson, jdDouble, jtTime, ArrayOfDoubleToBase64(VLine.Meta.TimeStamp, VLine.Count));
+        end;
       end;
+
+      // Close metadata array and geometry object
+      VJson.AddShort(']}');
     end;
 
-    VJson.A['g'].Add(VGeoItem);
+    // Close geometries array and root object
+    VJson.AddShort(']}');
+  finally
+    VJson.FlushFinal;
+    VJson.Free;
   end;
+end;
 
-  if not VIsMetaEmpty then begin
-    AStream.WriteBuffer(CJsonMetaMagic[0], Length(CJsonMetaMagic));
-    VJson.SaveTo(AStream); // writes data to stream as AnsiString
+class function TGeometryMetaToStreamJson.HasMeta(const ALine: IGeometryLonLatSingleLine): Boolean;
+var
+  VMeta: PDoublePointsMeta;
+begin
+  Assert(ALine <> nil);
+  VMeta := ALine.Meta;
+  Result := (VMeta <> nil) and ( (VMeta.Elevation <> nil) or (VMeta.TimeStamp <> nil) );
+end;
+
+class function TGeometryMetaToStreamJson.HasMeta(const ALines: TArrayOfGeometryLonLatSingleLine): Boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to Length(ALines) - 1 do begin
+    if HasMeta(ALines[I]) then begin
+      Result := True;
+      Exit;
+    end;
   end;
+  Result := False;
 end;
 
 end.

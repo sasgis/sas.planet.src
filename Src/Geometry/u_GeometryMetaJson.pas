@@ -41,14 +41,12 @@ type
   );
 
 const
-  CJsonMetaKnownGpxTags: array [TJsonMetaKnownGpxTagsId] of string = (
+  CJsonMetaKnownGpxTags: array [TJsonMetaKnownGpxTagsId] of RawByteString = (
     'ele',
     'time'
   );
 
-  CJsonMetaMagic: array [0..3] of AnsiChar = (
-    'J', 'S', 'O', 'N'
-  );
+  CJsonMetaMagic: RawByteString = 'JSON';
 
 implementation
 
@@ -56,7 +54,7 @@ implementation
 
   {
       "v" : integer,                     // file struct version
-      't' : integer,                     // geometry type id (point/line/poly)
+      "t" : integer,                     // geometry type id (point/line/poly)
       "g" : [                            // array of geometries
           {
               "c" : integer,             // points count
@@ -65,10 +63,10 @@ implementation
                       "t" : integer,     // data type id (integer/double)
                       "n" : string,      // gpx tag name
                       "d" : string       // points meta (base64)
-                  }
+                  },
                   ...
               ]
-          }
+          },
           ...
       ]
   }
