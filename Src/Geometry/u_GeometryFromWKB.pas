@@ -187,7 +187,7 @@ begin
   for i := 0 to VCount - 1 do begin
     AStream.ReadBuffer(VWKBOrder, SizeOf(VWKBOrder));
     VOrder := VWKBOrder = 1;
-    Assert(VOrder, 'Поддерживается тольк порядок Little Endian');
+    Assert(VOrder, 'Only Little Endian byte order is supported');
     if not VOrder then begin
       Abort;
     end;
@@ -228,7 +228,7 @@ begin
   for i := 0 to VCount - 1 do begin
     AStream.ReadBuffer(VWKBOrder, SizeOf(VWKBOrder));
     VOrder := VWKBOrder = 1;
-    Assert(VOrder, 'Поддерживается тольк порядок Little Endian');
+    Assert(VOrder, 'Only Little Endian byte order is supported');
     if not VOrder then begin
       Abort;
     end;
@@ -323,7 +323,7 @@ var
 begin
   AStream.ReadBuffer(VWKBOrder, SizeOf(VWKBOrder));
   VOrder := VWKBOrder = 1;
-  Assert(VOrder, 'Поддерживается тольк порядок Little Endian');
+  Assert(VOrder, 'Only Little Endian byte order is supported');
   if not VOrder then begin
     Abort;
   end;
