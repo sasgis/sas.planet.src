@@ -26,8 +26,11 @@ interface
 uses
   Windows,
   SysUtils,
-  mORMot,
-  SynCommons,
+  mormot.core.data,
+  mormot.orm.core,
+  mormot.orm.rest,
+  mormot.rest.client,
+  mormot.rest.sqlite3,
   t_MarkSystemORM,
   t_GeoTypes,
   i_Notifier,
@@ -60,7 +63,8 @@ type
   )
   private
     FDbId: NativeInt;
-    FClient: TSQLRestClient;
+    FRestClient: TRestClientDB;
+    FClient: TRestOrm;
     FHelper: TMarkDbImplORMHelper;
     FStateInternal: IReadWriteStateInternal;
     FStateChangeNotifier: INotifier;
@@ -76,9 +80,9 @@ type
       const ACategoryID: TID = 0
     ): IVectorDataItem;
 
-    procedure _SQLMarkRecFromMark(
+    procedure _OrmMarkRecFromMark(
       const AMark: IVectorDataItem;
-      out AMarkRec: TSQLMarkRec
+      out AMarkRec: TOrmMarkRec
     );
 
     function _GetMarkIdList(
@@ -247,7 +251,8 @@ begin
   inherited Create;
 
   FDbId := ADbId;
-  FClient := AClientProvider.RestClient;
+  FRestClient := AClientProvider.RestClient;
+  FClient := FRestClient.OrmInstance;
   FFactoryDbInternal := AFactoryDbInternal;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
@@ -319,7 +324,7 @@ function TMarkDbImplORM._GetMarkSQL(
   const ACategoryID: TID
 ): IVectorDataItem;
 var
-  VMarkRec: TSQLMarkRec;
+  VMarkRec: TOrmMarkRec;
 begin
   if FHelper.ReadMarkSQL(VMarkRec, ID, ACategoryID, AName) then begin
     Result := FFactoryDbInternal.CreateMark(VMarkRec);
@@ -398,9 +403,9 @@ end;
 
 // INSERT/DELETE/UPDATE Marks
 
-procedure TMarkDbImplORM._SQLMarkRecFromMark(
+procedure TMarkDbImplORM._OrmMarkRecFromMark(
   const AMark: IVectorDataItem;
-  out AMarkRec: TSQLMarkRec
+  out AMarkRec: TOrmMarkRec
 );
 var
   VPoint: IGeometryLonLatPoint;
@@ -424,7 +429,7 @@ var
 begin
   Assert(Assigned(AMark));
 
-  AMarkRec := cEmptySQLMarkRec;
+  AMarkRec := cEmptyOrmMarkRec;
 
   if Supports(AMark.MainInfo, IMarkInternalORM, VMarkInternalORM) then begin
     AMarkRec.FMarkId := VMarkInternalORM.Id;
@@ -551,8 +556,8 @@ var
   VIdOld: TID;
   VOldMark: IVectorDataItem;
   VNewMark: IVectorDataItem;
-  VSQLMarkRecNew: TSQLMarkRec;
-  VSQLMarkRecOld: TSQLMarkRec;
+  VOrmMarkRecNew: TOrmMarkRec;
+  VOrmMarkRecOld: TOrmMarkRec;
 begin
   Result := nil;
   AIsChanged := False;
@@ -585,9 +590,9 @@ begin
 
   if (VIdOld = 0) and (VNewMark <> nil) then begin
     // INSERT
-    _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
-    if FHelper.InsertMarkSQL(VSQLMarkRecNew, AUseTransactions) then begin
-      Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
+    _OrmMarkRecFromMark(VNewMark, VOrmMarkRecNew);
+    if FHelper.InsertMarkSQL(VOrmMarkRecNew, AUseTransactions) then begin
+      Result := FFactoryDbInternal.CreateMark(VOrmMarkRecNew);
       AIsChanged := True;
     end;
   end else
@@ -606,10 +611,10 @@ begin
       Result := VOldMark;
     end else begin
       // UPDATE
-      _SQLMarkRecFromMark(VOldMark, VSQLMarkRecOld);
-      _SQLMarkRecFromMark(VNewMark, VSQLMarkRecNew);
-      if FHelper.UpdateMarkSQL(VSQLMarkRecOld, VSQLMarkRecNew) then begin
-        Result := FFactoryDbInternal.CreateMark(VSQLMarkRecNew);
+      _OrmMarkRecFromMark(VOldMark, VOrmMarkRecOld);
+      _OrmMarkRecFromMark(VNewMark, VOrmMarkRecNew);
+      if FHelper.UpdateMarkSQL(VOrmMarkRecOld, VOrmMarkRecNew) then begin
+        Result := FFactoryDbInternal.CreateMark(VOrmMarkRecNew);
         AIsChanged := True;
       end;
     end;
@@ -661,7 +666,7 @@ begin
 
     LockWrite;
     try
-      StartTransaction(FClient, VTransaction, TSQLMark, FHelper.IsReadOnly);
+      StartTransaction(FClient, VTransaction, TOrmMark, FHelper.IsReadOnly);
       try
         if (AOldMarkList <> nil) then begin
           if AOldMarkList.Count < ANewMarkList.Count then begin
@@ -678,7 +683,7 @@ begin
         for I := 0 to VMinCount - 1 do begin
           if VDoNotify and (I mod 1000 = 0) then begin
             CommitTransaction(FClient, VTransaction);
-            StartTransaction(FClient, VTransaction, TSQLMark, FHelper.IsReadOnly);
+            StartTransaction(FClient, VTransaction, TOrmMark, FHelper.IsReadOnly);
           end;
           VOld := AOldMarkList[I];
           VNew := ANewMarkList[I];
@@ -702,7 +707,7 @@ begin
           end;
           if VDoNotify and (I mod 1000 = 0) then begin
             CommitTransaction(FClient, VTransaction);
-            StartTransaction(FClient, VTransaction, TSQLMark, FHelper.IsReadOnly);
+            StartTransaction(FClient, VTransaction, TOrmMark, FHelper.IsReadOnly);
           end;
         end;
         CommitTransaction(FClient, VTransaction);
@@ -749,7 +754,7 @@ var
   VCount: Integer;
   VMarkId: IMarkId;
   VTemp: IInterfaceListSimple;
-  VArray: TSQLMarkRecDynArray;
+  VArray: TOrmMarkRecDynArray;
 begin
   VTemp := TInterfaceListSimple.Create;
   LockWrite;
@@ -804,7 +809,7 @@ var
   I: Integer;
   VCount: Integer;
   VItem: IVectorDataItem;
-  VArray: TSQLMarkRecDynArray;
+  VArray: TOrmMarkRecDynArray;
 begin
   LockWrite;
   try
@@ -887,7 +892,7 @@ var
   I: Integer;
   VCount: Integer;
   VItem: IVectorDataItem;
-  VMarkRecArray: TSQLMarkRecDynArray;
+  VMarkRecArray: TOrmMarkRecDynArray;
 begin
   SetLength(VMarkRecArray, 0);
   VCount := FHelper.GetMarkRecArrayByRect(
@@ -1102,7 +1107,7 @@ begin
   if (AMarkList <> nil) and (AMarkList.Count > 0) then begin
     LockWrite;
     try
-      StartTransaction(FClient, VTransaction, TSQLMarkView, FHelper.IsReadOnly);
+      StartTransaction(FClient, VTransaction, TOrmMarkView, FHelper.IsReadOnly);
       try
         VIsChanged := False;
         for I := 0 to AMarkList.Count - 1 do begin
@@ -1178,7 +1183,7 @@ var
   I: Integer;
   VCount: Integer;
   VItem: IVectorDataItem;
-  VMarkRecArray: TSQLMarkRecDynArray;
+  VMarkRecArray: TOrmMarkRecDynArray;
   VResultList: IVectorItemSubsetBuilder;
 begin
   VResultList := FVectorItemSubsetBuilderFactory.Build;

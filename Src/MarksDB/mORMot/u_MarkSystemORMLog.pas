@@ -25,32 +25,27 @@ unit u_MarkSystemORMLog;
 
 interface
 
-procedure InitSQLLog; {$IFNDEF SQL_LOG_ENABLE} inline; {$ENDIF}
+procedure InitOrmLog; {$IFNDEF ORM_LOG_ENABLE} inline; {$ENDIF}
 
-{$IFDEF SQL_LOG_ENABLE}
-function SQLLogEnter(const AInstance: TObject; const AMethod: string = ''): IInterface;
-
-procedure SQLLogDebug(const AMsgFmt: string; const AMsgArgs: array of const;
-  const AInstance: TObject = nil);
-
-procedure SQLLogCache(const AMsgFmt: string; const AMsgArgs: array of const;
-  const AInstance: TObject = nil);
-
-procedure SQLLogInfo(const AMsgFmt: string; const AMsgArgs: array of const;
-  const AInstance: TObject = nil);
+{$IFDEF ORM_LOG_ENABLE}
+function OrmLogEnter(const AInstance: TObject; const AMethod: UTF8String = ''): IInterface;
+procedure OrmLogDebug(const AMsgFmt: UTF8String; const AMsgArgs: array of const; const AInstance: TObject = nil);
+procedure OrmLogCache(const AMsgFmt: UTF8String; const AMsgArgs: array of const; const AInstance: TObject = nil);
+procedure OrmLogInfo(const AMsgFmt: UTF8String; const AMsgArgs: array of const; const AInstance: TObject = nil);
 {$ENDIF}
 
 implementation
 
-{$IFDEF SQL_LOG_ENABLE}
+{$IFDEF ORM_LOG_ENABLE}
 uses
   SysUtils,
-  mORMot,
-  SynLog,
-  SynCommons,
+  mormot.core.base,
+  mormot.core.unicode,
+  mormot.core.log,
+  mormot.core.rtti,
   u_DebugLogger;
 
-procedure InitSQLLog;
+procedure InitOrmLog;
 var
   VLogPath: string;
 begin
@@ -60,8 +55,8 @@ begin
     RaiseLastOSError;
   end;
 
-  with TSQLLog.Family do begin
-    {$IFDEF SQL_LOG_VERBOSE}
+  with TSynLog.Family do begin
+    {$IFDEF ORM_LOG_VERBOSE}
     Level := LOG_VERBOSE;
     {$ELSE}
     Level := [sllSQL, sllInfo] + LOG_STACKTRACE;
@@ -74,34 +69,31 @@ begin
   end;
 end;
 
-function SQLLogEnter(const AInstance: TObject; const AMethod: string): IInterface;
+function OrmLogEnter(const AInstance: TObject; const AMethod: UTF8String): IInterface;
 begin
   if AMethod <> '' then begin
-    Result := TSQLLog.Enter(AInstance, PUTF8Char(StringToUtf8(AMethod)));
+    Result := TSynLog.Enter(AInstance, PUtf8Char(AMethod));
   end else begin
-    Result := TSQLLog.Enter(AInstance);
+    Result := TSynLog.Enter(AInstance);
   end;
 end;
 
-procedure SQLLogDebug(const AMsgFmt: string; const AMsgArgs: array of const;
-  const AInstance: TObject);
+procedure OrmLogDebug(const AMsgFmt: UTF8String; const AMsgArgs: array of const; const AInstance: TObject);
 begin
-  TSQLLog.Add.Log(sllDebug, StringToUtf8(AMsgFmt), AMsgArgs, AInstance);
+  TSynLog.Add.Log(sllDebug, PUtf8Char(AMsgFmt), AMsgArgs, AInstance);
 end;
 
-procedure SQLLogCache(const AMsgFmt: string; const AMsgArgs: array of const;
-  const AInstance: TObject);
+procedure OrmLogCache(const AMsgFmt: UTF8String; const AMsgArgs: array of const; const AInstance: TObject);
 begin
-  TSQLLog.Add.Log(sllCache, StringToUtf8(AMsgFmt), AMsgArgs, AInstance);
+  TSynLog.Add.Log(sllCache, PUtf8Char(AMsgFmt), AMsgArgs, AInstance);
 end;
 
-procedure SQLLogInfo(const AMsgFmt: string; const AMsgArgs: array of const;
-  const AInstance: TObject);
+procedure OrmLogInfo(const AMsgFmt: UTF8String; const AMsgArgs: array of const; const AInstance: TObject);
 begin
-  TSQLLog.Add.Log(sllInfo, StringToUtf8(AMsgFmt), AMsgArgs, AInstance);
+  TSynLog.Add.Log(sllInfo, PUtf8Char(AMsgFmt), AMsgArgs, AInstance);
 end;
 {$ELSE}
-procedure InitSQLLog;
+procedure InitOrmLog;
 begin
   //
 end;

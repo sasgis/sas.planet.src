@@ -25,7 +25,7 @@ interface
 
 uses
   SysUtils,
-  SynCommons,
+  mormot.core.base,
   t_GeoTypes,
   i_BinaryData,
   i_VectorDataLoader,

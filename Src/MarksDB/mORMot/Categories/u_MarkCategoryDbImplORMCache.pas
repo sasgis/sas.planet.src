@@ -27,70 +27,75 @@ interface
 
 uses
   Windows,
-  SynCommons,
+  mormot.core.base,
+  mormot.core.data,
+  mormot.core.rtti,
+  {$IFDEF ORM_LOG_ENABLE}
+  mormot.core.unicode,
+  {$ENDIF}
   t_MarkSystemORM,
   u_MarkSystemORMCacheBase;
 
 type
   (****************************************************************************)
-  (*                         TSQLCategoryCache                                *)
+  (*                         TOrmCategoryCache                                *)
   (****************************************************************************)
 
-  TSQLCategoryRow = packed record
+  TOrmCategoryRow = packed record
     CategoryId: TID;
     Name: string;
   end;
-  PSQLCategoryRow = ^TSQLCategoryRow;
-  TSQLCategoryRowDynArray = array of TSQLCategoryRow;
+  POrmCategoryRow = ^TOrmCategoryRow;
+  TOrmCategoryRowDynArray = array of TOrmCategoryRow;
 
-  TSQLCategoryCache = class(TSQLCacheBase)
+  TOrmCategoryCache = class(TOrmCacheBase)
   private
-    FRows: TSQLCategoryRowDynArray;
+    FRows: TOrmCategoryRowDynArray;
   public
-    function Find(const AID: TID; out AItem: PSQLCategoryRow): Boolean; overload;
-    function Find(const AName: string; out AItem: PSQLCategoryRow): Boolean; overload;
-    procedure AddOrUpdate(const ARec: TSQLCategoryRec);
-    procedure AddPrepared(const AArr: TSQLCategoryRowDynArray);
+    function Find(const AID: TID; out AItem: POrmCategoryRow): Boolean; overload;
+    function Find(const AName: string; out AItem: POrmCategoryRow): Boolean; overload;
+    procedure AddOrUpdate(const ARec: TOrmCategoryRec);
+    procedure AddPrepared(const AArr: TOrmCategoryRowDynArray);
   public
-    property Rows: TSQLCategoryRowDynArray read FRows;
+    property Rows: TOrmCategoryRowDynArray read FRows;
   public
     constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
-  (*                         TSQLCategoryViewCache                            *)
+  (*                         TOrmCategoryViewCache                            *)
   (****************************************************************************)
 
-  TSQLCategoryViewRow = packed record
+  TOrmCategoryViewRow = packed record
     CategoryId: TID;
     ViewId: TID;
     Visible: Boolean;
     MinZoom: Byte;
     MaxZoom: Byte;
   end;
-  PSQLCategoryViewRow = ^TSQLCategoryViewRow;
-  TSQLCategoryViewRowDynArray = array of TSQLCategoryViewRow;
+  POrmCategoryViewRow = ^TOrmCategoryViewRow;
+  TOrmCategoryViewRowDynArray = array of TOrmCategoryViewRow;
 
-  TSQLCategoryViewCache = class(TSQLCacheBase)
+  TOrmCategoryViewCache = class(TOrmCacheBase)
   private
-    FRows: TSQLCategoryViewRowDynArray;
+    FRows: TOrmCategoryViewRowDynArray;
   public
-    function Find(const AID: TID; out AItem: PSQLCategoryViewRow): Boolean;
-    procedure AddOrUpdate(const ARec: TSQLCategoryRec);
-    procedure AddPrepared(const AArr: TSQLCategoryViewRowDynArray);
+    function Find(const AID: TID; out AItem: POrmCategoryViewRow): Boolean;
+    procedure AddOrUpdate(const ARec: TOrmCategoryRec);
+    procedure AddPrepared(const AArr: TOrmCategoryViewRowDynArray);
   public
-    property Rows: TSQLCategoryViewRowDynArray read FRows;
+    property Rows: TOrmCategoryViewRowDynArray read FRows;
   public
     constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
-  (*                         TSQLCategoryDbCache                              *)
+  (*                         TOrmCategoryDbCache                              *)
   (****************************************************************************)
 
-  TSQLCategoryDbCache = record
-    FCategoryCache: TSQLCategoryCache;
-    FCategoryViewCache: TSQLCategoryViewCache;
+  TOrmCategoryDbCache = record
+    FCategoryCache: TOrmCategoryCache;
+    FCategoryViewCache: TOrmCategoryViewCache;
     procedure Init;
     procedure Done;
   end;
@@ -102,35 +107,35 @@ uses
   u_MarkSystemORMLog,
   u_MarkSystemORMModel;
 
-{ TSQLCategoryDbCache }
+{ TOrmCategoryDbCache }
 
-procedure TSQLCategoryDbCache.Init;
+procedure TOrmCategoryDbCache.Init;
 begin
-  FCategoryCache := TSQLCategoryCache.Create(CUnlimCacheSize);
-  FCategoryViewCache := TSQLCategoryViewCache.Create(CUnlimCacheSize);
+  FCategoryCache := TOrmCategoryCache.Create(CUnlimCacheSize);
+  FCategoryViewCache := TOrmCategoryViewCache.Create(CUnlimCacheSize);
 end;
 
-procedure TSQLCategoryDbCache.Done;
+procedure TOrmCategoryDbCache.Done;
 begin
   FreeAndNil(FCategoryViewCache);
   FreeAndNil(FCategoryCache);
 end;
 
-{ TSQLCategoryCache }
+{ TOrmCategoryCache }
 
-constructor TSQLCategoryCache.Create(const AMaxCacheSize: Int64);
+constructor TOrmCategoryCache.Create(const AMaxCacheSize: Int64);
 begin
-  inherited Create(TypeInfo(TSQLCategoryRowDynArray), FRows, djInt64, AMaxCacheSize);
+  inherited Create(TypeInfo(TOrmCategoryRowDynArray), FRows, ptInt64, AMaxCacheSize);
 end;
 
-procedure TSQLCategoryCache.AddOrUpdate(const ARec: TSQLCategoryRec);
+procedure TOrmCategoryCache.AddOrUpdate(const ARec: TOrmCategoryRec);
 var
   I: Integer;
   VSize: Integer;
-  VRow: TSQLCategoryRow;
+  VRow: TOrmCategoryRow;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddOrUpdate');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddOrUpdate');
   {$ENDIF}
   CheckCacheSize;
   VSize := Length(ARec.FName) * SizeOf(Char);
@@ -139,8 +144,8 @@ begin
     VSize := VSize - Length(FRows[I].Name) * SizeOf(Char);
     FRows[I].Name := ARec.FName;
     Inc(FDataSize, VSize);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Update ID=%, Name=%, Count=%', [ARec.FCategoryId, StringToUTF8(ARec.FName), FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Update ID=%, Name=%, Count=%', [ARec.FCategoryId, StringToUtf8(ARec.FName), FCount], Self);
     {$ENDIF}
   end else if I >= 0 then begin
     // add
@@ -148,20 +153,20 @@ begin
     VRow.Name := ARec.FName;
     FRow.FastAddSorted(I, VRow);
     Inc(FDataSize, VSize);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add ID=%, Name=%, NewCount=%', [ARec.FCategoryId, StringToUTF8(ARec.FName), FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Add ID=%, Name=%, NewCount=%', [ARec.FCategoryId, StringToUtf8(ARec.FName), FCount], Self);
     {$ENDIF}
   end else begin
     Assert(False);
   end;
 end;
 
-procedure TSQLCategoryCache.AddPrepared(const AArr: TSQLCategoryRowDynArray);
+procedure TOrmCategoryCache.AddPrepared(const AArr: TOrmCategoryRowDynArray);
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddPrepared');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   Reset;
   I := Length(AArr);
@@ -172,17 +177,17 @@ begin
     FRow.Sort;
   end;
   FIsPrepared := True;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('AddPrepared ArrCount=%, NewCount=%', [Length(AArr), FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('AddPrepared ArrCount=%, NewCount=%', [Length(AArr), FCount], Self);
   {$ENDIF}
 end;
 
-function TSQLCategoryCache.Find(const AID: TID; out AItem: PSQLCategoryRow): Boolean;
+function TOrmCategoryCache.Find(const AID: TID; out AItem: POrmCategoryRow): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
@@ -190,17 +195,17 @@ begin
     AItem := @FRows[I];
     Result := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
   {$ENDIF}
 end;
 
-function TSQLCategoryCache.Find(const AName: string; out AItem: PSQLCategoryRow): Boolean;
+function TOrmCategoryCache.Find(const AName: string; out AItem: POrmCategoryRow): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   for I := 0 to FCount - 1 do begin
@@ -210,25 +215,25 @@ begin
       Break;
     end;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find Name=%, Result=%, Count=%', [StringToUTF8(AName), Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find Name=%, Result=%, Count=%', [StringToUtf8(AName), Result, FCount], Self);
   {$ENDIF}
 end;
 
-{ TSQLCategoryViewCache }
+{ TOrmCategoryViewCache }
 
-constructor TSQLCategoryViewCache.Create(const AMaxCacheSize: Int64);
+constructor TOrmCategoryViewCache.Create(const AMaxCacheSize: Int64);
 begin
-  inherited Create(TypeInfo(TSQLCategoryViewRowDynArray), FRows, djInt64, AMaxCacheSize);
+  inherited Create(TypeInfo(TOrmCategoryViewRowDynArray), FRows, ptInt64, AMaxCacheSize);
 end;
 
-procedure TSQLCategoryViewCache.AddOrUpdate(const ARec: TSQLCategoryRec);
+procedure TOrmCategoryViewCache.AddOrUpdate(const ARec: TOrmCategoryRec);
 var
   I: Integer;
-  VRow: TSQLCategoryViewRow;
+  VRow: TOrmCategoryViewRow;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddOrUpdate');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddOrUpdate');
   {$ENDIF}
   CheckCacheSize;
   if FRow.FastLocateSorted(ARec.FCategoryId, I) then begin
@@ -237,8 +242,8 @@ begin
     FRows[I].Visible := ARec.FVisible;
     FRows[I].MinZoom := ARec.FMinZoom;
     FRows[I].MaxZoom := ARec.FMaxZoom;
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Update CategoryID=%, ViewID=%, Count=%', [ARec.FCategoryId, ARec.FViewId, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Update CategoryID=%, ViewID=%, Count=%', [ARec.FCategoryId, ARec.FViewId, FCount], Self);
     {$ENDIF}
   end else if I >= 0 then begin
     // add
@@ -248,20 +253,20 @@ begin
     VRow.MinZoom := ARec.FMinZoom;
     VRow.MaxZoom := ARec.FMaxZoom;
     FRow.FastAddSorted(I, VRow);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add CategoryID=%, ViewID=%, NewCount=%', [ARec.FCategoryId, ARec.FViewId, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Add CategoryID=%, ViewID=%, NewCount=%', [ARec.FCategoryId, ARec.FViewId, FCount], Self);
     {$ENDIF}
   end else begin
     Assert(False);
   end;
 end;
 
-function TSQLCategoryViewCache.Find(const AID: TID; out AItem: PSQLCategoryViewRow): Boolean;
+function TOrmCategoryViewCache.Find(const AID: TID; out AItem: POrmCategoryViewRow): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
@@ -269,17 +274,17 @@ begin
     AItem := @FRows[I];
     Result := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
   {$ENDIF}
 end;
 
-procedure TSQLCategoryViewCache.AddPrepared(const AArr: TSQLCategoryViewRowDynArray);
+procedure TOrmCategoryViewCache.AddPrepared(const AArr: TOrmCategoryViewRowDynArray);
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddPrepared');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   Reset;
   I := Length(AArr);
@@ -290,8 +295,8 @@ begin
     FRow.Sort;
   end;
   FIsPrepared := True;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('AddPrepared ArrCount=%, NewCount=%', [Length(AArr), FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('AddPrepared ArrCount=%, NewCount=%', [Length(AArr), FCount], Self);
   {$ENDIF}
 end;
 

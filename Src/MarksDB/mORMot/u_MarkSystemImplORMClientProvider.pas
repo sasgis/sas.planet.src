@@ -27,28 +27,36 @@ interface
 
 uses
   Windows,
-  mORMot,
-  mORMotSQLite3,
-  mORMotMongoDB,
+  mormot.core.base,
+  mormot.core.unicode,
+  mormot.core.os,
+  mormot.orm.base,
+  mormot.orm.core,
+  mormot.orm.rest,
+  mormot.orm.server,
+  mormot.orm.sql,
+  mormot.orm.mongodb,
+  mormot.db.nosql.mongodb,
   {$IFDEF ENABLE_DBMS}
-  mORMotDB,
-  SynDB,
-  {$ENDIF}
+  mormot.db.core,
+  mormot.db.sql,
+  {$ENDIF ENABLE_DBMS}
   {$IFDEF ENABLE_ZEOS_DBMS}
-  SynDBZEOS,
-  {$ENDIF}
+  mormot.db.sql.zeos,
+  {$ENDIF ENABLE_ZEOS_DBMS}
   {$IFDEF ENABLE_ODBC_DBMS}
-  SynDBODBC,
-  {$ENDIF}
-  SynMongoDB,
+  mormot.db.sql.odbc,
+  {$ENDIF ENABLE_ODBC_DBMS}
   {$IFDEF USE_STATIC_SQLITE3}
-  SynSQLite3Static,
+  mormot.db.raw.sqlite3.static,
   {$ELSE}
-  SynSQLite3,
   SyncObjs,
-  {$ENDIF}
-  SynCommons,
-  i_MarkSystemImplConfig,
+  {$ENDIF USE_STATIC_SQLITE3}
+  mormot.db.raw.sqlite3,
+  mormot.rest.core,
+  mormot.rest.client,
+  mormot.rest.server,
+  mormot.rest.sqlite3,
   i_MarkSystemImplConfigORM,
   i_MarkSystemImplORMClientProvider,
   t_MarkSystemORM,
@@ -57,21 +65,27 @@ uses
 
 type
   TMarkSystemImplORMClientProvider = class(TBaseInterfacedObject, IMarkSystemImplORMClientProvider)
+  private type
+    TCreateMissingIndexesProc = procedure(const AServer: TRestServerDB);
   private
     FUserName: string;
     FPassword: string;
     FBasePath: string;
     FImplConfig: IMarkSystemImplConfigORM;
     FUserID: TID;
-    FModel: TSQLModel;
-    FClientDB: TSQLRestClientDB;
+    FModel: TOrmModel;
+    FClientDB: TRestClientDB;
     FClientType: TMarkSystemImplORMClientType;
     {$IFDEF ENABLE_DBMS}
-    FDBMSProps: TSQLDBConnectionProperties;
+    FExternalDB: TSqlDBConnectionProperties;
     {$ENDIF}
     FMongoClient: TMongoClient;
-    FSQLInitializeTableOptions: TSQLInitializeTableOptions;
+    FInitializeTableOptions: TOrmInitializeTableOptions;
   private
+    procedure CreateAllMissing(
+      const AOptions: TOrmInitializeTableOptions;
+      const ACreateMissingIndexes: TCreateMissingIndexesProc
+    );
     procedure Build;
     procedure BuildSQLite3Client;
     {$IFDEF ENABLE_DBMS}
@@ -83,7 +97,7 @@ type
     { IMarkSystemImplORMClientProvider }
     function GetUserID: TID;
     function GetRestClientType: TMarkSystemImplORMClientType;
-    function GetRestClient: TSQLRestClientDB;
+    function GetRestClient: TRestClientDB;
   public
     constructor Create(
       const ABasePath: string;
@@ -113,11 +127,11 @@ var
 
 procedure _SQLite3Init;
 begin
-  if not Assigned(SynSQLite3.sqlite3) then begin
+  if not Assigned(mormot.db.raw.sqlite3.sqlite3) then begin
     GSQLite3Lock.Acquire;
     try
-      if not Assigned(SynSQLite3.sqlite3) then begin
-        SynSQLite3.sqlite3 := TSQLite3LibraryDynamic.Create(GDllName.Sqlite3);
+      if not Assigned(mormot.db.raw.sqlite3.sqlite3) then begin
+        mormot.db.raw.sqlite3.sqlite3 := TSQLite3LibraryDynamic.Create(GDllName.Sqlite3);
       end;
     finally
       GSQLite3Lock.Release;
@@ -135,6 +149,7 @@ constructor TMarkSystemImplORMClientProvider.Create(
 );
 begin
   inherited Create;
+
   FBasePath := ABasePath;
   FClientType := AClientType;
   FImplConfig := AImplConfig;
@@ -142,14 +157,7 @@ begin
   FPassword := FImplConfig.PasswordPlain;
 
   FUserID := 0;
-  FModel := nil;
-  FClientDB := nil;
-  {$IFDEF ENABLE_DBMS}
-  FDBMSProps := nil;
-  {$ENDIF}
-  FMongoClient := nil;
-
-  FSQLInitializeTableOptions := [itoNoIndex4TID];
+  FInitializeTableOptions := [itoNoIndex4TID];
 
   {$IFNDEF USE_STATIC_SQLITE3}
   _SQLite3Init;
@@ -160,21 +168,25 @@ end;
 
 destructor TMarkSystemImplORMClientProvider.Destroy;
 begin
-  if Assigned(FMongoClient) then begin
-    FreeAndNil(FMongoClient);
-  end;
-  {$IFDEF ENABLE_DBMS}
-  if Assigned(FDBMSProps) then begin
-    FreeAndNil(FDBMSProps);
-  end;
-  {$ENDIF}
-  if Assigned(FClientDB) then begin
-    FreeAndNil(FClientDB);
-  end;
-  if Assigned(FModel) then begin
-    FreeAndNil(FModel);
-  end;
+  FreeAndNil(FMongoClient);
+  FreeAndNil(FExternalDB);
+  FreeAndNil(FClientDB);
+  FreeAndNil(FModel);
   inherited Destroy;
+end;
+
+procedure TMarkSystemImplORMClientProvider.CreateAllMissing(
+  const AOptions: TOrmInitializeTableOptions;
+  const ACreateMissingIndexes: TCreateMissingIndexesProc
+);
+var
+  VServer: TRestServerDB;
+  VRestOrmServer: TRestOrmServer;
+begin
+  VServer := FClientDB.Server;
+  VRestOrmServer := VServer.OrmInstance as TRestOrmServer;
+  VRestOrmServer.CreateMissingTables(0, AOptions);
+  ACreateMissingIndexes(VServer);
 end;
 
 procedure TMarkSystemImplORMClientProvider.BuildSQLite3Client;
@@ -214,11 +226,11 @@ begin
     raise EMarkSystemORMError.CreateFmt(_('File does not exists: %s'), [VFileName]);
   end;
   FModel := CreateModelSQLite3;
-  FClientDB := TSQLRestClientDB.Create(FModel, nil, VFileName, TSQLRestServerDB);
+
+  FClientDB := TRestClientDB.Create(FModel, nil, VFileName, TRestServerDB);
   FClientDB.DB.WALMode := True; // for multi-user access
   if not FImplConfig.IsReadOnly then begin
-    FClientDB.Server.CreateMissingTables(0, FSQLInitializeTableOptions);
-    CreateMissingIndexesSQLite3(FClientDB.Server);
+    CreateAllMissing(FInitializeTableOptions, @CreateMissingIndexesSQLite3);
   end;
 end;
 
@@ -228,16 +240,16 @@ const
   cDefPort = 27017;
 var
   I: Integer;
-  VDB: RawUTF8;
-  VHost: RawUTF8;
+  VDB: RawUtf8;
+  VHost: RawUtf8;
   VPort: Integer;
   VText, VTmp: string;
   VUser, VPass: string;
-  VServer: TSQLRestServerDB;
-  VTable: TSQLRecordClass;
-  VTableName: RawUTF8;
+  VServer: TRestOrmServer;
+  VTable: TOrmClass;
+  VTableName: RawUtf8;
   VDatabase: TMongoDatabase;
-  VStorage: TSQLRestStorageMongoDB;
+  VStorage: TRestStorageMongoDB;
 begin
   // 'mongodb://server:port/db'
   // 'mongodb://<user>:<pass>@server:port/db'
@@ -282,17 +294,17 @@ begin
       Delete(VText, 1, I);
       I := Pos(':', VTmp);
       if I > 0 then begin
-        VHost := StringToUTF8(Copy(VTmp, 1, I-1));
+        VHost := StringToUtf8(Copy(VTmp, 1, I-1));
         Delete(VTmp, 1, I);
         VPort := StrToInt(VTmp);
       end else begin
-        VHost := StringToUTF8(VTmp);
+        VHost := StringToUtf8(VTmp);
         VPort := cDefPort;
       end;
     end;
 
     // db
-    VDB := StringToUTF8(VText);
+    VDB := StringToUtf8(VText);
   end else begin
     raise EMarkSystemORMError.Create('MongoDB URI: Prefix is missing');
   end;
@@ -303,39 +315,38 @@ begin
   if VDB = '' then begin
     raise EMarkSystemORMError.Create('MongoDB URI: "DB Name" param is missing');
   end;
-  
+
   FMongoClient := TMongoClient.Create(VHost, VPort);
   if VUser <> '' then begin
-    VDatabase := FMongoClient.OpenAuth(VDB, StringToUTF8(VUser), StringToUTF8(VPass));
+    VDatabase := FMongoClient.OpenAuth(VDB, StringToUtf8(VUser), StringToUtf8(VPass));
   end else begin
     VDatabase := FMongoClient.Open(VDB);
   end;
 
   FModel := CreateModelMongoDB;
-  FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
-  VServer := FClientDB.Server;
+  FClientDB := TRestClientDB.Create(FModel, nil, ':memory:', TRestServerDB);
+  VServer := FClientDB.Server.OrmInstance as TRestOrmServer;
 
   for I := 0 to High(FModel.Tables) do begin
     VTable := FModel.Tables[I];
-    if VTable.InheritsFrom(TSQLMark) then begin
+    if VTable.InheritsFrom(TOrmMark) then begin
       VTableName := 'Mark';
     end else begin
       VTableName := '';
     end;
-    if StaticMongoDBRegister(VTable, VServer, VDatabase, VTableName) = nil then begin
-      raise EMarkSystemORMError.Create('StaticMongoDBRegister failed');
+    if OrmMapMongoDB(VTable, VServer, VDatabase, VTableName) = nil then begin
+      raise EMarkSystemORMError.Create('OrmMapMongoDB failed');
     end;
   end;
-  
-  VServer.InitializeTables(FSQLInitializeTableOptions); // initialize void tables
+
+  VServer.InitializeTables(FInitializeTableOptions); // initialize void tables
 
   if not FImplConfig.IsReadOnly then begin
-    VServer.CreateMissingTables(0, FSQLInitializeTableOptions);
-    CreateMissingIndexesMongoDB(VServer);
+    CreateAllMissing(FInitializeTableOptions, @CreateMissingIndexesMongoDB);
   end;
 
   for I := 0 to High(FModel.Tables) do begin
-    VStorage := VServer.StaticDataServer[FModel.Tables[I]] as TSQLRestStorageMongoDB;
+    VStorage := VServer.GetStaticStorage(FModel.Tables[I]) as TRestStorageMongoDB;
     if Assigned(VStorage) then begin
       VStorage.EngineAddCompute := eacLastIDEachTime;
     end;
@@ -347,15 +358,15 @@ procedure TMarkSystemImplORMClientProvider.BuildDBMSClient;
 var
   I, J: Integer;
   VText, VUser: string;
-  VConnectionStr: RawUTF8;
-  VTable: TSQLRecordClass;
-  VTableName: RawUTF8;
-  VServer: TSQLRestServerDB;
-  VStorage: TSQLRestStorageExternal;
+  VConnectionStr: RawUtf8;
+  VTable: TOrmClass;
+  VTableName: RawUtf8;
+  VServer: TRestOrmServer;
+  VStorage: TRestStorageExternal;
 begin
   FModel := CreateModelDBMS;
   VText := FImplConfig.FileName;
-  VConnectionStr := StringToUTF8(VText);
+  VConnectionStr := StringToUtf8(VText);
   case FClientType of
     ctODBC: begin
       {$IFDEF ENABLE_ODBC_DBMS}
@@ -383,13 +394,13 @@ begin
         if (FPassword <> '') and not (Pos('pwd=', AnsiLowerCase(VText)) > 0) then begin
           VText := VText + ';Pwd=' + FPassword;
         end;
-        VConnectionStr := StringToUTF8(VText);
-        FDBMSProps := TODBCConnectionProperties.Create('', VConnectionStr, '', '');
+        VConnectionStr := StringToUtf8(VText);
+        FExternalDB := TSqlDbOdbcConnectionProperties.Create('', VConnectionStr, '', '');
       end else begin
-        FDBMSProps := TODBCConnectionProperties.Create(VConnectionStr, '', '', '');
+        FExternalDB := TSqlDbOdbcConnectionProperties.Create(VConnectionStr, '', '', '');
       end;
       if FImplConfig.ForcedSchemaName <> '' then begin
-        FDBMSProps.ForcedSchemaName := StringToUTF8(FImplConfig.ForcedSchemaName);
+        FExternalDB.ForcedSchemaName := StringToUtf8(FImplConfig.ForcedSchemaName);
       end;
       {$ELSE}
       raise EMarkSystemORMError.Create('MarkSystemORM: ODBC driver is disabled');
@@ -400,7 +411,7 @@ begin
       {$IFDEF ENABLE_ZEOS_DBMS}
       // [zdbc:]PROTOCOL://HOST:PORT[/DATABASE][?paramname=value]
       // zdbc:postgresql://127.0.0.1:5439/sasgis_marks?username=postgres;password=1
-      FDBMSProps := TSQLDBZEOSConnectionProperties.Create(VConnectionStr, '', '', '');
+      FExternalDB := TSqlDbZeosConnectionProperties.Create(VConnectionStr, '', '', '');
       {$ELSE}
       raise EMarkSystemORMError.Create('MarkSystemORM: ZDBC driver is disabled');
       {$ENDIF}
@@ -409,45 +420,44 @@ begin
     Assert(False);
   end;
 
-  FDBMSProps.UseCache := False;
+  FExternalDB.UseCache := False;
 
   for I := 0 to High(FModel.Tables) do begin
     VTable := FModel.Tables[I];
-    if VTable.InheritsFrom(TSQLMark) then begin
+    if VTable.InheritsFrom(TOrmMark) then begin
       VTableName := 'Mark'
     end else begin
       VTableName := '';
     end;
 
     // http://www.sasgis.org/mantis/view.php?id=2854
-    if FDBMSProps.DBMS = dMSSQL then begin
+    if FExternalDB.Dbms = dMSSQL then begin
       if VTable.SQLTableName = 'User' then begin
         VTableName := 'UserInfo';
       end;
     end;
 
-    if not VirtualTableExternalRegister(FModel, VTable, FDBMSProps, VTableName) then begin
-      raise EMarkSystemORMError.Create('VirtualTableExternalRegister failed');
+    if OrmMapExternal(FModel, VTable, FExternalDB, VTableName) = nil then begin
+      raise EMarkSystemORMError.Create('OrmMapExternal failed');
     end;
   end;
 
-  FClientDB := TSQLRestClientDB.Create(FModel, nil, ':memory:', TSQLRestServerDB);
-  VServer := FClientDB.Server;
+  FClientDB := TRestClientDB.Create(FModel, nil, ':memory:', TRestServerDB);
 
-  if FDBMSProps.DBMS = dMSSQL then begin
+  if FExternalDB.Dbms = dMSSQL then begin
     // Some database client libraries may not allow transactions to be shared
     // among several threads - for instance MS SQL
     // http://synopse.info/files/html/Synopse%20mORMot%20Framework%20SAD%201.18.html#TITLE_196
-    VServer.AcquireExecutionMode[execORMWrite] := amBackgroundThread;
-    VServer.AcquireExecutionMode[execORMGet] := amBackgroundThread;
+    FClientDB.Server.AcquireExecutionMode[execORMWrite] := amBackgroundThread;
+    FClientDB.Server.AcquireExecutionMode[execORMGet] := amBackgroundThread;
   end;
 
-  VServer.CreateMissingTables(0, FSQLInitializeTableOptions);
-  CreateMissingIndexesDBMS(VServer);
+  CreateAllMissing(FInitializeTableOptions, @CreateMissingIndexesDBMS);
 
+  VServer := FClientDB.Server.OrmInstance as TRestOrmServer;
   for I := 0 to High(FModel.Tables) do begin
     VTable := FModel.Tables[I];
-    VStorage := TSQLRestStorageExternal.Instance(VTable, VServer);
+    VStorage := VServer.GetStaticStorage(VTable) as TRestStorageExternal;
     if Assigned(VStorage) then begin
       VStorage.EngineAddUseSelectMaxID := True;
     end;
@@ -457,34 +467,36 @@ end;
 
 procedure TMarkSystemImplORMClientProvider.InitUserID;
 var
-  VSQLUser: TSQLUser;
-  VUserName: RawUTF8;
+  VRestOrm: TRestOrm;
+  VOrmUser: TOrmUser;
+  VUserName: RawUtf8;
   VTransaction: TTransactionRec;
 begin
   if FUserName = '' then begin
     FUserName := cDefUserName;
   end;
-  VUserName := StringToUTF8(FUserName);
-  VSQLUser := TSQLUser.Create(FClientDB, 'uName=?', [VUserName]);
+  VUserName := StringToUtf8(FUserName);
+  VRestOrm := FClientDB.OrmInstance;
+  VOrmUser := TOrmUser.Create(VRestOrm, 'uName=?', [VUserName]);
   try
-    if VSQLUser.ID = 0 then begin
+    if VOrmUser.ID = 0 then begin
       if FImplConfig.IsReadOnly then begin
         raise EMarkSystemORMError.Create('MarkSystemORM: Can''t init User in read-only mode!');
       end else begin
-        VSQLUser.FName := VUserName;
-        StartTransaction(FClientDB, VTransaction, TSQLUser, FImplConfig.IsReadOnly);
+        VOrmUser.FName := VUserName;
+        StartTransaction(VRestOrm, VTransaction, TOrmUser, FImplConfig.IsReadOnly);
         try
-          CheckID( FClientDB.Add(VSQLUser, True) );
-          CommitTransaction(FClientDB, VTransaction);
+          CheckID( VRestOrm.Add(VOrmUser, True) );
+          CommitTransaction(VRestOrm, VTransaction);
         except
-          RollBackTransaction(FClientDB, VTransaction);
+          RollBackTransaction(VRestOrm, VTransaction);
           raise;
         end;
       end;
     end;
-    FUserID := VSQLUser.ID;
+    FUserID := VOrmUser.ID;
   finally
-    VSQLUser.Free;
+    VOrmUser.Free;
   end;
 end;
 
@@ -507,7 +519,7 @@ begin
   Result := FUserID;
 end;
 
-function TMarkSystemImplORMClientProvider.GetRestClient: TSQLRestClientDB;
+function TMarkSystemImplORMClientProvider.GetRestClient: TRestClientDB;
 begin
   Result := FClientDB;
 end;

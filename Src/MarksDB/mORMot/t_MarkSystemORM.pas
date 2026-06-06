@@ -25,17 +25,17 @@ interface
 
 uses
   SysUtils,
-  mORMot,
+  mormot.core.base,
   i_GeometryLonLat,
   u_MarkSystemORMModel;
 
 type
   EMarkSystemORMError = class(Exception);
 
-  TID = mORMot.TID;
-  TIDDynArray = mORMot.TIDDynArray;
+  TID = mormot.core.base.TID;
+  TIDDynArray = mormot.core.base.TIDDynArray;
 
-  TSQLCategoryRec = record
+  TOrmCategoryRec = record
     FCategoryId: TID;
     FName: string;
     FViewId: TID;
@@ -43,10 +43,10 @@ type
     FMinZoom: Byte;
     FMaxZoom: Byte;
   end;
-  PSQLCategoryRec = ^TSQLCategoryRec;
-  TSQLCategoryRecDynArray = array of TSQLCategoryRec;
+  POrmCategoryRec = ^TOrmCategoryRec;
+  TOrmCategoryRecDynArray = array of TOrmCategoryRec;
 
-  TSQLMarkRec = record
+  TOrmMarkRec = record
     FMarkId: TID;
     FCategoryId: TID;
     FPicId: TID;
@@ -62,12 +62,12 @@ type
     FVisible: Boolean;
     FGeoLonSize: Cardinal;
     FGeoLatSize: Cardinal;
-    FGeoType: TSQLGeoType;
+    FGeoType: TOrmGeoType;
     FGeoCount: Integer;
     FGeometry: IGeometryLonLat;
   end;
-  PSQLMarkRec = ^TSQLMarkRec;
-  TSQLMarkRecDynArray = array of TSQLMarkRec;
+  POrmMarkRec = ^TOrmMarkRec;
+  TOrmMarkRecDynArray = array of TOrmMarkRec;
 
   TTransactionRec = record
     FSessionID: Cardinal;
@@ -78,7 +78,7 @@ type
 const
   cEmptyID = 0;
 
-  cEmptySQLCategoryRec: TSQLCategoryRec = (
+  cEmptyOrmCategoryRec: TOrmCategoryRec = (
     FCategoryId : 0;
     FName       : '';
     FViewId     : 0;
@@ -87,7 +87,7 @@ const
     FMaxZoom    : 23;
   );
 
-  cEmptySQLMarkRec: TSQLMarkRec = (
+  cEmptyOrmMarkRec: TOrmMarkRec = (
     FMarkId     : 0;
     FCategoryId : 0;
     FPicId      : 0;

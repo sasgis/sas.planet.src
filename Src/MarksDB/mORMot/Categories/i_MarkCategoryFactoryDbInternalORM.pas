@@ -39,7 +39,7 @@ type
     ): IMarkCategory; overload;
 
     function CreateCategory(
-      const ACategoryRec: TSQLCategoryRec
+      const ACategoryRec: TOrmCategoryRec
     ): IMarkCategory; overload;
   end;
 

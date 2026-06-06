@@ -47,7 +47,8 @@ implementation
 uses
   Types,
   StrUtils,
-  SynZip,
+  mormot.lib.z,
+  mormot.core.zip,
   libbrotli,
   libzstd,
   u_GlobalDllName;
@@ -160,6 +161,8 @@ var
   VGZRead: TGZRead;
   VStream: TMemoryStream;
 begin
+  Assert((AContent <> nil) and (AContent.Size > 0));
+
   VStream := TMemoryStream.Create;
   try
     if VGZRead.Init(AContent.Memory, AContent.Size) and VGZRead.ToStream(VStream) then begin
@@ -179,17 +182,19 @@ class procedure TContentDecoder.DoDecodeDeflate(var AContent: TMemoryStream);
 var
   VStream: TMemoryStream;
 begin
+  Assert((AContent <> nil) and (AContent.Size > 0));
+
   VStream := TMemoryStream.Create;
   try
     try
       UnCompressStream(AContent.Memory, AContent.Size, VStream, nil, True {as zlib format});
     except
-      on E1: ESynZipException do begin
+      on E1: EZLib do begin
         VStream.Clear;
         try
           UnCompressStream(AContent.Memory, AContent.Size, VStream, nil, False {as raw deflate});
         except
-          on E2: ESynZipException do begin
+          on E2: EZLib do begin
             raise EContentDecoderError.CreateFmt(
               'Deflate decompression failed (zlib and raw formats): %s | %s', [E1.Message, E2.Message]
             );
@@ -210,9 +215,12 @@ class procedure TContentDecoder.DoDecodeBrotli(var AContent: TMemoryStream);
 var
   VStream: TMemoryStream;
 begin
+  Assert((AContent <> nil) and (AContent.Size > 0));
+
   if not LoadLibBrotliDec(GDllName.BrotliDec, True) then begin
     raise EContentDecoderError.Create('Cannot load Brotli decoder library!');
   end;
+
   VStream := TMemoryStream.Create;
   try
     DecompressBrotli(AContent.Memory, AContent.Size, VStream);
@@ -229,9 +237,12 @@ class procedure TContentDecoder.DoDecodeZstd(var AContent: TMemoryStream);
 var
   VStream: TMemoryStream;
 begin
+  Assert((AContent <> nil) and (AContent.Size > 0));
+
   if not LoadLibZstd(GDllName.Zstd, True) then begin
     raise EContentDecoderError.Create('Cannot load zstd library!');
   end;
+
   VStream := TMemoryStream.Create;
   try
     DecompressZstd(AContent.Memory, AContent.Size, VStream);

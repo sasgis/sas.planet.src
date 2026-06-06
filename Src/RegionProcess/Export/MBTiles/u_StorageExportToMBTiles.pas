@@ -156,8 +156,9 @@ implementation
 
 uses
   StrUtils,
-  SynCrypto,
-  SynCommons,
+  mormot.core.base,
+  mormot.core.text,
+  mormot.crypt.core,
   u_GeoFunc,
   u_GeoToStrFunc;
 
@@ -716,7 +717,7 @@ procedure TSQLiteStorageMBTilesTileMill.Add(
 );
 var
   VTile: TPoint;
-  VTileID: RawUTF8;
+  VTileID: RawByteString;
   VBindResult: Boolean;
 begin
   Assert(AData <> nil);

@@ -24,8 +24,15 @@ unit u_MarkCategoryDbImplORMHelper;
 interface
 
 uses
-  Windows,
-  mORMot,
+  mormot.core.base,
+  mormot.core.unicode,
+  mormot.core.json,
+  mormot.core.os,
+  mormot.orm.base,
+  mormot.orm.core,
+  mormot.orm.rest,
+  mormot.rest.client,
+  mormot.rest.sqlite3,
   t_MarkSystemORM,
   i_MarkSystemImplORMClientProvider,
   u_MarkSystemORMModel,
@@ -36,8 +43,9 @@ type
   TMarkCategoryDbImplORMHelper = class
   private
     FUserID: TID;
-    FClient: TSQLRestClient;
-    FCache: TSQLCategoryDbCache;
+    FRestClient: TRestClientDB;
+    FClient: TRestOrm;
+    FCache: TOrmCategoryDbCache;
     FIsReadOnly: Boolean;
     FClientProvider: IMarkSystemImplORMClientProvider;
   private
@@ -49,14 +57,14 @@ type
       const ACategoryID: TID
     ): Boolean;
     function InsertCategorySQL(
-      var ACategoryRec: TSQLCategoryRec
+      var ACategoryRec: TOrmCategoryRec
     ): Boolean;
     function UpdateCategorySQL(
-      const ACategoryRecOld: TSQLCategoryRec;
-      var ACategoryRecNew: TSQLCategoryRec
+      const ACategoryRecOld: TOrmCategoryRec;
+      var ACategoryRecNew: TOrmCategoryRec
     ): Boolean;
     function ReadCategorySQL(
-      out ACategoryRec: TSQLCategoryRec;
+      out ACategoryRec: TOrmCategoryRec;
       const ID: TID;
       const AName: string
     ): Boolean;
@@ -67,7 +75,7 @@ type
       const AVisible: Boolean
     );
     function GetCategoriesRecArray(
-      out ACategoryRecArray: TSQLCategoryRecDynArray
+      out ACategoryRecArray: TOrmCategoryRecDynArray
     ): Integer;
   public
     constructor Create(
@@ -83,8 +91,7 @@ implementation
 
 uses
   SysUtils,
-  StrUtils,
-  SynCommons;
+  StrUtils;
 
 { TMarkCategoryDbImplORMHelper }
 
@@ -97,15 +104,14 @@ begin
   FIsReadOnly := AIsReadOnly;
   FClientProvider := AClientProvider;
   FUserID := FClientProvider.UserID;
-  FClient := FClientProvider.RestClient;
+  FRestClient := FClientProvider.RestClient;
+  FClient := FRestClient.OrmInstance;
   FCache.Init;
 end;
 
 destructor TMarkCategoryDbImplORMHelper.Destroy;
 begin
   FCache.Done;
-  FClient := nil;
-  FClientProvider := nil;
   inherited Destroy;
 end;
 
@@ -122,10 +128,10 @@ begin
   CheckID(ACategoryID);
 
   // first delete view for all users (if exists)
-  FClient.Delete(TSQLCategoryView, FormatUTF8('cvCategory=?', [], [ACategoryID]));
+  FClient.Delete(TOrmCategoryView, FormatSql('cvCategory=?', [], [ACategoryID]));
 
   // then delete category
-  CheckDeleteResult( FClient.Delete(TSQLCategory, ACategoryID) );
+  CheckDeleteResult( FClient.Delete(TOrmCategory, ACategoryID) );
 
   // delete from cache
   FCache.FCategoryCache.Delete(ACategoryID);
@@ -135,11 +141,11 @@ begin
 end;
 
 function TMarkCategoryDbImplORMHelper.InsertCategorySQL(
-  var ACategoryRec: TSQLCategoryRec
+  var ACategoryRec: TOrmCategoryRec
 ): Boolean;
 var
-  VSQLCategory: TSQLCategory;
-  VSQLCategoryView: TSQLCategoryView;
+  VOrmCategory: TOrmCategory;
+  VOrmCategoryView: TOrmCategoryView;
 begin
   Result := False;
 
@@ -148,32 +154,32 @@ begin
   end;
 
   // insert category
-  VSQLCategory := TSQLCategory.Create;
+  VOrmCategory := TOrmCategory.Create;
   try
-    VSQLCategory.FName := StringToUTF8(ACategoryRec.FName);
+    VOrmCategory.FName := StringToUtf8(ACategoryRec.FName);
     // add to db
-    CheckID( FClient.Add(VSQLCategory, True) );
-    ACategoryRec.FCategoryId := VSQLCategory.ID;
+    CheckID( FClient.Add(VOrmCategory, True) );
+    ACategoryRec.FCategoryId := VOrmCategory.ID;
     // add to cache
     FCache.FCategoryCache.AddOrUpdate(ACategoryRec);
   finally
-    VSQLCategory.Free;
+    VOrmCategory.Free;
   end;
 
   // insert view
   if not ACategoryRec.FVisible then begin
-    VSQLCategoryView := TSQLCategoryView.Create;
+    VOrmCategoryView := TOrmCategoryView.Create;
     try
-      VSQLCategoryView.FUser := FUserID;
-      VSQLCategoryView.FCategory := ACategoryRec.FCategoryId;
-      VSQLCategoryView.FVisible := ACategoryRec.FVisible;
-      VSQLCategoryView.FMinZoom := ACategoryRec.FMinZoom;
-      VSQLCategoryView.FMaxZoom := ACategoryRec.FMaxZoom;
+      VOrmCategoryView.FUser := FUserID;
+      VOrmCategoryView.FCategory := ACategoryRec.FCategoryId;
+      VOrmCategoryView.FVisible := ACategoryRec.FVisible;
+      VOrmCategoryView.FMinZoom := ACategoryRec.FMinZoom;
+      VOrmCategoryView.FMaxZoom := ACategoryRec.FMaxZoom;
       // add to db
-      CheckID( FClient.Add(VSQLCategoryView, True) );
-      ACategoryRec.FViewId := VSQLCategoryView.ID;
+      CheckID( FClient.Add(VOrmCategoryView, True) );
+      ACategoryRec.FViewId := VOrmCategoryView.ID;
     finally
-      VSQLCategoryView.Free;
+      VOrmCategoryView.Free;
     end;
   end;
   // add to cache
@@ -183,13 +189,13 @@ begin
 end;
 
 function TMarkCategoryDbImplORMHelper.UpdateCategorySQL(
-  const ACategoryRecOld: TSQLCategoryRec;
-  var ACategoryRecNew: TSQLCategoryRec
+  const ACategoryRecOld: TOrmCategoryRec;
+  var ACategoryRecNew: TOrmCategoryRec
 ): Boolean;
 
 var
   VFieldsCount: Integer;
-  VFieldsNames: array of RawUTF8;
+  VFieldsNames: array of RawUtf8;
 
   procedure _ClearFields;
   begin
@@ -200,20 +206,20 @@ var
   procedure _AddField(const AName: string);
   begin
     SetLength(VFieldsNames, VFieldsCount + 1);
-    VFieldsNames[VFieldsCount] := StringToUTF8(AName);
+    VFieldsNames[VFieldsCount] := StringToUtf8(AName);
     Inc(VFieldsCount);
   end;
 
-  function _FieldsNamesStr: RawUTF8;
+  function _FieldsNamesStr: RawUtf8;
   var
     I: Integer;
-    VSep: RawUTF8;
+    VSep: RawUtf8;
   begin
     VSep := '';
     Result := '';
     for I := 0 to Length(VFieldsNames) - 1 do begin
       if I = 1 then begin
-        VSep := RawUTF8(',');
+        VSep := RawUtf8(',');
       end;
       Result := Result + VSep + VFieldsNames[I];
     end;
@@ -224,16 +230,16 @@ var
   VUpdateName: string;
   VSearchName: string;
   VOldName: string;
-  VItem: PSQLCategoryViewRow;
-  VCategories: TSQLCategoryRowDynArray;
-  VSQLCategory: TSQLCategory;
-  VSQLCategoryView: TSQLCategoryView;
+  VItem: POrmCategoryViewRow;
+  VCategories: TOrmCategoryRowDynArray;
+  VOrmCategory: TOrmCategory;
+  VOrmCategoryView: TOrmCategoryView;
   VUpdateView: Boolean;
-  VSQLWhere: RawUTF8;
+  VSQLWhere: RawUtf8;
   VFound: Boolean;
 begin
   Result := False;
-  
+
   CheckID(ACategoryRecOld.FCategoryId);
 
   ACategoryRecNew.FCategoryId := ACategoryRecOld.FCategoryId;
@@ -245,57 +251,57 @@ begin
 
   if VUpdateView then begin
     // update view
-    VSQLCategoryView := TSQLCategoryView.Create;
+    VOrmCategoryView := TOrmCategoryView.Create;
     try
-      VSQLCategoryView.IDValue := 0;
+      VOrmCategoryView.IDValue := 0;
       VFound := FCache.FCategoryViewCache.Find(ACategoryRecNew.FCategoryId, VItem);
       if VFound then begin
         // init from cache
-        VSQLCategoryView.IDValue := VItem.ViewId;
-        VSQLCategoryView.FCategory := VItem.CategoryId;
-        VSQLCategoryView.FVisible := VItem.Visible;
-        VSQLCategoryView.FMinZoom := VItem.MinZoom;
-        VSQLCategoryView.FMaxZoom := VItem.MaxZoom;
+        VOrmCategoryView.IDValue := VItem.ViewId;
+        VOrmCategoryView.FCategory := VItem.CategoryId;
+        VOrmCategoryView.FVisible := VItem.Visible;
+        VOrmCategoryView.FMinZoom := VItem.MinZoom;
+        VOrmCategoryView.FMaxZoom := VItem.MaxZoom;
       end else if not FCache.FCategoryViewCache.IsPrepared then begin
         // init from db
-        VSQLWhere := FormatUTF8('cvCategory=? AND cvUser=?', [], [ACategoryRecNew.FCategoryId, FUserID]);
-        VFound := FClient.Retrieve(VSQLWhere, VSQLCategoryView);
+        VSQLWhere := FormatSql('cvCategory=? AND cvUser=?', [], [ACategoryRecNew.FCategoryId, FUserID]);
+        VFound := FClient.Retrieve(VSQLWhere, VOrmCategoryView);
       end;
       if not FIsReadOnly then begin
-        if VFound and (VSQLCategoryView.ID > 0) then begin
+        if VFound and (VOrmCategoryView.ID > 0) then begin
           _ClearFields;
           // update existing
           if ACategoryRecNew.FVisible <> ACategoryRecOld.FVisible then begin
-            VSQLCategoryView.FVisible := ACategoryRecNew.FVisible;
+            VOrmCategoryView.FVisible := ACategoryRecNew.FVisible;
             _AddField('cvVisible');
           end;
           if ACategoryRecNew.FMinZoom <> ACategoryRecOld.FMinZoom then begin
-            VSQLCategoryView.FMinZoom := ACategoryRecNew.FMinZoom;
+            VOrmCategoryView.FMinZoom := ACategoryRecNew.FMinZoom;
             _AddField('cvMinZoom');
           end;
           if ACategoryRecNew.FMaxZoom <> ACategoryRecOld.FMaxZoom then begin
-            VSQLCategoryView.FMaxZoom := ACategoryRecNew.FMaxZoom;
+            VOrmCategoryView.FMaxZoom := ACategoryRecNew.FMaxZoom;
             _AddField('cvMaxZoom');
           end;
           // update db
-          CheckUpdateResult( FClient.Update(VSQLCategoryView, _FieldsNamesStr) );
+          CheckUpdateResult( FClient.Update(VOrmCategoryView, _FieldsNamesStr) );
         end else begin
           // add new
-          VSQLCategoryView.FUser := FUserID;
-          VSQLCategoryView.FCategory := ACategoryRecNew.FCategoryId;
-          VSQLCategoryView.FVisible := ACategoryRecNew.FVisible;
-          VSQLCategoryView.FMinZoom := ACategoryRecNew.FMinZoom;
-          VSQLCategoryView.FMaxZoom := ACategoryRecNew.FMaxZoom;
+          VOrmCategoryView.FUser := FUserID;
+          VOrmCategoryView.FCategory := ACategoryRecNew.FCategoryId;
+          VOrmCategoryView.FVisible := ACategoryRecNew.FVisible;
+          VOrmCategoryView.FMinZoom := ACategoryRecNew.FMinZoom;
+          VOrmCategoryView.FMaxZoom := ACategoryRecNew.FMaxZoom;
           // add to db
-          CheckID( FClient.Add(VSQLCategoryView, True) );
+          CheckID( FClient.Add(VOrmCategoryView, True) );
         end;
       end;
       // update cache
-      ACategoryRecNew.FViewId := VSQLCategoryView.ID; // can be zero
+      ACategoryRecNew.FViewId := VOrmCategoryView.ID; // can be zero
       FCache.FCategoryViewCache.AddOrUpdate(ACategoryRecNew);
       Result := True;
     finally
-      VSQLCategoryView.Free;
+      VOrmCategoryView.Free;
     end;
   end;
 
@@ -304,12 +310,12 @@ begin
   end;
 
   if ACategoryRecNew.FName <> ACategoryRecOld.FName then begin
-    VSQLCategory := TSQLCategory.Create;
+    VOrmCategory := TOrmCategory.Create;
     try
-      VSQLCategory.IDValue := ACategoryRecNew.FCategoryId;
-      VSQLCategory.FName := StringToUTF8(ACategoryRecNew.FName);
+      VOrmCategory.IDValue := ACategoryRecNew.FCategoryId;
+      VOrmCategory.FName := StringToUtf8(ACategoryRecNew.FName);
       // update name
-      CheckUpdateResult( FClient.Update(VSQLCategory, 'cName') );
+      CheckUpdateResult( FClient.Update(VOrmCategory, 'cName') );
       // update cache
       FCache.FCategoryCache.AddOrUpdate(ACategoryRecNew);
 
@@ -324,40 +330,40 @@ begin
           if StartsText(VSearchName, VOldName) then begin
             // update cache
             VCategories[I].Name := StringReplace(VOldName, VSearchName, VUpdateName, [rfIgnoreCase]);
-            VSQLCategory.IDValue := VCategories[I].CategoryId;
-            VSQLCategory.FName := StringToUTF8(VCategories[I].Name);
+            VOrmCategory.IDValue := VCategories[I].CategoryId;
+            VOrmCategory.FName := StringToUtf8(VCategories[I].Name);
             // update db
-            CheckUpdateResult( FClient.Update(VSQLCategory, 'cName') );
+            CheckUpdateResult( FClient.Update(VOrmCategory, 'cName') );
           end;
         end;
       end;
       Result := True;
     finally
-      VSQLCategory.Free;
+      VOrmCategory.Free;
     end;
   end;
 end;
 
 function TMarkCategoryDbImplORMHelper.ReadCategorySQL(
-  out ACategoryRec: TSQLCategoryRec;
+  out ACategoryRec: TOrmCategoryRec;
   const ID: TID;
   const AName: string
 ): Boolean;
 var
-  VName: RawUTF8;
-  VCategoryItem: PSQLCategoryRow;
-  VViewItem: PSQLCategoryViewRow;
-  VSQLCategory: TSQLCategory;
-  VSQLCategoryView: TSQLCategoryView;
+  VName: RawUtf8;
+  VCategoryItem: POrmCategoryRow;
+  VViewItem: POrmCategoryViewRow;
+  VOrmCategory: TOrmCategory;
+  VOrmCategoryView: TOrmCategoryView;
   VFound: Boolean;
 begin
   Assert( (ID > 0) or (AName <> '') );
 
   Result := False;
 
-  ACategoryRec := cEmptySQLCategoryRec;
+  ACategoryRec := cEmptyOrmCategoryRec;
 
-  VSQLCategory := TSQLCategory.Create;
+  VOrmCategory := TOrmCategory.Create;
   try
     // try get category from cache
     if ID > 0 then begin
@@ -372,28 +378,28 @@ begin
     end else if not FCache.FCategoryCache.IsPrepared then begin
       // not found in cache -> get from db
       if ID > 0 then begin
-        Result := FClient.Retrieve(ID, VSQLCategory);
+        Result := FClient.Retrieve(ID, VOrmCategory);
       end else if AName <> '' then begin
-        VName := StringToUTF8(AName);
-        Result := FClient.Retrieve('cName=?', [], [VName], VSQLCategory);
+        VName := StringToUtf8(AName);
+        Result := FClient.Retrieve('cName=?', [], [VName], VOrmCategory);
       end;
       if Result then begin
-        CheckID(VSQLCategory.ID);
-        ACategoryRec.FCategoryId := VSQLCategory.ID;
-        ACategoryRec.FName := UTF8ToString(VSQLCategory.FName);
+        CheckID(VOrmCategory.ID);
+        ACategoryRec.FCategoryId := VOrmCategory.ID;
+        ACategoryRec.FName := UTF8ToString(VOrmCategory.FName);
         // add to cache
         FCache.FCategoryCache.AddOrUpdate(ACategoryRec);
       end;
     end;
   finally
-    VSQLCategory.Free;
+    VOrmCategory.Free;
   end;
 
   if not Result then begin
     Exit;
   end;
 
-  VSQLCategoryView := TSQLCategoryView.Create;
+  VOrmCategoryView := TOrmCategoryView.Create;
   try
     // try get view from cache
     VFound := FCache.FCategoryViewCache.Find(ACategoryRec.FCategoryId, VViewItem);
@@ -408,20 +414,20 @@ begin
       // view not in cache -> get it from db
       VFound := FClient.Retrieve(
         'cvCategory=? AND cvUser=?', [], [ACategoryRec.FCategoryId, FUserID],
-        VSQLCategoryView
+        VOrmCategoryView
       );
       if VFound then begin
-        CheckID(VSQLCategoryView.ID);
-        ACategoryRec.FViewId := VSQLCategoryView.ID;
-        ACategoryRec.FVisible := VSQLCategoryView.FVisible;
-        ACategoryRec.FMinZoom := VSQLCategoryView.FMinZoom;
-        ACategoryRec.FMaxZoom := VSQLCategoryView.FMaxZoom;
+        CheckID(VOrmCategoryView.ID);
+        ACategoryRec.FViewId := VOrmCategoryView.ID;
+        ACategoryRec.FVisible := VOrmCategoryView.FVisible;
+        ACategoryRec.FMinZoom := VOrmCategoryView.FMinZoom;
+        ACategoryRec.FMaxZoom := VOrmCategoryView.FMaxZoom;
       end;
     end;
     // add view to cache
     FCache.FCategoryViewCache.AddOrUpdate(ACategoryRec);
   finally
-    VSQLCategoryView.Free;
+    VOrmCategoryView.Free;
   end;
 end;
 
@@ -429,17 +435,17 @@ function TMarkCategoryDbImplORMHelper.CountCategorySQL(
   const AName: string
 ): Integer;
 var
-  VName: RawUTF8;
-  VList: TSQLTableJSON;
+  VName: RawUtf8;
+  VList: TOrmTable;
 begin
   Assert(AName <> '');
-  VName := StringToUTF8(AName);
+  VName := StringToUtf8(AName);
 
   Result := 0;
 
   VList := FClient.ExecuteList(
-    [TSQLCategory],
-    FormatUTF8('SELECT RowID FROM Category WHERE cName=?', [], [VName])
+    [TOrmCategory],
+    FormatSql('SELECT RowID FROM Category WHERE cName=?', [], [VName])
   );
 
   if VList <> nil then
@@ -454,12 +460,12 @@ function TMarkCategoryDbImplORMHelper._FillPrepareCategoryCache: Integer;
 var
   I, J: Integer;
   VCount: Integer;
-  VList: TSQLTableJSON;
-  VArray: TSQLCategoryRowDynArray;
+  VList: TOrmTable;
+  VArray: TOrmCategoryRowDynArray;
 begin
   if not FCache.FCategoryCache.IsPrepared then begin
     VList := FClient.ExecuteList(
-      [TSQLCategory],
+      [TOrmCategory],
       'SELECT RowID,cName FROM Category'
     );
     if Assigned(VList) then
@@ -483,13 +489,13 @@ function TMarkCategoryDbImplORMHelper._FillPrepareCategoryViewCache: Integer;
 var
   I, J: Integer;
   VCount: Integer;
-  VList: TSQLTableJSON;
-  VArray: TSQLCategoryViewRowDynArray;
+  VList: TOrmTable;
+  VArray: TOrmCategoryViewRowDynArray;
 begin
   if not FCache.FCategoryViewCache.IsPrepared then begin
     VList := FClient.ExecuteList(
-      [TSQLCategoryView],
-      FormatUTF8(
+      [TOrmCategoryView],
+      FormatSql(
         'SELECT RowID,cvCategory,cvVisible,cvMinZoom,cvMaxZoom FROM CategoryView WHERE cvUser=?',
         [], [FUserID]
       )
@@ -522,18 +528,18 @@ var
   VViewCount: Integer;
   VCategoryCount: Integer;
   VIsFound: Boolean;
-  VRec: TSQLCategoryRec;
-  VItem: PSQLCategoryViewRow;
-  VViews: TSQLCategoryViewRowDynArray;
-  VCategories: TSQLCategoryRowDynArray;
+  VRec: TOrmCategoryRec;
+  VItem: POrmCategoryViewRow;
+  VViews: TOrmCategoryViewRowDynArray;
+  VCategories: TOrmCategoryRowDynArray;
   VCategoryID: TID;
-  VSQLCategoryView: TSQLCategoryView;
-  VViewCache: TSQLCategoryViewCache;
+  VOrmCategoryView: TOrmCategoryView;
+  VViewCache: TOrmCategoryViewCache;
 begin
   if not FIsReadOnly then begin
     // update db
     CheckUpdateResult(
-      FClient.UpdateField(TSQLCategoryView,'cvUser',[FUserID],'cvVisible',[AVisible])
+      FClient.UpdateField(TOrmCategoryView, 'cvUser', [FUserID], 'cvVisible', [AVisible])
     );
   end;
   VViewCount := _FillPrepareCategoryViewCache;
@@ -549,9 +555,9 @@ begin
     VCategoryCount := _FillPrepareCategoryCache;
     if VCategoryCount > 0 then begin
       VCategories := FCache.FCategoryCache.Rows;
-      VSQLCategoryView := TSQLCategoryView.Create;
+      VOrmCategoryView := TOrmCategoryView.Create;
       try
-        VRec := cEmptySQLCategoryRec;
+        VRec := cEmptyOrmCategoryRec;
         for I := 0 to VCategoryCount - 1 do begin
           VCategoryID := VCategories[I].CategoryId;
           VIsFound := (VViewCount > 0) and VViewCache.Find(VCategoryID, VItem);
@@ -560,16 +566,16 @@ begin
             VRec.FCategoryId := VCategoryID;
             VRec.FVisible := AVisible;
 
-            VSQLCategoryView.FUser := FUserID;
-            VSQLCategoryView.FCategory := VRec.FCategoryId;
-            VSQLCategoryView.FVisible := VRec.FVisible;
-            VSQLCategoryView.FMinZoom := VRec.FMinZoom;
-            VSQLCategoryView.FMaxZoom := VRec.FMaxZoom;
+            VOrmCategoryView.FUser := FUserID;
+            VOrmCategoryView.FCategory := VRec.FCategoryId;
+            VOrmCategoryView.FVisible := VRec.FVisible;
+            VOrmCategoryView.FMinZoom := VRec.FMinZoom;
+            VOrmCategoryView.FMaxZoom := VRec.FMaxZoom;
 
             // add to db
             if not FIsReadOnly then begin
-              CheckID( FClient.Add(VSQLCategoryView, True) );
-              VRec.FViewId := VSQLCategoryView.ID;
+              CheckID( FClient.Add(VOrmCategoryView, True) );
+              VRec.FViewId := VOrmCategoryView.ID;
             end else begin
               VRec.FViewId := 0; // fake id
             end;
@@ -578,23 +584,23 @@ begin
           end;
         end;
       finally
-        VSQLCategoryView.Free;
+        VOrmCategoryView.Free;
       end;
     end;
   end;
 end;
 
 function TMarkCategoryDbImplORMHelper.GetCategoriesRecArray(
-  out ACategoryRecArray: TSQLCategoryRecDynArray
+  out ACategoryRecArray: TOrmCategoryRecDynArray
 ): Integer;
 var
   I: Integer;
-  VRec: PSQLCategoryRec;
+  VRec: POrmCategoryRec;
   VCount: Integer;
   VViewCount: Integer;
-  VItem: PSQLCategoryViewRow;
-  VViewCache: TSQLCategoryViewCache;
-  VRows: TSQLCategoryRowDynArray;
+  VItem: POrmCategoryViewRow;
+  VViewCache: TOrmCategoryViewCache;
+  VRows: TOrmCategoryRowDynArray;
 begin
   VCount := _FillPrepareCategoryCache;
   if VCount > 0 then begin
@@ -608,7 +614,7 @@ begin
     VRows := FCache.FCategoryCache.Rows;
     VViewCache := FCache.FCategoryViewCache;
     for I := 0 to FCache.FCategoryCache.Count - 1 do begin
-      ACategoryRecArray[I] := cEmptySQLCategoryRec;
+      ACategoryRecArray[I] := cEmptyOrmCategoryRec;
       VRec := @ACategoryRecArray[I];
       VRec.FCategoryId := VRows[I].CategoryId;
       VRec.FName := VRows[I].Name;

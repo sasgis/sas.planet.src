@@ -43,7 +43,7 @@ type
     ): IMarkCategory; overload;
 
     function CreateCategory(
-      const ACategoryRec: TSQLCategoryRec
+      const ACategoryRec: TOrmCategoryRec
     ): IMarkCategory; overload;
   public
     constructor Create(const ADbId: NativeInt);
@@ -82,7 +82,7 @@ begin
 end;
 
 function TMarkCategoryFactoryDbInternalORM.CreateCategory(
-  const ACategoryRec: TSQLCategoryRec
+  const ACategoryRec: TOrmCategoryRec
 ): IMarkCategory;
 begin
   Result :=

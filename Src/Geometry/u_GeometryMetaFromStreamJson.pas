@@ -40,7 +40,9 @@ implementation
 
 uses
   SysUtils,
-  SynCommons,
+  mormot.core.base,
+  mormot.core.buffers,
+  mormot.core.variants,
   t_GeoTypes,
   u_GeometryMetaJson,
   u_DoublePointsMetaBuilder;
@@ -91,7 +93,7 @@ begin
   AStream.ReadBuffer(VStr[1], VLen);
 
   // Parse JSON
-  if (VDoc.InitJSONInPlace(Pointer(VStr), JSON_OPTIONS_FAST) = nil) or (VDoc.Kind <> dvObject) then begin
+  if (VDoc.InitJSONInPlace(Pointer(VStr), JSON_FAST) = nil) or (VDoc.Kind <> dvObject) then begin
     Assert(False, Self.ClassName + ': Invalid JSON');
     Exit;
   end;

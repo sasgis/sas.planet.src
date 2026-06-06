@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -26,29 +26,33 @@ interface
 uses
   SysUtils,
   StrUtils,
-  mORMot,
-  mORMotSQLite3,
-  SynCommons;
+  mormot.core.base,
+  mormot.orm.base,
+  mormot.orm.core,
+  mormot.orm.server,
+  mormot.orm.rest,
+  mormot.rest.server,
+  mormot.rest.sqlite3;
 
 type
-  // Список пользователей
-  TSQLUser = class(TSQLRecord)
+  // РЎРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+  TOrmUser = class(TOrm)
   public
-    FName: RawUTF8;
+    FName: RawUtf8;
   published
-    property uName: RawUTF8 read FName write FName;
+    property uName: RawUtf8 read FName write FName;
   end;
 
-  // Категории
-  TSQLCategory = class(TSQLRecord)
+  // РљР°С‚РµРіРѕСЂРёРё
+  TOrmCategory = class(TOrm)
   public
-    FName: RawUTF8;
+    FName: RawUtf8;
   published
-    property cName: RawUTF8 read FName write FName;
+    property cName: RawUtf8 read FName write FName;
   end;
 
-  // Настройка видимости категорий по пользователям
-  TSQLCategoryView = class(TSQLRecord)
+  // РќР°СЃС‚СЂРѕР№РєР° РІРёРґРёРјРѕСЃС‚Рё РєР°С‚РµРіРѕСЂРёР№ РїРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј
+  TOrmCategoryView = class(TOrm)
   public
     FUser: TID;
     FCategory: TID;
@@ -63,18 +67,18 @@ type
     property cvMaxZoom: Byte read FMaxZoom write FMaxZoom;
   end;
 
-  // Типы геометрий для меток
-  TSQLGeoType = (gtUndef=0, gtPoint, gtLine, gtPoly);
+  // РўРёРїС‹ РіРµРѕРјРµС‚СЂРёР№ РґР»СЏ РјРµС‚РѕРє
+  TOrmGeoType = (gtUndef=0, gtPoint, gtLine, gtPoly);
 
-  // Пути к картинкам для меток
-  TSQLMarkImage = class(TSQLRecord)
+  // РџСѓС‚Рё Рє РєР°СЂС‚РёРЅРєР°Рј РґР»СЏ РјРµС‚РѕРє
+  TOrmMarkImage = class(TOrm)
   public
-    FName: RawUTF8;
+    FName: RawUtf8;
   published
-    property miName: RawUTF8 read FName write FName;
+    property miName: RawUtf8 read FName write FName;
   end;
 
-  TSQLMarkAppearance = class(TSQLRecord)
+  TOrmMarkAppearance = class(TOrm)
   public
     FColor1: Cardinal;
     FColor2: Cardinal;
@@ -87,35 +91,35 @@ type
     property maScale2: Integer read FScale2 write FScale2;
   end;
 
-  // Метки
-  TSQLMark = class(TSQLRecord)
+  // РњРµС‚РєРё
+  TOrmMark = class(TOrm)
   public
     FCategory: TID;
     FImage: TID;
     FAppearance: TID;
-    FName: RawUTF8;
-    FDesc: RawUTF8;
-    FGeoType: TSQLGeoType;
+    FName: RawUtf8;
+    FDesc: RawUtf8;
+    FGeoType: TOrmGeoType;
     FGeoCount: Cardinal;
     FGeoLonSize: Cardinal;
     FGeoLatSize: Cardinal;
-    FGeoWKB: TSQLRawBlob;
+    FGeoWKB: RawBlob;
   published
     property mCategory: TID read FCategory write FCategory;
     property mImage: TID read FImage write FImage;
     property mAppearance: TID read FAppearance write FAppearance;
-    property mName: RawUTF8 read FName write FName;
-    property mDesc: RawUTF8 read FDesc write FDesc;
-    property mGeoType: TSQLGeoType read FGeoType write FGeoType;
+    property mName: RawUtf8 read FName write FName;
+    property mDesc: RawUtf8 read FDesc write FDesc;
+    property mGeoType: TOrmGeoType read FGeoType write FGeoType;
     property mGeoCount: Cardinal read FGeoCount write FGeoCount;
     property mGeoLonSize: Cardinal read FGeoLonSize write FGeoLonSize;
     property mGeoLatSize: Cardinal read FGeoLatSize write FGeoLatSize;
-    property mGeoWKB: TSQLRawBlob read FGeoWKB write FGeoWKB;
+    property mGeoWKB: RawBlob read FGeoWKB write FGeoWKB;
   end;
 
-  TSQLMarkClass = class of TSQLMark;
+  TOrmMarkClass = class of TOrmMark;
 
-  TSQLMarkDBMS = class(TSQLMark)
+  TOrmMarkDBMS = class(TOrmMark)
   public
     FLeft, FRight, FBottom, FTop: Integer;
   published
@@ -125,10 +129,10 @@ type
     property mTop: Integer read FTop write FTop;
   end;
 
-  TSQLMarkMongoDB = class(TSQLMarkDBMS);
+  TOrmMarkMongoDB = class(TOrmMarkDBMS);
 
-  // Настройка видимости меток по пользователям
-  TSQLMarkView = class(TSQLRecord)
+  // РќР°СЃС‚СЂРѕР№РєР° РІРёРґРёРјРѕСЃС‚Рё РјРµС‚РѕРє РїРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј
+  TOrmMarkView = class(TOrm)
   public
     FUser: TID;
     FMark: TID;
@@ -141,8 +145,8 @@ type
     property mvVisible: Boolean read FVisible write FVisible;
   end;
 
-  // Индекс по ограничивающему прямоугольнику, для быстрого поиска геометрий
-  TSQLMarkRTree = class(TSQLRecordRTree)
+  // РРЅРґРµРєСЃ РїРѕ РѕРіСЂР°РЅРёС‡РёРІР°СЋС‰РµРјСѓ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєСѓ, РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ РїРѕРёСЃРєР° РіРµРѕРјРµС‚СЂРёР№
+  TOrmMarkRTree = class(TOrmRTree)
   public
     FLeft, FRight, FBottom, FTop: Double;
   published
@@ -154,99 +158,99 @@ type
     property mTop: Double read FTop write FTop;            // max_dimension2
   end;
 
-  // Индекс по имени и описания меток, для быстрого текстового поиска
-  // - для нелатинских символов чувствителен к регистру, поэтому пишем сюда
-  //   всё в AnsiLowerCase
-  TSQLMarkFTS = class(TSQLRecordFTS4)
+  // РРЅРґРµРєСЃ РїРѕ РёРјРµРЅРё Рё РѕРїРёСЃР°РЅРёСЏ РјРµС‚РѕРє, РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ С‚РµРєСЃС‚РѕРІРѕРіРѕ РїРѕРёСЃРєР°
+  // - РґР»СЏ РЅРµР»Р°С‚РёРЅСЃРєРёС… СЃРёРјРІРѕР»РѕРІ С‡СѓРІСЃС‚РІРёС‚РµР»РµРЅ Рє СЂРµРіРёСЃС‚СЂСѓ, РїРѕСЌС‚РѕРјСѓ РїРёС€РµРј СЃСЋРґР°
+  //   РІСЃС‘ РІ AnsiLowerCase
+  TOrmMarkFTS = class(TOrmFts4)
   public
-    FName: RawUTF8;
-    FDesc: RawUTF8;
+    FName: RawUtf8;
+    FDesc: RawUtf8;
   published
-    property mName: RawUTF8 read FName write FName; // имя метки в AnsiLowerCase
-    property mDesc: RawUTF8 read FDesc write FDesc; // описание мекти в AnsiLowerCase
+    property mName: RawUtf8 read FName write FName; // РёРјСЏ РјРµС‚РєРё РІ AnsiLowerCase
+    property mDesc: RawUtf8 read FDesc write FDesc; // РѕРїРёСЃР°РЅРёРµ РјРµРєС‚Рё РІ AnsiLowerCase
   end;
 
-  TSQLMarkMeta = class(TSQLRecord)
+  TOrmMarkMeta = class(TOrm)
   public
     FMark: TID;
-    FMeta: TSQLRawBlob;
+    FMeta: RawBlob;
   published
     property mMark: TID read FMark write FMark stored AS_UNIQUE;
-    property mMeta: TSQLRawBlob read FMeta write FMeta;
+    property mMeta: RawBlob read FMeta write FMeta;
   end;
 
-function CreateModelSQLite3: TSQLModel;
-function CreateModelDBMS: TSQLModel;
-function CreateModelMongoDB: TSQLModel;
+function CreateModelSQLite3: TOrmModel;
+function CreateModelDBMS: TOrmModel;
+function CreateModelMongoDB: TOrmModel;
 
-procedure CreateMissingIndexesSQLite3(const AServer: TSQLRestServerDB);
-procedure CreateMissingIndexesDBMS(const AServer: TSQLRestServerDB);
-procedure CreateMissingIndexesMongoDB(const AServer: TSQLRestServerDB);
+procedure CreateMissingIndexesSQLite3(const AServer: TRestServerDB);
+procedure CreateMissingIndexesDBMS(const AServer: TRestServerDB);
+procedure CreateMissingIndexesMongoDB(const AServer: TRestServerDB);
 
 implementation
 
-function CreateModelSQLite3: TSQLModel;
+function CreateModelSQLite3: TOrmModel;
 begin
   Result :=
-    TSQLModel.Create(
+    TOrmModel.Create(
       [
-        TSQLUser,
-        TSQLCategory,
-        TSQLCategoryView,
-        TSQLMarkImage,
-        TSQLMark,
-        TSQLMarkView,
-        TSQLMarkAppearance,
-        TSQLMarkFTS,
-        TSQLMarkRTree,
-        TSQLMarkMeta
+        TOrmUser,
+        TOrmCategory,
+        TOrmCategoryView,
+        TOrmMarkImage,
+        TOrmMark,
+        TOrmMarkView,
+        TOrmMarkAppearance,
+        TOrmMarkFTS,
+        TOrmMarkRTree,
+        TOrmMarkMeta
       ]
     );
 end;
 
-function CreateModelDBMS: TSQLModel;
+function CreateModelDBMS: TOrmModel;
 begin
   Result :=
-    TSQLModel.Create(
+    TOrmModel.Create(
       [
-        TSQLUser,
-        TSQLCategory,
-        TSQLCategoryView,
-        TSQLMarkImage,
-        TSQLMarkDBMS,
-        TSQLMarkView,
-        TSQLMarkAppearance,
-        TSQLMarkFTS,
-        TSQLMarkMeta
+        TOrmUser,
+        TOrmCategory,
+        TOrmCategoryView,
+        TOrmMarkImage,
+        TOrmMarkDBMS,
+        TOrmMarkView,
+        TOrmMarkAppearance,
+        TOrmMarkFTS,
+        TOrmMarkMeta
       ]
     );
 end;
 
-function CreateModelMongoDB: TSQLModel;
+function CreateModelMongoDB: TOrmModel;
 begin
   Result :=
-    TSQLModel.Create(
+    TOrmModel.Create(
       [
-        TSQLUser,
-        TSQLCategory,
-        TSQLCategoryView,
-        TSQLMarkImage,
-        TSQLMarkMongoDB,
-        TSQLMarkView,
-        TSQLMarkAppearance,
-        TSQLMarkFTS,
-        TSQLMarkMeta
+        TOrmUser,
+        TOrmCategory,
+        TOrmCategoryView,
+        TOrmMarkImage,
+        TOrmMarkMongoDB,
+        TOrmMarkView,
+        TOrmMarkAppearance,
+        TOrmMarkFTS,
+        TOrmMarkMeta
       ]
     );
 end;
 
 procedure _CreateMissingIndexes(
-  const AServer: TSQLRestServerDB;
-  const AExisting: TRawUTF8DynArray;
-  const AMarksTableClass: TSQLMarkClass
+  const AServer: TRestOrmServer;
+  const AExisting: TRawUtf8DynArray;
+  const AMarksTableClass: TOrmMarkClass
 );
 
-  function _IsIndexExists(const AName: RawUTF8): Boolean;
+  function _IsIndexExists(const AName: RawUtf8): Boolean;
   var
     I: Integer;
   begin
@@ -260,41 +264,41 @@ procedure _CreateMissingIndexes(
   end;
 
 var
-  VIdxName: RawUTF8;
+  VIdxName: RawUtf8;
 begin
   // --------------- User -----------------------------------------------------
   VIdxName := '_uName';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLIndex(TSQLUser, 'uName', True, VIdxName); // unique
+    AServer.CreateSQLIndex(TOrmUser, 'uName', True, VIdxName); // unique
   end;
 
   // --------------- Category -------------------------------------------------
   VIdxName := '_cName';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLIndex(TSQLCategory, 'cName', False, VIdxName); // not unique for backward compatibility
+    AServer.CreateSQLIndex(TOrmCategory, 'cName', False, VIdxName); // not unique for backward compatibility
   end;
 
   // --------------- CategoryView ---------------------------------------------
   VIdxName := '_cvUser';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLIndex(TSQLCategoryView, 'cvUser', False, VIdxName);
+    AServer.CreateSQLIndex(TOrmCategoryView, 'cvUser', False, VIdxName);
   end;
 
   VIdxName := '_cvCategoryUser';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLMultiIndex(TSQLCategoryView, ['cvCategory', 'cvUser'], True, VIdxName); // unique
+    AServer.CreateSQLMultiIndex(TOrmCategoryView, ['cvCategory', 'cvUser'], True, VIdxName); // unique
   end;
 
   // --------------- MarkImage ------------------------------------------------
   VIdxName := '_miName';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLIndex(TSQLMarkImage, 'miName', True, VIdxName); // unique
+    AServer.CreateSQLIndex(TOrmMarkImage, 'miName', True, VIdxName); // unique
   end;
 
   // --------------- MarkAppearance -------------------------------------------
   VIdxName := '_maC1C2S1S2';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLMultiIndex(TSQLMarkAppearance, ['maColor1', 'maColor2', 'maScale1', 'maScale2'],
+    AServer.CreateSQLMultiIndex(TOrmMarkAppearance, ['maColor1', 'maColor2', 'maScale1', 'maScale2'],
       True, VIdxName); // unique
   end;
 
@@ -307,24 +311,24 @@ begin
   // --------------- MarkView -------------------------------------------------
   VIdxName := '_mvUser';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLIndex(TSQLMarkView, 'mvUser', False, VIdxName);
+    AServer.CreateSQLIndex(TOrmMarkView, 'mvUser', False, VIdxName);
   end;
 
   VIdxName := '_mvCategoryUser';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLMultiIndex(TSQLMarkView, ['mvCategory', 'mvUser'], False, VIdxName);
+    AServer.CreateSQLMultiIndex(TOrmMarkView, ['mvCategory', 'mvUser'], False, VIdxName);
   end;
 
   VIdxName := '_mvMarkUser';
   if not _IsIndexExists(VIdxName) then begin
-    AServer.CreateSQLMultiIndex(TSQLMarkView, ['mvMark', 'mvUser'], True, VIdxName); // unique
+    AServer.CreateSQLMultiIndex(TOrmMarkView, ['mvMark', 'mvUser'], True, VIdxName); // unique
   end;
 end;
 
-procedure CreateMissingIndexesSQLite3(const AServer: TSQLRestServerDB);
+procedure CreateMissingIndexesSQLite3(const AServer: TRestServerDB);
 var
   VCount: Integer;
-  VExisting: TRawUTF8DynArray;
+  VExisting: TRawUtf8DynArray;
 begin
   VCount := AServer.DB.Execute(
     'SELECT name FROM sqlite_master WHERE type=''index'' AND name NOT LIKE ''sqlite_%'';',
@@ -332,17 +336,17 @@ begin
   );
   SetLength(VExisting, VCount);
 
-  _CreateMissingIndexes(AServer, VExisting, TSQLMark);
+  _CreateMissingIndexes(AServer.OrmInstance as TRestOrmServer, VExisting, TOrmMark);
 end;
 
-procedure CreateMissingIndexesDBMS(const AServer: TSQLRestServerDB);
+procedure CreateMissingIndexesDBMS(const AServer: TRestServerDB);
 begin
-  _CreateMissingIndexes(AServer, nil, TSQLMarkDBMS);
+  _CreateMissingIndexes(AServer.OrmInstance as TRestOrmServer, nil, TOrmMarkDBMS);
 end;
 
-procedure CreateMissingIndexesMongoDB(const AServer: TSQLRestServerDB);
+procedure CreateMissingIndexesMongoDB(const AServer: TRestServerDB);
 begin
-  _CreateMissingIndexes(AServer, nil, TSQLMarkMongoDB);
+  _CreateMissingIndexes(AServer.OrmInstance as TRestOrmServer, nil, TOrmMarkMongoDB);
 end;
 
 end.

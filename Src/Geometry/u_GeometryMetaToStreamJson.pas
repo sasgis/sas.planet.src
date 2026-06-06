@@ -51,8 +51,10 @@ implementation
 
 uses
   SysUtils,
-  SynTable,
-  SynCommons,
+  mormot.core.base,
+  mormot.core.buffers,
+  mormot.core.json,
+  mormot.core.text,
   t_GeoTypes,
   u_GeometryFunc,
   u_GeometryMetaJson;
@@ -99,10 +101,13 @@ procedure TGeometryMetaToStreamJson.DoSaveLines(
   const ALines: TArrayOfGeometryLonLatSingleLine;
   const AStream: TStream
 );
+const
+  cBufferSize = 8 * 1024; // 8 KB
 var
   I: Integer;
-  VJson: TJSONWriter;
+  VJson: TJsonWriter;
   VLine: IGeometryLonLatSingleLine;
+  VBuffer: array[0..cBufferSize-1] of Byte;
 begin
   if not HasMeta(ALines) then begin
     Exit;
@@ -111,7 +116,7 @@ begin
   // Write magic
   AStream.WriteBuffer(Pointer(CJsonMetaMagic)^, Length(CJsonMetaMagic));
 
-  VJson := TJSONWriter.Create(AStream, False, False);
+  VJson := TJsonWriter.Create(AStream, @VBuffer[0], Length(VBuffer));
   try
     // Write root object opening brace
     VJson.Add('{');

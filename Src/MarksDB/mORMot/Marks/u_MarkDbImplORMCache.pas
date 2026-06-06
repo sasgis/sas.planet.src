@@ -27,7 +27,12 @@ interface
 
 uses
   Windows,
-  SynCommons,
+  mormot.core.base,
+  mormot.core.data,
+  mormot.core.rtti,
+  {$IFDEF ORM_LOG_ENABLE}
+  mormot.core.unicode,
+  {$ENDIF}
   t_MarkSystemORM,
   i_GeometryLonLat,
   u_MarkSystemORMModel,
@@ -35,131 +40,131 @@ uses
 
 type
   (****************************************************************************)
-  (*                         TSQLMarkImageCache                               *)
+  (*                         TOrmMarkImageCache                               *)
   (****************************************************************************)
 
-  TSQLMarkImageRow = packed record
+  TOrmMarkImageRow = packed record
     ImageId: TID;
     Name: string;
   end;
-  PSQLMarkImageRow = ^TSQLMarkImageRow;
-  TSQLMarkImageRowDynArray = array of TSQLMarkImageRow;
+  POrmMarkImageRow = ^TOrmMarkImageRow;
+  TOrmMarkImageRowDynArray = array of TOrmMarkImageRow;
 
-  TSQLMarkImageCache = class(TSQLCacheBase)
+  TOrmMarkImageCache = class(TOrmCacheBase)
   private
-    FRows: TSQLMarkImageRowDynArray;
+    FRows: TOrmMarkImageRowDynArray;
   public
-    function Find(const AID: TID; out AItem: PSQLMarkImageRow): Boolean; overload;
-    function Find(const AName: string; out AItem: PSQLMarkImageRow): Boolean; overload;
-    procedure AddOrIgnore(const ARec: TSQLMarkRec); overload;
+    function Find(const AID: TID; out AItem: POrmMarkImageRow): Boolean; overload;
+    function Find(const AName: string; out AItem: POrmMarkImageRow): Boolean; overload;
+    procedure AddOrIgnore(const ARec: TOrmMarkRec); overload;
     procedure AddOrIgnore(const AImageID: TID; const AName: string); overload;
     procedure Delete(const AID: TID); override;
   public
-    property Rows: TSQLMarkImageRowDynArray read FRows;
+    property Rows: TOrmMarkImageRowDynArray read FRows;
   public
     constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
-  (*                       TSQLMarkAppearanceCache                            *)
+  (*                       TOrmMarkAppearanceCache                            *)
   (****************************************************************************)
 
-  TSQLMarkAppearanceRow = packed record
+  TOrmMarkAppearanceRow = packed record
     AppearanceId: TID;
     Color1: Cardinal;
     Color2: Cardinal;
     Scale1: Integer;
     Scale2: Integer;
   end;
-  PSQLMarkAppearanceRow = ^TSQLMarkAppearanceRow;
-  TSQLMarkAppearanceRowDynArray = array of TSQLMarkAppearanceRow;
+  POrmMarkAppearanceRow = ^TOrmMarkAppearanceRow;
+  TOrmMarkAppearanceRowDynArray = array of TOrmMarkAppearanceRow;
 
-  TSQLMarkAppearanceCache = class(TSQLCacheBase)
+  TOrmMarkAppearanceCache = class(TOrmCacheBase)
   private
-    FRows: TSQLMarkAppearanceRowDynArray;
+    FRows: TOrmMarkAppearanceRowDynArray;
   public
-    function Find(const AID: TID; out AItem: PSQLMarkAppearanceRow): Boolean; overload;
+    function Find(const AID: TID; out AItem: POrmMarkAppearanceRow): Boolean; overload;
     function Find(const AColor1, AColor2: Cardinal; const AScale1, AScale2: Integer;
-      out AItem: PSQLMarkAppearanceRow): Boolean; overload;
-    procedure AddOrIgnore(const ARec: TSQLMarkRec); overload;
+      out AItem: POrmMarkAppearanceRow): Boolean; overload;
+    procedure AddOrIgnore(const ARec: TOrmMarkRec); overload;
     procedure AddOrIgnore(
       const AID: TID;
       const AColor1, AColor2: Cardinal;
       const AScale1, AScale2: Integer
     ); overload;
   public
-    property Rows: TSQLMarkAppearanceRowDynArray read FRows;
+    property Rows: TOrmMarkAppearanceRowDynArray read FRows;
   public
     constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
-  (*                           TSQLMarkViewCache                              *)
+  (*                           TOrmMarkViewCache                              *)
   (****************************************************************************)
 
-  TSQLMarkViewRow = packed record
+  TOrmMarkViewRow = packed record
     MarkId: TID;
     ViewId: TID;
     CategoryID: TID;
     Visible: Boolean;
   end;
-  PSQLMarkViewRow = ^TSQLMarkViewRow;
-  TSQLMarkViewRowDynArray = array of TSQLMarkViewRow;
+  POrmMarkViewRow = ^TOrmMarkViewRow;
+  TOrmMarkViewRowDynArray = array of TOrmMarkViewRow;
 
-  TSQLMarkViewCache = class(TSQLCacheBaseWithPreparedByCategory)
+  TOrmMarkViewCache = class(TOrmCacheBaseWithPreparedByCategory)
   private
-    FRows: TSQLMarkViewRowDynArray;
+    FRows: TOrmMarkViewRowDynArray;
   public
-    function Find(const AMarkID: TID; out AItem: PSQLMarkViewRow): Boolean;
-    procedure AddOrUpdate(const ARec: TSQLMarkRec); overload;
+    function Find(const AMarkID: TID; out AItem: POrmMarkViewRow): Boolean;
+    procedure AddOrUpdate(const ARec: TOrmMarkRec); overload;
     procedure AddOrUpdate(const AMarkID, AViewID, ACategoryID: TID; const AVisible: Boolean); overload;
-    procedure AddPrepared(const ACategoryID: TID; const AArr: TSQLMarkViewRowDynArray);
+    procedure AddPrepared(const ACategoryID: TID; const AArr: TOrmMarkViewRowDynArray);
   public
-    property Rows: TSQLMarkViewRowDynArray read FRows;
+    property Rows: TOrmMarkViewRowDynArray read FRows;
   public
     constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
-  (*                            TSQLMarkIdIndex                               *)
+  (*                            TOrmMarkIdIndex                               *)
   (****************************************************************************)
 
-  TSQLMarkIdIndexRec = packed record
+  TOrmMarkIdIndexRec = packed record
     MarkId: TID;
     CategoryId: TID;
     ImageId: TID;
     AppearanceId: TID;
   end;
-  PSQLMarkIdIndexRec = ^TSQLMarkIdIndexRec;
-  TSQLMarkIdIndexRecDynArray = array of TSQLMarkIdIndexRec;
+  POrmMarkIdIndexRec = ^TOrmMarkIdIndexRec;
+  TOrmMarkIdIndexRecDynArray = array of TOrmMarkIdIndexRec;
 
-  TSQLMarkIdIndex = class(TSQLCacheBase)
+  TOrmMarkIdIndex = class(TOrmCacheBase)
   private
-    FRows: TSQLMarkIdIndexRecDynArray;
+    FRows: TOrmMarkIdIndexRecDynArray;
   public
-    function Find(const AID: TID; out AItem: PSQLMarkIdIndexRec): Boolean;
-    procedure AddOrUpdate(const ARec: TSQLMarkRec);
-    procedure AddPrepared(const AArr: TSQLMarkIdIndexRecDynArray);
+    function Find(const AID: TID; out AItem: POrmMarkIdIndexRec): Boolean;
+    procedure AddOrUpdate(const ARec: TOrmMarkRec);
+    procedure AddPrepared(const AArr: TOrmMarkIdIndexRecDynArray);
     procedure AddArray(
-      const AArray: TSQLMarkIdIndexRecDynArray;
+      const AArray: TOrmMarkIdIndexRecDynArray;
       const AStartIndex: Integer = 0;
       const ACount: Integer = -1
     );
     class procedure MarkRecToIndexRec(
-      const AMarkRec: TSQLMarkRec;
-      const AIndexRec: PSQLMarkIdIndexRec
+      const AMarkRec: TOrmMarkRec;
+      const AIndexRec: POrmMarkIdIndexRec
     ); inline;
   public
-    property Rows: TSQLMarkIdIndexRecDynArray read FRows;
+    property Rows: TOrmMarkIdIndexRecDynArray read FRows;
   public
     constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
-  (*                       TSQLMarkIdByCategoryIndex                          *)
+  (*                       TOrmMarkIdByCategoryIndex                          *)
   (****************************************************************************)
 
-  TSQLMarkIdByCategoryIndex = class
+  TOrmMarkIdByCategoryIndex = class
   private
     FDynArray: TDynArrayByRecWithPointer;
   public
@@ -183,49 +188,49 @@ type
   end;
 
   (****************************************************************************)
-  (*                            TSQLMarkCache                                 *)
+  (*                            TOrmMarkCache                                 *)
   (****************************************************************************)
 
-  TSQLMarkRow = packed record
+  TOrmMarkRow = packed record
     MarkId: TID;
     Name: string;
     Desc: string;
-    GeoType: TSQLGeoType;
+    GeoType: TOrmGeoType;
     GeoCount: Integer;
   end;
-  PSQLMarkRow = ^TSQLMarkRow;
-  TSQLMarkRowDynArray = array of TSQLMarkRow;
+  POrmMarkRow = ^TOrmMarkRow;
+  TOrmMarkRowDynArray = array of TOrmMarkRow;
 
-  TSQLMarkCache = class(TSQLCacheBaseWithPreparedByCategory)
+  TOrmMarkCache = class(TOrmCacheBaseWithPreparedByCategory)
   private
-    FRows: TSQLMarkRowDynArray;
+    FRows: TOrmMarkRowDynArray;
   public
-    function Find(const AID: TID; out AItem: PSQLMarkRow): Boolean;
-    procedure AddOrUpdate(const ARec: TSQLMarkRec);
-    procedure AddPrepared(const ACategoryID: TID; const AArr: TSQLMarkRowDynArray);
+    function Find(const AID: TID; out AItem: POrmMarkRow): Boolean;
+    procedure AddOrUpdate(const ARec: TOrmMarkRec);
+    procedure AddPrepared(const ACategoryID: TID; const AArr: TOrmMarkRowDynArray);
     class procedure MarkRecToMarkRow(
-      const AMarkRec: TSQLMarkRec;
-      out AMarkRow: TSQLMarkRow
+      const AMarkRec: TOrmMarkRec;
+      out AMarkRow: TOrmMarkRow
     ); inline;
   public
-    property Rows: TSQLMarkRowDynArray read FRows;
+    property Rows: TOrmMarkRowDynArray read FRows;
   public
     constructor Create(const AMaxCacheSize: Int64);
   end;
 
   (****************************************************************************)
-  (*                        TSQLMarkGeometryCache                             *)
+  (*                        TOrmMarkGeometryCache                             *)
   (****************************************************************************)
 
-  TSQLMarkGeometryRec = packed record
+  TOrmMarkGeometryRec = packed record
     MarkID: TID;
     Size: Integer;
     Geometry: IGeometryLonLat;
   end;
-  PSQLMarkGeometryRec = ^TSQLMarkGeometryRec;
-  TSQLMarkGeometryRecDynArray = array of TSQLMarkGeometryRec;
+  POrmMarkGeometryRec = ^TOrmMarkGeometryRec;
+  TOrmMarkGeometryRecDynArray = array of TOrmMarkGeometryRec;
 
-  TSQLMarkGeometryCache = class
+  TOrmMarkGeometryCache = class
   private
     FIsPrepared: Boolean;
     FPreparedCategories: TIDDynArrayObject;
@@ -240,7 +245,7 @@ type
     );
     procedure AddPrepared(
       const ACategoryID: TID;
-      const AArr: TSQLMarkGeometryRecDynArray
+      const AArr: TOrmMarkGeometryRecDynArray
     );
     procedure Delete(const AMarkID: TID);
     procedure Reset;
@@ -252,18 +257,18 @@ type
   end;
 
   (****************************************************************************)
-  (*                            TSQLMarkDbCache                               *)
+  (*                            TOrmMarkDbCache                               *)
   (****************************************************************************)
 
-  TSQLMarkDbCache = record
-    FMarkCache: TSQLMarkCache;
-    FMarkGeometryCache: TSQLMarkGeometryCache;
-    FMarkViewCache: TSQLMarkViewCache;
-    FMarkImageCache: TSQLMarkImageCache;
-    FMarkAppearanceCache: TSQLMarkAppearanceCache;
+  TOrmMarkDbCache = record
+    FMarkCache: TOrmMarkCache;
+    FMarkGeometryCache: TOrmMarkGeometryCache;
+    FMarkViewCache: TOrmMarkViewCache;
+    FMarkImageCache: TOrmMarkImageCache;
+    FMarkAppearanceCache: TOrmMarkAppearanceCache;
 
-    FMarkIdIndex: TSQLMarkIdIndex;
-    FMarkIdByCategoryIndex: TSQLMarkIdByCategoryIndex;
+    FMarkIdIndex: TOrmMarkIdIndex;
+    FMarkIdByCategoryIndex: TOrmMarkIdByCategoryIndex;
 
     procedure Init(const AMaxCacheSize: Int64);
     procedure Done;
@@ -276,9 +281,9 @@ uses
   SysUtils,
   u_MarkSystemORMLog;
 
-{ TSQLMarkDbCache }
+{ TOrmMarkDbCache }
 
-procedure TSQLMarkDbCache.Init(const AMaxCacheSize: Int64);
+procedure TOrmMarkDbCache.Init(const AMaxCacheSize: Int64);
 var
   VMarkCacheSize: Int64;
   VMarkGeometryCacheSize: Int64;
@@ -286,20 +291,20 @@ begin
   VMarkCacheSize := Round(0.3 * AMaxCacheSize); // 30 %
   VMarkGeometryCacheSize := Round(0.7 * AMaxCacheSize); // 70%
 
-  FMarkCache := TSQLMarkCache.Create(VMarkCacheSize);
-  FMarkGeometryCache := TSQLMarkGeometryCache.Create(VMarkGeometryCacheSize);
+  FMarkCache := TOrmMarkCache.Create(VMarkCacheSize);
+  FMarkGeometryCache := TOrmMarkGeometryCache.Create(VMarkGeometryCacheSize);
 
   // no limits for View/Image/Appearance caches
-  FMarkViewCache := TSQLMarkViewCache.Create(CUnlimCacheSize);
-  FMarkImageCache := TSQLMarkImageCache.Create(CUnlimCacheSize);
-  FMarkAppearanceCache := TSQLMarkAppearanceCache.Create(CUnlimCacheSize);
+  FMarkViewCache := TOrmMarkViewCache.Create(CUnlimCacheSize);
+  FMarkImageCache := TOrmMarkImageCache.Create(CUnlimCacheSize);
+  FMarkAppearanceCache := TOrmMarkAppearanceCache.Create(CUnlimCacheSize);
 
   // and no limits for indexes
-  FMarkIdIndex := TSQLMarkIdIndex.Create(CUnlimCacheSize);
-  FMarkIdByCategoryIndex := TSQLMarkIdByCategoryIndex.Create(CUnlimCacheSize);
+  FMarkIdIndex := TOrmMarkIdIndex.Create(CUnlimCacheSize);
+  FMarkIdByCategoryIndex := TOrmMarkIdByCategoryIndex.Create(CUnlimCacheSize);
 end;
 
-procedure TSQLMarkDbCache.Done;
+procedure TOrmMarkDbCache.Done;
 begin
   FreeAndNil(FMarkIdByCategoryIndex);
   FreeAndNil(FMarkIdIndex);
@@ -310,21 +315,21 @@ begin
   FreeAndNil(FMarkCache);
 end;
 
-{ TSQLMarkImageCache }
+{ TOrmMarkImageCache }
 
-constructor TSQLMarkImageCache.Create(const AMaxCacheSize: Int64);
+constructor TOrmMarkImageCache.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create(
-    TypeInfo(TSQLMarkImageRowDynArray), FRows, djInt64, AMaxCacheSize
+    TypeInfo(TOrmMarkImageRowDynArray), FRows, ptInt64, AMaxCacheSize
   );
 end;
 
-function TSQLMarkImageCache.Find(const AID: TID; out AItem: PSQLMarkImageRow): Boolean;
+function TOrmMarkImageCache.Find(const AID: TID; out AItem: POrmMarkImageRow): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
@@ -332,17 +337,17 @@ begin
     AItem := @FRows[I];
     Result := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
   {$ENDIF}
 end;
 
-function TSQLMarkImageCache.Find(const AName: string; out AItem: PSQLMarkImageRow): Boolean;
+function TOrmMarkImageCache.Find(const AName: string; out AItem: POrmMarkImageRow): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   for I := 0 to FCount - 1 do begin
@@ -352,23 +357,23 @@ begin
       Break;
     end;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find Name=%, Result=%, Count=%', [StringToUTF8(AName), Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find Name=%, Result=%, Count=%', [StringToUtf8(AName), Result, FCount], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkImageCache.AddOrIgnore(const ARec: TSQLMarkRec);
+procedure TOrmMarkImageCache.AddOrIgnore(const ARec: TOrmMarkRec);
 begin
   AddOrIgnore(ARec.FPicId, ARec.FPicName);
 end;
 
-procedure TSQLMarkImageCache.AddOrIgnore(const AImageID: TID; const AName: string);
+procedure TOrmMarkImageCache.AddOrIgnore(const AImageID: TID; const AName: string);
 var
   I: Integer;
-  VRec: TSQLMarkImageRow;
+  VRec: TOrmMarkImageRow;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddOrIgnore');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddOrIgnore');
   {$ENDIF}
   CheckCacheSize;
   if FRow.FastLocateSorted(AImageID, I) then begin
@@ -380,51 +385,51 @@ begin
     VRec.Name := AName;
     FRow.FastAddSorted(I, VRec);
     Inc(FDataSize, Length(VRec.Name)*SizeOf(Char));
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add ID=%, Name=%, NewCount=%', [AImageID, StringToUTF8(AName), FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Add ID=%, Name=%, NewCount=%', [AImageID, StringToUtf8(AName), FCount], Self);
     {$ENDIF}
   end else begin
     Assert(False);
   end;
 end;
 
-procedure TSQLMarkImageCache.Delete(const AID: TID);
+procedure TOrmMarkImageCache.Delete(const AID: TID);
 var
   I: Integer;
   VItemDataSize: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Delete');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Delete');
   {$ENDIF}
   I := FRow.Find(AID);
   if I >= 0 then begin
     VItemDataSize := Length(FRows[I].Name)*SizeOf(Char);
     DeleteByIndex(I);
     Dec(FDataSize, VItemDataSize);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Del ID=%, NewCount=%', [AID, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Del ID=%, NewCount=%', [AID, FCount], Self);
     {$ENDIF}
   end;
 end;
 
-{ TSQLMarkAppearanceCache }
+{ TOrmMarkAppearanceCache }
 
-constructor TSQLMarkAppearanceCache.Create(const AMaxCacheSize: Int64);
+constructor TOrmMarkAppearanceCache.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create(
-    TypeInfo(TSQLMarkAppearanceRowDynArray), FRows, djInt64, AMaxCacheSize
+    TypeInfo(TOrmMarkAppearanceRowDynArray), FRows, ptInt64, AMaxCacheSize
   );
 end;
 
-function TSQLMarkAppearanceCache.Find(
+function TOrmMarkAppearanceCache.Find(
   const AID: TID;
-  out AItem: PSQLMarkAppearanceRow
+  out AItem: POrmMarkAppearanceRow
 ): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
@@ -432,21 +437,21 @@ begin
     AItem := @FRows[I];
     Result := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
   {$ENDIF}
 end;
 
-function TSQLMarkAppearanceCache.Find(
+function TOrmMarkAppearanceCache.Find(
   const AColor1, AColor2: Cardinal;
   const AScale1, AScale2: Integer;
-  out AItem: PSQLMarkAppearanceRow
+  out AItem: POrmMarkAppearanceRow
 ): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   for I := 0 to FCount - 1 do begin
@@ -458,27 +463,27 @@ begin
       Break;
     end;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find Result=%, Count=%', [Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find Result=%, Count=%', [Result, FCount], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkAppearanceCache.AddOrIgnore(const ARec: TSQLMarkRec);
+procedure TOrmMarkAppearanceCache.AddOrIgnore(const ARec: TOrmMarkRec);
 begin
   AddOrIgnore(ARec.FAppearanceId, ARec.FColor1, ARec.FColor2, ARec.FScale1, ARec.FScale2);
 end;
 
-procedure TSQLMarkAppearanceCache.AddOrIgnore(
+procedure TOrmMarkAppearanceCache.AddOrIgnore(
   const AID: TID;
   const AColor1, AColor2: Cardinal;
   const AScale1, AScale2: Integer
 );
 var
   I: Integer;
-  VRec: TSQLMarkAppearanceRow;
+  VRec: TOrmMarkAppearanceRow;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddOrIgnore');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddOrIgnore');
   {$ENDIF}
   CheckCacheSize;
   if FRow.FastLocateSorted(AID, I) then begin
@@ -492,29 +497,29 @@ begin
     VRec.Scale1 := AScale1;
     VRec.Scale2 := AScale2;
     FRow.FastAddSorted(I, VRec);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add ID=%, NewCount=%', [AID, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Add ID=%, NewCount=%', [AID, FCount], Self);
     {$ENDIF}
   end else begin
     Assert(False);
   end;
 end;
 
-{ TSQLMarkIdIndex }
+{ TOrmMarkIdIndex }
 
-constructor TSQLMarkIdIndex.Create(const AMaxCacheSize: Int64);
+constructor TOrmMarkIdIndex.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create(
-    TypeInfo(TSQLMarkIdIndexRecDynArray), FRows, djInt64, AMaxCacheSize
+    TypeInfo(TOrmMarkIdIndexRecDynArray), FRows, ptInt64, AMaxCacheSize
   );
 end;
 
-function TSQLMarkIdIndex.Find(const AID: TID; out AItem: PSQLMarkIdIndexRec): Boolean;
+function TOrmMarkIdIndex.Find(const AID: TID; out AItem: POrmMarkIdIndexRec): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
@@ -522,18 +527,18 @@ begin
     AItem := @FRows[I];
     Result := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkIdIndex.AddOrUpdate(const ARec: TSQLMarkRec);
+procedure TOrmMarkIdIndex.AddOrUpdate(const ARec: TOrmMarkRec);
 var
   I: Integer;
-  VRec: TSQLMarkIdIndexRec;
+  VRec: TOrmMarkIdIndexRec;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddOrUpdate');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddOrUpdate');
   {$ENDIF}
   CheckCacheSize;
   if FRow.FastLocateSorted(ARec.FMarkId, I) then begin
@@ -541,27 +546,27 @@ begin
     FRows[I].CategoryId := ARec.FCategoryId;
     FRows[I].ImageId := ARec.FPicId;
     FRows[I].AppearanceId := ARec.FAppearanceId;
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Update ID=%, Count=%', [ARec.FMarkId, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Update ID=%, Count=%', [ARec.FMarkId, FCount], Self);
     {$ENDIF}
   end else if I >= 0 then begin
     // add
     MarkRecToIndexRec(ARec, @VRec);
     FRow.FastAddSorted(I, VRec);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add ID=%, NewCount=%', [ARec.FMarkId, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Add ID=%, NewCount=%', [ARec.FMarkId, FCount], Self);
     {$ENDIF}
   end else begin
     Assert(False);
   end;
 end;
 
-procedure TSQLMarkIdIndex.AddPrepared(const AArr: TSQLMarkIdIndexRecDynArray);
+procedure TOrmMarkIdIndex.AddPrepared(const AArr: TOrmMarkIdIndexRecDynArray);
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddPrepared');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   Reset;
   I := Length(AArr);
@@ -574,8 +579,8 @@ begin
   FIsPrepared := True;
 end;
 
-procedure TSQLMarkIdIndex.AddArray(
-  const AArray: TSQLMarkIdIndexRecDynArray;
+procedure TOrmMarkIdIndex.AddArray(
+  const AArray: TOrmMarkIdIndexRecDynArray;
   const AStartIndex: Integer;
   const ACount: Integer
 );
@@ -585,8 +590,8 @@ var
   VCount: Integer;
   VBits: TBits;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddArray');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddArray');
   {$ENDIF}
   if ACount < 0 then begin
     VSize := Length(AArray) - AStartIndex;
@@ -629,9 +634,9 @@ begin
   end;
 end;
 
-class procedure TSQLMarkIdIndex.MarkRecToIndexRec(
-  const AMarkRec: TSQLMarkRec;
-  const AIndexRec: PSQLMarkIdIndexRec
+class procedure TOrmMarkIdIndex.MarkRecToIndexRec(
+  const AMarkRec: TOrmMarkRec;
+  const AIndexRec: POrmMarkIdIndexRec
 );
 begin
   AIndexRec.MarkId := AMarkRec.FMarkId;
@@ -640,21 +645,21 @@ begin
   AIndexRec.AppearanceId := AMarkRec.FAppearanceId;
 end;
 
-{ TSQLMarkIdByCategoryIndex }
+{ TOrmMarkIdByCategoryIndex }
 
-constructor TSQLMarkIdByCategoryIndex.Create(const AMaxCacheSize: Int64);
+constructor TOrmMarkIdByCategoryIndex.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create;
   FDynArray := TDynArrayByRecWithPointer.Create(dpObj, nil, AMaxCacheSize);
 end;
 
-destructor TSQLMarkIdByCategoryIndex.Destroy;
+destructor TOrmMarkIdByCategoryIndex.Destroy;
 begin
   FDynArray.Free;
   inherited Destroy;
 end;
 
-function TSQLMarkIdByCategoryIndex.Find(
+function TOrmMarkIdByCategoryIndex.Find(
   const ACategoryID: TID;
   out AMarkIDArray: TIDDynArray;
   out AMarkIDArrayCount: Integer
@@ -663,8 +668,8 @@ var
   VItem: PRecWithPointer;
   VArray: TIDDynArrayObject;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   if FDynArray.Find(ACategoryID, VItem) then begin
@@ -674,12 +679,12 @@ begin
     AMarkIDArrayCount := VArray.Count;
     Result := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find CategoryID=%, Result=%, OutArrCount=%', [ACategoryID, Result, AMarkIDArrayCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find CategoryID=%, Result=%, OutArrCount=%', [ACategoryID, Result, AMarkIDArrayCount], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkIdByCategoryIndex.AddPrepared(
+procedure TOrmMarkIdByCategoryIndex.AddPrepared(
   const ACategoryID: TID;
   const AMarkIDArray: TIDDynArray;
   const AStartIndex: Integer;
@@ -688,26 +693,26 @@ procedure TSQLMarkIdByCategoryIndex.AddPrepared(
 var
   VItem: PRecWithPointer;
   VArray: TIDDynArrayObject;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
+  {$IFDEF ORM_LOG_CACHE_RESULT}
   VArrayCount: Integer;
   {$ENDIF}
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddPrepared');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   if FDynArray.Find(ACategoryID, VItem) then begin
     Assert(VItem.Data <> nil);
     VArray := TIDDynArrayObject(VItem.Data);
     VArray.Reset;
     VArray.AddArray(AMarkIDArray, AStartIndex, ACount);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
+    {$IFDEF ORM_LOG_CACHE_RESULT}
     VArrayCount := VArray.Count;
     {$ENDIF}
   end else begin
     VArray := TIDDynArrayObject.Create;
     try
       VArray.AddArray(AMarkIDArray, AStartIndex, ACount);
-      {$IFDEF SQL_LOG_CACHE_RESULT}
+      {$IFDEF ORM_LOG_CACHE_RESULT}
       VArrayCount := VArray.Count;
       {$ENDIF}
       FDynArray.Add(ACategoryID, Pointer(VArray), 0, True);
@@ -716,65 +721,65 @@ begin
       VArray.Free;
     end;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('AddPrepared CategoryID=%, MarksCountNew=%, Count=%', [ACategoryID, VArrayCount, FDynArray.Count], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('AddPrepared CategoryID=%, MarksCountNew=%, Count=%', [ACategoryID, VArrayCount, FDynArray.Count], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkIdByCategoryIndex.Add(const ACategoryID: TID; const AMarkID: TID);
+procedure TOrmMarkIdByCategoryIndex.Add(const ACategoryID: TID; const AMarkID: TID);
 var
   VItem: PRecWithPointer;
   VArray: TIDDynArrayObject;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Add');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Add');
   {$ENDIF}
   if FDynArray.Find(ACategoryID, VItem) then begin
     Assert(VItem.Data <> nil);
     VArray := TIDDynArrayObject(VItem.Data);
     VArray.Add(AMarkID);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add CategoryID=%, MarkID=%, MarksCountNew=%', [ACategoryID, AMarkID, VArray.Count], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Add CategoryID=%, MarkID=%, MarksCountNew=%', [ACategoryID, AMarkID, VArray.Count], Self);
     {$ENDIF}
   end;
 end;
 
-procedure TSQLMarkIdByCategoryIndex.Delete(const ACategoryID: TID; const AMarkID: TID);
+procedure TOrmMarkIdByCategoryIndex.Delete(const ACategoryID: TID; const AMarkID: TID);
 var
   VItem: PRecWithPointer;
   VArray: TIDDynArrayObject;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Delete');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Delete');
   {$ENDIF}
   if FDynArray.Find(ACategoryID, VItem) then begin
     Assert(VItem.Data <> nil);
     VArray := TIDDynArrayObject(VItem.Data);
     VArray.Delete(AMarkID);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Del CategoryID=%, MarkID=%, MarksCountNew=%', [ACategoryID, AMarkID, VArray.Count], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Del CategoryID=%, MarkID=%, MarksCountNew=%', [ACategoryID, AMarkID, VArray.Count], Self);
     {$ENDIF}
   end;
 end;
 
-procedure TSQLMarkIdByCategoryIndex.Reset;
+procedure TOrmMarkIdByCategoryIndex.Reset;
 begin
   FDynArray.Reset;
 end;
 
-{ TSQLMarkCache }
+{ TOrmMarkCache }
 
-constructor TSQLMarkCache.Create(const AMaxCacheSize: Int64);
+constructor TOrmMarkCache.Create(const AMaxCacheSize: Int64);
 begin
-  inherited Create(TypeInfo(TSQLMarkRowDynArray), FRows, djInt64, AMaxCacheSize);
+  inherited Create(TypeInfo(TOrmMarkRowDynArray), FRows, ptInt64, AMaxCacheSize);
 end;
 
-function TSQLMarkCache.Find(const AID: TID; out AItem: PSQLMarkRow): Boolean;
+function TOrmMarkCache.Find(const AID: TID; out AItem: POrmMarkRow): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   I := FRow.Find(AID);
@@ -782,19 +787,19 @@ begin
     AItem := @FRows[I];
     Result := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find ID=%, Result=%, Count=%', [AID, Result, FCount], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkCache.AddOrUpdate(const ARec: TSQLMarkRec);
+procedure TOrmMarkCache.AddOrUpdate(const ARec: TOrmMarkRec);
 var
   I: Integer;
   VSize: Integer;
-  VRow: TSQLMarkRow;
+  VRow: TOrmMarkRow;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddOrUpdate');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddOrUpdate');
   {$ENDIF}
   CheckCacheSize;
   VSize := (Length(ARec.FName) + Length(ARec.FDesc)) * SizeOf(Char);
@@ -803,31 +808,31 @@ begin
     VSize := VSize - (Length(FRows[I].Name) + Length(FRows[I].Desc)) * SizeOf(Char);
     MarkRecToMarkRow(ARec, FRows[I]);
     Inc(FDataSize, VSize);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Update ID=%, SizeDiff=%, Count=%', [ARec.FMarkId, VSize, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Update ID=%, SizeDiff=%, Count=%', [ARec.FMarkId, VSize, FCount], Self);
     {$ENDIF}
   end else if I >= 0 then begin
     // add
     MarkRecToMarkRow(ARec, VRow);
     FRow.FastAddSorted(I, VRow);
     Inc(FDataSize, VSize);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add ID=%, Size=%, NewCount=%', [ARec.FMarkId, VSize, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Add ID=%, Size=%, NewCount=%', [ARec.FMarkId, VSize, FCount], Self);
     {$ENDIF}
   end else begin
     Assert(False);
   end;
 end;
 
-procedure TSQLMarkCache.AddPrepared(const ACategoryID: TID; const AArr: TSQLMarkRowDynArray);
+procedure TOrmMarkCache.AddPrepared(const ACategoryID: TID; const AArr: TOrmMarkRowDynArray);
 var
   I, J: Integer;
   VSize: Integer;
   VCount: Integer;
   VBits: TBits;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddPrepared');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   CheckCacheSize;
   VCount := Length(AArr);
@@ -835,8 +840,8 @@ begin
     if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
       if I >= 0 then begin
         FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
-        {$IFDEF SQL_LOG_CACHE_RESULT}
-        SQLLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
+        {$IFDEF ORM_LOG_CACHE_RESULT}
+        OrmLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
         {$ENDIF}
       end else begin
         Assert(False);
@@ -891,14 +896,14 @@ begin
       Inc(FDataSize, VSize);
     end;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FCount], Self);
   {$ENDIF}
 end;
 
-class procedure TSQLMarkCache.MarkRecToMarkRow(
-  const AMarkRec: TSQLMarkRec;
-  out AMarkRow: TSQLMarkRow
+class procedure TOrmMarkCache.MarkRecToMarkRow(
+  const AMarkRec: TOrmMarkRec;
+  out AMarkRow: TOrmMarkRow
 );
 begin
   AMarkRow.MarkId := AMarkRec.FMarkId;
@@ -908,21 +913,21 @@ begin
   AMarkRow.GeoCount := AMarkRec.FGeoCount;
 end;
 
-{ TSQLMarkViewCache }
+{ TOrmMarkViewCache }
 
-constructor TSQLMarkViewCache.Create(const AMaxCacheSize: Int64);
+constructor TOrmMarkViewCache.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create(
-    TypeInfo(TSQLMarkViewRowDynArray), FRows, djInt64, AMaxCacheSize
+    TypeInfo(TOrmMarkViewRowDynArray), FRows, ptInt64, AMaxCacheSize
   );
 end;
 
-function TSQLMarkViewCache.Find(const AMarkID: TID; out AItem: PSQLMarkViewRow): Boolean;
+function TOrmMarkViewCache.Find(const AMarkID: TID; out AItem: POrmMarkViewRow): Boolean;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := False;
   I := FRow.Find(AMarkID);
@@ -930,26 +935,26 @@ begin
     AItem := @FRows[I];
     Result := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find ID=%, Result=%, Count=%', [AMarkID, Result, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find ID=%, Result=%, Count=%', [AMarkID, Result, FCount], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkViewCache.AddOrUpdate(const ARec: TSQLMarkRec);
+procedure TOrmMarkViewCache.AddOrUpdate(const ARec: TOrmMarkRec);
 begin
   AddOrUpdate(ARec.FMarkId, ARec.FViewId, ARec.FCategoryId, ARec.FVisible);
 end;
 
-procedure TSQLMarkViewCache.AddOrUpdate(
+procedure TOrmMarkViewCache.AddOrUpdate(
   const AMarkID, AViewID, ACategoryID: TID;
   const AVisible: Boolean
 );
 var
   I: Integer;
-  VRow: TSQLMarkViewRow;
+  VRow: TOrmMarkViewRow;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddOrUpdate');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddOrUpdate');
   {$ENDIF}
   CheckCacheSize;
   if FRow.FastLocateSorted(AMarkID, I) then begin
@@ -957,8 +962,8 @@ begin
     FRows[I].ViewId := AViewID;
     FRows[I].CategoryID := ACategoryID;
     FRows[I].Visible := AVisible;
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Update AMarkID=%, Count=%', [AMarkID, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Update AMarkID=%, Count=%', [AMarkID, FCount], Self);
     {$ENDIF}
   end else if I >= 0 then begin
     // add
@@ -967,22 +972,22 @@ begin
     VRow.CategoryID := ACategoryID;
     VRow.Visible := AVisible;
     FRow.FastAddSorted(I, VRow);
-    {$IFDEF SQL_LOG_CACHE_RESULT}
-    SQLLogCache('Add AMarkID=%, NewCount=%', [AMarkID, FCount], Self);
+    {$IFDEF ORM_LOG_CACHE_RESULT}
+    OrmLogCache('Add AMarkID=%, NewCount=%', [AMarkID, FCount], Self);
     {$ENDIF}
   end else begin
     Assert(False);
   end;
 end;
 
-procedure TSQLMarkViewCache.AddPrepared(const ACategoryID: TID; const AArr: TSQLMarkViewRowDynArray);
+procedure TOrmMarkViewCache.AddPrepared(const ACategoryID: TID; const AArr: TOrmMarkViewRowDynArray);
 var
   I, J: Integer;
   VCount: Integer;
   VBits: TBits;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddPrepared');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   CheckCacheSize;
   VCount := Length(AArr);
@@ -990,8 +995,8 @@ begin
     if not FPreparedCategoriesDynArr.FastLocateSorted(ACategoryID, I) then begin
       if I >= 0 then begin
         FPreparedCategoriesDynArr.FastAddSorted(I, ACategoryID);
-        {$IFDEF SQL_LOG_CACHE_RESULT}
-        SQLLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
+        {$IFDEF ORM_LOG_CACHE_RESULT}
+        OrmLogCache('PreparedCategoryID=%, PreparedCount=%', [ACategoryID, FPreparedCategoriesDynArr.Count], Self);
         {$ENDIF}
       end else begin
         Assert(False);
@@ -1036,14 +1041,14 @@ begin
     end;
     FIsPrepared := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FCount], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FCount], Self);
   {$ENDIF}
 end;
 
-{ TSQLMarkGeometryCache }
+{ TOrmMarkGeometryCache }
 
-constructor TSQLMarkGeometryCache.Create(const AMaxCacheSize: Int64);
+constructor TOrmMarkGeometryCache.Create(const AMaxCacheSize: Int64);
 begin
   inherited Create;
   FIsPrepared := False;
@@ -1051,63 +1056,63 @@ begin
   FGeometryArray := TDynArrayByRecWithPointer.Create(dpIntf, nil, AMaxCacheSize);
 end;
 
-destructor TSQLMarkGeometryCache.Destroy;
+destructor TOrmMarkGeometryCache.Destroy;
 begin
   FGeometryArray.Free;
   FPreparedCategories.Free;
   inherited Destroy;
 end;
 
-function TSQLMarkGeometryCache.IsCategoryPrepared(const ACategoryID: TID): Boolean;
+function TOrmMarkGeometryCache.IsCategoryPrepared(const ACategoryID: TID): Boolean;
 begin
   Result := FIsPrepared or FPreparedCategories.Find(ACategoryID);
 end;
 
-function TSQLMarkGeometryCache.Find(
+function TOrmMarkGeometryCache.Find(
   const AMarkID: TID;
   out AGeometry: IGeometryLonLat
 ): Boolean;
 var
   VItem: PRecWithPointer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Find');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Find');
   {$ENDIF}
   Result := FGeometryArray.Find(AMarkID, VItem);
   if Result then begin
     AGeometry := IGeometryLonLat(VItem.Data);
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Find ID=%, Result=%, Count=%', [AMarkID, Result, FGeometryArray.Count], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Find ID=%, Result=%, Count=%', [AMarkID, Result, FGeometryArray.Count], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkGeometryCache.AddOrUpdate(
+procedure TOrmMarkGeometryCache.AddOrUpdate(
   const AMarkID: TID;
   const ASize: Integer;
   const AGeometry: IGeometryLonLat
 );
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddOrUpdate');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddOrUpdate');
   {$ENDIF}
   FGeometryArray.Add(AMarkID, Pointer(AGeometry), ASize, True);
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Add/Update ID=%, Size=%, (New)Count=%', [AMarkID, ASize, FGeometryArray.Count], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Add/Update ID=%, Size=%, (New)Count=%', [AMarkID, ASize, FGeometryArray.Count], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkGeometryCache.AddPrepared(
+procedure TOrmMarkGeometryCache.AddPrepared(
   const ACategoryID: TID;
-  const AArr: TSQLMarkGeometryRecDynArray
+  const AArr: TOrmMarkGeometryRecDynArray
 );
 var
   I: Integer;
   VCount: Integer;
   VArray: TRecWithPointerDynArray;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'AddPrepared');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'AddPrepared');
   {$ENDIF}
   VCount := Length(AArr);
   SetLength(VArray, VCount);
@@ -1122,26 +1127,26 @@ begin
   end else begin
     FIsPrepared := True;
   end;
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FGeometryArray.Count], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('AddPrepared CategoryID=%, IsPrepared=%, InArrCount=%, Count=%', [ACategoryID, FIsPrepared, VCount, FGeometryArray.Count], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkGeometryCache.Delete(const AMarkID: TID);
+procedure TOrmMarkGeometryCache.Delete(const AMarkID: TID);
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Delete');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Delete');
   {$ENDIF}
   FGeometryArray.Delete(AMarkID);
-  {$IFDEF SQL_LOG_CACHE_RESULT}
-  SQLLogCache('Del ID=%, NewCount=%', [AMarkID, FGeometryArray.Count], Self);
+  {$IFDEF ORM_LOG_CACHE_RESULT}
+  OrmLogCache('Del ID=%, NewCount=%', [AMarkID, FGeometryArray.Count], Self);
   {$ENDIF}
 end;
 
-procedure TSQLMarkGeometryCache.Reset;
+procedure TOrmMarkGeometryCache.Reset;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Reset');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Reset');
   {$ENDIF}
   FGeometryArray.Reset;
   FPreparedCategories.Reset;

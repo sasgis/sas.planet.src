@@ -88,7 +88,6 @@ type
     destructor Destroy; override;
   end;
 
-
 implementation
 
 uses
@@ -263,6 +262,6 @@ begin
 end;
 
 initialization
-  InitSQLLog;
+  InitOrmLog;
 
 end.

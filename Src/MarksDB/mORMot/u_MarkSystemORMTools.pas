@@ -26,8 +26,10 @@ interface
 uses
   Windows,
   SysUtils,
-  mORMot,
-  SynCommons,
+  mormot.core.base,
+  mormot.core.unicode,
+  mormot.orm.core,
+  mormot.orm.rest,
   t_GeoTypes,
   t_MarkSystemORM,
   i_GeometryLonLat;
@@ -35,10 +37,10 @@ uses
 type
   TCSVFieldsBuilder = record
     Count: Integer;
-    Fields: array of RawUTF8;
+    Fields: array of RawUtf8;
     procedure Clear;
     procedure Add(const AFieldName: string);
-    function Build: RawUTF8;
+    function Build: RawUtf8;
   end;
 
 procedure CheckID(const AID: TID); inline;
@@ -48,19 +50,19 @@ procedure CheckRetrieveResult(const AResult: Boolean); inline;
 procedure CheckExecuteResult(const AResult: Boolean); inline;
 
 procedure StartTransaction(
-  const AClient: TSQLRestClient;
+  const AClient: TRestOrm;
   var ATrans: TTransactionRec;
-  const ASQLTableClass: TSQLRecordClass;
+  const AOrmClass: TOrmClass;
   const AIsReadOnly: Boolean
 ); inline;
 
 procedure CommitTransaction(
-  const AClient: TSQLRestClient;
+  const AClient: TRestOrm;
   var ATrans: TTransactionRec
 ); inline;
 
 procedure RollBackTransaction(
-  const AClient: TSQLRestClient;
+  const AClient: TRestOrm;
   var ATrans: TTransactionRec
 ); inline;
 
@@ -84,20 +86,20 @@ end;
 procedure TCSVFieldsBuilder.Add(const AFieldName: string);
 begin
   SetLength(Fields, Count + 1);
-  Fields[Count] := StringToUTF8(AFieldName);
+  Fields[Count] := StringToUtf8(AFieldName);
   Inc(Count);
 end;
 
-function TCSVFieldsBuilder.Build: RawUTF8;
+function TCSVFieldsBuilder.Build: RawUtf8;
 var
   I: Integer;
-  VSep: RawUTF8;
+  VSep: RawUtf8;
 begin
   VSep := '';
   Result := '';
   for I := 0 to Length(Fields) - 1 do begin
     if I = 1 then begin
-      VSep := RawUTF8(',');
+      VSep := RawUtf8(',');
     end;
     Result := Result + VSep + Fields[I];
   end;
@@ -139,9 +141,9 @@ begin
 end;
 
 procedure StartTransaction(
-  const AClient: TSQLRestClient;
+  const AClient: TRestOrm;
   var ATrans: TTransactionRec;
-  const ASQLTableClass: TSQLRecordClass;
+  const AOrmClass: TOrmClass;
   const AIsReadOnly: Boolean
 );
 begin
@@ -152,7 +154,7 @@ begin
   ATrans.FSessionID := AClient.TransactionActiveSession;
   if ATrans.FSessionID = 0 then begin
     ATrans.FSessionID := GetTickCount;
-    if not AClient.TransactionBegin(ASQLTableClass, ATrans.FSessionID) then begin
+    if not AClient.TransactionBegin(AOrmClass, ATrans.FSessionID) then begin
       raise EMarkSystemORMError.Create('MarkSystemORM: Start transaction is failed!');
     end;
     ATrans.FIsInternal := True;
@@ -162,7 +164,7 @@ begin
 end;
 
 procedure CommitTransaction(
-  const AClient: TSQLRestClient;
+  const AClient: TRestOrm;
   var ATrans: TTransactionRec
 );
 begin
@@ -177,7 +179,7 @@ begin
 end;
 
 procedure RollBackTransaction(
-  const AClient: TSQLRestClient;
+  const AClient: TRestOrm;
   var ATrans: TTransactionRec
 );
 begin

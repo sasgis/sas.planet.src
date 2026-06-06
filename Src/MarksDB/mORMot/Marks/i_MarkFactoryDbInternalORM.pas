@@ -48,11 +48,11 @@ type
     ): IVectorDataItem; overload;
 
     function CreateMark(
-      const AMarkRec: TSQLMarkRec
+      const AMarkRec: TOrmMarkRec
     ): IVectorDataItem; overload;
 
     function CreateMarkId(
-      const AMarkRec: TSQLMarkRec
+      const AMarkRec: TOrmMarkRec
     ): IMarkId;
 
     function CreateInternalMark(

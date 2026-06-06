@@ -26,7 +26,8 @@ interface
 uses
   SysUtils,
   Variants,
-  SynCommons,
+  mormot.core.data,
+  mormot.core.rtti,
   i_PascalScriptGlobal,
   u_BaseInterfacedObject;
 
@@ -76,7 +77,7 @@ begin
   inherited Create;
   FLock := GSync.SyncStd.Make(Self.ClassName);
   FItemsACount := 0;
-  FItemsA.InitSpecific(TypeInfo(TItemsRecArray), FItems, djInteger, @FItemsACount);
+  FItemsA.InitSpecific(TypeInfo(TItemsRecArray), FItems, ptInteger, @FItemsACount);
   FItemsA.Sorted := True;
 end;
 

@@ -26,8 +26,11 @@ interface
 uses
   Windows,
   SysUtils,
-  mORMot,
-  SynCommons,
+  mormot.core.base,
+  mormot.orm.core,
+  mormot.orm.rest,
+  mormot.rest.client,
+  mormot.rest.sqlite3,
   i_Notifier,
   i_Listener,
   i_ReadWriteStateInternal,
@@ -38,7 +41,6 @@ uses
   i_MarkCategoryDbInternalORM,
   i_MarkCategoryDBImpl,
   i_MarkSystemImplORMClientProvider,
-  u_MarkCategoryDbImplORMCache,
   u_MarkCategoryDbImplORMHelper,
   u_ConfigDataElementBase;
 
@@ -50,7 +52,8 @@ type
   )
   private
     FDbId: NativeInt;
-    FClient: TSQLRestClient;
+    FRestClient: TRestClientDB;
+    FClient: TRestOrm;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternalORM;
     FHelper: TMarkCategoryDbImplORMHelper;
     FStateInternal: IReadWriteStateInternal;
@@ -95,7 +98,6 @@ type
 implementation
 
 uses
-  StrUtils,
   t_MarkSystemORM,
   i_InterfaceListSimple,
   i_MarkCategoryInternalORM,
@@ -120,7 +122,8 @@ begin
   inherited Create;
 
   FDbId := ADbId;
-  FClient := AClientProvider.RestClient;
+  FRestClient := AClientProvider.RestClient;
+  FClient := FRestClient.OrmInstance;
   FFactoryDbInternal := TMarkCategoryFactoryDbInternalORM.Create(FDbId);
 
   FStateInternal := AStateInternal;
@@ -158,10 +161,10 @@ begin
   end;
 end;
 
-procedure _SQLCategoryRecFromCategory(
+procedure _OrmCategoryRecFromCategory(
   const ACategoryID: TID;
   const ACategory: IMarkCategory;
-  out ACategoryRec: TSQLCategoryRec
+  out ACategoryRec: TOrmCategoryRec
 );
 begin
   ACategoryRec.FCategoryId := ACategoryID;
@@ -183,8 +186,8 @@ var
   VNewCategory: IMarkCategory;
   VOldCategory: IMarkCategory;
   VCategoryInternal: IMarkCategoryInternalORM;
-  VSQLCategoryRecNew: TSQLCategoryRec;
-  VSQLCategoryRecOld: TSQLCategoryRec;
+  VOrmCategoryRecNew: TOrmCategoryRec;
+  VOrmCategoryRecOld: TOrmCategoryRec;
   VTransaction: TTransactionRec;
 begin
   Result := nil;
@@ -204,7 +207,7 @@ begin
   end;
 
   if AUseTransactions then begin
-    StartTransaction(FClient, VTransaction, TSQLCategory, FHelper.IsReadOnly);
+    StartTransaction(FClient, VTransaction, TOrmCategory, FHelper.IsReadOnly);
   end;
   try
     if Assigned(AOldCategory) and not Assigned(ANewCategory) then
@@ -217,9 +220,9 @@ begin
     if not Assigned(AOldCategory) and Assigned(ANewCategory) then
     begin // INSERT
       if Supports(ANewCategory, IMarkCategory, VNewCategory) then begin
-        _SQLCategoryRecFromCategory(0, VNewCategory, VSQLCategoryRecNew);
-        if FHelper.InsertCategorySQL(VSQLCategoryRecNew) then begin
-          Result := FFactoryDbInternal.CreateCategory(VSQLCategoryRecNew);
+        _OrmCategoryRecFromCategory(0, VNewCategory, VOrmCategoryRecNew);
+        if FHelper.InsertCategorySQL(VOrmCategoryRecNew) then begin
+          Result := FFactoryDbInternal.CreateCategory(VOrmCategoryRecNew);
           AIsChanged := True;
         end;
       end else begin
@@ -243,10 +246,10 @@ begin
       end;
       if Assigned(VOldCategory) then begin
         if Supports(ANewCategory, IMarkCategory, VNewCategory) then begin
-          _SQLCategoryRecFromCategory(0, VNewCategory, VSQLCategoryRecNew);
-          _SQLCategoryRecFromCategory(VCategoryID, VOldCategory, VSQLCategoryRecOld);
-          if FHelper.UpdateCategorySQL(VSQLCategoryRecOld, VSQLCategoryRecNew) then begin
-            Result := FFactoryDbInternal.CreateCategory(VSQLCategoryRecNew);
+          _OrmCategoryRecFromCategory(0, VNewCategory, VOrmCategoryRecNew);
+          _OrmCategoryRecFromCategory(VCategoryID, VOldCategory, VOrmCategoryRecOld);
+          if FHelper.UpdateCategorySQL(VOrmCategoryRecOld, VOrmCategoryRecNew) then begin
+            Result := FFactoryDbInternal.CreateCategory(VOrmCategoryRecNew);
             AIsChanged := True;
           end;
         end;
@@ -303,7 +306,7 @@ begin
   try
     VDoNotify := False;
 
-    StartTransaction(FClient, VTransaction, TSQLCategory, FHelper.IsReadOnly);
+    StartTransaction(FClient, VTransaction, TOrmCategory, FHelper.IsReadOnly);
     try
       if ANewCategoryList <> nil then begin
         VTemp := TInterfaceListSimple.Create;
@@ -383,7 +386,7 @@ end;
 
 function TMarkCategoryDbImplORM._GetCategory(const ID: TID; const AName: string): IMarkCategory;
 var
-  VRec: TSQLCategoryRec;
+  VRec: TOrmCategoryRec;
 begin
   if FHelper.ReadCategorySQL(VRec, ID, AName) then begin
     Result := FFactoryDbInternal.CreateCategory(VRec);
@@ -430,7 +433,7 @@ var
 begin
   LockWrite;
   try
-    StartTransaction(FClient, VTransaction, TSQLCategoryView, FHelper.IsReadOnly);
+    StartTransaction(FClient, VTransaction, TOrmCategoryView, FHelper.IsReadOnly);
     try
       FHelper.SetAllCategoriesVisibleSQL(ANewVisible);
       CommitTransaction(FClient, VTransaction);
@@ -450,7 +453,7 @@ var
   VCount: Integer;
   VTemp: IInterfaceListSimple;
   VCategory: IMarkCategory;
-  VCategoryRecArray: TSQLCategoryRecDynArray;
+  VCategoryRecArray: TOrmCategoryRecDynArray;
 begin
   Result := nil;
   LockWrite;

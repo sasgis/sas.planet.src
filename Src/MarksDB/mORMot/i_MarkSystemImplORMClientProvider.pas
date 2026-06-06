@@ -24,7 +24,7 @@ unit i_MarkSystemImplORMClientProvider;
 interface
 
 uses
-  mORMotSQLite3,
+  mormot.rest.sqlite3,
   t_MarkSystemORM;
 
 type
@@ -38,8 +38,8 @@ type
     function GetRestClientType: TMarkSystemImplORMClientType;
     property RestClientType: TMarkSystemImplORMClientType read GetRestClientType;
 
-    function GetRestClient: TSQLRestClientDB;
-    property RestClient: TSQLRestClientDB read GetRestClient;
+    function GetRestClient: TRestClientDB;
+    property RestClient: TRestClientDB read GetRestClient;
   end;
 
 implementation

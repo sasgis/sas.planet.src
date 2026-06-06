@@ -25,7 +25,7 @@ interface
 
 uses
   Classes,
-  SynCurl,
+  mormot.lib.curl,
   t_CurlHttpClient;
 
 type
@@ -256,7 +256,7 @@ begin
   FOptions := cCurlDefaultOptions;
   FProxy := cCurlDefaultProxy;
 
-  if curl.Module = 0 then begin
+  if curl.Handle = 0 then begin
     LibCurlInitialize([giAll], GDllName.Curl);
   end else
   if not CurlIsAvailable then begin
@@ -527,7 +527,7 @@ end;
 
 class function TCurlHttpClient.GetCurlVersionInfo: string;
 begin
-  if curl.Module = 0 then begin
+  if curl.Handle = 0 then begin
     LibCurlInitialize;
   end;
   Result := curl.infoText;

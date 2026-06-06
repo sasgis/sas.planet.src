@@ -27,7 +27,9 @@ interface
 
 uses
   SysUtils,
-  SynCommons,
+  mormot.core.base,
+  mormot.core.data,
+  mormot.core.rtti,
   t_MarkSystemORM;
 
 const
@@ -35,10 +37,10 @@ const
 
 type
   (****************************************************************************)
-  (*                            TSQLCacheBase                                 *)
+  (*                            TOrmCacheBase                                 *)
   (****************************************************************************)
 
-  TSQLCacheBase = class
+  TOrmCacheBase = class
   protected
     FCount: Integer;
     FRow: TDynArray;
@@ -62,17 +64,17 @@ type
     constructor Create(
       const ATypeInfo: pointer;
       var AValue;
-      const AKind: TDynArrayKind;
+      const AKind: TRttiParserType;
       const AMaxCacheSize: Int64
     );
     destructor Destroy; override;
   end;
 
   (****************************************************************************)
-  (*                TSQLCacheBaseWithPreparedByCategory                       *)
+  (*                TOrmCacheBaseWithPreparedByCategory                       *)
   (****************************************************************************)
 
-  TSQLCacheBaseWithPreparedByCategory = class(TSQLCacheBase)
+  TOrmCacheBaseWithPreparedByCategory = class(TOrmCacheBase)
   protected
     FPreparedCategoriesCount: Integer;
     FPreparedCategories: TIDDynArray;
@@ -84,7 +86,7 @@ type
     constructor Create(
       const ATypeInfo: pointer;
       var AValue;
-      const AKind: TDynArrayKind;
+      const AKind: TRttiParserType;
       const AMaxCacheSize: Int64
     );
     destructor Destroy; override;
@@ -174,12 +176,12 @@ uses
   Classes,
   u_MarkSystemORMLog;
 
-{ TSQLCacheBase }
+{ TOrmCacheBase }
 
-constructor TSQLCacheBase.Create(
+constructor TOrmCacheBase.Create(
   const ATypeInfo: pointer;
   var AValue;
-  const AKind: TDynArrayKind;
+  const AKind: TRttiParserType;
   const AMaxCacheSize: Int64
 );
 begin
@@ -192,21 +194,21 @@ begin
   FRow.Sorted := True;
 end;
 
-destructor TSQLCacheBase.Destroy;
+destructor TOrmCacheBase.Destroy;
 begin
   Reset;
   inherited Destroy;
 end;
 
-function TSQLCacheBase.GetSize: Int64;
+function TOrmCacheBase.GetSize: Int64;
 begin
-  Result := InstanceSize + Integer(FRow.ElemSize) * FCount + FDataSize;
+  Result := InstanceSize + Integer(FRow.ItemSize) * FCount + FDataSize;
 end;
 
-procedure TSQLCacheBase.Reset;
+procedure TOrmCacheBase.Reset;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Reset');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Reset');
   {$ENDIF}
   FRow.Clear;
   FRow.Sorted := True;
@@ -214,33 +216,33 @@ begin
   FIsPrepared := False;
 end;
 
-procedure TSQLCacheBase.CheckCacheSize;
+procedure TOrmCacheBase.CheckCacheSize;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'CheckCacheSize');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'CheckCacheSize');
   {$ENDIF}
   if Self.Size > FMaxCacheSize then begin
-    {$IFDEF SQL_LOG_CACHE_SIZE}
-    SQLLogInfo('Init auto-reset: CurSize=%, MaxSize=%', [Self.Size, FMaxCacheSize], Self);
+    {$IFDEF ORM_LOG_CACHE_SIZE}
+    OrmLogInfo('Init auto-reset: CurSize=%, MaxSize=%', [Self.Size, FMaxCacheSize], Self);
     {$ENDIF}
     Reset;
   end;
-  {$IFDEF SQL_LOG_CACHE_SIZE}
-  SQLLogDebug('CurSize=%, MaxSize=%', [Self.Size, FMaxCacheSize], Self);
+  {$IFDEF ORM_LOG_CACHE_SIZE}
+  OrmLogDebug('CurSize=%, MaxSize=%', [Self.Size, FMaxCacheSize], Self);
   {$ENDIF}
 end;
 
-function TSQLCacheBase.GetIsSorted: Boolean;
+function TOrmCacheBase.GetIsSorted: Boolean;
 begin
   Result := FRow.Sorted;
 end;
 
-procedure TSQLCacheBase.Sort;
+procedure TOrmCacheBase.Sort;
 begin
   FRow.Sort;
 end;
 
-procedure TSQLCacheBase.DeleteByIndex(const AIndex: Integer);
+procedure TOrmCacheBase.DeleteByIndex(const AIndex: Integer);
 begin
   Assert(AIndex >= 0);
   Assert(AIndex < FCount);
@@ -248,7 +250,7 @@ begin
   FRow.FastDeleteSorted(AIndex);
 end;
 
-procedure TSQLCacheBase.Delete(const AID: TID);
+procedure TOrmCacheBase.Delete(const AID: TID);
 var
   I: Integer;
 begin
@@ -258,35 +260,35 @@ begin
   end;
 end;
 
-{ TSQLCacheBaseWithPreparedByCategory }
+{ TOrmCacheBaseWithPreparedByCategory }
 
-constructor TSQLCacheBaseWithPreparedByCategory.Create(
+constructor TOrmCacheBaseWithPreparedByCategory.Create(
   const ATypeInfo: Pointer;
   var AValue;
-  const AKind: TDynArrayKind;
+  const AKind: TRttiParserType;
   const AMaxCacheSize: Int64
 );
 begin
   inherited Create(ATypeInfo, AValue, AKind, AMaxCacheSize);
   FPreparedCategoriesCount := 0;
   FPreparedCategoriesDynArr.InitSpecific(
-    TypeInfo(TIDDynArray), FPreparedCategories, djInt64, @FPreparedCategoriesCount
+    TypeInfo(TIDDynArray), FPreparedCategories, ptInt64, @FPreparedCategoriesCount
   );
   FPreparedCategoriesDynArr.Sorted := True;
 end;
 
-destructor TSQLCacheBaseWithPreparedByCategory.Destroy;
+destructor TOrmCacheBaseWithPreparedByCategory.Destroy;
 begin
   FPreparedCategoriesDynArr.Clear;
   inherited Destroy;
 end;
 
-function TSQLCacheBaseWithPreparedByCategory.IsCategoryPrepared(const ACategoryID: TID): Boolean;
+function TOrmCacheBaseWithPreparedByCategory.IsCategoryPrepared(const ACategoryID: TID): Boolean;
 begin
   Result := (FPreparedCategoriesDynArr.Find(ACategoryID) >= 0);
 end;
 
-procedure TSQLCacheBaseWithPreparedByCategory.Reset;
+procedure TOrmCacheBaseWithPreparedByCategory.Reset;
 begin
   inherited Reset;
   FPreparedCategoriesDynArr.Clear;
@@ -298,7 +300,7 @@ constructor TIDDynArrayObject.Create;
 begin
   inherited Create;
   FCount := 0;
-  FDynArray.InitSpecific(TypeInfo(TIDDynArray), FArray, djInt64, @FCount);
+  FDynArray.InitSpecific(TypeInfo(TIDDynArray), FArray, ptInt64, @FCount);
   FDynArray.Sorted := True;
 end;
 
@@ -403,7 +405,7 @@ begin
     Assert(Assigned(FOnDelete));
   end;
   FCount := 0;
-  FDynArray.InitSpecific(TypeInfo(TRecWithPointerDynArray), FArray, djInt64, @FCount);
+  FDynArray.InitSpecific(TypeInfo(TRecWithPointerDynArray), FArray, ptInt64, @FCount);
   FDynArray.Sorted := True;
 end;
 
@@ -583,8 +585,8 @@ procedure TDynArrayByRecWithPointer.Reset;
 var
   I: Integer;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'Reset');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'Reset');
   {$ENDIF}
   if Assigned(FOnDelete) then begin
     for I := 0 to FCount - 1 do begin
@@ -621,22 +623,22 @@ end;
 
 function TDynArrayByRecWithPointer.GetSize: Int64;
 begin
-  Result := InstanceSize + Integer(FDynArray.ElemSize) * FCount + FDataSize;
+  Result := InstanceSize + Integer(FDynArray.ItemSize) * FCount + FDataSize;
 end;
 
 procedure TDynArrayByRecWithPointer.CheckCacheSize;
 begin
-  {$IFDEF SQL_LOG_CACHE_ENTER}
-  SQLLogEnter(Self, 'CheckCacheSize');
+  {$IFDEF ORM_LOG_CACHE_ENTER}
+  OrmLogEnter(Self, 'CheckCacheSize');
   {$ENDIF}
   if Self.Size > FMaxCacheSize then begin
-    {$IFDEF SQL_LOG_CACHE_SIZE}
-    SQLLogInfo('Init auto-reset: CurSize=%, MaxSize=%', [Self.Size, FMaxCacheSize], Self);
+    {$IFDEF ORM_LOG_CACHE_SIZE}
+    OrmLogInfo('Init auto-reset: CurSize=%, MaxSize=%', [Self.Size, FMaxCacheSize], Self);
     {$ENDIF}
     Reset;
   end;
-  {$IFDEF SQL_LOG_CACHE_SIZE}
-  SQLLogDebug('CurSize=%, MaxSize=%', [Self.Size, FMaxCacheSize], Self);
+  {$IFDEF ORM_LOG_CACHE_SIZE}
+  OrmLogDebug('CurSize=%, MaxSize=%', [Self.Size, FMaxCacheSize], Self);
   {$ENDIF}
 end;
 

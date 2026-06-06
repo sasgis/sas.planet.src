@@ -24,8 +24,8 @@ unit u_MarkSystemImplConfigORM;
 interface
 
 uses
-  SynTable,
-  SynCommons,
+  mormot.core.unicode,
+  mormot.crypt.secure,
   i_MarkSystemImplConfigORM,
   u_MarkSystemImplConfigBase;
 
@@ -76,11 +76,11 @@ begin
   FCacheSizeMb := ACacheSizeMb;
   FForcedSchemaName := Trim(AForcedSchemaName);
   FSynUser := TSynUserPassword.Create;
-  FSynUser.UserName := StringToUTF8(AUserName);
+  FSynUser.UserName := StringToUtf8(AUserName);
   if APasswordPlain <> '' then begin
-    FSynUser.PasswordPlain := StringToUTF8(APasswordPlain);
+    FSynUser.PasswordPlain := StringToUtf8(APasswordPlain);
   end else begin
-    FSynUser.Password := StringToUTF8(APassword);
+    FSynUser.Password := StringToUtf8(APassword);
   end;
 end;
 

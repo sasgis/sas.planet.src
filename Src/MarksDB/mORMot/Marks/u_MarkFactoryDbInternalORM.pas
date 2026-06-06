@@ -99,11 +99,11 @@ type
     ): IVectorDataItem; overload;
 
     function CreateMark(
-      const AMarkRec: TSQLMarkRec
+      const AMarkRec: TOrmMarkRec
     ): IVectorDataItem; overload;
 
     function CreateMarkId(
-      const AMarkRec: TSQLMarkRec
+      const AMarkRec: TOrmMarkRec
     ): IMarkId;
 
     function CreateInternalMark(
@@ -391,7 +391,7 @@ begin
 end;
 
 function TMarkFactoryDbInternalORM.CreateMark(
-  const AMarkRec: TSQLMarkRec
+  const AMarkRec: TOrmMarkRec
 ): IVectorDataItem;
 begin
   Result :=
@@ -410,7 +410,7 @@ begin
     );
 end;
 
-function GeoTypeToMarkType(const AGeoType: TSQLGeoType): TMarkIdType;
+function GeoTypeToMarkType(const AGeoType: TOrmGeoType): TMarkIdType;
 begin
   case AGeoType of
     gtPoint: Result := midPoint;
@@ -423,7 +423,7 @@ begin
 end;
 
 function TMarkFactoryDbInternalORM.CreateMarkId(
-  const AMarkRec: TSQLMarkRec
+  const AMarkRec: TOrmMarkRec
 ): IMarkId;
 var
   VHash: THashValue;
