@@ -45,6 +45,7 @@ uses
   {$IFDEF ENABLE_DBMS}
   mormot.db.sql,
   {$ENDIF}
+  mormot.db.core,
   mormot.rest.client,
   mormot.rest.server,
   mormot.rest.sqlite3,
@@ -220,11 +221,6 @@ const
 
   cOrmMarkTableName: array[TMarkSystemImplORMClientType] of RawUtf8 = (
     'Mark', 'MarkMongoDB', 'MarkDBMS', 'MarkDBMS');
-
-const
-  // SQLITE_MAX_VARIABLE_NUMBER: https://www.sqlite.org/limits.html
-  // 999 for SQLite versions prior to 3.32.0 (2020-05-22) or 32766 for SQLite versions after 3.32.0
-  CSQLiteMaxVarNumber = 900;
 
 { TMarkDbImplORMHelper }
 
@@ -565,8 +561,9 @@ begin
       I := 0;
       VLen := Length(AMarkIDs);
       while I < VLen do begin
-        VCount := Min(CSQLiteMaxVarNumber, Length(AMarkIDs) - I);
-        VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '(', ');', FClientType = ctSQLite3);
+        // batch by MAX_SQLPARAMS, but pass literals instead of parameters for better compatibility
+        VCount := Min(MAX_SQLPARAMS, Length(AMarkIDs) - I);
+        VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '(', ');');
         Inc(I, VCount);
 
         if FClientType = ctSQLite3 then begin
@@ -1767,7 +1764,7 @@ begin
       VCategoryWhere := FormatSql('AND %.mCategory=? ', [FOrmMarkName], [ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), '', '', VLen < CSQLiteMaxVarNumber);
+    VCategoryWhere := Int64DynArrayToCSV(@ACategoryIDArray[0], VLen);
     VCategoryWhere := FormatUtf8('AND %.mCategory IN (%) ', [FOrmMarkName, VCategoryWhere]);
   end else begin
     VCategoryWhere := '';
