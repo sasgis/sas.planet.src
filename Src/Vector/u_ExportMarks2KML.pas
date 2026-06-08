@@ -453,7 +453,7 @@ begin
           if VScale < 0.4 then begin
             VScale := 0.4; // GoogleEarth hides Caption if its scale less then 0.4
           end;
-          FKmlWriter.WriteElementString('scale', R2AnsiStrPoint(VScale));
+          FKmlWriter.WriteElementString('scale', R2StrPoint(VScale));
         end;
         FKmlWriter.EndElement; // LabelStyle
       end;

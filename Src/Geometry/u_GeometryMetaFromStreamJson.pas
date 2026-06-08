@@ -43,6 +43,7 @@ uses
   mormot.core.base,
   mormot.core.buffers,
   mormot.core.variants,
+  mormot.core.unicode,
   t_GeoTypes,
   u_GeometryMetaJson,
   u_DoublePointsMetaBuilder;
@@ -152,7 +153,7 @@ begin
           if not VMetaItem.GetAsRawUTF8('n', VTagName) then Continue;
           if not VMetaItem.GetAsRawUTF8('d', VData) then Continue;
 
-          VTagName := LowerCase(VTagName);
+          VTagName := mormot.core.unicode.LowerCase(VTagName);
 
           if VTagName = CJsonMetaKnownGpxTags[jtEle] then begin
             // Elevation

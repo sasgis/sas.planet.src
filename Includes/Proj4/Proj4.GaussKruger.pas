@@ -13,7 +13,7 @@ type
   TGaussKruger = class
   private
     FGeogInit: AnsiString;
-    FProjInitFmt: AnsiString;
+    FProjInitFmt: string;
   protected
     function GetGeogInit: AnsiString; virtual;
     function GetProjInit(const AZone: Integer; const AIsNorth: Boolean): AnsiString; virtual;
@@ -59,7 +59,7 @@ begin
   inherited Create;
 
   FGeogInit := AGeogInit;
-  FProjInitFmt := AProjInitFmt;
+  FProjInitFmt := string(AProjInitFmt);
 end;
 
 class function TGaussKruger.geog_long_to_zone(const ALon: Double): Integer;

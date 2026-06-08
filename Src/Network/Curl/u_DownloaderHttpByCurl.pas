@@ -135,7 +135,8 @@ constructor TDownloaderHttpByCurl.Create(
   const AOnDownloadProgress: TOnDownloadProgress
 );
 var
-  VCertFileName: AnsiString;
+  VCertFileName: string;
+  VCertFileNameA: AnsiString;
   VDebugCallBack: TCurlDebugCallBack;
   VProgressCallBack: TCurlProgressCallBack;
 begin
@@ -177,18 +178,17 @@ begin
   VDebugCallBack := nil;
   {$ENDIF}
 
-  VCertFileName := '';
+  VCertFileNameA := '';
   if not FHttpOptions.IgnoreSSLCertificateErrors then begin
-    VCertFileName := StringToAnsiSafe(ExtractFilePath(ParamStr(0)) + cCurlDefaultCertFileName);
-    if not FileExists(VCertFileName) then begin
-      // The internal certificate is missing, so let libcurl use the default system certificate instead.
-      VCertFileName := '';
+    VCertFileName := ExtractFilePath(ParamStr(0)) + cCurlDefaultCertFileName;
+    if FileExists(VCertFileName) then begin
+      VCertFileNameA := StringToAnsiSafe(VCertFileName);
     end;
   end;
 
   FHttpClient :=
     TCurlHttpClient.Create(
-      VCertFileName,
+      VCertFileNameA,
       VProgressCallBack,
       VDebugCallBack,
       Self

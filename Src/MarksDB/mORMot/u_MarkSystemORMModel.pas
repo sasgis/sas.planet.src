@@ -1,4 +1,4 @@
-﻿{******************************************************************************}
+{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -24,9 +24,8 @@ unit u_MarkSystemORMModel;
 interface
 
 uses
-  SysUtils,
-  StrUtils,
   mormot.core.base,
+  mormot.core.unicode,
   mormot.orm.base,
   mormot.orm.core,
   mormot.orm.server,
@@ -35,7 +34,7 @@ uses
   mormot.rest.sqlite3;
 
 type
-  // Список пользователей
+  // List of Users
   TOrmUser = class(TOrm)
   public
     FName: RawUtf8;
@@ -43,7 +42,7 @@ type
     property uName: RawUtf8 read FName write FName;
   end;
 
-  // Категории
+  // Categories
   TOrmCategory = class(TOrm)
   public
     FName: RawUtf8;
@@ -51,7 +50,7 @@ type
     property cName: RawUtf8 read FName write FName;
   end;
 
-  // Настройка видимости категорий по пользователям
+  // Category visibility settings per User
   TOrmCategoryView = class(TOrm)
   public
     FUser: TID;
@@ -67,10 +66,10 @@ type
     property cvMaxZoom: Byte read FMaxZoom write FMaxZoom;
   end;
 
-  // Типы геометрий для меток
+  // Geometry types for Marks
   TOrmGeoType = (gtUndef=0, gtPoint, gtLine, gtPoly);
 
-  // Пути к картинкам для меток
+  // Image paths for Marks
   TOrmMarkImage = class(TOrm)
   public
     FName: RawUtf8;
@@ -91,7 +90,7 @@ type
     property maScale2: Integer read FScale2 write FScale2;
   end;
 
-  // Метки
+  // Marks
   TOrmMark = class(TOrm)
   public
     FCategory: TID;
@@ -131,7 +130,7 @@ type
 
   TOrmMarkMongoDB = class(TOrmMarkDBMS);
 
-  // Настройка видимости меток по пользователям
+  // Mark visibility settings per User
   TOrmMarkView = class(TOrm)
   public
     FUser: TID;
@@ -145,7 +144,7 @@ type
     property mvVisible: Boolean read FVisible write FVisible;
   end;
 
-  // Индекс по ограничивающему прямоугольнику, для быстрого поиска геометрий
+  // Bounding box index for fast geometry lookup
   TOrmMarkRTree = class(TOrmRTree)
   public
     FLeft, FRight, FBottom, FTop: Double;
@@ -158,16 +157,15 @@ type
     property mTop: Double read FTop write FTop;            // max_dimension2
   end;
 
-  // Индекс по имени и описания меток, для быстрого текстового поиска
-  // - для нелатинских символов чувствителен к регистру, поэтому пишем сюда
-  //   всё в AnsiLowerCase
+  // Index on Mark name and description for fast full-text search
+  // Case-sensitive for non-Latin characters, so everything is stored here in AnsiLowerCase
   TOrmMarkFTS = class(TOrmFts4)
   public
     FName: RawUtf8;
     FDesc: RawUtf8;
   published
-    property mName: RawUtf8 read FName write FName; // имя метки в AnsiLowerCase
-    property mDesc: RawUtf8 read FDesc write FDesc; // описание мекти в AnsiLowerCase
+    property mName: RawUtf8 read FName write FName; // Mark name in AnsiLowerCase
+    property mDesc: RawUtf8 read FDesc write FDesc; // Mark description in AnsiLowerCase
   end;
 
   TOrmMarkMeta = class(TOrm)
@@ -256,7 +254,7 @@ procedure _CreateMissingIndexes(
   begin
     Result := False;
     for I := 0 to Length(AExisting) - 1 do begin
-      if EndsStr(AName, AExisting[I]) then begin
+      if EndWith(AName, AExisting[I]) then begin
         Result := True;
         Exit;
       end;
@@ -327,6 +325,7 @@ end;
 
 procedure CreateMissingIndexesSQLite3(const AServer: TRestServerDB);
 var
+  I: Integer;
   VCount: Integer;
   VExisting: TRawUtf8DynArray;
 begin
@@ -335,6 +334,10 @@ begin
     VExisting
   );
   SetLength(VExisting, VCount);
+
+  for I := 0 to High(VExisting) do begin
+    VExisting[I] := UpperCase(VExisting[I]); // for case-insensitive search
+  end;
 
   _CreateMissingIndexes(AServer.OrmInstance as TRestOrmServer, VExisting, TOrmMark);
 end;

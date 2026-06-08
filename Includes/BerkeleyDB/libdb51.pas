@@ -2747,7 +2747,7 @@ function InitBerkeleyDB: Boolean;
     pointer(proc) := GetProcAddress(DllHandle, PAnsiChar(procName));
     if pointer(proc) = nil then begin
       raise EBerkeleyDBExeption.Create(
-        'Function ''' + procName + ''' not found in ' + DllName
+        'Function ''' + string(procName) + ''' not found in ' + DllName
       );
     end;
   end;

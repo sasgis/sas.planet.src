@@ -215,7 +215,7 @@ begin
   while FTar.FindNext(VDirRec) do begin
     if VDirRec.FileType = ftNormal then begin // regular file
 
-      AFileNameInArchive := {$IF CompilerVersion >= 33}UTF8String{$ELSE}UTF8Decode{$IFEND}(VDirRec.Name);
+      AFileNameInArchive := {$IF CompilerVersion >= 33}UTF8ToString{$ELSE}UTF8Decode{$IFEND}(VDirRec.Name);
       if PathDelim <> '/' then begin
         AFileNameInArchive := StringReplace(AFileNameInArchive, '/', PathDelim, [rfReplaceAll]);
       end;
