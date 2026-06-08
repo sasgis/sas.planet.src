@@ -517,11 +517,14 @@ end;
 function TMarkDbImplORMHelper.DeleteMarkSQL(
   const AMarkIDs: TIDDynArray
 ): Boolean;
+const
+  cMongoDbBatchSize = 5 * 1000;
 var
   I: Integer;
   VCount, VLen: Integer;
   VIds: RawUtf8;
   VTransaction: TTransactionRec;
+  VMarkCol, VMarkMetaCol, VMarkViewCol, VMarkFtsCol: TMongoCollection;
 begin
   Result := False;
 
@@ -529,40 +532,27 @@ begin
     Exit;
   end;
 
-  if FClientType = ctMongoDB then begin
-    // ToDo: write optimized mongo-specific requests, code bellow works slow
-    StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
-    try
-      for I := 0 to Length(AMarkIDs) - 1 do begin
-        if Result and (I mod 1000 = 0) then begin
-          CommitTransaction(FClient, VTransaction);
-          StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
-        end;
+  VLen := Length(AMarkIDs);
+  if VLen = 0 then begin
+    Result := True;
+    Exit;
+  end;
 
-        Result := DeleteMarkSQL(AMarkIDs[I], False);
-        CheckDeleteResult(Result);
-      end;
-      CommitTransaction(FClient, VTransaction);
-    except
-      RollBackTransaction(FClient, VTransaction);
-      raise;
-    end;
-  end else begin
-    // delete from cache
-    FCache.FMarkCache.Reset;
-    FCache.FMarkGeometryCache.Reset;
-    FCache.FMarkViewCache.Reset;
-    FCache.FMarkIdIndex.Reset;
-    FCache.FMarkIdByCategoryIndex.Reset;
+  // delete from cache
+  FCache.FMarkCache.Reset;
+  FCache.FMarkGeometryCache.Reset;
+  FCache.FMarkViewCache.Reset;
+  FCache.FMarkIdIndex.Reset;
+  FCache.FMarkIdByCategoryIndex.Reset;
 
-    // delete from db
-    StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
-    try
+  // delete from db
+  StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
+  try
+    if FClientType <> ctMongoDB then begin
+      // SQLite3, DBMS
       I := 0;
-      VLen := Length(AMarkIDs);
       while I < VLen do begin
-        // batch by MAX_SQLPARAMS, but pass literals instead of parameters for better compatibility
-        VCount := Min(MAX_SQLPARAMS, Length(AMarkIDs) - I);
+        VCount := Min(MAX_SQLPARAMS, VLen - I);
         VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '(', ');');
         Inc(I, VCount);
 
@@ -586,12 +576,38 @@ begin
           StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
         end;
       end;
+    end else begin // MongoDB
+      VMarkCol     := (FServer.GetStaticStorage(FOrmMarkClass) as TRestStorageMongoDB).Collection;
+      VMarkFtsCol  := (FServer.GetStaticStorage(TOrmMarkFTS)   as TRestStorageMongoDB).Collection;
+      VMarkMetaCol := (FServer.GetStaticStorage(TOrmMarkMeta)  as TRestStorageMongoDB).Collection;
+      VMarkViewCol := (FServer.GetStaticStorage(TOrmMarkView)  as TRestStorageMongoDB).Collection;
 
-      CommitTransaction(FClient, VTransaction);
-    except
-      RollBackTransaction(FClient, VTransaction);
-      raise;
+      I := 0;
+      while I < VLen do begin
+        VCount := Min(cMongoDbBatchSize, VLen - I);
+
+        // delete view
+        VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '{mvMark:{$in:[', ']}}');
+        VMarkViewCol.RemoveFmt(VIds, []);
+
+        // delete meta
+        VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '{mMark:{$in:[', ']}}');
+        VMarkMetaCol.RemoveFmt(VIds, []);
+
+        // delete mark, name and desc
+        VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '{_id:{$in:[', ']}}');
+
+        VMarkFTSCol.RemoveFmt(VIds, []);
+        VMarkCol.RemoveFmt(VIds, []);
+
+        Inc(I, VCount);
+      end;
+      Result := True;
     end;
+    CommitTransaction(FClient, VTransaction);
+  except
+    RollBackTransaction(FClient, VTransaction);
+    raise;
   end;
 end;
 
@@ -1836,7 +1852,7 @@ begin
       VCategoryWhere := FormatSql('mCategory=? AND ', [], [ACategoryIDArray[0]]);
     end;
   end else if VLen > 1 then begin
-    VCategoryWhere := Int64DynArrayToCSV(TInt64DynArray(ACategoryIDArray), '', '', False);
+    VCategoryWhere := Int64DynArrayToCSV(@ACategoryIDArray[0], VLen);
     VCategoryWhere := FormatUtf8('mCategory IN (%) AND ', [VCategoryWhere]);
   end else begin
     VCategoryWhere := '';
@@ -1911,10 +1927,7 @@ begin
       VCategoryWhere := '{mCategory:' + Int64ToUtf8(ACategoryIDArray[0]) + '},';
     end;
   end else if VLen > 1 then begin
-    VCategoryWhere :=
-      Int64DynArrayToCSV(
-        TInt64DynArray(ACategoryIDArray), '{mCategory:{$in:[',']}},', False
-      );
+    VCategoryWhere := Int64DynArrayToCSV(@ACategoryIDArray[0], VLen, '{mCategory:{$in:[', ']}},');
   end else begin
     VCategoryWhere := '';
   end;
@@ -1923,11 +1936,11 @@ begin
     (FServer.GetStaticStorage(FOrmMarkClass) as TRestStorageMongoDB).Collection;
 
   VCollection.FindDocs(
-    PUTF8Char('{$and:[' +
+    '{$and:[' +
       '{$and:[{mLeft:{$lte:?}},{mRight:{$gte:?}},{mBottom:{$lte:?}},{mTop:{$gte:?}}]},' +
       VCategoryWhere +
       '{$or:[{mGeoType:?},{mGeoLonSize:{$gte:?}},{mGeoLatSize:{$gte:?}}]}' +
-    ']}'),
+    ']}',
     [VIntRect.Right, VIntRect.Left, VIntRect.Top, VIntRect.Bottom, Integer(gtPoint), Int64(ALonSize), Int64(ALatSize)],
     VArray, VSelectedRows
   );
@@ -1969,6 +1982,8 @@ var
 begin
   LonLatSizeToInternalSize(ALonLatSize, VLonSize, VLatSize);
 
+  // If there are too many categories, we fetch Mark IDs from all categories
+  // for the given Rect from the DB, and then filter the results manually
   VFilterByCategory := (ACategoryIDArray.Count >= cMaxArrayLen);
 
   if VFilterByCategory then begin
@@ -2016,11 +2031,9 @@ begin
     end;
     {$ENDIF}
   else
-    begin
-      Assert(False);
-      Result := 0;
-      Exit;
-    end;
+    Assert(False);
+    Result := 0;
+    Exit;
   end;
 
   Assert(Length(VIDArray) >= VCount);
