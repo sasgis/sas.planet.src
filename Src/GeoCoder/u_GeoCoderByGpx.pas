@@ -24,6 +24,7 @@ unit u_GeoCoderByGpx;
 interface
 
 uses
+  ActiveX,
   SysUtils,
   i_GeoCoder,
   i_InterfaceListSimple,
@@ -37,6 +38,7 @@ uses
   i_GeometryLonLat,
   i_SystemTimeProvider,
   u_GeoCoderLocalBasic;
+
 const
   CDistForDate = 0.0001;
   CDistForLine  = 0.005;
@@ -57,7 +59,7 @@ type
     procedure SearchInGpxFileByName(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const AFile: String;
+      const AFile: string;
       const ASearch: string;
       const AList: IInterfaceListSimple;
       const ACoordToStringConverter: ICoordToStringConverter
@@ -73,7 +75,7 @@ type
     function ParseDateTime(
       const ASearch:string;
       var AstrDateTime: string
-    ): boolean;
+    ): Boolean;
   protected
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
@@ -97,10 +99,9 @@ implementation
 
 uses
   StrUtils,
-  RegExpr,
   XMLIntf,
   XMLDoc,
-  Windows,
+  RegExpr,
   t_GeoTypes,
   i_VectorDataItemSimple,
   u_AnsiStr,
@@ -109,6 +110,7 @@ uses
   u_InterfaceListSimple;
 
 { TGeoCoderByGpx }
+
 constructor TGeoCoderByGpx.Create(
   const APath: string;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -131,18 +133,18 @@ end;
 function ItemExist(
   const AValue: IVectorDataItem;
   const AList: IInterfaceListSimple;
-  const Adist: Real
+  const ADist: Double
 ): Boolean;
 var
   I: Integer;
   VPlacemark: IVectorDataItem;
 begin
-  Result := false;
+  Result := False;
   for I := 0 to AList.Count - 1 do begin
     VPlacemark := IVectorDataItem(AList.Items[I]);
-    if abs(VPlacemark.Geometry.GetGoToPoint.X - AValue.Geometry.GetGoToPoint.X) +
-    abs(VPlacemark.Geometry.GetGoToPoint.Y - AValue.Geometry.GetGoToPoint.Y) < Adist then begin
-      Result := true;
+    if Abs(VPlacemark.Geometry.GetGoToPoint.X - AValue.Geometry.GetGoToPoint.X) +
+       Abs(VPlacemark.Geometry.GetGoToPoint.Y - AValue.Geometry.GetGoToPoint.Y) < ADist then begin
+      Result := True;
       Break;
     end;
   end;
@@ -165,7 +167,7 @@ end;
 
 function TGeoCoderByGpx.ParseDateTime(
   const ASearch:string;
-  var AstrDateTime: string
+  var AStrDateTime: string
 ):Boolean;
 var
   VFormatSettings: TFormatSettingsA;
@@ -176,7 +178,7 @@ var
   VDateTime: TDateTime;
   VSearch: string;
   VSearchAnsi: AnsiString;
-  VShortTimeSearch: boolean;
+  VShortTimeSearch: Boolean;
   VRegExpr: TRegExpr;
 begin
   VFormatSettings.DateSeparator := '-';
@@ -185,8 +187,8 @@ begin
   VFormatSettings.ShortTimeFormat := 'hh:mm:ss';
   VFormatSettings.DecimalSeparator := '.';
   VStrDateTime := '';
-  VRegExpr  := TRegExpr.Create;
 
+  VRegExpr  := TRegExpr.Create;
   try
     VSearch := '';
     VSearchAnsi := AnsiString(ASearch);
@@ -217,7 +219,7 @@ begin
       VSearch := ReplaceStr(ASearch, VSearch, ''); // cut date rom parsed string and caontimue parse time value
     end;
 
-    VShortTimeSearch := false;
+    VShortTimeSearch := False;
     VSearchAnsi := AnsiString(VSearch);
     VRegExpr.Expression := '([0-2]?[0-9]).([0-5]?[0-9]).([0-5]?[0-9])'; // hh:mm:ss
     if VRegExpr.Exec(VSearchAnsi) then begin
@@ -237,7 +239,7 @@ begin
           VRegExpr.Match[2];
         VStrDateTime := VStrDateTime + VStrTime;
         VTime := StrToTimeA(VStrTime, VFormatSettings);
-        VShortTimeSearch := true;
+        VShortTimeSearch := True;
       end else
         VTime := 0;
     end;
@@ -250,18 +252,18 @@ begin
     if VTime <> 0 then
       VDateTime := FSystemTimeInternal.LocalTimeToUTC(VDateTime);  // make UTC time to search in files
     VFormatSettings.ShortDateFormat := 'yyyy-mm-dd"T"hh:nn:ss"Z"';
-    AstrDateTime := copy(DateTimeToStrA(VDateTime, VFormatSettings),0,20); //cut last space from DateTimeToStr
+    AStrDateTime := copy(DateTimeToStrA(VDateTime, VFormatSettings),0,20); //cut last space from DateTimeToStr
 
     if VTime = 0 then
-      AstrDateTime := copy(AstrDateTime, 0, 11); // отрезаем время совсем
+      AStrDateTime := copy(AStrDateTime, 0, 11); // отрезаем время совсем
 
     if VShortTimeSearch then
-      AstrDateTime := Copy(AstrDateTime, 0, Length(AstrDateTime) - 4); // отрезаем секунды
+      AStrDateTime := Copy(AStrDateTime, 0, Length(AStrDateTime) - 4); // отрезаем секунды
     if VDate = 0 then
-      AstrDateTime := Copy(AstrDateTime, 11, 10); // отрезаем дату, оставляем только время
+      AStrDateTime := Copy(AStrDateTime, 11, 10); // отрезаем дату, оставляем только время
     Result := True;
   end else begin
-    AstrDateTime := '';
+    AStrDateTime := '';
     Result := False;
   end;
 end;
@@ -283,14 +285,13 @@ var
   VLatLonNode: IXMLNode;
   VAttribNode: IXMLNodeList;
   VPoint: TDoublePoint;
-  VAddress: String;
-  VDesc: String;
-  VFullDesc: String;
+  VAddress: string;
+  VDesc: string;
+  VFullDesc: string;
   VPlace: IVectorDataItem;
-
   VXMLDocument: IXMLDocument;
   I, J, K, L: Integer;
-  Vskip: Boolean;
+  VSkip: Boolean;
   VStrDateTime: string;
   VStrDate: string;
   VTempELE: string;
@@ -302,9 +303,8 @@ begin
   VFormatSettings.TimeSeparator := ':';
   VFormatSettings.ShortTimeFormat := 'hh:mm:ss';
   VFormatSettings.DecimalSeparator := '.';
-  //TODO: Fix for unicode file
-  VXMLDocument := TXMLDocument.Create(nil);
 
+  VXMLDocument := TXMLDocument.Create(nil);
   try
     VXMLDocument.LoadFromFile(AFile);
     VNode := VXMLDocument.DocumentElement;
@@ -331,7 +331,7 @@ begin
             if VDesc <> '' then VDesc := VDesc + sLineBreak;
             VDesc := VDesc + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele'). Text;
           end;
-          Vskip := True;
+          VSkip := True;
           VDesc := VDesc + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
           VDesc := VDesc + sLineBreak + AFile;
           VFullDesc := VAddress + '<br>' + VDesc;
@@ -342,7 +342,7 @@ begin
           if VPlacemarkNode.ChildNodes.FindNode('time') <> nil then begin
             VStrDateTime := VPlacemarkNode.ChildNodes.FindNode('time').Text; // '2015-12-02T08:54:43';
             if (ADateTime = VStrDateTime) or (Pos(ADateTime, VStrDateTime) <> 0) then
-              Vskip := False;
+              VSkip := False;
           end;
           for J := 0 to VPlacemarkNode.ChildNodes.Count - 1 do begin
             VPlacemarkSubNode := VPlacemarkNode.ChildNodes[J];
@@ -359,10 +359,10 @@ begin
             end;
           end;
 
-          if not Vskip then begin
+          if not VSkip then begin
             VPlace := PlacemarkFactory.Build(VPoint, VAddress, VDesc, VFullDesc, 4);
-            Vskip := ItemExist(Vplace, AList, CDistForDate );
-            if not Vskip then begin
+            VSkip := ItemExist(Vplace, AList, CDistForDate );
+            if not VSkip then begin
               AList.Add(VPlace);
             end;
           end;
@@ -420,8 +420,8 @@ begin
                         VDesc := VDesc + sLineBreak + AFile;
                         VFullDesc := VAddress + '<br>' + VDesc  + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
                         VPlace := PlacemarkFactory.Build(VPoint, VAddress , VDesc, VFullDesc, 4);
-                        Vskip := ItemExist(Vplace, AList, CDistForDate);
-                        if not Vskip then begin
+                        VSkip := ItemExist(Vplace, AList, CDistForDate);
+                        if not VSkip then begin
                           AList.Add(VPlace);
                         end;
                       end;
@@ -441,7 +441,7 @@ end;
 procedure TGeoCoderByGpx.SearchInGpxFileByName(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile: String;
+  const AFile: string;
   const ASearch: string;
   const AList: IInterfaceListSimple;
   const ACoordToStringConverter: ICoordToStringConverter
@@ -455,14 +455,14 @@ var
   VLatLonNode: IXMLNode;
   VAttribNode: IXMLNodeList;
   VPoint: TDoublePoint;
-  VAddress: String;
-  VDesc: String;
-  VFullDesc: String;
-  VTrkDesc: String;
+  VAddress: string;
+  VDesc: string;
+  VFullDesc: string;
+  VTrkDesc: string;
   VPlace: IVectorDataItem;
   VXMLDocument: IXMLDocument;
   I, J, K, L: Integer;
-  Vskip: Boolean;
+  VSkip: Boolean;
   VStrDateTime: string;
   VStrDate: string;
   VSearch: string;
@@ -471,7 +471,6 @@ var
   VBuilder: IGeometryLonLatLineBuilder;
   VPath: IGeometryLonLat;
   VItem: IVectorDataItem;
-
 begin
   VFormatSettings.DateSeparator := '-';
   VFormatSettings.ShortDateFormat := 'dd-mm-yyyy';
@@ -481,10 +480,9 @@ begin
   VPointsAggregator := TDoublePointsAggregator.Create;
   VBuilder := FVectorGeometryLonLatFactory.MakeLineBuilder;
 
-  //TODO: Fix for unicode file
   VSearch := AnsiUpperCase(ASearch);
-  VXMLDocument := TXMLDocument.Create(nil);
 
+  VXMLDocument := TXMLDocument.Create(nil);
   try
     VXMLDocument.LoadFromFile(AFile);
     VNode := VXMLDocument.DocumentElement;
@@ -540,17 +538,17 @@ begin
             end;
           end;
 
-          Vskip := True;
+          VSkip := True;
           if Pos(VSearch, AnsiUpperCase(VAddress)) <> 0 then begin
-            Vskip := False;
+            VSkip := False;
           end else if Pos(VSearch, AnsiUpperCase(VFullDesc)) <> 0 then begin
-            Vskip := False;
+            VSkip := False;
           end;
 
-          if not Vskip then begin
+          if not VSkip then begin
             VPlace := PlacemarkFactory.Build(VPoint, VAddress, VDesc, VFullDesc, 4);
-            Vskip := ItemExist(Vplace, AList, CDistForLine);
-            if not Vskip then begin
+            VSkip := ItemExist(Vplace, AList, CDistForLine);
+            if not VSkip then begin
               AList.Add(VPlace);
             end;
           end;
@@ -672,42 +670,47 @@ function TGeoCoderByGpx.DoSearch(
 ): IInterfaceListSimple;
 var
   VList: IInterfaceListSimple;
-  Vpath: String;
+  VPath: string;
   VSearchRec: TSearchRec;
-  VMySearch: String;
+  VMySearch: string;
   VValueConverter: ICoordToStringConverter;
   VTxtGpxDateTime: string;
   VSearchDate: Boolean;
 begin
-  VMySearch := ASearch;
-
-  VValueConverter := FCoordToStringConverter.GetStatic;
-  while PosEx('  ', VMySearch) > 0 do begin
-    VMySearch := ReplaceStr(VMySearch, '  ', ' ');
-  end;
-  VList := TInterfaceListSimple.Create;
-  VSearchDate := ParseDateTime(VMySearch, VTxtGpxDateTime);
-
-  if FindFirst(FPath + '*.gpx', faAnyFile, VSearchRec) = 0 then
+  CoInitialize(nil);
   try
-    repeat
-      if (VSearchRec.Attr and faDirectory) = faDirectory then begin
-        Continue;
-      end;
-      Vpath := FPath + VSearchRec.Name;
-      if VSearchDate then
-        SearchInGpxFileByDate(ACancelNotifier, AOperationID, Vpath, VTxtGpxDateTime, VList, VValueConverter)
-      else
-        SearchInGpxFileByName(ACancelNotifier, AOperationID, Vpath, VMySearch, Vlist, VValueConverter);
+    VMySearch := ASearch;
 
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Exit;
-      end;
-    until FindNext(VSearchRec) <> 0;
+    VValueConverter := FCoordToStringConverter.GetStatic;
+    while PosEx('  ', VMySearch) > 0 do begin
+      VMySearch := ReplaceStr(VMySearch, '  ', ' ');
+    end;
+    VList := TInterfaceListSimple.Create;
+    VSearchDate := ParseDateTime(VMySearch, VTxtGpxDateTime);
+
+    if FindFirst(FPath + '*.gpx', faAnyFile, VSearchRec) = 0 then
+    try
+      repeat
+        if (VSearchRec.Attr and faDirectory) = faDirectory then begin
+          Continue;
+        end;
+        VPath := FPath + VSearchRec.Name;
+        if VSearchDate then
+          SearchInGpxFileByDate(ACancelNotifier, AOperationID, VPath, VTxtGpxDateTime, VList, VValueConverter)
+        else
+          SearchInGpxFileByName(ACancelNotifier, AOperationID, VPath, VMySearch, VList, VValueConverter);
+
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Exit;
+        end;
+      until FindNext(VSearchRec) <> 0;
+    finally
+      SysUtils.FindClose(VSearchRec);
+    end;
+    Result := VList;
   finally
-    SysUtils.FindClose(VSearchRec);
+    CoUninitialize;
   end;
-  Result := VList;
 end;
 
 end.
