@@ -591,17 +591,17 @@ begin
 
         // delete view
         VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '{mvMark:{$in:[', ']}}');
-        VMarkViewCol.RemoveFmt(VIds, []);
+        VMarkViewCol.Remove(VIds);
 
         // delete meta
         VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '{mMark:{$in:[', ']}}');
-        VMarkMetaCol.RemoveFmt(VIds, []);
+        VMarkMetaCol.Remove(VIds);
 
         // delete mark, name and desc
         VIds := Int64DynArrayToCSV(@AMarkIDs[I], VCount, '{_id:{$in:[', ']}}');
 
-        VMarkFTSCol.RemoveFmt(VIds, []);
-        VMarkCol.RemoveFmt(VIds, []);
+        VMarkFtsCol.Remove(VIds);
+        VMarkCol.Remove(VIds);
 
         Inc(I, VCount);
       end;
