@@ -508,7 +508,7 @@ begin
         J := I + 1;
         VArray[I].ViewId := VList.GetAsInt64(J, 0);
         VArray[I].CategoryId := VList.GetAsInt64(J, 1);
-        VArray[I].Visible := VList.GetAsInteger(J, 2) <> 0;
+        VArray[I].Visible := VList.GetB(J, 2); // as boolean
         VArray[I].MinZoom := VList.GetAsInteger(J, 3);
         VArray[I].MaxZoom := VList.GetAsInteger(J, 4);
       end;

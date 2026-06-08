@@ -215,11 +215,12 @@ end;
 
 function TMarkSystemImplORM.GetMarkByStringId(const AId: string): IVectorDataItem;
 var
-  VId: Integer; // ! TID
+  VId: Int64; // ! TID
 begin
+  Assert(SizeOf(VId) = SizeOf(TID));
   Result := nil;
   if (AId <> '') and Assigned(FMarkDbInternal) then begin
-    if TryStrToInt(AId, VId) then begin
+    if TryStrToInt64(AId, VId) then begin
       if not Supports(FMarkDbInternal.GetById(VId), IVectorDataItem, Result) then begin
         Result := nil;
       end;
@@ -229,11 +230,12 @@ end;
 
 function TMarkSystemImplORM.GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 var
-  VId: Integer; // ! TID
+  VId: Int64; // ! TID
 begin
+  Assert(SizeOf(VId) = SizeOf(TID));
   Result := nil;
   if (AId <> '') and Assigned(FCategoryDBInternal) then begin
-    if TryStrToInt(AId, VId) then begin
+    if TryStrToInt64(AId, VId) then begin
       if not Supports(FCategoryDBInternal.GetCategoryByID(VId), IMarkCategory, Result) then begin
         Result := nil;
       end;

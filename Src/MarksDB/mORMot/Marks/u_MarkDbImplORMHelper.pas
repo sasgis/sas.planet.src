@@ -1629,7 +1629,7 @@ begin
       J := I + 1;
       VRows[I].ViewId := VList.GetAsInt64(J, 0);
       VRows[I].MarkId := VList.GetAsInt64(J, 1);
-      VRows[I].Visible := (VList.GetAsInteger(J, 2) <> 0);
+      VRows[I].Visible := VList.GetB(J, 2); // as boolean
       if ACategoryID > 0 then begin
         VRows[I].CategoryId := ACategoryID;
       end else begin
@@ -1907,7 +1907,7 @@ var
   I, J: Integer;
   VLen: Integer;
   VIntRect: TRect;
-  VSelectedRows: RawUtf8;
+  VSelectedRows: Variant;
   VCategoryWhere: RawUtf8;
   VCollection: TMongoCollection;
   VArray: TVariantDynArray;
@@ -1917,9 +1917,9 @@ begin
   VLen := Length(ACategoryIDArray);
 
   if AReciveCategoryID then begin
-    VSelectedRows := RawUtf8('_id,mCategory');
+    VSelectedRows := BsonVariant(['_id', 1, 'mCategory', 1]);
   end else begin
-    VSelectedRows := RawUtf8('_id');
+    VSelectedRows := BsonVariant(['_id', 1]);
   end;
 
   if VLen = 1 then begin
@@ -1938,14 +1938,14 @@ begin
   VCollection :=
     (FServer.GetStaticStorage(FOrmMarkClass) as TRestStorageMongoDB).Collection;
 
-  VCollection.FindDocs(
+  VArray := VCollection.FindDocs(
     '{$and:[' +
       '{$and:[{mLeft:{$lte:?}},{mRight:{$gte:?}},{mBottom:{$lte:?}},{mTop:{$gte:?}}]},' +
       VCategoryWhere +
       '{$or:[{mGeoType:?},{mGeoLonSize:{$gte:?}},{mGeoLatSize:{$gte:?}}]}' +
     ']}',
     [VIntRect.Right, VIntRect.Left, VIntRect.Top, VIntRect.Bottom, Integer(gtPoint), Int64(ALonSize), Int64(ALatSize)],
-    VArray, VSelectedRows
+    VSelectedRows
   );
 
   J := 0;
