@@ -69,12 +69,6 @@ type
   POrmMarkRec = ^TOrmMarkRec;
   TOrmMarkRecDynArray = array of TOrmMarkRec;
 
-  TTransactionRec = record
-    FSessionID: Cardinal;
-    FIsInternal: Boolean;
-    FIsReadOnly: Boolean;
-  end;
-
 const
   cEmptyID = 0;
 

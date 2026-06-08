@@ -859,6 +859,7 @@ uses
   u_MarkSystemORMLog in 'Src\MarksDB\mORMot\u_MarkSystemORMLog.pas',
   u_MarkSystemORMModel in 'Src\MarksDB\mORMot\u_MarkSystemORMModel.pas',
   u_MarkSystemORMTools in 'Src\MarksDB\mORMot\u_MarkSystemORMTools.pas',
+  u_MarkSystemORMTransaction in 'Src\MarksDB\mORMot\u_MarkSystemORMTransaction.pas',
   u_MarkCategory in 'Src\MarksDB\u_MarkCategory.pas',
   u_MarkCategoryDbByImpl in 'Src\MarksDB\u_MarkCategoryDbByImpl.pas',
   u_MarkCategoryFactory in 'Src\MarksDB\u_MarkCategoryFactory.pas',

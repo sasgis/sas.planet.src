@@ -1117,6 +1117,7 @@
         <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMLog.pas"/>
         <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMModel.pas"/>
         <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTools.pas"/>
+        <DCCReference Include="Src\MarksDB\mORMot\u_MarkSystemORMTransaction.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkCategory.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkCategoryDbByImpl.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkCategoryFactory.pas"/>

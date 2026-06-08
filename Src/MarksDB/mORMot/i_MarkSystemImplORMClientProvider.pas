@@ -24,11 +24,25 @@ unit i_MarkSystemImplORMClientProvider;
 interface
 
 uses
+  mormot.orm.core,
   mormot.rest.sqlite3,
   t_MarkSystemORM;
 
 type
   TMarkSystemImplORMClientType = (ctSQLite3, ctMongoDB, ctZDBC, ctODBC);
+
+  TTransactionRec = record
+    FSessionID: Cardinal;
+    FIsInternal: Boolean;
+    FIsReadOnly: Boolean;
+  end;
+
+  IMarkSystemORMTransaction = interface
+    ['{70601050-4E0B-4664-9FF8-4343BC448519}']
+    function Start(const AOrmClass: TOrmClass; const AIsReadOnly: Boolean): TTransactionRec;
+    procedure Commit(var ATrans: TTransactionRec);
+    procedure RollBack(var ATrans: TTransactionRec);
+  end;
 
   IMarkSystemImplORMClientProvider = interface
     ['{0A4FAB10-FA04-4C52-8E3A-9CD1FCA99727}']
@@ -40,6 +54,9 @@ type
 
     function GetRestClient: TRestClientDB;
     property RestClient: TRestClientDB read GetRestClient;
+
+    function GetTransaction: IMarkSystemORMTransaction;
+    property Transaction: IMarkSystemORMTransaction read GetTransaction;
   end;
 
 implementation

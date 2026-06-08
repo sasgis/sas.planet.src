@@ -41,6 +41,7 @@ uses
   mormot.orm.rest,
   mormot.orm.server,
   mormot.orm.mongodb,
+  mormot.db.nosql.bson,
   mormot.db.nosql.mongodb,
   {$IFDEF ENABLE_DBMS}
   mormot.db.sql,
@@ -76,6 +77,7 @@ type
     FServer: TRestOrmServer;
     FCache: TOrmMarkDbCache;
     FIsReadOnly: Boolean;
+    FTransaction: IMarkSystemORMTransaction;
     FGeometryReader: IGeometryFromStream;
     FGeometryMetaReader: IGeometryMetaFromStream;
     FGeometryPointsWriter: IGeometryPointsToStream;
@@ -250,6 +252,7 @@ begin
   FClient := FRestClient.OrmInstance;
   FServer := FRestClient.Server.OrmInstance as TRestOrmServer;
   FClientType := FClientProvider.RestClientType;
+  FTransaction := FClientProvider.Transaction;
   FOrmMarkClass := cOrmMarkTableClass[FClientType];
   FOrmMarkName := cOrmMarkTableName[FClientType];
 end;
@@ -479,7 +482,7 @@ begin
 
   // delete from db
   if AUseTransactions then begin
-    StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
+    VTransaction := FTransaction.Start(FOrmMarkClass, FIsReadOnly);
   end;
   try
     // delete view for all Users if exists
@@ -502,11 +505,11 @@ begin
     // pic name and appearance are never deleted...
 
     if AUseTransactions then begin
-      CommitTransaction(FClient, VTransaction);
+      FTransaction.Commit(VTransaction);
     end;
   except
     if AUseTransactions then begin
-      RollBackTransaction(FClient, VTransaction);
+      FTransaction.RollBack(VTransaction);
     end;
     raise;
   end;
@@ -546,7 +549,7 @@ begin
   FCache.FMarkIdByCategoryIndex.Reset;
 
   // delete from db
-  StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
+  VTransaction := FTransaction.Start(FOrmMarkClass, FIsReadOnly);
   try
     if FClientType <> ctMongoDB then begin
       // SQLite3, DBMS
@@ -572,8 +575,8 @@ begin
         CheckDeleteResult(Result);
 
         if FClientType <> ctSQLite3 then begin
-          CommitTransaction(FClient, VTransaction);
-          StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
+          FTransaction.Commit(VTransaction);
+          VTransaction := FTransaction.Start(FOrmMarkClass, FIsReadOnly);
         end;
       end;
     end else begin // MongoDB
@@ -604,9 +607,9 @@ begin
       end;
       Result := True;
     end;
-    CommitTransaction(FClient, VTransaction);
+    FTransaction.Commit(VTransaction);
   except
-    RollBackTransaction(FClient, VTransaction);
+    FTransaction.RollBack(VTransaction);
     raise;
   end;
 end;
@@ -642,7 +645,7 @@ begin
   CalcGeometrySize(VRect, AMarkRec.FGeoLonSize, AMarkRec.FGeoLatSize);
 
   if AUseTransactions then begin
-    StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
+    VTransaction := FTransaction.Start(FOrmMarkClass, FIsReadOnly);
   end;
   try
     if AMarkRec.FPicName <> '' then begin
@@ -757,11 +760,11 @@ begin
     end;
 
     if AUseTransactions then begin
-      CommitTransaction(FClient, VTransaction);
+      FTransaction.Commit(VTransaction);
     end;
   except
     if AUseTransactions then begin
-      RollBackTransaction(FClient, VTransaction);
+      FTransaction.RollBack(VTransaction);
     end;
     raise;
   end;
@@ -828,7 +831,7 @@ begin
     CalcGeometrySize(VRect, ANewMarkRec.FGeoLonSize, ANewMarkRec.FGeoLatSize);
   end;
 
-  StartTransaction(FClient, VTransaction, FOrmMarkClass, FIsReadOnly);
+  VTransaction := FTransaction.Start(FOrmMarkClass, FIsReadOnly);
   try
     if VUpdateIdIndex then begin
       if ANewMarkRec.FPicName <> '' then begin
@@ -998,9 +1001,9 @@ begin
       end;
     end;
 
-    CommitTransaction(FClient, VTransaction);
+    FTransaction.Commit(VTransaction);
   except
-    RollBackTransaction(FClient, VTransaction);
+    FTransaction.RollBack(VTransaction);
     raise;
   end;
 end;
@@ -1190,7 +1193,7 @@ begin
   Result := False;
 
   if AUseTransaction then begin
-    StartTransaction(FClient, VTransaction, TOrmMarkView, FIsReadOnly);
+    VTransaction := FTransaction.Start(TOrmMarkView, FIsReadOnly);
   end;
   try
     VOrmMarkView := TOrmMarkView.Create;
@@ -1249,11 +1252,11 @@ begin
       VOrmMarkView.Free;
     end;
     if AUseTransaction then begin
-      CommitTransaction(FClient, VTransaction);
+      FTransaction.Commit(VTransaction);
     end;
   except
     if AUseTransaction then begin
-      RollBackTransaction(FClient, VTransaction);
+      FTransaction.RollBack(VTransaction);
     end;
     raise;
   end;
@@ -1322,17 +1325,17 @@ begin
     if _FillPrepareMarkIdIndex(ACategoryID) > 0 then begin
       _FillPrepareMarkViewCache(ACategoryID);
       if FCache.FMarkIdByCategoryIndex.Find(ACategoryID, VArray, VCount) then begin
-        StartTransaction(FClient, VTransaction, TOrmMarkView, FIsReadOnly);
+        VTransaction := FTransaction.Start(TOrmMarkView, FIsReadOnly);
         try
           for I := 0 to VCount - 1 do begin
             if not _TryFastUpdate(VArray[I]) then begin
               UpdateMarkView(VArray[I], ACategoryID, AVisible, False);
             end;
           end;
-          CommitTransaction(FClient, VTransaction);
+          FTransaction.Commit(VTransaction);
           Result := True;
         except
-          RollBackTransaction(FClient, VTransaction);
+          FTransaction.RollBack(VTransaction);
           raise;
         end;
       end else begin

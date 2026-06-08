@@ -49,23 +49,6 @@ procedure CheckUpdateResult(const AResult: Boolean); inline;
 procedure CheckRetrieveResult(const AResult: Boolean); inline;
 procedure CheckExecuteResult(const AResult: Boolean); inline;
 
-procedure StartTransaction(
-  const AClient: TRestOrm;
-  var ATrans: TTransactionRec;
-  const AOrmClass: TOrmClass;
-  const AIsReadOnly: Boolean
-); inline;
-
-procedure CommitTransaction(
-  const AClient: TRestOrm;
-  var ATrans: TTransactionRec
-); inline;
-
-procedure RollBackTransaction(
-  const AClient: TRestOrm;
-  var ATrans: TTransactionRec
-); inline;
-
 function CalcMultiGeometryCount(const AGeometry: IGeometryLonLat): Integer; inline;
 procedure CalcGeometrySize(const ARect: TDoubleRect; out ALonSize, ALatSize: Cardinal); inline;
 procedure LonLatSizeToInternalSize(const ALonLatSize: TDoublePoint; out ALonSize, ALatSize: Cardinal); inline;
@@ -137,59 +120,6 @@ procedure CheckExecuteResult(const AResult: Boolean);
 begin
   if not AResult then begin
     raise EMarkSystemORMError.Create('MarkSystemORM: Execute operation is failed!');
-  end;
-end;
-
-procedure StartTransaction(
-  const AClient: TRestOrm;
-  var ATrans: TTransactionRec;
-  const AOrmClass: TOrmClass;
-  const AIsReadOnly: Boolean
-);
-begin
-  ATrans.FIsReadOnly := AIsReadOnly;
-  if AIsReadOnly then begin
-    Exit;
-  end;
-  ATrans.FSessionID := AClient.TransactionActiveSession;
-  if ATrans.FSessionID = 0 then begin
-    ATrans.FSessionID := GetTickCount;
-    if not AClient.TransactionBegin(AOrmClass, ATrans.FSessionID) then begin
-      raise EMarkSystemORMError.Create('MarkSystemORM: Start transaction is failed!');
-    end;
-    ATrans.FIsInternal := True;
-  end else begin
-    ATrans.FIsInternal := False;
-  end;
-end;
-
-procedure CommitTransaction(
-  const AClient: TRestOrm;
-  var ATrans: TTransactionRec
-);
-begin
-  if ATrans.FIsReadOnly then begin
-    Exit;
-  end;
-  Assert(ATrans.FSessionID > 0);
-  if ATrans.FIsInternal and (ATrans.FSessionID > 0) then begin
-    AClient.Commit(ATrans.FSessionID, True);
-    ATrans.FSessionID := 0;
-  end;
-end;
-
-procedure RollBackTransaction(
-  const AClient: TRestOrm;
-  var ATrans: TTransactionRec
-);
-begin
-  if ATrans.FIsReadOnly then begin
-    Exit;
-  end;
-  Assert(ATrans.FSessionID > 0);
-  if ATrans.FIsInternal and (ATrans.FSessionID > 0) then begin
-    AClient.RollBack(ATrans.FSessionID);
-    ATrans.FSessionID := 0;
   end;
 end;
 

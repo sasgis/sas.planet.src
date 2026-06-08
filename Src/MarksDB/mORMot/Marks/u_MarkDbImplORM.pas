@@ -66,6 +66,7 @@ type
     FRestClient: TRestClientDB;
     FClient: TRestOrm;
     FHelper: TMarkDbImplORMHelper;
+    FTransaction: IMarkSystemORMTransaction;
     FStateInternal: IReadWriteStateInternal;
     FStateChangeNotifier: INotifier;
     FStateChangeListener: IListener;
@@ -269,6 +270,8 @@ begin
       AGeometryMetaWriter,
       AClientProvider
     );
+
+  FTransaction := AClientProvider.Transaction;
 
   FStateChangeNotifier := FStateInternal.ChangeNotifier;
   if Assigned(FStateChangeNotifier) then begin
@@ -666,7 +669,7 @@ begin
 
     LockWrite;
     try
-      StartTransaction(FClient, VTransaction, TOrmMark, FHelper.IsReadOnly);
+      VTransaction := FTransaction.Start(TOrmMark, FHelper.IsReadOnly);
       try
         if (AOldMarkList <> nil) then begin
           if AOldMarkList.Count < ANewMarkList.Count then begin
@@ -682,8 +685,8 @@ begin
         end;
         for I := 0 to VMinCount - 1 do begin
           if VDoNotify and (I mod 1000 = 0) then begin
-            CommitTransaction(FClient, VTransaction);
-            StartTransaction(FClient, VTransaction, TOrmMark, FHelper.IsReadOnly);
+            FTransaction.Commit(VTransaction);
+            VTransaction := FTransaction.Start(TOrmMark, FHelper.IsReadOnly);
           end;
           VOld := AOldMarkList[I];
           VNew := ANewMarkList[I];
@@ -706,13 +709,13 @@ begin
             VTemp.Add(VResult);
           end;
           if VDoNotify and (I mod 1000 = 0) then begin
-            CommitTransaction(FClient, VTransaction);
-            StartTransaction(FClient, VTransaction, TOrmMark, FHelper.IsReadOnly);
+            FTransaction.Commit(VTransaction);
+            VTransaction := FTransaction.Start(TOrmMark, FHelper.IsReadOnly);
           end;
         end;
-        CommitTransaction(FClient, VTransaction);
+        FTransaction.Commit(VTransaction);
       except
-        RollBackTransaction(FClient, VTransaction);
+        FTransaction.RollBack(VTransaction);
         raise;
       end;
 
@@ -1107,7 +1110,7 @@ begin
   if (AMarkList <> nil) and (AMarkList.Count > 0) then begin
     LockWrite;
     try
-      StartTransaction(FClient, VTransaction, TOrmMarkView, FHelper.IsReadOnly);
+      VTransaction := FTransaction.Start(TOrmMarkView, FHelper.IsReadOnly);
       try
         VIsChanged := False;
         for I := 0 to AMarkList.Count - 1 do begin
@@ -1127,9 +1130,9 @@ begin
             end;
           end;
         end;
-        CommitTransaction(FClient, VTransaction);
+        FTransaction.Commit(VTransaction);
       except
-        RollBackTransaction(FClient, VTransaction);
+        FTransaction.RollBack(VTransaction);
         raise;
       end;
 

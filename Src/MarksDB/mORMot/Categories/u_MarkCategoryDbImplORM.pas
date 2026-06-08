@@ -56,6 +56,7 @@ type
     FClient: TRestOrm;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternalORM;
     FHelper: TMarkCategoryDbImplORMHelper;
+    FTransaction: IMarkSystemORMTransaction;
     FStateInternal: IReadWriteStateInternal;
     FStateChangeNotifier: INotifier;
     FStateChangeListener: IListener;
@@ -125,6 +126,8 @@ begin
   FRestClient := AClientProvider.RestClient;
   FClient := FRestClient.OrmInstance;
   FFactoryDbInternal := TMarkCategoryFactoryDbInternalORM.Create(FDbId);
+
+  FTransaction := AClientProvider.Transaction;
 
   FStateInternal := AStateInternal;
   VIsReadOnly := not FStateInternal.WriteAccess;
@@ -207,7 +210,7 @@ begin
   end;
 
   if AUseTransactions then begin
-    StartTransaction(FClient, VTransaction, TOrmCategory, FHelper.IsReadOnly);
+    VTransaction := FTransaction.Start(TOrmCategory, FHelper.IsReadOnly);
   end;
   try
     if Assigned(AOldCategory) and not Assigned(ANewCategory) then
@@ -256,11 +259,11 @@ begin
       end;
     end;
     if AUseTransactions then begin
-      CommitTransaction(FClient, VTransaction);
+      FTransaction.Commit(VTransaction);
     end;
   except
     if AUseTransactions then begin
-      RollBackTransaction(FClient, VTransaction);
+      FTransaction.RollBack(VTransaction);
     end;
     raise;
   end;
@@ -306,7 +309,7 @@ begin
   try
     VDoNotify := False;
 
-    StartTransaction(FClient, VTransaction, TOrmCategory, FHelper.IsReadOnly);
+    VTransaction := FTransaction.Start(TOrmCategory, FHelper.IsReadOnly);
     try
       if ANewCategoryList <> nil then begin
         VTemp := TInterfaceListSimple.Create;
@@ -357,9 +360,9 @@ begin
         end;
       end;
 
-      CommitTransaction(FClient, VTransaction);
+      FTransaction.Commit(VTransaction);
     except
-      RollBackTransaction(FClient, VTransaction);
+      FTransaction.RollBack(VTransaction);
       raise;
     end;
 
@@ -433,12 +436,12 @@ var
 begin
   LockWrite;
   try
-    StartTransaction(FClient, VTransaction, TOrmCategoryView, FHelper.IsReadOnly);
+    VTransaction := FTransaction.Start(TOrmCategoryView, FHelper.IsReadOnly);
     try
       FHelper.SetAllCategoriesVisibleSQL(ANewVisible);
-      CommitTransaction(FClient, VTransaction);
+      FTransaction.Commit(VTransaction);
     except
-      RollBackTransaction(FClient, VTransaction);
+      FTransaction.RollBack(VTransaction);
       raise;
     end;
     SetChanged;

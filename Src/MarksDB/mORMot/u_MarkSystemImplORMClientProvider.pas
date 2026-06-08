@@ -76,6 +76,7 @@ type
     FModel: TOrmModel;
     FClientDB: TRestClientDB;
     FClientType: TMarkSystemImplORMClientType;
+    FTransaction: IMarkSystemORMTransaction;
     {$IFDEF ENABLE_DBMS}
     FExternalDB: TSqlDBConnectionProperties;
     {$ENDIF}
@@ -98,6 +99,7 @@ type
     function GetUserID: TID;
     function GetRestClientType: TMarkSystemImplORMClientType;
     function GetRestClient: TRestClientDB;
+    function GetTransaction: IMarkSystemORMTransaction;
   public
     constructor Create(
       const ABasePath: string;
@@ -115,7 +117,8 @@ uses
   gnugettext,
   u_GlobalDllName,
   u_FileSystemFunc,
-  u_MarkSystemORMTools;
+  u_MarkSystemORMTools,
+  u_MarkSystemORMTransaction;
 
 const
   cDefUserName = 'sasgis';
@@ -465,41 +468,6 @@ begin
 end;
 {$ENDIF}
 
-procedure TMarkSystemImplORMClientProvider.InitUserID;
-var
-  VRestOrm: TRestOrm;
-  VOrmUser: TOrmUser;
-  VUserName: RawUtf8;
-  VTransaction: TTransactionRec;
-begin
-  if FUserName = '' then begin
-    FUserName := cDefUserName;
-  end;
-  VUserName := StringToUtf8(FUserName);
-  VRestOrm := FClientDB.OrmInstance;
-  VOrmUser := TOrmUser.Create(VRestOrm, 'uName=?', [VUserName]);
-  try
-    if VOrmUser.ID = 0 then begin
-      if FImplConfig.IsReadOnly then begin
-        raise EMarkSystemORMError.Create('MarkSystemORM: Can''t init User in read-only mode!');
-      end else begin
-        VOrmUser.FName := VUserName;
-        StartTransaction(VRestOrm, VTransaction, TOrmUser, FImplConfig.IsReadOnly);
-        try
-          CheckID( VRestOrm.Add(VOrmUser, True) );
-          CommitTransaction(VRestOrm, VTransaction);
-        except
-          RollBackTransaction(VRestOrm, VTransaction);
-          raise;
-        end;
-      end;
-    end;
-    FUserID := VOrmUser.ID;
-  finally
-    VOrmUser.Free;
-  end;
-end;
-
 procedure TMarkSystemImplORMClientProvider.Build;
 begin
   case FClientType of
@@ -511,7 +479,50 @@ begin
   else
     raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Client type!');
   end;
+
+  if FClientType <> ctMongoDB then begin
+    FTransaction := TMarkSystemORMTransaction.Create(FClientDB.OrmInstance as TRestOrm);
+  end else begin
+    // MongoDB doesn't support transactions
+    FTransaction := TMarkSystemORMTransactionNoOp.Create;
+  end;
+
   InitUserID;
+end;
+
+procedure TMarkSystemImplORMClientProvider.InitUserID;
+var
+  VClient: TRestOrm;
+  VOrmUser: TOrmUser;
+  VUserName: RawUtf8;
+  VTransaction: TTransactionRec;
+begin
+  if FUserName = '' then begin
+    FUserName := cDefUserName;
+  end;
+  VUserName := StringToUtf8(FUserName);
+  VClient := FClientDB.OrmInstance;
+  VOrmUser := TOrmUser.Create(VClient, 'uName=?', [VUserName]);
+  try
+    if VOrmUser.ID = 0 then begin
+      if FImplConfig.IsReadOnly then begin
+        raise EMarkSystemORMError.Create('MarkSystemORM: Can''t init User in read-only mode!');
+      end else begin
+        VOrmUser.FName := VUserName;
+        VTransaction := FTransaction.Start(TOrmUser, FImplConfig.IsReadOnly);
+        try
+          CheckID( VClient.Add(VOrmUser, True) );
+          FTransaction.Commit(VTransaction);
+        except
+          FTransaction.RollBack(VTransaction);
+          raise;
+        end;
+      end;
+    end;
+    FUserID := VOrmUser.ID;
+  finally
+    VOrmUser.Free;
+  end;
 end;
 
 function TMarkSystemImplORMClientProvider.GetUserID: TID;
@@ -527,6 +538,11 @@ end;
 function TMarkSystemImplORMClientProvider.GetRestClientType: TMarkSystemImplORMClientType;
 begin
   Result := FClientType;
+end;
+
+function TMarkSystemImplORMClientProvider.GetTransaction: IMarkSystemORMTransaction;
+begin
+  Result := FTransaction;
 end;
 
 {$IFNDEF USE_STATIC_SQLITE3}
