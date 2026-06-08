@@ -335,7 +335,7 @@ begin
     if VTable.InheritsFrom(TOrmMark) then begin
       VTableName := 'Mark';
     end else begin
-      VTableName := '';
+      VTableName := ''; // use default name
     end;
     if OrmMapMongoDB(VTable, VServer, VDatabase, VTableName) = nil then begin
       raise EMarkSystemORMError.Create('OrmMapMongoDB failed');
@@ -428,9 +428,9 @@ begin
   for I := 0 to High(FModel.Tables) do begin
     VTable := FModel.Tables[I];
     if VTable.InheritsFrom(TOrmMark) then begin
-      VTableName := 'Mark'
+      VTableName := 'Mark';
     end else begin
-      VTableName := '';
+      VTableName := ''; // use default name
     end;
 
     // http://www.sasgis.org/mantis/view.php?id=2854
@@ -479,14 +479,7 @@ begin
   else
     raise EMarkSystemORMError.Create('MarkSystemORM: Unknown Client type!');
   end;
-
-  if FClientType <> ctMongoDB then begin
-    FTransaction := TMarkSystemORMTransaction.Create(FClientDB.OrmInstance as TRestOrm);
-  end else begin
-    // MongoDB doesn't support transactions
-    FTransaction := TMarkSystemORMTransactionNoOp.Create;
-  end;
-
+  FTransaction := TMarkSystemORMTransaction.Create(FClientDB.OrmInstance as TRestOrm);
   InitUserID;
 end;
 

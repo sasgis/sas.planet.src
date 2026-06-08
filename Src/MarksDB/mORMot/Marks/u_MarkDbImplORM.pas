@@ -669,7 +669,7 @@ begin
 
     LockWrite;
     try
-      VTransaction := FTransaction.Start(TOrmMark, FHelper.IsReadOnly);
+      VTransaction := FTransaction.Start(FHelper.OrmMarkClass, FHelper.IsReadOnly);
       try
         if (AOldMarkList <> nil) then begin
           if AOldMarkList.Count < ANewMarkList.Count then begin
@@ -686,7 +686,7 @@ begin
         for I := 0 to VMinCount - 1 do begin
           if VDoNotify and (I mod 1000 = 0) then begin
             FTransaction.Commit(VTransaction);
-            VTransaction := FTransaction.Start(TOrmMark, FHelper.IsReadOnly);
+            VTransaction := FTransaction.Start(FHelper.OrmMarkClass, FHelper.IsReadOnly);
           end;
           VOld := AOldMarkList[I];
           VNew := ANewMarkList[I];
@@ -710,7 +710,7 @@ begin
           end;
           if VDoNotify and (I mod 1000 = 0) then begin
             FTransaction.Commit(VTransaction);
-            VTransaction := FTransaction.Start(TOrmMark, FHelper.IsReadOnly);
+            VTransaction := FTransaction.Start(FHelper.OrmMarkClass, FHelper.IsReadOnly);
           end;
         end;
         FTransaction.Commit(VTransaction);

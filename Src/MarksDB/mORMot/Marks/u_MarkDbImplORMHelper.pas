@@ -209,6 +209,7 @@ type
     destructor Destroy; override;
   public
     property IsReadOnly: Boolean read FIsReadOnly write SetReadOnly;
+    property OrmMarkClass: TOrmMarkClass read FOrmMarkClass;
   end;
 
 implementation
