@@ -59,7 +59,7 @@ type
     procedure SearchInGpxFileByName(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const AFile: string;
+      const AFileName: string;
       const ASearch: string;
       const AList: IInterfaceListSimple;
       const ACoordToStringConverter: ICoordToStringConverter
@@ -67,14 +67,14 @@ type
     procedure SearchInGpxFileByDate(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const AFile: string;
+      const AFileName: string;
       const ADateTime: string;
       const AList: IInterfaceListSimple;
       const ACoordToStringConverter: ICoordToStringConverter
     );
     function ParseDateTime(
       const ASearch:string;
-      var AstrDateTime: string
+      var AStrDateTime: string
     ): Boolean;
   protected
     function DoSearch(
@@ -186,6 +186,7 @@ begin
   VFormatSettings.TimeSeparator := ':';
   VFormatSettings.ShortTimeFormat := 'hh:mm:ss';
   VFormatSettings.DecimalSeparator := '.';
+
   VStrDateTime := '';
 
   VRegExpr  := TRegExpr.Create;
@@ -198,7 +199,7 @@ begin
         VRegExpr.Match[1] + VFormatSettings.DateSeparator +
         VRegExpr.Match[2] + VFormatSettings.DateSeparator +
         VRegExpr.Match[3];
-      VSearch := VRegExpr.Match[0];
+      VSearch := string(VRegExpr.Match[0]);
       VDate := StrToDateA(VStrDateTime, VFormatSettings);
     end else begin
       VRegExpr.Expression := '([0-9]{4}).([01]?[0-9]).([0-3]?[0-9])';
@@ -207,7 +208,7 @@ begin
           VRegExpr.Match[3] + VFormatSettings.DateSeparator +
           VRegExpr.Match[2] + VFormatSettings.DateSeparator +
           VRegExpr.Match[1];
-        VSearch := VRegExpr.Match[0];
+        VSearch := string(VRegExpr.Match[0]);
         VDate := StrToDateA(VStrDateTime, VFormatSettings);
       end else
         VDate := 0;
@@ -252,10 +253,11 @@ begin
     if VTime <> 0 then
       VDateTime := FSystemTimeInternal.LocalTimeToUTC(VDateTime);  // make UTC time to search in files
     VFormatSettings.ShortDateFormat := 'yyyy-mm-dd"T"hh:nn:ss"Z"';
-    AStrDateTime := copy(DateTimeToStrA(VDateTime, VFormatSettings),0,20); //cut last space from DateTimeToStr
+    VStrDateTime := DateTimeToStrA(VDateTime, VFormatSettings);
+    AStrDateTime := Copy(string(VStrDateTime),0,20); //cut last space from DateTimeToStr
 
     if VTime = 0 then
-      AStrDateTime := copy(AStrDateTime, 0, 11); // отрезаем время совсем
+      AStrDateTime := Copy(AStrDateTime, 0, 11); // отрезаем время совсем
 
     if VShortTimeSearch then
       AStrDateTime := Copy(AStrDateTime, 0, Length(AStrDateTime) - 4); // отрезаем секунды
@@ -271,12 +273,13 @@ end;
 procedure TGeoCoderByGpx.SearchInGpxFileByDate(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile: string;
+  const AFileName: string;
   const ADateTime: string;
   const AList: IInterfaceListSimple;
   const ACoordToStringConverter: ICoordToStringConverter
 );
 var
+  I, J, K, L: Integer;
   VNode: IXMLNode;
   VPlacemarkNode: IXMLNode;
   VPlacemarkSubNode: IXMLNode;
@@ -290,12 +293,11 @@ var
   VFullDesc: string;
   VPlace: IVectorDataItem;
   VXMLDocument: IXMLDocument;
-  I, J, K, L: Integer;
   VSkip: Boolean;
   VStrDateTime: string;
   VStrDate: string;
   VTempELE: string;
-  VtrkDesc: string;
+  VTrkDesc: string;
   VFormatSettings: TFormatSettings;
 begin
   VFormatSettings.DateSeparator := '-';
@@ -306,19 +308,19 @@ begin
 
   VXMLDocument := TXMLDocument.Create(nil);
   try
-    VXMLDocument.LoadFromFile(AFile);
+    VXMLDocument.LoadFromFile(AFileName);
     VNode := VXMLDocument.DocumentElement;
     if (VNode <> nil) and (VNode.ChildNodes.Count > 0) then begin
       for I := 0 to VNode.ChildNodes.Count - 1 do begin
         if VNode.ChildNodes[I].NodeName = 'wpt' then begin
           VPlacemarkNode := VNode.ChildNodes[I];
           for J := 0 to VPlacemarkNode.GetAttributeNodes.getcount - 1 do begin
-            VLatLonNode := VPlacemarkNode.GetAttributeNodes.get(J);
+            VLatLonNode := VPlacemarkNode.GetAttributeNodes.Get(J);
             if VLatLonNode.GetNodeName = 'lon' then begin
-              VPoint.X := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+              VPoint.X := StrToFloat(VLatLonNode.GetText, VFormatSettings);
             end;
             if VLatLonNode.GetNodeName = 'lat' then begin
-              VPoint.Y := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+              VPoint.Y := StrToFloat(VLatLonNode.GetText, VFormatSettings);
             end;
           end;
 
@@ -333,7 +335,7 @@ begin
           end;
           VSkip := True;
           VDesc := VDesc + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-          VDesc := VDesc + sLineBreak + AFile;
+          VDesc := VDesc + sLineBreak + ExtractFileName(AFileName);
           VFullDesc := VAddress + '<br>' + VDesc;
 
           if VPlacemarkNode.ChildNodes.FindNode('url') <> nil then begin
@@ -361,32 +363,30 @@ begin
 
           if not VSkip then begin
             VPlace := PlacemarkFactory.Build(VPoint, VAddress, VDesc, VFullDesc, 4);
-            VSkip := ItemExist(Vplace, AList, CDistForDate );
+            VSkip := ItemExist(VPlace, AList, CDistForDate);
             if not VSkip then begin
               AList.Add(VPlace);
             end;
           end;
-        end;
-
+        end else
         if VNode.ChildNodes[I].NodeName = 'trk' then begin
           VTrkNode := VNode.ChildNodes[I];
           for L := 0 to VTrkNode.ChildNodes.Count - 1 do begin
 
             VPlacemarkNode := VTrkNode.ChildNodes[L];
+
             if VPlacemarkNode.GetNodeName = 'name' then begin
-              VtrkDesc := VPlacemarkNode.Text;
-            end;
+              VTrkDesc := VPlacemarkNode.Text;
+            end else
             if VPlacemarkNode.GetNodeName = 'desc' then begin
-              if VtrkDesc <> '' then VtrkDesc := VtrkDesc + sLineBreak;
-              VtrkDesc := VtrkDesc +VPlacemarkNode.Text;
-            end;
+              if VTrkDesc <> '' then VTrkDesc := VTrkDesc + sLineBreak;
+              VTrkDesc := VTrkDesc +VPlacemarkNode.Text;
+            end else
             if VPlacemarkNode.GetNodeName = 'ele' then begin
-              if VtrkDesc <> '' then VtrkDesc := VtrkDesc + sLineBreak;
-              VtrkDesc := VtrkDesc + 'Elevation ' + VPlacemarkNode.Text;
-            end;
-
+              if VTrkDesc <> '' then VTrkDesc := VTrkDesc + sLineBreak;
+              VTrkDesc := VTrkDesc + 'Elevation ' + VPlacemarkNode.Text;
+            end else
             if VPlacemarkNode.GetNodeName = 'trkseg' then begin
-
               if VPlacemarkNode.ChildNodes.Count >0 then begin
                 for J := 0 to VPlacemarkNode.ChildNodes.Count - 1 do begin
                   if VPlacemarkNode.ChildNodes[J].NodeName = 'trkpt' then begin
@@ -406,18 +406,18 @@ begin
 
                       if (ADateTime = VStrDateTime) or (Pos(ADateTime, VStrDateTime) <> 0) then begin
                         for K := 0 to VAttribNode.getcount - 1 do begin
-                          VLatLonNode := VAttribNode.get(K);
+                          VLatLonNode := VAttribNode.Get(K);
                           if VLatLonNode.GetNodeName = 'lon' then begin
-                            VPoint.X := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+                            VPoint.X := StrToFloat(VLatLonNode.GetText, VFormatSettings);
                           end;
                           if VLatLonNode.GetNodeName = 'lat' then begin
-                            VPoint.Y := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+                            VPoint.Y := StrToFloat(VLatLonNode.GetText, VFormatSettings);
                           end;
                         end;
-                        VAddress := VtrkDesc + ' (' + VStrDate + ')';
+                        VAddress := VTrkDesc + ' (' + VStrDate + ')';
                         VDesc := VTempELE;
                         VDesc := VDesc + sLineBreak + 'DateTime: ' + VStrDate;
-                        VDesc := VDesc + sLineBreak + AFile;
+                        VDesc := VDesc + sLineBreak + ExtractFileName(AFileName);
                         VFullDesc := VAddress + '<br>' + VDesc  + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
                         VPlace := PlacemarkFactory.Build(VPoint, VAddress , VDesc, VFullDesc, 4);
                         VSkip := ItemExist(Vplace, AList, CDistForDate);
@@ -435,18 +435,20 @@ begin
       end;
     end;
   except
+    //
   end;
 end;
 
 procedure TGeoCoderByGpx.SearchInGpxFileByName(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile: string;
+  const AFileName: string;
   const ASearch: string;
   const AList: IInterfaceListSimple;
   const ACoordToStringConverter: ICoordToStringConverter
 );
 var
+  I, J, K, L: Integer;
   VNode: IXMLNode;
   VTrkNode: IXMLNode;
   VPlacemarkNode: IXMLNode;
@@ -461,8 +463,7 @@ var
   VTrkDesc: string;
   VPlace: IVectorDataItem;
   VXMLDocument: IXMLDocument;
-  I, J, K, L: Integer;
-  VSkip: Boolean;
+  VIsFound: Boolean;
   VStrDateTime: string;
   VStrDate: string;
   VSearch: string;
@@ -484,23 +485,26 @@ begin
 
   VXMLDocument := TXMLDocument.Create(nil);
   try
-    VXMLDocument.LoadFromFile(AFile);
+    VXMLDocument.LoadFromFile(AFileName);
     VNode := VXMLDocument.DocumentElement;
     if (VNode <> nil) and (VNode.ChildNodes.Count > 0) then begin
       for I := 0 to VNode.ChildNodes.Count - 1 do begin
+
         if VNode.ChildNodes[I].NodeName = 'wpt' then begin
           VPlacemarkNode := VNode.ChildNodes[I];
           for J := 0 to VPlacemarkNode.GetAttributeNodes.getcount - 1 do begin
-            VLatLonNode := VPlacemarkNode.GetAttributeNodes.get(J);
+            VLatLonNode := VPlacemarkNode.GetAttributeNodes.Get(J);
             if VLatLonNode.GetNodeName = 'lon' then begin
-              VPoint.X := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+              VPoint.X := StrToFloat(VLatLonNode.GetText, VFormatSettings);
             end;
             if VLatLonNode.GetNodeName = 'lat' then begin
-              VPoint.Y := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+              VPoint.Y := StrToFloat(VLatLonNode.GetText, VFormatSettings);
             end;
           end;
 
           VAddress := VPlacemarkNode.ChildNodes.FindNode('name').Text;
+          VIsFound := (Pos(VSearch, AnsiUpperCase(VAddress)) > 0); // search by Name
+
           VDesc := '';
           if VPlacemarkNode.ChildNodes.FindNode('desc') <> nil then begin
             VDesc := VPlacemarkNode.ChildNodes.FindNode('desc').Text;
@@ -509,51 +513,54 @@ begin
             if VDesc <> '' then VDesc := VDesc + sLineBreak;
             VDesc := VDesc + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele'). Text;
           end;
-
           if VPlacemarkNode.ChildNodes.FindNode('time') <> nil then begin
             VStrDateTime := VPlacemarkNode.ChildNodes.FindNode('time').Text; // '2015-12-02T08:54:43';
-            VDesc := VDesc + sLineBreak + 'DateTime: ' + DateTimeToStr(FSystemTimeInternal.UTCToLocalTime(ISOToDateTime(VStrDateTime)));;
+            if VDesc <> '' then VDesc := VDesc + sLineBreak;
+            VDesc := VDesc + 'DateTime: ' + DateTimeToStr(FSystemTimeInternal.UTCToLocalTime(ISOToDateTime(VStrDateTime)));;
           end;
 
-          VDesc := VDesc + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-          VDesc := VDesc + sLineBreak + AFile;
-          VFullDesc := VAddress + '<br>' + VDesc;
+          VIsFound := VIsFound or (Pos(VSearch, AnsiUpperCase(VDesc)) > 0); // search by Description
 
+          if VDesc <> '' then VDesc := VDesc + sLineBreak;
+          VDesc := VDesc + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
+          VDesc := VDesc + sLineBreak + ExtractFileName(AFileName);
+
+          VFullDesc := '';
           if VPlacemarkNode.ChildNodes.FindNode('url') <> nil then begin
-            VFullDesc := VFullDesc + '<br><a href=' + VPlacemarkNode.ChildNodes.FindNode('url').Text + '>' + VPlacemarkNode.ChildNodes.FindNode('url').Text + '</a>';
+            if VFullDesc <> '' then VFullDesc := VFullDesc + '<br>';
+            VFullDesc := VFullDesc + '<a href=' + VPlacemarkNode.ChildNodes.FindNode('url').Text + '>' + VPlacemarkNode.ChildNodes.FindNode('url').Text + '</a>';
           end;
-
           for J := 0 to VPlacemarkNode.ChildNodes.Count - 1 do begin
             VPlacemarkSubNode := VPlacemarkNode.ChildNodes[J];
             if VPlacemarkSubNode.NodeName = 'groundspeak:cache' then begin
               if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:short_description') <> nil then begin
-                VFullDesc := VFullDesc + '<br>' + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:short_description').Text;
+                if VFullDesc <> '' then VFullDesc := VFullDesc + '<br>';
+                VFullDesc := VFullDesc + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:short_description').Text;
               end;
               if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:difficulty') <> nil then begin
-                VFullDesc := VFullDesc + '<br>Difficulty:' + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:difficulty').Text;
+                if VFullDesc <> '' then VFullDesc := VFullDesc + '<br>';
+                VFullDesc := VFullDesc + 'Difficulty:' + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:difficulty').Text;
               end;
               if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:long_description') <> nil then begin
+                if VFullDesc <> '' then VFullDesc := VFullDesc + '<br>';
                 VFullDesc := VFullDesc + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:long_description').Text;
               end;
             end;
           end;
 
-          VSkip := True;
-          if Pos(VSearch, AnsiUpperCase(VAddress)) <> 0 then begin
-            VSkip := False;
-          end else if Pos(VSearch, AnsiUpperCase(VFullDesc)) <> 0 then begin
-            VSkip := False;
-          end;
+          VIsFound := VIsFound or (Pos(VSearch, AnsiUpperCase(VFullDesc)) > 0); // search by Full Description
 
-          if not VSkip then begin
+          if VIsFound then begin
+            if VFullDesc <> '' then VFullDesc := '<br>' + VFullDesc;
+            VFullDesc := VAddress + '<br>' + VDesc + VFullDesc;
+            VFullDesc := StringReplace(VFullDesc, sLineBreak, '<br>', [rfReplaceAll]);
+
             VPlace := PlacemarkFactory.Build(VPoint, VAddress, VDesc, VFullDesc, 4);
-            VSkip := ItemExist(Vplace, AList, CDistForLine);
-            if not VSkip then begin
+            if not ItemExist(VPlace, AList, CDistForLine) then begin // check for duplicates
               AList.Add(VPlace);
             end;
           end;
-        end;
-
+        end else
         if VNode.ChildNodes[I].NodeName = 'trk' then begin
           VAddress := '';
           VDesc := '';
@@ -565,14 +572,17 @@ begin
 
             if VPlacemarkNode.GetNodeName = 'name' then begin
               VAddress := VPlacemarkNode.Text;
-            end;
-
+            end else
             if VPlacemarkNode.GetNodeName = 'desc' then begin
               VTrkDesc := VPlacemarkNode.Text;
-            end;
+            end else
             if VPlacemarkNode.GetNodeName = 'trkseg'  then begin
-              if (Pos(VSearch, AnsiUpperCase(VAddress)) <> 0) or
-                (Pos(VSearch, AnsiUpperCase(VTrkDesc)) <> 0 )then begin
+
+              VIsFound :=
+                (Pos(VSearch, AnsiUpperCase(VAddress)) > 0) or // search by Track Name
+                (Pos(VSearch, AnsiUpperCase(VTrkDesc)) > 0);   // search by Track Description
+
+              if VIsFound then begin
                 if VPlacemarkNode.ChildNodes.Count >0 then begin
                   for J := 0 to VPlacemarkNode.ChildNodes.Count - 1 do begin
                     if VPlacemarkNode.ChildNodes[J].NodeName = 'trkpt' then begin
@@ -581,12 +591,12 @@ begin
                       VAttribNode := VTrksegSubNode.GetAttributeNodes;
 
                       for K := 0 to VAttribNode.getcount - 1 do begin
-                        VLatLonNode := VAttribNode.get(K);
+                        VLatLonNode := VAttribNode.Get(K);
                         if VLatLonNode.GetNodeName = 'lon' then begin
-                          VPoint.X := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+                          VPoint.X := StrToFloat(VLatLonNode.GetText, VFormatSettings);
                         end else
                         if VLatLonNode.GetNodeName = 'lat' then begin
-                          VPoint.Y := StrToFloat(VLatLonNode.gettext, VFormatSettings);
+                          VPoint.Y := StrToFloat(VLatLonNode.GetText, VFormatSettings);
                         end;
                       end;
 
@@ -606,9 +616,9 @@ begin
                 VDesc := VDesc + 'DateTime: ' + VStrDate;
               end;
               VDesc := VDesc + sLineBreak + '[ ' + ACoordToStringConverter.LonLatConvert(VPoint) + ' ]';
-              VDesc := VDesc + sLineBreak + AFile;
+              VDesc := VDesc + sLineBreak + ExtractFileName(AFileName);
               VDesc := VDesc + sLineBreak + 'track: true';
-              VDesc := VDesc + sLineBreak +IntToStr(VPointsAggregator.Count)+' points';
+              VDesc := VDesc + sLineBreak + IntToStr(VPointsAggregator.Count) + ' points';
 
               if VPointsAggregator.Count > 0 then begin
                 VBuilder.AddLine(VPointsAggregator.MakeStaticAndClear);
@@ -628,6 +638,31 @@ begin
               end;
             end;
           end;
+        end else
+        if VNode.ChildNodes[I].NodeName = 'rte' then begin
+          // TODO: search by name in rte
+          //  <rte>
+          //    <name> Т о н н е л ь н а я  Р а е в с к а я  М. У т р и ш  А б р а у  С е в. О з е р е е в к а
+          //    <link href="http://www.gpsies.com/map.do?fileId=dbdmweskjstcexnx">
+          //      <type>trackOnWeb</type>
+          //    </link>
+          //    <link href="http://www.gpsies.com/charts/db/map/dbdmweskjstcexnx_map.png">
+          //      <type>elevationChartUrlMap</type>
+          //    </link>
+          //    <link href="http://www.gpsies.com/charts/db/mapThumb/dbdmweskjstcexnx_mapThumb.png">
+          //      <type>elevationChartUrlMapThumb</type>
+          //    </link>
+          //    <link href="http://www.gpsies.com/charts/db/tab/dbdmweskjstcexnx_tab.png">
+          //      <type>elevationChartUrlTab</type>
+          //    </link>
+          //    <rtept lat="44.84089920" lon="37.65958780">
+          //      <ele>227.00000</ele>
+          //      <time>2010-01-01T00:00:00Z</time>
+          //    </rtept>
+          //    <rtept lat="44.84102090" lon="37.64585490">
+          //      <ele>275.00000</ele>
+          //      <time>2010-01-01T00:06:29Z</time>
+          //    </rtept>
         end;
         VPointsAggregator.Clear;
         VPath := nil;
@@ -635,31 +670,8 @@ begin
       end;
     end;
   except
+    //
   end;
-
-// TODO: search by name in rte
-//  <rte>
-//    <name> Т о н н е л ь н а я  Р а е в с к а я  М. У т р и ш  А б р а у  С е в. О з е р е е в к а
-//    <link href="http://www.gpsies.com/map.do?fileId=dbdmweskjstcexnx">
-//      <type>trackOnWeb</type>
-//    </link>
-//    <link href="http://www.gpsies.com/charts/db/map/dbdmweskjstcexnx_map.png">
-//      <type>elevationChartUrlMap</type>
-//    </link>
-//    <link href="http://www.gpsies.com/charts/db/mapThumb/dbdmweskjstcexnx_mapThumb.png">
-//      <type>elevationChartUrlMapThumb</type>
-//    </link>
-//    <link href="http://www.gpsies.com/charts/db/tab/dbdmweskjstcexnx_tab.png">
-//      <type>elevationChartUrlTab</type>
-//    </link>
-//    <rtept lat="44.84089920" lon="37.65958780">
-//      <ele>227.00000</ele>
-//      <time>2010-01-01T00:00:00Z</time>
-//    </rtept>
-//    <rtept lat="44.84102090" lon="37.64585490">
-//      <ele>275.00000</ele>
-//      <time>2010-01-01T00:06:29Z</time>
-//    </rtept>
 end;
 
 function TGeoCoderByGpx.DoSearch(
@@ -669,24 +681,24 @@ function TGeoCoderByGpx.DoSearch(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  VList: IInterfaceListSimple;
   VPath: string;
+  VSearch: string;
   VSearchRec: TSearchRec;
-  VMySearch: string;
   VValueConverter: ICoordToStringConverter;
   VTxtGpxDateTime: string;
-  VSearchDate: Boolean;
+  VSearchByDate: Boolean;
 begin
+  Result := TInterfaceListSimple.Create;;
+
   CoInitialize(nil);
   try
-    VMySearch := ASearch;
-
-    VValueConverter := FCoordToStringConverter.GetStatic;
-    while PosEx('  ', VMySearch) > 0 do begin
-      VMySearch := ReplaceStr(VMySearch, '  ', ' ');
+    VSearch := ASearch;
+    while PosEx('  ', VSearch) > 0 do begin
+      VSearch := ReplaceStr(VSearch, '  ', ' ');
     end;
-    VList := TInterfaceListSimple.Create;
-    VSearchDate := ParseDateTime(VMySearch, VTxtGpxDateTime);
+
+    VSearchByDate := ParseDateTime(VSearch, VTxtGpxDateTime);
+    VValueConverter := FCoordToStringConverter.GetStatic;
 
     if FindFirst(FPath + '*.gpx', faAnyFile, VSearchRec) = 0 then
     try
@@ -694,11 +706,14 @@ begin
         if (VSearchRec.Attr and faDirectory) = faDirectory then begin
           Continue;
         end;
+
         VPath := FPath + VSearchRec.Name;
-        if VSearchDate then
-          SearchInGpxFileByDate(ACancelNotifier, AOperationID, VPath, VTxtGpxDateTime, VList, VValueConverter)
-        else
-          SearchInGpxFileByName(ACancelNotifier, AOperationID, VPath, VMySearch, VList, VValueConverter);
+
+        if VSearchByDate then begin
+          SearchInGpxFileByDate(ACancelNotifier, AOperationID, VPath, VTxtGpxDateTime, Result, VValueConverter);
+        end else begin
+          SearchInGpxFileByName(ACancelNotifier, AOperationID, VPath, VSearch, Result, VValueConverter);
+        end;
 
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Exit;
@@ -707,7 +722,6 @@ begin
     finally
       SysUtils.FindClose(VSearchRec);
     end;
-    Result := VList;
   finally
     CoUninitialize;
   end;
