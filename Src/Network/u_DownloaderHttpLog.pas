@@ -31,7 +31,7 @@ uses
   Windows,
   Classes,
   SysUtils,
-  EDBase64;
+  u_Base64Func;
 
 type
   TDownloaderHttpLogMsgType = (hmtRaw, hmtInfo, hmtError);
@@ -85,7 +85,7 @@ end;
 procedure TDownloaderHttpLog.Write(const AMsgType: TDownloaderHttpLogMsgType; const AMsg: string);
 var
   VMsg: string;
-  VText: AnsiString;
+  VText: UTF8String;
 begin
   case AMsgType of
     hmtRaw: begin
@@ -102,7 +102,7 @@ begin
   end;
 
   VText := UTF8Encode(VMsg) + #13#10;
-  FLogStream.WriteBuffer(PAnsiChar(VText)^, Length(VText));
+  FLogStream.WriteBuffer(Pointer(VText)^, Length(VText));
 end;
 
 procedure TDownloaderHttpLog.Write(const AMsgType: TDownloaderHttpLogMsgType; const AFmt: string; const AArgs: array of const);
@@ -112,16 +112,16 @@ end;
 
 procedure TDownloaderHttpLog.Write(const AData: TMemoryStream);
 var
-  VData: AnsiString;
-  VText: AnsiString;
+  VData: RawByteString;
+  VText: RawByteString;
 begin
   {$IFDEF WRITE_HTTP_LOG_WITH_BODY}
   VData := '; data=' + Base64Encode(AData.Memory, AData.Size);
   {$ELSE}
   VData := '';
   {$ENDIF}
-  VText := AnsiString(Format('[DAT] %s tid=%d; size=%d', [_GetTimeStamp, GetCurrentThreadId, AData.Size])) + VData + #13#10;
-  FLogStream.WriteBuffer(PAnsiChar(VText)^, Length(VText));
+  VText := RawByteString(Format('[DAT] %s tid=%d; size=%d', [_GetTimeStamp, GetCurrentThreadId, AData.Size])) + VData + #13#10;
+  FLogStream.WriteBuffer(Pointer(VText)^, Length(VText));
 end;
 
 end.

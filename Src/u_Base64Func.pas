@@ -19,49 +19,51 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_PascalScriptBase64;
+unit u_Base64Func;
 
 interface
 
-uses
-  uPSRuntime,
-  uPSCompiler;
+function Base64Encode(const AData: RawByteString): RawByteString; overload; inline;
+function Base64UrlEncode(const AData: RawByteString): RawByteString; overload; inline;
+function Base64Decode(const AData: RawByteString): RawByteString; overload; inline;
 
-procedure CompileTimeReg_Base64(const APSComp: TPSPascalCompiler);
-procedure ExecTimeReg_Base64(const APSExec: TPSExec);
+function Base64Encode(const AData: PAnsiChar; const ASize: Integer): RawByteString; overload; // do not inline
+function Base64UrlEncode(const AData: PAnsiChar; const ASize: Integer): RawByteString; overload; // do not inline
+function Base64Decode(const AData: PAnsiChar; const ASize: Integer): RawByteString; overload; // do not inline
 
 implementation
 
 uses
-  u_Base64Func;
+  mormot.core.buffers;
 
-procedure CompileTimeReg_Base64(const APSComp: TPSPascalCompiler);
+function Base64Encode(const AData: PAnsiChar; const ASize: Integer): RawByteString;
 begin
-  APSComp.AddDelphiFunction('function Base64Encode(const Data: AnsiString): AnsiString');
-  APSComp.AddDelphiFunction('function Base64UrlEncode(const Data: AnsiString): AnsiString');
-  APSComp.AddDelphiFunction('function Base64Decode(const Data: AnsiString): AnsiString');
+  Result := BinToBase64(AData, ASize);
 end;
 
-function Base64Encode_P(const Data: AnsiString): AnsiString;
+function Base64UrlEncode(const AData: PAnsiChar; const ASize: Integer): RawByteString;
 begin
-  Result := Base64Encode(Data);
+  Result := BinToBase64uri(AData, ASize);
 end;
 
-function Base64UrlEncode_P(const Data: AnsiString): AnsiString;
+function Base64Decode(const AData: PAnsiChar; const ASize: Integer): RawByteString;
 begin
-  Result := Base64UrlEncode(Data);
+  Result := Base64ToBin(AData, ASize);
 end;
 
-function Base64Decode_P(const Data: AnsiString): AnsiString;
+function Base64Encode(const AData: RawByteString): RawByteString;
 begin
-  Result := Base64Decode(Data);
+  Result := Base64Encode(PAnsiChar(AData), Length(AData));
 end;
 
-procedure ExecTimeReg_Base64(const APSExec: TPSExec);
+function Base64UrlEncode(const AData: RawByteString): RawByteString;
 begin
-  APSExec.RegisterDelphiFunction(@Base64Encode_P, 'Base64Encode', cdRegister);
-  APSExec.RegisterDelphiFunction(@Base64UrlEncode_P, 'Base64UrlEncode', cdRegister);
-  APSExec.RegisterDelphiFunction(@Base64Decode_P, 'Base64Decode', cdRegister);
+  Result := Base64UrlEncode(PAnsiChar(AData), Length(AData));
+end;
+
+function Base64Decode(const AData: RawByteString): RawByteString;
+begin
+  Result := Base64Decode(PAnsiChar(AData), Length(AData));
 end;
 
 end.

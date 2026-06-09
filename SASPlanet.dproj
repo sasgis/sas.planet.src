@@ -1930,6 +1930,7 @@
         <DCCReference Include="Src\t_CommonTypes.pas"/>
         <DCCReference Include="Src\t_GeoTypes.pas"/>
         <DCCReference Include="Src\u_AnsiStr.pas"/>
+        <DCCReference Include="Src\u_Base64Func.pas"/>
         <DCCReference Include="Src\u_BitmapFunc.pas"/>
         <DCCReference Include="Src\u_BitmapFuncFreeImage.pas"/>
         <DCCReference Include="Src\u_ByteSwapFunc.pas"/>
