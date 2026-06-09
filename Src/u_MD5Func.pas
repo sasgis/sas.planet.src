@@ -19,38 +19,34 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_TileStorageSQLiteHolder;
+unit u_MD5Func;
 
 interface
 
-uses
-  i_ContentTypeInfo,
-  i_MapVersionInfo;
-
-type
-  TSetSQLiteExecProc = procedure (const ASQLStatement: RawByteString) of object;
-
-  ITileStorageSQLiteHolder = interface
-    ['{BCDBCE62-2C15-4296-AB26-E385BE4D4BC3}']
-    procedure LogError(
-      const ACmd: AnsiChar;
-      const AMsg: string;
-      const ARaiseError: Boolean
-    );
-
-    // execute statements (set params or make tables)
-    procedure ExecMakeSession(const AExecProc: TSetSQLiteExecProc);
-    procedure ExecForNewTable(const AExecProc: TSetSQLiteExecProc);
-    procedure ExecEstablished(const AExecProc: TSetSQLiteExecProc);
-
-    // contenttypes
-    function GetContentTypeToDB(const AContentType: IContentTypeInfoBasic): AnsiString;
-    function GetContentTypeInfo(const AContentTypeFromDB: AnsiString): IContentTypeInfoBasic;
-
-    // get version
-    function GetVersionInfo(const AVersionStr: string): IMapVersionInfo;
-  end;
+function MD5Buffer(const ABuffer; ASize: Integer): RawByteString; // do not inline
+function MD5BufferLower(const ABuffer; ASize: Integer): RawByteString; // do not inline
 
 implementation
+
+uses
+  mormot.core.base,
+  mormot.core.text,
+  mormot.crypt.core;
+
+function MD5Buffer(const ABuffer; ASize: Integer): RawByteString;
+var
+  VDigest: TMd5Digest;
+begin
+  VDigest := Md5Buf(ABuffer, ASize);
+  Result := BinToHex(@VDigest, SizeOf(VDigest));
+end;
+
+function MD5BufferLower(const ABuffer; ASize: Integer): RawByteString;
+var
+  VDigest: TMd5Digest;
+begin
+  VDigest := Md5Buf(ABuffer, ASize);
+  Result := BinToHexLower(@VDigest, SizeOf(VDigest));
+end;
 
 end.

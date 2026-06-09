@@ -294,13 +294,13 @@ end;
 procedure TTileStorageSQLiteFileConnectionRMaps.CreateTables;
 var
   VEpsg: Integer;
-  VJson: string;
-  VEllipsoid: string;
+  VJson: RawByteString;
+  VEllipsoid: RawByteString;
 begin
   // https://osmand.net/docs/technical/osmand-file-formats/osmand-sqlite/
 
   VEpsg := FProjectionSet.Zooms[0].ProjectionType.ProjectionEPSG;
-  VJson := Format('''{"epsg":%d,"format":"%s"}''', [VEpsg, FMainContentType.GetContentType]);
+  VJson := RawByteString(Format('''{"epsg":%d,"format":"%s"}''', [VEpsg, FMainContentType.GetContentType]));
 
   case FFormatId of
     sfOsmAnd: begin

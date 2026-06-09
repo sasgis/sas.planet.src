@@ -19,37 +19,20 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_TileStorageSQLiteHolder;
+unit u_UTF8Str;
 
 interface
 
 uses
-  i_ContentTypeInfo,
-  i_MapVersionInfo;
+  mormot.core.base;
 
 type
-  TSetSQLiteExecProc = procedure (const ASQLStatement: RawByteString) of object;
+  RawUTF8 = mormot.core.base.RawUtf8;
 
-  ITileStorageSQLiteHolder = interface
-    ['{BCDBCE62-2C15-4296-AB26-E385BE4D4BC3}']
-    procedure LogError(
-      const ACmd: AnsiChar;
-      const AMsg: string;
-      const ARaiseError: Boolean
-    );
+  TFastSetUTF8String = procedure(var s: RawUtf8; p: pointer; len: PtrInt);
 
-    // execute statements (set params or make tables)
-    procedure ExecMakeSession(const AExecProc: TSetSQLiteExecProc);
-    procedure ExecForNewTable(const AExecProc: TSetSQLiteExecProc);
-    procedure ExecEstablished(const AExecProc: TSetSQLiteExecProc);
-
-    // contenttypes
-    function GetContentTypeToDB(const AContentType: IContentTypeInfoBasic): AnsiString;
-    function GetContentTypeInfo(const AContentTypeFromDB: AnsiString): IContentTypeInfoBasic;
-
-    // get version
-    function GetVersionInfo(const AVersionStr: string): IMapVersionInfo;
-  end;
+const
+  FastSetUTF8String: TFastSetUTF8String = mormot.core.base.FastSetString;
 
 implementation
 

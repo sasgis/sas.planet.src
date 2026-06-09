@@ -25,7 +25,6 @@ interface
 
 uses
   SysUtils,
-  mormot.core.base,
   t_GeoTypes,
   i_BinaryData,
   i_VectorDataLoader,
@@ -35,6 +34,7 @@ uses
   i_VectorDataFactory,
   i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
+  u_UTF8Str,
   u_BaseInterfacedObject;
 
 type
@@ -246,7 +246,7 @@ begin
 
   // Place ID
   with AInfo.Field[0] do begin
-    FastSetString(VPlaceId, Ptr, Len);
+    FastSetUTF8String(VPlaceId, Ptr, Len);
   end;
 
   VDesc := Format(
@@ -356,7 +356,7 @@ begin
   end else begin
     I := _GetTitleIndexByLangId(1); // todo: use user lang id
     with VTitle[I] do begin
-      FastSetString(Result, Ptr, Len);
+      FastSetUTF8String(Result, Ptr, Len);
     end;
   end;
 end;

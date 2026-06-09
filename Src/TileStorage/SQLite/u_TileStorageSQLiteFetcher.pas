@@ -183,7 +183,7 @@ end;
 
 procedure TTileStorageSQLiteFetcher.InternalOpen;
 var
-  VSQLText: AnsiString;
+  VSQLText: RawByteString;
 begin
   InternalClose;
   VSQLText := GetSQL_SelectEntire;

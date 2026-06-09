@@ -58,12 +58,12 @@ type
 
     function GetSQL_DeleteTile(
       const ADeleteTileAllData: PDeleteTileAllData
-    ): AnsiString; virtual; abstract;
+    ): RawByteString; virtual; abstract;
 
     function GetSQL_TileRectInfo(
       const AUseOtherVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
-    ): AnsiString; virtual; abstract;
+    ): RawByteString; virtual; abstract;
 
     procedure CallbackSelectTileRectInfo(
       const AHandler: PSQLite3DbHandler;
@@ -76,7 +76,7 @@ type
       const AMsg: String;
       const ARaiseError: Boolean = False
     );
-    procedure ExecuteSQL(const ASQLStatement: AnsiString);
+    procedure ExecuteSQL(const ASQLStatement: RawByteString);
   private
     { ITileStorageSQLiteHandler }
     function Opened: Boolean;
@@ -176,12 +176,12 @@ type
   protected
     function GetSQL_DeleteTile(
       const ADeleteTileAllData: PDeleteTileAllData
-    ): AnsiString; override;
+    ): RawByteString; override;
 
     function GetSQL_TileRectInfo(
       const AUseOtherVersions: Boolean;
       const AEnumData: TTileInfoShortEnumData
-    ): AnsiString; override;
+    ): RawByteString; override;
   public
     function GetListOfVersions(const AOper: PNotifierOperationRec): IMapVersionListStatic;
     function GetTBColInfoPtr: Pointer;
@@ -202,7 +202,7 @@ uses
   u_TileStorageSQLiteFunc;
 
 const
-  cReplaceOrIgnore: array [Boolean] of AnsiString = ('REPLACE', 'IGNORE');
+  cReplaceOrIgnore: array [Boolean] of RawByteString = ('REPLACE', 'IGNORE');
 
 type
   PGetTileRectInfoCancellable = ^TGetTileRectInfoCancellable;
@@ -252,9 +252,9 @@ end;
 function GetOrderByVersion(
   const ATBColInfoModeV: TVersionColMode;
   const AIsOrderDESC: Boolean
-): AnsiString; inline;
+): RawByteString; inline;
 var
-  VOrder: AnsiString;
+  VOrder: RawByteString;
 begin
   if AIsOrderDESC then begin
     VOrder := ' DESC';
@@ -271,22 +271,20 @@ begin
       Result := 'v COLLATE ' + cLogicalSortingCollation + VOrder;
     end;
   else
-    begin
-      Assert(False, IntToStr(Ord(ATBColInfoModeV)));
-    end;
+    Assert(False, IntToStr(Ord(ATBColInfoModeV)));
   end;
 end;
 
 function GetOrderByVersion_DESC(
   const ATBColInfoModeV: TVersionColMode
-): AnsiString; inline;
+): RawByteString; inline;
 begin
   Result := GetOrderByVersion(ATBColInfoModeV, True);
 end;
 
 function GetOrderByVersion_ASC(
   const ATBColInfoModeV: TVersionColMode
-): AnsiString; inline;
+): RawByteString; inline;
 begin
   Result := GetOrderByVersion(ATBColInfoModeV, False);
 end;
@@ -294,11 +292,11 @@ end;
 function VersionFieldIsEqualOrMax(
   const ARequestedVersionIsInt: Boolean;
   const ATBColInfoModeV: TVersionColMode;
-  const ARequestedVersionToDB: AnsiString;
+  const ARequestedVersionToDB: RawByteString;
   const AXY: TPoint
-): AnsiString;
+): RawByteString;
 var
-  VVer, VMax: AnsiString;
+  VVer, VMax: RawByteString;
 begin
   if (ATBColInfoModeV = vcm_Int) and not ARequestedVersionIsInt then begin
     // версия в БД целочисленная, но дали текстовую
@@ -319,9 +317,9 @@ end;
 function GetCheckOtherVersionsBySizeSQLText(
   const AXY: TPoint;
   const ATileSize: Integer
-): AnsiString;
+): RawByteString;
 var
-  s: AnsiString;
+  s: RawByteString;
 begin
   s :=
     'SELECT s FROM t WHERE ' +
@@ -336,9 +334,9 @@ end;
 function GetCheckOtherVersionsByCRC32SQLText(
   const AXY: TPoint;
   const ATileCRC32: Cardinal
-): AnsiString;
+): RawByteString;
 var
-  h: AnsiString;
+  h: RawByteString;
 begin
   h :=
     'SELECT h FROM t WHERE ' +
@@ -433,7 +431,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTileStorageSQLiteHandler.ExecuteSQL(const ASQLStatement: AnsiString);
+procedure TTileStorageSQLiteHandler.ExecuteSQL(const ASQLStatement: RawByteString);
 begin
   FSQLite3DbHandler.ExecSQL(ASQLStatement);
 end;
@@ -780,7 +778,7 @@ function TTileStorageSQLiteHandlerComplex.GetListOfTileVersions(
 ): IMapVersionListStatic;
 var
   VSelectTileVersions: TSelectTileVersions;
-  VSQLText: AnsiString;
+  VSQLText: RawByteString;
 begin
   if not FUseVersionFieldInDB or (FTBColInfo.ModeV = vcm_None) then begin
     // no versions
@@ -821,7 +819,7 @@ function TTileStorageSQLiteHandlerComplex.GetListOfVersions(
 ): IMapVersionListStatic;
 var
   VSelectTileVersions: TSelectTileVersions;
-  VSQLText: AnsiString;
+  VSQLText: RawByteString;
 begin
   if not FUseVersionFieldInDB or (FTBColInfo.ModeV = vcm_None) then begin
     // no versions
@@ -855,7 +853,7 @@ end;
 
 function TTileStorageSQLiteHandlerComplex.GetSQL_DeleteTile(
   const ADeleteTileAllData: PDeleteTileAllData
-): AnsiString;
+): RawByteString;
 var
   VInfo: TSelectTileInfoComplex;
 begin
@@ -884,9 +882,9 @@ end;
 function TTileStorageSQLiteHandlerComplex.GetSQL_TileRectInfo(
   const AUseOtherVersions: Boolean;
   const AEnumData: TTileInfoShortEnumData
-): AnsiString;
+): RawByteString;
 var
-  VSelect: AnsiString;
+  VSelect: RawByteString;
   VComplex: TSelectTileInfoComplex;
 begin
   VSelect := 'SELECT x,y,d,s';
@@ -959,9 +957,9 @@ function TTileStorageSQLiteHandlerComplex.GetTileInfo(
 ): Boolean;
 var
   VSelectTileInfo: TSelectTileInfoComplex;
-  VSQLText: AnsiString;
-  VSQLWhere: AnsiString;
-  VSQLOrder: AnsiString;
+  VSQLText: RawByteString;
+  VSQLWhere: RawByteString;
+  VSQLOrder: RawByteString;
 begin
   Result := False;
 
@@ -1085,10 +1083,10 @@ var
   VOriginalTileCRC32: Cardinal;
   VRowsAffected: Integer;
   VKeepExisting: Boolean;
-  VSQLText: AnsiString;
-  VSQLInsert: AnsiString;
-  VSQLValues: AnsiString;
-  VSQLAfter: AnsiString;
+  VSQLText: RawByteString;
+  VSQLInsert: RawByteString;
+  VSQLValues: RawByteString;
+  VSQLAfter: RawByteString;
 
   procedure _BuildSqlText;
   begin

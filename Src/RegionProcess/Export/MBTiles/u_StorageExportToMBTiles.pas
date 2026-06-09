@@ -78,7 +78,7 @@ type
 
     function GetTileXY(const ATile: TPoint; const AZoom: Byte): TPoint; inline;
 
-    procedure OpenInternal(const ATablesDDL: array of AnsiString; const ADeleteIfExists: Boolean);
+    procedure OpenInternal(const ATablesDDL: array of RawByteString; const ADeleteIfExists: Boolean);
   public
     constructor Create(
       const AExportPath: string;
@@ -156,9 +156,7 @@ implementation
 
 uses
   StrUtils,
-  mormot.core.base,
-  mormot.core.text,
-  mormot.crypt.core,
+  u_MD5Func,
   u_GeoFunc,
   u_GeoToStrFunc;
 
@@ -368,7 +366,7 @@ begin
   end;
 end;
 
-procedure TSQLiteStorageMBTilesBase.OpenInternal(const ATablesDDL: array of AnsiString; const ADeleteIfExists: Boolean);
+procedure TSQLiteStorageMBTilesBase.OpenInternal(const ATablesDDL: array of RawByteString; const ADeleteIfExists: Boolean);
 var
   I: Integer;
   VFileName: string;
@@ -403,7 +401,7 @@ end;
 { TSQLiteStorageMBTilesClassic }
 
 const
-  CMBTilesDDL: array [0..2] of AnsiString = (
+  CMBTilesDDL: array [0..2] of RawByteString = (
     // metadata
     'CREATE TABLE IF NOT EXISTS metadata (name text, value text)',
     'CREATE UNIQUE INDEX IF NOT EXISTS metadata_idx ON metadata (name)',
@@ -422,7 +420,7 @@ procedure TSQLiteStorageMBTilesClassic.Open(
 );
 var
   VMetadata: TStringList;
-  VInsertSQL: AnsiString;
+  VInsertSQL: RawByteString;
   VMinZoom, VMaxZoom: Byte;
   VBounds: TDoubleRect;
 begin
@@ -550,7 +548,7 @@ end;
 { TSQLiteStorageMBTilesTileMill }
 
 const
-  cTileMillDDL: array [0..14] of AnsiString = (
+  cTileMillDDL: array [0..14] of RawByteString = (
 
     // grid_key
     'CREATE TABLE IF NOT EXISTS grid_key (grid_id TEXT, key_name TEXT);',
@@ -628,8 +626,8 @@ procedure TSQLiteStorageMBTilesTileMill.Open(
 );
 var
   VMetadata: TStringList;
-  VInsertMapSQL: AnsiString;
-  VInsertImagesSQL: AnsiString;
+  VInsertMapSQL: RawByteString;
+  VInsertImagesSQL: RawByteString;
   VMinZoom, VMaxZoom: Byte;
   VBounds: TDoubleRect;
 begin
@@ -723,7 +721,7 @@ begin
   Assert(AData <> nil);
   Assert(FIsInsertStmtPrepared);
 
-  VTileID := MD5DigestToString(MD5Buf(AData.Buffer^, AData.Size));
+  VTileID := MD5Buffer(AData.Buffer^, AData.Size);
 
   // insert data into 'images' table
 

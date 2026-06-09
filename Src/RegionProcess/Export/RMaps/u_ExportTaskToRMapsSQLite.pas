@@ -71,7 +71,7 @@ type
       const AData: IBinaryData
     );
     procedure PrepareInsertStmt;
-    function CoordToStr(const AValue: Double): AnsiString; inline;
+    function CoordToStr(const AValue: Double): RawByteString; inline;
     procedure FillZoomsCallback(const AHandler: PSQLite3DbHandler;
       const ACallbackPtr: Pointer; const AStmtData: PSQLite3StmtData);
   protected
@@ -272,7 +272,7 @@ begin
   end;
 end;
 
-function TExportTaskToRMapsSQLite.CoordToStr(const AValue: Double): AnsiString;
+function TExportTaskToRMapsSQLite.CoordToStr(const AValue: Double): RawByteString;
 begin
   Result := FormatA('%.8f', [AValue], FFormatSettings);
 end;
@@ -357,7 +357,7 @@ end;
 
 procedure TExportTaskToRMapsSQLite.PrepareInsertStmt;
 var
-  VText: AnsiString;
+  VText: RawByteString;
 begin
   if FIsReplace then begin
     VText := 'REPLACE';
@@ -380,10 +380,10 @@ procedure TExportTaskToRMapsSQLite.FillZoomsCallback(
 );
 var
   VLen: Integer;
-  VZoom: AnsiString;
-  VZoomsPtr: ^AnsiString absolute ACallbackPtr;
+  VZoom: RawByteString;
+  VZoomsPtr: ^RawByteString absolute ACallbackPtr;
 begin
-  VZoom := AStmtData.ColumnAsAnsiString(0);
+  VZoom := AStmtData.ColumnAsUTF8String(0);
   if VZoom <> '' then begin
     VLen := Length(VZoomsPtr^);
     if VLen > 0 then begin
@@ -396,7 +396,7 @@ end;
 
 procedure TExportTaskToRMapsSQLite.CloseSQLiteStorage;
 var
-  VZooms: AnsiString;
+  VZooms: RawByteString;
 begin
   if not FSQLite3DB.IsOpened then begin
     Exit;

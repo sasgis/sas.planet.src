@@ -1564,6 +1564,7 @@ uses
   u_InterfaceQueue in 'Src\u_InterfaceQueue.pas',
   u_LanguageListStatic in 'Src\u_LanguageListStatic.pas',
   u_ListenerNotifierLinksList in 'Src\u_ListenerNotifierLinksList.pas',
+  u_MD5Func in 'Src\u_MD5Func.pas',
   u_MainMemCacheConfig in 'Src\u_MainMemCacheConfig.pas',
   u_MarksDrawConfig in 'Src\u_MarksDrawConfig.pas',
   u_MarksDrawConfigStatic in 'Src\u_MarksDrawConfigStatic.pas',
@@ -1606,6 +1607,7 @@ uses
   u_TileUpdateListenerToLonLat in 'Src\u_TileUpdateListenerToLonLat.pas',
   u_TreeByMapActiveMapsSet in 'Src\u_TreeByMapActiveMapsSet.pas',
   u_TreeChangeableBase in 'Src\u_TreeChangeableBase.pas',
+  u_UTF8Str in 'Src\u_UTF8Str.pas',
   u_UsedMarksConfig in 'Src\u_UsedMarksConfig.pas',
   u_UsedMarksConfigStatic in 'Src\u_UsedMarksConfigStatic.pas';
 

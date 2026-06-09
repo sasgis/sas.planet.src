@@ -1949,6 +1949,7 @@
         <DCCReference Include="Src\u_InterfaceQueue.pas"/>
         <DCCReference Include="Src\u_LanguageListStatic.pas"/>
         <DCCReference Include="Src\u_ListenerNotifierLinksList.pas"/>
+        <DCCReference Include="Src\u_MD5Func.pas"/>
         <DCCReference Include="Src\u_MainMemCacheConfig.pas"/>
         <DCCReference Include="Src\u_MarksDrawConfig.pas"/>
         <DCCReference Include="Src\u_MarksDrawConfigStatic.pas"/>
@@ -1991,6 +1992,7 @@
         <DCCReference Include="Src\u_TileUpdateListenerToLonLat.pas"/>
         <DCCReference Include="Src\u_TreeByMapActiveMapsSet.pas"/>
         <DCCReference Include="Src\u_TreeChangeableBase.pas"/>
+        <DCCReference Include="Src\u_UTF8Str.pas"/>
         <DCCReference Include="Src\u_UsedMarksConfig.pas"/>
         <DCCReference Include="Src\u_UsedMarksConfigStatic.pas"/>
         <BuildConfiguration Include="Base">

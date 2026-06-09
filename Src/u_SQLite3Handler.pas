@@ -48,6 +48,7 @@ type
     function ColumnDouble(const ACol: Integer): Double; inline;
     function ColumnIntDef(const ACol, AValueIfNull: Integer): Integer; inline;
     function ColumnAsString(const ACol: Integer): string;  inline;
+    function ColumnAsUTF8String(const ACol: Integer): UTF8String;  inline;
     function ColumnAsAnsiString(const ACol: Integer): AnsiString; inline;
     function ColumnBlobSize(const ACol: Integer): Integer; inline;
     function ColumnBlobData(const ACol: Integer): Pointer; inline;
@@ -383,16 +384,26 @@ end;
 
 { TSQLite3StmtData }
 
-function TSQLite3StmtData.ColumnAsString(const ACol: Integer): string;
+function TSQLite3StmtData.ColumnAsUTF8String(const ACol: Integer): UTF8String;
 var
-  VValue: PAnsiChar;
+  VValue: PUTF8Char;
 begin
   VValue := sqlite3_column_text(Stmt, ACol); // return UTF-8
   if VValue = nil then begin
     Result := '';
   end else begin
-    Result := UTF8ToString(VValue);
+    Result := UTF8String(VValue);
   end;
+end;
+
+function TSQLite3StmtData.ColumnAsString(const ACol: Integer): string;
+begin
+  Result := UTF8ToString(ColumnAsUTF8String(ACol));
+end;
+
+function TSQLite3StmtData.ColumnAsAnsiString(const ACol: Integer): AnsiString;
+begin
+  Result := AnsiString(ColumnAsString(ACol));
 end;
 
 function TSQLite3StmtData.BindInt(const ACol, AValue: Integer): Boolean;
@@ -438,11 +449,6 @@ end;
 function TSQLite3StmtData.ClearBindings: Boolean;
 begin
   Result := sqlite3_clear_bindings(Stmt) = SQLITE_OK;
-end;
-
-function TSQLite3StmtData.ColumnAsAnsiString(const ACol: Integer): AnsiString;
-begin
-  Result := AnsiString(ColumnAsString(ACol));
 end;
 
 function TSQLite3StmtData.ColumnBlobData(const ACol: Integer): Pointer;

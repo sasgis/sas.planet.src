@@ -37,10 +37,10 @@ uses
   StrUtils,
   Classes,
   DateUtils,
-  MD5,
   u_AnsiStr,
   u_GeoToStrFunc,
   u_NetworkStrFunc,
+  u_MD5Func,
   u_StrFunc;
 
 procedure CompileTimeReg_Utils(const APSComp: TPSPascalCompiler);
@@ -59,8 +59,8 @@ begin
   APSComp.AddTypeS('TReplaceFlags', 'set of TReplaceFlag');
   APSComp.AddDelphiFunction('function StringReplace(const S, OldPattern, NewPattern: AnsiString; Flags: TReplaceFlags): AnsiString');
 
-  // MD5
-  APSComp.AddDelphiFunction('function MD5String(const AStr: AnsiString): String');
+  // u_MD5Func
+  APSComp.AddDelphiFunction('function MD5String(const AStr: AnsiString): AnsiString');
 
   // u_GeoToStrFunc
   APSComp.AddDelphiFunction('function RoundEx(const chislo: Double; const Precision: Integer): String');
@@ -199,9 +199,9 @@ begin
   end;
 end;
 
-function MD5String_P(const AStr: AnsiString): string;
+function MD5String_P(const AStr: AnsiString): AnsiString;
 begin
-  Result := MD5DigestToStr(MD5Buffer(PAnsiChar(AStr)^, Length(AStr)));
+  Result := MD5Buffer(PAnsiChar(AStr)^, Length(AStr));
 end;
 
 function IntToHex_P(AValue: Integer; ADigits: Integer): string;
