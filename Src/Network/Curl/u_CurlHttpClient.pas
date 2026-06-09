@@ -25,16 +25,12 @@ interface
 
 uses
   Classes,
+  mormot.core.os,
   mormot.lib.curl,
   t_CurlHttpClient;
 
 type
   TCurlHttpClient = class
-  private
-    const
-      coTimeoutMS = TCurlOption(155);
-      coConnectTimeoutMS = TCurlOption(156);
-      coNoProxy = TCurlOption(10177);
   private
     FCurl: TCurl;
     FCurlSlist: Pointer;
@@ -54,6 +50,7 @@ type
     FCurlDebugCallBack: TCurlDebugCallBack;
     FCurlUserData: Pointer;
 
+    function CurlInit: Boolean;
     procedure CurlSetup;
     procedure CurlClose; inline;
     procedure CurlCheck(const AResult: TCurlResult); {$IFNDEF DEBUG} inline; {$ENDIF}
@@ -70,7 +67,6 @@ type
       const AResp: PCurlResponse
     ): Boolean;
     procedure Disconnect;
-    class function GetCurlVersionInfo: string;
   public
     constructor Create(
       const ACertFileName: AnsiString = '';
@@ -256,12 +252,7 @@ begin
   FOptions := cCurlDefaultOptions;
   FProxy := cCurlDefaultProxy;
 
-  if curl.Handle = 0 then begin
-    LibCurlInitialize([giAll], GDllName.Curl);
-  end else
-  if not CurlIsAvailable then begin
-    raise ECurl.Create('Curl library is not available');
-  end;
+  CurlInit;
 end;
 
 destructor TCurlHttpClient.Destroy;
@@ -293,9 +284,7 @@ begin
   // https://curl.haxx.se/libcurl/c/libcurl-errors.html
   {$IFDEF DEBUG}
   if AResult <> crOK then begin
-    raise ECurl.CreateFmt(
-      'libcurl error %d (%s)', [Ord(AResult), curl.easy_strerror(AResult)]
-    );
+    raise ECurl.CreateFmt('libcurl error %d (%s)', [Ord(AResult), curl.easy_strerror(AResult)]);
   end;
   {$ENDIF}
 end;
@@ -420,6 +409,10 @@ var
   VCurlResult: TCurlResult;
   VDoCurlSetup: Boolean;
 begin
+  if not CurlInit then begin
+    raise ECurl.Create('Curl library is not available');
+  end;
+
   Result := False;
   FDoDisconnect := False;
 
@@ -525,12 +518,24 @@ begin
   FDoDisconnect := True;
 end;
 
-class function TCurlHttpClient.GetCurlVersionInfo: string;
+var
+  GCurlState: TLibraryState;
+
+procedure _LibCurlInit;
 begin
-  if curl.Handle = 0 then begin
-    LibCurlInitialize;
+  try
+    LibCurlInitialize([giAll], GDllName.Curl);
+    GCurlState := lsAvailable;
+  except
+    GCurlState := lsNotAvailable;
+    raise;
   end;
-  Result := curl.infoText;
+end;
+
+function TCurlHttpClient.CurlInit: Boolean;
+begin
+  // thread-safe initialization
+  Result := LibraryAvailable(GCurlState, _LibCurlInit);
 end;
 
 procedure WinSockInitialize;
