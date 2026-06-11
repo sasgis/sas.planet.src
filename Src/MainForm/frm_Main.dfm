@@ -846,6 +846,9 @@ object frmMain: TfrmMain
           Action = actShowPascalScriptIde
           Images = MenusImageList
         end
+        object tbxtmCmdLineArgs: TTBXItem
+          Action = actShowCmdLineArgsInfo
+        end
         object tbxSep2: TTBXSeparatorItem
         end
         object tbitmCheckUpdate: TTBXItem
@@ -4611,6 +4614,11 @@ object frmMain: TfrmMain
       Caption = 'Use Map Datum (from zmp)'
       GroupIndex = 1
       OnExecute = actGeoCalcUseZmpDatumExecute
+    end
+    object actShowCmdLineArgsInfo: TAction
+      Category = 'Help'
+      Caption = 'Command Line Parameters'
+      OnExecute = actShowCmdLineArgsInfoExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

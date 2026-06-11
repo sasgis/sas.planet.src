@@ -56,6 +56,7 @@ const
   rsCmdLineArgProcessorSASExceptionRaised     = 'SASExceptionRaised';
 
 function GetHelp(const AppName: string): string;
+function GetHelpHtml(const AppName: string): string;
 function GetErrorFromCode(const ACode: Integer): string;
 
 implementation
@@ -71,13 +72,27 @@ begin
     'Usage:                                                             ' + CR +
     '    ' + AppName + ' [Options] [Arguments]                          ' + CR +
                                                                             CR +
+    'Description:                                                       ' + CR +
+    '    Any parameters can be passed to either a new or an already     ' + CR +
+    '    running instance of the program. If the program is already     ' + CR +
+    '    running, launching it with parameters will start a second      ' + CR +
+    '    process that forwards the parameters to the existing instance  ' + CR +
+    '    and then exits immediately.                                    ' + CR +
+                                                                            CR +
+    '    Inter-process communication is performed via WM_COPYDATA       ' + CR +
+    '    messages, meaning that control commands can also be issued     ' + CR +
+    '    from any third-party application.                              ' + CR +
+                                                                            CR +
     'Options:                                                           ' + CR +
     '    -h, --help              Print this help message and exit       ' + CR +
+                                                                            CR +
     '    --map=<GUID>            Activate the map assigned to <GUID>,   ' + CR +
     '                            or switch ON the layer''s visibility   ' + CR +
+                                                                            CR +
     '    --zoom=<z>              Set Zoom to the level <z>              ' + CR +
                                                                             CR +
-    '    --move=(<lon>,<lat>)     Center the map with <lon>/<lat>       ' + CR +
+    '    --move=(<lon>,<lat>)    Center the map with <lon>/<lat>        ' + CR +
+                                                                            CR +
     '    --move-xyz=(<x>,<y>,<z>) Center the map with <x>/<y>/<z>       ' + CR +
                                                                             CR +
     '    --show-placemarks=<v>   Set the placemarks visibility:         ' + CR +
@@ -100,10 +115,12 @@ begin
     '                            immediately. Without this option       ' + CR +
     '                            dounload will be started in paused     ' + CR +
     '                            state                                  ' + CR +
+                                                                            CR +
     'Arguments:                                                         ' + CR +
     '    filename                One (or more, space-separated) files   ' + CR +
     '                            to be imported into the temporary      ' + CR +
     '                            database                               ' + CR +
+                                                                            CR +
     'Examples:                                                          ' + CR +
     '    ' + AppName + ' MyPoints.kml MyTracks.gpx                      ' + CR +
     '    ' + AppName + ' --navigate=(24.56,-32.11)                      ' + CR +
@@ -111,6 +128,23 @@ begin
     '    ' + AppName + ' --show-placemarks=1 --zoom=10 --move=(5,-5)    ' + CR +
     '    ' + AppName + ' --map={F6574B06-E632-4D5F-BC75-C8FA658B57DF}   ' + CR +
     '    ' + AppName + ' --sls-autostart c:\mydownload.sls              ' + CR;
+end;
+
+function GetHelpHtml(const AppName: string): string;
+
+  function HtmlEscape(const S: string): string;
+  begin
+    Result := StringReplace(S, '&', '&amp;', [rfReplaceAll]); // at first!
+    Result := StringReplace(Result, '<', '&lt;',  [rfReplaceAll]);
+    Result := StringReplace(Result, '>', '&gt;',  [rfReplaceAll]);
+    Result := StringReplace(Result, '"', '&quot;', [rfReplaceAll]);
+  end;
+
+begin
+  Result :=
+    '<pre style="font-family: monospace; font-size: 13px;">' +
+    HtmlEscape(GetHelp(AppName)) +
+    '</pre>';
 end;
 
 function GetErrorFromCode(const ACode: Integer): string;

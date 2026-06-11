@@ -642,6 +642,8 @@ type
     actOfflineMapOpen: TAction;
     tbitmGoToLayerCenter: TTBXSubmenuItem;
     tbitmGoToMapCenter: TTBXItem;
+    tbxtmCmdLineArgs: TTBXItem;
+    actShowCmdLineArgsInfo: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -907,6 +909,7 @@ type
     procedure actOfflineMapOpenExecute(Sender: TObject);
     procedure tbitmGoToMapCenterClick(Sender: TObject);
     procedure NPanelsPopup(Sender: TTBCustomItem; FromLink: Boolean);
+    procedure actShowCmdLineArgsInfoExecute(Sender: TObject);
   private
     FactlstProjections: TActionList;
     FactlstLanguages: TActionList;
@@ -7747,6 +7750,14 @@ end;
 procedure TfrmMain.actShowCacheManagerExecute(Sender: TObject);
 begin
   FfrmCacheManager.Show;
+end;
+
+procedure TfrmMain.actShowCmdLineArgsInfoExecute(Sender: TObject);
+var
+  VText: string;
+begin
+  VText := u_CmdLineArgProcessorAPI.GetHelpHtml(ExtractFileName(ParamStr(0)));
+  GState.InternalBrowser.ShowMessage(_('Command Line Parameters'), VText);
 end;
 
 procedure TfrmMain.actShowDebugInfoExecute(Sender: TObject);

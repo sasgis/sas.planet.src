@@ -114,6 +114,7 @@ uses
   i_Appearance,
   i_JpegWithExifImportConfig,
   u_JpegWithExifImportConfig,
+  u_AnsiStr,
   u_GeoFunc,
   u_GeoToStrFunc,
   u_ImportConfig,
@@ -154,9 +155,9 @@ begin
   try
     VRegExpr.Expression := '\((\d+),(\d+),(\d+)\)';
     if VRegExpr.Exec(AStr) then begin
-      APoint.X := StrToInt(VRegExpr.Match[1]);
-      APoint.Y := StrToInt(VRegExpr.Match[2]);
-      AZoom := StrToInt(VRegExpr.Match[3]);
+      APoint.X := StrToIntA(VRegExpr.Match[1]);
+      APoint.Y := StrToIntA(VRegExpr.Match[2]);
+      AZoom := StrToIntA(VRegExpr.Match[3]);
       Result := True;
     end;
   finally
