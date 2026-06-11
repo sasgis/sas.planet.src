@@ -116,6 +116,9 @@ begin
     '                            dounload will be started in paused     ' + CR +
     '                            state                                  ' + CR +
                                                                             CR +
+    '    --utf8                  Interpret message text as UTF-8;       ' + CR +
+    '                            relevant when passing via WM_COPYDATA  ' + CR +
+                                                                            CR +
     'Arguments:                                                         ' + CR +
     '    filename                One (or more, space-separated) files   ' + CR +
     '                            to be imported into the temporary      ' + CR +
