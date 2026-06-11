@@ -30,6 +30,7 @@ uses
   StdCtrls,
   ExtCtrls,
   ComCtrls,
+  Graphics,
   Spin,
   SynEdit,
   i_MapType,
@@ -111,10 +112,7 @@ type
     mmoCacheState: TMemo;
     lblCacheState: TLabel;
     procedure btnOkClick(Sender: TObject);
-    procedure FormClose(
-      Sender: TObject;
-      var Action: TCloseAction
-    );
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
     procedure btnResetUrlClick(Sender: TObject);
     procedure btnResetFolderClick(Sender: TObject);
@@ -126,11 +124,8 @@ type
     procedure btnResetHeaderClick(Sender: TObject);
     procedure BtnSelectPathClick(Sender: TObject);
     procedure tvMenuClick(Sender: TObject);
-    procedure tvMenuCollapsing(
-      Sender: TObject;
-      Node: TTreeNode;
-      var AllowCollapse: Boolean
-    );
+    procedure tvMenuCollapsing(Sender: TObject; Node: TTreeNode; var AllowCollapse: Boolean);
+    procedure tvMenuCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure FormShow(Sender: TObject);
     procedure btnResetMaxConnectClick(Sender: TObject);
     procedure chkAccessClick(Sender: TObject);
@@ -138,6 +133,7 @@ type
     synedtParams: TSynEdit;
     synedtScript: TSynEdit;
     synedtInfo: TSynEdit;
+    FDefaultFontColor: TColor;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FMapType: IMapType;
     FfrCacheTypesList: TfrCacheTypeList;
@@ -197,8 +193,8 @@ begin
       [tsacRead]
     );
 
-  BuildTreeViewMenu;
   CreateSynEditTextHighlighters;
+  BuildTreeViewMenu;
 end;
 
 destructor TfrmMapTypeEdit.Destroy;
@@ -304,24 +300,25 @@ end;
 
 procedure TfrmMapTypeEdit.BtnSelectPathClick(Sender: TObject);
 var
-  TempPath: string;
+  VTempPath: string;
 begin
-  TempPath := EditNameinCache.text;
-  if SelectDirectory(_('Cache folder'), '', TempPath) then begin
-    EditNameinCache.Text := IncludeTrailingPathDelimiter(TempPath);
+  VTempPath := EditNameinCache.text;
+  if SelectDirectory(_('Cache folder'), '', VTempPath) then begin
+    EditNameinCache.Text := IncludeTrailingPathDelimiter(VTempPath);
   end;
 end;
 
-procedure TfrmMapTypeEdit.FormClose(
-  Sender: TObject;
-  var Action: TCloseAction
-);
+procedure TfrmMapTypeEdit.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   FMapType := nil;
 end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
+  if ShowWarningMessage(_('Reset all settings to default?'), MB_YESNO) <> ID_YES then begin
+    Exit;
+  end;
+
   EditURL.Text := string(FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase);
   mmoHeader.Text := string(FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader);
 
@@ -374,6 +371,45 @@ procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
   if IsCacheTypeChangable then begin
     FfrCacheTypesList.IntCode := FMapType.Zmp.StorageConfig.CacheTypeCode;
+  end;
+end;
+
+procedure TfrmMapTypeEdit.chkAccessClick(Sender: TObject);
+var
+  VTag: Integer;
+begin
+  if FInAccessClick then begin
+    Exit;
+  end;
+  FInAccessClick := True;
+  try
+    VTag := (Sender as TCheckBox).Tag;
+    if VTag = 0 then begin
+      if chkCacheReadOnly.Checked then begin
+        if chkReadAccess.Enabled then begin
+          chkReadAccess.Checked := True;
+        end;
+        if chkAddAccess.Enabled then begin
+          chkAddAccess.Checked := False;
+        end;
+        if chkDeleteAccess.Enabled then begin
+          chkDeleteAccess.Checked := False;
+        end;
+        if chkReplaceAccess.Enabled then begin
+          chkReplaceAccess.Checked := False;
+        end;
+      end;
+    end else
+    if (VTag > 2) and chkCacheReadOnly.Enabled then begin
+      chkCacheReadOnly.Checked :=
+        not (
+          chkAddAccess.Checked or
+          chkDeleteAccess.Checked or
+          chkReplaceAccess.Checked
+        );
+    end;
+  finally
+    FInAccessClick := False;
   end;
 end;
 
@@ -515,48 +551,11 @@ begin
 
   tvMenu.FullExpand;
 
+  FDefaultFontColor := tvMenu.Canvas.Font.Color;
+
   // show default tab
   VDefNode.Selected := True;
   tvMenuClick(Self);
-end;
-
-procedure TfrmMapTypeEdit.chkAccessClick(Sender: TObject);
-var
-  VTag: Integer;
-begin
-  if FInAccessClick then begin
-    Exit;
-  end;
-  FInAccessClick := True;
-  try
-    VTag := (Sender as TCheckBox).Tag;
-    if VTag = 0 then begin
-      if chkCacheReadOnly.Checked then begin
-        if chkReadAccess.Enabled then begin
-          chkReadAccess.Checked := True;
-        end;
-        if chkAddAccess.Enabled then begin
-          chkAddAccess.Checked := False;
-        end;
-        if chkDeleteAccess.Enabled then begin
-          chkDeleteAccess.Checked := False;
-        end;
-        if chkReplaceAccess.Enabled then begin
-          chkReplaceAccess.Checked := False;
-        end;
-      end;
-    end else
-    if (VTag > 2) and chkCacheReadOnly.Enabled then begin
-      chkCacheReadOnly.Checked :=
-        not (
-          chkAddAccess.Checked or
-          chkDeleteAccess.Checked or
-          chkReplaceAccess.Checked
-        );
-    end;
-  finally
-    FInAccessClick := False;
-  end;
 end;
 
 procedure TfrmMapTypeEdit.tvMenuClick(Sender: TObject);
@@ -586,6 +585,30 @@ begin
   AllowCollapse := False;
 end;
 
+procedure TfrmMapTypeEdit.tvMenuCustomDrawItem(
+  Sender: TCustomTreeView;
+  Node: TTreeNode;
+  State: TCustomDrawState;
+  var DefaultDraw: Boolean
+);
+var
+  VIsEmpty: Boolean;
+  VFontColor: TColor;
+begin
+  VIsEmpty :=
+    ((Node.Data = tsGetURLScript) and (synedtScript.Text = '')) or
+    ((Node.Data = tsInfo) and (synedtInfo.Text = ''));
+
+  if VIsEmpty then begin
+    VFontColor := clGrayText;
+  end else begin
+    VFontColor := FDefaultFontColor;
+  end;
+
+  tvMenu.Canvas.Font.Color := VFontColor;
+  DefaultDraw := True;
+end;
+
 procedure TfrmMapTypeEdit.CreateSynEditTextHighlighters;
 
   procedure SetProps(
@@ -596,6 +619,7 @@ procedure TfrmMapTypeEdit.CreateSynEditTextHighlighters;
     with ASynEdit do begin
       Parent := AParent;
       Align := alClient;
+      AlignWithMargins := False;
       Gutter.Visible := False;
       ReadOnly := True;
       ScrollBars := ssVertical;
