@@ -97,6 +97,7 @@ type
     FMarksCount: TTreeCounts;
 
     FCascadeChange: Boolean;
+    FVirtualCategoriesCount: Integer;
 
     FOnMarksViewChange: TNotifyEvent;
     FOnMarksViewDblClick: TNotifyEvent;
@@ -159,6 +160,7 @@ type
     procedure RestoreCategoriesTreeState(const AState: PCategoriesTreeState);
 
     property CascadeChange: Boolean read FCascadeChange write FCascadeChange;
+    property VirtualCategoriesCount: Integer read FVirtualCategoriesCount;
     property ScrollInfo: TScrollInfo read GetScrollInfo write SetScrollInfo;
 
     property OnMarksViewChange: TNotifyEvent read FOnMarksViewChange write FOnMarksViewChange;
@@ -269,6 +271,8 @@ begin
     FMarksTree.Clear;
     FCategoryTree.Clear;
 
+    FVirtualCategoriesCount := 0;
+
     FMarksList := nil;
     FMarkCategoryTree := nil;
 
@@ -296,14 +300,20 @@ procedure TMarksExplorerView.CategoryTreeInitNode(Sender: TBaseVirtualTree; Pare
 var
   VNodeData: PCategoryNodeData;
   VParentData: PCategoryNodeData;
+  VCategory: IMarkCategoryTree;
   VParentCategory: IMarkCategoryTree;
 begin
+  VCategory := nil;
+
+  Node.CheckType := ctCheckBox;
+  Node.CheckState := csUncheckedNormal;
+
   VNodeData := Sender.GetNodeData(Node);
 
   if ParentNode = nil then begin
     // Root node
     if Assigned(FMarkCategoryTree) and (Node.Index < Cardinal(FMarkCategoryTree.SubItemCount)) then begin
-      VNodeData.Category := FMarkCategoryTree.SubItem[Node.Index];
+      VCategory := FMarkCategoryTree.SubItem[Node.Index];
     end;
   end else begin
     // Child node
@@ -311,23 +321,34 @@ begin
     if Assigned(VParentData) then begin
       VParentCategory := VParentData.Category;
       if Assigned(VParentCategory) and (Node.Index < Cardinal(VParentCategory.SubItemCount)) then begin
-        VNodeData.Category := VParentCategory.SubItem[Node.Index];
+        VCategory := VParentCategory.SubItem[Node.Index];
       end;
     end;
   end;
 
-  // Set child count for tree expansion
-  if Assigned(VNodeData.Category) then begin
-    Sender.ChildCount[Node] := VNodeData.Category.SubItemCount;
+  VNodeData.Category := VCategory;
+
+  if not Assigned(VCategory) then begin
+    Assert(False, Format('There is no Category for the Node #%d', [Node.Index]));
+    Exit;
   end;
 
-  Node.CheckType := ctCheckBox;
+  // Set child count for tree expansion
+  Sender.ChildCount[Node] := VCategory.SubItemCount;
 
   // Set checkbox state based on visibility
-  if VNodeData.Category.MarkCategory.Visible then begin
-    Node.CheckState := csCheckedNormal;
+  if Assigned(VCategory.MarkCategory) then begin
+    if VCategory.MarkCategory.Visible then begin
+      Node.CheckState := csCheckedNormal;
+    end;
   end else begin
-    Node.CheckState := csUncheckedNormal;
+    // A virtual category detected. This category does not exist in the marks database,
+    // but it is referenced as the parent of another category. We are here because, in the past,
+    // the creation of intermediate subcategories was incorrectly skipped. For example,
+    // when the "one\two" category was created, the existence of the "one" category was not checked,
+    // so it was never created.
+    Node.CheckState := csUncheckedDisabled;
+    Inc(FVirtualCategoriesCount);
   end;
 end;
 
@@ -724,6 +745,7 @@ begin
       end;
 
       FCategoryTree.Clear;
+      FVirtualCategoriesCount := 0;
 
       VCategoryDB := FMarkDBGUI.MarksDb.CategoryDB;
       VCategoryList := VCategoryDB.GetCategoriesList;

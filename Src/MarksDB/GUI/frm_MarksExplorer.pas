@@ -154,6 +154,8 @@ type
     tbxtmCopyBboxToClipboard: TTBXItem;
     pnlCategoriesTree: TPanel;
     pnlMarksList: TPanel;
+    tbxSep2: TTBXSeparatorItem;
+    tbxWarning: TTBXItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -189,6 +191,7 @@ type
     procedure tbxDeleteClick(Sender: TObject);
     procedure tbxAddClick(Sender: TObject);
     procedure tbxEditClick(Sender: TObject);
+    procedure tbxWarningClick(Sender: TObject);
     procedure tbitmCopyClick(Sender: TObject);
     procedure tbitmCutClick(Sender: TObject);
     procedure tbitmPasteClick(Sender: TObject);
@@ -255,6 +258,8 @@ type
     procedure OnMarkSystemStateChanged;
     procedure OnMarksExplorerFilterChanged;
     procedure OnMarksViewChanged(Sender: TObject);
+
+    procedure CheckWarningsState;
 
     procedure WMGetMinMaxInfo(var Msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
   protected
@@ -422,10 +427,11 @@ procedure TfrmMarksExplorer.FormShow(Sender: TObject);
 var
   VWidth: Integer;
 begin
+  tbxWarning.Visible := False;
+  btnNavOnMark.Checked := FNavToPoint.IsActive;
+
   FMarksExplorerView.CascadeChange := chkCascade.Checked;
   FMarksExplorerView.UpdateFull(@FCategoriesTreeState, @FMarksExplorerViewScrollInfo);
-
-  btnNavOnMark.Checked := FNavToPoint.IsActive;
 
   FMarksShowConfig.ChangeNotifier.Add(FMarksShowConfigListener);
   FMarkSystemConfig.ChangeNotifier.Add(FMarkSystemConfigListener);
@@ -444,6 +450,8 @@ begin
   if VWidth > 0 then begin
     grpCategory.Width := VWidth;
   end;
+
+  CheckWarningsState;
 end;
 
 procedure TfrmMarksExplorer.FormActivate(Sender: TObject);
@@ -1000,6 +1008,23 @@ begin
   end;
 end;
 
+procedure TfrmMarksExplorer.CheckWarningsState;
+begin
+  tbxWarning.Visible := FMarksExplorerView.VirtualCategoriesCount > 0;
+end;
+
+procedure TfrmMarksExplorer.tbxWarningClick(Sender: TObject);
+var
+  VMsg: string;
+begin
+  if FMarksExplorerView.VirtualCategoriesCount > 0 then begin
+    VMsg := Format(_('Detected virtual categories: %d item(s)!'), [FMarksExplorerView.VirtualCategoriesCount]);
+  end else begin
+    VMsg := 'Internal error: Unknown warning reason!';
+  end;
+  ShowWarningMessage(VMsg);
+end;
+
 procedure TfrmMarksExplorer.tbxtmAddToMergePolygonsClick(Sender: TObject);
 begin
   FMarkDBGUI.AddMarkIdListToMergePolygons(FMarksExplorerView.GetSelectedMarksIdList, FMergePolygonsPresenter);
@@ -1152,11 +1177,13 @@ end;
 procedure TfrmMarksExplorer.OnCategoryDbChanged;
 begin
   FMarksExplorerView.UpdateFull;
+  CheckWarningsState;
 end;
 
 procedure TfrmMarksExplorer.OnMarksDbChanged;
 begin
   FMarksExplorerView.UpdateMarksList;
+  CheckWarningsState;
 end;
 
 procedure TfrmMarksExplorer.OnMarksExplorerFilterChanged;
