@@ -23,7 +23,7 @@ def init_log(log_file, level=logging.NOTSET):
 
 def check_path(path):
     if path:
-        path = os.path.abspath(path)
+        path = os.path.normcase(os.path.abspath(path))
         if path and path[-1:] != os.path.sep:
             path += os.path.sep
     return path
@@ -66,7 +66,7 @@ def sort_dpr(proj_file, by_unit_name=True):
 
     uses_text = ''
 
-    match = re.findall(r'uses\r\n(.*?);', data, re.DOTALL | re.IGNORECASE)
+    match = re.findall(r'uses\r?\n(.*?);', data, re.DOTALL | re.IGNORECASE)
     if match:
         uses = match[0].split(',')
         for pas in uses:
@@ -123,18 +123,22 @@ def patch_proj_file(proj_file, proj_info):
         logging.info('Proj file ' + proj_file + ' is updated')
 
 
-def process_project(root_path, dpr_name):
+def process_project(root_path, dpr_name, exclude_dirs=None):
 
     flst = []
     dproj = []
+    
+    excluded = {check_path(p) for p in (exclude_dirs or [])}
     
     logging.info('Scan file system: ' + root_path)
     
     for root, dirs, files in os.walk(root_path):
 
-        for dir in dirs:
-            if dir.startswith('.') or dir.startswith('__'):
-                dirs.remove(dir)
+        dirs[:] = [
+            d for d in dirs
+            if not d.startswith('.') and not d.startswith('__')
+            and check_path(os.path.join(root, d)) not in excluded
+        ]
 
         for f in files:
             if f.endswith('.dproj') and root == root_path:
@@ -160,11 +164,20 @@ if __name__ == '__main__':
     
     root_path = '..\\..\\'
     
+    sas_project_path = root_path
+    test_project_path = root_path + 'Test'
+    bench_project_path = root_path + 'Benchmark'
+    
+    sas_project_exclude_dirs = [
+        test_project_path,
+        bench_project_path
+    ]
+    
     projects = (
-        (root_path, 'SASPlanet.dpr'), 
-        (root_path + 'Test', 'SASPlanetTests.dpr'),
-        (root_path + 'Benchmark', 'BenchmarkCmd.dpr'),
+        (sas_project_path, 'SASPlanet.dpr', sas_project_exclude_dirs), 
+        (test_project_path, 'SASPlanetTests.dpr', []),
+        (bench_project_path, 'BenchmarkCmd.dpr', []),
     )
     
-    for path, dpr in projects:
-        process_project(check_path(path), dpr)
+    for path, dpr, exclude in projects:
+        process_project(check_path(path), dpr, exclude)
