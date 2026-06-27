@@ -39,6 +39,8 @@ type
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
     FNetworkEngineType: TNetworkEngineType;
+    FBrowserEngineType: TBrowserEngineType;
+    FPreInitBrowserEngine: Boolean;
   private
     function GetWinInetConfigStatic: IWinInetConfigStatic;
     function GetProxyConfigStatic: IProxyConfigStatic;
@@ -47,6 +49,8 @@ type
     function GetSleepOnResetConnection: Cardinal;
     function GetDownloadTryCount: Integer;
     function GetNetworkEngineType: TNetworkEngineType;
+    function GetBrowserEngineType: TBrowserEngineType;
+    function GetPreInitBrowserEngine: Boolean;
   public
     constructor Create(
       const AWinInetConfigStatic: IWinInetConfigStatic;
@@ -55,7 +59,9 @@ type
       const ATimeOut: Cardinal;
       const ASleepOnResetConnection: Cardinal;
       const ADownloadTryCount: Integer;
-      const ANetworkEngineType: TNetworkEngineType
+      const ANetworkEngineType: TNetworkEngineType;
+      const ABrowserEngineType: TBrowserEngineType;
+      const APreInitBrowserEngine: Boolean
     );
   end;
 
@@ -69,7 +75,9 @@ constructor TInetConfigStatic.Create(
   const AUserAgentString: AnsiString;
   const ATimeOut, ASleepOnResetConnection: Cardinal;
   const ADownloadTryCount: Integer;
-  const ANetworkEngineType: TNetworkEngineType
+  const ANetworkEngineType: TNetworkEngineType;
+  const ABrowserEngineType: TBrowserEngineType;
+  const APreInitBrowserEngine: Boolean
 );
 begin
   inherited Create;
@@ -80,11 +88,23 @@ begin
   FDownloadTryCount := ADownloadTryCount;
   FUserAgentString := AUserAgentString;
   FNetworkEngineType := ANetworkEngineType;
+  FBrowserEngineType := ABrowserEngineType;
+  FPreInitBrowserEngine := APreInitBrowserEngine;
+end;
+
+function TInetConfigStatic.GetBrowserEngineType: TBrowserEngineType;
+begin
+  Result := FBrowserEngineType;
 end;
 
 function TInetConfigStatic.GetDownloadTryCount: Integer;
 begin
   Result := FDownloadTryCount;
+end;
+
+function TInetConfigStatic.GetPreInitBrowserEngine: Boolean;
+begin
+  Result := FPreInitBrowserEngine;
 end;
 
 function TInetConfigStatic.GetProxyConfigStatic: IProxyConfigStatic;

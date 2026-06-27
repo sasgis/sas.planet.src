@@ -24,15 +24,13 @@ unit frm_InvisibleBrowser;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   Controls,
   Forms,
-  OleCtrls,
   i_LanguageManager,
-  i_InetConfig,
-  u_InternalBrowserImplByIE,
+  i_InternalBrowserFactory,
+  u_InternalBrowserImpl,
   u_CommonFormAndFrameParents;
 
 type
@@ -41,11 +39,11 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     FCS: IReadWriteSync;
-    FBrowser: TInternalBrowserImplByIE;
+    FBrowser: TInternalBrowserImpl;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AInetConfig: IInetConfig
+      const AInternalBrowserFactory: IInternalBrowserFactory
     ); reintroduce;
     procedure NavigateAndWait(const AUrl: string);
   end;
@@ -61,20 +59,12 @@ uses
 
 constructor TfrmInvisibleBrowser.Create(
   const ALanguageManager: ILanguageManager;
-  const AInetConfig: IInetConfig
+  const AInternalBrowserFactory: IInternalBrowserFactory
 );
 begin
   inherited Create(ALanguageManager);
   FCS := GSync.SyncBig.Make(Self.ClassName);
-
-  FBrowser :=
-    TInternalBrowserImplByIE.Create(
-      Self,
-      True,
-      AInetConfig.ProxyConfig,
-      nil,
-      AInetConfig.UserAgentString
-    );
+  FBrowser := AInternalBrowserFactory.CreateInvisibleBrowser(Self);
 end;
 
 procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);

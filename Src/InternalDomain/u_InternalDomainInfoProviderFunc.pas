@@ -19,84 +19,50 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_InternalDomainInfoProviderList;
+unit u_InternalDomainInfoProviderFunc;
 
 interface
 
-uses
-  Classes,
-  i_InternalDomainInfoProvider,
-  u_BaseInterfacedObject;
-
 type
-  TInternalDomainInfoProviderList = class(TBaseInterfacedObject, IInternalDomainInfoProviderList)
-  private
-    FList: TStringList;
-  private
-    { IInternalDomainInfoProviderList }
-    function GetByName(const AName: string): IInternalDomainInfoProvider;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    procedure Add(
-      const AName: string;
-      const ADomain: IInternalDomainInfoProvider
-    );
+  TInternalDomainInfoProviderFunc = record
+    class function ParseUrl(const AUrl: string; out ADomain, AFilePath: string): Boolean; static;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  StrUtils;
 
-{ TInternalDomainInfoProviderList }
-
-constructor TInternalDomainInfoProviderList.Create;
-begin
-  inherited Create;
-  FList := TStringList.Create;
-  FList.Sorted := True;
-end;
-
-destructor TInternalDomainInfoProviderList.Destroy;
+class function TInternalDomainInfoProviderFunc.ParseUrl(
+  const AUrl: string;
+  out ADomain, AFilePath: string
+): Boolean;
 var
-  I: Integer;
-  VItem: IInterface;
+  VProtoclSeparator: string;
+  VFileNameSeparator: string;
+  VPos: Integer;
+  VDomainWithFileName: string;
 begin
-  if Assigned(FList) then begin
-    for I := 0 to FList.Count - 1 do begin
-      VItem := IInterface(Pointer(FList.Objects[I]));
-      FList.Objects[I] := nil;
-      VItem._Release;
+  Result := False;
+  ADomain := '';
+  AFilePath := '';
+  VProtoclSeparator := '://';
+  VFileNameSeparator := '/';
+  VPos := Pos(VProtoclSeparator, AUrl);
+  if VPos > 0 then begin
+    VDomainWithFileName := RightStr(AUrl, Length(AUrl) - VPos - Length(VProtoclSeparator) + 1);
+    if Length(VDomainWithFileName) > 0 then begin
+      VPos := Pos(VFileNameSeparator, VDomainWithFileName);
+      if VPos > 0 then begin
+        ADomain := LeftStr(VDomainWithFileName, VPos - 1);
+        AFilePath := RightStr(VDomainWithFileName, Length(VDomainWithFileName) - VPos - Length(VFileNameSeparator) + 1);
+      end else begin
+        ADomain := VDomainWithFileName;
+      end;
+      if Length(ADomain) > 0 then begin
+        Result := True;
+      end;
     end;
-    FreeAndNil(FList);
-  end;
-  inherited;
-end;
-
-procedure TInternalDomainInfoProviderList.Add(
-  const AName: string;
-  const ADomain: IInternalDomainInfoProvider
-);
-var
-  VIndex: Integer;
-begin
-  if not FList.Find(AName, VIndex) then begin
-    ADomain._AddRef;
-    FList.AddObject(AName, Pointer(ADomain));
-  end;
-end;
-
-function TInternalDomainInfoProviderList.GetByName(
-  const AName: string
-): IInternalDomainInfoProvider;
-var
-  VIndex: Integer;
-begin
-  Result := nil;
-  if FList.Find(AName, VIndex) then begin
-    Result := IInternalDomainInfoProvider(Pointer(FList.Objects[VIndex]));
   end;
 end;
 

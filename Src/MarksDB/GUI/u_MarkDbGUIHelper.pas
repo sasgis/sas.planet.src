@@ -41,8 +41,7 @@ uses
   i_CoordRepresentationConfig,
   i_ValueToStringConverter,
   i_GeoCalc,
-  i_InetConfig,
-  i_InternalDomainUrlHandler,
+  i_InternalBrowserFactory,
   i_GeometryLonLat,
   i_ProjectionSetChangeable,
   i_LocalCoordConverterChangeable,
@@ -214,8 +213,7 @@ type
       const AMarkSystem: IMarkSystem;
       const AMarkOnMapEditProvider: IMarkOnMapEditProvider;
       const AGeoCalc: IGeoCalcChangeable;
-      const AInetConfig: IInetConfig;
-      const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
+      const AInternalBrowserFactory: IInternalBrowserFactory;
       const AExporterList: IVectorItemTreeExporterListChangeable;
       const AImporterList: IVectorItemTreeImporterListChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -267,8 +265,7 @@ constructor TMarkDbGUIHelper.Create(
   const AMarkSystem: IMarkSystem;
   const AMarkOnMapEditProvider: IMarkOnMapEditProvider;
   const AGeoCalc: IGeoCalcChangeable;
-  const AInetConfig: IInetConfig;
-  const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
+  const AInternalBrowserFactory: IInternalBrowserFactory;
   const AExporterList: IVectorItemTreeExporterListChangeable;
   const AImporterList: IVectorItemTreeImporterListChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -358,8 +355,7 @@ begin
       ACoordToStringConverter,
       AValueToStringConverter,
       AGeoCalc,
-      AInetConfig,
-      AInternalDomainUrlHandler
+      AInternalBrowserFactory
     );
   FfrmMarkInfo.PopupParent := APopUpParent;
   FfrmMarksMultiEdit :=

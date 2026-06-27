@@ -260,7 +260,7 @@ object frmSettings: TfrmSettings
         object chkRetryIfNoResponse: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 202
+          Top = 279
           Width = 658
           Height = 17
           Align = alTop
@@ -270,7 +270,7 @@ object frmSettings: TfrmSettings
         object chkProcessNextTile: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 225
+          Top = 302
           Width = 658
           Height = 17
           Align = alTop
@@ -280,7 +280,7 @@ object frmSettings: TfrmSettings
         object CBSaveTileNotExists: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 248
+          Top = 325
           Width = 658
           Height = 17
           Align = alTop
@@ -289,7 +289,7 @@ object frmSettings: TfrmSettings
         end
         object flwpnlDownloadTimeOut: TFlowPanel
           Left = 3
-          Top = 291
+          Top = 368
           Width = 664
           Height = 28
           Margins.Left = 0
@@ -321,7 +321,7 @@ object frmSettings: TfrmSettings
         object CBLastSuccess: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 271
+          Top = 348
           Width = 658
           Height = 17
           Align = alTop
@@ -330,7 +330,7 @@ object frmSettings: TfrmSettings
         end
         object GroupBox4: TGroupBox
           Left = 3
-          Top = 32
+          Top = 109
           Width = 664
           Height = 167
           Align = alTop
@@ -472,7 +472,7 @@ object frmSettings: TfrmSettings
         end
         object flwpnl1: TFlowPanel
           Left = 3
-          Top = 319
+          Top = 396
           Width = 664
           Height = 28
           Margins.Left = 0
@@ -505,7 +505,7 @@ object frmSettings: TfrmSettings
         object pnl1: TPanel
           AlignWithMargins = True
           Left = 6
-          Top = 378
+          Top = 455
           Width = 658
           Height = 23
           Align = alTop
@@ -516,7 +516,7 @@ object frmSettings: TfrmSettings
             Left = 3
             Top = 3
             Width = 59
-            Height = 20
+            Height = 17
             Align = alLeft
             Caption = 'User-Agent:'
           end
@@ -544,7 +544,7 @@ object frmSettings: TfrmSettings
         end
         object flwpnlMaxConnsPerServer: TFlowPanel
           Left = 3
-          Top = 347
+          Top = 424
           Width = 664
           Height = 28
           Margins.Left = 0
@@ -588,7 +588,7 @@ object frmSettings: TfrmSettings
             Left = 3
             Top = 3
             Width = 79
-            Height = 20
+            Height = 17
             Align = alLeft
             Caption = 'Network engine:'
           end
@@ -601,6 +601,55 @@ object frmSettings: TfrmSettings
             Style = csDropDownList
             TabOrder = 0
             OnChange = cbbNetworkEngineChange
+          end
+        end
+        object grpInternalBrowser: TGroupBox
+          Left = 3
+          Top = 32
+          Width = 664
+          Height = 77
+          Align = alTop
+          Caption = 'Embedded Browser'
+          TabOrder = 10
+          object pnlBrowserEngine: TPanel
+            AlignWithMargins = True
+            Left = 2
+            Top = 18
+            Width = 657
+            Height = 23
+            Margins.Left = 0
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 0
+            object lblBrowserEngine: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 36
+              Height = 17
+              Align = alLeft
+              Caption = 'Engine:'
+            end
+            object cbbBrowserEngine: TComboBox
+              Left = 42
+              Top = 0
+              Width = 615
+              Height = 21
+              Align = alClient
+              Style = csDropDownList
+              TabOrder = 0
+              OnChange = cbbNetworkEngineChange
+            end
+          end
+          object chkBrowserEnginePreInit: TCheckBox
+            AlignWithMargins = True
+            Left = 5
+            Top = 47
+            Width = 654
+            Height = 17
+            Align = alTop
+            Caption = 'Pre-initialize engine on startup (speed up first use)'
+            TabOrder = 1
           end
         end
       end

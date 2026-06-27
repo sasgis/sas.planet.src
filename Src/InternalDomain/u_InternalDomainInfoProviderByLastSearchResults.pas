@@ -67,7 +67,7 @@ uses
   i_GeoCoder,
   u_BinaryData;
 
-{ TInternalDomainInfoProviderByMarksSystem }
+{ TInternalDomainInfoProviderByLastSearchResults }
 
 constructor TInternalDomainInfoProviderByLastSearchResults.Create(
   const ALastSearchResults: ILastSearchResult;

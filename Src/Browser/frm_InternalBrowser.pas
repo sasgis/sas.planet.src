@@ -29,16 +29,14 @@ uses
   Forms,
   Classes,
   Controls,
-  OleCtrls,
   SysUtils,
   UITypes,
   i_Listener,
   i_WindowPositionConfig,
   i_DownloadRequest,
   i_LanguageManager,
-  i_InternalDomainUrlHandler,
-  i_InetConfig,
-  u_InternalBrowserImplByIE,
+  i_InternalBrowserFactory,
+  u_InternalBrowserImpl,
   u_CommonFormAndFrameParents;
 
 type
@@ -49,28 +47,24 @@ type
     procedure FormHide(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
+    Procedure FormMove(var Msg: TWMMove); message WM_MOVE;
   private
-    FBrowser: TInternalBrowserImplByIE;
+    FBrowser: TInternalBrowserImpl;
     FCurrentCaption: string;
     FConfig: IWindowPositionConfig;
     FConfigListener: IListener;
 
-    procedure OnBrowserKeyDown(
-      Sender: TObject;
-      var Key: Word;
-      ScanCode: Word;
-      Shift: TShiftState
-    );
-    procedure OnBrowserTitleChange(ASender: TObject; const Text: string);
+    procedure SetGoodCaption(const ACaption: string);
+
+    procedure OnBrowserKeyDown(Sender: TObject; const AKey: Word; var AHandled: Boolean);
+    procedure OnBrowserTitleChange(Sender: TObject; const AText: string);
+
     procedure OnConfigChange;
-    procedure SetGoodCaption(const ACaption: String);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AConfig: IWindowPositionConfig;
-      const AInetConfig: IInetConfig;
-      const AInternalDomainUrlHandler: IInternalDomainUrlHandler
+      const AInternalBrowserFactory: IInternalBrowserFactory
     ); reintroduce;
 
     procedure Navigate(const ACaption, AUrl: string);
@@ -80,8 +74,6 @@ type
 implementation
 
 uses
-  Variants,
-  Dialogs,
   u_HtmlToHintTextConverterStuped,
   u_ListenerByEvent,
   u_ResStrings;
@@ -93,27 +85,19 @@ uses
 constructor TfrmInternalBrowser.Create(
   const ALanguageManager: ILanguageManager;
   const AConfig: IWindowPositionConfig;
-  const AInetConfig: IInetConfig;
-  const AInternalDomainUrlHandler: IInternalDomainUrlHandler
+  const AInternalBrowserFactory: IInternalBrowserFactory
 );
 begin
-  Assert(AInetConfig <> nil);
-  Assert(AInternalDomainUrlHandler <> nil);
-
   inherited Create(ALanguageManager);
 
   FConfig := AConfig;
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 
   FBrowser :=
-    TInternalBrowserImplByIE.Create(
+    AInternalBrowserFactory.CreateBrowser(
       Self,
-      False,
-      AInetConfig.ProxyConfig,
-      AInternalDomainUrlHandler,
-      AInetConfig.UserAgentString,
-      OnBrowserKeyDown,
-      OnBrowserTitleChange
+      Self.OnBrowserKeyDown,
+      Self.OnBrowserTitleChange
     );
 end;
 
@@ -138,7 +122,6 @@ begin
   if IsRectEmpty(FConfig.BoundsRect) then begin
     FConfig.SetWindowPosition(Self.BoundsRect);
   end;
-  FBrowser.AssignEmptyDocument;
 end;
 
 procedure TfrmInternalBrowser.Navigate(const ACaption, AUrl: string);
@@ -167,9 +150,9 @@ begin
   end;
 end;
 
-procedure TfrmInternalBrowser.SetGoodCaption(const ACaption: String);
+procedure TfrmInternalBrowser.SetGoodCaption(const ACaption: string);
 var
-  VCaption: String;
+  VCaption: string;
 begin
   VCaption := ACaption;
   if VCaption <> '' then begin
@@ -180,32 +163,28 @@ begin
   Self.Caption := VCaption;
 end;
 
-procedure TfrmInternalBrowser.OnBrowserKeyDown(
-  Sender: TObject;
-  var Key: Word;
-  ScanCode: Word;
-  Shift: TShiftState
-);
+procedure TfrmInternalBrowser.OnBrowserKeyDown(Sender: TObject; const AKey: Word; var AHandled: Boolean);
 begin
-  case Key of
-    VK_ESCAPE: begin
-      Close;
-    end;
+  if AKey = VK_ESCAPE then begin
+    AHandled := True;
+    Close;
   end;
 end;
 
-procedure TfrmInternalBrowser.OnBrowserTitleChange(ASender: TObject; const Text: string);
+procedure TfrmInternalBrowser.OnBrowserTitleChange(Sender: TObject; const AText: string);
 begin
   if FCurrentCaption = '' then begin
-    Self.Caption := Text;
+    Self.Caption := AText;
   end;
 end;
 
 procedure TfrmInternalBrowser.FormHide(Sender: TObject);
 begin
-  FBrowser.AssignEmptyDocument;
   Self.OnResize := nil;
   FConfig.ChangeNotifier.Remove(FConfigListener);
+
+  FBrowser.SetVisible(False);
+  FBrowser.AssignEmptyDocument;
 end;
 
 procedure TfrmInternalBrowser.FormMove(var Msg: TWMMove);
@@ -227,7 +206,10 @@ procedure TfrmInternalBrowser.FormShow(Sender: TObject);
 begin
   FConfig.ChangeNotifier.Add(FConfigListener);
   OnConfigChange;
+
   Self.OnResize := FormResize;
+
+  FBrowser.SetVisible(True);
 end;
 
 end.

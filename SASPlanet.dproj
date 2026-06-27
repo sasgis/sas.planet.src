@@ -305,9 +305,13 @@
             <Form>frmInvisibleBrowser</Form>
         </DCCReference>
         <DCCReference Include="Src\Browser\i_InternalBrowser.pas"/>
+        <DCCReference Include="Src\Browser\i_InternalBrowserFactory.pas"/>
         <DCCReference Include="Src\Browser\i_InternalBrowserLastContent.pas"/>
         <DCCReference Include="Src\Browser\i_InvisibleBrowser.pas"/>
         <DCCReference Include="Src\Browser\u_InternalBrowserByForm.pas"/>
+        <DCCReference Include="Src\Browser\u_InternalBrowserFactory.pas"/>
+        <DCCReference Include="Src\Browser\u_InternalBrowserImpl.pas"/>
+        <DCCReference Include="Src\Browser\u_InternalBrowserImplByEdge.pas"/>
         <DCCReference Include="Src\Browser\u_InternalBrowserImplByIE.pas"/>
         <DCCReference Include="Src\Browser\u_InternalBrowserLastContent.pas"/>
         <DCCReference Include="Src\Browser\u_InvisibleBrowserByFormSynchronize.pas"/>
@@ -570,6 +574,7 @@
         <DCCReference Include="Src\InternalDomain\u_InternalDomainInfoProviderByMapTypeList.pas"/>
         <DCCReference Include="Src\InternalDomain\u_InternalDomainInfoProviderByMarksSystem.pas"/>
         <DCCReference Include="Src\InternalDomain\u_InternalDomainInfoProviderByTileStorageOptions.pas"/>
+        <DCCReference Include="Src\InternalDomain\u_InternalDomainInfoProviderFunc.pas"/>
         <DCCReference Include="Src\InternalDomain\u_InternalDomainInfoProviderList.pas"/>
         <DCCReference Include="Src\InternalDomain\u_InternalDomainUrlHandler.pas"/>
         <DCCReference Include="Src\InternalDomain\u_InternalDomainUrlHandlerConfig.pas"/>

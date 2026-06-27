@@ -30,6 +30,7 @@ uses
 
 type
   TNetworkEngineType = (neWinInet, neCurl);
+  TBrowserEngineType = (beInternetExplorer, beEdgePortable, beEdgeSystem);
 
   IInetConfigStatic = interface
     ['{5608C1CA-91D5-43CB-BAF0-8C76351EC1D7}']
@@ -53,6 +54,12 @@ type
 
     function GetNetworkEngineType: TNetworkEngineType;
     property NetworkEngineType: TNetworkEngineType read GetNetworkEngineType;
+
+    function GetBrowserEngineType: TBrowserEngineType;
+    property BrowserEngineType: TBrowserEngineType read GetBrowserEngineType;
+
+    function GetPreInitBrowserEngine: Boolean;
+    property PreInitBrowserEngine: Boolean read GetPreInitBrowserEngine;
   end;
 
   IInetConfig = interface(IConfigDataElement)
@@ -82,6 +89,14 @@ type
     function GetNetworkEngineType: TNetworkEngineType;
     procedure SetNetworkEngineType(const AValue: TNetworkEngineType);
     property NetworkEngineType: TNetworkEngineType read GetNetworkEngineType write SetNetworkEngineType;
+
+    function GetBrowserEngineType: TBrowserEngineType;
+    procedure SetBrowserEngineType(const AValue: TBrowserEngineType);
+    property BrowserEngineType: TBrowserEngineType read GetBrowserEngineType write SetBrowserEngineType;
+
+    function GetPreInitBrowserEngine: Boolean;
+    procedure SetPreInitBrowserEngine(const AValue: Boolean);
+    property PreInitBrowserEngine: Boolean read GetPreInitBrowserEngine write SetPreInitBrowserEngine;
 
     function GetStatic: IInetConfigStatic;
   end;

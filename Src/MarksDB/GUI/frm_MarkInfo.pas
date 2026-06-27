@@ -38,9 +38,8 @@ uses
   i_CoordToStringConverter,
   i_ValueToStringConverter,
   i_VectorDataItemSimple,
-  i_InetConfig,
-  i_InternalDomainUrlHandler,
-  u_InternalBrowserImplByIE,
+  i_InternalBrowserFactory,
+  u_InternalBrowserImpl,
   u_CommonFormAndFrameParents;
 
 type
@@ -48,20 +47,20 @@ type
     mmoInfo: TMemo;
     splDesc: TSplitter;
     pnlDesc: TPanel;
-    procedure FormClose(
-      Sender: TObject;
-      var Action: TCloseAction
-    );
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
-    FBrowser: TInternalBrowserImplByIE;
+    FBrowser: TInternalBrowserImpl;
     FCancelNotifier: INotifierOperationInternal;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
+    FInternalBrowserFactory: IInternalBrowserFactory;
     FGeoCalc: IGeoCalc;
     FGeoCalcChangeable: IGeoCalcChangeable;
     FArea: Double;
     FMark: IVectorDataItem;
+    procedure SafeCreateBrowser;
     procedure OnAreaCalc(const AArea: Double);
     function GetTextForMark(const AMark: IVectorDataItem): string;
     function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
@@ -78,8 +77,7 @@ type
       const ACoordToStringConverter: ICoordToStringConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AGeoCalc: IGeoCalcChangeable;
-      const AInetConfig: IInetConfig;
-      const AInternalDomainUrlHandler: IInternalDomainUrlHandler
+      const AInternalBrowserFactory: IInternalBrowserFactory
     ); reintroduce;
   end;
 
@@ -171,34 +169,23 @@ constructor TfrmMarkInfo.Create(
   const ACoordToStringConverter: ICoordToStringConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AGeoCalc: IGeoCalcChangeable;
-  const AInetConfig: IInetConfig;
-  const AInternalDomainUrlHandler: IInternalDomainUrlHandler
+  const AInternalBrowserFactory: IInternalBrowserFactory
 );
 begin
   Assert(ACoordToStringConverter <> nil);
   Assert(AValueToStringConverter <> nil);
   Assert(AGeoCalc <> nil);
-  Assert(AInetConfig <> nil);
-  Assert(AInternalDomainUrlHandler <> nil);
 
   inherited Create(ALanguageManager);
 
   FCoordToStringConverter := ACoordToStringConverter;
   FValueToStringConverter := AValueToStringConverter;
   FGeoCalcChangeable := AGeoCalc;
+  FInternalBrowserFactory := AInternalBrowserFactory;
 
   FCancelNotifier :=
     TNotifierOperation.Create(
       TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
-    );
-
-  FBrowser :=
-    TInternalBrowserImplByIE.Create(
-      pnlDesc,
-      False,
-      AInetConfig.ProxyConfig,
-      AInternalDomainUrlHandler,
-      AInetConfig.UserAgentString
     );
 end;
 
@@ -207,17 +194,27 @@ begin
   FreeAndNil(FBrowser);
 end;
 
-procedure TfrmMarkInfo.FormClose(
-  Sender: TObject;
-  var Action: TCloseAction
-);
+procedure TfrmMarkInfo.FormShow(Sender: TObject);
 begin
-  FCancelNotifier.NextOperation;
+  if FBrowser <> nil then begin
+    FBrowser.SetVisible(True);
+  end else begin
+    Assert(False);
+  end;
 end;
 
-function TfrmMarkInfo.GetTextForGeometry(
-  const AGeometry: IGeometryLonLat
-): string;
+procedure TfrmMarkInfo.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  FCancelNotifier.NextOperation;
+
+  if FBrowser <> nil then begin
+    FBrowser.SetVisible(False);
+  end else begin
+    Assert(False);
+  end;
+end;
+
+function TfrmMarkInfo.GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
 var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatSingleLine;
@@ -261,9 +258,7 @@ begin
   end;
 end;
 
-function TfrmMarkInfo.GetTextForMark(
-  const AMark: IVectorDataItem
-): string;
+function TfrmMarkInfo.GetTextForMark(const AMark: IVectorDataItem): string;
 var
   VItemWithCategory: IVectorDataItemWithCategory;
   VCategoryName: string;
@@ -397,22 +392,31 @@ begin
   mmoInfo.Lines.Text := GetTextForMark(FMark);
 end;
 
+procedure TfrmMarkInfo.SafeCreateBrowser;
+begin
+  if not Assigned(FBrowser) then begin
+    FBrowser := FInternalBrowserFactory.CreateBrowser(pnlDesc);
+  end;
+end;
+
 procedure TfrmMarkInfo.ShowInfoModal(const AMark: IVectorDataItem);
-var
-  VText: string;
 begin
   FArea := NaN;
   FMark := AMark;
   FGeoCalc := FGeoCalcChangeable.GetStatic;
 
-  VText := GetTextForMark(AMark);
-  mmoInfo.Lines.Text := VText;
+  mmoInfo.Lines.Text := GetTextForMark(AMark);
+
+  SafeCreateBrowser;
+
   if (AMark.GetInfoUrl <> '') and (AMark.Desc <> '') then begin
     FBrowser.Navigate(AMark.GetInfoUrl + CVectorItemInfoSuffix);
   end else begin
     FBrowser.AssignEmptyDocument;
   end;
+
   Self.ShowModal;
+
   FMark := nil;
 end;
 

@@ -24,13 +24,12 @@ unit u_InternalBrowserByForm;
 interface
 
 uses
-  i_InetConfig,
   i_DownloadRequest,
-  i_InternalBrowser,
   i_LanguageManager,
+  i_InternalBrowser,
+  i_InternalBrowserFactory,
   i_InternalBrowserLastContent,
   i_WindowPositionConfig,
-  i_InternalDomainUrlHandler,
   u_BaseInterfacedObject,
   frm_InternalBrowser;
 
@@ -38,10 +37,9 @@ type
   TInternalBrowserByForm = class(TBaseInterfacedObject, IInternalBrowser)
   private
     FLanguageManager: ILanguageManager;
-    FInetConfig: IInetConfig;
     FConfig: IWindowPositionConfig;
     FContent: IInternalBrowserLastContent;
-    FUrlHandler: IInternalDomainUrlHandler;
+    FInternalBrowserFactory: IInternalBrowserFactory;
     FfrmInternalBrowser: TfrmInternalBrowser;
   private
     procedure SafeCreateInternal;
@@ -55,8 +53,8 @@ type
       const ALanguageManager: ILanguageManager;
       const AContent: IInternalBrowserLastContent;
       const AConfig: IWindowPositionConfig;
-      const AInetConfig: IInetConfig;
-      const AUrlHandler: IInternalDomainUrlHandler
+      const AInternalBrowserFactory: IInternalBrowserFactory;
+      const APreInitBrowserEngine: Boolean
     );
     destructor Destroy; override;
   end;
@@ -73,23 +71,23 @@ constructor TInternalBrowserByForm.Create(
   const ALanguageManager: ILanguageManager;
   const AContent: IInternalBrowserLastContent;
   const AConfig: IWindowPositionConfig;
-  const AInetConfig: IInetConfig;
-  const AUrlHandler: IInternalDomainUrlHandler
+  const AInternalBrowserFactory: IInternalBrowserFactory;
+  const APreInitBrowserEngine: Boolean
 );
 begin
   inherited Create;
   FLanguageManager := ALanguageManager;
   FContent := AContent;
   FConfig := AConfig;
-  FInetConfig := AInetConfig;
-  FUrlHandler := AUrlHandler;
+  FInternalBrowserFactory := AInternalBrowserFactory;
+  if APreInitBrowserEngine then begin
+    SafeCreateInternal;
+  end;
 end;
 
 destructor TInternalBrowserByForm.Destroy;
 begin
-  if FfrmInternalBrowser <> nil then begin
-    FreeAndNil(FfrmInternalBrowser);
-  end;
+  FreeAndNil(FfrmInternalBrowser);
   inherited;
 end;
 
@@ -122,8 +120,7 @@ begin
       TfrmInternalBrowser.Create(
         FLanguageManager,
         FConfig,
-        FInetConfig,
-        FUrlHandler
+        FInternalBrowserFactory
       );
   end;
 end;

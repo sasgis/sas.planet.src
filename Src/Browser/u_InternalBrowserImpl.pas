@@ -19,85 +19,32 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_InternalDomainInfoProviderList;
+unit u_InternalBrowserImpl;
 
 interface
 
 uses
-  Classes,
-  i_InternalDomainInfoProvider,
-  u_BaseInterfacedObject;
+  i_DownloadRequest;
+
+const
+  CEmptyDocument = 'about:blank';
 
 type
-  TInternalDomainInfoProviderList = class(TBaseInterfacedObject, IInternalDomainInfoProviderList)
-  private
-    FList: TStringList;
-  private
-    { IInternalDomainInfoProviderList }
-    function GetByName(const AName: string): IInternalDomainInfoProvider;
-  public
-    constructor Create;
-    destructor Destroy; override;
+  TOnKeyDown = procedure(Sender: TObject; const AKey: Word; var AHandled: Boolean) of object;
+  TOnTitleChange = procedure(Sender: TObject; const AText: string) of object;
 
-    procedure Add(
-      const AName: string;
-      const ADomain: IInternalDomainInfoProvider
-    );
+  TInternalBrowserImpl = class
+  public
+    function Initialize: Boolean; virtual; abstract;
+    procedure AssignEmptyDocument; virtual; abstract;
+    procedure Navigate(const AUrl: string); overload; virtual; abstract;
+    procedure Navigate(const ARequest: IDownloadRequest); overload; virtual; abstract;
+    function NavigateWait(const AUrl: string; const ATimeOut: Cardinal): Boolean; virtual; abstract;
+    procedure SetHtmlText(const AText: string); virtual; abstract;
+    procedure Stop; virtual; abstract;
+    procedure SetVisible(const AIsVisible: Boolean); virtual; abstract;
   end;
 
 implementation
-
-uses
-  SysUtils;
-
-{ TInternalDomainInfoProviderList }
-
-constructor TInternalDomainInfoProviderList.Create;
-begin
-  inherited Create;
-  FList := TStringList.Create;
-  FList.Sorted := True;
-end;
-
-destructor TInternalDomainInfoProviderList.Destroy;
-var
-  I: Integer;
-  VItem: IInterface;
-begin
-  if Assigned(FList) then begin
-    for I := 0 to FList.Count - 1 do begin
-      VItem := IInterface(Pointer(FList.Objects[I]));
-      FList.Objects[I] := nil;
-      VItem._Release;
-    end;
-    FreeAndNil(FList);
-  end;
-  inherited;
-end;
-
-procedure TInternalDomainInfoProviderList.Add(
-  const AName: string;
-  const ADomain: IInternalDomainInfoProvider
-);
-var
-  VIndex: Integer;
-begin
-  if not FList.Find(AName, VIndex) then begin
-    ADomain._AddRef;
-    FList.AddObject(AName, Pointer(ADomain));
-  end;
-end;
-
-function TInternalDomainInfoProviderList.GetByName(
-  const AName: string
-): IInternalDomainInfoProvider;
-var
-  VIndex: Integer;
-begin
-  Result := nil;
-  if FList.Find(AName, VIndex) then begin
-    Result := IInternalDomainInfoProvider(Pointer(FList.Objects[VIndex]));
-  end;
-end;
 
 end.

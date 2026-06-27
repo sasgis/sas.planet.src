@@ -32,13 +32,11 @@ uses
   SHDocVw_EWB,
   i_ProxySettings,
   i_DownloadRequest,
-  i_InternalDomainUrlHandler;
+  i_InternalDomainUrlHandler,
+  u_InternalBrowserImpl;
 
 type
-  TOnKeyDown = procedure(Sender: TObject; var Key: Word; ScanCode: Word; Shift: TShiftState) of object;
-  TOnTitleChange = procedure(ASender: TObject; const Text: string) of object;
-
-  TInternalBrowserImplByIE = class
+  TInternalBrowserImplByIE = class(TInternalBrowserImpl)
   private
     FEmbeddedWB: TEmbeddedWB;
     FOnKeyDown: TOnKeyDown;
@@ -71,12 +69,15 @@ type
       Shift: TShiftState
     );
   public
-    procedure AssignEmptyDocument;
-    procedure Navigate(const AUrl: string); overload;
-    procedure Navigate(const ARequest: IDownloadRequest); overload;
-    function NavigateWait(const AUrl: string; const ATimeOut: Cardinal): Boolean;
-    procedure SetHtmlText(const AText: string);
-    procedure Stop;
+    { TInternalBrowserImpl }
+    function Initialize: Boolean; override;
+    procedure AssignEmptyDocument; override;
+    procedure Navigate(const AUrl: string); overload; override;
+    procedure Navigate(const ARequest: IDownloadRequest); overload; override;
+    function NavigateWait(const AUrl: string; const ATimeOut: Cardinal): Boolean; override;
+    procedure SetHtmlText(const AText: string); override;
+    procedure Stop; override;
+    procedure SetVisible(const AIsVisible: Boolean); override;
   public
     constructor Create(
       const AParent: TWinControl;
@@ -98,9 +99,6 @@ uses
   gnugettext,
   u_Dialogs,
   u_HtmlDoc;
-
-const
-  CEmptyDocument = 'about:blank';
 
 { TInternalBrowserImplByIE }
 
@@ -182,6 +180,12 @@ begin
   inherited;
 end;
 
+function TInternalBrowserImplByIE.Initialize: Boolean;
+begin
+  FEmbeddedWB.Navigate(CEmptyDocument);
+  Result := True;
+end;
+
 procedure TInternalBrowserImplByIE.OnAuthenticate(
   Sender: TCustomEmbeddedWB;
   var hwnd: HWND;
@@ -232,8 +236,11 @@ end;
 
 procedure TInternalBrowserImplByIE.OnKeyDown(Sender: TObject; var Key: Word;
   ScanCode: Word; Shift: TShiftState);
+var
+  VHandled: Boolean;
 begin
-  FOnKeyDown(Sender, Key, ScanCode, Shift);
+  VHandled := False;
+  FOnKeyDown(Sender, Key, VHandled);
 end;
 
 procedure TInternalBrowserImplByIE.OnTitleChange(ASender: TObject; const Text: WideString);
@@ -267,22 +274,25 @@ begin
   FEmbeddedWB.Navigate(ARequest.Url, VFlags, VTargetFrameName, VPostData, VHeaders);
 end;
 
-function TInternalBrowserImplByIE.NavigateWait(
-  const AUrl: string;
-  const ATimeOut: Cardinal
-): Boolean;
+function TInternalBrowserImplByIE.NavigateWait(const AUrl: string; const ATimeOut: Cardinal): Boolean;
 begin
   Result := FEmbeddedWB.NavigateWait(AUrl, ATimeOut);
 end;
 
 procedure TInternalBrowserImplByIE.AssignEmptyDocument;
 begin
-  FEmbeddedWB.NavigateWait(CEmptyDocument);
+  FEmbeddedWB.Navigate(CEmptyDocument);
+  FEmbeddedWB.ClearHistory;
 end;
 
 procedure TInternalBrowserImplByIE.SetHtmlText(const AText: string);
 begin
   FEmbeddedWB.HTMLCode.Text := THtmlDoc.FormattedTextToHtml(AText);
+end;
+
+procedure TInternalBrowserImplByIE.SetVisible(const AIsVisible: Boolean);
+begin
+  FEmbeddedWB.Visible := AIsVisible;
 end;
 
 procedure TInternalBrowserImplByIE.Stop;

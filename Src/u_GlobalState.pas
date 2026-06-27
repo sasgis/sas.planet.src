@@ -83,8 +83,6 @@ uses
   i_SatellitesInViewMapDraw,
   i_TerrainProviderList,
   i_GeometryLonLatFactory,
-  i_InvisibleBrowser,
-  i_InternalBrowser,
   i_DebugInfoWindow,
   i_GlobalInternetState,
   i_GlobalBerkeleyDBHelper,
@@ -108,11 +106,14 @@ uses
   i_GlobalConfig,
   i_GlobalCacheConfig,
   i_FavoriteMapSetConfig,
+  i_InvisibleBrowser,
+  i_InternalBrowser,
+  i_InternalBrowserFactory,
   i_InternalDomainUrlHandler,
+  i_InternalDomainInfoProvider,
   i_ComponentPropertyStorage,
   u_GarbageCollectorThread,
-  u_MapTypesMainList,
-  u_IeEmbeddedProtocolRegistration;
+  u_MapTypesMainList;
 
 type
   TGlobalState = class
@@ -174,11 +175,11 @@ type
     FGUISyncronizedTimerNotifier: INotifierTime;
     FGUISyncronizedTimerCounter: IInternalPerformanceCounter;
     FDebugInfoSubSystem: IDebugInfoSubSystem;
-    FProtocol: TIeEmbeddedProtocolRegistration;
     FMapVersionFactoryList: IMapVersionFactoryList;
     FPathDetalizeTree: ITreeChangeable;
     FInvisibleBrowser: IInvisibleBrowser;
     FInternalBrowser: IInternalBrowser;
+    FInternalBrowserFactory: IInternalBrowserFactory;
     FDebugInfoWindow: IDebugInfoWindow;
     FAppStartedNotifier: INotifierOneOperation;
     FAppStartedNotifierInternal: INotifierOneOperationInternal;
@@ -211,11 +212,10 @@ type
     FValueToStringConverter: IValueToStringConverterChangeable;
     FAppEnum: IAppEnum;
     FFavoriteMapSetConfig: IFavoriteMapSetConfig;
-    FInternalDomainUrlHandler: IInternalDomainUrlHandler;
     FComponentPropertyStorage: IComponentPropertyStorage;
 
     procedure OnMainThreadConfigChange;
-    procedure InitProtocol;
+    function CreateInternalDomainInfoProviderList: IInternalDomainInfoProviderList;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetPerfCounterList: IInternalPerformanceCounterList;
@@ -269,7 +269,6 @@ type
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
     property PathDetalizeTree: ITreeChangeable read FPathDetalizeTree;
-    property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorGeometryLonLatFactory: IGeometryLonLatFactory read FVectorGeometryLonLatFactory;
     property VectorGeometryProjectedFactory: IGeometryProjectedFactory read FVectorGeometryProjectedFactory;
@@ -299,7 +298,8 @@ type
     property BatteryStatus: IBatteryStatus read FBatteryStatus;
     property AppEnum: IAppEnum read FAppEnum;
     property FavoriteMapSetConfig: IFavoriteMapSetConfig read FFavoriteMapSetConfig;
-    property InternalDomainUrlHandler: IInternalDomainUrlHandler read FInternalDomainUrlHandler;
+    property InternalBrowser: IInternalBrowser read FInternalBrowser;
+    property InternalBrowserFactory: IInternalBrowserFactory read FInternalBrowserFactory;
     property ComponentPropertyStorage: IComponentPropertyStorage read FComponentPropertyStorage;
 
     constructor Create(const AAppEnum: IAppEnum = nil);
@@ -325,25 +325,24 @@ uses
   {$IFDEF USE_JCL_DEBUG}
   Forms,
   {$ENDIF}
-  u_Notifier,
-  u_NotifierOperation,
   c_CoordConverter,
   c_InternalBrowser,
+  i_FileNameIterator,
+  i_InetConfig,
+  i_TextByVectorItem,
+  i_LocalCoordConverterFactory,
+  i_ImageResamplerFactoryChangeable,
+  i_InternalDebugConfig,
+  u_Notifier,
+  u_NotifierOperation,
   u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigDataProviderByPathConfig,
-  i_InetConfig,
-  i_InternalDomainInfoProvider,
-  i_TextByVectorItem,
-  i_LocalCoordConverterFactory,
-  i_ImageResamplerFactoryChangeable,
   u_MapTypeSetBuilderFactory,
   u_MapTypeListBuilderFactory,
-  i_InternalDebugConfig,
   u_TextByVectorItemHTMLByDescription,
   u_NotifierTime,
-  i_FileNameIterator,
   u_AppearanceOfMarkFactory,
   u_ContentTypeManagerSimple,
   u_MarkSystem,
@@ -381,14 +380,14 @@ uses
   u_ZmpInfoSet,
   u_ZmpFileNamesIteratorFactory,
   u_HtmlToHintTextConverterStuped,
-  u_InvisibleBrowserByFormSynchronize,
-  u_InternalBrowserByForm,
   u_DebugInfoWindow,
-  u_IeEmbeddedProtocolFactory,
   u_GeometryLonLatFactory,
   u_VectorDataFactorySimple,
   u_GeometryProjectedFactory,
   u_PathDetalizeProviderTreeSimple,
+  u_InvisibleBrowserByFormSynchronize,
+  u_InternalBrowserByForm,
+  u_InternalBrowserFactory,
   u_InternalDomainUrlHandler,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
@@ -457,6 +456,8 @@ var
   VOneOperationSync: IReadWriteSync;
   VLocalCoordConverterFactory: ILocalCoordConverterFactory;
   VContentTypeManagerBitmapInternal: IContentTypeManagerBitmapInternal;
+  VInternalDomainUrlHandler: IInternalDomainUrlHandler;
+  VInternalDomainInfoProviderList: IInternalDomainInfoProviderList;
 begin
   inherited Create;
 
@@ -911,27 +912,35 @@ begin
       VKmlLoader
     );
 
-  InitProtocol;
+  VInternalDomainInfoProviderList := CreateInternalDomainInfoProviderList;
 
-  FInternalDomainUrlHandler :=
+  VInternalDomainUrlHandler :=
     TInternalDomainUrlHandler.Create(
       FGlobalConfig.InternalDomainUrlHandlerConfig,
       FGlobalConfig.MediaDataPath
     );
 
+  FInternalBrowserFactory := TInternalBrowserFactory.Create(
+    FGlobalConfig.InetConfig,
+    VInternalDomainUrlHandler,
+    VInternalDomainInfoProviderList
+  );
+
   FInvisibleBrowser :=
     TInvisibleBrowserByFormSynchronize.Create(
       FGlobalConfig.LanguageManager,
-      FGlobalConfig.InetConfig
+      FInternalBrowserFactory
     );
+
   FInternalBrowser :=
     TInternalBrowserByForm.Create(
       FGlobalConfig.LanguageManager,
       FInternalBrowserContent,
       FGlobalConfig.InternalBrowserConfig,
-      FGlobalConfig.InetConfig,
-      FInternalDomainUrlHandler
+      FInternalBrowserFactory,
+      FGlobalConfig.InetConfig.PreInitBrowserEngine
     );
+
   FDebugInfoWindow :=
     TDebugInfoWindow.Create(
       FGlobalConfig.InternalDebugConfig,
@@ -978,7 +987,6 @@ begin
   FreeAndNil(FMainMapsList);
   FMarkPictureList := nil;
   FSkyMapDraw := nil;
-  FreeAndNil(FProtocol);
   FreeAndNil(FGUISyncronizedTimer);
   FGUISyncronizedTimerNotifier := nil;
   FMainConfigProvider := nil;
@@ -990,6 +998,9 @@ begin
   FGlobalBerkeleyDBHelper := nil;
   FAppEnum := nil;
   FFavoriteMapSetConfig := nil;
+  FInternalBrowser := nil;
+  FInvisibleBrowser := nil;
+  FInternalBrowserFactory := nil;
   inherited;
 end;
 
@@ -998,14 +1009,16 @@ begin
   Result := FDebugInfoSubSystem.RootCounterList;
 end;
 
-procedure TGlobalState.InitProtocol;
+function TGlobalState.CreateInternalDomainInfoProviderList: IInternalDomainInfoProviderList;
 var
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VInternalDomainInfoProvider: IInternalDomainInfoProvider;
   VTextProivder: ITextByVectorItem;
   VTextProviderList: TStringList;
 begin
-  VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
+  Result := TInternalDomainInfoProviderList.Create;
+
+  VInternalDomainInfoProviderList := TInternalDomainInfoProviderList(Result);
 
   VInternalDomainInfoProvider :=
     TInternalDomainInfoProviderByMapTypeList.Create(
@@ -1090,12 +1103,6 @@ begin
     CTileStorageOptionsInternalDomain,
     VInternalDomainInfoProvider
   );
-
-  FProtocol :=
-    TIeEmbeddedProtocolRegistration.Create(
-      CSASProtocolName,
-      TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList)
-    );
 end;
 
 {$IFDEF USE_JCL_DEBUG}

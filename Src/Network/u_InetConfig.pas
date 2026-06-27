@@ -41,6 +41,8 @@ type
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
     FNetworkEngineType: TNetworkEngineType;
+    FBrowserEngineType: TBrowserEngineType;
+    FPreInitBrowserEngine: Boolean;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -66,6 +68,12 @@ type
     function GetNetworkEngineType: TNetworkEngineType;
     procedure SetNetworkEngineType(const AValue: TNetworkEngineType);
 
+    function GetBrowserEngineType: TBrowserEngineType;
+    procedure SetBrowserEngineType(const AValue: TBrowserEngineType);
+
+    function GetPreInitBrowserEngine: Boolean;
+    procedure SetPreInitBrowserEngine(const AValue: Boolean);
+
     function GetStatic: IInetConfigStatic;
   public
     constructor Create;
@@ -86,11 +94,14 @@ uses
 constructor TInetConfig.Create;
 begin
   inherited Create;
+
   FUserAgentString := cUserAgent;
   FTimeOut := 40000;
   FSleepOnResetConnection := 30000;
   FDownloadTryCount := 2;
   FNetworkEngineType := neCurl;
+  FBrowserEngineType := beInternetExplorer;
+  FPreInitBrowserEngine := True;
 
   FProxyConfig := TProxyConfig.Create;
   Add(FProxyConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Proxy'));
@@ -111,7 +122,9 @@ begin
       FTimeOut,
       FSleepOnResetConnection,
       FDownloadTryCount,
-      FNetworkEngineType
+      FNetworkEngineType,
+      FBrowserEngineType,
+      FPreInitBrowserEngine
     );
   Result := VStatic;
 end;
@@ -123,7 +136,16 @@ procedure TInetConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
     if TNetworkEngineType(ATypeId) in [neWinInet, neCurl] then begin
       FNetworkEngineType := TNetworkEngineType(ATypeId);
     end else begin
-      Assert(False, Format('Unexpected NetworkEngineType Id: %d', [ATypeId]));
+      Assert(False, Format('Unexpected NetworkEngineType value: %d', [ATypeId]));
+    end;
+  end;
+
+  procedure SetBrowserEngineType(const ATypeId: Integer);
+  begin
+    if TBrowserEngineType(ATypeId) in [beInternetExplorer, beEdgePortable, beEdgeSystem] then begin
+      FBrowserEngineType := TBrowserEngineType(ATypeId);
+    end else begin
+      Assert(False, Format('Unexpected BrowserEngineType value: %d', [ATypeId]));
     end;
   end;
 
@@ -134,9 +156,9 @@ begin
     FTimeOut := AConfigData.ReadInteger('TimeOut', FTimeOut);
     SetDownloadTryCount(AConfigData.ReadInteger('DownloadTryCount', FDownloadTryCount));
     FSleepOnResetConnection := AConfigData.ReadInteger('SleepOnResetConnection', FSleepOnResetConnection);
-    SetNetworkEngineType(
-      AConfigData.ReadInteger('NetworkEngine', Integer(FNetworkEngineType))
-    );
+    SetNetworkEngineType( AConfigData.ReadInteger('NetworkEngine', Integer(FNetworkEngineType)) );
+    SetBrowserEngineType( AConfigData.ReadInteger('BrowserEngine', Integer(FBrowserEngineType)) );
+    FPreInitBrowserEngine := AConfigData.ReadBool('PreInitBrowserEngine', FPreInitBrowserEngine);
     SetChanged;
   end;
 end;
@@ -149,6 +171,8 @@ begin
   AConfigData.WriteInteger('DownloadTryCount', FDownloadTryCount);
   AConfigData.WriteInteger('SleepOnResetConnection', FSleepOnResetConnection);
   AConfigData.WriteInteger('NetworkEngine', Integer(FNetworkEngineType));
+  AConfigData.WriteInteger('BrowserEngine', Integer(FBrowserEngineType));
+  AConfigData.WriteBool('PreInitBrowserEngine', FPreInitBrowserEngine);
 end;
 
 function TInetConfig.GetDownloadTryCount: Integer;
@@ -166,6 +190,26 @@ begin
   LockRead;
   try
     Result := FNetworkEngineType
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TInetConfig.GetBrowserEngineType: TBrowserEngineType;
+begin
+  LockRead;
+  try
+    Result := FBrowserEngineType;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TInetConfig.GetPreInitBrowserEngine: Boolean;
+begin
+  LockRead;
+  try
+    Result := FPreInitBrowserEngine;
   finally
     UnlockRead;
   end;
@@ -237,6 +281,32 @@ begin
   try
     if FNetworkEngineType <> AValue then begin
       FNetworkEngineType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TInetConfig.SetBrowserEngineType(const AValue: TBrowserEngineType);
+begin
+  LockWrite;
+  try
+    if FBrowserEngineType <> AValue then begin
+      FBrowserEngineType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TInetConfig.SetPreInitBrowserEngine(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FPreInitBrowserEngine <> AValue then begin
+      FPreInitBrowserEngine := AValue;
       SetChanged;
     end;
   finally

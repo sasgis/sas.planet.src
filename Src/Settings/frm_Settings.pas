@@ -258,6 +258,11 @@ type
     pnlOsmAndCachePath: TPanel;
     pnlLocusCachePath: TPanel;
     pnlDBMSCachePath: TPanel;
+    grpInternalBrowser: TGroupBox;
+    pnlBrowserEngine: TPanel;
+    lblBrowserEngine: TLabel;
+    cbbBrowserEngine: TComboBox;
+    chkBrowserEnginePreInit: TCheckBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -789,6 +794,16 @@ begin
       VNeedReboot := True;
     end;
 
+    if cbbBrowserEngine.ItemIndex <> Integer(VInetConfig.BrowserEngineType) then begin
+      VInetConfig.BrowserEngineType := TBrowserEngineType(cbbBrowserEngine.ItemIndex);
+      VNeedReboot := True;
+    end;
+
+    if chkBrowserEnginePreInit.Checked <> VInetConfig.PreInitBrowserEngine then begin
+      VInetConfig.PreInitBrowserEngine := chkBrowserEnginePreInit.Checked;
+      VNeedReboot := True;
+    end;
+
     VProxyConfig := VInetConfig.ProxyConfig;
     if (rbUseIESettings.Checked) and (VProxyConfig.GetUseIESettings <> rbUseIESettings.Checked) then begin
       VNeedReboot := True;
@@ -1069,6 +1084,14 @@ begin
     cbbNetworkEngine.Items.Add('WinInet');
     cbbNetworkEngine.Items.Add('cURL');
     cbbNetworkEngine.ItemIndex := Integer(VInetConfig.NetworkEngineType);
+
+    cbbBrowserEngine.Items.Clear;
+    cbbBrowserEngine.Items.Add('Internet Explorer');
+    cbbBrowserEngine.Items.Add('Edge WebView2 (Portable)');
+    cbbBrowserEngine.Items.Add('Edge WebView2 (System)');
+    cbbBrowserEngine.ItemIndex := Integer(VInetConfig.BrowserEngineType);
+
+    chkBrowserEnginePreInit.Checked := VInetConfig.PreInitBrowserEngine;
 
     chkRetryIfNoResponse.Checked := (VInetConfig.DownloadTryCount > 1);
     SETimeOut.Value := VInetConfig.GetTimeOut;

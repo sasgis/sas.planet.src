@@ -19,85 +19,30 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit u_InternalDomainInfoProviderList;
+unit i_InternalBrowserFactory;
 
 interface
 
 uses
-  Classes,
-  i_InternalDomainInfoProvider,
-  u_BaseInterfacedObject;
+  Controls,
+  u_InternalBrowserImpl;
 
 type
-  TInternalDomainInfoProviderList = class(TBaseInterfacedObject, IInternalDomainInfoProviderList)
-  private
-    FList: TStringList;
-  private
-    { IInternalDomainInfoProviderList }
-    function GetByName(const AName: string): IInternalDomainInfoProvider;
-  public
-    constructor Create;
-    destructor Destroy; override;
+  IInternalBrowserFactory = interface
+    ['{F085B264-7707-47F3-8158-131035FBD12F}']
+    function CreateBrowser(
+      const AParent: TWinControl;
+      const AOnKeyDown: TOnKeyDown = nil;
+      const AOnTitleChange: TOnTitleChange = nil
+    ): TInternalBrowserImpl;
 
-    procedure Add(
-      const AName: string;
-      const ADomain: IInternalDomainInfoProvider
-    );
+    function CreateInvisibleBrowser(
+      const AParent: TWinControl;
+      const AOnKeyDown: TOnKeyDown = nil;
+      const AOnTitleChange: TOnTitleChange = nil
+    ): TInternalBrowserImpl;
   end;
 
 implementation
-
-uses
-  SysUtils;
-
-{ TInternalDomainInfoProviderList }
-
-constructor TInternalDomainInfoProviderList.Create;
-begin
-  inherited Create;
-  FList := TStringList.Create;
-  FList.Sorted := True;
-end;
-
-destructor TInternalDomainInfoProviderList.Destroy;
-var
-  I: Integer;
-  VItem: IInterface;
-begin
-  if Assigned(FList) then begin
-    for I := 0 to FList.Count - 1 do begin
-      VItem := IInterface(Pointer(FList.Objects[I]));
-      FList.Objects[I] := nil;
-      VItem._Release;
-    end;
-    FreeAndNil(FList);
-  end;
-  inherited;
-end;
-
-procedure TInternalDomainInfoProviderList.Add(
-  const AName: string;
-  const ADomain: IInternalDomainInfoProvider
-);
-var
-  VIndex: Integer;
-begin
-  if not FList.Find(AName, VIndex) then begin
-    ADomain._AddRef;
-    FList.AddObject(AName, Pointer(ADomain));
-  end;
-end;
-
-function TInternalDomainInfoProviderList.GetByName(
-  const AName: string
-): IInternalDomainInfoProvider;
-var
-  VIndex: Integer;
-begin
-  Result := nil;
-  if FList.Find(AName, VIndex) then begin
-    Result := IInternalDomainInfoProvider(Pointer(FList.Objects[VIndex]));
-  end;
-end;
 
 end.

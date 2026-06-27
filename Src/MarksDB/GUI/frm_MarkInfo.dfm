@@ -13,6 +13,7 @@ object frmMarkInfo: TfrmMarkInfo
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
+  OnShow = FormShow
   object splDesc: TSplitter
     Left = 0
     Top = 94
