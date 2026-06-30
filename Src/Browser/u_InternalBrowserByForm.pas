@@ -24,6 +24,8 @@ unit u_InternalBrowserByForm;
 interface
 
 uses
+  i_Listener,
+  i_NotifierOperation,
   i_DownloadRequest,
   i_LanguageManager,
   i_InternalBrowser,
@@ -41,8 +43,11 @@ type
     FContent: IInternalBrowserLastContent;
     FInternalBrowserFactory: IInternalBrowserFactory;
     FfrmInternalBrowser: TfrmInternalBrowser;
+    FAppStartedListener: IListener;
+    FAppStartedNotifier: INotifierOneOperation;
   private
     procedure SafeCreateInternal;
+    procedure SafeCreateInternalAsync;
   private
     { IInternalBrowser }
     procedure ShowMessage(const ACaption, AText: string);
@@ -54,6 +59,7 @@ type
       const AContent: IInternalBrowserLastContent;
       const AConfig: IWindowPositionConfig;
       const AInternalBrowserFactory: IInternalBrowserFactory;
+      const AAppStartedNotifier: INotifierOneOperation;
       const APreInitBrowserEngine: Boolean
     );
     destructor Destroy; override;
@@ -62,8 +68,10 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
-  c_InternalBrowser;
+  c_InternalBrowser,
+  u_ListenerByEvent;
 
 { TInternalBrowserByForm }
 
@@ -72,21 +80,30 @@ constructor TInternalBrowserByForm.Create(
   const AContent: IInternalBrowserLastContent;
   const AConfig: IWindowPositionConfig;
   const AInternalBrowserFactory: IInternalBrowserFactory;
+  const AAppStartedNotifier: INotifierOneOperation;
   const APreInitBrowserEngine: Boolean
 );
 begin
   inherited Create;
+
   FLanguageManager := ALanguageManager;
   FContent := AContent;
   FConfig := AConfig;
   FInternalBrowserFactory := AInternalBrowserFactory;
-  if APreInitBrowserEngine then begin
-    SafeCreateInternal;
+  FAppStartedNotifier := AAppStartedNotifier;
+
+  if Assigned(FAppStartedNotifier) and APreInitBrowserEngine then begin
+    FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.SafeCreateInternalAsync);
+    FAppStartedNotifier.Add(FAppStartedListener);
   end;
 end;
 
 destructor TInternalBrowserByForm.Destroy;
 begin
+  if Assigned(FAppStartedNotifier) and Assigned(FAppStartedListener) then begin
+    FAppStartedNotifier.Remove(FAppStartedListener);
+    FAppStartedListener := nil;
+  end;
   FreeAndNil(FfrmInternalBrowser);
   inherited;
 end;
@@ -123,6 +140,16 @@ begin
         FInternalBrowserFactory
       );
   end;
+end;
+
+procedure TInternalBrowserByForm.SafeCreateInternalAsync;
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      TThread.Synchronize(nil, SafeCreateInternal);
+    end
+  ).Start;
 end;
 
 end.

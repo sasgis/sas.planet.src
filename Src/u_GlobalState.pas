@@ -938,6 +938,7 @@ begin
       FInternalBrowserContent,
       FGlobalConfig.InternalBrowserConfig,
       FInternalBrowserFactory,
+      FAppStartedNotifier,
       FGlobalConfig.InetConfig.PreInitBrowserEngine
     );
 
