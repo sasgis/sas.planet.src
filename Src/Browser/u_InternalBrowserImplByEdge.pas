@@ -29,6 +29,7 @@ uses
   Controls,
   SysUtils,
   Forms,
+  Types,
   Windows,
   uWVLoader,
   uWVBrowser,
@@ -104,18 +105,21 @@ type
   end;
 
   TEdgeBrowserEnvironmentLoaderGlobal = class
-  private
+  strict private
+    FBlackList: TStringDynArray;
     FProxyConfig: IProxyConfigStatic;
     procedure SetupProxySettings;
   public
     function TryStartWebView2: Boolean;
+    property BlackList: TStringDynArray read FBlackList;
     property ProxyConfig: IProxyConfigStatic read FProxyConfig;
   public
     constructor Create(
       const AProxyConfig: IProxyConfig = nil;
       const AUserAgent: string = '';
       const ARuntimePath: string = '';
-      const AUserDataPath: string = ''
+      const AUserDataPath: string = '';
+      const ABlackList: TStringDynArray = nil
     );
     destructor Destroy; override;
   end;
@@ -123,6 +127,7 @@ type
 implementation
 
 uses
+  StrUtils,
   c_InternalBrowser,
   i_BinaryData,
   u_Dialogs,
@@ -250,6 +255,8 @@ begin
 end;
 
 procedure TInternalBrowserImplByEdge.OnCreateWebViewCompleted(Sender: TObject);
+var
+  VMatch: string;
 begin
   FBrowserState := bsReady;
 
@@ -262,6 +269,16 @@ begin
     COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
     COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
   );
+
+  for VMatch in FEnvironmentLoader.BlackList do begin
+    if Trim(VMatch) = '' then Continue;
+    FBrowser.AddWebResourceRequestedFilterWithRequestSourceKinds(
+      VMatch,
+      COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
+      COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
+    );
+  end;
+
   FBrowser.OnWebResourceRequested := Self.OnWebResourceRequested;
 
   // disable SmartScreen
@@ -396,6 +413,11 @@ begin
 
   VUrl := string(VUrlPtr);
   CoTaskMemFree(VUrlPtr);
+
+  if not StartsText(CSASInternalURLPrefix, VUrl) then begin
+    _SetResponse(403, 'Blocked');
+    Exit;
+  end;
 
   if not TInternalDomainInfoProviderFunc.ParseUrl(VUrl, VDomainName, VFilePath) then begin
     _SetResponse(404, 'Not Found');
@@ -638,7 +660,8 @@ constructor TEdgeBrowserEnvironmentLoaderGlobal.Create(
   const AProxyConfig: IProxyConfig;
   const AUserAgent: string;
   const ARuntimePath: string;
-  const AUserDataPath: string
+  const AUserDataPath: string;
+  const ABlackList: TStringDynArray
 );
 begin
   inherited Create;
@@ -646,6 +669,8 @@ begin
   if Assigned(GlobalWebView2Loader) then begin
     raise Exception.Create('GlobalWebView2Loader already assigned!');
   end;
+
+  FBlackList := ABlackList;
 
   if Assigned(AProxyConfig) then begin
     FProxyConfig := AProxyConfig.GetStatic;

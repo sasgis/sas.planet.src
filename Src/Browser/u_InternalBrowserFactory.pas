@@ -38,8 +38,10 @@ uses
 type
   TInternalBrowserFactory = class(TBaseInterfacedObject, IInternalBrowserFactory)
   private const
-    CEdgePotableRuntimePath = 'Edge\Runtime\';
-    CEdgePotableUserDataPath = 'Edge\UserData\';
+    CEdgeRuntimePath = 'Edge\Runtime\';
+    CEdgeUserDataPath = 'Edge\UserData\';
+    CEdgeBlackListFileName = 'Edge\BlackList.txt';
+    CEdgeBlackListMaxCount = 100;
   private
     FInetConfig: IInetConfig;
     FInternalDomainUrlHandler: IInternalDomainUrlHandler;
@@ -79,7 +81,9 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
+  IOUtils,
   c_InternalBrowser,
   u_IeEmbeddedProtocolFactory;
 
@@ -136,6 +140,8 @@ var
   VAppPath: string;
   VEdgeRuntimePath: string;
   VEdgeUserDataPath: string;
+  VEdgeBlackListFile: string;
+  VEdgeBlackList: TStringDynArray;
 begin
   FInetConfig.LockRead;
   try
@@ -178,20 +184,36 @@ begin
   if VEngine in [beEdgePortable, beEdgeSystem] then begin
 
     if FEdgeEnvironmentLoader = nil then begin
+      VAppPath := ExtractFilePath(ParamStr(0));
+
+      // Runtime
       if VEngine = beEdgePortable then begin
-        VAppPath := ExtractFilePath(ParamStr(0));
-        VEdgeRuntimePath := VAppPath + CEdgePotableRuntimePath;
-        VEdgeUserDataPath := VAppPath + CEdgePotableUserDataPath;
+        VEdgeRuntimePath := VAppPath + CEdgeRuntimePath;
       end else begin
         VEdgeRuntimePath := '';
-        VEdgeUserDataPath := '';
       end;
+
+      // UserData
+      VEdgeUserDataPath := VAppPath + CEdgeUserDataPath;
+
+      // BlackList
+      VEdgeBlackListFile := VAppPath + CEdgeBlackListFileName;
+      if FileExists(VEdgeBlackListFile) then begin
+        VEdgeBlackList := TFile.ReadAllLines(VEdgeBlackListFile);
+        if Length(VEdgeBlackList) > CEdgeBlackListMaxCount then begin
+          SetLength(VEdgeBlackList, CEdgeBlackListMaxCount);
+        end;
+      end else begin
+        VEdgeBlackList := nil;
+      end;
+
       FEdgeEnvironmentLoader :=
         TEdgeBrowserEnvironmentLoaderGlobal.Create(
           FInetConfig.ProxyConfig,
           VUserAgent,
           VEdgeRuntimePath,
-          VEdgeUserDataPath
+          VEdgeUserDataPath,
+          VEdgeBlackList
         );
     end;
 
