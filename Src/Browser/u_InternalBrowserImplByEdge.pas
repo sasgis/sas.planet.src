@@ -264,6 +264,9 @@ begin
   );
   FBrowser.OnWebResourceRequested := Self.OnWebResourceRequested;
 
+  // disable SmartScreen
+  FBrowser.CoreWebView2Settings.IsReputationCheckingRequired := False;
+
   if FIsInvisible then begin
     FBrowser.DevToolsEnabled := False;
     FBrowser.StatusBarEnabled := False;
@@ -665,6 +668,25 @@ begin
   if AUserDataPath <> '' then begin
     GlobalWebView2Loader.UserDataFolder := AUserDataPath;
   end;
+
+  GlobalWebView2Loader.AdditionalBrowserArguments :=
+    '--disable-background-networking ' +
+    '--disable-telemetry ' +
+    '--disable-component-update ' +
+    '--metrics-recording-only ' +
+    '--disable-crash-reporter ' +
+    '--disable-breakpad ' +
+    '--no-pings ' +
+    '--disable-domain-reliability ' +
+    '--no-first-run ' +
+    '--disable-default-apps ' +
+    '--disable-logging ' +
+    '--safebrowsing-disable-auto-update ' +
+    '--disable-client-side-phishing-detection ' +
+    '--disable-features=msEdgeTelemetry,msSmartScreenProtection,MediaRouter';
+
+  // disable Crash Reporter
+  GlobalWebView2Loader.CustomCrashReportingEnabled := True;
 
   GlobalWebView2Loader.OnGetCustomSchemes := _OnGetCustomSchemes;
 end;
