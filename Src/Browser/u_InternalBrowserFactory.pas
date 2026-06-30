@@ -132,6 +132,7 @@ function TInternalBrowserFactory.DoCreateBrowser(
 var
   VEngine: TBrowserEngineType;
   VPreInit: Boolean;
+  VUserAgent: string;
   VAppPath: string;
   VEdgeRuntimePath: string;
   VEdgeUserDataPath: string;
@@ -142,6 +143,13 @@ begin
     VPreInit := FInetConfig.PreInitBrowserEngine;
   finally
     FInetConfig.UnlockRead;
+  end;
+
+  if False then begin
+    // TODO: Add an explicit option to override the engine's User-Agent value
+    VUserAgent := FInetConfig.UserAgentString;
+  end else begin
+    VUserAgent := '';
   end;
 
   // Internet Explorer
@@ -161,7 +169,7 @@ begin
         AIsInvisible,
         FInetConfig.ProxyConfig,
         FInternalDomainUrlHandler,
-        FInetConfig.UserAgentString,
+        FInetConfig.UserAgentString, // TODO
         AOnKeyDown,
         AOnTitleChange
       );
@@ -181,7 +189,7 @@ begin
       FEdgeEnvironmentLoader :=
         TEdgeBrowserEnvironmentLoaderGlobal.Create(
           FInetConfig.ProxyConfig,
-          FInetConfig.UserAgentString,
+          VUserAgent,
           VEdgeRuntimePath,
           VEdgeUserDataPath
         );

@@ -658,6 +658,10 @@ begin
   end;
 
   if AUserAgent <> '' then begin
+    // TODO: Setting a custom User-Agent requires intercepting all external requests
+    // in TInternalBrowserImplByEdge.OnWebResourceRequested to delete or modify
+    // Sec-CH-UA-* (User-Agent Client Hints) headers.
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers#user_agent_client_hints
     GlobalWebView2Loader.UserAgent := AUserAgent;
   end;
 
