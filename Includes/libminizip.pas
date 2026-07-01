@@ -19,118 +19,134 @@ type
   EMiniZipError = class(Exception);
 
 const
-  libminizip_dll = 'libminizip.dll';
+  libminizip_dll = 'libminizip-ng.dll';
 
 const
-  MZ_VERSION = '4.2.1';
-
-  MZ_OK = 0;
-
-  MZ_STREAM_ERROR = -(1);
-  MZ_DATA_ERROR = -(3);
-  MZ_MEM_ERROR = -(4);
-  MZ_BUF_ERROR = -(5);
-  MZ_VERSION_ERROR = -(6);
-  MZ_END_OF_LIST = -(100);
-  MZ_END_OF_STREAM = -(101);
-  MZ_PARAM_ERROR = -(102);
-  MZ_FORMAT_ERROR = -(103);
+  { MZ_ERROR }
+  MZ_OK             = 0;
+  MZ_STREAM_ERROR   = -(1);
+  MZ_DATA_ERROR     = -(3);
+  MZ_MEM_ERROR      = -(4);
+  MZ_BUF_ERROR      = -(5);
+  MZ_VERSION_ERROR  = -(6);
+  MZ_END_OF_LIST    = -(100);
+  MZ_END_OF_STREAM  = -(101);
+  MZ_PARAM_ERROR    = -(102);
+  MZ_FORMAT_ERROR   = -(103);
   MZ_INTERNAL_ERROR = -(104);
-  MZ_CRC_ERROR = -(105);
-  MZ_CRYPT_ERROR = -(106);
-  MZ_EXIST_ERROR = -(107);
+  MZ_CRC_ERROR      = -(105);
+  MZ_CRYPT_ERROR    = -(106);
+  MZ_EXIST_ERROR    = -(107);
   MZ_PASSWORD_ERROR = -(108);
-  MZ_SUPPORT_ERROR = -(109);
-  MZ_HASH_ERROR = -(110);
-  MZ_OPEN_ERROR = -(111);
-  MZ_CLOSE_ERROR = -(112);
-  MZ_SEEK_ERROR = -(113);
-  MZ_TELL_ERROR = -(114);
-  MZ_READ_ERROR = -(115);
-  MZ_WRITE_ERROR = -(116);
-  MZ_SIGN_ERROR = -(117);
-  MZ_SYMLINK_ERROR = -(118);
+  MZ_SUPPORT_ERROR  = -(109);
+  MZ_HASH_ERROR     = -(110);
+  MZ_OPEN_ERROR     = -(111);
+  MZ_CLOSE_ERROR    = -(112);
+  MZ_SEEK_ERROR     = -(113);
+  MZ_TELL_ERROR     = -(114);
+  MZ_READ_ERROR     = -(115);
+  MZ_WRITE_ERROR    = -(116);
+  MZ_SIGN_ERROR     = -(117);
+  MZ_SYMLINK_ERROR  = -(118);
 
-  MZ_OPEN_MODE_READ = $01;
-  MZ_OPEN_MODE_WRITE = $02;
+  { MZ_OPEN }
+  MZ_OPEN_MODE_READ      = $01;
+  MZ_OPEN_MODE_WRITE     = $02;
   MZ_OPEN_MODE_READWRITE = MZ_OPEN_MODE_READ or MZ_OPEN_MODE_WRITE;
-  MZ_OPEN_MODE_APPEND = $04;
-  MZ_OPEN_MODE_CREATE = $08;
-  MZ_OPEN_MODE_EXISTING = $10;
+  MZ_OPEN_MODE_APPEND    = $04;
+  MZ_OPEN_MODE_CREATE    = $08;
+  MZ_OPEN_MODE_EXISTING  = $10;
+  MZ_OPEN_MODE_NOFOLLOW  = $20;
 
+  { MZ_SEEK }
   MZ_SEEK_SET = 0;
   MZ_SEEK_CUR = 1;
   MZ_SEEK_END = 2;
 
-  MZ_COMPRESS_METHOD_STORE = 0;
+  { MZ_COMPRESS }
+  MZ_COMPRESS_METHOD_STORE   = 0;
   MZ_COMPRESS_METHOD_DEFLATE = 8;
-  MZ_COMPRESS_METHOD_BZIP2 = 12;
-  MZ_COMPRESS_METHOD_LZMA = 14;
-  MZ_COMPRESS_METHOD_ZSTD = 93;
-  MZ_COMPRESS_METHOD_XZ = 95;
-  MZ_COMPRESS_METHOD_PPMD = 98;
-  MZ_COMPRESS_METHOD_AES = 99;
+  MZ_COMPRESS_METHOD_BZIP2   = 12;
+  MZ_COMPRESS_METHOD_LZMA    = 14;
+  MZ_COMPRESS_METHOD_ZSTD    = 93;
+  MZ_COMPRESS_METHOD_XZ      = 95;
+  MZ_COMPRESS_METHOD_PPMD    = 98;
+  MZ_COMPRESS_METHOD_AES     = 99;
 
-  MZ_COMPRESS_LEVEL_DEFAULT = -(1);
-  MZ_COMPRESS_LEVEL_FAST = 2;
-  MZ_COMPRESS_LEVEL_NORMAL = 6;
-  MZ_COMPRESS_LEVEL_BEST = 9;
+  MZ_COMPRESS_LEVEL_DEFAULT  = -(1);
+  MZ_COMPRESS_LEVEL_FAST     = 2;
+  MZ_COMPRESS_LEVEL_NORMAL   = 6;
+  MZ_COMPRESS_LEVEL_BEST     = 9;
 
-  MZ_ZIP_FLAG_ENCRYPTED = 1 shl 0;
-  MZ_ZIP_FLAG_LZMA_EOS_MARKER = 1 shl 1;
-  MZ_ZIP_FLAG_DEFLATE_MAX = 1 shl 1;
-  MZ_ZIP_FLAG_DEFLATE_NORMAL = 0;
-  MZ_ZIP_FLAG_DEFLATE_FAST = 1 shl 2;
+  { MZ_ZIP_FLAG }
+  MZ_ZIP_FLAG_ENCRYPTED          = 1 shl 0;
+  MZ_ZIP_FLAG_LZMA_EOS_MARKER    = 1 shl 1;
+  MZ_ZIP_FLAG_DEFLATE_MAX        = 1 shl 1;
+  MZ_ZIP_FLAG_DEFLATE_NORMAL     = 0;
+  MZ_ZIP_FLAG_DEFLATE_FAST       = 1 shl 2;
   MZ_ZIP_FLAG_DEFLATE_SUPER_FAST = MZ_ZIP_FLAG_DEFLATE_FAST or MZ_ZIP_FLAG_DEFLATE_MAX;
-  MZ_ZIP_FLAG_DATA_DESCRIPTOR = 1 shl 3;
-  MZ_ZIP_FLAG_UTF8 = 1 shl 11;
-  MZ_ZIP_FLAG_MASK_LOCAL_INFO = 1 shl 13;
+  MZ_ZIP_FLAG_DATA_DESCRIPTOR    = 1 shl 3;
+  MZ_ZIP_FLAG_UTF8               = 1 shl 11;
+  MZ_ZIP_FLAG_MASK_LOCAL_INFO    = 1 shl 13;
 
+  { MZ_ZIP_EXTENSION }
   MZ_ZIP_EXTENSION_ZIP64 = $0001;
-  MZ_ZIP_EXTENSION_NTFS = $000a;
-  MZ_ZIP_EXTENSION_AES = $9901;
+  MZ_ZIP_EXTENSION_NTFS  = $000a;
+  MZ_ZIP_EXTENSION_AES   = $9901;
   MZ_ZIP_EXTENSION_UNIX1 = $000d;
-  MZ_ZIP_EXTENSION_SIGN = $10c5;
-  MZ_ZIP_EXTENSION_HASH = $1a51;
-  MZ_ZIP_EXTENSION_CDCD = $cdcd;
+  MZ_ZIP_EXTENSION_SIGN  = $10c5;
+  MZ_ZIP_EXTENSION_HASH  = $1a51;
+  MZ_ZIP_EXTENSION_CDCD  = $cdcd;
 
-  MZ_ZIP64_AUTO = 0;
-  MZ_ZIP64_FORCE = 1;
+  { MZ_ZIP64 }
+  MZ_ZIP64_AUTO    = 0;
+  MZ_ZIP64_FORCE   = 1;
   MZ_ZIP64_DISABLE = 2;
 
-  MZ_HOST_SYSTEM_MSDOS = 0;
-  MZ_HOST_SYSTEM_UNIX = 3;
+  { MZ_HOST_SYSTEM }
+  MZ_HOST_SYSTEM_MSDOS        = 0;
+  MZ_HOST_SYSTEM_UNIX         = 3;
   MZ_HOST_SYSTEM_WINDOWS_NTFS = 10;
-  MZ_HOST_SYSTEM_RISCOS = 13;
-  MZ_HOST_SYSTEM_OSX_DARWIN = 19;
+  MZ_HOST_SYSTEM_RISCOS       = 13;
+  MZ_HOST_SYSTEM_OSX_DARWIN   = 19;
   MZ_VERSION_MADEBY_HOST_SYSTEM = MZ_HOST_SYSTEM_WINDOWS_NTFS;
 
+  { MZ_PKCRYPT }
   MZ_PKCRYPT_HEADER_SIZE = 12;
 
-  MZ_AES_VERSION = 1;
-  MZ_AES_MODE_ECB = 0;
-  MZ_AES_MODE_CBC = 1;
-  MZ_AES_MODE_GCM = 2;
-  MZ_AES_STRENGTH_128 = 1;
-  MZ_AES_STRENGTH_192 = 2;
-  MZ_AES_STRENGTH_256 = 3;
+  { MZ_AES }
+  MZ_AES_VERSION        = 1;
+  MZ_AES_MODE_ECB       = 0;
+  MZ_AES_MODE_CBC       = 1;
+  MZ_AES_MODE_GCM       = 2;
+  MZ_AES_STRENGTH_128   = 1;
+  MZ_AES_STRENGTH_192   = 2;
+  MZ_AES_STRENGTH_256   = 3;
   MZ_AES_KEY_LENGTH_MAX = 32;
-  MZ_AES_BLOCK_SIZE = 16;
-  MZ_AES_FOOTER_SIZE = 10;
+  MZ_AES_BLOCK_SIZE     = 16;
+  MZ_AES_FOOTER_SIZE    = 10;
 
-  MZ_HASH_MD5 = 10;
-  MZ_HASH_MD5_SIZE = 16;
-  MZ_HASH_SHA1 = 20;
-  MZ_HASH_SHA1_SIZE = 20;
-  MZ_HASH_SHA256 = 23;
+  { MZ_HASH }
+  MZ_HASH_MD5         = 10;
+  MZ_HASH_MD5_SIZE    = 16;
+  MZ_HASH_SHA1        = 20;
+  MZ_HASH_SHA1_SIZE   = 20;
+  MZ_HASH_SHA224      = 22;
+  MZ_HASH_SHA224_SIZE = 28;
+  MZ_HASH_SHA256      = 23;
   MZ_HASH_SHA256_SIZE = 32;
-  MZ_HASH_MAX_SIZE = 256;
+  MZ_HASH_SHA384      = 24;
+  MZ_HASH_SHA384_SIZE = 48;
+  MZ_HASH_SHA512      = 25;
+  MZ_HASH_SHA512_SIZE = 64;
+  MZ_HASH_MAX_SIZE    = 256;
 
+  { MZ_ENCODING }
   MZ_ENCODING_CODEPAGE_437 = 437;
   MZ_ENCODING_CODEPAGE_932 = 932;
   MZ_ENCODING_CODEPAGE_936 = 936;
   MZ_ENCODING_CODEPAGE_950 = 950;
-  MZ_ENCODING_UTF8 = 65001;
+  MZ_ENCODING_UTF8         = 65001;
 
 type
   int8_t = AnsiChar;
@@ -182,7 +198,8 @@ type
     linkname            : p_char;     // sym-link filename utf8 null-terminated string
     zip64               : uint16_t;   // zip64 extension mode
     aes_version         : uint16_t;   // winzip aes extension if not 0
-    aes_encryption_mode : uint8_t;    // winzip aes encryption mode
+    aes_strength        : uint8_t;    // winzip aes encryption strength
+    pk_verify           : uint16_t;   // pkware encryption verifier
   end;
   p_mz_zip_file = ^mz_zip_file;
 
@@ -247,6 +264,7 @@ var
   mz_zip_path_compare: function(path1: p_char; path2: p_char; ignore_case: uint8_t): int32_t; cdecl;
 {$ENDIF MZ_ZIP_H}
 
+{$REGION 'mz_zip_rw.h'}
 type
   mz_zip_reader_overwrite_cb = function(handle: pointer; userdata: pointer; file_info: p_mz_zip_file; path: p_char): int32_t; cdecl;
   mz_zip_reader_password_cb = function(handle: pointer; userdata: pointer; file_info: p_mz_zip_file; password: p_char; max_password: int32_t): int32_t; cdecl;
@@ -267,8 +285,6 @@ var
   mz_zip_reader_entry_open: function(handle: pointer): int32_t; cdecl;
   mz_zip_reader_entry_close: function(handle: pointer): int32_t; cdecl;
   mz_zip_reader_entry_read: function(handle: pointer; buf: pointer; len: int32_t): int32_t; cdecl;
-  //mz_zip_reader_entry_has_sign: function(handle: pointer): int32_t; cdecl;
-  //mz_zip_reader_entry_sign_verify: function(handle: pointer): int32_t; cdecl;
   mz_zip_reader_entry_get_hash: function(handle: pointer; algorithm: uint16_t; digest: p_uint8_t; digest_size: int32_t): int32_t; cdecl;
   mz_zip_reader_entry_get_first_hash: function(handle: pointer; algorithm: p_uint16_t; digest_size: p_uint16_t): int32_t; cdecl;
   mz_zip_reader_entry_get_info: function(handle: pointer; var file_info: p_mz_zip_file): int32_t; cdecl;
@@ -286,7 +302,6 @@ var
   mz_zip_reader_get_zip_cd: function(handle: pointer; zip_cd: p_uint8_t): int32_t; cdecl;
   mz_zip_reader_get_comment: function(handle: pointer; out comment: p_char): int32_t; cdecl;
   mz_zip_reader_set_encoding: procedure(handle: pointer; encoding: int32_t); cdecl;
-  //mz_zip_reader_set_sign_required: procedure(handle: pointer; sign_required: uint8_t); cdecl;
   mz_zip_reader_set_overwrite_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_reader_overwrite_cb); cdecl;
   mz_zip_reader_set_password_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_reader_password_cb); cdecl;
   mz_zip_reader_set_progress_cb: procedure(handle: pointer; userdata: pointer; cb: mz_zip_reader_progress_cb); cdecl;
@@ -312,8 +327,6 @@ var
   mz_zip_writer_entry_open: function(handle: pointer; file_info: p_mz_zip_file): int32_t; cdecl;
   mz_zip_writer_entry_close: function(handle: pointer): int32_t; cdecl;
   mz_zip_writer_entry_write: function(handle: pointer; buf: pointer; len: int32_t): int32_t; cdecl;
-  //mz_zip_writer_entry_sign: function(handle: pointer; msg: p_uint8_t; message_size: int32_t; cert_data: p_uint8_t; cert_data_size: int32_t;
-  //    cert_pwd: p_char): int32_t; cdecl;
   //mz_zip_writer_add: function(handle: pointer; stream: pointer; read_cb: mz_stream_read_cb): int32_t; cdecl;
   //mz_zip_writer_add_process: function(handle: pointer; stream: pointer; read_cb: mz_stream_read_cb): int32_t; cdecl;
   //mz_zip_writer_add_info: function(handle: pointer; stream: pointer; read_cb: mz_stream_read_cb; file_info: p_mz_zip_file): int32_t; cdecl;
@@ -340,8 +353,7 @@ var
   mz_zip_writer_get_zip_handle: function(handle: pointer; out zip_handle: pointer): int32_t; cdecl;
   mz_zip_writer_create: function(): pointer; cdecl;
   mz_zip_writer_delete: procedure(var handle: pointer); cdecl;
-
-//******************************************************************************
+{$ENDREGION mz_zip_rw.h}
 
 type
   mz_string_t = UTF8String;
@@ -510,8 +522,6 @@ begin
     mz_zip_reader_entry_open := LoadProc('mz_zip_reader_entry_open');
     mz_zip_reader_entry_close := LoadProc('mz_zip_reader_entry_close');
     mz_zip_reader_entry_read := LoadProc('mz_zip_reader_entry_read');
-    //mz_zip_reader_entry_has_sign := LoadProc('mz_zip_reader_entry_has_sign');
-    //mz_zip_reader_entry_sign_verify := LoadProc('mz_zip_reader_entry_sign_verify');
     mz_zip_reader_entry_get_hash := LoadProc('mz_zip_reader_entry_get_hash');
     mz_zip_reader_entry_get_first_hash := LoadProc('mz_zip_reader_entry_get_first_hash');
     mz_zip_reader_entry_get_info := LoadProc('mz_zip_reader_entry_get_info');
@@ -529,7 +539,6 @@ begin
     mz_zip_reader_get_zip_cd := LoadProc('mz_zip_reader_get_zip_cd');
     mz_zip_reader_get_comment := LoadProc('mz_zip_reader_get_comment');
     mz_zip_reader_set_encoding := LoadProc('mz_zip_reader_set_encoding');
-    //mz_zip_reader_set_sign_required := LoadProc('mz_zip_reader_set_sign_required');
     mz_zip_reader_set_overwrite_cb := LoadProc('mz_zip_reader_set_overwrite_cb');
     mz_zip_reader_set_password_cb := LoadProc('mz_zip_reader_set_password_cb');
     mz_zip_reader_set_progress_cb := LoadProc('mz_zip_reader_set_progress_cb');
@@ -548,7 +557,6 @@ begin
     mz_zip_writer_entry_open := LoadProc('mz_zip_writer_entry_open');
     mz_zip_writer_entry_close := LoadProc('mz_zip_writer_entry_close');
     mz_zip_writer_entry_write := LoadProc('mz_zip_writer_entry_write');
-    //mz_zip_writer_entry_sign := LoadProc('mz_zip_writer_entry_sign');
     //mz_zip_writer_add := LoadProc('mz_zip_writer_add');
     //mz_zip_writer_add_process := LoadProc('mz_zip_writer_add_process');
     //mz_zip_writer_add_info := LoadProc('mz_zip_writer_add_info');
@@ -590,11 +598,6 @@ begin
 
   GLock.Acquire;
   try
-    if GLibHandle <> 0 then begin
-      FreeLibrary(GLibHandle);
-      GLibHandle := 0;
-    end;
-
     {$IFDEF MZ_ZIP_H}
     mz_zip_create := nil;
     mz_zip_delete := nil;
@@ -652,6 +655,7 @@ begin
     mz_zip_path_compare := nil;
     {$ENDIF MZ_ZIP_H}
 
+    // mz_zip_rw.h
     mz_zip_reader_is_open := nil;
     mz_zip_reader_open := nil;
     mz_zip_reader_open_file := nil;
@@ -665,8 +669,6 @@ begin
     mz_zip_reader_entry_open := nil;
     mz_zip_reader_entry_close := nil;
     mz_zip_reader_entry_read := nil;
-    //mz_zip_reader_entry_has_sign := nil;
-    //mz_zip_reader_entry_sign_verify := nil;
     mz_zip_reader_entry_get_hash := nil;
     mz_zip_reader_entry_get_first_hash := nil;
     mz_zip_reader_entry_get_info := nil;
@@ -684,7 +686,6 @@ begin
     mz_zip_reader_get_zip_cd := nil;
     mz_zip_reader_get_comment := nil;
     mz_zip_reader_set_encoding := nil;
-    //mz_zip_reader_set_sign_required := nil;
     mz_zip_reader_set_overwrite_cb := nil;
     mz_zip_reader_set_password_cb := nil;
     mz_zip_reader_set_progress_cb := nil;
@@ -703,7 +704,6 @@ begin
     mz_zip_writer_entry_open := nil;
     mz_zip_writer_entry_close := nil;
     mz_zip_writer_entry_write := nil;
-    //mz_zip_writer_entry_sign := nil;
     //mz_zip_writer_add := nil;
     //mz_zip_writer_add_process := nil;
     //mz_zip_writer_add_info := nil;
@@ -730,6 +730,11 @@ begin
     mz_zip_writer_get_zip_handle := nil;
     mz_zip_writer_create := nil;
     mz_zip_writer_delete := nil;
+
+    if GLibHandle <> 0 then begin
+      FreeLibrary(GLibHandle);
+      GLibHandle := 0;
+    end;
   finally
     GLock.Release;
   end;
