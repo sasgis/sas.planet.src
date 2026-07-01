@@ -25,6 +25,10 @@ interface
 
 uses
   Classes,
+  mormot.core.base,
+  mormot.core.buffers,
+  mormot.core.json,
+  mormot.core.text,
   i_GeometryLonLat,
   i_GeometryToStream,
   u_BaseInterfacedObject;
@@ -51,10 +55,6 @@ implementation
 
 uses
   SysUtils,
-  mormot.core.base,
-  mormot.core.buffers,
-  mormot.core.json,
-  mormot.core.text,
   t_GeoTypes,
   u_GeometryFunc,
   u_GeometryMetaJson;
