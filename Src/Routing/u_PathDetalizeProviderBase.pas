@@ -38,6 +38,7 @@ type
   TPathDetalizeProviderBase = class(TBaseInterfacedObject, IPathDetalizeProvider)
   protected
     FBaseUrl: AnsiString;
+    FRawHeaders: AnsiString;
     FDownloader: IDownloader;
     FInetConfig: IInetConfig;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -64,6 +65,7 @@ type
   public
     constructor Create(
       const ABaseUrl: AnsiString;
+      const ARawHeaders: AnsiString;
       const ADownloader: IDownloader;
       const AInetConfig: IInetConfig;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
@@ -77,10 +79,12 @@ uses
   u_DoublePointsAggregator,
   u_GeoFunc;
 
+
 { TPathDetalizeProviderBase }
 
 constructor TPathDetalizeProviderBase.Create(
   const ABaseUrl: AnsiString;
+  const ARawHeaders: AnsiString;
   const ADownloader: IDownloader;
   const AInetConfig: IInetConfig;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
@@ -88,6 +92,7 @@ constructor TPathDetalizeProviderBase.Create(
 begin
   inherited Create;
   FBaseUrl := ABaseUrl;
+  FRawHeaders := ARawHeaders;
   FDownloader := ADownloader;
   FInetConfig := AInetConfig;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;

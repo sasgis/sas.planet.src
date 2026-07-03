@@ -150,6 +150,7 @@ end;
 
 procedure AddOsrmProvider(
   const AUrlTemplate: string;
+  const ARawHeaders: string;
   const AGuidList: TProviderGuidList;
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
@@ -172,6 +173,7 @@ begin
     VProvider :=
       TPathDetalizeProviderOSRM.Create(
         AnsiString(VBaseUrl),
+        AnsiString(ARawHeaders),
         VDownloader,
         AInetConfig,
         AVectorGeometryLonLatFactory
@@ -220,6 +222,8 @@ function TPathDetalizeProviderTreeSimple.CreateProvidersSet(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader
 ): IGUIDInterfaceSet;
+const
+  CEmptyHttpHeaders = '';
 var
   I, J: Integer;
   VAddress: string;
@@ -230,6 +234,7 @@ begin
   if FPathDetalizeConfig.EnableZlzk then begin
     AddOsrmProvider(
       'https://zlzk.biz/route/v1/{profile}/',
+      CEmptyHttpHeaders,
       FZlzkGuidList,
       AInetConfig,
       AGCNotifier,
@@ -239,9 +244,11 @@ begin
     );
   end;
 
+  // Project OSRM: https://project-osrm.org/
   if FPathDetalizeConfig.EnableProjectOSRM then begin
     AddOsrmProvider(
       'https://routing.openstreetmap.de/routed-{profile}/route/v1/driving/',
+      'Referer: https://map.project-osrm.org/',
       FProjectOsrmGuidList,
       AInetConfig,
       AGCNotifier,
@@ -271,6 +278,7 @@ begin
 
     AddOsrmProvider(
       VAddress + 'route/v1/{profile}/',
+      CEmptyHttpHeaders,
       VGuidList,
       AInetConfig,
       AGCNotifier,

@@ -99,7 +99,7 @@ begin
 
   Result := TDownloadRequest.Create(
     FBaseUrl + VUrl + '?geometries=geojson&overview=full',
-    '',
+    FRawHeaders,
     FInetConfig.GetStatic
   );
 end;

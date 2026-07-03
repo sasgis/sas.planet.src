@@ -155,7 +155,7 @@ constructor TPathDetalizeProviderOsmScout.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
 );
 begin
-  inherited Create('', nil, nil, AVectorGeometryLonLatFactory);
+  inherited Create('', '', nil, nil, AVectorGeometryLonLatFactory);
 
   FOpt := nil;
   FCtx := nil;
