@@ -38,8 +38,9 @@ uses
 type
   TInternalBrowserFactory = class(TBaseInterfacedObject, IInternalBrowserFactory)
   private const
-    CEdgeRuntimePath = 'Edge\Runtime\';
-    CEdgeUserDataPath = 'Edge\UserData\';
+    CEdgeRuntimePath       = 'Edge\Runtime\';
+    CEdgeWebView2Exe       = 'Edge\Runtime\msedgewebview2.exe';
+    CEdgeUserDataPath      = 'Edge\UserData\';
     CEdgeBlackListFileName = 'Edge\BlackList.txt';
     CEdgeBlackListMaxCount = 100;
   private
@@ -134,104 +135,89 @@ function TInternalBrowserFactory.DoCreateBrowser(
   const AOnTitleChange: TOnTitleChange
 ): TInternalBrowserImpl;
 var
+  VConfig: IInetConfigStatic;
   VEngine: TBrowserEngineType;
-  VPreInit: Boolean;
-  VUserAgent: string;
   VAppPath: string;
   VEdgeRuntimePath: string;
   VEdgeUserDataPath: string;
   VEdgeBlackListFile: string;
   VEdgeBlackList: TStringDynArray;
 begin
-  FInetConfig.LockRead;
-  try
-    VEngine := FInetConfig.BrowserEngineType;
-    VPreInit := FInetConfig.PreInitBrowserEngine;
-  finally
-    FInetConfig.UnlockRead;
-  end;
+  VConfig := FInetConfig.GetStatic;
+  VEngine := VConfig.BrowserEngineType;
 
-  if False then begin
-    // TODO: Add an explicit option to override the engine's User-Agent value
-    VUserAgent := FInetConfig.UserAgentString;
-  end else begin
-    VUserAgent := '';
-  end;
+  case VEngine of
+    beInternetExplorer: begin
+      if FIeProtocol = nil then begin
+        FIeProtocol :=
+          TIeEmbeddedProtocolRegistration.Create(
+            CSASProtocolName,
+            TIeEmbeddedProtocolFactory.Create(FInternalDomainInfoProviderList)
+          );
+      end;
 
-  // Internet Explorer
-  if VEngine = beInternetExplorer then begin
-
-    if FIeProtocol = nil then begin
-      FIeProtocol :=
-        TIeEmbeddedProtocolRegistration.Create(
-          CSASProtocolName,
-          TIeEmbeddedProtocolFactory.Create(FInternalDomainInfoProviderList)
+      Result :=
+        TInternalBrowserImplByIe.Create(
+          AParent,
+          AIsInvisible,
+          VConfig.ProxyConfigStatic,
+          FInternalDomainUrlHandler,
+          VConfig.UserAgentString,
+          AOnKeyDown,
+          AOnTitleChange
         );
     end;
 
-    Result :=
-      TInternalBrowserImplByIe.Create(
-        AParent,
-        AIsInvisible,
-        FInetConfig.ProxyConfig,
-        FInternalDomainUrlHandler,
-        FInetConfig.UserAgentString, // TODO
-        AOnKeyDown,
-        AOnTitleChange
-      );
-  end else
-  // Edge WebView2
-  if VEngine in [beEdgePortable, beEdgeSystem] then begin
+    beEdge: begin
+      if FEdgeEnvironmentLoader = nil then begin
+        VAppPath := ExtractFilePath(ParamStr(0));
 
-    if FEdgeEnvironmentLoader = nil then begin
-      VAppPath := ExtractFilePath(ParamStr(0));
-
-      // Runtime
-      if VEngine = beEdgePortable then begin
-        VEdgeRuntimePath := VAppPath + CEdgeRuntimePath;
-      end else begin
-        VEdgeRuntimePath := '';
-      end;
-
-      // UserData
-      VEdgeUserDataPath := VAppPath + CEdgeUserDataPath;
-
-      // BlackList
-      VEdgeBlackListFile := VAppPath + CEdgeBlackListFileName;
-      if FileExists(VEdgeBlackListFile) then begin
-        VEdgeBlackList := TFile.ReadAllLines(VEdgeBlackListFile);
-        if Length(VEdgeBlackList) > CEdgeBlackListMaxCount then begin
-          SetLength(VEdgeBlackList, CEdgeBlackListMaxCount);
+        // Runtime
+        if FileExists(VAppPath + CEdgeWebView2Exe) then begin
+          VEdgeRuntimePath := VAppPath + CEdgeRuntimePath;
+        end else begin
+          VEdgeRuntimePath := '';
         end;
-      end else begin
-        VEdgeBlackList := nil;
+
+        // UserData
+        VEdgeUserDataPath := VAppPath + CEdgeUserDataPath;
+
+        // BlackList
+        VEdgeBlackListFile := VAppPath + CEdgeBlackListFileName;
+        if FileExists(VEdgeBlackListFile) then begin
+          VEdgeBlackList := TFile.ReadAllLines(VEdgeBlackListFile);
+          if Length(VEdgeBlackList) > CEdgeBlackListMaxCount then begin
+            SetLength(VEdgeBlackList, CEdgeBlackListMaxCount);
+          end;
+        end else begin
+          VEdgeBlackList := nil;
+        end;
+
+        FEdgeEnvironmentLoader :=
+          TEdgeBrowserEnvironmentLoaderGlobal.Create(
+            VConfig.ProxyConfigStatic,
+            VEdgeRuntimePath,
+            VEdgeUserDataPath,
+            VEdgeBlackList
+          );
       end;
 
-      FEdgeEnvironmentLoader :=
-        TEdgeBrowserEnvironmentLoaderGlobal.Create(
-          FInetConfig.ProxyConfig,
-          VUserAgent,
-          VEdgeRuntimePath,
-          VEdgeUserDataPath,
-          VEdgeBlackList
+      Result :=
+        TInternalBrowserImplByEdge.Create(
+          AParent,
+          AIsInvisible,
+          FEdgeEnvironmentLoader,
+          FInternalDomainUrlHandler,
+          FInternalDomainInfoProviderList,
+          AOnKeyDown,
+          AOnTitleChange
         );
     end;
-
-    Result :=
-      TInternalBrowserImplByEdge.Create(
-        AParent,
-        AIsInvisible,
-        FEdgeEnvironmentLoader,
-        FInternalDomainUrlHandler,
-        FInternalDomainInfoProviderList,
-        AOnKeyDown,
-        AOnTitleChange
-      );
-  end else begin
+  else
     raise Exception.CreateFmt('Unexpected BrowserEngineType value: %d', [Integer(VEngine)]);
   end;
 
-  if not VPreInit or AIsInvisible then begin
+  if not VConfig.PreInitBrowserEngine or AIsInvisible then begin
     Exit;
   end;
 

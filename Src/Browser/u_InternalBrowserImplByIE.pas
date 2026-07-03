@@ -42,7 +42,7 @@ type
     FOnKeyDown: TOnKeyDown;
     FOnTitleChange: TOnTitleChange;
     FIsInvisible: Boolean;
-    FProxyConfig: IProxyConfig;
+    FProxyConfig: IProxyConfigStatic;
     FInternalDomainUrlHandler: IInternalDomainUrlHandler;
 
     procedure OnAuthenticate(
@@ -82,7 +82,7 @@ type
     constructor Create(
       const AParent: TWinControl;
       const AIsInvisible: Boolean;
-      const AProxyConfig: IProxyConfig;
+      const AProxyConfig: IProxyConfigStatic;
       const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
       const AUserAgent: string = '';
       const AOnKeyDown: TOnKeyDown = nil;
@@ -105,7 +105,7 @@ uses
 constructor TInternalBrowserImplByIE.Create(
   const AParent: TWinControl;
   const AIsInvisible: Boolean;
-  const AProxyConfig: IProxyConfig;
+  const AProxyConfig: IProxyConfigStatic;
   const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
   const AUserAgent: string;
   const AOnKeyDown: TOnKeyDown;
@@ -149,7 +149,7 @@ begin
   if Assigned(FInternalDomainUrlHandler) then begin
     FEmbeddedWB.OnBeforeNavigate2 := Self.OnBeforeNavigate;
   end;
-  if Assigned(FProxyConfig) then begin
+  if Assigned(FProxyConfig) and FProxyConfig.UseProxy and FProxyConfig.UseLogin then begin
     FEmbeddedWB.OnAuthenticate := Self.OnAuthenticate;
   end;
   if Assigned(FOnKeyDown) then begin
@@ -192,15 +192,10 @@ procedure TInternalBrowserImplByIE.OnAuthenticate(
   var szUserName, szPassWord: WideString;
   var Rezult: HRESULT
 );
-var
-  VUseLogin: Boolean;
-  VProxyConfig: IProxyConfigStatic;
 begin
-  VProxyConfig := FProxyConfig.GetStatic;
-  VUseLogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
-  if VUseLogin then begin
-    szUserName := VProxyConfig.Login;
-    szPassWord := VProxyConfig.Password;
+  if Assigned(FProxyConfig) and FProxyConfig.UseProxy and FProxyConfig.UseLogin then begin
+    szUserName := FProxyConfig.Login;
+    szPassWord := FProxyConfig.Password;
   end;
 end;
 

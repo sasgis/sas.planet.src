@@ -115,8 +115,7 @@ type
     property ProxyConfig: IProxyConfigStatic read FProxyConfig;
   public
     constructor Create(
-      const AProxyConfig: IProxyConfig = nil;
-      const AUserAgent: string = '';
+      const AProxyConfig: IProxyConfigStatic = nil;
       const ARuntimePath: string = '';
       const AUserDataPath: string = '';
       const ABlackList: TStringDynArray = nil
@@ -191,7 +190,7 @@ begin
   end;
 
   FProxyConfig := FEnvironmentLoader.ProxyConfig;
-  if Assigned(FProxyConfig) and (FProxyConfig.UseLogin) then begin
+  if Assigned(FProxyConfig) and FProxyConfig.UseProxy and FProxyConfig.UseLogin then begin
     FBrowser.OnBasicAuthenticationRequested := Self.OnBasicAuthenticationRequested;
   end;
 
@@ -472,7 +471,11 @@ var
   VUriPtr: PWideChar;
   VResponse: ICoreWebView2BasicAuthenticationResponse;
 begin
-  if not Assigned(FProxyConfig) or not FProxyConfig.UseLogin or (FProxyConfig.Login = '') then begin
+  if not Assigned(FProxyConfig) or
+     not FProxyConfig.UseProxy or
+     not FProxyConfig.UseLogin or
+     (FProxyConfig.Login = '')
+  then begin
     Exit;
   end;
 
@@ -657,8 +660,7 @@ begin
 end;
 
 constructor TEdgeBrowserEnvironmentLoaderGlobal.Create(
-  const AProxyConfig: IProxyConfig;
-  const AUserAgent: string;
+  const AProxyConfig: IProxyConfigStatic;
   const ARuntimePath: string;
   const AUserDataPath: string;
   const ABlackList: TStringDynArray
@@ -670,24 +672,13 @@ begin
     raise Exception.Create('GlobalWebView2Loader already assigned!');
   end;
 
+  FProxyConfig := AProxyConfig;
   FBlackList := ABlackList;
-
-  if Assigned(AProxyConfig) then begin
-    FProxyConfig := AProxyConfig.GetStatic;
-  end;
 
   GlobalWebView2Loader := TWVLoader.Create(nil);
 
   if Assigned(FProxyConfig) then begin
     SetupProxySettings;
-  end;
-
-  if AUserAgent <> '' then begin
-    // TODO: Setting a custom User-Agent requires intercepting all external requests
-    // in TInternalBrowserImplByEdge.OnWebResourceRequested to delete or modify
-    // Sec-CH-UA-* (User-Agent Client Hints) headers.
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers#user_agent_client_hints
-    GlobalWebView2Loader.UserAgent := AUserAgent;
   end;
 
   if ARuntimePath <> '' then begin

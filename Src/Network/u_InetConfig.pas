@@ -142,7 +142,7 @@ procedure TInetConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 
   procedure SetBrowserEngineType(const ATypeId: Integer);
   begin
-    if TBrowserEngineType(ATypeId) in [beInternetExplorer, beEdgePortable, beEdgeSystem] then begin
+    if TBrowserEngineType(ATypeId) in [beInternetExplorer, beEdge] then begin
       FBrowserEngineType := TBrowserEngineType(ATypeId);
     end else begin
       Assert(False, Format('Unexpected BrowserEngineType value: %d', [ATypeId]));

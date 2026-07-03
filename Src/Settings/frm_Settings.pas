@@ -1003,9 +1003,9 @@ end;
 
 procedure TfrmSettings.FormShow(Sender: TObject);
 var
+  I: Integer;
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
-  i: Integer;
   VConnsPerServer: TConnsPerServerRec;
   VMarksCaptionDrawConfig: ICaptionDrawConfig;
 begin
@@ -1058,8 +1058,8 @@ begin
   FfrYandexApiKey.Parent := pnlYandexApiKey;
 
   CBoxLocal.Items.Clear;
-  for i := 0 to GState.Config.LanguageManager.LanguageList.Count - 1 do begin
-    CBoxLocal.Items.Add(GState.Config.LanguageManager.GetLangNameByIndex(i));
+  for I := 0 to GState.Config.LanguageManager.LanguageList.Count - 1 do begin
+    CBoxLocal.Items.Add(GState.Config.LanguageManager.GetLangNameByIndex(I));
   end;
   CBoxLocal.ItemIndex := GState.Config.LanguageManager.GetCurrentLanguageIndex;
 
@@ -1087,8 +1087,7 @@ begin
 
     cbbBrowserEngine.Items.Clear;
     cbbBrowserEngine.Items.Add('Internet Explorer');
-    cbbBrowserEngine.Items.Add('Edge WebView2 (Portable)');
-    cbbBrowserEngine.Items.Add('Edge WebView2 (System)');
+    cbbBrowserEngine.Items.Add('Edge WebView2');
     cbbBrowserEngine.ItemIndex := Integer(VInetConfig.BrowserEngineType);
 
     chkBrowserEnginePreInit.Checked := VInetConfig.PreInitBrowserEngine;

@@ -30,7 +30,7 @@ uses
 
 type
   TNetworkEngineType = (neWinInet, neCurl);
-  TBrowserEngineType = (beInternetExplorer, beEdgePortable, beEdgeSystem);
+  TBrowserEngineType = (beInternetExplorer, beEdge);
 
   IInetConfigStatic = interface
     ['{5608C1CA-91D5-43CB-BAF0-8C76351EC1D7}']
