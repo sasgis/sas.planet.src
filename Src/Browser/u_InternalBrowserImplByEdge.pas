@@ -91,6 +91,8 @@ type
     procedure SetHtmlText(const AText: string); override;
     procedure Stop; override;
     procedure SetVisible(const AIsVisible: Boolean); override;
+    function GetVisible: Boolean; override;
+    function GetCurrentAddress: string; override;
   public
     constructor Create(
       const AParent: TWinControl;
@@ -610,6 +612,16 @@ begin
     FParent.UpdateSize;
     FParent.SetFocus;
   end;
+end;
+
+function TInternalBrowserImplByEdge.GetVisible: Boolean;
+begin
+  Result := FBrowser.IsVisible;
+end;
+
+function TInternalBrowserImplByEdge.GetCurrentAddress: string;
+begin
+  Result := FBrowser.Source;
 end;
 
 procedure TInternalBrowserImplByEdge.Stop;

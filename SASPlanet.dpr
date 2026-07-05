@@ -136,6 +136,7 @@ uses
   i_InternalBrowserLastContent in 'Src\Browser\i_InternalBrowserLastContent.pas',
   i_InvisibleBrowser in 'Src\Browser\i_InvisibleBrowser.pas',
   u_InternalBrowserByForm in 'Src\Browser\u_InternalBrowserByForm.pas',
+  u_InternalBrowserByImpl in 'Src\Browser\u_InternalBrowserByImpl.pas',
   u_InternalBrowserFactory in 'Src\Browser\u_InternalBrowserFactory.pas',
   u_InternalBrowserImpl in 'Src\Browser\u_InternalBrowserImpl.pas',
   u_InternalBrowserImplByEdge in 'Src\Browser\u_InternalBrowserImplByEdge.pas',

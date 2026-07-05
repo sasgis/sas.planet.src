@@ -309,6 +309,7 @@
         <DCCReference Include="Src\Browser\i_InternalBrowserLastContent.pas"/>
         <DCCReference Include="Src\Browser\i_InvisibleBrowser.pas"/>
         <DCCReference Include="Src\Browser\u_InternalBrowserByForm.pas"/>
+        <DCCReference Include="Src\Browser\u_InternalBrowserByImpl.pas"/>
         <DCCReference Include="Src\Browser\u_InternalBrowserFactory.pas"/>
         <DCCReference Include="Src\Browser\u_InternalBrowserImpl.pas"/>
         <DCCReference Include="Src\Browser\u_InternalBrowserImplByEdge.pas"/>

@@ -40,6 +40,7 @@ uses
   i_VectorDataItemSimple,
   i_InternalBrowserFactory,
   u_InternalBrowserImpl,
+  u_InternalBrowserByImpl,
   u_CommonFormAndFrameParents;
 
 type
@@ -51,7 +52,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FBrowser: TInternalBrowserImpl;
+    FBrowser: TInternalBrowserByImpl;
     FCancelNotifier: INotifierOperationInternal;
     FCoordToStringConverter: ICoordToStringConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
@@ -395,7 +396,7 @@ end;
 procedure TfrmMarkInfo.SafeCreateBrowser;
 begin
   if not Assigned(FBrowser) then begin
-    FBrowser := FInternalBrowserFactory.CreateBrowser(pnlDesc);
+    FBrowser := TInternalBrowserByImpl.Create(pnlDesc, False, nil, nil, FInternalBrowserFactory);
   end;
 end;
 

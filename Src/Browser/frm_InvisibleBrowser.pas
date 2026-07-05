@@ -31,6 +31,7 @@ uses
   i_LanguageManager,
   i_InternalBrowserFactory,
   u_InternalBrowserImpl,
+  u_InternalBrowserByImpl,
   u_CommonFormAndFrameParents;
 
 type
@@ -38,8 +39,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
-    FCS: IReadWriteSync;
-    FBrowser: TInternalBrowserImpl;
+    FLock: IReadWriteSync;
+    FBrowser: TInternalBrowserByImpl;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -63,8 +64,8 @@ constructor TfrmInvisibleBrowser.Create(
 );
 begin
   inherited Create(ALanguageManager);
-  FCS := GSync.SyncBig.Make(Self.ClassName);
-  FBrowser := AInternalBrowserFactory.CreateInvisibleBrowser(Self);
+  FLock := GSync.SyncBig.Make(Self.ClassName);
+  FBrowser := TInternalBrowserByImpl.Create(Self, True, nil, nil, AInternalBrowserFactory);
 end;
 
 procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);
@@ -79,11 +80,11 @@ end;
 
 procedure TfrmInvisibleBrowser.NavigateAndWait(const AUrl: string);
 begin
-  FCS.BeginWrite;
+  FLock.BeginWrite;
   try
     FBrowser.NavigateWait(AUrl, 10000);
   finally
-    FCS.EndWrite;
+    FLock.EndWrite;
   end;
 end;
 

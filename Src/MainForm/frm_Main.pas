@@ -2287,8 +2287,6 @@ begin
         Self.SaveConfig
       );
 
-    FfrmSettings.SetProxy;
-
     FfrmMarksExplorer :=
       TfrmMarksExplorer.Create(
         False,

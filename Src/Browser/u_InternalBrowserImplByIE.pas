@@ -78,6 +78,8 @@ type
     procedure SetHtmlText(const AText: string); override;
     procedure Stop; override;
     procedure SetVisible(const AIsVisible: Boolean); override;
+    function GetVisible: Boolean; override;
+    function GetCurrentAddress: string; override;
   public
     constructor Create(
       const AParent: TWinControl;
@@ -288,6 +290,16 @@ end;
 procedure TInternalBrowserImplByIE.SetVisible(const AIsVisible: Boolean);
 begin
   FEmbeddedWB.Visible := AIsVisible;
+end;
+
+function TInternalBrowserImplByIE.GetVisible: Boolean;
+begin
+  Result := FEmbeddedWB.Visible;
+end;
+
+function TInternalBrowserImplByIE.GetCurrentAddress: string;
+begin
+  Result := FEmbeddedWB.LocationUrl;
 end;
 
 procedure TInternalBrowserImplByIE.Stop;

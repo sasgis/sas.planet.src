@@ -24,11 +24,15 @@ unit u_InternalBrowserFactory;
 interface
 
 uses
+  Forms,
   Controls,
+  i_Listener,
   i_InetConfig,
+  i_ProxySettings,
   i_InternalBrowserFactory,
   i_InternalDomainUrlHandler,
   i_InternalDomainInfoProvider,
+  u_ConfigDataElementBase,
   u_InternalBrowserImpl,
   u_InternalBrowserImplByEdge,
   u_InternalBrowserImplByIe,
@@ -36,7 +40,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TInternalBrowserFactory = class(TBaseInterfacedObject, IInternalBrowserFactory)
+  TInternalBrowserFactory = class(TConfigDataElementBaseEmptySaveLoad, IInternalBrowserFactory)
   private const
     CEdgeRuntimePath       = 'Edge\Runtime\';
     CEdgeWebView2Exe       = 'Edge\Runtime\msedgewebview2.exe';
@@ -45,30 +49,26 @@ type
     CEdgeBlackListMaxCount = 100;
   private
     FInetConfig: IInetConfig;
+    FInetConfigStatic: IInetConfigStatic;
     FInternalDomainUrlHandler: IInternalDomainUrlHandler;
     FInternalDomainInfoProviderList: IInternalDomainInfoProviderList;
 
     FIeProtocol: TIeEmbeddedProtocolRegistration;
     FEdgeEnvironmentLoader: TEdgeBrowserEnvironmentLoaderGlobal;
 
-    function DoCreateBrowser(
+    FOnInetConfigChangeListener: IListener;
+    FOnProxyConfigChangeListener: IListener;
+
+    procedure OnConfigChange;
+  protected
+    procedure DoInChangeNotify; override;
+  private
+    { InternalBrowserFactory }
+    function CreateBrowserImpl(
       const AParent: TWinControl;
       const AIsInvisible: Boolean;
       const AOnKeyDown: TOnKeyDown;
       const AOnTitleChange: TOnTitleChange
-    ): TInternalBrowserImpl;
-  private
-    { InternalBrowserFactory }
-    function CreateBrowser(
-      const AParent: TWinControl;
-      const AOnKeyDown: TOnKeyDown = nil;
-      const AOnTitleChange: TOnTitleChange = nil
-    ): TInternalBrowserImpl;
-
-    function CreateInvisibleBrowser(
-      const AParent: TWinControl;
-      const AOnKeyDown: TOnKeyDown = nil;
-      const AOnTitleChange: TOnTitleChange = nil
     ): TInternalBrowserImpl;
   public
     constructor Create(
@@ -83,9 +83,13 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   IOUtils,
+  UrlMon,
+  WinInet,
   c_InternalBrowser,
+  u_ListenerByEvent,
   u_IeEmbeddedProtocolFactory;
 
 { TInternalBrowserFactory }
@@ -99,43 +103,87 @@ begin
   inherited Create;
 
   FInetConfig := AInetConfig;
+  FInetConfigStatic := FInetConfig.GetStatic;
   FInternalDomainUrlHandler := AInternalDomainUrlHandler;
   FInternalDomainInfoProviderList := AInternalDomainInfoProviderList;
+
+  FOnInetConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FInetConfig.ChangeNotifier.Add(FOnInetConfigChangeListener);
+
+  FOnProxyConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FInetConfig.ProxyConfig.ChangeNotifier.Add(FOnProxyConfigChangeListener);
 end;
 
 destructor TInternalBrowserFactory.Destroy;
 begin
+  if Assigned(FInetConfig) and Assigned(FOnInetConfigChangeListener) then begin
+    FInetConfig.ChangeNotifier.Remove(FOnInetConfigChangeListener);
+    FOnInetConfigChangeListener := nil;
+  end;
+
+  if Assigned(FInetConfig) and Assigned(FOnProxyConfigChangeListener) then begin
+    FInetConfig.ProxyConfig.ChangeNotifier.Remove(FOnProxyConfigChangeListener);
+    FOnProxyConfigChangeListener := nil;
+  end;
+
   FreeAndNil(FIeProtocol);
   FreeAndNil(FEdgeEnvironmentLoader);
+
   inherited Destroy;
 end;
 
-function TInternalBrowserFactory.CreateBrowser(
-  const AParent: TWinControl;
-  const AOnKeyDown: TOnKeyDown;
-  const AOnTitleChange: TOnTitleChange
-): TInternalBrowserImpl;
+procedure SetIeProxy(const AProxyConfig: IProxyConfigStatic);
+var
+  VInfo: TInternetProxyInfo;
+  VUseSystemProxy: Boolean;
+  VUseCustomProxy: Boolean;
+  VCustomProxyHost: AnsiString;
+  VProxyType: TProxyServerType;
 begin
-  Result := DoCreateBrowser(AParent, False, AOnKeyDown, AOnTitleChange);
+  VUseSystemProxy := AProxyConfig.UseIESettings;
+  VUseCustomProxy := AProxyConfig.UseProxy;
+  VCustomProxyHost := AProxyConfig.GetHost;
+  VProxyType := AProxyConfig.ProxyType;
+
+  if VUseCustomProxy then begin
+    if VProxyType = ptSocks4 then begin
+      VCustomProxyHost := 'socks=' + VCustomProxyHost;
+    end else
+    if VProxyType <> ptHttp then begin
+      VUseCustomProxy := False;
+    end;
+  end;
+
+  FillChar(VInfo, SizeOf(VInfo), 0);
+
+  if VUseSystemProxy then begin
+    VInfo.dwAccessType := INTERNET_OPEN_TYPE_PRECONFIG;
+    VInfo.lpszProxy := nil;
+    VInfo.lpszProxyBypass := nil;
+    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, @VInfo, SizeOf(VInfo), 0);
+    UrlMkSetSessionOption(INTERNET_OPTION_REFRESH, nil, 0, 0);
+  end else begin
+    if VUseCustomProxy then begin
+      VInfo.dwAccessType := INTERNET_OPEN_TYPE_PROXY;
+      VInfo.lpszProxy := PAnsiChar(VCustomProxyHost);
+      VInfo.lpszProxyBypass := nil;
+    end else begin
+      VInfo.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
+      VInfo.lpszProxy := nil;
+      VInfo.lpszProxyBypass := nil;
+    end;
+    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, @VInfo, SizeOf(VInfo), 0);
+    UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
+  end;
 end;
 
-function TInternalBrowserFactory.CreateInvisibleBrowser(
-  const AParent: TWinControl;
-  const AOnKeyDown: TOnKeyDown;
-  const AOnTitleChange: TOnTitleChange
-): TInternalBrowserImpl;
-begin
-  Result := DoCreateBrowser(AParent, True, AOnKeyDown, AOnTitleChange);
-end;
-
-function TInternalBrowserFactory.DoCreateBrowser(
+function TInternalBrowserFactory.CreateBrowserImpl(
   const AParent: TWinControl;
   const AIsInvisible: Boolean;
   const AOnKeyDown: TOnKeyDown;
   const AOnTitleChange: TOnTitleChange
 ): TInternalBrowserImpl;
 var
-  VConfig: IInetConfigStatic;
   VEngine: TBrowserEngineType;
   VAppPath: string;
   VEdgeRuntimePath: string;
@@ -143,8 +191,7 @@ var
   VEdgeBlackListFile: string;
   VEdgeBlackList: TStringDynArray;
 begin
-  VConfig := FInetConfig.GetStatic;
-  VEngine := VConfig.BrowserEngineType;
+  VEngine := FInetConfigStatic.BrowserEngineType;
 
   case VEngine of
     beInternetExplorer: begin
@@ -154,15 +201,16 @@ begin
             CSASProtocolName,
             TIeEmbeddedProtocolFactory.Create(FInternalDomainInfoProviderList)
           );
+        SetIeProxy(FInetConfigStatic.ProxyConfigStatic);
       end;
 
       Result :=
         TInternalBrowserImplByIe.Create(
           AParent,
           AIsInvisible,
-          VConfig.ProxyConfigStatic,
+          FInetConfigStatic.ProxyConfigStatic,
           FInternalDomainUrlHandler,
-          VConfig.UserAgentString,
+          FInetConfigStatic.UserAgentString,
           AOnKeyDown,
           AOnTitleChange
         );
@@ -195,7 +243,7 @@ begin
 
         FEdgeEnvironmentLoader :=
           TEdgeBrowserEnvironmentLoaderGlobal.Create(
-            VConfig.ProxyConfigStatic,
+            FInetConfigStatic.ProxyConfigStatic,
             VEdgeRuntimePath,
             VEdgeUserDataPath,
             VEdgeBlackList
@@ -217,14 +265,48 @@ begin
     raise Exception.CreateFmt('Unexpected BrowserEngineType value: %d', [Integer(VEngine)]);
   end;
 
-  if not VConfig.PreInitBrowserEngine or AIsInvisible then begin
+  if not FInetConfigStatic.PreInitBrowserEngine or AIsInvisible then begin
     Exit;
   end;
 
   if not Result.Initialize and (VEngine <> beInternetExplorer) then begin
     FInetConfig.BrowserEngineType := beInternetExplorer;
-    Result := DoCreateBrowser(AParent, AIsInvisible, AOnKeyDown, AOnTitleChange);
+    Result := Self.CreateBrowserImpl(AParent, AIsInvisible, AOnKeyDown, AOnTitleChange);
   end;
+end;
+
+procedure TInternalBrowserFactory.OnConfigChange;
+var
+  VIsChanged: Boolean;
+  VStatic: IInetConfigStatic;
+begin
+  LockWrite;
+  try
+    VStatic := FInetConfig.GetStatic;
+
+    VIsChanged :=
+      (VStatic.BrowserEngineType <> FInetConfigStatic.BrowserEngineType) or
+      (VStatic.UserAgentString   <> FInetConfigStatic.UserAgentString) or
+      (VStatic.ProxyConfigStatic <> FInetConfigStatic.ProxyConfigStatic);
+
+    if VIsChanged then begin
+      FInetConfigStatic := VStatic;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TInternalBrowserFactory.DoInChangeNotify;
+begin
+  FreeAndNil(FIeProtocol);
+  if FEdgeEnvironmentLoader <> nil then begin
+    FreeAndNil(FEdgeEnvironmentLoader);
+    Application.ProcessMessages;
+    Sleep(250);
+  end;
+  inherited DoInChangeNotify;
 end;
 
 end.

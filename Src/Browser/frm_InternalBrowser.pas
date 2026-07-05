@@ -37,6 +37,7 @@ uses
   i_LanguageManager,
   i_InternalBrowserFactory,
   u_InternalBrowserImpl,
+  u_InternalBrowserByImpl,
   u_CommonFormAndFrameParents;
 
 type
@@ -49,7 +50,7 @@ type
     procedure FormShow(Sender: TObject);
     Procedure FormMove(var Msg: TWMMove); message WM_MOVE;
   private
-    FBrowser: TInternalBrowserImpl;
+    FBrowser: TInternalBrowserByImpl;
     FCurrentCaption: string;
     FConfig: IWindowPositionConfig;
     FConfigListener: IListener;
@@ -94,10 +95,12 @@ begin
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 
   FBrowser :=
-    AInternalBrowserFactory.CreateBrowser(
+    TInternalBrowserByImpl.Create(
       Self,
+      False, // IsInvisible
       Self.OnBrowserKeyDown,
-      Self.OnBrowserTitleChange
+      Self.OnBrowserTitleChange,
+      AInternalBrowserFactory
     );
 end;
 

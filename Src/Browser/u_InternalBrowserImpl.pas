@@ -43,6 +43,8 @@ type
     procedure SetHtmlText(const AText: string); virtual; abstract;
     procedure Stop; virtual; abstract;
     procedure SetVisible(const AIsVisible: Boolean); virtual; abstract;
+    function GetVisible: Boolean; virtual; abstract;
+    function GetCurrentAddress: string; virtual; abstract;
   end;
 
 implementation

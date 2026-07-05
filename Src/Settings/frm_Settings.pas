@@ -35,8 +35,6 @@ uses
   Dialogs,
   Spin,
   Buttons,
-  UrlMon,
-  WinInet,
   GR32,
   i_InetConfig,
   i_ProxySettings,
@@ -353,7 +351,6 @@ type
       const AOnSave: TNotifyEvent
     ); reintroduce;
     destructor Destroy; override;
-    procedure SetProxy;
     procedure ShowGPSSettings;
     procedure RefreshTranslation; override;
   end;
@@ -362,7 +359,6 @@ implementation
 
 uses
   gnugettext,
-  c_CacheTypeCodes, // for default path
   c_InetConfig, // for default UserAgent
   t_CommonTypes,
   t_CoordRepresentation,
@@ -640,59 +636,6 @@ begin
   end;
 end;
 
-procedure TfrmSettings.SetProxy;
-var
-  VInfo: TInternetProxyInfo;
-  VProxyConfig: IProxyConfig;
-  VUseIEProxy: Boolean;
-  VUseProxy: Boolean;
-  VHost: AnsiString;
-  VProxyType: TProxyServerType;
-begin
-  VProxyConfig := GState.Config.InetConfig.ProxyConfig;
-
-  VProxyConfig.LockRead;
-  try
-    VUseIEProxy := VProxyConfig.GetUseIESettings;
-    VUseProxy := VProxyConfig.GetUseProxy;
-    VHost := VProxyConfig.GetHost;
-    VProxyType := VProxyConfig.ProxyType;
-  finally
-    VProxyConfig.UnlockRead;
-  end;
-
-  if VUseProxy then begin
-    if VProxyType = ptSocks4 then begin
-      VHost := 'socks=' + VHost;
-    end else
-    if VProxyType <> ptHttp then begin
-      VUseProxy := False;
-    end;
-  end;
-
-  FillChar(VInfo, SizeOf(VInfo), 0);
-
-  if VUseIEProxy then begin
-    VInfo.dwAccessType := INTERNET_OPEN_TYPE_PRECONFIG;
-    VInfo.lpszProxy := nil;
-    VInfo.lpszProxyBypass := nil;
-    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, @VInfo, SizeOf(VInfo), 0);
-    UrlMkSetSessionOption(INTERNET_OPTION_REFRESH, nil, 0, 0);
-  end else begin
-    if VUseProxy then begin
-      VInfo.dwAccessType := INTERNET_OPEN_TYPE_PROXY;
-      VInfo.lpszProxy := PAnsiChar(VHost);
-      VInfo.lpszProxyBypass := nil;
-    end else begin
-      VInfo.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
-      VInfo.lpszProxy := nil;
-      VInfo.lpszProxyBypass := nil;
-    end;
-    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, @VInfo, SizeOf(VInfo), 0);
-    UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
-  end;
-end;
-
 procedure TfrmSettings.ShowGPSSettings;
 begin
   tsGPS.Show;
@@ -789,6 +732,8 @@ begin
   VInetConfig := GState.Config.InetConfig;
   VInetConfig.LockWrite;
   try
+    GState.InternalBrowserFactory.StopNotify;
+
     if cbbNetworkEngine.ItemIndex <> Integer(VInetConfig.NetworkEngineType) then begin
       VInetConfig.NetworkEngineType := TNetworkEngineType(cbbNetworkEngine.ItemIndex);
       VNeedReboot := True;
@@ -796,27 +741,25 @@ begin
 
     if cbbBrowserEngine.ItemIndex <> Integer(VInetConfig.BrowserEngineType) then begin
       VInetConfig.BrowserEngineType := TBrowserEngineType(cbbBrowserEngine.ItemIndex);
-      VNeedReboot := True;
     end;
 
     if chkBrowserEnginePreInit.Checked <> VInetConfig.PreInitBrowserEngine then begin
       VInetConfig.PreInitBrowserEngine := chkBrowserEnginePreInit.Checked;
-      VNeedReboot := True;
     end;
 
     VProxyConfig := VInetConfig.ProxyConfig;
-    if (rbUseIESettings.Checked) and (VProxyConfig.GetUseIESettings <> rbUseIESettings.Checked) then begin
-      VNeedReboot := True;
+    VProxyConfig.LockWrite;
+    try
+      VProxyConfig.UseIESettings := rbUseIESettings.Checked;
+      VProxyConfig.UseProxy := rbManualProxy.Checked;
+      VProxyConfig.Host := StringToAsciiSafe(StrToProxyAddress(EditIP.Text));
+      VProxyConfig.UseLogin := CBLogin.Checked;
+      VProxyConfig.Login := Trim(EditLogin.Text);
+      VProxyConfig.Password := Trim(EditPass.Text);
+      VProxyConfig.ProxyType := GetProxyTypeValue;
+    finally
+      VProxyConfig.UnlockWrite;
     end;
-    VProxyConfig.UseIESettings := rbUseIESettings.Checked;
-    VProxyConfig.UseProxy := rbManualProxy.Checked;
-    VProxyConfig.Host := StringToAsciiSafe(StrToProxyAddress(EditIP.Text));
-    VProxyConfig.UseLogin := CBLogin.Checked;
-    VProxyConfig.Login := Trim(EditLogin.Text);
-    VProxyConfig.Password := Trim(EditPass.Text);
-    VProxyConfig.ProxyType := GetProxyTypeValue;
-
-    SetProxy;
 
     VInetConfig.SetTimeOut(SETimeOut.Value);
     VInetConfig.SleepOnResetConnection := seSleepOnResetConnection.Value;
@@ -845,6 +788,7 @@ begin
     end;
   finally
     VInetConfig.UnlockWrite;
+    GState.InternalBrowserFactory.StartNotify;
   end;
 
   FMainFormConfig.MainConfig.LockWrite;

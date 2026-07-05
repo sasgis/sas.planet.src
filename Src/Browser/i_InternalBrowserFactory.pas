@@ -25,19 +25,15 @@ interface
 
 uses
   Controls,
+  i_ConfigDataElement,
   u_InternalBrowserImpl;
 
 type
-  IInternalBrowserFactory = interface
+  IInternalBrowserFactory = interface(IConfigDataElement)
     ['{F085B264-7707-47F3-8158-131035FBD12F}']
-    function CreateBrowser(
+    function CreateBrowserImpl(
       const AParent: TWinControl;
-      const AOnKeyDown: TOnKeyDown = nil;
-      const AOnTitleChange: TOnTitleChange = nil
-    ): TInternalBrowserImpl;
-
-    function CreateInvisibleBrowser(
-      const AParent: TWinControl;
+      const AIsInvisible: Boolean = False;
       const AOnKeyDown: TOnKeyDown = nil;
       const AOnTitleChange: TOnTitleChange = nil
     ): TInternalBrowserImpl;
