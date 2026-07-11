@@ -39,6 +39,9 @@ uses
 
 type
   TGlobalDllName = record
+  private
+    FDllDirectory: UnicodeString;
+  public
     Sqlite3: string;
     Curl: string;
     Tiff: string;
@@ -53,6 +56,7 @@ type
     BrotliDec: string;
 
     procedure Init;
+    procedure AddOrSetDllDirectory;
   end;
 
 var
@@ -98,24 +102,7 @@ procedure TGlobalDllName.Init;
     Result := {$IFDEF FORCE_USE_WINXP_DLL} True {$ELSE} Win32MajorVersion = 5 {$ENDIF};
   end;
 
-  procedure _SetDllDirectory(const APath: UnicodeString);
-  var
-    VHandle: THandle;
-    VSetDirProc: function(lpPathName: LPCWSTR): BOOL; stdcall;
-  begin
-    VHandle := GetModuleHandle('kernel32.dll');
-    if VHandle <> 0 then begin
-      VSetDirProc := GetProcAddress(VHandle, 'SetDllDirectoryW');
-      if Addr(VSetDirProc) <> nil then begin
-        if not VSetDirProc(PWideChar(APath)) then begin
-          RaiseLastOSError;
-        end;
-      end;
-    end;
-  end;
-
 var
-  VPath: string;
   VAppPath: string;
 begin
   {$IFDEF HANDLE_DELAYLOAD_ERRORS}
@@ -128,11 +115,7 @@ begin
   // https://github.com/sasgis/sas.planet.bin/releases
 
   if IsWinXP then begin
-    VPath := VAppPath + 'libxp' + PathDelim;
-
-    if not DirectoryExists(VPath) then begin
-      VPath := '';
-    end;
+    FDllDirectory := VAppPath + 'libxp' + PathDelim;
 
     Self.Curl := 'libcurl.dll';
     Self.Tiff := 'libtiff.dll';
@@ -147,11 +130,7 @@ begin
     Self.Zstd := 'libzstd.dll';
     Self.BrotliDec := 'libbrotlidec.dll';
   end else begin
-    VPath := VAppPath + {$IFDEF WIN32} 'lib32' {$ELSE} 'lib64' {$ENDIF} + PathDelim;
-
-    if not DirectoryExists(VPath) then begin
-      VPath := '';
-    end;
+    FDllDirectory := VAppPath + {$IFDEF WIN32} 'lib32' {$ELSE} 'lib64' {$ENDIF} + PathDelim;
 
     Self.Curl := 'libcurl-4.dll';
     Self.Tiff := 'libtiff-6.dll';
@@ -167,8 +146,47 @@ begin
     Self.BrotliDec := 'libbrotlidec.dll';
   end;
 
-  if VPath <> '' then begin
-    _SetDllDirectory(VPath);
+  if not DirectoryExists(FDllDirectory) then begin
+    FDllDirectory := '';
+    Exit;
+  end;
+
+  Self.AddOrSetDllDirectory;
+end;
+
+procedure TGlobalDllName.AddOrSetDllDirectory;
+const
+  LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = $00001000;
+var
+  VHandle: THandle;
+  VAddDllDirProc: function(NewDirectory: LPCWSTR): Pointer; stdcall;
+  VSetDefaultDllDirsProc: function(DirectoryFlags: DWORD): BOOL; stdcall;
+  VSetDllDirProc: function(lpPathName: LPCWSTR): BOOL; stdcall;
+begin
+  if FDllDirectory = '' then begin
+    Exit;
+  end;
+
+  VHandle := GetModuleHandle('kernel32.dll');
+  if VHandle = 0 then begin
+    Exit;
+  end;
+
+  VAddDllDirProc := GetProcAddress(VHandle, 'AddDllDirectory');
+  VSetDefaultDllDirsProc := GetProcAddress(VHandle, 'SetDefaultDllDirectories');
+
+  if (Addr(VAddDllDirProc) <> nil) and (Addr(VSetDefaultDllDirsProc) <> nil) then begin
+    VSetDefaultDllDirsProc(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+    if VAddDllDirProc(PWideChar(FDllDirectory)) = nil then begin
+      RaiseLastOSError;
+    end;
+  end else begin
+    VSetDllDirProc := GetProcAddress(VHandle, 'SetDllDirectoryW');
+    if Addr(VSetDllDirProc) <> nil then begin
+      if not VSetDllDirProc(PWideChar(FDllDirectory)) then begin
+        RaiseLastOSError;
+      end;
+    end;
   end;
 end;
 
