@@ -4247,7 +4247,7 @@ begin
           // Replace German shortcut names
 {$IFDEF dx_has_dotted_unitnames}
           sbShortCut.
-            Replace(Vcl.Consts.SmkcBkSp {'Rück'}, 'BkSp').
+            Replace(Vcl.Consts.SmkcBkSp {'Rï¿½ck'}, 'BkSp').
             Replace(Vcl.Consts.SmkcEnter {'Eingabe'}, 'Enter').
             Replace(Vcl.Consts.SmkcSpace {'Leer'}, 'Space').
             Replace(Vcl.Consts.SmkcPgUp {'BildAuf'}, 'PgUp').
@@ -4264,7 +4264,7 @@ begin
             Replace(Vcl.Consts.SmkcCtrl {'Strg+'}, 'Ctrl+');
 {$ELSE ~dx_has_dotted_unitnames}
           sbShortCut.
-            Replace(Consts.SmkcBkSp {'Rück'}, 'BkSp').
+            Replace(Consts.SmkcBkSp {'Rï¿½ck'}, 'BkSp').
             Replace(Consts.SmkcEnter {'Eingabe'}, 'Enter').
             Replace(Consts.SmkcSpace {'Leer'}, 'Space').
             Replace(Consts.SmkcPgUp {'BildAuf'}, 'PgUp').
@@ -4300,7 +4300,7 @@ begin
     // if currently used language is not German: replace the German names by English names
     if not SameText(GetCurrentLanguageCode, 'de') then
       begin
-        Result := StringReplace(Result, Consts.SmkcBkSp  {'Rück'}, 'BkSp', []);
+        Result := StringReplace(Result, Consts.SmkcBkSp  {'Rï¿½ck'}, 'BkSp', []);
         Result := StringReplace(Result, Consts.SmkcEnter {'Eingabe'}, 'Enter', []);
         Result := StringReplace(Result, Consts.SmkcSpace {'Leer'}, 'Space', []);
         Result := StringReplace(Result, Consts.SmkcPgUp {'BildAuf'}, 'PgUp', []);

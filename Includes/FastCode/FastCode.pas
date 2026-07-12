@@ -280,14 +280,22 @@ initialization
                       FastcodeUpperCase := FastcodeUpperCaseAmd64;
                     end;
      fctAmd64_SSE3: begin
-                      FastcodeAnsiStringReplace := FastcodeAnsiStringReplaceAmd64_SSE3;
-                      FastcodeCompareMem := FastcodeCompareMemAmd64_SSE3;
-                      FastcodeCompareStr := FastcodeCompareStrAmd64_SSE3;
-                      FastcodeCompareText := FastcodeCompareTextAmd64_SSE3;
-                      FastcodeFillChar := FastcodeFillCharAmd64_SSE3;
-                      FastcodeLowerCase := FastcodeLowerCaseAmd64_SSE3;
-                      FastcodePos := FastcodePosAmd64_SSE3;
-                      {$IFDEF Delphi7Plus}
+
+                      FastcodeAnsiStringReplace := FastcodeAnsiStringReplaceAmd64_SSE3;
+
+                      FastcodeCompareMem := FastcodeCompareMemAmd64_SSE3;
+
+                      FastcodeCompareStr := FastcodeCompareStrAmd64_SSE3;
+
+                      FastcodeCompareText := FastcodeCompareTextAmd64_SSE3;
+
+                      FastcodeFillChar := FastcodeFillCharAmd64_SSE3;
+
+                      FastcodeLowerCase := FastcodeLowerCaseAmd64_SSE3;
+
+                      FastcodePos := FastcodePosAmd64_SSE3;
+
+                      {$IFDEF Delphi7Plus}
                       FastcodePosEx := FastcodePosExAmd64_SSE3;
                       {$ENDIF}
                       FastcodeStrComp := FastcodeStrCompAmd64_SSE3;
@@ -297,19 +305,27 @@ initialization
                       FastcodeStrToInt32 := FastcodeStrToInt32Amd64_SSE3;
                       FastcodeUpperCase := FastcodeUpperCaseAmd64_SSE3;
                     end;
-  end;
-{$ENDIF}
+
+  end;
+
+{$ENDIF}
 
 {$IFDEF FastcodeIA32}
   {$IFDEF FastcodeSizePenalty}
     FastcodeAnsiStringReplace := FastCodeAnsiStringReplaceIA32SizePenalty;
     FastcodeCompareMem := FastcodeCompareMemIA32SizePenalty;
-    FastcodeCompareStr := FastcodeCompareStrIA32SizePenalty;
-    FastcodeCompareText := FastcodeCompareTextIA32SizePenalty;
-    FastcodeFillChar := FastcodeFillCharIA32SizePenalty;
-    FastcodeLowerCase := FastcodeLowerCaseIA32SizePenalty;
-    FastcodePos := FastcodePosIA32SizePenalty;
-    {$IFDEF Delphi7Plus}
+
+    FastcodeCompareStr := FastcodeCompareStrIA32SizePenalty;
+
+    FastcodeCompareText := FastcodeCompareTextIA32SizePenalty;
+
+    FastcodeFillChar := FastcodeFillCharIA32SizePenalty;
+
+    FastcodeLowerCase := FastcodeLowerCaseIA32SizePenalty;
+
+    FastcodePos := FastcodePosIA32SizePenalty;
+
+    {$IFDEF Delphi7Plus}
     FastcodePosEx := FastcodePosExIA32SizePenalty;
     {$ENDIF}
     FastcodeStrComp := FastcodeStrCompIA32SizePenalty;
@@ -321,12 +337,18 @@ initialization
   {$ELSE}
     FastcodeAnsiStringReplace := FastcodeAnsiStringReplaceIA32;
     FastcodeCompareMem := FastcodeCompareMemIA32;
-    FastcodeCompareStr := FastcodeCompareStrIA32;
-    FastcodeCompareText := FastcodeCompareTextIA32;
-    FastcodeFillChar := FastcodeFillCharIA32;
-    FastcodeLowerCase := FastcodeLowerCaseIA32;
-    FastcodePos := FastcodePosIA32;
-    {$IFDEF Delphi7Plus}
+
+    FastcodeCompareStr := FastcodeCompareStrIA32;
+
+    FastcodeCompareText := FastcodeCompareTextIA32;
+
+    FastcodeFillChar := FastcodeFillCharIA32;
+
+    FastcodeLowerCase := FastcodeLowerCaseIA32;
+
+    FastcodePos := FastcodePosIA32;
+
+    {$IFDEF Delphi7Plus}
     FastcodePosEx := FastcodePosExIA32;
     {$ENDIF}
     FastcodeStrComp := FastcodeStrCompIA32;
@@ -341,12 +363,18 @@ initialization
 {$IFDEF FastcodeMMX}
   FastcodeAnsiStringReplace := FastcodeAnsiStringReplaceMMX;
   FastcodeCompareMem := FastcodeCompareMemMMX;
-  FastcodeCompareStr := FastcodeCompareStrMMX;
-  FastcodeCompareText := FastcodeCompareTextMMX;
-  FastcodeFillChar := FastcodeFillCharMMX;
-  FastcodeLowerCase := FastcodeLowerCaseMMX;
-  FastcodePos := FastcodePosMMX;
-  {$IFDEF Delphi7Plus}
+
+  FastcodeCompareStr := FastcodeCompareStrMMX;
+
+  FastcodeCompareText := FastcodeCompareTextMMX;
+
+  FastcodeFillChar := FastcodeFillCharMMX;
+
+  FastcodeLowerCase := FastcodeLowerCaseMMX;
+
+  FastcodePos := FastcodePosMMX;
+
+  {$IFDEF Delphi7Plus}
   FastcodePosEx := FastcodePosExMMX;
   {$ENDIF}
   FastcodeStrComp := FastcodeStrCompMMX;
@@ -361,12 +389,18 @@ initialization
   {$IFDEF FastcodeSizePenalty}
     FastcodeAnsiStringReplace := FastCodeAnsiStringReplaceSSESizePenalty;
     FastcodeCompareMem := FastcodeCompareMemSSESizePenalty;
-    FastcodeCompareStr := FastcodeCompareStrSSESizePenalty;
-    FastcodeCompareText := FastcodeCompareTextSSESizePenalty;
-    FastcodeFillChar := FastcodeFillCharSSESizePenalty;
-    FastcodeLowerCase := FastcodeLowerCaseSSESizePenalty;
-    FastcodePos := FastcodePosSSESizePenalty;
-    {$IFDEF Delphi7Plus}
+
+    FastcodeCompareStr := FastcodeCompareStrSSESizePenalty;
+
+    FastcodeCompareText := FastcodeCompareTextSSESizePenalty;
+
+    FastcodeFillChar := FastcodeFillCharSSESizePenalty;
+
+    FastcodeLowerCase := FastcodeLowerCaseSSESizePenalty;
+
+    FastcodePos := FastcodePosSSESizePenalty;
+
+    {$IFDEF Delphi7Plus}
     FastcodePosEx := FastcodePosExSSESizePenalty;
     {$ENDIF}
     FastcodeStrComp := FastcodeStrCompSSESizePenalty;
@@ -378,12 +412,18 @@ initialization
   {$ELSE}
     FastcodeAnsiStringReplace := FastcodeAnsiStringReplaceSSE;
     FastcodeCompareMem := FastcodeCompareMemSSE;
-    FastcodeCompareStr := FastcodeCompareStrSSE;
-    FastcodeCompareText := FastcodeCompareTextSSE;
-    FastcodeFillChar := FastcodeFillCharSSE;
-    FastcodeLowerCase := FastcodeLowerCaseSSE;
-    FastcodePos := FastcodePosSSE;
-    {$IFDEF Delphi7Plus}
+
+    FastcodeCompareStr := FastcodeCompareStrSSE;
+
+    FastcodeCompareText := FastcodeCompareTextSSE;
+
+    FastcodeFillChar := FastcodeFillCharSSE;
+
+    FastcodeLowerCase := FastcodeLowerCaseSSE;
+
+    FastcodePos := FastcodePosSSE;
+
+    {$IFDEF Delphi7Plus}
     FastcodePosEx := FastcodePosExSSE;
     {$ENDIF}
     FastcodeStrComp := FastcodeStrCompSSE;
@@ -398,12 +438,18 @@ initialization
 {$IFDEF FastcodeSSE2}
   FastcodeAnsiStringReplace := FastcodeAnsiStringReplaceSSE2;
   FastcodeCompareMem := FastcodeCompareMemSSE2;
-  FastcodeCompareStr := FastcodeCompareStrSSE2;
-  FastcodeCompareText := FastcodeCompareTextSSE2;
-  FastcodeFillChar := FastcodeFillCharSSE2;
-  FastcodeLowerCase := FastcodeLowerCaseSSE2;
-  FastcodePos := FastcodePosSSE2;
-  {$IFDEF Delphi7Plus}
+
+  FastcodeCompareStr := FastcodeCompareStrSSE2;
+
+  FastcodeCompareText := FastcodeCompareTextSSE2;
+
+  FastcodeFillChar := FastcodeFillCharSSE2;
+
+  FastcodeLowerCase := FastcodeLowerCaseSSE2;
+
+  FastcodePos := FastcodePosSSE2;
+
+  {$IFDEF Delphi7Plus}
   FastcodePosEx := FastcodePosExSSE2;
   {$ENDIF}
   FastcodeStrComp := FastcodeStrCompSSE2;
@@ -418,12 +464,18 @@ initialization
   {$IFDEF FastcodeSizePenalty}
     FastcodeAnsiStringReplace := FastCodeAnsiStringReplacePascalSizePenalty;
     FastcodeCompareMem := FastcodeCompareMemPascalSizePenalty;
-    FastcodeCompareStr := FastcodeCompareStrPascalSizePenalty;
-    FastcodeCompareText := FastcodeCompareTextPascalSizePenalty;
-    FastcodeFillChar := FastcodeFillCharPascalSizePenalty;
-    FastcodeLowerCase := FastcodeLowerCasePascalSizePenalty;
-    FastcodePos := FastcodePosPascalSizePenalty;
-    {$IFDEF Delphi7Plus}
+
+    FastcodeCompareStr := FastcodeCompareStrPascalSizePenalty;
+
+    FastcodeCompareText := FastcodeCompareTextPascalSizePenalty;
+
+    FastcodeFillChar := FastcodeFillCharPascalSizePenalty;
+
+    FastcodeLowerCase := FastcodeLowerCasePascalSizePenalty;
+
+    FastcodePos := FastcodePosPascalSizePenalty;
+
+    {$IFDEF Delphi7Plus}
     FastcodePosEx := FastcodePosExPascalSizePenalty;
     {$ENDIF}
     FastcodeStrComp := FastcodeStrCompPascalSizePenalty;
@@ -435,12 +487,18 @@ initialization
   {$ELSE}
     FastcodeAnsiStringReplace := FastcodeAnsiStringReplacePascal;
     FastcodeCompareMem := FastcodeCompareMemPascal;
-    FastcodeCompareStr := FastcodeCompareStrPascal;
-    FastcodeCompareText := FastcodeCompareTextPascal;
-    FastcodeFillChar := FastcodeFillCharPascal;
-    FastcodeLowerCase := FastcodeLowerCasePascal;
-    FastcodePos := FastcodePosPascal;
-    {$IFDEF Delphi7Plus}
+
+    FastcodeCompareStr := FastcodeCompareStrPascal;
+
+    FastcodeCompareText := FastcodeCompareTextPascal;
+
+    FastcodeFillChar := FastcodeFillCharPascal;
+
+    FastcodeLowerCase := FastcodeLowerCasePascal;
+
+    FastcodePos := FastcodePosPascal;
+
+    {$IFDEF Delphi7Plus}
     FastcodePosEx := FastcodePosExPascal;
     {$ENDIF}
     FastcodeStrComp := FastcodeStrCompPascal;
