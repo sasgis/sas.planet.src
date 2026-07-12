@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$(dirname "$0")/pre-commit.ps1"

@@ -9,10 +9,7 @@ if (-not $Path) {
 
 $Path = (Resolve-Path $Path).Path
 
-$extensions = @("*.pas", "*.dfm", "*.inc", "*.dpj", "*.dproj")
-
-# Get all matching files recursively
-$files = Get-ChildItem -Path $Path -Include $extensions -Recurse -File
+$extensions = @("*.pas", "*.dfm", "*.inc", "*.dpr", "*.dproj")
 
 $total     = 0
 $converted = 0
@@ -21,6 +18,9 @@ $failed    = 0
 
 Write-Host "Processing directory: $Path" -ForegroundColor Cyan
 Write-Host "----------------------------------------"
+
+# Get all matching files recursively
+$files = Get-ChildItem -Path $Path -Include $extensions -Recurse -File
 
 foreach ($file in $files) {
     $total++
