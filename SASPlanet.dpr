@@ -915,7 +915,7 @@ uses
   i_GlobalInternetState in 'Src\Network\i_GlobalInternetState.pas',
   i_InetConfig in 'Src\Network\i_InetConfig.pas',
   i_LastResponseInfo in 'Src\Network\i_LastResponseInfo.pas',
-  i_ProxySettings in 'Src\Network\i_ProxySettings.pas',
+  i_ProxyConfig in 'Src\Network\i_ProxyConfig.pas',
   i_SimpleHttpDownloader in 'Src\Network\i_SimpleHttpDownloader.pas',
   i_TileDownloadRequest in 'Src\Network\i_TileDownloadRequest.pas',
   i_TileDownloadRequestBuilder in 'Src\Network\i_TileDownloadRequestBuilder.pas',

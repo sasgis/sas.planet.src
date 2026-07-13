@@ -30,7 +30,7 @@ uses
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB,
-  i_ProxySettings,
+  i_ProxyConfig,
   i_DownloadRequest,
   i_InternalDomainUrlHandler,
   u_InternalBrowserImpl;

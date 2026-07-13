@@ -37,7 +37,7 @@ uses
   Buttons,
   GR32,
   i_InetConfig,
-  i_ProxySettings,
+  i_ProxyConfig,
   i_ListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,

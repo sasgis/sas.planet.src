@@ -28,7 +28,7 @@ uses
   Controls,
   i_Listener,
   i_InetConfig,
-  i_ProxySettings,
+  i_ProxyConfig,
   i_InternalBrowserFactory,
   i_InternalDomainUrlHandler,
   i_InternalDomainInfoProvider,

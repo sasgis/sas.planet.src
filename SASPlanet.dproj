@@ -1173,7 +1173,7 @@
         <DCCReference Include="Src\Network\i_GlobalInternetState.pas"/>
         <DCCReference Include="Src\Network\i_InetConfig.pas"/>
         <DCCReference Include="Src\Network\i_LastResponseInfo.pas"/>
-        <DCCReference Include="Src\Network\i_ProxySettings.pas"/>
+        <DCCReference Include="Src\Network\i_ProxyConfig.pas"/>
         <DCCReference Include="Src\Network\i_SimpleHttpDownloader.pas"/>
         <DCCReference Include="Src\Network\i_TileDownloadRequest.pas"/>
         <DCCReference Include="Src\Network\i_TileDownloadRequestBuilder.pas"/>

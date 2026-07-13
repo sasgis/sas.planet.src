@@ -37,7 +37,7 @@ uses
   i_BinaryData,
   i_Downloader,
   i_InetConfig,
-  i_ProxySettings,
+  i_ProxyConfig,
   i_DownloadResult,
   i_DownloadRequest,
   i_DownloadResultFactory,

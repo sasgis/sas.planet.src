@@ -19,7 +19,7 @@
 {* https://github.com/sasgis/sas.planet.src                                   *}
 {******************************************************************************}
 
-unit i_ProxySettings;
+unit i_ProxyConfig;
 
 interface
 

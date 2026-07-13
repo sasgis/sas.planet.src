@@ -24,7 +24,7 @@ unit u_InetConfigStatic;
 interface
 
 uses
-  i_ProxySettings,
+  i_ProxyConfig,
   i_InetConfig,
   i_WinInetConfig,
   u_BaseInterfacedObject;

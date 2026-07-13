@@ -26,7 +26,7 @@ interface
 uses
   i_ConfigDataElement,
   i_WinInetConfig,
-  i_ProxySettings;
+  i_ProxyConfig;
 
 type
   TNetworkEngineType = (neWinInet, neCurl);

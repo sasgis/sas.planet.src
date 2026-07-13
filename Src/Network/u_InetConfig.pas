@@ -27,7 +27,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_WinInetConfig,
-  i_ProxySettings,
+  i_ProxyConfig,
   i_InetConfig,
   u_ConfigDataElementComplexBase;
 

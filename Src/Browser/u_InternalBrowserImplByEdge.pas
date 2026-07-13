@@ -36,7 +36,7 @@ uses
   uWVTypes,
   uWVTypeLibrary,
   uWVWindowParent,
-  i_ProxySettings,
+  i_ProxyConfig,
   i_DownloadRequest,
   i_InternalDomainUrlHandler,
   i_InternalDomainInfoProvider,
