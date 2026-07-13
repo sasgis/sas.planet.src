@@ -36,8 +36,7 @@ uses
   u_InternalBrowserImpl,
   u_InternalBrowserImplByEdge,
   u_InternalBrowserImplByIe,
-  u_IeEmbeddedProtocolRegistration,
-  u_BaseInterfacedObject;
+  u_IeEmbeddedProtocolRegistration;
 
 type
   TInternalBrowserFactory = class(TConfigDataElementBaseEmptySaveLoad, IInternalBrowserFactory)
@@ -62,6 +61,7 @@ type
     procedure OnConfigChange;
   protected
     procedure DoInChangeNotify; override;
+    procedure DoChangeNotify; override;
   private
     { InternalBrowserFactory }
     function CreateBrowserImpl(
@@ -287,7 +287,7 @@ begin
     VIsChanged :=
       (VStatic.BrowserEngineType <> FInetConfigStatic.BrowserEngineType) or
       (VStatic.UserAgentString   <> FInetConfigStatic.UserAgentString) or
-      (VStatic.ProxyConfigStatic <> FInetConfigStatic.ProxyConfigStatic);
+      not VStatic.ProxyConfigStatic.IsEqual(FInetConfigStatic.ProxyConfigStatic);
 
     if VIsChanged then begin
       FInetConfigStatic := VStatic;
@@ -307,6 +307,15 @@ begin
     Sleep(250);
   end;
   inherited DoInChangeNotify;
+end;
+
+procedure TInternalBrowserFactory.DoChangeNotify;
+begin
+  TThread.Synchronize(nil, procedure
+    begin
+      inherited DoChangeNotify;
+    end
+  );
 end;
 
 end.

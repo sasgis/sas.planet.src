@@ -41,8 +41,8 @@ type
     function GetUseIESettings: Boolean;
     property UseIESettings: Boolean read GetUseIESettings;
 
-    function GetUseProxy: boolean;
-    property UseProxy: boolean read GetUseProxy;
+    function GetUseProxy: Boolean;
+    property UseProxy: Boolean read GetUseProxy;
 
     function GetProxyType: TProxyServerType;
     property ProxyType: TProxyServerType read GetProxyType;
@@ -50,14 +50,16 @@ type
     function GetHost: AnsiString;
     property Host: AnsiString read GetHost;
 
-    function GetUseLogin: boolean;
-    property UseLogin: boolean read GetUseLogin;
+    function GetUseLogin: Boolean;
+    property UseLogin: Boolean read GetUseLogin;
 
     function GetLogin: string;
     property Login: string read GetLogin;
 
     function GetPassword: string;
     property Password: string read GetPassword;
+
+    function IsEqual(const AConfig: IProxyConfigStatic): Boolean;
   end;
 
   IProxyConfig = interface(IConfigDataElement)
@@ -68,7 +70,7 @@ type
 
     function GetUseProxy: Boolean; safecall;
     procedure SetUseProxy(AValue: Boolean);
-    property UseProxy: boolean read GetUseProxy write SetUseProxy;
+    property UseProxy: Boolean read GetUseProxy write SetUseProxy;
 
     function GetProxyType: TProxyServerType;
     procedure SetProxyType(const AValue: TProxyServerType);
@@ -78,9 +80,9 @@ type
     procedure SetHost(const AValue: AnsiString);
     property Host: AnsiString read GetHost write SetHost;
 
-    function GetUseLogin: boolean; safecall;
+    function GetUseLogin: Boolean; safecall;
     procedure SetUseLogin(AValue: Boolean);
-    property UseLogin: boolean read GetUseLogin write SetUseLogin;
+    property UseLogin: Boolean read GetUseLogin write SetUseLogin;
 
     function GetLogin: string; safecall;
     procedure SetLogin(const AValue: string);

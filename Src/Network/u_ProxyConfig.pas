@@ -36,24 +36,26 @@ type
     FUseIESettings: Boolean;
     FUseProxy: Boolean;
     FHost: AnsiString;
-    FUseLogin: boolean;
+    FUseLogin: Boolean;
     FLogin: string;
     FPassword: string;
     FProxyType: TProxyServerType;
   private
+    { IProxyConfigStatic }
     function GetUseIESettings: Boolean;
     function GetUseProxy: Boolean;
     function GetHost: AnsiString;
-    function GetUseLogin: boolean;
+    function GetUseLogin: Boolean;
     function GetLogin: string;
     function GetPassword: string;
     function GetProxyType: TProxyServerType;
+    function IsEqual(const AConfig: IProxyConfigStatic): Boolean;
   public
     constructor Create(
       const AUseIESettings: Boolean;
       const AUseProxy: Boolean;
       const AHost: AnsiString;
-      const AUseLogin: boolean;
+      const AUseLogin: Boolean;
       const ALogin: string;
       const APassword: string;
       const AProxyType: TProxyServerType
@@ -66,7 +68,7 @@ type
     FUseProxy: Boolean;
     FProxyType: TProxyServerType;
     FHost: AnsiString;
-    FUseLogin: boolean;
+    FUseLogin: Boolean;
     FLogin: string;
     FPassword: string;
   protected
@@ -75,6 +77,7 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    { IProxyConfig }
     function GetUseIESettings: Boolean; safecall;
     procedure SetUseIESettings(AValue: Boolean);
 
@@ -87,7 +90,7 @@ type
     function GetHost: AnsiString; safecall;
     procedure SetHost(const AValue: AnsiString);
 
-    function GetUseLogin: boolean; safecall;
+    function GetUseLogin: Boolean; safecall;
     procedure SetUseLogin(AValue: Boolean);
 
     function GetLogin: string; safecall;
@@ -253,7 +256,7 @@ begin
   end;
 end;
 
-function TProxyConfig.GetUseLogin: boolean;
+function TProxyConfig.GetUseLogin: Boolean;
 begin
   LockRead;
   try
@@ -420,7 +423,7 @@ begin
   Result := FUseIESettings;
 end;
 
-function TProxyConfigStatic.GetUseLogin: boolean;
+function TProxyConfigStatic.GetUseLogin: Boolean;
 begin
   Result := FUseLogin;
 end;
@@ -428,6 +431,28 @@ end;
 function TProxyConfigStatic.GetUseProxy: Boolean;
 begin
   Result := FUseProxy;
+end;
+
+function TProxyConfigStatic.IsEqual(const AConfig: IProxyConfigStatic): Boolean;
+begin
+  if AConfig = nil then begin
+    Result := False;
+    Exit;
+  end;
+
+  if AConfig = IProxyConfigStatic(Self) then begin
+    Result := True;
+    Exit;
+  end;
+
+  Result :=
+    (AConfig.UseIESettings = FUseIESettings) and
+    (AConfig.UseProxy = FUseProxy) and
+    (AConfig.ProxyType = FProxyType) and
+    (AConfig.Host = FHost) and
+    (AConfig.UseLogin = FUseLogin) and
+    (AConfig.Login = FLogin) and
+    (AConfig.Password = FPassword);
 end;
 
 end.
