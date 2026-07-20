@@ -266,6 +266,7 @@ const
 const
   CFilterElevWindow = 3;
   CFilterSpeedWindow = 5;
+  CFilterElevThreshold = 1.5; // meters
 
 {$R *.dfm}
 
@@ -703,17 +704,88 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
   const ALine: IGeometryLonLatSingleLine
 );
 
+  // ----------------------------------------------------------------------
+  // MEDIAN FILTER:
+  // Removes anomalous spikes (outliers) caused by GPS glitches.
+  // It sorts elements in a small moving window and picks the middle value.
+  // ----------------------------------------------------------------------
+  procedure MedianFilter(
+    const AValues: TChartValueList;
+    const AStartIndex: Integer;
+    const AWindow: Integer
+  );
+  var
+    I, J, K: Integer;
+    VCount: Integer;
+    VHalf: Integer;
+    VLeft, VRight, VCurrentWindow: Integer;
+    VTmp: array of Double;
+    VWinBuf: array[0..14] of Double;
+    VSwap: Double;
+  begin
+    VCount := AValues.Count - AStartIndex;
+
+    if (VCount < 2) or (AWindow < 3) or (AWindow > Length(VWinBuf)) then begin
+      Exit;
+    end;
+
+    SetLength(VTmp, VCount);
+    VHalf := AWindow div 2;
+
+    for I := 0 to VCount - 1 do begin
+      // Calculate dynamic window bounds to safely handle array edges
+      VLeft := I - VHalf;
+      VRight := I + VHalf;
+
+      if VLeft < 0 then VLeft := 0;
+      if VRight >= VCount then VRight := VCount - 1;
+
+      VCurrentWindow := VRight - VLeft + 1;
+
+      // Copy current window elements into the local sorting buffer
+      for J := 0 to VCurrentWindow - 1 do begin
+        VWinBuf[J] := AValues[AStartIndex + VLeft + J];
+      end;
+
+      // Insertion sort (efficient for very small arrays)
+      for J := 1 to VCurrentWindow - 1 do begin
+        VSwap := VWinBuf[J];
+        K := J - 1;
+        while (K >= 0) and (VWinBuf[K] > VSwap) do begin
+          VWinBuf[K + 1] := VWinBuf[K];
+          Dec(K);
+        end;
+        VWinBuf[K + 1] := VSwap;
+      end;
+
+      // Pick the median value
+      VTmp[I] := VWinBuf[VCurrentWindow div 2];
+    end;
+
+    // Apply filtered values back to the original series
+    for I := 0 to VCount - 1 do begin
+      AValues[AStartIndex + I] := VTmp[I];
+    end;
+  end;
+
+  // ----------------------------------------------------------------------
+  // SIMPLE MOVING AVERAGE (SMA) FILTER:
+  // Smooths the overall data curve (removes minor noise).
+  // Optimized using an O(N) sliding window and dynamic edge handling.
+  // ----------------------------------------------------------------------
   procedure Filter(
     const AValues: TChartValueList;
     const AStartIndex: Integer;
     const AWindow: Integer
   );
   var
-    I: Integer;
+    I, J: Integer;
     VCount: Integer;
     VHalf: Integer;
     VAcc: Double;
     VTmp: array of Double;
+    VInvWindow: Double;
+    VLeft, VRight, VCurrentWindow: Integer;
   begin
     VCount := AValues.Count - AStartIndex;
 
@@ -722,24 +794,52 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
     end;
 
     SetLength(VTmp, VCount);
-
-    VAcc := 0;
     VHalf := AWindow div 2;
 
+    // 1. Process Left Edge (Dynamic window to prevent "flat" plateaus)
+    for I := 0 to VHalf - 1 do begin
+      VAcc := 0;
+      VLeft := 0;
+      VRight := I + VHalf;
+      if VRight >= VCount then VRight := VCount - 1;
+
+      VCurrentWindow := VRight - VLeft + 1;
+      for J := VLeft to VRight do begin
+        VAcc := VAcc + AValues[AStartIndex + J];
+      end;
+      VTmp[I] := VAcc / VCurrentWindow;
+    end;
+
+    // 2. Process Main Body (Optimized sliding window)
+    VAcc := 0;
+    VInvWindow := 1.0 / AWindow; // Multiplication is faster than division
+
+    // Pre-calculate the sum for the very first full window
     for I := 0 to AWindow - 1 do begin
       VAcc := VAcc + AValues[AStartIndex + I];
     end;
-    for I := 0 to VHalf do begin
-      VTmp[I] := VAcc / AWindow;
-    end;
+    VTmp[VHalf] := VAcc * VInvWindow;
+
+    // Slide the window: subtract outgoing element, add incoming element
     for I := VHalf + 1 to VCount - 1 - VHalf do begin
-      VAcc := VAcc + AValues[I + VHalf] - AValues[I - (VHalf + 1)];
-      VTmp[I] := VAcc / AWindow;
-    end;
-    for I := VCount - VHalf to VCount - 1 do begin
-      VTmp[I] := VAcc / AWindow;
+      VAcc := VAcc + AValues[AStartIndex + I + VHalf] - AValues[AStartIndex + I - (VHalf + 1)];
+      VTmp[I] := VAcc * VInvWindow;
     end;
 
+    // 3. Process Right Edge (Dynamic window)
+    for I := VCount - VHalf to VCount - 1 do begin
+      VAcc := 0;
+      VLeft := I - VHalf;
+      VRight := VCount - 1;
+
+      VCurrentWindow := VRight - VLeft + 1;
+      for J := VLeft to VRight do begin
+        VAcc := VAcc + AValues[AStartIndex + J];
+      end;
+      VTmp[I] := VAcc / VCurrentWindow;
+    end;
+
+    // Apply filtered values back
     for I := 0 to VCount - 1 do begin
       AValues[AStartIndex + I] := VTmp[I];
     end;
@@ -762,32 +862,39 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
       if VCurr > ARec.Max then begin
         ARec.Max := VCurr;
       end;
-      ARec.Avg := ARec.Avg + VCurr; // accumulate only
+      ARec.Avg := ARec.Avg + VCurr; // Accumulate only
     end;
   end;
 
   procedure CalcElevAscentDescent(
     const AValues: TChartValueList;
-    const AStartIndex: Integer
+    const AStartIndex: Integer;
+    const AThreshold: Double
   );
   var
     I: Integer;
     VCurr: Double;
     VPrev: Double;
   begin
-    if AValues.Count < 2 then begin
+    if (AValues.Count - AStartIndex) < 2 then begin
       Exit;
     end;
+
     VPrev := AValues[AStartIndex];
     for I := AStartIndex + 1 to AValues.Count - 1 do begin
       VCurr := AValues[I];
-      if VCurr > VPrev then begin
+
+      // Accumulate ascent only if difference exceeds threshold
+      if (VCurr - VPrev) >= AThreshold then begin
         FInfo.ElevAscent := FInfo.ElevAscent + (VCurr - VPrev);
+        VPrev := VCurr;
       end else
-      if VCurr < VPrev then begin
+      // Accumulate descent only if difference exceeds threshold
+      if (VPrev - VCurr) >= AThreshold then begin
         FInfo.ElevDescent := FInfo.ElevDescent + (VPrev - VCurr);
+        VPrev := VCurr;
       end;
-      VPrev := VCurr;
+      // If delta is below threshold, VPrev is kept to accumulate trend
     end;
   end;
 
@@ -802,7 +909,7 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
     VDist: Double;
     VSlope: Double;
   begin
-    if AValues.Count < 2 then begin
+    if (AValues.Count - AStartIndex) < 2 then begin
       Exit;
     end;
     VPrev := AValues[AStartIndex];
@@ -811,13 +918,14 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
       VDist := FDist[I] - FDist[I-1];
       if VDist > 0 then begin
         VSlope := 100 * (VCurr - VPrev) / VDist;
+
         if VCurr > VPrev then begin
           // Max Gain
           if VSlope > FInfo.MaxSlope.Gain then begin
             FInfo.MaxSlope.Gain := VSlope;
           end;
           // Avg Gain
-          FInfo.AvgSlope.Gain := FInfo.AvgSlope.Gain + VSlope; // accumulate only
+          FInfo.AvgSlope.Gain := FInfo.AvgSlope.Gain + VSlope;
           Inc(FInfo.AvgSlope.GainPoints);
         end else
         if VCurr < VPrev then begin
@@ -826,9 +934,10 @@ procedure TfrElevationProfile.FillSeriesWithLineData(
             FInfo.MaxSlope.Loss := VSlope;
           end;
           // Avg Loss
-          FInfo.AvgSlope.Loss := FInfo.AvgSlope.Loss + VSlope; // accumulate only
+          FInfo.AvgSlope.Loss := FInfo.AvgSlope.Loss + VSlope;
           Inc(FInfo.AvgSlope.LossPoints);
         end else begin
+          // Zero slope
           Inc(FInfo.AvgSlope.GainPoints);
           Inc(FInfo.AvgSlope.LossPoints);
         end;
@@ -862,23 +971,22 @@ begin
 
   while VEnum.Next(VPoint, VMeta) do begin
 
-    // distance
+    // Calculate distance
     if VIsPrevOk then begin
       FInfo.Dist := FInfo.Dist + FDatum.CalcDist(VPrevPoint, VPoint);
     end;
     FDist[FInfo.PointsCount] := FInfo.Dist;
 
-    // elevation
+    // Obtain elevation
     if VMeta.IsElevationOk then begin
       VElev := VMeta.Elevation;
     end else begin
       VElev := 0;
     end;
 
-    // speed
+    // Calculate speed based on timestamps
     VSpeed := 0;
     VSeconds := 0;
-
     if VMeta.IsTimeStampOk then begin
       if VPrevTimeIndex >= 0 then begin
         VDist := FDist[FInfo.PointsCount] - FDist[VPrevTimeIndex];
@@ -891,29 +999,39 @@ begin
       VPrevTimeValue := VMeta.TimeStamp;
     end;
 
-    // time
+    // Accumulate total time
     Inc(FInfo.Seconds, VSeconds);
 
-    // add values
+    // Populate chart series
     FElevationSeries.AddXY(FInfo.Dist, VElev);
     FSpeedSeries.AddXY(FInfo.Dist, VSpeed);
 
     Inc(FInfo.PointsCount);
 
-    // prepare to the next step
+    // Prepare for the next iteration step
     VPrevPoint := VPoint;
     VIsPrevOk := True;
   end;
 
+  // Apply filtering
   if FConfigStatic.UseDataFiltering then begin
+    // Step 1: Median filter (removes hard spikes)
+    MedianFilter(FElevationSeries.YValues, VStartIndex, CFilterElevWindow);
+    MedianFilter(FSpeedSeries.YValues, VStartIndex, CFilterSpeedWindow);
+
+    // Step 2: SMA filter (removes minor noise)
     Filter(FElevationSeries.YValues, VStartIndex, CFilterElevWindow);
     Filter(FSpeedSeries.YValues, VStartIndex, CFilterSpeedWindow);
   end;
 
+  // Calculate statistics (based on filtered data if enabled)
   CalcMinMaxAvg(FElevationSeries.YValues, VStartIndex, FInfo.Elev);
   CalcMinMaxAvg(FSpeedSeries.YValues, VStartIndex, FInfo.Speed);
 
-  CalcElevAscentDescent(FElevationSeries.YValues, VStartIndex);
+  // Calculate actual climb/drop metrics using a noise threshold
+  CalcElevAscentDescent(FElevationSeries.YValues, VStartIndex, CFilterElevThreshold);
+
+  // Calculate slope/gradient metrics
   CalcSlope(FElevationSeries.YValues, VStartIndex);
 end;
 
