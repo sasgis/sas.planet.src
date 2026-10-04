@@ -539,9 +539,24 @@ procedure TfrLonLat.btnPasteClick(Sender: TObject);
     I: Integer;
   begin
     I := Pos(' ', AText); // "Lat Lon" or "X Y"
+
+    if I = 0 then I := Pos(',', AText);
+    if I = 0 then I := Pos(';', AText);
+
     if I > 0 then begin
       S1 := Trim(Copy(AText, 1, I-1));
       S2 := Trim(Copy(AText, I+1));
+
+      while (S1 <> '') and CharInSet(S1[Length(S1)], [',', ';']) do begin
+        Delete(S1, Length(S1), 1);
+      end;
+
+      while (S2 <> '') and CharInSet(S2[1], [',', ';']) do begin
+        Delete(S2, 1, 1);
+      end;
+
+      S1 := Trim(S1);
+      S2 := Trim(S2);
     end else begin
       S1 := '';
       S2 := '';
@@ -560,7 +575,13 @@ var
   VText: string;
   VGroup: TCoordSysGroup;
 begin
-  VText := Trim(Clipboard.AsText);
+  VText := Clipboard.AsText;
+
+  VText := StringReplace(VText, #09, ' ', [rfReplaceAll]);
+  VText := StringReplace(VText, #10, ' ', [rfReplaceAll]);
+  VText := StringReplace(VText, #13, ' ', [rfReplaceAll]);
+
+  VText := Trim(VText);
 
   if VText = '' then begin
     ShowErrorMessage(_('Clipboard is empty!'));
