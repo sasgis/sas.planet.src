@@ -106,7 +106,7 @@ uses
 resourcestring
   rsRise = 'Rise';
   rsSet = 'Set';
-  rsTransit = 'Transit';
+  rsCulmination = 'Culmination';
 
 { TSunCalcDataProviderMoon }
 
@@ -299,7 +299,7 @@ begin
     (VTimes[0].Transit <> 0) and
     (VTimes[0].Transit >= AParams.StartOfTheDay) then
   begin
-    Result[I] := SunCalcDayEvent(VTimes[0].Transit, rsTransit, True, -1, -1);
+    Result[I] := SunCalcDayEvent(VTimes[0].Transit, rsCulmination, True, -1, -1);
     Inc(I);
     VIsTransitFound := True;
   end;
@@ -336,7 +336,7 @@ begin
       (VTimes[1].Transit <> 0) and
       (VTimes[1].Transit <= AParams.EndOfTheDay) then
     begin
-      Result[I] := SunCalcDayEvent(VTimes[1].Transit, rsTransit, True, -1, -1);
+      Result[I] := SunCalcDayEvent(VTimes[1].Transit, rsCulmination, True, -1, -1);
       Inc(I);
     end;
   end;
