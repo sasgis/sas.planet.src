@@ -40,6 +40,7 @@ type
     FTimes: array[0..1] of TMoonTimes;
     FTimesParams: TSunCalcTimesParams;
     FIsTimesPrepared: Boolean;
+    FIsTimesEndPrepared: Boolean;
 
     FDayEvents: TSunCalcDayEvents;
     FDayEventsParams: TSunCalcParams;
@@ -105,6 +106,7 @@ uses
 resourcestring
   rsRise = 'Rise';
   rsSet = 'Set';
+  rsTransit = 'Transit';
 
 { TSunCalcDataProviderMoon }
 
@@ -123,6 +125,7 @@ begin
     );
 
   FIsTimesPrepared := False;
+  FIsTimesEndPrepared := False;
   FIsDayEventsPrepared := False;
 end;
 
@@ -135,6 +138,7 @@ var
 begin
   VPos := SunCalc.GetMoonPosition(AUtcDate, ALonLat.Y, ALonLat.X);
 
+  // degrees
   Result.Azimuth := VPos.Azimuth;
   Result.Altitude := VPos.Altitude;
 end;
@@ -164,13 +168,15 @@ begin
 
   if not VIsPrepared then begin
     FTimes[0] := SunCalc.GetMoonTimes(AStartOfTheDay, ALonLat.Y, ALonLat.X);
+    FIsTimesEndPrepared := False;
   end;
   VIsRiseFound := TrySetTime(FTimes[0].MoonRise, Result.RiseTime);
   VIsSetFound := TrySetTime(FTimes[0].MoonSet, Result.SetTime);
 
   if not VIsRiseFound or not VIsSetFound then begin
-    if not VIsPrepared then begin
+    if not FIsTimesEndPrepared then begin
       FTimes[1] := SunCalc.GetMoonTimes(AEndOfTheDay, ALonLat.Y, ALonLat.X);
+      FIsTimesEndPrepared := True;
     end;
     if not VIsRiseFound then begin
       VIsRiseFound := TrySetTime(FTimes[1].MoonRise, Result.RiseTime);
@@ -249,6 +255,7 @@ var
   I: Integer;
   VIsRiseFound: Boolean;
   VIsSetFound: Boolean;
+  VIsTransitFound: Boolean;
   VTimes: array[0..1] of TMoonTimes;
 begin
   if FIsDayEventsPrepared and (FDayEventsParams = AParams) then begin
@@ -258,9 +265,10 @@ begin
 
   VIsRiseFound := False;
   VIsSetFound := False;
+  VIsTransitFound := False;
 
   I := 0;
-  SetLength(Result, 2);
+  SetLength(Result, 3);
 
   VTimes[0] :=
     SunCalc.GetMoonTimes(
@@ -287,7 +295,16 @@ begin
     VIsSetFound := True;
   end;
 
-  if not VIsRiseFound or not VIsSetFound then begin
+  if
+    (VTimes[0].Transit <> 0) and
+    (VTimes[0].Transit >= AParams.StartOfTheDay) then
+  begin
+    Result[I] := SunCalcDayEvent(VTimes[0].Transit, rsTransit, True, -1, -1);
+    Inc(I);
+    VIsTransitFound := True;
+  end;
+
+  if not VIsRiseFound or not VIsSetFound or not VIsTransitFound then begin
 
     VTimes[1] :=
       SunCalc.GetMoonTimes(
@@ -311,6 +328,15 @@ begin
       (VTimes[1].MoonSet <= AParams.EndOfTheDay) then
     begin
       Result[I] := SunCalcDayEvent(VTimes[1].MoonSet, rsSet, False, 5, 0);
+      Inc(I);
+    end;
+
+    if
+      not VIsTransitFound and
+      (VTimes[1].Transit <> 0) and
+      (VTimes[1].Transit <= AParams.EndOfTheDay) then
+    begin
+      Result[I] := SunCalcDayEvent(VTimes[1].Transit, rsTransit, True, -1, -1);
       Inc(I);
     end;
   end;
@@ -428,7 +454,7 @@ begin
   VIllumination := SunCalc.GetMoonIllumination(ACurrentTime);
 
   VUptime := 0;
-  VIsUnderHorizont := RadToDeg(VPos.Altitude) < 0;
+  VIsUnderHorizont := VPos.Altitude < 0;
 
   if (VTimes.RiseTime = 0) and (VTimes.SetTime = 0) then begin
     if not VIsUnderHorizont then begin
@@ -452,9 +478,9 @@ begin
   end;
 
   AddRow(VRow, _('Up Time'), MinutesToStr(VUptime) );
-  AddRow(VRow, _('Azimuth'), Format('%.0f°', [RadToDeg(VPos.Azimuth)]) );
-  AddRow(VRow, _('Altitude'), Format('%.1f°', [RadToDeg(VPos.Altitude)]) );
-  AddRow(VRow, _('Shadow, meters'), ShadowToStr(VPos.Altitude) );
+  AddRow(VRow, _('Azimuth'), Format('%.0f°', [VPos.Azimuth]) );
+  AddRow(VRow, _('Altitude'), Format('%.1f°', [VPos.Altitude]) );
+  AddRow(VRow, _('Shadow, meters'), ShadowToStr(DegToRad(VPos.Altitude)) );
   AddRow(VRow, _('Illumination'), Format('%.0f%%', [VIllumination.Fraction * 100]) );
   AddRow(VRow, PhaseToStr(VIllumination.Phase), '');
 

@@ -384,7 +384,7 @@ begin
   Result := 0;
   if (VPosition <> nil) and VPosition.PositionOK and VPosition.UTCTimeOK then begin
     VSunTimes := SunCalc.GetTimes(VPosition.UTCTime, VPosition.LonLat.Y, VPosition.LonLat.X);
-    Result := VSunTimes[sunrise].Value;
+    Result := VSunTimes.Times[sunrise].Value;
   end;
   if (Result <> 0) then begin
     Result := FSystemTime.UTCToLocalTime(Result);
@@ -416,7 +416,7 @@ begin
   Result := 0;
   if (VPosition <> nil) and VPosition.PositionOK and VPosition.UTCTimeOK then begin
     VSunTimes := SunCalc.GetTimes(VPosition.UTCTime, VPosition.LonLat.Y, VPosition.LonLat.X);
-    Result := VSunTimes[sunset].Value;
+    Result := VSunTimes.Times[sunset].Value;
   end;
   if (Result <> 0) then begin
     Result := FSystemTime.UTCToLocalTime(Result);

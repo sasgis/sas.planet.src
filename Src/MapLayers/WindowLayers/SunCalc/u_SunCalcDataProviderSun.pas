@@ -161,6 +161,7 @@ var
 begin
   VPos := SunCalc.GetPosition(AUtcDate, ALonLat.Y, ALonLat.X);
 
+  // degrees
   Result.Azimuth := VPos.Azimuth;
   Result.Altitude := VPos.Altitude;
 end;
@@ -186,8 +187,8 @@ begin
     FIsDayEventsPrepared := False;
   end;
 
-  Result.RiseTime := FTimes[sunrise].Value;
-  Result.SetTime := FTimes[sunset].Value;
+  Result.RiseTime := FTimes.Times[sunrise].Value;
+  Result.SetTime := FTimes.Times[sunset].Value;
 end;
 
 procedure TSunCalcDataProviderSun.YearEventsValidate(const AUtcDate: TDateTime);
@@ -346,7 +347,7 @@ begin
 
   for I := 0 to VCount - 1 do begin
     VTimeID := VItems[I].Id;
-    FDayEvents[I].Date := FTimes[VTimeID].Value;
+    FDayEvents[I].Date := FTimes.Times[VTimeID].Value;
     FDayEvents[I].Name := FDayEventNames[VTimeID];
     FDayEvents[I].IsCulmination := (VTimeID = solarNoon);
 
@@ -431,7 +432,7 @@ begin
   VPos := SunCalc.GetPosition(ACurrentTime, ALonLat.Y, ALonLat.X);
 
   VUptime := 0;
-  VIsUnderHorizont := RadToDeg(VPos.Altitude) < 0;
+  VIsUnderHorizont := VPos.Altitude < 0;
 
   if (VTimes.RiseTime = 0) and (VTimes.SetTime = 0) then begin
     if not VIsUnderHorizont then begin
@@ -449,9 +450,9 @@ begin
   end;
 
   AddRow(VRow, _('Day Length'), MinutesToStr(VUptime) );
-  AddRow(VRow, _('Azimuth'), Format('%.0f°', [RadToDeg(VPos.Azimuth)]) );
-  AddRow(VRow, _('Altitude'), Format('%.1f°', [RadToDeg(VPos.Altitude)]) );
-  AddRow(VRow, _('Shadow, meters'), ShadowToStr(VPos.Altitude) );
+  AddRow(VRow, _('Azimuth'), Format('%.0f°', [VPos.Azimuth]) );
+  AddRow(VRow, _('Altitude'), Format('%.1f°', [VPos.Altitude]) );
+  AddRow(VRow, _('Shadow, meters'), ShadowToStr(DegToRad(VPos.Altitude)) );
 
   SetLength(Result, VRow);
 end;
