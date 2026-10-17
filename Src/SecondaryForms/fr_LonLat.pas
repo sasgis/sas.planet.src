@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -534,6 +534,29 @@ end;
 
 procedure TfrLonLat.btnPasteClick(Sender: TObject);
 
+  function NormalizeCoordText(const AText: string): string;
+  begin
+    Result := AnsiUpperCase(AText);
+
+    // Hemisphere designators
+    Result := StringReplace(Result, ' С. Ш.', 'N', [rfReplaceAll]);
+    Result := StringReplace(Result, ' Ю. Ш.', 'S', [rfReplaceAll]);
+    Result := StringReplace(Result, ' В. Д.', 'E', [rfReplaceAll]);
+    Result := StringReplace(Result, ' З. Д.', 'W', [rfReplaceAll]);
+
+    // The same designators written without inner spaces
+    Result := StringReplace(Result, ' С.Ш.', 'N', [rfReplaceAll]);
+    Result := StringReplace(Result, ' Ю.Ш.', 'S', [rfReplaceAll]);
+    Result := StringReplace(Result, ' В.Д.', 'E', [rfReplaceAll]);
+    Result := StringReplace(Result, ' З.Д.', 'W', [rfReplaceAll]);
+
+    // Typographic minute/second marks
+    Result := StringReplace(Result, '′', '''', [rfReplaceAll]);
+    Result := StringReplace(Result, '″', '"', [rfReplaceAll]);
+
+    Result := Trim(Result);
+  end;
+
   function GetCoordFromClipboardText(const AText: string; out S1, S2: string): Boolean;
   var
     I: Integer;
@@ -577,9 +600,15 @@ var
 begin
   VText := Clipboard.AsText;
 
-  VText := StringReplace(VText, #09, ' ', [rfReplaceAll]);
-  VText := StringReplace(VText, #10, ' ', [rfReplaceAll]);
-  VText := StringReplace(VText, #13, ' ', [rfReplaceAll]);
+  VText := StringReplace(VText, #$00A0, ' ', [rfReplaceAll]); // Non-breaking space
+  VText := StringReplace(VText, #13#10, ' ', [rfReplaceAll]); // CRLF
+  VText := StringReplace(VText, #13,    ' ', [rfReplaceAll]); // CR
+  VText := StringReplace(VText, #10,    ' ', [rfReplaceAll]); // LF
+  VText := StringReplace(VText, #09,    ' ', [rfReplaceAll]); // Tab
+
+  while Pos('  ', VText) > 0 do begin
+    VText := StringReplace(VText, '  ', ' ', [rfReplaceAll]);
+  end;
 
   VText := Trim(VText);
 
@@ -590,7 +619,9 @@ begin
 
   VGroup := ItemIndexToCoordSysGroup(cbbCoordType.ItemIndex);
 
-  if (VGroup <> csgCustom) and not GetCoordFromClipboardText(VText, S1, S2) then begin
+  if (VGroup <> csgCustom) and
+     not GetCoordFromClipboardText(NormalizeCoordText(VText), S1, S2)
+  then begin
     Exit;
   end;
 
