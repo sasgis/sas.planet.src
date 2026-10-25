@@ -2,7 +2,7 @@ object frmSettings: TfrmSettings
   Left = 293
   Top = 114
   Caption = 'Options'
-  ClientHeight = 561
+  ClientHeight = 586
   ClientWidth = 684
   Color = clBtnFace
   Constraints.MinHeight = 468
@@ -18,9 +18,9 @@ object frmSettings: TfrmSettings
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    ActivePage = tsMaps
     Width = 684
-    Height = 530
+    Height = 555
+    ActivePage = tsMaps
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
@@ -252,7 +252,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 670
-        Height = 496
+        Height = 521
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 3
@@ -260,7 +260,7 @@ object frmSettings: TfrmSettings
         object chkRetryIfNoResponse: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 279
+          Top = 308
           Width = 658
           Height = 17
           Align = alTop
@@ -270,7 +270,7 @@ object frmSettings: TfrmSettings
         object chkProcessNextTile: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 302
+          Top = 331
           Width = 658
           Height = 17
           Align = alTop
@@ -280,7 +280,7 @@ object frmSettings: TfrmSettings
         object CBSaveTileNotExists: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 325
+          Top = 354
           Width = 658
           Height = 17
           Align = alTop
@@ -289,7 +289,7 @@ object frmSettings: TfrmSettings
         end
         object flwpnlDownloadTimeOut: TFlowPanel
           Left = 3
-          Top = 368
+          Top = 397
           Width = 664
           Height = 28
           Margins.Left = 0
@@ -321,7 +321,7 @@ object frmSettings: TfrmSettings
         object CBLastSuccess: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 348
+          Top = 377
           Width = 658
           Height = 17
           Align = alTop
@@ -330,7 +330,7 @@ object frmSettings: TfrmSettings
         end
         object GroupBox4: TGroupBox
           Left = 3
-          Top = 109
+          Top = 138
           Width = 664
           Height = 167
           Align = alTop
@@ -472,7 +472,7 @@ object frmSettings: TfrmSettings
         end
         object flwpnl1: TFlowPanel
           Left = 3
-          Top = 396
+          Top = 425
           Width = 664
           Height = 28
           Margins.Left = 0
@@ -505,7 +505,7 @@ object frmSettings: TfrmSettings
         object pnl1: TPanel
           AlignWithMargins = True
           Left = 6
-          Top = 455
+          Top = 484
           Width = 658
           Height = 23
           Align = alTop
@@ -544,7 +544,7 @@ object frmSettings: TfrmSettings
         end
         object flwpnlMaxConnsPerServer: TFlowPanel
           Left = 3
-          Top = 424
+          Top = 453
           Width = 664
           Height = 28
           Margins.Left = 0
@@ -603,9 +603,41 @@ object frmSettings: TfrmSettings
             OnChange = cbbNetworkEngineChange
           end
         end
+        object pnlCurlImpersonateTarget: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 35
+          Width = 661
+          Height = 23
+          Margins.Left = 0
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 11
+          object lblCurlImpersonateTarget: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 125
+            Height = 17
+            Align = alLeft
+            Caption = 'cURL Impersonate target:'
+          end
+          object cbbCurlImpersonateTarget: TComboBox
+            Left = 131
+            Top = 0
+            Width = 530
+            Height = 21
+            Hint = 
+              'Browser targets are loaded from curl-impersonate.txt next to the' +
+              ' executable'
+            Align = alClient
+            Style = csDropDownList
+            TabOrder = 0
+          end
+        end
         object grpInternalBrowser: TGroupBox
           Left = 3
-          Top = 32
+          Top = 61
           Width = 664
           Height = 77
           Align = alTop
@@ -680,7 +712,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 42
         Width = 676
-        Height = 460
+        Height = 485
         Align = alClient
         Caption = 'Hotkeys'
         TabOrder = 1
@@ -693,7 +725,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 676
-        Height = 502
+        Height = 527
         Align = alClient
         BevelOuter = bvNone
         ColumnCollection = <
@@ -723,7 +755,7 @@ object frmSettings: TfrmSettings
           Left = 0
           Top = 0
           Width = 338
-          Height = 502
+          Height = 527
           Align = alClient
           BevelOuter = bvNone
           BorderWidth = 3
@@ -820,7 +852,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 26
+              Height = 23
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
@@ -1136,7 +1168,7 @@ object frmSettings: TfrmSettings
           Left = 338
           Top = 0
           Width = 338
-          Height = 502
+          Height = 527
           Align = alClient
           BevelEdges = [beLeft]
           BevelKind = bkTile
@@ -1154,7 +1186,7 @@ object frmSettings: TfrmSettings
           end
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
-            Top = 217
+            Top = 220
             Width = 330
             Height = 30
             Align = alTop
@@ -1186,7 +1218,7 @@ object frmSettings: TfrmSettings
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 283
+            Top = 286
             Width = 330
             Height = 51
             Align = alTop
@@ -1207,9 +1239,9 @@ object frmSettings: TfrmSettings
             end
             object flwpnlFillMap: TFlowPanel
               Left = 3
-              Top = 19
+              Top = 22
               Width = 324
-              Height = 27
+              Height = 24
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
@@ -1252,7 +1284,7 @@ object frmSettings: TfrmSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 247
+            Top = 250
             Width = 330
             Height = 36
             Align = alTop
@@ -1267,7 +1299,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 82
-              Height = 25
+              Height = 22
               Align = alLeft
               Caption = 'Background color'
               Layout = tlCenter
@@ -1285,7 +1317,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResize: TPanel
             Left = 3
-            Top = 184
+            Top = 187
             Width = 330
             Height = 33
             Align = alTop
@@ -1298,7 +1330,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 28
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Other'
@@ -1319,7 +1351,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeOnload: TPanel
             Left = 3
-            Top = 19
+            Top = 22
             Width = 330
             Height = 33
             Align = alTop
@@ -1332,7 +1364,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 93
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On load from cache'
@@ -1353,7 +1385,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeGetPre: TPanel
             Left = 3
-            Top = 52
+            Top = 55
             Width = 330
             Height = 33
             Align = alTop
@@ -1366,7 +1398,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 115
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On get from lower zoom'
@@ -1387,7 +1419,7 @@ object frmSettings: TfrmSettings
           end
           object pnlProjectionChange: TPanel
             Left = 3
-            Top = 85
+            Top = 88
             Width = 330
             Height = 33
             Align = alTop
@@ -1400,7 +1432,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 103
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On projection change'
@@ -1421,7 +1453,7 @@ object frmSettings: TfrmSettings
           end
           object pnlDownloadResize: TPanel
             Left = 3
-            Top = 118
+            Top = 121
             Width = 330
             Height = 33
             Align = alTop
@@ -1434,7 +1466,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 63
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On download'
@@ -1455,7 +1487,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeTileMatrixDraft: TPanel
             Left = 3
-            Top = 151
+            Top = 154
             Width = 330
             Height = 33
             Align = alTop
@@ -1468,7 +1500,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 107
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On change zoom draft'
@@ -1489,7 +1521,7 @@ object frmSettings: TfrmSettings
           end
           object pnlMarksCaption: TPanel
             Left = 3
-            Top = 334
+            Top = 337
             Width = 330
             Height = 80
             Align = alTop
@@ -1527,7 +1559,7 @@ object frmSettings: TfrmSettings
                   Left = 3
                   Top = 3
                   Width = 22
-                  Height = 18
+                  Height = 15
                   Align = alLeft
                   Caption = 'Font'
                 end
@@ -1569,7 +1601,7 @@ object frmSettings: TfrmSettings
           object CBShowHintOnMarks: TCheckBox
             AlignWithMargins = True
             Left = 6
-            Top = 417
+            Top = 420
             Width = 324
             Height = 17
             Align = alTop
@@ -1579,7 +1611,7 @@ object frmSettings: TfrmSettings
           object chkAddTimeToMarkDescription: TCheckBox
             AlignWithMargins = True
             Left = 6
-            Top = 440
+            Top = 443
             Width = 324
             Height = 17
             Align = alTop
@@ -1951,7 +1983,6 @@ object frmSettings: TfrmSettings
           Width = 194
           Height = 17
           Margins.Top = 5
-          Margins.Bottom = 3
           Align = alClient
           Caption = 'Primary color'
         end
@@ -1971,7 +2002,6 @@ object frmSettings: TfrmSettings
           Width = 194
           Height = 17
           Margins.Top = 5
-          Margins.Bottom = 3
           Align = alClient
           Caption = 'Shadow color'
         end
@@ -1991,7 +2021,6 @@ object frmSettings: TfrmSettings
           Width = 194
           Height = 17
           Margins.Top = 5
-          Margins.Bottom = 3
           Align = alClient
           Caption = 'Marker fill color'
         end
@@ -2011,7 +2040,6 @@ object frmSettings: TfrmSettings
           Width = 194
           Height = 17
           Margins.Top = 5
-          Margins.Bottom = 3
           Align = alClient
           Caption = 'Marker border color'
         end
@@ -2031,7 +2059,6 @@ object frmSettings: TfrmSettings
           Width = 194
           Height = 17
           Margins.Top = 5
-          Margins.Bottom = 3
           Align = alClient
           Caption = 'Marker size'
         end
@@ -2134,7 +2161,7 @@ object frmSettings: TfrmSettings
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 530
+    Top = 555
     Width = 684
     Height = 31
     Align = alBottom

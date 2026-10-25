@@ -27,12 +27,14 @@ uses
   i_ProxyConfig,
   i_InetConfig,
   i_WinInetConfig,
+  i_CurlImpersonateConfig,
   u_BaseInterfacedObject;
 
 type
   TInetConfigStatic = class(TBaseInterfacedObject, IInetConfigStatic)
   private
     FWinInetConfigStatic: IWinInetConfigStatic;
+    FCurlImpersonateConfigStatic: ICurlImpersonateConfigStatic;
     FProxyConfigStatic: IProxyConfigStatic;
     FUserAgentString: AnsiString;
     FTimeOut: Cardinal;
@@ -43,6 +45,7 @@ type
     FPreInitBrowserEngine: Boolean;
   private
     function GetWinInetConfigStatic: IWinInetConfigStatic;
+    function GetCurlImpersonateConfigStatic: ICurlImpersonateConfigStatic;
     function GetProxyConfigStatic: IProxyConfigStatic;
     function GetUserAgentString: AnsiString;
     function GetTimeOut: Cardinal;
@@ -54,6 +57,7 @@ type
   public
     constructor Create(
       const AWinInetConfigStatic: IWinInetConfigStatic;
+      const ACurlImpersonateConfigStatic: ICurlImpersonateConfigStatic;
       const AProxyConfigStatic: IProxyConfigStatic;
       const AUserAgentString: AnsiString;
       const ATimeOut: Cardinal;
@@ -71,6 +75,7 @@ implementation
 
 constructor TInetConfigStatic.Create(
   const AWinInetConfigStatic: IWinInetConfigStatic;
+  const ACurlImpersonateConfigStatic: ICurlImpersonateConfigStatic;
   const AProxyConfigStatic: IProxyConfigStatic;
   const AUserAgentString: AnsiString;
   const ATimeOut, ASleepOnResetConnection: Cardinal;
@@ -82,6 +87,7 @@ constructor TInetConfigStatic.Create(
 begin
   inherited Create;
   FWinInetConfigStatic := AWinInetConfigStatic;
+  FCurlImpersonateConfigStatic := ACurlImpersonateConfigStatic;
   FProxyConfigStatic := AProxyConfigStatic;
   FTimeOut := ATimeOut;
   FSleepOnResetConnection := ASleepOnResetConnection;
@@ -130,6 +136,11 @@ end;
 function TInetConfigStatic.GetWinInetConfigStatic: IWinInetConfigStatic;
 begin
   Result := FWinInetConfigStatic;
+end;
+
+function TInetConfigStatic.GetCurlImpersonateConfigStatic: ICurlImpersonateConfigStatic;
+begin
+  Result := FCurlImpersonateConfigStatic;
 end;
 
 function TInetConfigStatic.GetNetworkEngineType: TNetworkEngineType;

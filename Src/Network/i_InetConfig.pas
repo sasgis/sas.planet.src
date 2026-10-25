@@ -26,16 +26,20 @@ interface
 uses
   i_ConfigDataElement,
   i_WinInetConfig,
-  i_ProxyConfig;
+  i_ProxyConfig,
+  i_CurlImpersonateConfig;
 
 type
-  TNetworkEngineType = (neWinInet, neCurl);
+  TNetworkEngineType = (neWinInet, neCurl, neCurlImpersonate);
   TBrowserEngineType = (beInternetExplorer, beEdge);
 
   IInetConfigStatic = interface
     ['{5608C1CA-91D5-43CB-BAF0-8C76351EC1D7}']
     function GetWinInetConfigStatic: IWinInetConfigStatic;
     property WinInetConfigStatic: IWinInetConfigStatic read GetWinInetConfigStatic;
+
+    function GetCurlImpersonateConfigStatic: ICurlImpersonateConfigStatic;
+    property CurlImpersonateConfigStatic: ICurlImpersonateConfigStatic read GetCurlImpersonateConfigStatic;
 
     function GetProxyConfigStatic: IProxyConfigStatic;
     property ProxyConfigStatic: IProxyConfigStatic read GetProxyConfigStatic;
@@ -66,6 +70,9 @@ type
     ['{D025A3CE-2CC7-4DB3-BBF6-53DF14A2A2E7}']
     function GetWinInetConfig: IWinInetConfig;
     property WinInetConfig: IWinInetConfig read GetWinInetConfig;
+
+    function GetCurlImpersonateConfig: ICurlImpersonateConfig;
+    property CurlImpersonateConfig: ICurlImpersonateConfig read GetCurlImpersonateConfig;
 
     function GetProxyConfig: IProxyConfig;
     property ProxyConfig: IProxyConfig read GetProxyConfig;

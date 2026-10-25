@@ -1147,8 +1147,11 @@
         <DCCReference Include="Src\MarksDB\u_MarkSystemImplFactoryChangeable.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkTemplateConfigBase.pas"/>
         <DCCReference Include="Src\MarksDB\u_MarkTemplates.pas"/>
+        <DCCReference Include="Src\Network\Curl\i_CurlImpersonateConfig.pas"/>
         <DCCReference Include="Src\Network\Curl\t_CurlHttpClient.pas"/>
         <DCCReference Include="Src\Network\Curl\u_CurlHttpClient.pas"/>
+        <DCCReference Include="Src\Network\Curl\u_CurlImpersonateConfig.pas"/>
+        <DCCReference Include="Src\Network\Curl\u_CurlLibrary.pas"/>
         <DCCReference Include="Src\Network\Curl\u_CurlProxyResolver.pas"/>
         <DCCReference Include="Src\Network\Curl\u_DownloaderByCurlFactory.pas"/>
         <DCCReference Include="Src\Network\Curl\u_DownloaderHttpByCurl.pas"/>

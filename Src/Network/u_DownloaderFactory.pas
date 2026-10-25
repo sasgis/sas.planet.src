@@ -25,6 +25,7 @@ interface
 
 uses
   i_InetConfig,
+  i_CurlImpersonateConfig,
   i_DownloaderFactory,
   i_ContentTypeManager,
   u_BaseInterfacedObject;
@@ -36,6 +37,7 @@ type
     FInetConfig: IInetConfig;
     FContentTypeManager: IContentTypeManager;
     function BuildFactory: IDownloaderFactory;
+    function GetCurlImpersonateTarget: RawByteString;
   private
     { IDownloaderFactory }
     property Factory: IDownloaderFactory read FFactory implements IDownloaderFactory;
@@ -82,10 +84,27 @@ begin
         FContentTypeManager
       );
     end;
+    neCurlImpersonate: begin
+      Result := TDownloaderByCurlFactory.Create(
+        FContentTypeManager,
+        GetCurlImpersonateTarget
+      );
+    end;
   else
     raise Exception.CreateFmt(
       'Unknown NetworkEngineType: %d', [Integer(FInetConfig.NetworkEngineType)]
     );
+  end;
+end;
+
+function TDownloaderFactory.GetCurlImpersonateTarget: RawByteString;
+var
+  VConfig: ICurlImpersonateConfig;
+begin
+  VConfig := FInetConfig.CurlImpersonateConfig;
+  Result := VConfig.Target;
+  if (Result = '') and (VConfig.Targets.Count > 0) then begin
+    Result := AnsiString(VConfig.Targets.Items[0]);
   end;
 end;
 

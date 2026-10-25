@@ -28,6 +28,7 @@ uses
   i_DownloaderFactory,
   i_DownloadResultFactory,
   i_ContentTypeManager,
+  u_CurlLibrary,
   u_BaseInterfacedObject;
 
 type
@@ -35,6 +36,8 @@ type
   private
     FResultFactory: IDownloadResultFactory;
     FContentTypeManager: IContentTypeManager;
+    FCurlLibraryProvider: ICurlLibraryProvider;
+    FImpersonateTarget: RawByteString;
   private
     { IDownloaderFactory }
     function BuildDownloader(
@@ -52,7 +55,8 @@ type
     ): IDownloaderAsync;
   public
     constructor Create(
-      const AContentTypeManager: IContentTypeManager
+      const AContentTypeManager: IContentTypeManager;
+      const AImpersonateTarget: RawByteString = ''
     );
   end;
 
@@ -65,12 +69,15 @@ uses
 { TDownloaderByCurlFactory }
 
 constructor TDownloaderByCurlFactory.Create(
-  const AContentTypeManager: IContentTypeManager
+  const AContentTypeManager: IContentTypeManager;
+  const AImpersonateTarget: RawByteString
 );
 begin
   inherited Create;
   FResultFactory := TDownloadResultFactory.Create;
   FContentTypeManager := AContentTypeManager;
+  FCurlLibraryProvider := TCurlLibraryProvider.Create;
+  FImpersonateTarget := AImpersonateTarget;
 end;
 
 function TDownloaderByCurlFactory.BuildDownloader(
@@ -88,7 +95,9 @@ begin
       AAllowRedirect,
       True, // ToDo
       ATryDetectContentType,
-      AOnDownloadProgress
+      AOnDownloadProgress,
+      FCurlLibraryProvider,
+      FImpersonateTarget
     );
 end;
 
@@ -107,7 +116,9 @@ begin
       AAllowRedirect,
       True, // ToDo
       ATryDetectContentType,
-      AOnDownloadProgress
+      AOnDownloadProgress,
+      FCurlLibraryProvider,
+      FImpersonateTarget
     );
 end;
 

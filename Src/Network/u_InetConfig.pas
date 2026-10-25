@@ -29,6 +29,7 @@ uses
   i_WinInetConfig,
   i_ProxyConfig,
   i_InetConfig,
+  i_CurlImpersonateConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -38,6 +39,7 @@ type
     FTimeOut: Cardinal;
     FProxyConfig: IProxyConfig;
     FWinInetConfig: IWinInetConfig;
+    FCurlImpersonateConfig: ICurlImpersonateConfig;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
     FNetworkEngineType: TNetworkEngineType;
@@ -50,6 +52,8 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetWinInetConfig: IWinInetConfig;
+
+    function GetCurlImpersonateConfig: ICurlImpersonateConfig;
 
     function GetProxyConfig: IProxyConfig;
 
@@ -87,6 +91,7 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_InetConfigStatic,
   u_WinInetConfig,
+  u_CurlImpersonateConfig,
   u_ProxyConfig;
 
 { TInetConfig }
@@ -108,6 +113,9 @@ begin
 
   FWinInetConfig := TWinInetConfig.Create;
   Add(FWinInetConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WinInet'));
+
+  FCurlImpersonateConfig := TCurlImpersonateConfig.Create;
+  Add(FCurlImpersonateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CurlImpersonate'));
 end;
 
 function TInetConfig.CreateStatic: IInterface;
@@ -117,6 +125,7 @@ begin
   VStatic :=
     TInetConfigStatic.Create(
       FWinInetConfig.GetStatic,
+      FCurlImpersonateConfig.GetStatic,
       FProxyConfig.GetStatic,
       FUserAgentString,
       FTimeOut,
@@ -133,7 +142,7 @@ procedure TInetConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 
   procedure SetNetworkEngineType(const ATypeId: Integer);
   begin
-    if TNetworkEngineType(ATypeId) in [neWinInet, neCurl] then begin
+    if TNetworkEngineType(ATypeId) in [neWinInet, neCurl, neCurlImpersonate] then begin
       FNetworkEngineType := TNetworkEngineType(ATypeId);
     end else begin
       Assert(False, Format('Unexpected NetworkEngineType value: %d', [ATypeId]));
@@ -218,6 +227,11 @@ end;
 function TInetConfig.GetWinInetConfig: IWinInetConfig;
 begin
   Result := FWinInetConfig;
+end;
+
+function TInetConfig.GetCurlImpersonateConfig: ICurlImpersonateConfig;
+begin
+  Result := FCurlImpersonateConfig;
 end;
 
 function TInetConfig.GetProxyConfig: IProxyConfig;

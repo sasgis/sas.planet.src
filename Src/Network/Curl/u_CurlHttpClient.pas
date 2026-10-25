@@ -25,9 +25,9 @@ interface
 
 uses
   Classes,
-  mormot.core.os,
   mormot.lib.curl,
-  t_CurlHttpClient;
+  t_CurlHttpClient,
+  u_CurlLibrary;
 
 type
   TCurlHttpClient = class
@@ -36,6 +36,9 @@ type
     FCurlSlist: Pointer;
     FCertFileName: AnsiString;
     FDoDisconnect: Boolean;
+    FImpersonateTarget: RawByteString;
+    FCurlLibraryProvider: ICurlLibraryProvider;
+    FCurlLib: TCurlLibrary;
 
     FReq: PCurlRequest;
     FResp: PCurlResponse;
@@ -50,14 +53,14 @@ type
     FCurlDebugCallBack: TCurlDebugCallBack;
     FCurlUserData: Pointer;
 
-    function CurlInit: Boolean;
     procedure CurlSetup;
+    procedure CurlImpersonateSetup;
     procedure CurlClose; inline;
     procedure CurlCheck(const AResult: TCurlResult); {$IFNDEF DEBUG} inline; {$ENDIF}
 
     class function CurlAuthType(const AType: TCurlAuthType): Cardinal;
-    class procedure CurlClearSlist(var ASlist: Pointer);
-    class procedure CurlUpdateSlist(const ARawHeaders: RawByteString; var ASlist: Pointer);
+    procedure CurlClearSlist(var ASlist: Pointer);
+    procedure CurlUpdateSlist(const ARawHeaders: RawByteString; var ASlist: Pointer);
 
     function IsOptionsChanged(const AOptions: PCurlOptions): Boolean; inline;
     function IsProxyChanged(const AProxy: PCurlProxy): Boolean; inline;
@@ -69,10 +72,12 @@ type
     procedure Disconnect;
   public
     constructor Create(
-      const ACertFileName: AnsiString = '';
-      const AProgressCallBack: TCurlProgressCallBack = nil;
-      const ADebugCallBack: TCurlDebugCallBack = nil;
-      const AUserData: Pointer = nil
+      const ACertFileName: AnsiString;
+      const AProgressCallBack: TCurlProgressCallBack;
+      const ADebugCallBack: TCurlDebugCallBack;
+      const AUserData: Pointer;
+      const ACurlLibraryProvider: ICurlLibraryProvider;
+      const AImpersonateTarget: RawByteString
     );
     destructor Destroy; override;
   end;
@@ -104,7 +109,6 @@ implementation
 uses
   WinSock,
   SysUtils,
-  u_GlobalDllName,
   u_NetworkStrFunc;
 
 function CurlWriteHeaderCallBack(
@@ -230,9 +234,13 @@ constructor TCurlHttpClient.Create(
   const ACertFileName: AnsiString;
   const AProgressCallBack: TCurlProgressCallBack;
   const ADebugCallBack: TCurlDebugCallBack;
-  const AUserData: Pointer
+  const AUserData: Pointer;
+  const ACurlLibraryProvider: ICurlLibraryProvider;
+  const AImpersonateTarget: RawByteString
 );
 begin
+  Assert(ACurlLibraryProvider <> nil);
+
   inherited Create;
 
   FCurlProgressCallBack := AProgressCallBack;
@@ -244,6 +252,13 @@ begin
 
   FReqMethod := rmGet;
 
+  FImpersonateTarget := AImpersonateTarget;
+
+  // keep the provider alive for the whole client lifetime; the shared
+  // library instance is owned (and freed) by the provider
+  FCurlLibraryProvider := ACurlLibraryProvider;
+  FCurlLib := FCurlLibraryProvider.GetLibrary(FImpersonateTarget <> '');
+
   FCertFileName := ACertFileName;
   if (FCertFileName <> '') and not FileExists(string(FCertFileName)) then begin
     raise ECurl.CreateFmt('Can''t find curl certificate: %s', [FCertFileName]);
@@ -251,14 +266,14 @@ begin
 
   FOptions := cCurlDefaultOptions;
   FProxy := cCurlDefaultProxy;
-
-  CurlInit;
 end;
 
 destructor TCurlHttpClient.Destroy;
 begin
   CurlClose;
   CurlClearSlist(FCurlSlist);
+  FCurlLib := nil;
+  FCurlLibraryProvider := nil;
   inherited Destroy;
 end;
 
@@ -284,7 +299,7 @@ begin
   // https://curl.haxx.se/libcurl/c/libcurl-errors.html
   {$IFDEF DEBUG}
   if AResult <> crOK then begin
-    raise ECurl.CreateFmt('libcurl error %d (%s)', [Ord(AResult), curl.easy_strerror(AResult)]);
+    raise ECurl.CreateFmt('libcurl error %d (%s)', [Ord(AResult), FCurlLib.easy_strerror(AResult)]);
   end;
   {$ENDIF}
 end;
@@ -292,8 +307,25 @@ end;
 procedure TCurlHttpClient.CurlClose;
 begin
   if FCurl <> nil then begin
-    curl.easy_cleanup(FCurl);
+    FCurlLib.easy_cleanup(FCurl);
     FCurl := nil;
+  end;
+end;
+
+procedure TCurlHttpClient.CurlImpersonateSetup;
+var
+  VCurlResult: TCurlResult;
+begin
+  if not Assigned(FCurlLib.easy_impersonate) then begin
+    raise ECurl.Create('curl_easy_impersonate is not available!');
+  end;
+
+  VCurlResult := FCurlLib.easy_impersonate(FCurl, PAnsiChar(FImpersonateTarget), 1);
+  if VCurlResult <> crOK then begin
+    raise ECurl.CreateFmt(
+      'curl_easy_impersonate(''%s'') error #%d (%s)',
+      [string(FImpersonateTarget), Ord(VCurlResult), FCurlLib.easy_strerror(VCurlResult)]
+    );
   end;
 end;
 
@@ -310,60 +342,64 @@ procedure TCurlHttpClient.CurlSetup;
 const
   cBoolToLong: array [Boolean] of Integer = (0, 1);
 begin
-  CurlCheck( curl.easy_setopt(FCurl, coTimeoutMS, FOptions.TimeOutMS) );
-  CurlCheck( curl.easy_setopt(FCurl, coConnectTimeoutMS, FOptions.ConnectionTimeOutMS) );
-  CurlCheck( curl.easy_setopt(FCurl, coFollowLocation, cBoolToLong[FOptions.FollowLocation]) );
+  if FImpersonateTarget <> '' then begin
+    CurlImpersonateSetup;
+  end;
+
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coTimeoutMS, FOptions.TimeOutMS) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coConnectTimeoutMS, FOptions.ConnectionTimeOutMS) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coFollowLocation, cBoolToLong[FOptions.FollowLocation]) );
 
   if FCertFileName <> '' then begin
-    CurlCheck( curl.easy_setopt(FCurl, coCAInfo, PAnsiChar(FCertFileName)) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coCAInfo, PAnsiChar(FCertFileName)) );
   end;
 
   if FOptions.IgnoreSSLCertificateErrors then begin
-    CurlCheck( curl.easy_setopt(FCurl, coSSLVerifyPeer, 0) );
-    CurlCheck( curl.easy_setopt(FCurl, coSSLVerifyHost, 0) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coSSLVerifyPeer, 0) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coSSLVerifyHost, 0) );
   end;
 
   if FOptions.StoreCookie then begin
-    CurlCheck( curl.easy_setopt(FCurl, coCookieFile, PAnsiChar('')) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coCookieFile, PAnsiChar('')) );
   end;
 
   if FOptions.AcceptEncoding then begin
-    CurlCheck( curl.easy_setopt(FCurl, coAcceptEncoding, PAnsiChar('')) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coAcceptEncoding, PAnsiChar('')) );
   end else begin
-    CurlCheck( curl.easy_setopt(FCurl, coAcceptEncoding, nil) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coAcceptEncoding, nil) );
   end;
 
-  CurlCheck( curl.easy_setopt(FCurl, coProxy, PAnsiChar(FProxy.Address)) );
-  CurlCheck( curl.easy_setopt(FCurl, coNoProxy, PAnsiChar(FProxy.NoProxy)) );
-  CurlCheck( curl.easy_setopt(FCurl, coProxyAuth, CurlAuthType(FProxy.AuthType)) );
-  CurlCheck( curl.easy_setopt(FCurl, coProxyUserPwd, PAnsiChar(_GetCurlUserPwd)) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coProxy, PAnsiChar(FProxy.Address)) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coNoProxy, PAnsiChar(FProxy.NoProxy)) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coProxyAuth, CurlAuthType(FProxy.AuthType)) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coProxyUserPwd, PAnsiChar(_GetCurlUserPwd)) );
 
-  CurlCheck( curl.easy_setopt(FCurl, coHeaderFunction, @CurlWriteHeaderCallBack) );
-  CurlCheck( curl.easy_setopt(FCurl, coWriteHeader, Self) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coHeaderFunction, @CurlWriteHeaderCallBack) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coWriteHeader, Self) );
 
-  CurlCheck( curl.easy_setopt(FCurl, coWriteFunction, @CurlWriteDataCallBack) );
-  CurlCheck( curl.easy_setopt(FCurl, coWriteData, Self) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coWriteFunction, @CurlWriteDataCallBack) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coWriteData, Self) );
 
   if Assigned(FCurlProgressCallBack) then begin
-    if curl.info.version_num > $072000 then begin
+    if FCurlLib.VersionNum > $072000 then begin
       // for libcurl newer than 7.32.0
-      CurlCheck( curl.easy_setopt(FCurl, coXferInfoFunction, @CurlProgressCallBack) );
-      CurlCheck( curl.easy_setopt(FCurl, coXferInfoData, Self) );
+      CurlCheck( FCurlLib.easy_setopt(FCurl, coXferInfoFunction, @CurlProgressCallBack) );
+      CurlCheck( FCurlLib.easy_setopt(FCurl, coXferInfoData, Self) );
     end else begin
-      CurlCheck( curl.easy_setopt(FCurl, coProgressFunction, @CurlProgressCallBack2) );
-      CurlCheck( curl.easy_setopt(FCurl, coProgressData, Self) );
+      CurlCheck( FCurlLib.easy_setopt(FCurl, coProgressFunction, @CurlProgressCallBack2) );
+      CurlCheck( FCurlLib.easy_setopt(FCurl, coProgressData, Self) );
     end;
-    CurlCheck( curl.easy_setopt(FCurl, coNoProgress, 0) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coNoProgress, 0) );
   end;
 
   if Assigned(FCurlDebugCallBack) then begin
-    CurlCheck( curl.easy_setopt(FCurl, coDebugFunction, @CurlDebugCallBack) );
-    CurlCheck( curl.easy_setopt(FCurl, coDebugData, Self) );
-    CurlCheck( curl.easy_setopt(FCurl, coVerbose, 1) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coDebugFunction, @CurlDebugCallBack) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coDebugData, Self) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coVerbose, 1) );
   end;
 end;
 
-class procedure TCurlHttpClient.CurlUpdateSlist(
+procedure TCurlHttpClient.CurlUpdateSlist(
   const ARawHeaders: RawByteString;
   var ASlist: Pointer
 );
@@ -375,15 +411,15 @@ begin
   while VPtr <> nil do begin
     GetNextLine(VPtr, VLine);
     if VLine <> '' then begin
-      ASlist := curl.slist_append(ASlist, Pointer(VLine));
+      ASlist := FCurlLib.slist_append(ASlist, Pointer(VLine));
     end;
   end;
 end;
 
-class procedure TCurlHttpClient.CurlClearSlist(var ASlist: Pointer);
+procedure TCurlHttpClient.CurlClearSlist(var ASlist: Pointer);
 begin
   if ASlist <> nil then begin
-    curl.slist_free_all(ASlist);
+    FCurlLib.slist_free_all(ASlist);
     ASlist := nil;
   end;
 end;
@@ -409,8 +445,8 @@ var
   VCurlResult: TCurlResult;
   VDoCurlSetup: Boolean;
 begin
-  if not CurlInit then begin
-    raise ECurl.Create('Curl library is not available');
+  if not FCurlLib.Available then begin
+    raise ECurl.CreateFmt('Curl library is not available: %s', [FCurlLib.LoadError]);
   end;
 
   Result := False;
@@ -427,7 +463,7 @@ begin
   FResp.ErrorReason := '';
 
   if FCurl = nil then begin
-    FCurl := curl.easy_init;
+    FCurl := FCurlLib.easy_init;
     VDoCurlSetup := True;
     if FCurl = nil then begin
       FResp.ErrorReason := 'Unexpected result of curl_easy_init()';
@@ -440,7 +476,7 @@ begin
       (FReq.UserAgent <> FReqUserAgent) or
       (FReq.Method <> FReqMethod);
     if VDoCurlSetup then begin
-      curl.easy_reset(FCurl);
+      FCurlLib.easy_reset(FCurl);
     end;
   end;
 
@@ -459,38 +495,38 @@ begin
   end;
 
   if FReq.Method = rmHead then begin
-    CurlCheck( curl.easy_setopt(FCurl, coNoBody, 1) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coNoBody, 1) );
   end else begin
-    CurlCheck( curl.easy_setopt(FCurl, coNoBody, 0) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coNoBody, 0) );
   end;
 
   if FReq.Method = rmPOST then begin
-    CurlCheck( curl.easy_setopt(FCurl, coPostFields, FReq.PostData) );
-    CurlCheck( curl.easy_setopt(FCurl, coPostFieldSize, FReq.PostDataSize) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coPostFields, FReq.PostData) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coPostFieldSize, FReq.PostDataSize) );
   end;
 
   VMethod := cMethod[FReq.Method];
-  CurlCheck( curl.easy_setopt(FCurl, coCustomRequest, Pointer(VMethod)) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coCustomRequest, Pointer(VMethod)) );
 
-  CurlCheck( curl.easy_setopt(FCurl, coUrl, Pointer(FReq.Url)) );
+  CurlCheck( FCurlLib.easy_setopt(FCurl, coUrl, Pointer(FReq.Url)) );
 
   if (FReq.Method <> FReqMethod) or (FReq.Headers <> FReqHeaders) then begin
     CurlClearSlist(FCurlSlist);
 
     if FReq.Method = rmPOST then begin
-      FCurlSlist := curl.slist_append(FCurlSlist, 'Expect:');
+      FCurlSlist := FCurlLib.slist_append(FCurlSlist, 'Expect:');
     end;
 
     CurlUpdateSlist(FReq.Headers, FCurlSlist);
 
-    CurlCheck( curl.easy_setopt(FCurl, coHTTPHeader, FCurlSlist) );
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coHTTPHeader, FCurlSlist) );
 
     FReqMethod := FReq.Method;
     FReqHeaders := FReq.Headers;
     FReqUserAgent := FReq.UserAgent;
   end;
 
-  VCurlResult := curl.easy_perform(FCurl);
+  VCurlResult := FCurlLib.easy_perform(FCurl);
 
   if (VCurlResult <> crOK) and not FDoDisconnect then begin
     if (FResp.Code = 0) and (FResp.Headers <> '') then begin
@@ -498,12 +534,12 @@ begin
     end;
     FResp.ErrorReason := Format(
       'curl error #%d (%s) on %s %s',
-      [Ord(VCurlResult), curl.easy_strerror(VCurlResult), VMethod, FReq.Url]
+      [Ord(VCurlResult), FCurlLib.easy_strerror(VCurlResult), VMethod, FReq.Url]
     );
     Exit;
   end;
 
-  CurlCheck( curl.easy_getinfo(FCurl, ciResponseCode, FResp.Code) );
+  CurlCheck( FCurlLib.easy_getinfo(FCurl, ciResponseCode, FResp.Code) );
 
   if not FDoDisconnect then begin
     Result := True;
@@ -516,26 +552,6 @@ end;
 procedure TCurlHttpClient.Disconnect;
 begin
   FDoDisconnect := True;
-end;
-
-var
-  GCurlState: TLibraryState;
-
-procedure _LibCurlInit;
-begin
-  try
-    LibCurlInitialize([giAll], GDllName.Curl);
-    GCurlState := lsAvailable;
-  except
-    GCurlState := lsNotAvailable;
-    raise;
-  end;
-end;
-
-function TCurlHttpClient.CurlInit: Boolean;
-begin
-  // thread-safe initialization
-  Result := LibraryAvailable(GCurlState, _LibCurlInit);
 end;
 
 procedure WinSockInitialize;

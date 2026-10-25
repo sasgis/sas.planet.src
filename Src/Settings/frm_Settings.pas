@@ -38,6 +38,7 @@ uses
   GR32,
   i_InetConfig,
   i_ProxyConfig,
+  i_StringListStatic,
   i_ListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
@@ -234,6 +235,9 @@ type
     pnlNetworkEngine: TPanel;
     lbl3: TLabel;
     cbbNetworkEngine: TComboBox;
+    pnlCurlImpersonateTarget: TPanel;
+    lblCurlImpersonateTarget: TLabel;
+    cbbCurlImpersonateTarget: TComboBox;
     rbNoProxy: TRadioButton;
     rbUseIESettings: TRadioButton;
     rbManualProxy: TRadioButton;
@@ -332,6 +336,11 @@ type
       const ANetworkEngineType: TNetworkEngineType;
       const AProxyType: TProxyServerType
     );
+    procedure RefreshCurlImpersonateTarget(
+      const ANetworkEngineType: TNetworkEngineType;
+      const ATargets: IStringListStatic;
+      const ATarget: AnsiString
+    );
     function StrToProxyAddress(const AStr: string): string;
     function GetProxyTypeValue: TProxyServerType;
 
@@ -364,6 +373,7 @@ uses
   t_CoordRepresentation,
   i_WinInetConfig,
   i_MarksDrawConfig,
+  i_CurlImpersonateConfig,
   i_CoordRepresentationConfig,
   u_ListenerNotifierLinksList,
   u_AnsiStr,
@@ -651,6 +661,7 @@ procedure TfrmSettings.btnApplyClick(Sender: TObject);
 var
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
+  VCurlImpersonateConfig: ICurlImpersonateConfig;
   VNeedReboot: Boolean;
   VConnsPerServer: TConnsPerServerRec;
   VMarksCaptionDrawConfig: ICaptionDrawConfig;
@@ -737,6 +748,21 @@ begin
     if cbbNetworkEngine.ItemIndex <> Integer(VInetConfig.NetworkEngineType) then begin
       VInetConfig.NetworkEngineType := TNetworkEngineType(cbbNetworkEngine.ItemIndex);
       VNeedReboot := True;
+    end;
+
+    if TNetworkEngineType(cbbNetworkEngine.ItemIndex) = neCurlImpersonate then begin
+      VCurlImpersonateConfig := VInetConfig.CurlImpersonateConfig;
+      VCurlImpersonateConfig.LockWrite;
+      try
+        if (cbbCurlImpersonateTarget.ItemIndex >= 0) and
+           (VCurlImpersonateConfig.Target <> AnsiString(cbbCurlImpersonateTarget.Items[cbbCurlImpersonateTarget.ItemIndex]))
+        then begin
+          VCurlImpersonateConfig.Target := AnsiString(cbbCurlImpersonateTarget.Items[cbbCurlImpersonateTarget.ItemIndex]);
+          VNeedReboot := True;
+        end;
+      finally
+        VCurlImpersonateConfig.UnlockWrite;
+      end;
     end;
 
     if cbbBrowserEngine.ItemIndex <> Integer(VInetConfig.BrowserEngineType) then begin
@@ -1027,7 +1053,14 @@ begin
     cbbNetworkEngine.Items.Clear;
     cbbNetworkEngine.Items.Add('WinInet');
     cbbNetworkEngine.Items.Add('cURL');
+    cbbNetworkEngine.Items.Add('cURL Impersonate');
     cbbNetworkEngine.ItemIndex := Integer(VInetConfig.NetworkEngineType);
+
+    RefreshCurlImpersonateTarget(
+      VInetConfig.NetworkEngineType,
+      VInetConfig.CurlImpersonateConfig.Targets,
+      VInetConfig.CurlImpersonateConfig.GetStatic.Target
+    );
 
     cbbBrowserEngine.Items.Clear;
     cbbBrowserEngine.Items.Add('Internet Explorer');
@@ -1372,7 +1405,7 @@ begin
         cbbProxyType.ItemIndex := 1;
       end;
     end;
-    neCurl: begin
+    neCurl, neCurlImpersonate: begin
       AddItems(cCurlItems);
       cbbProxyType.ItemIndex := Integer(AProxyType);
     end
@@ -1383,9 +1416,48 @@ begin
   end;
 end;
 
-procedure TfrmSettings.cbbNetworkEngineChange(Sender: TObject);
+procedure TfrmSettings.RefreshCurlImpersonateTarget(
+  const ANetworkEngineType: TNetworkEngineType;
+  const ATargets: IStringListStatic;
+  const ATarget: AnsiString
+);
+var
+  I: Integer;
 begin
-  RefreshProxyTypeComboBox(TNetworkEngineType(cbbNetworkEngine.ItemIndex), ptHttp);
+  cbbCurlImpersonateTarget.Items.BeginUpdate;
+  try
+    cbbCurlImpersonateTarget.Items.Clear;
+    if ATargets <> nil then begin
+      for I := 0 to ATargets.Count - 1 do begin
+        cbbCurlImpersonateTarget.Items.Add(ATargets.Items[I]);
+      end;
+    end;
+  finally
+    cbbCurlImpersonateTarget.Items.EndUpdate;
+  end;
+
+  cbbCurlImpersonateTarget.ItemIndex := 0;
+  for I := 0 to cbbCurlImpersonateTarget.Items.Count - 1 do begin
+    if SameStr(cbbCurlImpersonateTarget.Items[I], string(ATarget)) then begin
+      cbbCurlImpersonateTarget.ItemIndex := I;
+      Break;
+    end;
+  end;
+
+  lblCurlImpersonateTarget.Enabled := ANetworkEngineType = neCurlImpersonate;
+  cbbCurlImpersonateTarget.Enabled := ANetworkEngineType = neCurlImpersonate;
+end;
+
+procedure TfrmSettings.cbbNetworkEngineChange(Sender: TObject);
+var
+  VNetworkEngineType: TNetworkEngineType;
+begin
+  VNetworkEngineType := TNetworkEngineType(cbbNetworkEngine.ItemIndex);
+
+  RefreshProxyTypeComboBox(VNetworkEngineType, ptHttp);
+
+  lblCurlImpersonateTarget.Enabled := VNetworkEngineType = neCurlImpersonate;
+  cbbCurlImpersonateTarget.Enabled := VNetworkEngineType = neCurlImpersonate;
 end;
 
 function TfrmSettings.StrToProxyAddress(const AStr: string): string;

@@ -44,6 +44,7 @@ type
   public
     Sqlite3: string;
     Curl: string;
+    CurlImpersonate: string;
     Tiff: string;
     GeoTiff: string;
     Jpeg62: string;
@@ -118,6 +119,7 @@ begin
     FDllDirectory := VAppPath + 'libxp' + PathDelim;
 
     Self.Curl := 'libcurl.dll';
+    Self.CurlImpersonate := 'libcurl-impersonate.dll';
     Self.Tiff := 'libtiff.dll';
     Self.GeoTiff := 'libgeotiff.dll';
     Self.Jpeg62 := 'jpeg62.dll';
@@ -133,6 +135,7 @@ begin
     FDllDirectory := VAppPath + {$IFDEF WIN32} 'lib32' {$ELSE} 'lib64' {$ENDIF} + PathDelim;
 
     Self.Curl := 'libcurl-4.dll';
+    Self.CurlImpersonate := 'libcurl-impersonate.dll';
     Self.Tiff := 'libtiff-6.dll';
     Self.GeoTiff := 'libgeotiff.dll';
     Self.Jpeg62 := 'libjpeg-62.dll';

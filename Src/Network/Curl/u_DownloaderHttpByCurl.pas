@@ -44,6 +44,7 @@ uses
   i_ContentTypeManager,
   t_CurlHttpClient,
   u_CurlHttpClient,
+  u_CurlLibrary,
   u_CurlProxyResolver,
   {$IFDEF WRITE_HTTP_LOG}
   u_DownloaderHttpLog,
@@ -63,6 +64,8 @@ type
     FHttpClient: TCurlHttpClient;
 
     FProxyResolver: TCurlProxyResolver;
+
+    FIsImpersonate: Boolean;
 
     FAcceptEncoding: Boolean;
     FTryDetectContentType: Boolean;
@@ -92,7 +95,9 @@ type
       const AAllowRedirect: Boolean;
       const AAcceptEncoding: Boolean;
       const ATryDetectContentType: Boolean;
-      const AOnDownloadProgress: TOnDownloadProgress
+      const AOnDownloadProgress: TOnDownloadProgress;
+      const ACurlLibraryProvider: ICurlLibraryProvider;
+      const AImpersonateTarget: RawByteString = ''
     );
     destructor Destroy; override;
   end;
@@ -132,7 +137,9 @@ constructor TDownloaderHttpByCurl.Create(
   const AAllowRedirect: Boolean;
   const AAcceptEncoding: Boolean;
   const ATryDetectContentType: Boolean;
-  const AOnDownloadProgress: TOnDownloadProgress
+  const AOnDownloadProgress: TOnDownloadProgress;
+  const ACurlLibraryProvider: ICurlLibraryProvider;
+  const AImpersonateTarget: RawByteString
 );
 var
   VCertFileName: string;
@@ -171,6 +178,8 @@ begin
 
   FProxyResolver := TCurlProxyResolver.Create;
 
+  FIsImpersonate := AImpersonateTarget <> '';
+
   {$IFDEF WRITE_HTTP_LOG}
   FLog := TDownloaderHttpLog.Create('curl');
   VDebugCallBack := OnCurlDebug;
@@ -191,7 +200,9 @@ begin
       VCertFileNameA,
       VProgressCallBack,
       VDebugCallBack,
-      Self
+      Self,
+      ACurlLibraryProvider,
+      AImpersonateTarget
     );
 
   FCancelListener :=
@@ -351,6 +362,23 @@ function TDownloaderHttpByCurl.OnBeforeRequest(
   const ARequest: IDownloadRequest
 ): IDownloadResult;
 
+const
+  cImpersonateBrowserHeaderNames: array [0..12] of RawByteString = (
+    'USER-AGENT',
+    'ACCEPT',
+    'ACCEPT-LANGUAGE',
+    'UPGRADE-INSECURE-REQUESTS',
+    'SEC-CH-UA',
+    'SEC-CH-UA-MOBILE',
+    'SEC-CH-UA-PLATFORM',
+    'SEC-FETCH-SITE',
+    'SEC-FETCH-MODE',
+    'SEC-FETCH-USER',
+    'SEC-FETCH-DEST',
+    'PRIORITY',
+    'TE'
+  );
+
   function GetProxyProtocol(const AProxyType: TProxyServerType): RawByteString;
   begin
     case AProxyType of
@@ -366,6 +394,7 @@ function TDownloaderHttpByCurl.OnBeforeRequest(
   end;
 
 var
+  I: Integer;
   VEncodingCur: RawByteString;
   VEncodingOld: RawByteString;
   VPostData: IBinaryData;
@@ -423,7 +452,7 @@ begin
   FHttpOptions.ConnectionTimeOutMS := VInetConfig.TimeOut;
 
   FHttpRequest.UserAgent := GetHeaderValueUp(FHttpRequest.Headers, 'USER-AGENT');
-  if FHttpRequest.UserAgent = '' then begin
+  if not FIsImpersonate and (FHttpRequest.UserAgent = '') then begin
     FHttpRequest.UserAgent := VInetConfig.UserAgentString;
     FHttpRequest.Headers := 'User-Agent: ' + FHttpRequest.UserAgent + #13#10 + FHttpRequest.Headers;
   end;
@@ -444,6 +473,18 @@ begin
       end else begin
         DeleteHeaderValueUp(FHttpRequest.Headers, 'ACCEPT-ENCODING');
       end;
+    end;
+  end;
+
+  if FIsImpersonate then begin
+    // the library merges the browser's default header set with our
+    // CURLOPT_HTTPHEADER, and the application header wins on a name
+    // conflict - so remove the conflicting names in advance and let
+    // the browser's own values (part of the fingerprint) be sent;
+    // Accept-Encoding is not in the list on purpose: its application
+    // value lists only the encodings SAS.Planet can actually decode
+    for I := Low(cImpersonateBrowserHeaderNames) to High(cImpersonateBrowserHeaderNames) do begin
+      DeleteHeaderValueUp(FHttpRequest.Headers, cImpersonateBrowserHeaderNames[I]);
     end;
   end;
 
