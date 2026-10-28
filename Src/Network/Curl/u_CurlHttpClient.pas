@@ -113,50 +113,71 @@ uses
 
 function CurlWriteHeaderCallBack(
   const AData: PAnsiChar;
-  const ASize: Integer;
-  const ANmemb: Integer;
+  const ASize: NativeUInt;
+  const ANitems: NativeUInt;
   const AUserData: Pointer
-): Integer; cdecl;
+): NativeUInt; cdecl;
 var
   VSelf: TCurlHttpClient absolute AUserData;
-  VHeader: ^RawByteString;
+  VHeader: PRawByteString;
   VHeaderLen: Integer;
+  VLen: NativeUInt;
 begin
-  if VSelf.FDoDisconnect then begin
-    Result := 0;
-    Exit;
-  end;
+  // https://curl.se/libcurl/c/CURLOPT_HEADERFUNCTION.html
+  Result := 0;
+  try
+    if VSelf.FDoDisconnect then begin
+      Exit;
+    end;
 
-  if IdemPChar(AData, 'HTTP/') then begin
-    // collect the headers of only the last response
-    // https://curl.se/libcurl/c/CURLOPT_HEADERFUNCTION.html
-    VSelf.FResp.Headers := '';
-  end;
+    VLen := ASize * ANitems;
 
-  VHeader := @VSelf.FResp.Headers;
-  VHeaderLen := Length(VHeader^);
-  Result := ASize * ANmemb;
-  SetLength(VHeader^, VHeaderLen + Result);
-  Move(AData^, PPAnsiChar(VHeader)^[VHeaderLen], Result);
+    // the buffer is NOT null-terminated, so check the length first
+    if (VLen >= 5) and IdemPChar(AData, 'HTTP/') then begin
+      // collect the headers of only the last response
+      VSelf.FResp.Headers := '';
+    end;
+
+    if VLen > 0 then begin
+      VHeader := @VSelf.FResp.Headers;
+      VHeaderLen := Length(VHeader^);
+      SetLength(VHeader^, VHeaderLen + Integer(VLen));
+      Move(AData^, PPAnsiChar(VHeader)^[VHeaderLen], VLen);
+    end;
+    Result := VLen;
+  except
+    Result := 0; // signals an error to libcurl (CURLE_WRITE_ERROR)
+  end;
 end;
 
 function CurlWriteDataCallBack(
   const AData: PAnsiChar;
-  const ASize: Integer;
-  const ANmemb: Integer;
+  const ASize: NativeUInt;
+  const ANmemb: NativeUInt;
   const AUserData: Pointer
-): Integer; cdecl;
+): NativeUInt; cdecl;
 var
   VSelf: TCurlHttpClient absolute AUserData;
   VStream: TMemoryStream;
+  VLen: NativeUInt;
 begin
+  // https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
   Result := 0;
-  if VSelf.FDoDisconnect then begin
-    Exit;
-  end;
-  VStream := VSelf.FResp.Data;
-  if VStream <> nil then begin
-    Result := VStream.Write(AData^, ASize * ANmemb);
+  try
+    if VSelf.FDoDisconnect then begin
+      Exit;
+    end;
+    VLen := ASize * ANmemb;
+    VStream := VSelf.FResp.Data;
+    if VStream <> nil then begin
+      Result := NativeUInt(VStream.Write(AData^, Integer(VLen)));
+    end else begin
+      // no destination stream: just discard the body
+      // (returning 0 would abort the transfer with CURLE_WRITE_ERROR)
+      Result := VLen;
+    end;
+  except
+    Result := 0;
   end;
 end;
 
@@ -170,17 +191,23 @@ function CurlProgressCallBack(
 var
   VSelf: TCurlHttpClient absolute AClientP;
 begin
-  if not VSelf.FDoDisconnect then begin
-    VSelf.FCurlProgressCallBack(ADlTotal, ADlNow, VSelf.FCurlUserData);
-    Result := 0;
-  end else begin
-    Result := 1;
+  // https://curl.se/libcurl/c/CURLOPT_XFERINFOFUNCTION.html
+  try
+    if not VSelf.FDoDisconnect then begin
+      VSelf.FCurlProgressCallBack(ADlTotal, ADlNow, VSelf.FCurlUserData);
+      Result := 0;
+    end else begin
+      Result := 1;
+    end;
+  except
+    Result := 1; // abort the transfer
   end;
 end;
 
 function CurlProgressCallBack2(const P: Pointer; const ADlTotal, ADlNow, AUlTotal,
   AUlNow: Double): Integer; cdecl;
 begin
+  // https://curl.se/libcurl/c/CURLOPT_PROGRESSFUNCTION.html
   Result := CurlProgressCallBack(P, Trunc(ADlTotal), Trunc(ADlNow),
     Trunc(AUlTotal), Trunc(AUlNow));
 end;
@@ -203,7 +230,7 @@ function CurlDebugCallBack(
   const AHandle: TCurl;
   const AInfoType: TCurlInfoType;
   const AData: PAnsiChar;
-  const ASize: Integer;
+  const ASize: NativeUInt;
   const AUserPtr: Pointer
 ): Integer; cdecl;
 const
@@ -215,16 +242,20 @@ var
   VData: AnsiString;
 begin
   Result := 0;
-  if AInfoType in [citText, citHeaderIn, citHeaderOut] then begin
-    SetString(VData, AData, ASize);
-    VPtr := Pointer(VData);
-    while VPtr <> nil do begin
-      GetNextLine(VPtr, VStr);
-      VSelf.FCurlDebugCallBack(
-        cIdent[AInfoType] + VStr,
-        VSelf.FCurlUserData
-      );
+  try
+    if AInfoType in [citText, citHeaderIn, citHeaderOut] then begin
+      SetString(VData, AData, Integer(ASize));
+      VPtr := Pointer(VData);
+      while VPtr <> nil do begin
+        GetNextLine(VPtr, VStr);
+        VSelf.FCurlDebugCallBack(
+          cIdent[AInfoType] + VStr,
+          VSelf.FCurlUserData
+        );
+      end;
     end;
+  except
+    // never let an exception go through libcurl
   end;
 end;
 
@@ -381,11 +412,12 @@ begin
   CurlCheck( FCurlLib.easy_setopt(FCurl, coWriteData, Self) );
 
   if Assigned(FCurlProgressCallBack) then begin
-    if FCurlLib.VersionNum > $072000 then begin
+    if FCurlLib.VersionNum >= $072000 then begin
       // for libcurl newer than 7.32.0
       CurlCheck( FCurlLib.easy_setopt(FCurl, coXferInfoFunction, @CurlProgressCallBack) );
       CurlCheck( FCurlLib.easy_setopt(FCurl, coXferInfoData, Self) );
     end else begin
+      // deprecated since 7.32.0
       CurlCheck( FCurlLib.easy_setopt(FCurl, coProgressFunction, @CurlProgressCallBack2) );
       CurlCheck( FCurlLib.easy_setopt(FCurl, coProgressData, Self) );
     end;
