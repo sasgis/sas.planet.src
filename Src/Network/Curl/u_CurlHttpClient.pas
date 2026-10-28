@@ -533,7 +533,15 @@ begin
   end;
 
   if FReq.Method = rmPOST then begin
-    CurlCheck( FCurlLib.easy_setopt(FCurl, coPostFields, FReq.PostData) );
+    if (FReq.PostData = nil) and (FReq.PostDataSize > 0) then begin
+      FResp.ErrorReason := 'POST data is nil, but size > 0';
+      Exit;
+    end;
+    if FReq.PostData <> nil then begin
+      CurlCheck( FCurlLib.easy_setopt(FCurl, coPostFields, FReq.PostData) );
+    end else begin
+      CurlCheck( FCurlLib.easy_setopt(FCurl, coPostFields, PAnsiChar('')) );
+    end;
     CurlCheck( FCurlLib.easy_setopt(FCurl, coPostFieldSize, FReq.PostDataSize) );
   end;
 
