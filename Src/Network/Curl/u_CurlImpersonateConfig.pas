@@ -49,6 +49,9 @@ type
   private
     FTargets: IStringListStatic;
     FTarget: AnsiString;
+  private
+    function GetDefaultTarget: AnsiString;
+    function CheckTarget(const ATarget: AnsiString): AnsiString;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -76,6 +79,7 @@ const
 procedure LoadTargetsFromFile(var AResult: TStringList);
 var
   I: Integer;
+  VPos: Integer;
   VFileName: string;
   VLine: string;
   VSource: TStringList;
@@ -93,10 +97,17 @@ begin
       VSource.LoadFromFile(VFileName);
     except
       VSource.Clear;
+      Exit;
     end;
     for I := 0 to VSource.Count - 1 do begin
-      VLine := Trim(VSource.Strings[I]);
-      if (VLine <> '') and (VLine[1] <> '#') then begin
+      VLine := VSource.Strings[I];
+      // cut off a comment: either a whole-line one or one at the end of a line
+      VPos := Pos('#', VLine);
+      if VPos > 0 then begin
+        SetLength(VLine, VPos - 1);
+      end;
+      VLine := Trim(VLine);
+      if VLine <> '' then begin
         AResult.Add(VLine);
       end;
     end;
@@ -121,11 +132,32 @@ begin
     VList.Free;
   end;
 
+  FTarget := GetDefaultTarget;
+end;
+
+function TCurlImpersonateConfig.GetDefaultTarget: AnsiString;
+begin
   // the library has no default impersonation target, so the first
-  // line of the available targets is used as the initial value
+  // line of the available targets is used as the default value
   if FTargets.Count > 0 then begin
-    FTarget := AnsiString(FTargets.Items[0]);
+    Result := AnsiString(FTargets.Items[0]);
+  end else begin
+    Result := '';
   end;
+end;
+
+function TCurlImpersonateConfig.CheckTarget(const ATarget: AnsiString): AnsiString;
+var
+  I: Integer;
+begin
+  // if the target is not in the list of available targets, return the default one
+  for I := 0 to FTargets.Count - 1 do begin
+    if AnsiString(FTargets.Items[I]) = ATarget then begin
+      Result := ATarget;
+      Exit;
+    end;
+  end;
+  Result := GetDefaultTarget;
 end;
 
 function TCurlImpersonateConfig.CreateStatic: IInterface;
@@ -140,7 +172,7 @@ procedure TCurlImpersonateConfig.DoReadConfig(const AConfigData: IConfigDataProv
 begin
   inherited;
   if AConfigData <> nil then begin
-    FTarget := AConfigData.ReadAnsiString('Target', FTarget);
+    FTarget := CheckTarget(AConfigData.ReadAnsiString('Target', FTarget));
     SetChanged;
   end;
 end;
