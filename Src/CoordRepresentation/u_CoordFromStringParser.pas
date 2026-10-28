@@ -85,7 +85,7 @@ var
 begin
   result := true;
   res := 0;
-  VText := UpperCase(Atext);
+  VText := AnsiUpperCase(Atext);
 
   VText := StringReplace(VText, 'S', '-', [rfReplaceAll]);
   VText := StringReplace(VText, 'W', '-', [rfReplaceAll]);
