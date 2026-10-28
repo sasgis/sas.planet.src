@@ -381,6 +381,20 @@ begin
   CurlCheck( FCurlLib.easy_setopt(FCurl, coConnectTimeoutMS, FOptions.ConnectionTimeOutMS) );
   CurlCheck( FCurlLib.easy_setopt(FCurl, coFollowLocation, cBoolToLong[FOptions.FollowLocation]) );
 
+  if (FOptions.FollowLocation) and (FReq.Method = rmPost) then begin
+    // keep POST (with body) on 301, 302 and 303 redirects
+    // https://curl.se/libcurl/c/CURLOPT_POSTREDIR.html
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coPostRedir, 7 { CURL_REDIR_POST_ALL }) );
+  end;
+
+  if (FOptions.FollowLocation) and (FCurlLib.VersionNum >= $070500) then begin
+    // maximum number of redirects allowed (option was added in 7.5.0);
+    // the default is 30 since 8.3.0 and unlimited before, so set it explicitly
+    // to get the same behavior with any libcurl version
+    // https://curl.se/libcurl/c/CURLOPT_MAXREDIRS.html
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coMaxRedirs, 30) );
+  end;
+
   if FCertFileName <> '' then begin
     CurlCheck( FCurlLib.easy_setopt(FCurl, coCAInfo, PAnsiChar(FCertFileName)) );
   end;
