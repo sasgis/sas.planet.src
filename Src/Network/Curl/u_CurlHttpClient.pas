@@ -487,7 +487,7 @@ function TCurlHttpClient.DoRequest(
 const
   cMethod: array [TReqMethod] of RawByteString = ('HEAD', 'GET', 'POST');
 var
-  VMethod: RawByteString;
+  VNewSlist: Pointer;
   VCurlResult: TCurlResult;
   VDoCurlSetup: Boolean;
 begin
@@ -540,6 +540,9 @@ begin
     CurlSetup;
   end;
 
+  // HTTP method is set by curl automatically: coNoBody -> HEAD, coPostFields -> POST,
+  // otherwise GET (CURLOPT_CUSTOMREQUEST is not used)
+
   if FReq.Method = rmHead then begin
     CurlCheck( FCurlLib.easy_setopt(FCurl, coNoBody, 1) );
   end else begin
@@ -559,21 +562,20 @@ begin
     CurlCheck( FCurlLib.easy_setopt(FCurl, coPostFieldSize, FReq.PostDataSize) );
   end;
 
-  VMethod := cMethod[FReq.Method];
-  CurlCheck( FCurlLib.easy_setopt(FCurl, coCustomRequest, Pointer(VMethod)) );
-
   CurlCheck( FCurlLib.easy_setopt(FCurl, coUrl, Pointer(FReq.Url)) );
 
-  if (FReq.Method <> FReqMethod) or (FReq.Headers <> FReqHeaders) then begin
-    CurlClearSlist(FCurlSlist);
-
+  if VDoCurlSetup or (FReq.Method <> FReqMethod) or (FReq.Headers <> FReqHeaders) then begin
+    VNewSlist := nil;
     if FReq.Method = rmPOST then begin
-      FCurlSlist := FCurlLib.slist_append(FCurlSlist, 'Expect:');
+      VNewSlist := FCurlLib.slist_append(VNewSlist, 'Expect:');
     end;
+    CurlUpdateSlist(FReq.Headers, VNewSlist);
 
-    CurlUpdateSlist(FReq.Headers, FCurlSlist);
-
-    CurlCheck( FCurlLib.easy_setopt(FCurl, coHTTPHeader, FCurlSlist) );
+    // first hand the new list to curl, only then free the old one
+    // (avoids a dangling pointer inside the handle)
+    CurlCheck( FCurlLib.easy_setopt(FCurl, coHTTPHeader, VNewSlist) );
+    CurlClearSlist(FCurlSlist);
+    FCurlSlist := VNewSlist;
 
     FReqMethod := FReq.Method;
     FReqHeaders := FReq.Headers;
@@ -588,7 +590,7 @@ begin
     end;
     FResp.ErrorReason := Format(
       'curl error #%d (%s) on %s %s',
-      [Ord(VCurlResult), FCurlLib.easy_strerror(VCurlResult), VMethod, FReq.Url]
+      [Ord(VCurlResult), FCurlLib.easy_strerror(VCurlResult), cMethod[FReq.Method], FReq.Url]
     );
     Exit;
   end;
