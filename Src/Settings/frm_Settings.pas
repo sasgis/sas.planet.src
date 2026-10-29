@@ -1110,11 +1110,11 @@ begin
     GState.Config.BitmapPostProcessingConfig.UnlockRead;
   end;
   if TrBarGamma.Position < 50 then begin
-    LabelGamma.Caption := SAS_STR_Gamma + ' (' + floattostr((TrBarGamma.Position * 2) / 100) + ')';
+    LabelGamma.Caption := SAS_STR_Gamma + ' (' + FloatToStr((TrBarGamma.Position * 2) / 100) + ')';
   end else begin
-    LabelGamma.Caption := SAS_STR_Gamma + ' (' + floattostr((TrBarGamma.Position - 40) / 10) + ')';
+    LabelGamma.Caption := SAS_STR_Gamma + ' (' + FloatToStr((TrBarGamma.Position - 40) / 10) + ')';
   end;
-  LabelContrast.Caption := SAS_STR_Contrast + ' (' + inttostr(TrBarContrast.Position) + ')';
+  LabelContrast.Caption := SAS_STR_Contrast + ' (' + IntToStr(TrBarContrast.Position) + ')';
 
   FMainFormConfig.LayersConfig.MapLayerGridsConfig.LockRead;
   try
@@ -1227,15 +1227,15 @@ end;
 procedure TfrmSettings.TrBarGammaChange(Sender: TObject);
 begin
   if TrBarGamma.Position < 50 then begin
-    LabelGamma.Caption := SAS_STR_Gamma + ' (' + floattostr((TrBarGamma.Position * 2) / 100) + ')';
+    LabelGamma.Caption := SAS_STR_Gamma + ' (' + FloatToStr((TrBarGamma.Position * 2) / 100) + ')';
   end else begin
-    LabelGamma.Caption := SAS_STR_Gamma + ' (' + floattostr((TrBarGamma.Position - 40) / 10) + ')';
+    LabelGamma.Caption := SAS_STR_Gamma + ' (' + FloatToStr((TrBarGamma.Position - 40) / 10) + ')';
   end;
 end;
 
 procedure TfrmSettings.TrBarContrastChange(Sender: TObject);
 begin
-  LabelContrast.Caption := SAS_STR_Contrast + ' (' + inttostr(TrBarContrast.Position) + ')';
+  LabelContrast.Caption := SAS_STR_Contrast + ' (' + IntToStr(TrBarContrast.Position) + ')';
 end;
 
 procedure TfrmSettings.RefreshTranslation;
