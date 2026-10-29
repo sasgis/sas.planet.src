@@ -531,7 +531,7 @@ begin
       Inc(VDataSize, VBytesRead);
 
       if Assigned(FProgressCallBack) then begin
-        FProgressCallBack(VContentLen, VDataSize);
+        FProgressCallBack(VDataSize, VContentLen);
       end;
     until False;
 

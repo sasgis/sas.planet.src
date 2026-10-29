@@ -71,7 +71,7 @@ type
   end;
   PWinInetResponse = ^TWinInetResponse;
 
-  TWinInetProgressCallBack = procedure(const ATotal, ADownload: Int64) of object;
+  TWinInetProgressCallBack = procedure(const ADownload, ATotal: Int64) of object;
   TWinInetStatusCallBack = procedure(const AStatus: DWORD; const AInfo: Pointer; const AInfoLen: DWORD) of object;
 
 implementation

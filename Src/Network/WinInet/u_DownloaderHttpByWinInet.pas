@@ -78,11 +78,6 @@ type
     );
     {$ENDIF}
 
-    procedure OnWinInetProgress(
-      const ATotal: Int64;
-      const ADownload: Int64
-    );
-
     function OnBeforeRequest(
       const ARequest: IDownloadRequest
     ): IDownloadResult;
@@ -129,7 +124,6 @@ constructor TDownloaderHttpByWinInet.Create(
   const AOnDownloadProgress: TOnDownloadProgress
 );
 var
-  VProgressCallBack: TWinInetProgressCallBack;
   VStatusCallBack: TWinInetStatusCallBack;
 begin
   inherited Create(AResultFactory, AContentTypeManager);
@@ -144,11 +138,6 @@ begin
   FHttpRequest.Proxy := @FHttpProxy;
   FHttpResponse.Data := TMemoryStream.Create;
 
-  VProgressCallBack := nil;
-  if Assigned(FOnDownloadProgress) then begin
-    VProgressCallBack := Self.OnWinInetProgress;
-  end;
-
   {$IFDEF WRITE_HTTP_LOG}
   FLog := TDownloaderHttpLog.Create('wininet');
   VStatusCallBack := Self.OnWinInetStatusChange;
@@ -156,7 +145,7 @@ begin
   VStatusCallBack := nil;
   {$ENDIF}
 
-  FHttpClient := TWinInetHttpClient.Create(VProgressCallBack, VStatusCallBack);
+  FHttpClient := TWinInetHttpClient.Create(FOnDownloadProgress, VStatusCallBack);
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.DoDisconnect);
   FLock := GSync.SyncBig.Make(Self.ClassName);
 end;
@@ -397,11 +386,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TDownloaderHttpByWinInet.OnWinInetProgress(const ATotal, ADownload: Int64);
-begin
-  FOnDownloadProgress(ATotal, ADownload);
 end;
 
 {$IFDEF WRITE_HTTP_LOG}

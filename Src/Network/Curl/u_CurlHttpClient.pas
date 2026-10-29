@@ -51,7 +51,6 @@ type
 
     FCurlProgressCallBack: TCurlProgressCallBack;
     FCurlDebugCallBack: TCurlDebugCallBack;
-    FCurlUserData: Pointer;
 
     procedure CurlSetup;
     procedure CurlImpersonateSetup;
@@ -75,7 +74,6 @@ type
       const ACertFileName: AnsiString;
       const AProgressCallBack: TCurlProgressCallBack;
       const ADebugCallBack: TCurlDebugCallBack;
-      const AUserData: Pointer;
       const ACurlLibraryProvider: ICurlLibraryProvider;
       const AImpersonateTarget: RawByteString
     );
@@ -194,7 +192,7 @@ begin
   // https://curl.se/libcurl/c/CURLOPT_XFERINFOFUNCTION.html
   try
     if not VSelf.FDoDisconnect then begin
-      VSelf.FCurlProgressCallBack(ADlTotal, ADlNow, VSelf.FCurlUserData);
+      VSelf.FCurlProgressCallBack(ADlNow, ADlTotal);
       Result := 0;
     end else begin
       Result := 1;
@@ -248,10 +246,7 @@ begin
       VPtr := Pointer(VData);
       while VPtr <> nil do begin
         GetNextLine(VPtr, VStr);
-        VSelf.FCurlDebugCallBack(
-          cIdent[AInfoType] + VStr,
-          VSelf.FCurlUserData
-        );
+        VSelf.FCurlDebugCallBack(cIdent[AInfoType] + VStr);
       end;
     end;
   except
@@ -265,7 +260,6 @@ constructor TCurlHttpClient.Create(
   const ACertFileName: AnsiString;
   const AProgressCallBack: TCurlProgressCallBack;
   const ADebugCallBack: TCurlDebugCallBack;
-  const AUserData: Pointer;
   const ACurlLibraryProvider: ICurlLibraryProvider;
   const AImpersonateTarget: RawByteString
 );
@@ -276,7 +270,6 @@ begin
 
   FCurlProgressCallBack := AProgressCallBack;
   FCurlDebugCallBack := ADebugCallBack;
-  FCurlUserData := AUserData;
 
   FCurl := nil;
   FCurlSlist := nil;

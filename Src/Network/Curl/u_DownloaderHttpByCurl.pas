@@ -73,6 +73,7 @@ type
 
     {$IFDEF WRITE_HTTP_LOG}
     FLog: TDownloaderHttpLog;
+    procedure OnCurlDebug(const ADebugMsg: RawByteString);
     {$ENDIF}
 
     function OnBeforeRequest(
@@ -112,22 +113,6 @@ uses
   u_ListenerByEvent,
   u_Synchronizer;
 
-procedure OnCurlProgress(const ATotal, ADownload: Int64; const AUserData: Pointer);
-var
-  VSelf: TDownloaderHttpByCurl absolute AUserData;
-begin
-  VSelf.FOnDownloadProgress(ADownload, ATotal);
-end;
-
-{$IFDEF WRITE_HTTP_LOG}
-procedure OnCurlDebug(const ADebugMsg: RawByteString; const AUserData: Pointer);
-var
-  VSelf: TDownloaderHttpByCurl absolute AUserData;
-begin
-  VSelf.FLog.Write(hmtRaw, string(ADebugMsg));
-end;
-{$ENDIF}
-
 { TDownloaderHttpByCurl }
 
 constructor TDownloaderHttpByCurl.Create(
@@ -145,7 +130,6 @@ var
   VCertFileName: string;
   VCertFileNameA: AnsiString;
   VDebugCallBack: TCurlDebugCallBack;
-  VProgressCallBack: TCurlProgressCallBack;
 begin
   inherited Create(AResultFactory, AContentTypeManager);
 
@@ -171,11 +155,6 @@ begin
   FTryDetectContentType := ATryDetectContentType;
   FOnDownloadProgress := AOnDownloadProgress;
 
-  VProgressCallBack := nil;
-  if Assigned(FOnDownloadProgress) then begin
-    VProgressCallBack := OnCurlProgress;
-  end;
-
   FProxyResolver := TCurlProxyResolver.Create;
 
   FIsImpersonate := AImpersonateTarget <> '';
@@ -198,9 +177,8 @@ begin
   FHttpClient :=
     TCurlHttpClient.Create(
       VCertFileNameA,
-      VProgressCallBack,
+      FOnDownloadProgress,
       VDebugCallBack,
-      Self,
       ACurlLibraryProvider,
       AImpersonateTarget
     );
@@ -512,5 +490,12 @@ begin
     FHttpRequest.Proxy := @FHttpProxy;
   end;
 end;
+
+{$IFDEF WRITE_HTTP_LOG}
+procedure TDownloaderHttpByCurl.OnCurlDebug(const ADebugMsg: RawByteString);
+begin
+  FLog.Write(hmtRaw, string(ADebugMsg));
+end;
+{$ENDIF}
 
 end.

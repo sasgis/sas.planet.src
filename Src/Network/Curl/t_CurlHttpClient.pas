@@ -88,15 +88,13 @@ type
   PCurlResponse = ^TCurlResponse;
 
   TCurlDebugCallBack = procedure(
-    const ADebugMsg: RawByteString;
-    const AUserData: Pointer
-  );
+    const ADebugMsg: RawByteString
+  ) of object;
 
   TCurlProgressCallBack = procedure(
-    const ATotal: Int64;
     const ADownload: Int64;
-    const AUserData: Pointer
-  );
+    const ATotal: Int64
+  ) of object;
 
 implementation
 
