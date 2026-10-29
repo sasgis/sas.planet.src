@@ -57,7 +57,6 @@ uses
   i_DownloadInfoSimple,
   i_DownloaderFactory,
   i_ImageResamplerConfig,
-  i_GeoCoderList,
   i_MarkPicture,
   i_LastSelectionInfo,
   i_InternalPerformanceCounter,
@@ -65,7 +64,6 @@ uses
   i_MarkSystem,
   i_MarkSystemConfig,
   i_ZmpInfoSet,
-  i_Datum,
   i_DatumFactory,
   i_GeoCalc,
   i_PathConfig,
@@ -154,7 +152,6 @@ type
     FDownloaderFactory: IDownloaderFactory;
     FGlobalInternetState: IGlobalInternetState;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FGeoCoderList: IGeoCoderListStatic;
     FMarkPictureList: IMarkPictureList;
     FMarkPictureListInternal: IMarkPictureListInternal;
     FGpsSystem: IGpsSystem;
@@ -293,7 +290,6 @@ type
     property CoordFromStringParser: ICoordFromStringParser read FCoordFromStringParser;
     property CoordToStringConverter: ICoordToStringConverterChangeable read FCoordToStringConverter;
     property ValueToStringConverter: IValueToStringConverterChangeable read FValueToStringConverter;
-    property GeoCoderList: IGeoCoderListStatic read FGeoCoderList;
     property DebugInfoSubSystem: IDebugInfoSubSystem read FDebugInfoSubSystem;
     property BatteryStatus: IBatteryStatus read FBatteryStatus;
     property AppEnum: IAppEnum read FAppEnum;
@@ -362,7 +358,6 @@ uses
   u_HashFunctionByImpl,
   {$ENDIF}
   u_MapVersionFactoryList,
-  u_GeoCoderListSimple,
   u_MarkPictureListSimple,
   u_ImageResamplerFactoryListStaticSimple,
   u_GlobalBerkeleyDBHelper,
@@ -820,23 +815,6 @@ begin
       FMarkSystem.ImplFactoryList,
       FGlobalConfig.ExportMarks2KmlConfig,
       FBuildInfo
-    );
-
-  FGeoCoderList :=
-    TGeoCoderListSimple.Create(
-      FGlobalConfig.GeoCoderConfig,
-      FGlobalConfig.InetConfig,
-      BGTimerNotifier,
-      FVectorItemSubsetBuilderFactory,
-      FGeoCodePlacemarkFactory,
-      FDownloaderFactory,
-      FCoordToStringConverter,
-      FMarkSystem.MarkDb,
-      FProjectionSetFactory,
-      FProjConverterFactory,
-      FVectorGeometryLonLatFactory,
-      FVectorDataFactory,
-      FVectorDataItemMainInfoFactory
     );
 
   FMarkPictureListInternal.LoadList;

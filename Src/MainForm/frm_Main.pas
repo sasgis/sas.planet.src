@@ -63,6 +63,7 @@ uses
   TBXGraphics,
   t_GeoTypes,
   i_GeoCalc,
+  i_GeoCoderList,
   i_GUIDSet,
   i_Listener,
   i_Notifier,
@@ -106,7 +107,6 @@ uses
   i_FindVectorItems,
   i_PlayerPlugin,
   i_VectorItemSubset,
-  i_ImportConfig,
   i_PanelsPositionsSaveLoad,
   i_FillingMapPolygon,
   i_FavoriteMapSetHelper,
@@ -954,6 +954,7 @@ type
     FLayerMapMarks: IFindVectorItems;
     FLayerSearchResults: IFindVectorItems;
 
+    FGeoCoderList: IGeoCoderListStatic;
     FSearchPresenter: ISearchResultPresenter;
     FSearchToolbarContainer: TSearchToolbarContainer;
 
@@ -1225,7 +1226,6 @@ uses
   i_MarkId,
   i_MapType,
   i_MapTypeSet,
-  i_GeoCoderList,
   i_ProjectionType,
   i_Projection,
   i_GeometryProjected,
@@ -1276,6 +1276,7 @@ uses
   u_Dialogs,
   u_GeoFunc,
   u_GeoToStrFunc,
+  u_GeoCoderListSimple,
   u_HtmlDoc,
   u_StringListStatic,
   u_ResStrings,
@@ -1397,6 +1398,25 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig.LayersConfig,
       FConfig.LayersConfig.FillingMapLayerConfig.SourceMap
     );
+
+  FGeoCoderList :=
+    TGeoCoderListSimple.Create(
+      GState.Config.GeoCoderConfig,
+      GState.Config.InetConfig,
+      GState.BGTimerNotifier,
+      GState.VectorItemSubsetBuilderFactory,
+      GState.GeoCodePlacemarkFactory,
+      GState.DownloaderFactory,
+      GState.CoordToStringConverter,
+      GState.MarksDb.MarkDb,
+      GState.ProjectionSetFactory,
+      GState.ProjConverterFactory,
+      GState.VectorGeometryLonLatFactory,
+      GState.VectorDataFactory,
+      GState.VectorDataItemMainInfoFactory,
+      FMainMapState.ActiveKmlLayersSet
+    );
+
   FActiveProjectionSet :=
     TProjectionSetChangeableByConfig.Create(
       GState.ProjectionSetFactory,
@@ -2262,7 +2282,7 @@ begin
        GState.VectorItemSubsetBuilderFactory,
        GState.GeoCodePlacemarkFactory,
        GState.MarksDb.MarkDb,
-       Gstate.GeoCoderList,
+       FGeoCoderList,
        FConfig.SearchHistory,
        FConfig.MainGeoCoderConfig,
        FViewPortState.View,
@@ -2514,7 +2534,6 @@ procedure TfrmMain.InitSearchers;
 var
   I: Integer;
   VItem: IGeoCoderListEntity;
-  VGeoCoderList: IGeoCoderListStatic;
   VTBEditItem: TTBEditItem;
   VActiveGeoCoder: TGUID;
   VIsActiveGeoCoderFound: Boolean;
@@ -2530,12 +2549,11 @@ begin
       GState.LastSearchResult
     );
 
-  VGeoCoderList := GState.GeoCoderList;
   VActiveGeoCoder := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
   VIsActiveGeoCoderFound := False;
 
-  for I := 0 to VGeoCoderList.Count - 1 do begin
-    VItem := VGeoCoderList.Items[I];
+  for I := 0 to FGeoCoderList.Count - 1 do begin
+    VItem := FGeoCoderList.Items[I];
 
     VTBEditItem := TTBEditItem.Create(Self);
     VTBEditItem.EditCaption := VItem.GetCaption;
@@ -2553,8 +2571,8 @@ begin
   end;
 
   if not VIsActiveGeoCoderFound then begin
-    if VGeoCoderList.Count > 0 then begin
-      VActiveGeoCoder := VGeoCoderList.Items[0].GUID;
+    if FGeoCoderList.Count > 0 then begin
+      VActiveGeoCoder := FGeoCoderList.Items[0].GUID;
       FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VActiveGeoCoder;
     end else begin
       //ToDo
@@ -2567,7 +2585,7 @@ begin
       tbiSearch,
       tbxDoSearch,
       GState.AppClosingNotifier,
-      VGeoCoderList,
+      FGeoCoderList,
       FConfig.MainGeoCoderConfig,
       FConfig.SearchHistory,
       FViewPortState.View,

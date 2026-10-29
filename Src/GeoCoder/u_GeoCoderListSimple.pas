@@ -29,6 +29,7 @@ uses
   i_GeoCoder,
   i_GeoCoderConfig,
   i_MarkDb,
+  i_MapTypeSetChangeable,
   i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
   i_GeometryLonLatFactory,
@@ -54,7 +55,8 @@ type
       const AProjConverterFactory: IProjConverterFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+      const AKmlLayersSet: IMapTypeSetChangeable
     );
   end;
 
@@ -80,7 +82,8 @@ uses
   u_GeoCoderByGpx,
   u_GeoCoderByTXT,
   u_GeoCoderByCoord,
-  u_GeoCoderByMarks;
+  u_GeoCoderByMarks,
+  u_GeoCoderByVectorLayers;
 
 resourcestring
   rsOfflineSearchFmt = 'Offline search (%s)';
@@ -100,7 +103,8 @@ constructor TGeoCoderListSimple.Create(
   const AProjConverterFactory: IProjConverterFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
+  const AKmlLayersSet: IMapTypeSetChangeable
 
 );
 var
@@ -312,6 +316,18 @@ begin
         AVectorItemSubsetBuilderFactory,
         APlacemarkFactory,
         AMarksDb
+      ) as IGeoCoder
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TGeoCoderListEntity.Create(
+      CGeoCoderVectorLayersGUID,
+      _('Vector layers'),
+      TGeoCoderByVectorLayers.Create(
+        AVectorItemSubsetBuilderFactory,
+        APlacemarkFactory,
+        AKmlLayersSet
       ) as IGeoCoder
     );
   VList.Add(VItem);

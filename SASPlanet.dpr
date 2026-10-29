@@ -307,6 +307,7 @@ uses
   u_GeoCoderByRosreestr in 'Src\GeoCoder\u_GeoCoderByRosreestr.pas',
   u_GeoCoderByTXT in 'Src\GeoCoder\u_GeoCoderByTXT.pas',
   u_GeoCoderByURL in 'Src\GeoCoder\u_GeoCoderByURL.pas',
+  u_GeoCoderByVectorLayers in 'Src\GeoCoder\u_GeoCoderByVectorLayers.pas',
   u_GeoCoderByWikimapia in 'Src\GeoCoder\u_GeoCoderByWikimapia.pas',
   u_GeoCoderByYandex in 'Src\GeoCoder\u_GeoCoderByYandex.pas',
   u_GeoCoderConfig in 'Src\GeoCoder\u_GeoCoderConfig.pas',
