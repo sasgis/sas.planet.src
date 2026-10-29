@@ -79,8 +79,8 @@ type
     {$ENDIF}
 
     procedure OnWinInetProgress(
-      const ATotal: Integer;
-      const ADownload: Integer
+      const ATotal: Int64;
+      const ADownload: Int64
     );
 
     function OnBeforeRequest(
@@ -399,7 +399,7 @@ begin
   end;
 end;
 
-procedure TDownloaderHttpByWinInet.OnWinInetProgress(const ATotal, ADownload: Integer);
+procedure TDownloaderHttpByWinInet.OnWinInetProgress(const ATotal, ADownload: Int64);
 begin
   FOnDownloadProgress(ATotal, ADownload);
 end;

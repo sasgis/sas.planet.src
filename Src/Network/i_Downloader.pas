@@ -35,8 +35,8 @@ type
     ) of object;
 
   TOnDownloadProgress = procedure(
-      const ARead: Integer;
-      const ATotal: Integer
+      const ARead: Int64;
+      const ATotal: Int64
     ) of object;
 
   IDownloader = interface

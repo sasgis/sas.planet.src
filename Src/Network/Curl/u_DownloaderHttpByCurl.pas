@@ -112,7 +112,7 @@ uses
   u_ListenerByEvent,
   u_Synchronizer;
 
-procedure OnCurlProgress(const ATotal, ADownload: Integer; const AUserData: Pointer);
+procedure OnCurlProgress(const ATotal, ADownload: Int64; const AUserData: Pointer);
 var
   VSelf: TDownloaderHttpByCurl absolute AUserData;
 begin

@@ -93,8 +93,8 @@ type
   );
 
   TCurlProgressCallBack = procedure(
-    const ATotal: Integer;
-    const ADownload: Integer;
+    const ATotal: Int64;
+    const ADownload: Int64;
     const AUserData: Pointer
   );
 

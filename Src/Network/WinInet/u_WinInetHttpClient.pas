@@ -362,7 +362,7 @@ var
   VFlags, VLen, VIndex, VBytesRead, VContentLen: DWORD;
   VBuffer: array[0..CBufferSize-1] of Byte;
   VStream: TMemoryStream;
-  VDataSize: NativeInt;
+  VDataSize: Int64;
   VRequest: HINTERNET;
   VResult: Boolean;
   VError: Cardinal;

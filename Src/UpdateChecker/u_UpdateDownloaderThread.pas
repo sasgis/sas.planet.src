@@ -50,8 +50,8 @@ type
     function GetOutFileName: string; inline;
 
     procedure OnDownloadProgress(
-      const ARead: Integer;
-      const ATotal: Integer
+      const ARead: Int64;
+      const ATotal: Int64
     );
     procedure OnDownloadResult(
       const AResult: IDownloadResultOk
@@ -175,7 +175,7 @@ begin
   end;
 end;
 
-procedure TUpdateDownloaderThread.OnDownloadProgress(const ARead, ATotal: Integer);
+procedure TUpdateDownloaderThread.OnDownloadProgress(const ARead, ATotal: Int64);
 begin
   FResult.BytesDownloaded := ARead;
   FResult.BytesTotal := ATotal;

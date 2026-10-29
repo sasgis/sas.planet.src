@@ -62,8 +62,8 @@ type
     IsFinished: Boolean;
     IsError: Boolean;
 
-    BytesDownloaded: Integer;
-    BytesTotal: Integer;
+    BytesDownloaded: Int64;
+    BytesTotal: Int64;
 
     Text: string;
   end;

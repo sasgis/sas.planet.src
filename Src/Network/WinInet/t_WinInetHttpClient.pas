@@ -57,7 +57,7 @@ type
     UserAgent: RawByteString;
     Headers: RawByteString;
     PostData: Pointer;
-    PostDataSize: NativeInt;
+    PostDataSize: Integer;
     Proxy: PWinInetProxy;
     Options: PWinInetOptions;
   end;
@@ -71,7 +71,7 @@ type
   end;
   PWinInetResponse = ^TWinInetResponse;
 
-  TWinInetProgressCallBack = procedure(const ATotal, ADownload: Integer) of object;
+  TWinInetProgressCallBack = procedure(const ATotal, ADownload: Int64) of object;
   TWinInetStatusCallBack = procedure(const AStatus: DWORD; const AInfo: Pointer; const AInfoLen: DWORD) of object;
 
 implementation
