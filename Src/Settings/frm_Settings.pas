@@ -1059,7 +1059,7 @@ begin
     RefreshCurlImpersonateTarget(
       VInetConfig.NetworkEngineType,
       VInetConfig.CurlImpersonateConfig.Targets,
-      VInetConfig.CurlImpersonateConfig.GetStatic.Target
+      VInetConfig.CurlImpersonateConfig.Target
     );
 
     cbbBrowserEngine.Items.Clear;
@@ -1423,6 +1423,7 @@ procedure TfrmSettings.RefreshCurlImpersonateTarget(
 );
 var
   I: Integer;
+  VTarget: string;
 begin
   cbbCurlImpersonateTarget.Items.BeginUpdate;
   try
@@ -1436,9 +1437,11 @@ begin
     cbbCurlImpersonateTarget.Items.EndUpdate;
   end;
 
+  VTarget := string(ATarget);
+
   cbbCurlImpersonateTarget.ItemIndex := 0;
   for I := 0 to cbbCurlImpersonateTarget.Items.Count - 1 do begin
-    if SameStr(cbbCurlImpersonateTarget.Items[I], string(ATarget)) then begin
+    if cbbCurlImpersonateTarget.Items[I] = VTarget then begin
       cbbCurlImpersonateTarget.ItemIndex := I;
       Break;
     end;
