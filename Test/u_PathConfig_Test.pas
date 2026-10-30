@@ -1,11 +1,5 @@
 unit u_PathConfig_Test;
 
-{
-
-  Delphi DUnit Test Case
-  ----------------------
-}
-
 interface
 
 uses
@@ -38,6 +32,20 @@ type
     procedure TestAdvRelativePath;
     procedure TestChangeBasePathForFull;
     procedure TestChangeBasePathForRelative;
+  end;
+
+  TestIPathConfigEnvVars = class(TTestCase)
+  private
+    FPath: IPathConfig;
+    procedure CheckSamePath(const A, B: string);
+  protected
+    procedure SetUp; override;
+  published
+    procedure TestEnvVarWithoutBase;
+    procedure TestEnvVarWithBase;
+    procedure TestUndefinedEnvVarWithBase;
+    procedure TestRawPathIsKept;
+    procedure TestEnvVarInBasePath;
   end;
 
 implementation
@@ -178,8 +186,77 @@ begin
   CheckEqualsString(VFullPath, FPath.FullPath);
 end;
 
+{ TestIPathConfigEnvVars }
+
+procedure TestIPathConfigEnvVars.CheckSamePath(const A, B: string);
+begin
+  CheckEqualsString(AnsiLowerCase(A), AnsiLowerCase(B));
+end;
+
+procedure TestIPathConfigEnvVars.SetUp;
+var
+  VBase: IPathConfig;
+begin
+  inherited;
+  VBase := TPathConfig.Create('', 'C:\Windows\System32', nil);
+  FPath := TPathConfig.Create('', '', VBase);
+end;
+
+procedure TestIPathConfigEnvVars.TestEnvVarWithoutBase;
+var
+  VPath: IPathConfig;
+  VFullPath: string;
+begin
+  VFullPath := SysUtils.GetEnvironmentVariable('SystemDrive') + '\SAS.Planet';
+  VPath := TPathConfig.Create('', '', nil);
+  VPath.Path := '%SystemDrive%\SAS.Planet';
+  CheckFalse(VPath.IsRelative);
+  CheckSamePath(VFullPath, VPath.FullPath);
+end;
+
+procedure TestIPathConfigEnvVars.TestEnvVarWithBase;
+var
+  VFullPath: string;
+begin
+  // base path must not be prepended: expanded path is absolute
+  VFullPath := SysUtils.GetEnvironmentVariable('SystemDrive') + '\SAS.Planet';
+  FPath.Path := '%SystemDrive%\SAS.Planet';
+  CheckFalse(FPath.IsRelative);
+  CheckSamePath(VFullPath, FPath.FullPath);
+end;
+
+procedure TestIPathConfigEnvVars.TestUndefinedEnvVarWithBase;
+begin
+  // undefined var is left as is -> treated as a relative path under the base
+  FPath.Path := '%SAS_PLANET_UNDEFINED_VAR%\Test';
+  CheckTrue(FPath.IsRelative);
+  CheckEqualsString('C:\Windows\System32\%SAS_PLANET_UNDEFINED_VAR%\Test', FPath.FullPath);
+end;
+
+procedure TestIPathConfigEnvVars.TestRawPathIsKept;
+begin
+  // raw value with env variable is exposed as is (for ini and gui)
+  FPath.Path := '%SystemDrive%\SAS.Planet';
+  CheckEqualsString('%SystemDrive%\SAS.Planet', FPath.Path);
+end;
+
+procedure TestIPathConfigEnvVars.TestEnvVarInBasePath;
+var
+  VBase: IPathConfig;
+  VPath: IPathConfig;
+begin
+  VBase := TPathConfig.Create('', '%SystemDrive%\Base', nil);
+  VPath := TPathConfig.Create('', '.\Sub', VBase);
+  CheckSamePath(SysUtils.GetEnvironmentVariable('SystemDrive') + '\Base\Sub', VPath.FullPath);
+
+  // child must be re-resolved when the base raw value changes
+  VBase.Path := '%SystemRoot%';
+  CheckSamePath(SysUtils.GetEnvironmentVariable('SystemRoot') + '\Sub', VPath.FullPath);
+end;
+
 initialization
-  // Register any test cases with the test runner
   RegisterTest(TestIPathConfigWithoutBase.Suite);
   RegisterTest(TestIPathConfigWithBase.Suite);
+  RegisterTest(TestIPathConfigEnvVars.Suite);
+
 end.

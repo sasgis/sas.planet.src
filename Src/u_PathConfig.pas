@@ -174,7 +174,7 @@ end;
 
 function TPathConfig.IsRelativePath(const APath: string): Boolean;
 begin
-  Result := SysUtils.IsRelativePath(APath);
+  Result := SysUtils.IsRelativePath(ExpandEnvironmentVariables(APath));
 end;
 
 procedure TPathConfig.OnBasePathChange;
@@ -247,8 +247,8 @@ var
   VPath: string;
   VFullPath: string;
 begin
+  VPath := ExpandEnvironmentVariables(FPath);
   if FIsRelative then begin
-    VPath := FPath;
     if VPath = '' then begin
       VPath := '.';
     end;
@@ -259,7 +259,7 @@ begin
       VFullPath := ExpandFileName(VPath);
     end;
   end else begin
-    VFullPath := FPath;
+    VFullPath := VPath;
   end;
   if FFullPath <> VFullPath then begin
     FFullPath := VFullPath;

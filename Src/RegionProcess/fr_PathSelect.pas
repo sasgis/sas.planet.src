@@ -77,6 +77,7 @@ type
 implementation
 
 uses
+  StrUtils,
   gnugettext;
 
 {$R *.dfm}
@@ -128,11 +129,19 @@ end;
 
 procedure TfrPathSelect.btnSelectPathClick(Sender: TObject);
 var
+  VBasePath: string;
   VTempPath: string;
 begin
   VTempPath := FPathConfig.FullPath;
   if SelectDirectory(FCaption, '', VTempPath) then begin
-    edtPath.Text := StringReplace(IncludePathDelim(VTempPath), FPathConfig.BasePathConfig.Path, '.\', [rfIgnoreCase]);
+    VTempPath := IncludePathDelim(VTempPath);
+    if FPathConfig.BasePathConfig <> nil then begin
+      VBasePath := IncludeTrailingPathDelimiter(FPathConfig.BasePathConfig.FullPath);
+      if StartsText(VBasePath, VTempPath) then begin
+        VTempPath := '.\' + Copy(VTempPath, Length(VBasePath) + 1, MaxInt);
+      end;
+    end;
+    edtPath.Text := VTempPath;
   end;
 end;
 

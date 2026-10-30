@@ -24,6 +24,7 @@ unit u_FileSystemFunc;
 interface
 
 function RelativeToAbsolutePath(const ABasePath, ARelativePath: string): string;
+function ExpandEnvironmentVariables(const APath: string): string;
 function GetDiskFree(const ADrive: Char): Int64;
 function ReplaceIllegalFileNameChars(const AFileName: string): string;
 function IsValidFileName(const AFileName: string): Boolean;
@@ -42,6 +43,26 @@ begin
     RaiseLastOSError;
   end;
   SetLength(Result, StrLen(PChar(Result)));
+end;
+
+function ExpandEnvironmentVariables(const APath: string): string;
+var
+  VSize: DWORD;
+begin
+  VSize := 1024;
+  SetLength(Result, VSize);
+  while True do begin
+    VSize := Windows.ExpandEnvironmentStrings(PChar(APath), PChar(Result), VSize);
+    if VSize = 0 then begin
+      RaiseLastOSError;
+    end;
+    if VSize <= DWORD(Length(Result)) then begin
+      // returned size includes the terminating #0
+      SetLength(Result, VSize - 1);
+      Break;
+    end;
+    SetLength(Result, VSize);
+  end;
 end;
 
 function GetDiskFree(const ADrive: Char): Int64;
