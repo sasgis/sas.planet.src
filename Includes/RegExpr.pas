@@ -1,4 +1,4 @@
-unit RegExpr;
+Ôªøunit RegExpr;
 
 {
      TRegExpr class library
@@ -413,8 +413,8 @@ type
     property ModifierR : boolean index 2 read GetModifier write SetModifier;
     // Modifier /r - use r.e.syntax extended for russian,
     // (was property ExtSyntaxEnabled in previous versions)
-    // If true, then ‡-ˇ  additional include russian letter '∏',
-    // ¿-ﬂ  additional include '®', and ‡-ﬂ include all russian symbols.
+    // If true, then –∞-—è  additional include russian letter '—ë',
+    // –ê-–Ø  additional include '–Å', and –∞-–Ø include all russian symbols.
     // You have to turn it off if it may interfere with you national alphabet.
     // , initialized from RegExprModifierR
 
@@ -1202,9 +1202,14 @@ begin
       AnsiUpperCase(Ch)[1]
       {$ELSE}
         {$IFDEF ForceAnsiStrings}
-        REChar(Windows.CharUpperA(PAnsiChar(Ch)))
+        // CharUpperA/CharLowerA treat a pointer with a zero high word as a
+        // single character in its low word, so the character value itself
+        // must be passed. PAnsiChar(Ch) passes the address of Ch instead,
+        // and then the returned pointer is squeezed into a REChar - which
+        // produced random values depending on the stack layout.
+        REChar(Windows.CharUpperA(PAnsiChar(Ord(Ch))))
         {$ELSE}
-        REChar(Windows.CharUpper(PChar(Ch)))
+        REChar(Windows.CharUpper(PChar(Ord(Ch))))
         {$ENDIF}
       {$ENDIF};
     if Result = Ch then begin
@@ -1213,9 +1218,9 @@ begin
         AnsiLowerCase(Ch)[1]
         {$ELSE}
           {$IFDEF ForceAnsiStrings}
-          REChar(Windows.CharLowerA(PAnsiChar(Ch)))
+          REChar(Windows.CharLowerA(PAnsiChar(Ord(Ch))))
           {$ELSE}
-          REChar(Windows.CharLower(PChar(Ch)))
+          REChar(Windows.CharLower(PChar(Ord(Ch))))
           {$ENDIF}
         {$ENDIF};
     end;
@@ -1497,7 +1502,7 @@ procedure TRegExpr.Tail (p : PRegExprChar; val : PRegExprChar);
    // shr after subtraction to calculate widechar distance %-( )
    // so, if difference is negative we have .. the "feature" :(
    // I could wrap it in $IFDEF UniCode, but I didn't because
-   // "P ñ Q computes the difference between the address given
+   // "P ‚Äì Q computes the difference between the address given
    // by P (the higher address) and the address given by Q (the
    // lower address)" - Delphi help quotation.
    else PRENextOff (scan + REOpSz)^ := val - scan; //###0.933
@@ -1608,17 +1613,17 @@ const
    #$418,#$419,#$41A,#$41B,#$41C,#$41D,#$41E,#$41F,
    #$420,#$421,#$422,#$423,#$424,#$425,#$426,#$427,
    #$428,#$429,#$42A,#$42B,#$42C,#$42D,#$42E,#$42F,#0);
- RusRangeLoLow = #$430{'‡'};
- RusRangeLoHigh = #$44F{'ˇ'};
- RusRangeHiLow = #$410{'¿'};
- RusRangeHiHigh = #$42F{'ﬂ'};
+ RusRangeLoLow = #$430{'–∞'};
+ RusRangeLoHigh = #$44F{'—è'};
+ RusRangeHiLow = #$410{'–ê'};
+ RusRangeHiHigh = #$42F{'–Ø'};
 {$ELSE}
- RusRangeLo = '‡·‚„‰Â∏ÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ';
- RusRangeHi = '¿¡¬√ƒ≈®∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ';
- RusRangeLoLow = '‡';
- RusRangeLoHigh = 'ˇ';
- RusRangeHiLow = '¿';
- RusRangeHiHigh = 'ﬂ';
+ RusRangeLo = '–∞–±–≤–≥–¥–µ—ë–∂–∑–∏–π–∫–ª–º–Ω–æ–ø—Ä—Å—Ç—É—Ñ—Ö—Ü—á—à—â—ä—ã—å—ç—é—è';
+ RusRangeHi = '–ê–ë–í–ì–î–ï–Å–ñ–ó–ò–ô–ö–õ–ú–ù–û–ü–†–°–¢–£–§–•–¶–ß–®–©–™–´–¨–≠–Æ–Ø';
+ RusRangeLoLow = '–∞';
+ RusRangeLoHigh = '—è';
+ RusRangeHiLow = '–ê';
+ RusRangeHiHigh = '–Ø';
 {$ENDIF}
 
 function TRegExpr.CompileRegExpr (exp : PRegExprChar) : boolean;
@@ -3638,7 +3643,7 @@ procedure TRegExpr.SetInputString (const AInputString : RegExprString);
   fInputStart := PChar (fInputString);
   Len := length (fInputString);
   fInputEnd := PRegExprChar (integer (fInputStart) + Len); ??
-  !! startp/endp ‚ÒÂ ‡‚ÌÓ ·Û‰ÂÚ ÓÔ‡ÒÌÓ ËÒÔÓÎ¸ÁÓ‚‡Ú¸ ?
+  !! startp/endp –≤—Å–µ —Ä–∞–≤–Ω–æ –±—É–¥–µ—Ç –æ–ø–∞—Å–Ω–æ –∏—Å–ø–æ–ª—å–∑–æ–≤–∞—Ç—å ?
   }
  end; { of procedure TRegExpr.SetInputString
 --------------------------------------------------------------}
