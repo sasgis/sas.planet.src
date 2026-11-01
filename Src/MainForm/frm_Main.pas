@@ -3090,6 +3090,8 @@ begin
     tbitmSaveMark.Hint := _('Save as... (Enter)');
   end;
   tbitmSaveMark.DropdownCombo := VIsMarkEdit;
+  // actMarkSaveAsNew is also assigned to tbitmSaveMark when no mark is
+  // edited, so Visible must stay on the item and not on the action
   tbitmSaveMarkAsNew.Visible := VIsMarkEdit;
 
   tbitmSaveMark.Visible :=
@@ -3098,8 +3100,8 @@ begin
     (VNewState = ao_edit_line) or
     (VNewState = ao_edit_poly);
 
-  tbxtmSaveMarkAsSeparateSegment.Visible := VIsMarkEdit;
-  tbxtmSaveMarkAsSeparateSegment.Enabled :=
+  actMarkSaveAsSeparateSegments.Visible := VIsMarkEdit;
+  actMarkSaveAsSeparateSegments.Enabled :=
     ((VNewState = ao_edit_line) and (FEditMarkLine <> nil) and Supports(FEditMarkLine.Geometry, IGeometryLonLatMultiLine)) or
     ((VNewState = ao_edit_poly) and (FEditMarkPoly <> nil) and Supports(FEditMarkPoly.Geometry, IGeometryLonLatMultiPolygon));
 
@@ -3107,9 +3109,9 @@ begin
     (VNewState = ao_select_poly) or
     (VNewState = ao_select_line);
 
-  tbxCalcLineLabelVisible.Visible := (VNewState = ao_calc_line);
-  tbxEditPathLabelVisible.Visible := (VNewState = ao_edit_line);
-  tbxEditPolygonLabelVisible.Visible := (VNewState = ao_edit_poly);
+  actCalcLineLabelVisible.Visible := (VNewState = ao_calc_line);
+  actEditPathLabelVisible.Visible := (VNewState = ao_edit_line);
+  actEditPolygonLabelVisible.Visible := (VNewState = ao_edit_poly);
 
   actLineEditSplitTogle.Visible := (VNewState = ao_calc_line) or (VNewState = ao_edit_line);
 
@@ -3240,7 +3242,7 @@ begin
     Assert(False);
   end;
 
-  NShowFillDates.Checked := VIsFilterMode;
+  actViewFillingMapFilterMode.Checked := VIsFilterMode;
   DateTimePicker1.DateTime := VConfig.FillFirstDay;
   DateTimePicker2.DateTime := VConfig.FillLastDay;
 
@@ -3405,7 +3407,7 @@ begin
       end;
     end;
     TBEditPath.Visible := VSaveAvailable;
-    tbxtmSaveMarkAsSeparateSegment.Enabled := VIsMultiItem;
+    actMarkSaveAsSeparateSegments.Enabled := VIsMultiItem;
     if Assigned(FLineOnMapEdit) then begin
       actLineEditSplitTogle.Checked := FLineOnMapEdit.IsNearSplit;
     end;
