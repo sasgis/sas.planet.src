@@ -146,7 +146,7 @@ var
   VUseUnicodeSchema: Boolean;
   VStoreInBinaryFormat: Boolean;
   VUseIndex: Boolean;
-  VName, VPath: string;
+  VFileName, VName, VPath: string;
 begin
   inherited Create;
   FDbId := NativeInt(Self);
@@ -159,13 +159,14 @@ begin
 
   VUseIndex := VStateInternal.WriteAccess;
 
-  if AImplConfig.FileName <> '' then begin
-    VName := ExtractFileName(AImplConfig.FileName);
+  VFileName := ExpandEnvironmentVariables(AImplConfig.FileName);
+  if VFileName <> '' then begin
+    VName := ExtractFileName(VFileName);
     if VName = '' then begin
       VName := 'marks.sml';
     end;
 
-    VPath := ExtractFilePath(AImplConfig.FileName);
+    VPath := ExtractFilePath(VFileName);
     if VPath = '' then begin
       VPath := ABasePath;
     end else begin

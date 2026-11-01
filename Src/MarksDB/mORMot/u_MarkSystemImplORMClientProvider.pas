@@ -221,7 +221,7 @@ procedure TMarkSystemImplORMClientProvider.BuildSQLite3Client;
 var
   VFileName: string;
 begin
-  VFileName := GetSQLite3DatabaseFileName(FBasePath, FImplConfig.FileName);
+  VFileName := GetSQLite3DatabaseFileName(FBasePath, ExpandEnvironmentVariables(FImplConfig.FileName));
   if not DirectoryExists(ExtractFileDir(VFileName)) then begin
     raise EMarkSystemORMError.CreateFmt(_('Directory does not exists: %s'), [ExtractFileDir(VFileName)]);
   end;
