@@ -14,6 +14,10 @@
 .PARAMETER Ignore
     Dependencies to exclude from the check (optional).
 
+.OUTPUTS
+    System.String - names of the dependencies that were not found
+    (nothing is emitted when all dependencies were found).
+
 .EXAMPLE
     .\dllfetch.ps1 app.exe -d C:\msys64\mingw64\bin -t .\dist -i libfoo.dll
 #>
@@ -187,3 +191,6 @@ if ($TargetDir -and $found.Count -gt 0) {
 }
 
 Write-Host "`nDone!"
+
+# Emit the missing dependency names to the pipeline so the caller can collect them
+$notFound

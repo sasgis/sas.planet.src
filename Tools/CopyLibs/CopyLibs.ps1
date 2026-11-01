@@ -1,7 +1,6 @@
 <#
 .SYNOPSIS
     Copies MinGW DLLs and their dependencies into the project lib directories.
-    Replaces CopyLibs.cmd (32-bit) and CopyLibs64.cmd (64-bit).
 
 .PARAMETER Arch
     Architecture to process: 32, 64 or All (default).
@@ -29,31 +28,36 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $dllfetch = Join-Path $PSScriptRoot 'dllfetch\dllfetch.ps1'
-$ignore   = @('7z.dll', 'imagequant.dll')
 
 # Per-architecture settings
-#   Mingw - MinGW bin directory (source of DLLs, also used as the search directory)
-#   Lib   - target directory (paths are relative to this script's location)
-#   Copy  - DLLs copied from MinGW into Lib before the dependency check
-#   Check - DLLs in Lib whose dependencies are resolved and copied
+#   Mingw  - MinGW bin directory (source of DLLs, also used as the search directory)
+#   Lib    - target directory (paths are relative to this script's location)
+#   Copy   - DLLs copied from MinGW into Lib before the dependency check
+#   Check  - DLLs in Lib whose dependencies are resolved and copied
+#   Ignore - DLLs skipped when resolving dependencies
 $configs = [ordered]@{
     '32' = @{
-        Mingw = Join-Path $MsysRoot 'mingw32\bin'
-        Lib   = Join-Path $PSScriptRoot '..\..\.bin\win32\lib32'
-        Copy  = @('libcurl-4.dll', 'libsqlite3-0.dll')
-        Check = @('imagequant.dll', 'libproj-25.dll', 'libgeotiff.dll',
-                  'libminizip-ng-1.dll', 'libfreeimage-3.dll',
-                  'libcurl-4.dll', 'libsqlite3-0.dll')
+        Mingw  = Join-Path $MsysRoot 'mingw32\bin'
+        Lib    = Join-Path $PSScriptRoot '..\..\.bin\win32\lib32'
+        Copy   = @('libcurl-4.dll', 'libsqlite3-0.dll')
+        Check  = @('imagequant.dll', 'libproj-25.dll', 'libgeotiff.dll',
+                   'libminizip-ng-1.dll', 'libfreeimage-3.dll',
+                   'libcurl-4.dll', 'libsqlite3-0.dll')
+        Ignore = @('7z.dll', 'imagequant.dll')
     }
     '64' = @{
-        Mingw = Join-Path $MsysRoot 'mingw64\bin'
-        Lib   = Join-Path $PSScriptRoot '..\..\.bin\win64\lib64'
-        Copy  = @('libcurl-4.dll', 'libsqlite3-0.dll', 'libgeotiff.dll',
-                  'libminizip-ng-1.dll', 'libfreeimage-3.dll')
-        Check = @('libcurl-4.dll', 'libsqlite3-0.dll', 'libgeotiff.dll',
-                  'libminizip-ng-1.dll', 'libfreeimage-3.dll')
+        Mingw  = Join-Path $MsysRoot 'mingw64\bin'
+        Lib    = Join-Path $PSScriptRoot '..\..\.bin\win64\lib64'
+        Copy   = @('libcurl-4.dll', 'libsqlite3-0.dll', 'libgeotiff.dll',
+                   'libminizip-ng-1.dll', 'libfreeimage-3.dll')
+        Check  = @('libcurl-4.dll', 'libsqlite3-0.dll', 'libgeotiff.dll',
+                   'libminizip-ng-1.dll', 'libfreeimage-3.dll')
+        Ignore = @('7z.dll', 'imagequant.dll')
     }
 }
+
+# Per-architecture results: name -> @{ Error; Missing } (printed at the very end)
+$summary = [ordered]@{}
 
 function Copy-ArchLibs {
     param([string]$Name, [hashtable]$Config)
@@ -61,12 +65,17 @@ function Copy-ArchLibs {
     $mingw = [System.IO.Path]::GetFullPath($Config.Mingw)
     $lib   = [System.IO.Path]::GetFullPath($Config.Lib)
 
+    $missing = [System.Collections.Generic.List[object]]::new()
+    $result  = [pscustomobject]@{ Error = $null; Missing = $missing }
+    $script:summary[$Name] = $result
+
     Write-Host "`n===== $Name-bit =====" -ForegroundColor Cyan
     Write-Host "MinGW: $mingw"
     Write-Host "Lib:   $lib"
 
     if (-not (Test-Path -LiteralPath $mingw -PathType Container)) {
         Write-Warning "MinGW directory not found: $mingw"
+        $result.Error = "MinGW directory not found: $mingw"
         return
     }
     if (-not (Test-Path -LiteralPath $lib)) {
@@ -84,14 +93,26 @@ function Copy-ArchLibs {
                 Copy-Item -LiteralPath $src -Destination (Join-Path $lib $dll) -Force
             } else {
                 Write-Warning "Not found: $src"
+                $missing.Add([pscustomobject]@{ Dll = $dll; Source = 'copy list (not found in MinGW)' })
             }
         }
 
         foreach ($dll in $Config.Check) {
-            & $dllfetch -File (Join-Path $lib $dll) `
-                        -Directory $mingw `
-                        -TargetDir $lib `
-                        -Ignore $ignore
+            $file = Join-Path $lib $dll
+            if (-not (Test-Path -LiteralPath $file -PathType Leaf)) {
+                Write-Warning "File to check not found: $file"
+                $missing.Add([pscustomobject]@{ Dll = $dll; Source = 'check list (not found in lib)' })
+                continue
+            }
+
+            # dllfetch writes progress via Write-Host and emits only the missing DLL names
+            $notFound = @(& $dllfetch -File $file `
+                                      -Directory $mingw `
+                                      -TargetDir $lib `
+                                      -Ignore $Config.Ignore)
+            foreach ($missingName in $notFound) {
+                $missing.Add([pscustomobject]@{ Dll = $missingName; Source = $dll })
+            }
         }
     }
     finally {
@@ -106,6 +127,24 @@ if (-not (Test-Path -LiteralPath $dllfetch)) {
 foreach ($key in $configs.Keys) {
     if ($Arch -eq 'All' -or $Arch -eq $key) {
         Copy-ArchLibs -Name $key -Config $configs[$key]
+    }
+}
+
+Write-Host "`n===== Missing DLLs summary =====" -ForegroundColor Cyan
+foreach ($key in $summary.Keys) {
+    $result = $summary[$key]
+    Write-Host "`n$key-bit:" -ForegroundColor Cyan
+    if ($result.Error) {
+        Write-Host "  skipped: $($result.Error)" -ForegroundColor Red
+    }
+    elseif ($result.Missing.Count -eq 0) {
+        Write-Host "  none" -ForegroundColor Green
+    }
+    else {
+        $result.Missing | Group-Object Dll | Sort-Object Name | ForEach-Object {
+            $by = ($_.Group | ForEach-Object { $_.Source } | Sort-Object -Unique) -join ', '
+            Write-Host "  - $($_.Name)  (required by: $by)" -ForegroundColor Yellow
+        }
     }
 }
 
