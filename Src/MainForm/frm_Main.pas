@@ -482,6 +482,7 @@ type
     actConfigColorInversion: TAction;
     actConfigPreviousSelectionVisible: TAction;
     actViewNavigation: TAction;
+    actViewSensorsBarVisible: TAction;
     actShowDebugInfo: TAction;
     actConfigStatusBarVisible: TAction;
     actConfigMiniMapVisible: TAction;
@@ -744,7 +745,6 @@ type
       ACol, ARow: Integer;
       var Visible: Boolean
     );
-    procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShortCut(
       var Msg: TWMKey;
@@ -824,6 +824,7 @@ type
     procedure actConfigColorInversionExecute(Sender: TObject);
     procedure actConfigPreviousSelectionVisibleExecute(Sender: TObject);
     procedure actViewNavigationExecute(Sender: TObject);
+    procedure actViewSensorsBarVisibleExecute(Sender: TObject);
     procedure actShowDebugInfoExecute(Sender: TObject);
     procedure actConfigStatusBarVisibleExecute(Sender: TObject);
     procedure actConfigMiniMapVisibleExecute(Sender: TObject);
@@ -6037,7 +6038,7 @@ end;
 
 procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
 begin
-  NSensors.Checked := TTBXToolWindow(Sender).Visible;
+  actViewSensorsBarVisible.Checked := TTBXToolWindow(Sender).Visible;
 end;
 
 procedure TfrmMain.tbxtmAddToMergePolygonsClick(Sender: TObject);
@@ -6074,9 +6075,9 @@ begin
   end;
 end;
 
-procedure TfrmMain.NSensorsClick(Sender: TObject);
+procedure TfrmMain.actViewSensorsBarVisibleExecute(Sender: TObject);
 begin
-  TBXSensorsBar.Visible := TTBXItem(Sender).Checked;
+  TBXSensorsBar.Visible := not TBXSensorsBar.Visible;
 end;
 
 procedure TfrmMain.tbitmMarkEditPropertiesClick(Sender: TObject);

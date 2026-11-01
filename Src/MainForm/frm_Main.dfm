@@ -364,11 +364,9 @@ object frmMain: TfrmMain
             Images = MenusImageList
           end
           object NSensors: TTBXSubmenuItem
-            AutoCheck = True
-            Caption = 'Sensors'
+            Action = actViewSensorsBarVisible
             DropdownCombo = True
             Images = MenusImageList
-            OnClick = NSensorsClick
           end
           object TBXSeparatorItem18: TTBXSeparatorItem
           end
@@ -3984,6 +3982,11 @@ object frmMain: TfrmMain
       Category = 'View'
       Caption = 'Navigation Arrow'
       OnExecute = actViewNavigationExecute
+    end
+    object actViewSensorsBarVisible: TAction
+      Category = 'View'
+      Caption = 'Sensors'
+      OnExecute = actViewSensorsBarVisibleExecute
     end
     object actShowDebugInfo: TAction
       Category = 'View'
