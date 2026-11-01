@@ -460,7 +460,11 @@ begin
     end;
     stFolder: begin
       if VPath = '' then begin
-        VPath := IncludeTrailingPathDelimiter(dlgOpenFile.InitialDir);
+        if dlgOpenFile.InitialDir <> '' then begin
+          VPath := IncludeTrailingPathDelimiter(dlgOpenFile.InitialDir);
+        end else begin
+          VPath := IncludeTrailingPathDelimiter(FBaseApplicationPath.FullPath);
+        end;
       end;
       if SelectDirectory('', '', VPath) then begin
         dlgOpenFile.InitialDir := ExcludeTrailingBackslash(VPath);
@@ -496,7 +500,11 @@ begin
     end;
     dtFolder: begin
       if VPath = '' then begin
-        VPath := IncludeTrailingBackslash(dlgSaveFile.InitialDir);
+        if dlgSaveFile.InitialDir <> '' then begin
+          VPath := IncludeTrailingBackslash(dlgSaveFile.InitialDir);
+        end else begin
+          VPath := IncludeTrailingBackslash(FBaseApplicationPath.FullPath);
+        end;
       end;
       if SelectDirectory('', '', VPath) then begin
         dlgSaveFile.InitialDir := ExcludeTrailingBackslash(VPath);
@@ -692,13 +700,12 @@ procedure TfrmCacheManager.ProcessCacheConverter;
     end else
     if VExt = '.zip' then begin
       AArchiveType := atZip;
-    end else
-    if VExt <> '' then begin
-      ShowErrorMessage(Format(_('Unsupported archive type: %s'), [VExt]));
-      Exit;
-    end else
-    if VExt = '' then begin
-      ShowErrorMessage(Format(_('Failed detect archive type from file name: %s'), [AFileName]));
+    end else begin
+      if VExt = '' then begin
+        ShowErrorMessage(Format(_('Failed detect archive type from file name: %s'), [AFileName]));
+      end else begin
+        ShowErrorMessage(Format(_('Unsupported archive type: %s'), [VExt]));
+      end;
       Exit;
     end;
 
@@ -707,13 +714,31 @@ procedure TfrmCacheManager.ProcessCacheConverter;
 
   function PreparePath(const APath: string): string;
   begin
-    Result := APath;
+    Result := ExpandEnvironmentVariables(APath);
     if IsRelativePath(Result) then begin
       Result := RelativeToAbsolutePath(FBaseApplicationPath.FullPath, Result);
     end;
+  end;
+
+  function PrepareDestPath(const APath: string): string;
+  begin
+    Result := PreparePath(APath);
     if not ForceDirectories(Result) then begin
       RaiseLastOSError;
     end;
+  end;
+
+  function PrepareDestFile(const AFileName: string): string;
+  var
+    VPath: string;
+  begin
+    VPath := ExtractFilePath(AFileName);
+    if VPath = '' then begin
+      VPath := FBaseApplicationPath.FullPath;
+    end else begin
+      VPath := PrepareDestPath(VPath);
+    end;
+    Result := IncludeTrailingPathDelimiter(VPath) + ExtractFileName(AFileName);
   end;
 
 var
@@ -726,9 +751,9 @@ var
   VDestStorage: ITileStorage;
   VSourceVersion: IMapVersionInfo;
   VDestVersion: IMapVersionInfo;
+  VPathText: string;
   VSourcePath: string;
   VDestPath: string;
-  VDestFile: string;
   VDefExtension: string;
   VArchiveType: TArchiveType;
 begin
@@ -746,7 +771,9 @@ begin
 
   VDefExtension := cbbExt.Items.Strings[cbbExt.ItemIndex];
 
-  VSourcePath := Trim(edtPath.Text);
+  // Source
+  VPathText := Trim(edtPath.Text);
+  VSourcePath := PreparePath(VPathText);
   case FSrcType of
     stArchive: begin
       if not DetectSrcArchiveType(VSourcePath, VArchiveType) then begin
@@ -754,7 +781,12 @@ begin
       end;
     end;
     stFolder: begin
-      VSourcePath := IncludeTrailingPathDelimiter(VSourcePath);
+      if FfrSrcCacheTypesList.IntCode = c_File_Cache_Id_DBMS then begin
+        // DBMS "path" is a connection string: use it as is
+        VSourcePath := VPathText;
+      end else begin
+        VSourcePath := IncludeTrailingPathDelimiter(VSourcePath);
+      end;
     end;
     stFile: begin
       // nothing to do
@@ -775,23 +807,27 @@ begin
       FfrSrcCacheTypesList.IntCode
     );
 
-  VDestPath := Trim(edtDestPath.Text);
+  // Dest
+  VPathText := Trim(edtDestPath.Text);
   case FDestType of
     dtArchiveZip: begin
       VArchiveType := atZip;
+      VDestPath := PrepareDestFile(VPathText);
     end;
     dtArchiveTar: begin
       VArchiveType := atTar;
+      VDestPath := PrepareDestFile(VPathText);
     end;
     dtFolder: begin
-      if FfrDestCacheTypesList.IntCode <> c_File_Cache_Id_DBMS then begin
-        VDestPath := PreparePath(VDestPath);
+      if FfrDestCacheTypesList.IntCode = c_File_Cache_Id_DBMS then begin
+        // DBMS "path" is a connection string: use it as is
+        VDestPath := VPathText;
+      end else begin
+        VDestPath := IncludeTrailingPathDelimiter(PrepareDestPath(VPathText));
       end;
-      VDestPath := IncludeTrailingPathDelimiter(VDestPath);
     end;
     dtFile: begin
-      VDestFile := VDestPath;
-      VDestPath := PreparePath(ExtractFilePath(VDestFile)) + ExtractFileName(VDestFile);
+      VDestPath := PrepareDestFile(VPathText);
     end;
   else
     Assert(False);
@@ -820,19 +856,20 @@ begin
     VDestVersion := FMapVersionFactory.CreateByStoreString(Trim(edtDestVersion.Text));
   end;
 
-  VConverterThread := TThreadCacheConverter.Create(
-    VCancelNotifierInternal,
-    VOperationID,
-    VSourceStorage,
-    VSourceVersion,
-    VSourcePath,
-    VDestStorage,
-    VDestVersion,
-    chkIgnoreTNE.Checked,
-    chkRemove.Checked,
-    chkOverwrite.Checked,
-    VProgressInfo
-  );
+  VConverterThread :=
+    TThreadCacheConverter.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VSourceStorage,
+      VSourceVersion,
+      VSourcePath,
+      VDestStorage,
+      VDestVersion,
+      chkIgnoreTNE.Checked,
+      chkRemove.Checked,
+      chkOverwrite.Checked,
+      VProgressInfo
+    );
 
   TfrmProgressCacheConverter.Create(
     VConverterThread,
@@ -866,7 +903,7 @@ begin
     for I := 0 to Self.ComponentCount - 1 do begin
       if Self.Components[I] is TComboBox then begin
         VComboBox := TComboBox(Self.Components[I]);
-        VComboBoxState.Add(VComboBox.Name, VComboBox.ItemIndex);
+        VComboBoxState.AddOrSetValue(VComboBox.Name, VComboBox.ItemIndex);
       end;
     end;
 
@@ -877,7 +914,7 @@ begin
       if Self.Components[I] is TComboBox then begin
         VComboBox := TComboBox(Self.Components[I]);
         if not VComboBoxState.TryGetValue(VComboBox.Name, VValue) then begin
-          VValue := 0;
+          VValue := -1;
         end;
         VComboBox.ItemIndex := VValue;
       end;
