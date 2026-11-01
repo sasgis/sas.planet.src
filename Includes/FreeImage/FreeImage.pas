@@ -1,16 +1,16 @@
-unit FreeImage;
+ï»¿unit FreeImage;
 
 // ==========================================================
 // Delphi wrapper for FreeImage 3
 //
 // Design and implementation by
 // - Simon Beavis
-// - Peter Byström
+// - Peter BystrÃ¶m
 // - Anatoliy Pulyaevskiy (xvel84@rambler.ru)
 //
 // Contributors:
 // - Lorenzo Monti (LM)  lomo74@gmail.com
-// - Maurício (MAU)      mauricio_box@yahoo.com - see also http://sourceforge.net/projects/tcycomponents/
+// - MaurÃ­cio (MAU)      mauricio_box@yahoo.com - see also http://sourceforge.net/projects/tcycomponents/
 //
 // Revision history
 // When        Who   What

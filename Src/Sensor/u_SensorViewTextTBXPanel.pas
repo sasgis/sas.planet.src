@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -802,7 +802,7 @@ begin
   if IsNan(VValue) then begin
     VText := '~';
   end else begin
-    VText := RoundEx(FSensor.GetValue, 2) + '�';
+    VText := RoundEx(FSensor.GetValue, 2) + '°';
   end;
   FlblValue.Caption := VText;
 end;

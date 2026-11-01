@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -243,7 +243,7 @@ function TWikimapiaKmlSimpleParser.LoadFromStreamInternal(
         VCustomCodec := VUnicodeCodec.Create;
         try
           VCustomCodec.DecodeStr(VKmlDoc, VKmlDocSize, VStr);
-          Result := Utf8Encode(VStr); // ïàğñåğ KML âîñïğèíèìàåò òîëüêî UTF-8
+          Result := Utf8Encode(VStr); // Ğ¿Ğ°Ñ€ÑĞµÑ€ KML Ğ²Ğ¾ÑĞ¿Ñ€Ğ¸Ğ½Ğ¸Ğ¼Ğ°ĞµÑ‚ Ñ‚Ğ¾Ğ»ÑŒĞºĞ¾ UTF-8
         finally
           VCustomCodec.Free;
         end;
@@ -463,7 +463,7 @@ begin
       end;
     end;
   except
-    Assert(False, 'Íåîæèäàííàÿ îøèáêà ïğè ğàçáîğå kml');
+    Assert(False, 'ĞĞµĞ¾Ğ¶Ğ¸Ğ´Ğ°Ğ½Ğ½Ğ°Ñ Ğ¾ÑˆĞ¸Ğ±ĞºĞ° Ğ¿Ñ€Ğ¸ Ñ€Ğ°Ğ·Ğ±Ğ¾Ñ€Ğµ kml');
   end;
   Result := APointsAggregator.Count > 0;
 end;

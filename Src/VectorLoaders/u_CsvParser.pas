@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -217,10 +217,10 @@ begin
     if PosEx('N', VText, 1) > 0 then begin
       llat := true;
     end;
-    if PosEx('Ş', VText, 1) > 0 then begin
+    if PosEx('Ğ®', VText, 1) > 0 then begin
       llat := true;
     end;
-    if PosEx('Ñ', VText, 1) > 0 then begin
+    if PosEx('Ğ¡', VText, 1) > 0 then begin
       llat := true;
     end;
     if PosEx('LAT', VText, 1) > 0 then begin
@@ -231,19 +231,19 @@ begin
     end;
     VText := ReplaceStr(VText, 'LAT', '');
     VText := ReplaceStr(VText, 'LL', '');
-    VText := ReplaceStr(VText, 'Ø.', '');
-    VText := ReplaceStr(VText, 'Ø', '');
-    VText := ReplaceStr(VText, 'Ä.', '');
-    VText := ReplaceStr(VText, 'Ä', '');
+    VText := ReplaceStr(VText, 'Ğ¨.', '');
+    VText := ReplaceStr(VText, 'Ğ¨', '');
+    VText := ReplaceStr(VText, 'Ğ”.', '');
+    VText := ReplaceStr(VText, 'Ğ”', '');
     VText := ReplaceStr(VText, '=', '');
     VText := ReplaceStr(VText, 'S', '-');
     VText := ReplaceStr(VText, 'W', '-');
     VText := ReplaceStr(VText, 'N', '+');
     VText := ReplaceStr(VText, 'E', '+');
-    VText := ReplaceStr(VText, 'Ş', '-');
-    VText := ReplaceStr(VText, 'Ç', '-');
-    VText := ReplaceStr(VText, 'Â', '+');
-    VText := ReplaceStr(VText, 'Ñ', '+');
+    VText := ReplaceStr(VText, 'Ğ®', '-');
+    VText := ReplaceStr(VText, 'Ğ—', '-');
+    VText := ReplaceStr(VText, 'Ğ’', '+');
+    VText := ReplaceStr(VText, 'Ğ¡', '+');
     Vminus := false;
     if posEx('-', VText, 1) > 0 then begin
       Vminus := true;

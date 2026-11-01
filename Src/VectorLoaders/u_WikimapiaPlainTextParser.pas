@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -92,9 +92,9 @@ every other line contains data about a place. Symbol "|" used as field separator
 
 tileId|0|7
 
-  - tileId — a unique tile identifier consisting of digits 0-3.
-  - 0 — ?? indicates if the tile has children (sub tiles in the higher zoom level).
-  - 7 — ?? bounds multiplier (1e7).
+  - tileId â€” a unique tile identifier consisting of digits 0-3.
+  - 0 â€” ?? indicates if the tile has children (sub tiles in the higher zoom level).
+  - 7 â€” ?? bounds multiplier (1e7).
 
 2. Place data format:
 

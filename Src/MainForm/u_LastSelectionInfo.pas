@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -31,9 +31,9 @@ uses
 type
   TLastSelectionInfo = class(TChangeableWithSimpleLockBase, ILastSelectionInfo)
   private
-    // Полигон последнего выделения при операциях с областью.
+    // РџРѕР»РёРіРѕРЅ РїРѕСЃР»РµРґРЅРµРіРѕ РІС‹РґРµР»РµРЅРёСЏ РїСЂРё РѕРїРµСЂР°С†РёСЏС… СЃ РѕР±Р»Р°СЃС‚СЊСЋ.
     FPolygon: IGeometryLonLatPolygon;
-    // Масштаб, на котором было последнее выделение
+    // РњР°СЃС€С‚Р°Р±, РЅР° РєРѕС‚РѕСЂРѕРј Р±С‹Р»Рѕ РїРѕСЃР»РµРґРЅРµРµ РІС‹РґРµР»РµРЅРёРµ
     FZoom: Byte;
   private
     function GetZoom: Byte;

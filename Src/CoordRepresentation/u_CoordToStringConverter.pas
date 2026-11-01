@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -159,7 +159,7 @@ begin
       VValue := Trunc(VDegr * 60 * 60 * 10000 + 0.005);
       VInt := Trunc(VValue / (60 * 60 * 10000));
       VValue := VValue - VInt * (60 * 60 * 10000);
-      Result := IntToStr(VInt) + '�';
+      Result := IntToStr(VInt) + '°';
       VInt := Trunc(VValue / (60 * 10000));
       VValue := VValue - VInt * (60 * 10000);
 
@@ -172,11 +172,11 @@ begin
       Result := Result + FloatToStr('00.0000', VValue / 10000) + '"';
 
       if ACutZero then begin
-        if Copy(Result, Length(Result) - 3, 4) = '.00"' then begin // X12�30'45.00" -> X12�30'45"
+        if Copy(Result, Length(Result) - 3, 4) = '.00"' then begin // X12°30'45.00" -> X12°30'45"
           Result := ReplaceStr(Result, '.00"', '"');
-          if Copy(Result, Length(Result) - 2, 3) = '00"' then begin   // X12�30'00" -> X12�30'
+          if Copy(Result, Length(Result) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
             Result := ReplaceStr(Result, '00"', '');
-            if Copy(Result, Length(Result) - 2, 3) = '00''' then begin  // X12�00' -> X12�
+            if Copy(Result, Length(Result) - 2, 3) = '00''' then begin  // X12°00' -> X12°
               Result := ReplaceStr(Result, '00''', '');
             end;
           end;
@@ -188,18 +188,18 @@ begin
       VValue := Trunc(VDegr * 60 * 1000000 + 0.00005);
       VInt := Trunc(VValue / (60 * 1000000));
       VValue := VValue - VInt * (60 * 1000000);
-      Result := IntToStr(VInt) + '�';
+      Result := IntToStr(VInt) + '°';
       Result := Result + FloatToStr('00.000000', VValue / 1000000) + '''';
       if ACutZero then begin
         while Copy(Result, Length(Result) - 1, 2) = '0''' do begin
           Result := ReplaceStr(Result, '0''', '''');
-        end;   // 12�34.50000' -> 12�34.5'   12�00.00000' -> 12�00.'
+        end;   // 12°34.50000' -> 12°34.5'   12°00.00000' -> 12°00.'
         if Copy(Result, Length(Result) - 1, 2) = '.''' then begin
           Result := ReplaceStr(Result, '.''', '''');
-        end; // 12�40,' -> 12�40'
+        end; // 12°40,' -> 12°40'
         if Copy(Result, Length(Result) - 2, 3) = '00''' then begin
           Result := ReplaceStr(Result, '00''', '');
-        end; //  12�00' -> 12�
+        end; //  12°00' -> 12°
       end;
     end;
 
@@ -227,7 +227,7 @@ begin
       end;
 
       if FGeogCoordShowFormat in [dshCharDegr, dshSignDegr] then begin
-        Result := Result + '�';
+        Result := Result + '°';
       end;
     end;
   else

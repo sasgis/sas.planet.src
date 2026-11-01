@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -57,17 +57,17 @@ type
   private
     function GetItem(Index: Integer): IInterface;
     function GetEnumUnknown: IEnumUnknown;
-    // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
-    // Возвращает хранимый объект
+    // Р”РѕР±Р°РІР»РµРЅРёРµ РѕР±СЉРµРєС‚Р°. Р•СЃР»Рё РѕР±СЉРµРєС‚ СЃ С‚Р°РєРёРј GUID СѓР¶Рµ РµСЃС‚СЊ, С‚Рѕ Р·Р°РјРµРЅСЏС‚СЊСЃСЏ РЅРµ Р±СѓРґРµС‚
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ С…СЂР°РЅРёРјС‹Р№ РѕР±СЉРµРєС‚
     function Add(
       const AGUID: TGUID;
       const AInterface: IInterface
     ): IInterface;
 
-    // Получение объекта по GUID
+    // РџРѕР»СѓС‡РµРЅРёРµ РѕР±СЉРµРєС‚Р° РїРѕ GUID
     function GetByGUID(const AGUID: TGUID): IInterface;
 
-    // Замена существующего объекта новым, если отсутствует, то просто добавится
+    // Р—Р°РјРµРЅР° СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ РѕР±СЉРµРєС‚Р° РЅРѕРІС‹Рј, РµСЃР»Рё РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РїСЂРѕСЃС‚Рѕ РґРѕР±Р°РІРёС‚СЃСЏ
     procedure Replace(
       const AGUID: TGUID;
       const AInterface: IInterface

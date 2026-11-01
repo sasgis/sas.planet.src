@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -171,7 +171,7 @@ begin
     Exit;
   end;
 
-  if False then begin // TODO: сделать хоть какую-то проверку
+  if False then begin // TODO: СЃРґРµР»Р°С‚СЊ С…РѕС‚СЊ РєР°РєСѓСЋ-С‚Рѕ РїСЂРѕРІРµСЂРєСѓ
     Result := AResultFactory.BuildBanned(ARequest, AStatusCode, AResponseHead);
   end;
 

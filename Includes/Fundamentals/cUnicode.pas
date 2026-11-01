@@ -1,11 +1,11 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {                                                                              }
 {   Library:          Fundamentals 4.00                                        }
 {   File name:        cUnicode.pas                                             }
 {   File version:     4.12                                                     }
 {   Description:      Unicode character and string functions                   }
 {                                                                              }
-{   Copyright:        Copyright � 2002-2011, David J Butler                    }
+{   Copyright:        Copyright © 2002-2011, David J Butler                    }
 {                     All rights reserved.                                     }
 {                     Redistribution and use in source and binary forms, with  }
 {                     or without modification, are permitted provided that     }

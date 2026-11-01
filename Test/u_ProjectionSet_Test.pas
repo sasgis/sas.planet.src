@@ -1,4 +1,4 @@
-unit u_ProjectionSet_Test;
+п»їunit u_ProjectionSet_Test;
 
 interface
 
@@ -158,13 +158,13 @@ var
   VCount: Integer;
 begin
   VCount := TilesAtZoom(0);
-  CheckEquals(1, VCount, cPrefix + 'На зуме 0 должен быть 1 тайл');
+  CheckEquals(1, VCount, cPrefix + 'РќР° Р·СѓРјРµ 0 РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ 1 С‚Р°Р№Р»');
 
   VCount := TilesAtZoom(1);
-  CheckEquals(2, VCount, cPrefix + 'На зуме 1 должно быть 2 тайла');
+  CheckEquals(2, VCount, cPrefix + 'РќР° Р·СѓРјРµ 1 РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ 2 С‚Р°Р№Р»Р°');
 
   VCount := TilesAtZoom(23);
-  CheckEquals(8388608, VCount, cPrefix + 'На зуме 23 должно быть 8388608 тайлов');
+  CheckEquals(8388608, VCount, cPrefix + 'РќР° Р·СѓРјРµ 23 РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ 8388608 С‚Р°Р№Р»РѕРІ');
 end;
 
 procedure TestProjectionSet.Check_TilePos2PixelPos;
@@ -174,24 +174,24 @@ var
   VPos: TPoint;
 begin
   VPos := FProjectionSet.Zooms[0].TilePos2PixelPos(Point(0, 0));
-  CheckEquals(0, VPos.X, cPrefix + 'Z = 0. Ошибка в X координате');
-  CheckEquals(0, VPos.Y, cPrefix + 'Z = 0. Ошибка в Y координате');
+  CheckEquals(0, VPos.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ X РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(0, VPos.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPos := FProjectionSet.Zooms[1].TilePos2PixelPos(Point(0, 1));
-  CheckEquals(  0, VPos.X, cPrefix + 'Z = 1. Ошибка в X координате');
-  CheckEquals(256, VPos.Y, cPrefix + 'Z = 1. Ошибка в Y координате');
+  CheckEquals(  0, VPos.X, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ X РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(256, VPos.Y, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPos := FProjectionSet.Zooms[1].TilePos2PixelPos(Point(1, 1));
-  CheckEquals(256, VPos.X, cPrefix + 'Z = 1. Ошибка в X координате');
-  CheckEquals(256, VPos.Y, cPrefix + 'Z = 1. Ошибка в Y координате');
+  CheckEquals(256, VPos.X, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ X РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(256, VPos.Y, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPos := FProjectionSet.Zooms[23].TilePos2PixelPos(Point(1, 1));
-  CheckEquals(256, VPos.X, cPrefix + 'Z = 23. Ошибка в X координате');
-  CheckEquals(256, VPos.Y, cPrefix + 'Z = 23. Ошибка в Y координате');
+  CheckEquals(256, VPos.X, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ X РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(256, VPos.Y, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPos := FProjectionSet.Zooms[23].TilePos2PixelPos(Point(1 shl 23 - 1, 1 shl 23 - 1));
-  CheckEquals(2147483392, VPos.X, cPrefix + 'Z = 23. Ошибка в X координате');
-  CheckEquals(2147483392, VPos.Y, cPrefix + 'Z = 23. Ошибка в X координате');
+  CheckEquals(2147483392, VPos.X, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ X РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(2147483392, VPos.Y, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ X РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 end;
 
 procedure TestProjectionSet.Check_TilePos2PixelRect;
@@ -209,22 +209,22 @@ var
   VRect: TRect;
 begin
   VRect := FProjectionSet.Zooms[0].TilePos2PixelRect(Point(0, 0));
-  CheckEquals(  0, VRect.Left,   cPrefix + 'Z = 0. Ошибка в Left прямоугольника');
-  CheckEquals(  0, VRect.Top,    cPrefix + 'Z = 0. Ошибка в Top прямоугольника');
-  CheckEquals(256, VRect.Right,  cPrefix + 'Z = 0. Ошибка в Right прямоугольника');
-  CheckEquals(256, VRect.Bottom, cPrefix + 'Z = 0. Ошибка в Bottom прямоугольника');
+  CheckEquals(  0, VRect.Left,   cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(  0, VRect.Top,    cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(256, VRect.Right,  cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(256, VRect.Bottom, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := FProjectionSet.Zooms[1].TilePos2PixelRect(Point(1, 0));
-  CheckEquals(256, VRect.Left,   cPrefix + 'Z = 1. Ошибка в Left прямоугольника');
-  CheckEquals(  0, VRect.Top,    cPrefix + 'Z = 1. Ошибка в Top прямоугольника');
-  CheckEquals(512, VRect.Right,  cPrefix + 'Z = 1. Ошибка в Right прямоугольника');
-  CheckEquals(256, VRect.Bottom, cPrefix + 'Z = 1. Ошибка в Bottom прямоугольника');
+  CheckEquals(256, VRect.Left,   cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(  0, VRect.Top,    cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(512, VRect.Right,  cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(256, VRect.Bottom, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := FProjectionSet.Zooms[23].TilePos2PixelRect(Point(TilesAtZoom(23) - 1, TilesAtZoom(23) - 1));
-  CheckEquals(2147483392, VRect.Left,   cPrefix + 'Z = 23. Ошибка в Left прямоугольника');
-  CheckEquals(2147483392, VRect.Top,    cPrefix + 'Z = 23. Ошибка в Top прямоугольника');
-  CheckEquals(2147483647, VRect.Right,  cPrefix + 'Z = 23. Ошибка в Right прямоугольника');
-  CheckEquals(2147483647, VRect.Bottom, cPrefix + 'Z = 23. Ошибка в Bottom прямоугольника');
+  CheckEquals(2147483392, VRect.Left,   cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(2147483392, VRect.Top,    cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(2147483647, VRect.Right,  cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(2147483647, VRect.Bottom, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 end;
 
 procedure TestProjectionSet.Check_TilePos2Relative;
@@ -234,32 +234,32 @@ var
   VRelative: TDoublePoint;
 begin
   VRelative := FProjectionSet.Zooms[0].TilePos2Relative(Point(0, 0));
-  CheckEquals(0, VRelative.X, cPrefix + 'На зуме 0 относительные координаты единственного тайла должны быть (0;0)');
-  CheckEquals(0, VRelative.Y, cPrefix + 'На зуме 0 относительные координаты единственного тайла должны быть (0;0)');
+  CheckEquals(0, VRelative.X, cPrefix + 'РќР° Р·СѓРјРµ 0 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ С‚Р°Р№Р»Р° РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (0;0)');
+  CheckEquals(0, VRelative.Y, cPrefix + 'РќР° Р·СѓРјРµ 0 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ С‚Р°Р№Р»Р° РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (0;0)');
 
   VRelative := FProjectionSet.Zooms[1].TilePos2Relative(Point(0, 0));
-  CheckEquals(0, VRelative.X, cPrefix + 'На зуме 1 относительные координаты тайла (0;0) должны быть (0;0)');
-  CheckEquals(0, VRelative.Y, cPrefix + 'На зуме 1 относительные координаты тайла (0;0) должны быть (0;0)');
+  CheckEquals(0, VRelative.X, cPrefix + 'РќР° Р·СѓРјРµ 1 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (0;0) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (0;0)');
+  CheckEquals(0, VRelative.Y, cPrefix + 'РќР° Р·СѓРјРµ 1 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (0;0) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (0;0)');
 
   VRelative := FProjectionSet.Zooms[1].TilePos2Relative(Point(1, 1));
-  CheckEquals(0.5, VRelative.X, cPrefix + 'На зуме 1 относительные координаты тайла (1;1) должны быть (0.5;0.5)');
-  CheckEquals(0.5, VRelative.Y, cPrefix + 'На зуме 1 относительные координаты тайла (1;1) должны быть (0.5;0.5)');
+  CheckEquals(0.5, VRelative.X, cPrefix + 'РќР° Р·СѓРјРµ 1 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (1;1) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (0.5;0.5)');
+  CheckEquals(0.5, VRelative.Y, cPrefix + 'РќР° Р·СѓРјРµ 1 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (1;1) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (0.5;0.5)');
 
   VRelative := FProjectionSet.Zooms[1].TilePos2Relative(Point(2, 2));
-  CheckEquals(1, VRelative.X, cPrefix + 'На зуме 1 относительные координаты тайла (2;2) должны быть (1;1)');
-  CheckEquals(1, VRelative.Y, cPrefix + 'На зуме 1 относительные координаты тайла (2;2) должны быть (1;1)');
+  CheckEquals(1, VRelative.X, cPrefix + 'РќР° Р·СѓРјРµ 1 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (2;2) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (1;1)');
+  CheckEquals(1, VRelative.Y, cPrefix + 'РќР° Р·СѓРјРµ 1 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (2;2) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (1;1)');
 
   VRelative := FProjectionSet.Zooms[23].TilePos2Relative(Point(0, 0));
-  CheckEquals(0, VRelative.X, cPrefix + 'На зуме 23 относительные координаты тайла (0;0) должны быть (0;0)');
-  CheckEquals(0, VRelative.Y, cPrefix + 'На зуме 23 относительные координаты тайла (0;0) должны быть (0;0)');
+  CheckEquals(0, VRelative.X, cPrefix + 'РќР° Р·СѓРјРµ 23 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (0;0) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (0;0)');
+  CheckEquals(0, VRelative.Y, cPrefix + 'РќР° Р·СѓРјРµ 23 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (0;0) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (0;0)');
 
   VRelative := FProjectionSet.Zooms[23].TilePos2Relative(Point(1, 1));
-  CheckDouble(1.1920928955e-07, VRelative.X, cPrefix + 'На зуме 23 относительные координаты тайла (1;1) должны быть (1.1920928955e-07;1.1920928955e-07)');
-  CheckDouble(1.1920928955e-07, VRelative.Y, cPrefix + 'На зуме 23 относительные координаты тайла (1;1) должны быть (1.1920928955e-07;1.1920928955e-07)');
+  CheckDouble(1.1920928955e-07, VRelative.X, cPrefix + 'РќР° Р·СѓРјРµ 23 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (1;1) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (1.1920928955e-07;1.1920928955e-07)');
+  CheckDouble(1.1920928955e-07, VRelative.Y, cPrefix + 'РќР° Р·СѓРјРµ 23 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (1;1) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (1.1920928955e-07;1.1920928955e-07)');
 
   VRelative := FProjectionSet.Zooms[23].TilePos2Relative(Point(1 shl 23, 1 shl 23));
-  CheckEquals(1, VRelative.X, cPrefix + 'На зуме 23 относительные координаты тайла (Max;Max) должны быть (1;1)');
-  CheckEquals(1, VRelative.Y, cPrefix + 'На зуме 23 относительные координаты тайла (Max;Max) должны быть (1;1)');
+  CheckEquals(1, VRelative.X, cPrefix + 'РќР° Р·СѓРјРµ 23 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (Max;Max) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (1;1)');
+  CheckEquals(1, VRelative.Y, cPrefix + 'РќР° Р·СѓРјРµ 23 РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚Р°Р№Р»Р° (Max;Max) РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ (1;1)');
 end;
 
 procedure TestProjectionSet.Check_TilePos2RelativeRect;
@@ -269,22 +269,22 @@ var
   VRect: TDoubleRect;
 begin
   VRect := FProjectionSet.Zooms[0].TilePos2RelativeRect(Point(0, 0));
-  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 0. Ошибка в Left');
-  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 0. Ошибка в Top');
-  CheckEquals(1, VRect.Right,  cPrefix + 'Z = 0. Ошибка в Right');
-  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 0. Ошибка в Bottom');
+  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Left');
+  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Top');
+  CheckEquals(1, VRect.Right,  cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Right');
+  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Bottom');
 
   VRect := FProjectionSet.Zooms[1].TilePos2RelativeRect(Point(1, 1));
-  CheckEquals(0.5, VRect.Left, cPrefix + 'Z = 1. Ошибка в Left');
-  CheckEquals(0.5, VRect.Top,  cPrefix + 'Z = 1. Ошибка в Top');
-  CheckEquals(1, VRect.Right,  cPrefix + 'Z = 1. Ошибка в Right');
-  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 1. Ошибка в Bottom');
+  CheckEquals(0.5, VRect.Left, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Left');
+  CheckEquals(0.5, VRect.Top,  cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Top');
+  CheckEquals(1, VRect.Right,  cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Right');
+  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Bottom');
 
   VRect := FProjectionSet.Zooms[23].TilePos2RelativeRect(Point(1 shl 23 - 1, 1 shl 23 - 1));
-  CheckDouble(1 - 1.1920928955e-07, VRect.Left, cPrefix + 'Z = 23. Ошибка в Left');
-  CheckDouble(1 - 1.1920928955e-07, VRect.Top,  cPrefix + 'Z = 23. Ошибка в Top');
-  CheckDouble(1, VRect.Right,  cPrefix + 'Z = 23. Ошибка в Right');
-  CheckDouble(1, VRect.Bottom, cPrefix + 'Z = 23. Ошибка в Bottom');
+  CheckDouble(1 - 1.1920928955e-07, VRect.Left, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Left');
+  CheckDouble(1 - 1.1920928955e-07, VRect.Top,  cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Top');
+  CheckDouble(1, VRect.Right,  cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Right');
+  CheckDouble(1, VRect.Bottom, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Bottom');
 end;
 
 procedure TestProjectionSet.Check_PixelPos2TilePos;
@@ -303,24 +303,24 @@ var
   VPos: TPoint;
 begin
   VPos := PixelPos2TilePos(Point(0, 0), 0);
-  CheckEquals(0, VPos.X, cPrefix + 'Z = 0. Ошибка в x координате');
-  CheckEquals(0, VPos.Y, cPrefix + 'Z = 0. Ошибка в y координате');
+  CheckEquals(0, VPos.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(0, VPos.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPos := PixelPos2TilePos(Point(156, 73), 0);
-  CheckEquals(0, VPos.X, cPrefix + 'Z = 0. Ошибка в x координате');
-  CheckEquals(0, VPos.Y, cPrefix + 'Z = 0. Ошибка в y координате');
+  CheckEquals(0, VPos.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(0, VPos.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPos := PixelPos2TilePos(Point(255, 255), 0);
-  CheckEquals(0, VPos.X, cPrefix + 'Z = 0. Ошибка в x координате');
-  CheckEquals(0, VPos.Y, cPrefix + 'Z = 0. Ошибка в y координате');
+  CheckEquals(0, VPos.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(0, VPos.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPos := PixelPos2TilePos(Point(255, 255), 23);
-  CheckEquals(0, VPos.X, cPrefix + 'Z = 23. Ошибка в x координате');
-  CheckEquals(0, VPos.Y, cPrefix + 'Z = 23. Ошибка в y координате');
+  CheckEquals(0, VPos.X, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(0, VPos.Y, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPos := PixelPos2TilePos(Point(2147483392, 2147483392 + 255), 23);
-  CheckEquals(1 shl 23 - 1, VPos.X, cPrefix + 'Z = 23. Ошибка в x координате');
-  CheckEquals(1 shl 23 - 1, VPos.Y, cPrefix + 'Z = 23. Ошибка в y координате');
+  CheckEquals(1 shl 23 - 1, VPos.X, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(1 shl 23 - 1, VPos.Y, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 end;
 
 procedure TestProjectionSet.Check_PixelPos2Relative;
@@ -330,20 +330,20 @@ var
   VRelative: TDoublePoint;
 begin
   VRelative := FProjectionSet.Zooms[0].PixelPos2Relative(Point(0, 128));
-  CheckDouble(  0, VRelative.X, cPrefix + 'z = 0 Ошибка в кординате X');
-  CheckDouble(0.5, VRelative.Y, cPrefix + 'z = 0 Ошибка в кординате Y');
+  CheckDouble(  0, VRelative.X, cPrefix + 'z = 0 РћС€РёР±РєР° РІ РєРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckDouble(0.5, VRelative.Y, cPrefix + 'z = 0 РћС€РёР±РєР° РІ РєРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VRelative := FProjectionSet.Zooms[0].PixelPos2Relative(Point(255, 256));
-  CheckDouble(1 - 1/256, VRelative.X, cPrefix + 'z = 0 Ошибка в кординате X');
-  CheckDouble(1, VRelative.Y, cPrefix + 'z = 0 Ошибка в кординате Y');
+  CheckDouble(1 - 1/256, VRelative.X, cPrefix + 'z = 0 РћС€РёР±РєР° РІ РєРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckDouble(1, VRelative.Y, cPrefix + 'z = 0 РћС€РёР±РєР° РІ РєРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VRelative := FProjectionSet.Zooms[23].PixelPos2Relative(Point(0, 1 shl 30));
-  CheckDouble(0, VRelative.X, cPrefix + 'z = 23 Ошибка в кординате X');
-  CheckDouble(0.5, VRelative.Y, cPrefix + 'z = 23 Ошибка в кординате Y');
+  CheckDouble(0, VRelative.X, cPrefix + 'z = 23 РћС€РёР±РєР° РІ РєРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckDouble(0.5, VRelative.Y, cPrefix + 'z = 23 РћС€РёР±РєР° РІ РєРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VRelative := FProjectionSet.Zooms[23].PixelPos2Relative(Point(2147483392 + 255, MaxInt));
-  CheckDouble(1 - 1/(1 shl 30 + (1 shl 30 - 1)), VRelative.X, cPrefix + 'z = 23 Ошибка в кординате X');
-  CheckDouble(1, VRelative.Y, cPrefix + 'z = 23 Ошибка в кординате Y');
+  CheckDouble(1 - 1/(1 shl 30 + (1 shl 30 - 1)), VRelative.X, cPrefix + 'z = 23 РћС€РёР±РєР° РІ РєРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckDouble(1, VRelative.Y, cPrefix + 'z = 23 РћС€РёР±РєР° РІ РєРѕСЂРґРёРЅР°С‚Рµ Y');
 end;
 
 procedure TestProjectionSet.Check_PixelRect2TileRect;
@@ -353,40 +353,40 @@ var
   VRect: TRect;
 begin
   VRect := FProjectionSet.Zooms[0].PixelRect2TileRect(Rect(0, 0, 255, 255));
-  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 0. Ошибка в Left прямоугольника');
-  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 0. Ошибка в Top прямоугольника');
-  CheckEquals(1, VRect.Right,  cPrefix + 'Z = 0. Ошибка в Right прямоугольника');
-  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 0. Ошибка в Bottom прямоугольника');
+  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1, VRect.Right,  cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := FProjectionSet.Zooms[1].PixelRect2TileRect(Rect(0, 0, 255, 255));
-  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 1. Ошибка в Left прямоугольника');
-  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 1. Ошибка в Top прямоугольника');
-  CheckEquals(1, VRect.Right,  cPrefix + 'Z = 1. Ошибка в Right прямоугольника');
-  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 1. Ошибка в Bottom прямоугольника');
+  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1, VRect.Right,  cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := FProjectionSet.Zooms[1].PixelRect2TileRect(Rect(0, 0, 511, 255));
-  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 1. Ошибка в Left прямоугольника');
-  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 1. Ошибка в Top прямоугольника');
-  CheckEquals(2, VRect.Right,  cPrefix + 'Z = 1. Ошибка в Right прямоугольника');
-  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 1. Ошибка в Bottom прямоугольника');
+  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(2, VRect.Right,  cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 1. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := FProjectionSet.Zooms[23].PixelRect2TileRect(Rect(0, 0, 511, 255));
-  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 23. Ошибка в Left прямоугольника');
-  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 23. Ошибка в Top прямоугольника');
-  CheckEquals(2, VRect.Right,  cPrefix + 'Z = 23. Ошибка в Right прямоугольника');
-  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 23. Ошибка в Bottom прямоугольника');
+  CheckEquals(0, VRect.Left,   cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(0, VRect.Top,    cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(2, VRect.Right,  cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1, VRect.Bottom, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := FProjectionSet.Zooms[23].PixelRect2TileRect(Rect(2147483392, 2147483392 + 255, 2147483392, 2147483392 + 255));
-  CheckEquals(8388607, VRect.Left,   cPrefix + 'Z = 23. Ошибка в Left прямоугольника');
-  CheckEquals(8388607, VRect.Top,    cPrefix + 'Z = 23. Ошибка в Top прямоугольника');
-  CheckEquals(8388607, VRect.Right,  cPrefix + 'Z = 23. Ошибка в Right прямоугольника');
-  CheckEquals(8388608, VRect.Bottom, cPrefix + 'Z = 23. Ошибка в Bottom прямоугольника');
+  CheckEquals(8388607, VRect.Left,   cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(8388607, VRect.Top,    cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(8388607, VRect.Right,  cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(8388608, VRect.Bottom, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := FProjectionSet.Zooms[23].PixelRect2TileRect(Rect(0, 0, 2147483392, 2147483392 + 255));
-  CheckEquals(      0, VRect.Left,   cPrefix + 'Z = 23. Ошибка в Left прямоугольника');
-  CheckEquals(      0, VRect.Top,    cPrefix + 'Z = 23. Ошибка в Top прямоугольника');
-  CheckEquals(8388607, VRect.Right,  cPrefix + 'Z = 23. Ошибка в Right прямоугольника');
-  CheckEquals(8388608, VRect.Bottom, cPrefix + 'Z = 23. Ошибка в Bottom прямоугольника');
+  CheckEquals(      0, VRect.Left,   cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(      0, VRect.Top,    cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(8388607, VRect.Right,  cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(8388608, VRect.Bottom, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 end;
 
 procedure TestProjectionSet.Check_PixelRect2RelativeRect;
@@ -396,22 +396,22 @@ var
   VRect: TDoubleRect;
 begin
   VRect := FProjectionSet.Zooms[0].PixelRect2RelativeRect(Rect(0,0,0,0));
-  CheckDouble(0, VRect.Left,   cPrefix + 'Z = 0. Ошибка в Left');
-  CheckDouble(0, VRect.Top,    cPrefix + 'Z = 0. Ошибка в Top');
-  CheckDouble(0, VRect.Right,  cPrefix + 'Z = 0. Ошибка в Right');
-  CheckDouble(0, VRect.Bottom, cPrefix + 'Z = 0. Ошибка в Bottom');
+  CheckDouble(0, VRect.Left,   cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Left');
+  CheckDouble(0, VRect.Top,    cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Top');
+  CheckDouble(0, VRect.Right,  cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Right');
+  CheckDouble(0, VRect.Bottom, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Bottom');
 
   VRect := FProjectionSet.Zooms[0].PixelRect2RelativeRect(Rect(0,0,256,256));
-  CheckDouble(0, VRect.Left,   cPrefix + 'Z = 0. Ошибка в Left');
-  CheckDouble(0, VRect.Top,    cPrefix + 'Z = 0. Ошибка в Top');
-  CheckDouble(1, VRect.Right,  cPrefix + 'Z = 0. Ошибка в Right');
-  CheckDouble(1, VRect.Bottom, cPrefix + 'Z = 0. Ошибка в Bottom');
+  CheckDouble(0, VRect.Left,   cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Left');
+  CheckDouble(0, VRect.Top,    cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Top');
+  CheckDouble(1, VRect.Right,  cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Right');
+  CheckDouble(1, VRect.Bottom, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Bottom');
 
   VRect := FProjectionSet.Zooms[23].PixelRect2RelativeRect(Rect(0, 1 shl 30, 255, 2147483392 + 255));
-  CheckDouble(0, VRect.Left,  cPrefix + 'Z = 23. Ошибка в Left');
-  CheckDouble(0.5, VRect.Top, cPrefix + 'Z = 23. Ошибка в Top');
-  CheckDouble(1/(1 shl 23), VRect.Right, cPrefix + 'Z = 23. Ошибка в Right');
-  CheckDouble(1, VRect.Bottom, cPrefix + 'Z = 23. Ошибка в Bottom');
+  CheckDouble(0, VRect.Left,  cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Left');
+  CheckDouble(0.5, VRect.Top, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Top');
+  CheckDouble(1/(1 shl 23), VRect.Right, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Right');
+  CheckDouble(1, VRect.Bottom, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Bottom');
 end;
 
 procedure TestProjectionSet.Check_Relative2PixelPos;
@@ -430,16 +430,16 @@ var
   VPixel: TPoint;
 begin
   VPixel := Relative2PixelPos(DoublePoint(1/256, 1/500), 0);
-  CheckEquals(1, VPixel.X, cPrefix + 'Z = 0. Ошибка в x координате');
-  CheckEquals(0, VPixel.Y, cPrefix + 'Z = 0. Ошибка в y координате');
+  CheckEquals(1, VPixel.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(0, VPixel.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPixel := Relative2PixelPos(DoublePoint(1, 1), 0);
-  CheckEquals(256, VPixel.X, cPrefix + 'Z = 0. Ошибка в x координате');
-  CheckEquals(256, VPixel.Y, cPrefix + 'Z = 0. Ошибка в y координате');
+  CheckEquals(256, VPixel.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(256, VPixel.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VPixel := Relative2PixelPos(DoublePoint(1, 1), 23);
-  CheckEquals(MaxInt, VPixel.X, cPrefix + 'Z = 23. Ошибка в x координате');
-  CheckEquals(MaxInt, VPixel.Y, cPrefix + 'Z = 23. Ошибка в y координате');
+  CheckEquals(MaxInt, VPixel.X, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(MaxInt, VPixel.Y, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 end;
 
 procedure TestProjectionSet.Check_Relative2TilePos;
@@ -458,16 +458,16 @@ var
   VTile: TPoint;
 begin
   VTile := Relative2TilePos(DoublePoint(1/256, 1/500), 0);
-  CheckEquals(0, VTile.X, cPrefix + 'Z = 0. Ошибка в x координате');
-  CheckEquals(0, VTile.Y, cPrefix + 'Z = 0. Ошибка в y координате');
+  CheckEquals(0, VTile.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(0, VTile.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VTile := Relative2TilePos(DoublePoint(1, 1), 0);
-  CheckEquals(1, VTile.X, cPrefix + 'Z = 0. Ошибка в x координате');
-  CheckEquals(1, VTile.Y, cPrefix + 'Z = 0. Ошибка в y координате');
+  CheckEquals(1, VTile.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(1, VTile.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 
   VTile := Relative2TilePos(DoublePoint(1, 1), 23);
-  CheckEquals(1 shl 23, VTile.X, cPrefix + 'Z = 23. Ошибка в x координате');
-  CheckEquals(1 shl 23, VTile.Y, cPrefix + 'Z = 23. Ошибка в y координате');
+  CheckEquals(1 shl 23, VTile.X, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ');
+  CheckEquals(1 shl 23, VTile.Y, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ y РєРѕРѕСЂРґРёРЅР°С‚Рµ');
 end;
 
 procedure TestProjectionSet.Check_RelativeRect2PixelRect;
@@ -486,16 +486,16 @@ var
   VRect: TRect;
 begin
   VRect := RelativeRect2PixelRect(DoubleRect(0, 1/256, 1, 511/512), 0);
-  CheckEquals(  0, VRect.Left,   cPrefix + 'Z = 0. Ошибка в Left прямоугольника');
-  CheckEquals(  1, VRect.Top,    cPrefix + 'Z = 0. Ошибка в Top прямоугольника');
-  CheckEquals(256, VRect.Right,  cPrefix + 'Z = 0. Ошибка в Right прямоугольника');
-  CheckEquals(255, VRect.Bottom, cPrefix + 'Z = 0. Ошибка в Bottom прямоугольника');
+  CheckEquals(  0, VRect.Left,   cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(  1, VRect.Top,    cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(256, VRect.Right,  cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(255, VRect.Bottom, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := RelativeRect2PixelRect(DoubleRect(0, 1/256, 1, 511/512), 23);
-  CheckEquals(0, VRect.Left, cPrefix + 'Z = 23. Ошибка в Left прямоугольника');
-  CheckEquals(1 shl 23, VRect.Top, cPrefix + 'Z = 23. Ошибка в Top прямоугольника');
-  CheckEquals(2147483647, VRect.Right, cPrefix + 'Z = 23. Ошибка в Right прямоугольника');
-  CheckEquals(511 shl 22, VRect.Bottom, cPrefix + 'Z = 23. Ошибка в Bottom прямоугольника');
+  CheckEquals(0, VRect.Left, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1 shl 23, VRect.Top, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(2147483647, VRect.Right, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(511 shl 22, VRect.Bottom, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 end;
 
 procedure TestProjectionSet.Check_RelativeRect2TileRect;
@@ -514,16 +514,16 @@ var
   VRect: TRect;
 begin
   VRect := RelativeRect2TileRect(DoubleRect(0, 1/256, 1, 511/512), 0);
-  CheckEquals(0, VRect.Left, cPrefix + 'Z = 0. Ошибка в Left прямоугольника');
-  CheckEquals(0, VRect.Top, cPrefix + 'Z = 0. Ошибка в Top прямоугольника');
-  CheckEquals(1, VRect.Right, cPrefix + 'Z = 0. Ошибка в Right прямоугольника');
-  CheckEquals(0, VRect.Bottom, cPrefix + 'Z = 0. Ошибка в Bottom прямоугольника');
+  CheckEquals(0, VRect.Left, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(0, VRect.Top, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1, VRect.Right, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(0, VRect.Bottom, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 
   VRect := RelativeRect2TileRect(DoubleRect(0, 1/256, 1, 511/512), 23);
-  CheckEquals(0, VRect.Left, cPrefix + 'Z = 23. Ошибка в Left прямоугольника');
-  CheckEquals(1 shl 15, VRect.Top, cPrefix + 'Z = 23. Ошибка в Top прямоугольника');
-  CheckEquals(1 shl 23, VRect.Right, cPrefix + 'Z = 23. Ошибка в Right прямоугольника');
-  CheckEquals(511 shl 14, VRect.Bottom, cPrefix + 'Z = 23. Ошибка в Bottom прямоугольника');
+  CheckEquals(0, VRect.Left, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Left РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1 shl 15, VRect.Top, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Top РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(1 shl 23, VRect.Right, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Right РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
+  CheckEquals(511 shl 14, VRect.Bottom, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ Bottom РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°');
 end;
 
 procedure TestProjectionSet.Check_TilePos2LonLat2TilePos;
@@ -545,54 +545,54 @@ begin
   VSource := Point(10, 99);
   VZoom := 8;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 0. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 0. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 0. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VZoom := 10;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 10. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 10. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 10. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 10. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VZoom := 14;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 14. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 14. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 14. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 14. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VZoom := 20;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 20. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 20. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 20. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 20. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VZoom := 23;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 23. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 23. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VSource := Point(1024, 768);
   VZoom := 10;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 10. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 10. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 10. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 10. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VZoom := 11;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 10. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 10. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 10. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 10. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VZoom := 14;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 14. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 14. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 14. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 14. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VZoom := 20;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 20. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 20. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 20. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 20. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 
   VZoom := 22;
   VResult := LonLat2TilePos(FProjectionSet.Zooms[VZoom].TilePos2LonLat(VSource), VZoom);
-  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 23. Ошибка в x координате X');
-  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 23. Ошибка в x координате Y');
+  CheckEquals(VSource.X, VResult.X, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ X');
+  CheckEquals(VSource.Y, VResult.Y, cPrefix + 'Z = 23. РћС€РёР±РєР° РІ x РєРѕРѕСЂРґРёРЅР°С‚Рµ Y');
 end;
 
 procedure TestProjectionSet.Check_Relative2LonLat2Relative;
@@ -620,12 +620,12 @@ begin
       VMaxDelta := VDelta;
     end;
 
-    Check(Abs(VDelta) < 1E-8, cPrefix + 'Слишком большая погрешность');
+    Check(Abs(VDelta) < 1E-8, cPrefix + 'РЎР»РёС€РєРѕРј Р±РѕР»СЊС€Р°СЏ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ');
 
     VSource.Y := VSource.Y + cStep;
   end;
 
-  Check(Abs(VMaxDelta) < 2.3283064365E-10, cPrefix + 'Слишком большая погрешность ' + FloatToStr(VMaxDelta));
+  Check(Abs(VMaxDelta) < 2.3283064365E-10, cPrefix + 'РЎР»РёС€РєРѕРј Р±РѕР»СЊС€Р°СЏ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ ' + FloatToStr(VMaxDelta));
 end;
 
 procedure TestProjectionSet.Check_MonotonicRelative2LonLat;
@@ -666,7 +666,7 @@ begin
 
     Check(
       VEpsilon > 0,
-      cPrefix + 'Функция проецирования не монотонна в точке ' + FloatToStr(VSource.Y) + ' Eps=' + FloatToStr(VEpsilon)
+      cPrefix + 'Р¤СѓРЅРєС†РёСЏ РїСЂРѕРµС†РёСЂРѕРІР°РЅРёСЏ РЅРµ РјРѕРЅРѕС‚РѕРЅРЅР° РІ С‚РѕС‡РєРµ ' + FloatToStr(VSource.Y) + ' Eps=' + FloatToStr(VEpsilon)
     );
 
     VSourceLast := VSource;

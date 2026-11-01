@@ -1,26 +1,26 @@
-unit RegExprUtils;
+п»їunit RegExprUtils;
 
 interface
 
 {$region 'xmldoc'}
 /// <summary>
-/// Поиск подстроки регулярным выражением
+/// РџРѕРёСЃРє РїРѕРґСЃС‚СЂРѕРєРё СЂРµРіСѓР»СЏСЂРЅС‹Рј РІС‹СЂР°Р¶РµРЅРёРµРј
 /// </summary>
-/// <param name="AStr">Исходная строка</param>
-/// <param name="AMatchExpr">Рег. выражение, по которому выполняется поиск</param>
-/// <param name="AMatchID">Номер совпадения рег. выражения (0,1,2 и т.д.)</param>
-/// <returns>Искомая строка или пустая строка, если совпадений не найдено</returns>
+/// <param name="AStr">РСЃС…РѕРґРЅР°СЏ СЃС‚СЂРѕРєР°</param>
+/// <param name="AMatchExpr">Р РµРі. РІС‹СЂР°Р¶РµРЅРёРµ, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РїРѕРёСЃРє</param>
+/// <param name="AMatchID">РќРѕРјРµСЂ СЃРѕРІРїР°РґРµРЅРёСЏ СЂРµРі. РІС‹СЂР°Р¶РµРЅРёСЏ (0,1,2 Рё С‚.Рґ.)</param>
+/// <returns>РСЃРєРѕРјР°СЏ СЃС‚СЂРѕРєР° РёР»Рё РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°, РµСЃР»Рё СЃРѕРІРїР°РґРµРЅРёР№ РЅРµ РЅР°Р№РґРµРЅРѕ</returns>
 {$endregion}
 function RegExprGetMatchSubStr(const AStr, AMatchExpr: AnsiString; AMatchID: Integer): AnsiString;
 
 {$region 'xmldoc'}
 /// <summary>
-/// Замена подстроки (поиск выполняется регулярным выражением)
+/// Р—Р°РјРµРЅР° РїРѕРґСЃС‚СЂРѕРєРё (РїРѕРёСЃРє РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ СЂРµРіСѓР»СЏСЂРЅС‹Рј РІС‹СЂР°Р¶РµРЅРёРµРј)
 /// </summary>
-/// <param name="AStr">Исходная строка</param>
-/// <param name="AMatchExpr">Рег. выражение, по которому выполняется поиск</param>
-/// <param name="AReplace">Строка замены</param>
-/// <returns>Исходная строка (если совпадений не найдено) или изменённая строка</returns>
+/// <param name="AStr">РСЃС…РѕРґРЅР°СЏ СЃС‚СЂРѕРєР°</param>
+/// <param name="AMatchExpr">Р РµРі. РІС‹СЂР°Р¶РµРЅРёРµ, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РїРѕРёСЃРє</param>
+/// <param name="AReplace">РЎС‚СЂРѕРєР° Р·Р°РјРµРЅС‹</param>
+/// <returns>РСЃС…РѕРґРЅР°СЏ СЃС‚СЂРѕРєР° (РµСЃР»Рё СЃРѕРІРїР°РґРµРЅРёР№ РЅРµ РЅР°Р№РґРµРЅРѕ) РёР»Рё РёР·РјРµРЅС‘РЅРЅР°СЏ СЃС‚СЂРѕРєР°</returns>
 {$endregion}
 function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: AnsiString): AnsiString;
 

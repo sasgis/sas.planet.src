@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -29,7 +29,7 @@ uses
 type
   IStartUpLogoConfig = interface(IConfigDataElement)
     ['{475F5EEB-3129-4365-B28A-C092D5885E3F}']
-    // Отображать окошко с логотипом при запуске
+    // РћС‚РѕР±СЂР°Р¶Р°С‚СЊ РѕРєРѕС€РєРѕ СЃ Р»РѕРіРѕС‚РёРїРѕРј РїСЂРё Р·Р°РїСѓСЃРєРµ
     function GetIsShowLogo: Boolean;
     procedure SetIsShowLogo(AValue: Boolean);
     property IsShowLogo: Boolean read GetIsShowLogo write SetIsShowLogo;

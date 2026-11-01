@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -86,7 +86,7 @@ const
     data-latitude="53.91"
     data-longitude="27.55">
     <div>
-        <span style="color: #9BBDDE;">&bull;</span> <strong>Minsk (Минск, Мінск)</strong>
+        <span style="color: #9BBDDE;">&bull;</span> <strong>Minsk (РњРёРЅСЃРє, РњС–РЅСЃРє)</strong>
         <span class="label label-info">6508&nbsp;km</span>
     </div>
     <small>

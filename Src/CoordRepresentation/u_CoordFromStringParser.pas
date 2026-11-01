@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -91,10 +91,10 @@ begin
   VText := StringReplace(VText, 'W', '-', [rfReplaceAll]);
   VText := StringReplace(VText, 'N', '+', [rfReplaceAll]);
   VText := StringReplace(VText, 'E', '+', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Ş', '-', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Ç', '-', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Â', '+', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Ñ', '+', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Ğ®', '-', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Ğ—', '-', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Ğ’', '+', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Ğ¡', '+', [rfReplaceAll]);
   minus := false;
   if posEx('-', VText, 1) > 0 then begin
     minus := true;

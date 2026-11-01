@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -29,27 +29,27 @@ uses
 type
   IMainFormBehaviourByGPSConfig = interface(IConfigDataElement)
     ['{2236C930-B6F6-4A6D-A8EB-FC83999973EA}']
-    // Двигать карту при изменении gps-координат
+    // Р”РІРёРіР°С‚СЊ РєР°СЂС‚Сѓ РїСЂРё РёР·РјРµРЅРµРЅРёРё gps-РєРѕРѕСЂРґРёРЅР°С‚
     function GetMapMove: Boolean;
     procedure SetMapMove(AValue: Boolean);
     property MapMove: Boolean read GetMapMove write SetMapMove;
 
-    // Центрировать карту на GPS позиции
+    // Р¦РµРЅС‚СЂРёСЂРѕРІР°С‚СЊ РєР°СЂС‚Сѓ РЅР° GPS РїРѕР·РёС†РёРё
     function GetMapMoveCentered: Boolean;
     procedure SetMapMoveCentered(AValue: Boolean);
     property MapMoveCentered: Boolean read GetMapMoveCentered write SetMapMoveCentered;
 
-    // Расстояние, на которое должено измениться положение GPS что бы вызвать сдиг карты
+    // Р Р°СЃСЃС‚РѕСЏРЅРёРµ, РЅР° РєРѕС‚РѕСЂРѕРµ РґРѕР»Р¶РµРЅРѕ РёР·РјРµРЅРёС‚СЊСЃСЏ РїРѕР»РѕР¶РµРЅРёРµ GPS С‡С‚Рѕ Р±С‹ РІС‹Р·РІР°С‚СЊ СЃРґРёРі РєР°СЂС‚С‹
     function GetMinMoveDelta: Double;
     procedure SetMinMoveDelta(AValue: Double);
     property MinMoveDelta: Double read GetMinMoveDelta write SetMinMoveDelta;
 
-    // Скрывать/показывать панель датчиков при подключении/отключении GPS
+    // РЎРєСЂС‹РІР°С‚СЊ/РїРѕРєР°Р·С‹РІР°С‚СЊ РїР°РЅРµР»СЊ РґР°С‚С‡РёРєРѕРІ РїСЂРё РїРѕРґРєР»СЋС‡РµРЅРёРё/РѕС‚РєР»СЋС‡РµРЅРёРё GPS
     function GetSensorsAutoShow: Boolean;
     procedure SetSensorsAutoShow(AValue: Boolean);
     property SensorsAutoShow: Boolean read GetSensorsAutoShow write SetSensorsAutoShow;
 
-    // Двигать карту и перерисовывать трек только если главное окно активно
+    // Р”РІРёРіР°С‚СЊ РєР°СЂС‚Сѓ Рё РїРµСЂРµСЂРёСЃРѕРІС‹РІР°С‚СЊ С‚СЂРµРє С‚РѕР»СЊРєРѕ РµСЃР»Рё РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ Р°РєС‚РёРІРЅРѕ
     function GetProcessGPSIfActive: Boolean;
     procedure SetProcessGPSIfActive(AValue: Boolean);
     property ProcessGPSIfActive: Boolean read GetProcessGPSIfActive write SetProcessGPSIfActive;

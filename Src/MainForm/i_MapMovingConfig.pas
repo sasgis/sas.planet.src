@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -29,7 +29,7 @@ uses
 type
   IMapMovingConfig = interface(IConfigDataElement)
     ['{A322104E-A247-4EB3-83F6-C897F64E764C}']
-    //Анимация инерции
+    //РђРЅРёРјР°С†РёСЏ РёРЅРµСЂС†РёРё
     function GetAnimateMove: Boolean;
     procedure SetAnimateMove(AValue: Boolean);
     property AnimateMove: Boolean read GetAnimateMove write SetAnimateMove;

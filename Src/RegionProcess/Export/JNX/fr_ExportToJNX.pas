@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -470,7 +470,7 @@ begin
         if Assigned(VJnxScaleConfig) then begin
           for i := 0 to 23 do begin
             VStr := VJnxLevelMappingConfig.ReadString('z' + IntToStr(i + 1), '');
-            // Если в INIшнике нет соответствующего значения, будет использовано значение из набора по умолчанию.
+            // Р•СЃР»Рё РІ INIС€РЅРёРєРµ РЅРµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ Р·РЅР°С‡РµРЅРёСЏ, Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ Р·РЅР°С‡РµРЅРёРµ РёР· РЅР°Р±РѕСЂР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
             if VStr <> '' then begin
               VIndex := VGarminZoomList.IndexOf(VStr);
               if VIndex <> -1 then begin
@@ -519,8 +519,8 @@ procedure TfrExportToJNX.Init(
   const APolygon: IGeometryLonLatPolygon
 );
 begin
-  // Инициализируем список соответствия масштабов каждый раз,
-  // чтобы можно было пробовать различные настройки, не перезапуская программу.
+  // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРїРёСЃРѕРє СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ РјР°СЃС€С‚Р°Р±РѕРІ РєР°Р¶РґС‹Р№ СЂР°Р·,
+  // С‡С‚РѕР±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РїСЂРѕР±РѕРІР°С‚СЊ СЂР°Р·Р»РёС‡РЅС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё, РЅРµ РїРµСЂРµР·Р°РїСѓСЃРєР°СЏ РїСЂРѕРіСЂР°РјРјСѓ.
   InitZoomIndexToScaleIndex;
   if not Assigned(FfrMap1Select.Parent) then
     FfrMap1Select.Show(pnlMap1);

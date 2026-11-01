@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -176,10 +176,10 @@ begin
   if PosEx('E', VText, 1) > 0 then begin
     VLonBool := True;
   end;
-  if PosEx('З', VText, 1) > 0 then begin
+  if PosEx('Р—', VText, 1) > 0 then begin
     VLonBool := True;
   end;
-  if PosEx('В', VText, 1) > 0 then begin
+  if PosEx('Р’', VText, 1) > 0 then begin
     VLonBool := True;
   end;
   if PosEx('LON', VText, 1) > 0 then begin
@@ -197,10 +197,10 @@ begin
   if PosEx('N', VText, 1) > 0 then begin
     VLatBool := True;
   end;
-  if PosEx('Ю', VText, 1) > 0 then begin
+  if PosEx('Р®', VText, 1) > 0 then begin
     VLatBool := True;
   end;
-  if PosEx('С', VText, 1) > 0 then begin
+  if PosEx('РЎ', VText, 1) > 0 then begin
     VLatBool := True;
   end;
   if PosEx('LAT', VText, 1) > 0 then begin
@@ -212,20 +212,20 @@ begin
   VText := ReplaceStr(VText, 'LAT', '');
   VText := ReplaceStr(VText, 'LL', '');
 
-  VText := ReplaceStr(VText, 'Ш.', '');
-  VText := ReplaceStr(VText, 'Ш', '');
-  VText := ReplaceStr(VText, 'Д.', '');
-  VText := ReplaceStr(VText, 'Д', '');
+  VText := ReplaceStr(VText, 'РЁ.', '');
+  VText := ReplaceStr(VText, 'РЁ', '');
+  VText := ReplaceStr(VText, 'Р”.', '');
+  VText := ReplaceStr(VText, 'Р”', '');
   VText := ReplaceStr(VText, '=', '');
 
   VText := StringReplace(VText, 'S', '-', [rfReplaceAll]);
   VText := StringReplace(VText, 'W', '-', [rfReplaceAll]);
   VText := StringReplace(VText, 'N', '+', [rfReplaceAll]);
   VText := StringReplace(VText, 'E', '+', [rfReplaceAll]);
-  VText := StringReplace(VText, 'Ю', '-', [rfReplaceAll]);
-  VText := StringReplace(VText, 'З', '-', [rfReplaceAll]);
-  VText := StringReplace(VText, 'В', '+', [rfReplaceAll]);
-  VText := StringReplace(VText, 'С', '+', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Р®', '-', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Р—', '-', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Р’', '+', [rfReplaceAll]);
+  VText := StringReplace(VText, 'РЎ', '+', [rfReplaceAll]);
   Vminus := False;
   if PosEx('-', VText, 1) > 0 then begin
     Vminus := True;
@@ -365,7 +365,7 @@ begin
         AddItem2List(VPlace, Alist);
       end;
     end;
-    //  и наоборот
+    //  Рё РЅР°РѕР±РѕСЂРѕС‚
     if APoint.Y <> APoint.X  then begin
       VPoint.X := APoint.Y;
       VPoint.Y := APoint.X;
@@ -460,7 +460,7 @@ begin
   if VBLat1 and VBLon1 then begin
     Vblat1 := False;
     VBLon1 := False;
-  end; // если указано 123NE
+  end; // РµСЃР»Рё СѓРєР°Р·Р°РЅРѕ 123NE
   Str2Degree(APos2, VBLat2, VBlon2, VDLon);
   if VBLat2 and VBLon2 then begin
     Vblat2 := False;
@@ -489,7 +489,7 @@ begin
     VPoint.X := VDLon;
   end;
 
-  if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // точно определили всего одну пару
+  if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // С‚РѕС‡РЅРѕ РѕРїСЂРµРґРµР»РёР»Рё РІСЃРµРіРѕ РѕРґРЅСѓ РїР°СЂСѓ
     VSname := APos1 + ' ' + APos2;
     if (abs(VPoint.y)<=90) and (abs(VPoint.x)<=180) then begin
       VSDesc := '[ '+VToStringConverter.LonLatConvert(VPoint) + ' ]';
@@ -499,7 +499,7 @@ begin
     end;
   end;
 
-  if ((VBLat1 or VBLat2 ) and not (VBlon2 or VBLon1)) then begin // определена широта и косяк с долготой
+  if ((VBLat1 or VBLat2 ) and not (VBlon2 or VBLon1)) then begin // РѕРїСЂРµРґРµР»РµРЅР° С€РёСЂРѕС‚Р° Рё РєРѕСЃСЏРє СЃ РґРѕР»РіРѕС‚РѕР№
     if VBlat1 then VPoint.X := VDLon ;
     if VBlat2 then VPoint.X := VDLat ;
 
@@ -529,7 +529,7 @@ begin
     end;
   end;
 
-  if ((VBLon1 or VBLon2 ) and not (VBlat2 or VBLat1)) then begin // определена долгота и косяк с широтой
+  if ((VBLon1 or VBLon2 ) and not (VBlat2 or VBLat1)) then begin // РѕРїСЂРµРґРµР»РµРЅР° РґРѕР»РіРѕС‚Р° Рё РєРѕСЃСЏРє СЃ С€РёСЂРѕС‚РѕР№
     if VBlon1 then VPoint.Y := VDLon ;
     if VBlon2 then VPoint.Y := VDLat ;
     if (abs(VPoint.y)<=90) and (abs(VPoint.x)<=180) then begin
@@ -558,7 +558,7 @@ begin
     end;
   end;
 
-  if not (VBLat1 or VBLat2 or VBLon1 or Vblon2) then begin // все 4 координаты не заданы конкретно
+  if not (VBLat1 or VBLat2 or VBLon1 or Vblon2) then begin // РІСЃРµ 4 РєРѕРѕСЂРґРёРЅР°С‚С‹ РЅРµ Р·Р°РґР°РЅС‹ РєРѕРЅРєСЂРµС‚РЅРѕ
     VPoint.X := VDLon;
     VPoint.Y := VDLat;
     Test2Coord(APos1, Apos2, VPoint, '', Alist);
@@ -639,7 +639,7 @@ begin
   // X-XX-XXX-X-X-X
   // C-II-III-C-C-I  char/integer
   // C-II-CCCCCC-C-C-C
-  // K-37-XXXVI - 2х километровка - отдельная история RomanToDig()
+  // K-37-XXXVI - 2С… РєРёР»РѕРјРµС‚СЂРѕРІРєР° - РѕС‚РґРµР»СЊРЅР°СЏ РёСЃС‚РѕСЂРёСЏ RomanToDig()
   // C-II-II-(III)
   // C-II-II-(III-C)
   V2Search := AStr;
@@ -647,20 +647,20 @@ begin
   VDLon := 1;
   VDLat := 0;
   VTempString := '';
-  V2Search := ReplaceStr(V2Search, 'А', 'A');
-  V2Search := ReplaceStr(V2Search, 'Б', 'B');
-  V2Search := ReplaceStr(V2Search, 'В', 'C');
-  V2Search := ReplaceStr(V2Search, 'Г', 'D');
+  V2Search := ReplaceStr(V2Search, 'Рђ', 'A');
+  V2Search := ReplaceStr(V2Search, 'Р‘', 'B');
+  V2Search := ReplaceStr(V2Search, 'Р’', 'C');
+  V2Search := ReplaceStr(V2Search, 'Р“', 'D');
   V2Search := ReplaceStr(V2Search, 'V', 'C');
   V2Search := ReplaceStr(V2Search, 'G', 'D');
 
   if PosEx('--', V2Search, 1) > 0 then
     V2Search := Copy(V2Search, PosEx('--', V2Search, 1) + 2, Length(V2Search) - PosEx('--', V2Search, 1));
   if Copy(V2Search, Length(V2Search) - 3, 1) = '.' then
-    V2Search := Copy(V2Search, 1, Length(V2Search) - 4); // убираем расширение и 3 последние бкувы
+    V2Search := Copy(V2Search, 1, Length(V2Search) - 4); // СѓР±РёСЂР°РµРј СЂР°СЃС€РёСЂРµРЅРёРµ Рё 3 РїРѕСЃР»РµРґРЅРёРµ Р±РєСѓРІС‹
   V2Search := ReplaceStr(V2Search, '_', '-');
 
-  VTempString := Copy(V2Search, 1, 1); // ПЕРВОЕ ПОЛЕ
+  VTempString := Copy(V2Search, 1, 1); // РџР•Р Р’РћР• РџРћР›Р•
   if VTempString[1] = 'X' then begin
     VTempString := Copy(V2Search, 2, 1);
     VDLon := -1;
@@ -668,16 +668,16 @@ begin
     VSname := VTempString;
   end;
   VSname := VSname + VTempString;
-  V2Search := Copy(V2Search, 2, Length(V2Search) - 1); // убрали первую букву (или две)
+  V2Search := Copy(V2Search, 2, Length(V2Search) - 1); // СѓР±СЂР°Р»Рё РїРµСЂРІСѓСЋ Р±СѓРєРІСѓ (РёР»Рё РґРІРµ)
   if (VTempString[1] >= 'A') and (VTempString[1] <= 'U') then
     VDLon := VDLon*(ord(VTempString[1]) - 64)*4 - 2
   else
     VcoordError := True;
 
-  if Copy(V2Search, 1, 1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search) - 1); // убрали "-" если он был между разделителми
-  if not VcoordError then begin // ВТОРОЕ ПОЛЕ
+  if Copy(V2Search, 1, 1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search) - 1); // СѓР±СЂР°Р»Рё "-" РµСЃР»Рё РѕРЅ Р±С‹Р» РјРµР¶РґСѓ СЂР°Р·РґРµР»РёС‚РµР»РјРё
+  if not VcoordError then begin // Р’РўРћР РћР• РџРћР›Р•
     I := PosEx('-', V2Search, 1);
-    if I=0 then  // не найден разделитель, может ввели К001 ?
+    if I=0 then  // РЅРµ РЅР°Р№РґРµРЅ СЂР°Р·РґРµР»РёС‚РµР»СЊ, РјРѕР¶РµС‚ РІРІРµР»Рё Рљ001 ?
       if Length(v2search) >3 then VcoordError := True
       else I := Length(v2search)+1;
 
@@ -689,12 +689,12 @@ begin
     V2Search := Copy(V2Search,I,Length(V2Search)-I + 1);
     if Length(V2Search) > 0 then
       if Copy(V2Search,1,1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search)-1);
-  end; // ВТОРОЕ ПОЛЕ
+  end; // Р’РўРћР РћР• РџРћР›Р•
 
-  if not VcoordError then begin// ТРЕТЬЕ ПОЛЕ
+  if not VcoordError then begin// РўР Р•РўР¬Р• РџРћР›Р•
     if Length(V2Search) > 0 then begin
       I := PosEx('-', V2Search, 1);
-      if I=0 then I := Length(v2search) + 1;// не найден разделитель, может последнее поле?
+      if I=0 then I := Length(v2search) + 1;// РЅРµ РЅР°Р№РґРµРЅ СЂР°Р·РґРµР»РёС‚РµР»СЊ, РјРѕР¶РµС‚ РїРѕСЃР»РµРґРЅРµРµ РїРѕР»Рµ?
       VTempString := Copy(V2Search, 1, I - 1);
       if (VTempString[1] >= 'A') and (VTempString[1] <= 'D') then begin // 5 km
         case VTempString[1] of
@@ -705,7 +705,7 @@ begin
         end;
       VSname := VSname +'-'+ VTempString;
       VTempString := '';
-      V2Search := ''; // по идее всё - дальше не учитываем стираем остатки.
+      V2Search := ''; // РїРѕ РёРґРµРµ РІСЃС‘ - РґР°Р»СЊС€Рµ РЅРµ СѓС‡РёС‚С‹РІР°РµРј СЃС‚РёСЂР°РµРј РѕСЃС‚Р°С‚РєРё.
       end;
 
       if V2Search <> '' then begin
@@ -715,7 +715,7 @@ begin
             if J<=36 then begin
               VDLon := VDLon + ((((3 - ((J - 1) div 6) - 1)*2) + 1)/6)*2;  //Y
               VDLat := VDLat - ((((3 - ((J - 1) mod 6) - 1)*2) + 1)/6)*3;  //X
-              V2Search := ''; // по идее всё - дальше не учитываем стираем остатки.
+              V2Search := ''; // РїРѕ РёРґРµРµ РІСЃС‘ - РґР°Р»СЊС€Рµ РЅРµ СѓС‡РёС‚С‹РІР°РµРј СЃС‚РёСЂР°РµРј РѕСЃС‚Р°С‚РєРё.
               VSname := VSname +'-'+ VTempString;
             end else VcoordError := True;
           end;
@@ -740,13 +740,13 @@ begin
         if Copy(V2Search, 1, 1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search) - 1);
       end;
     end;
-  end; // ТРЕТЬЕ ПОЛЕ
-       // L-37-143-А.jpg
+  end; // РўР Р•РўР¬Р• РџРћР›Р•
+       // L-37-143-Рђ.jpg
   if V2Search <> '' then begin
-    if not VcoordError then begin// ЧЕТВЕРТОЕ ПОЛЕ
+    if not VcoordError then begin// Р§Р•РўР’Р•Р РўРћР• РџРћР›Р•
       if Length(V2Search) > 0 then begin
         I := PosEx('-', V2Search, 1);
-        if I=0 then I := Length(v2search) + 1;// не найден разделитель, может последнее поле?
+        if I=0 then I := Length(v2search) + 1;// РЅРµ РЅР°Р№РґРµРЅ СЂР°Р·РґРµР»РёС‚РµР»СЊ, РјРѕР¶РµС‚ РїРѕСЃР»РµРґРЅРµРµ РїРѕР»Рµ?
         VTempString := Copy(V2Search, 1, I - 1);
         if ((VTempString[1]>='A') and (VTempString[1]<='D'))or((VTempString[1]>='1') and (VTempString[1]<='3')) then begin
           case VTempString[1] of
@@ -756,7 +756,7 @@ begin
             'D', '4': begin VDLat := VDLat + 1/8; VDLon := VDLon - 1/12 end;
           end;
         end else begin
-          if VTempString[1]='(' then begin // масштабы 50м и 25м
+          if VTempString[1]='(' then begin // РјР°СЃС€С‚Р°Р±С‹ 50Рј Рё 25Рј
             if VTempString[Length(VTempString)]=')'then J := strtoint(Copy(VTempString, 2, Length(VTempString) - 2))
             else J:= strtoint(Copy(VTempString, 2, Length(VTempString) - 1));
             if (J<=256) and (J>=1) then begin
@@ -784,16 +784,16 @@ begin
         if Length(V2Search) > 0 then begin
           if Copy(V2Search, 1, 1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search) - 1);
         end;
-      end; // ЧЕТВЕРТОЕ ПОЛЕ
+      end; // Р§Р•РўР’Р•Р РўРћР• РџРћР›Р•
     end;
   end;
 
-  // L-37-143-А-б.jpg
+  // L-37-143-Рђ-Р±.jpg
   if V2Search <> '' then begin
-    if not VcoordError then begin// ПЯТОЕ ПОЛЕ
+    if not VcoordError then begin// РџРЇРўРћР• РџРћР›Р•
       if Length(V2Search) > 0 then begin
         I := PosEx('-', V2Search, 1);
-        if I=0 then I := Length(v2search) + 1;// не найден разделитель, может последнее поле?
+        if I=0 then I := Length(v2search) + 1;// РЅРµ РЅР°Р№РґРµРЅ СЂР°Р·РґРµР»РёС‚РµР»СЊ, РјРѕР¶РµС‚ РїРѕСЃР»РµРґРЅРµРµ РїРѕР»Рµ?
         VTempString := Copy(V2Search, 1, I - 1);
         if (VTempString[1] >= 'A') and (VTempString[1] <= 'D') then begin
           case VTempString[1] of
@@ -810,14 +810,14 @@ begin
         end;
       end;
     end;
-  end; // ПЯТОЕ ПОЛЕ
+  end; // РџРЇРўРћР• РџРћР›Р•
 
-  // L-37-143-А-б-1.jpg
+  // L-37-143-Рђ-Р±-1.jpg
   if V2Search <> '' then begin
-    if not VcoordError then begin // ШЕСТОЕ ПОЛЕ
+    if not VcoordError then begin // РЁР•РЎРўРћР• РџРћР›Р•
       if Length(V2Search) > 0 then begin
         I := PosEx('-', V2Search, 1);
-        if I=0 then I := Length(v2search) + 1;// не найден разделитель, может последнее поле?
+        if I=0 then I := Length(v2search) + 1;// РЅРµ РЅР°Р№РґРµРЅ СЂР°Р·РґРµР»РёС‚РµР»СЊ, РјРѕР¶РµС‚ РїРѕСЃР»РµРґРЅРµРµ РїРѕР»Рµ?
         V2Search := ReplaceStr(V2Search, '1', 'A');
         V2Search := ReplaceStr(V2Search, '2', 'B');
         V2Search := ReplaceStr(V2Search, '3', 'C');
@@ -836,10 +836,10 @@ begin
         if Length(V2Search) > 0 then begin
          if Copy(V2Search, 1, 1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search) - 1);
         end;
-      end; // ШЕСТОЕ ПОЛЕ
+      end; // РЁР•РЎРўРћР• РџРћР›Р•
     end;
   end;
-  if not VcoordError then begin // добавляем таки точку если всё ок
+  if not VcoordError then begin // РґРѕР±Р°РІР»СЏРµРј С‚Р°РєРё С‚РѕС‡РєСѓ РµСЃР»Рё РІСЃС‘ РѕРє
     VPoint.Y := VDLon;
     VPoint.X := VDLat;
     if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
@@ -882,36 +882,36 @@ begin
   end;
   VcoordError := True;
   V2Search := Trim(AnsiUpperCase(ASearch));
-  V2Search := StringReplace(V2Search, ', ', ' ', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, ' .', ' ', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, '%2C', ' ', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, '#8243;', '"', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, '#8242;', '''', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, '&', ' ', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, '=', ' ', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, ';', ' ', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, '#', ' ', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, '/', ' ', [rfReplaceAll]); // разделители
-  V2Search := StringReplace(V2Search, 'ШИРОТА', 'N ', [rfReplaceAll]);
-  V2Search := StringReplace(V2Search, 'ШИРОТЫ', 'N ', [rfReplaceAll]);
-  V2Search := StringReplace(V2Search, 'ДОЛГОТА', 'E ', [rfReplaceAll]);
-  V2Search := StringReplace(V2Search, 'ДОЛГОТЫ', 'E ', [rfReplaceAll]);
+  V2Search := StringReplace(V2Search, ', ', ' ', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, ' .', ' ', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, '%2C', ' ', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, '#8243;', '"', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, '#8242;', '''', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, '&', ' ', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, '=', ' ', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, ';', ' ', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, '#', ' ', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, '/', ' ', [rfReplaceAll]); // СЂР°Р·РґРµР»РёС‚РµР»Рё
+  V2Search := StringReplace(V2Search, 'РЁРР РћРўРђ', 'N ', [rfReplaceAll]);
+  V2Search := StringReplace(V2Search, 'РЁРР РћРўР«', 'N ', [rfReplaceAll]);
+  V2Search := StringReplace(V2Search, 'Р”РћР›Р“РћРўРђ', 'E ', [rfReplaceAll]);
+  V2Search := StringReplace(V2Search, 'Р”РћР›Р“РћРўР«', 'E ', [rfReplaceAll]);
 
   if SubstrCount(',', V2Search, I) = 1 then V2Search := ReplaceStr(V2Search, ',', ' '); // 11.22,33.44
-  while PosEx('  ', V2Search, 1) > 1 do V2Search := ReplaceStr(V2Search, '  ', ' ');// убираем двойные пробелы
-  I := SubstrCount(' ', V2Search, J); // считаем количество пробелов и последнее вхождение
+  while PosEx('  ', V2Search, 1) > 1 do V2Search := ReplaceStr(V2Search, '  ', ' ');// СѓР±РёСЂР°РµРј РґРІРѕР№РЅС‹Рµ РїСЂРѕР±РµР»С‹
+  I := SubstrCount(' ', V2Search, J); // СЃС‡РёС‚Р°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕР±РµР»РѕРІ Рё РїРѕСЃР»РµРґРЅРµРµ РІС…РѕР¶РґРµРЅРёРµ
 
   VZoom := 0;
   ViLat := 0;
   ViLon := 0;
-  if I = 1 then begin// один пробел
-    if J > 1 then begin // пробел дальше чем первый символ
-      VLatStr := Copy(V2Search, 1, J - 1); //первая половина
-      VLonStr := Copy(V2Search, J, Length(V2Search) - J + 1); // вторая половина
+  if I = 1 then begin// РѕРґРёРЅ РїСЂРѕР±РµР»
+    if J > 1 then begin // РїСЂРѕР±РµР» РґР°Р»СЊС€Рµ С‡РµРј РїРµСЂРІС‹Р№ СЃРёРјРІРѕР»
+      VLatStr := Copy(V2Search, 1, J - 1); //РїРµСЂРІР°СЏ РїРѕР»РѕРІРёРЅР°
+      VLonStr := Copy(V2Search, J, Length(V2Search) - J + 1); // РІС‚РѕСЂР°СЏ РїРѕР»РѕРІРёРЅР°
       PosStr2List(VLatStr, VLonStr, VList);
     end;
   end else
-  if I = 0 then begin // 0 пробелов - путь к тайлу?
+  if I = 0 then begin // 0 РїСЂРѕР±РµР»РѕРІ - РїСѓС‚СЊ Рє С‚Р°Р№Р»Сѓ?
     if ((Copy(V2Search, 1, 1) >= 'A') and (Copy(V2Search, 1, 1) <= 'Z') and (Copy(V2Search, 2, 1) = ':') )
       or (Copy(V2Search, 1, 2) = '\\')or (Copy(V2Search, 1, 1) = '.') then begin
       I := PosEx('\Z', V2Search, 1);
@@ -942,26 +942,26 @@ begin
         VcoordError := False;
       end else
       if PosEx('\X', V2Search, 1) > 0 then begin   //G:\GoogleMV\cache\yamapng\z13\2\x2491\1\y1473.png
-        I := PosEx('\X', V2Search, J); // X значение
+        I := PosEx('\X', V2Search, J); // X Р·РЅР°С‡РµРЅРёРµ
         J := PosEx('\', V2Search, I + 1);
         VLonStr := Copy(V2Search, I + 2, J - (I + 2));
         Vilon := strtoint(VLonStr);
-        I := PosEx('\Y', V2Search, J); // Y значение
+        I := PosEx('\Y', V2Search, J); // Y Р·РЅР°С‡РµРЅРёРµ
         J := PosEx('.', V2Search, I + 1);
         VLatStr := Copy(V2Search, I + 2, J - (I + 2));
         Vilat := strtoint(VLatStr);
         VcoordError := False;
       end else
       if PosEx('\Z', V2Search, 1) > 0 then begin // C:\sas\sas_garl\.bin\cache_gmt\genshtab250m\z9\184\319.jpg
-        I := PosEx('\', V2Search, J); // X значение
+        I := PosEx('\', V2Search, J); // X Р·РЅР°С‡РµРЅРёРµ
         J := PosEx('\', V2Search, I + 1);
         VLonStr := Copy(V2Search, I + 1, J - (I + 1));
         Vilat := strtoint(VLonStr);
-        I := J; // Y значение
+        I := J; // Y Р·РЅР°С‡РµРЅРёРµ
         J := PosEx('.', V2Search, I + 1);
         VLatStr := Copy(V2Search, I + 1, J - (I + 1));
         Vilon := strtoint(VLatStr);
-        Inc(VZoom); // в GMT зум отличается на 1
+        Inc(VZoom); // РІ GMT Р·СѓРј РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РЅР° 1
         VcoordError := False;
       end;
 
@@ -974,7 +974,7 @@ begin
         V2Search := ReplaceStr(V2Search, '1', 'R');
         V2Search := ReplaceStr(V2Search, '2', 'S');
         V2Search := ReplaceStr(V2Search, '3', 'T');
-        I := SubstrCount('\', V2Search, J);// последний \ перед qrst
+        I := SubstrCount('\', V2Search, J);// РїРѕСЃР»РµРґРЅРёР№ \ РїРµСЂРµРґ qrst
         J := PosEx('\T', V2Search, J) + 2;
         while (V2Search[J] <> '.') and (not VcoordError ) do begin
           ViLon := ViLon *2;
@@ -1012,27 +1012,27 @@ begin
         end;
       end;
     end else begin
-      begin      //0 пробелов  и не диск\сеть  ==  Генштаб???
+      begin      //0 РїСЂРѕР±РµР»РѕРІ  Рё РЅРµ РґРёСЃРє\СЃРµС‚СЊ  ==  Р“РµРЅС€С‚Р°Р±???
         GenShtab2Pos(V2Search, VList);
-      end //0 пробелов  и не диск\сеть  и не Генштаб
+      end //0 РїСЂРѕР±РµР»РѕРІ  Рё РЅРµ РґРёСЃРє\СЃРµС‚СЊ  Рё РЅРµ Р“РµРЅС€С‚Р°Р±
     end;
   end else
-  if I=2 then begin // 2 пробела
+  if I=2 then begin // 2 РїСЂРѕР±РµР»Р°
 
   end else
-  if I=3 then begin // 3 пробела
+  if I=3 then begin // 3 РїСЂРѕР±РµР»Р°
     J := PosEx(' ', V2Search, 1) + 1;
     J := PosEx(' ', V2Search, J);
-    VLatStr := Copy(V2Search, 1, J - 1); //первая половина
-    VLonStr := Copy(V2Search, J + 1, Length(V2Search) - J + 1); // вторая половина
+    VLatStr := Copy(V2Search, 1, J - 1); //РїРµСЂРІР°СЏ РїРѕР»РѕРІРёРЅР°
+    VLonStr := Copy(V2Search, J + 1, Length(V2Search) - J + 1); // РІС‚РѕСЂР°СЏ РїРѕР»РѕРІРёРЅР°
     PosStr2List(VLatStr, VLonStr, VList);
   end else
-  if I=5 then begin // 5 пробелов
+  if I=5 then begin // 5 РїСЂРѕР±РµР»РѕРІ
     J := PosEx(' ', V2Search, 1) + 1;
     J := PosEx(' ', V2Search, J) + 1;
     J := PosEx(' ', V2Search, J);
-    VLatStr := Copy(V2Search, 1, J - 1); //первая половина
-    VLonStr := Copy(V2Search, J + 1, Length(V2Search) - J + 1); // вторая половина
+    VLatStr := Copy(V2Search, 1, J - 1); //РїРµСЂРІР°СЏ РїРѕР»РѕРІРёРЅР°
+    VLonStr := Copy(V2Search, J + 1, Length(V2Search) - J + 1); // РІС‚РѕСЂР°СЏ РїРѕР»РѕРІРёРЅР°
     PosStr2List(VLatStr, VLonStr, VList);
   end;
   Result := VList;

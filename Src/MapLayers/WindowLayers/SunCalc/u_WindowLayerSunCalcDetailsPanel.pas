@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -351,8 +351,8 @@ begin
   if ATime <> 0 then begin
     if FIsDetailedView then begin
       VPos := FSunCalcDataProvider.GetPosition(ATime, FLocation);
-      VAzimuth := Format('%.0f°', [VPos.Azimuth]);
-      VAltitude := Format('%.1f°', [VPos.Altitude]);
+      VAzimuth := Format('%.0fÂ°', [VPos.Azimuth]);
+      VAltitude := Format('%.1fÂ°', [VPos.Altitude]);
     end;
     VLocalTime := TTimeZoneInfo.UTCToTzLocalTime(ATime, FTzOffset);
     VTime := FormatDateTime('hh:nn', VLocalTime);

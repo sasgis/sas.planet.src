@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -580,7 +580,7 @@ begin
   // http://c.tile.openstreetmap.org/10/622/367.png
   if RegExprGetMatchSubStr(VLink, '\.(openstreetmap|opencyclemap|osm).+\.png', 0) <> '' then begin
     VSName := 'OpenStreetMap';
-    I := PosEx(RegExprGetMatchSubStr(VLink, '/[0-9]?[0-9]/', 0), VLink, 1); // Z значение
+    I := PosEx(RegExprGetMatchSubStr(VLink, '/[0-9]?[0-9]/', 0), VLink, 1); // Z Р·РЅР°С‡РµРЅРёРµ
     J := PosA('/', VLink, I + 1);
     VZoom := (StrToIntA(Copy(VLink, I + 1, J - (I + 1))));
     Inc(VZoom);
@@ -607,7 +607,7 @@ begin
 
   // http://188.95.188.28/cgi-bin/webfile_mgr.cgi?cmd=cgi_download&path=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&path1=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&name=2506.jpg&type=JPEG+Image&browser=iee)
   if RegExprGetMatchSubStr(VLink, '/z[0-9]+/.+\.(png|jpg)+', 0) <> '' then begin
-    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zР°-СЏ\.]+', 0));
     I := PosA('/z', VLink, 1);
     if I > 0 then begin
       J := PosA('/', VLink, I + 1);
@@ -617,15 +617,15 @@ begin
       except
         VZoom := 0;
       end;
-      I := PosA('/', VLink, J); // X значение
+      I := PosA('/', VLink, J); // X Р·РЅР°С‡РµРЅРёРµ
       J := PosA('/', VLink, I + 1);
       VSLon := Copy(VLink, I + 1, J - (I + 1));
       Vilat := StrToIntA(VSLon);
-      I := J; // Y значение
+      I := J; // Y Р·РЅР°С‡РµРЅРёРµ
       J := PosA('.', VLink, I + 1);
       VSLat := Copy(VLink, I + 1, J - (I + 1));
       Vilon := StrToIntA(VSLat);
-      Inc(VZoom); // зум отличается на 1
+      Inc(VZoom); // Р·СѓРј РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РЅР° 1
       VXYPoint.X := ViLon;
       VXYPoint.Y := ViLat;
       if FProjectionSet.CheckZoom(VZoom - 1) then begin
@@ -643,7 +643,7 @@ begin
   // http://wikimapia.org/d?lng=1&BBOX=42.84668,43.26121,42.89063,43.29320
   // http://www.openstreetmap.org/?box=yes&bbox=41.73729%2C44.25345%2C41.73729%2C44.25345
   if RegExprGetMatchSubStr(UpperCaseA(VLink), 'BBOX=([0-9]+.[0-9]+\,)+([0-9]+.[0-9]+)', 0) <> '' then begin
-    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zР°-СЏ\.]+', 0));
     I := PosA('BBOX=', UpperCaseA(VLink)) + 4;
     J := PosA(',', VLink, I + 1);
     VSLon := Copy(VLink, I + 1, J - (I + 1));
@@ -666,9 +666,9 @@ begin
     end;
   end else
 
-  // http://чепецк.net/?zoom=15&lat=43.94165&lon=40.14849&layers=BFFFT
+  // http://С‡РµРїРµС†Рє.net/?zoom=15&lat=43.94165&lon=40.14849&layers=BFFFT
   if RegExprGetMatchSubStr(UpperCaseA(VLink), 'LAT=.+LON=', 0) <> '' then begin
-    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+    VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zР°-СЏ\.]+', 0));
     I := PosA('LAT=', UpperCaseA(VLink), 1);
     J := PosA('&', VLink, I);
     VSLat := Copy(VLink, I + 4, J - (I + 4));
@@ -710,10 +710,10 @@ var
   VUrl: AnsiString;
 begin
   VUrl := AnsiString(ASearch);
-  if AResult = nil then // ничего не скачивали, полная ссылка
+  if AResult = nil then // РЅРёС‡РµРіРѕ РЅРµ СЃРєР°С‡РёРІР°Р»Рё, РїРѕР»РЅР°СЏ СЃСЃС‹Р»РєР°
   begin
     VPlace := GetPointFromFullLink(VUrl, ALocalConverter);
-  end else begin // короткая ссылка, и данные уже скачаны
+  end else begin // РєРѕСЂРѕС‚РєР°СЏ СЃСЃС‹Р»РєР°, Рё РґР°РЅРЅС‹Рµ СѓР¶Рµ СЃРєР°С‡Р°РЅС‹
     SetLength(Vstr, AResult.Data.Size);
     Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
     VPlace := GetPointFromShortLink(VUrl, VStr, ACancelNotifier, AOperationID);
@@ -752,7 +752,7 @@ begin
   end;
 end;
 
-// Полные ссылки
+// РџРѕР»РЅС‹Рµ СЃСЃС‹Р»РєРё
 // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
 // https://www.google.ru/maps/@43.6545592,40.9555717,19z/data=!3m1!1e3
 // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
@@ -772,11 +772,11 @@ end;
 // http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
 // https://n.maps.yandex.ru/#!/?z=15&ll=37.438471%2C55.816492
 
-// тайловые ссылки
+// С‚Р°Р№Р»РѕРІС‹Рµ СЃСЃС‹Р»РєРё
 // http://a.tile.openstreetmap.org/15/19928/11707.png
 // http://khm0.google.com/kh/v=127&src=app&x=24398&s=&y=10570&z=15&s=Gali
 
-// Короткие
+// РљРѕСЂРѕС‚РєРёРµ
 // http://g.co/maps/7anbg
 // http://maps.yandex.ru/-/CBa6ZCOt
 // http://maps.yandex.ru/-/CFVIfLi-#

@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -29,7 +29,7 @@ uses
 
 type
 
-  ///   <summary>Интерфейс загрузчика растровых тайлов</summary>
+  ///   <summary>РРЅС‚РµСЂС„РµР№СЃ Р·Р°РіСЂСѓР·С‡РёРєР° СЂР°СЃС‚СЂРѕРІС‹С… С‚Р°Р№Р»РѕРІ</summary>
   IBitmapTileLoader = interface
     ['{07D84005-DD59-4750-BCCE-A02330734539}']
     function Load(const AData: IBinaryData): IBitmap32Static;

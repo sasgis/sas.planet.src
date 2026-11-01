@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -30,25 +30,25 @@ uses
 
 type
   TBitmapFileHeader = packed record  // File Header for Windows/OS2 bitmap file
-    Magic: Word;                     // Сигнатура: 'BM'
-    Size: LongWord;                  // Размер файла
+    Magic: Word;                     // РЎРёРіРЅР°С‚СѓСЂР°: 'BM'
+    Size: LongWord;                  // Р Р°Р·РјРµСЂ С„Р°Р№Р»Р°
     Reserved1: Word;                 // -
     Reserved2: Word;                 // -
-    Offset: LongWord;                // Смещение от начала файла до начала изображения
+    Offset: LongWord;                // РЎРјРµС‰РµРЅРёРµ РѕС‚ РЅР°С‡Р°Р»Р° С„Р°Р№Р»Р° РґРѕ РЅР°С‡Р°Р»Р° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
   end;
 
   TBitmapInfoHeader = packed record  // Info Header for Windows bitmap file
-    Size: LongWord;                  // Длина заголовка, byte (=40)
-    Width: LongInt;                  // Ширина изображения, pix
-    Height: LongInt;                 // Высота изображения, pix
-    Planes: Word;                    // Число плоскостей (=1)
-    BitCount: Word;                  // Глубина цвета, bit/pix (=24)
-    Compression: LongWord;           // Тип сжатия для сжатых изображений (=0)
-    SizeImage: LongWord;             // Размер изображения, byte
-    XPelsPerMeter: LongInt;          // Горизонтальное разрешение в пикселах на метр
-    YPelsPerMeter: LongInt;          // Вертикальное разрешение в пикселах на метр
-    ClrUsed: LongInt;                // Число цветов (0 - использовать максимально-допустимое)
-    ClrImportant: LongInt;           // Число основных цветов
+    Size: LongWord;                  // Р”Р»РёРЅР° Р·Р°РіРѕР»РѕРІРєР°, byte (=40)
+    Width: LongInt;                  // РЁРёСЂРёРЅР° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, pix
+    Height: LongInt;                 // Р’С‹СЃРѕС‚Р° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, pix
+    Planes: Word;                    // Р§РёСЃР»Рѕ РїР»РѕСЃРєРѕСЃС‚РµР№ (=1)
+    BitCount: Word;                  // Р“Р»СѓР±РёРЅР° С†РІРµС‚Р°, bit/pix (=24)
+    Compression: LongWord;           // РўРёРї СЃР¶Р°С‚РёСЏ РґР»СЏ СЃР¶Р°С‚С‹С… РёР·РѕР±СЂР°Р¶РµРЅРёР№ (=0)
+    SizeImage: LongWord;             // Р Р°Р·РјРµСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, byte
+    XPelsPerMeter: LongInt;          // Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРµ СЂР°Р·СЂРµС€РµРЅРёРµ РІ РїРёРєСЃРµР»Р°С… РЅР° РјРµС‚СЂ
+    YPelsPerMeter: LongInt;          // Р’РµСЂС‚РёРєР°Р»СЊРЅРѕРµ СЂР°Р·СЂРµС€РµРЅРёРµ РІ РїРёРєСЃРµР»Р°С… РЅР° РјРµС‚СЂ
+    ClrUsed: LongInt;                // Р§РёСЃР»Рѕ С†РІРµС‚РѕРІ (0 - РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅРѕ-РґРѕРїСѓСЃС‚РёРјРѕРµ)
+    ClrImportant: LongInt;           // Р§РёСЃР»Рѕ РѕСЃРЅРѕРІРЅС‹С… С†РІРµС‚РѕРІ
   end;
 
   TBitmapStream = class(TObject)

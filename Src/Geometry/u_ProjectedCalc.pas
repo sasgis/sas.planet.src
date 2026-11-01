@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -630,7 +630,7 @@ begin
   Result := False;
   if IsIntersecProjectedRect(ALine.Bounds, ARect) then begin
     VEnum := ALine.GetEnum;
-    // Ищем есть ли пересечения прямоугольника с линией
+    // РС‰РµРј РµСЃС‚СЊ Р»Рё РїРµСЂРµСЃРµС‡РµРЅРёСЏ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР° СЃ Р»РёРЅРёРµР№
     if VEnum.Next(VPrevPoint) then begin
       while VEnum.Next(VCurrPoint) do begin
         VDelta.X := VCurrPoint.X - VPrevPoint.X;
@@ -830,8 +830,8 @@ begin
       VRectIn := False;
       Result := False;
       VEnum := APoly.GetEnum;
-      // Ищем есть ли пересечения прямоугольника с полигоном,
-      // и заодно проверяем попадает ли левый верхний угол в полигон
+      // РС‰РµРј РµСЃС‚СЊ Р»Рё РїРµСЂРµСЃРµС‡РµРЅРёСЏ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР° СЃ РїРѕР»РёРіРѕРЅРѕРј,
+      // Рё Р·Р°РѕРґРЅРѕ РїСЂРѕРІРµСЂСЏРµРј РїРѕРїР°РґР°РµС‚ Р»Рё Р»РµРІС‹Р№ РІРµСЂС…РЅРёР№ СѓРіРѕР» РІ РїРѕР»РёРіРѕРЅ
       if VEnum.Next(VPrevPoint) then begin
         while VEnum.Next(VCurrPoint) do begin
           VDelta.X := VCurrPoint.X - VPrevPoint.X;
@@ -953,7 +953,7 @@ begin
   end else begin
     Result := False;
     VEnum := APoly.GetEnum;
-    // Ищем есть ли пересечения прямоугольника с полигоном
+    // РС‰РµРј РµСЃС‚СЊ Р»Рё РїРµСЂРµСЃРµС‡РµРЅРёСЏ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР° СЃ РїРѕР»РёРіРѕРЅРѕРј
     if VEnum.Next(VPrevPoint) then begin
       while VEnum.Next(VCurrPoint) do begin
         VDelta.X := VCurrPoint.X - VPrevPoint.X;

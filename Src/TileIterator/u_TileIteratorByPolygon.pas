@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -44,10 +44,10 @@ type
     FTilesTotal: Int64;
     FProcessedTilesCount: Int64;
     FStopOnProcessedTilesCount: Boolean;
-    // устанавливается только если один кусок (для скорости)
+    // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РµСЃР»Рё РѕРґРёРЅ РєСѓСЃРѕРє (РґР»СЏ СЃРєРѕСЂРѕСЃС‚Рё)
     FSingleLine: IGeometryProjectedSinglePolygon;
     FMultiProjected: IGeometryProjectedMultiPolygon;
-    // кэш куска
+    // РєСЌС€ РєСѓСЃРєР°
     FLastUsedLine: IGeometryProjectedSinglePolygon;
     procedure MakeEmptySetup;
   private
@@ -99,12 +99,12 @@ begin
     if Supports(AProjected, IGeometryProjectedSinglePolygon, FSingleLine) then begin
       FMultiProjected := nil;
     end else if Supports(AProjected, IGeometryProjectedMultiPolygon, FMultiProjected) then begin
-      // в зависимости от числа сегментов...
+      // РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‡РёСЃР»Р° СЃРµРіРјРµРЅС‚РѕРІ...
       if (FMultiProjected.Count = 1) then begin
-        // ...ходим только по одной области
+        // ...С…РѕРґРёРј С‚РѕР»СЊРєРѕ РїРѕ РѕРґРЅРѕР№ РѕР±Р»Р°СЃС‚Рё
         FSingleLine := FMultiProjected.Item[0];
       end else begin
-        // ...будем ходить в цикле
+        // ...Р±СѓРґРµРј С…РѕРґРёС‚СЊ РІ С†РёРєР»Рµ
         FSingleLine := nil;
       end;
     end else begin
@@ -155,17 +155,17 @@ var
   VLine: IGeometryProjectedSinglePolygon;
 begin
   if (FSingleLine <> nil) then begin
-    // один сегмент - только его и проверяем
+    // РѕРґРёРЅ СЃРµРіРјРµРЅС‚ - С‚РѕР»СЊРєРѕ РµРіРѕ Рё РїСЂРѕРІРµСЂСЏРµРј
     Result := FSingleLine.IsRectIntersectPolygon(ARect);
     Exit;
   end;
 
-  // это тут возможно будет недостаточно быстро
-  // во-первых нет попадания сразу в текущий сегмент (в кэш)
-  // во-вторых ненужная проверка попадания в Bounds
+  // СЌС‚Рѕ С‚СѓС‚ РІРѕР·РјРѕР¶РЅРѕ Р±СѓРґРµС‚ РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р±С‹СЃС‚СЂРѕ
+  // РІРѕ-РїРµСЂРІС‹С… РЅРµС‚ РїРѕРїР°РґР°РЅРёСЏ СЃСЂР°Р·Сѓ РІ С‚РµРєСѓС‰РёР№ СЃРµРіРјРµРЅС‚ (РІ РєСЌС€)
+  // РІРѕ-РІС‚РѕСЂС‹С… РЅРµРЅСѓР¶РЅР°СЏ РїСЂРѕРІРµСЂРєР° РїРѕРїР°РґР°РЅРёСЏ РІ Bounds
   // Result := FProjected.IsRectIntersectPolygon(ARect);
 
-  // проверяем кэш
+  // РїСЂРѕРІРµСЂСЏРµРј РєСЌС€
   if (FLastUsedLine <> nil) then begin
     Result := FLastUsedLine.IsRectIntersectPolygon(ARect);
     if Result then begin
@@ -173,12 +173,12 @@ begin
     end;
   end;
 
-  // проверяем всё в цикле
+  // РїСЂРѕРІРµСЂСЏРµРј РІСЃС‘ РІ С†РёРєР»Рµ
   for i := 0 to FMultiProjected.Count - 1 do begin
     VLine := FMultiProjected.GetItem(i);
     if (Pointer(VLine) <> Pointer(FLastUsedLine)) then begin
       if VLine.IsRectIntersectPolygon(ARect) then begin
-      // нашлось
+      // РЅР°С€Р»РѕСЃСЊ
         Result := TRUE;
         FLastUsedLine := VLine;
         Exit;

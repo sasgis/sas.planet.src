@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -264,7 +264,7 @@ begin
   Result := False;
   if IsIntersecProjectedRect(FBounds, ARect) then begin
     VPoints := FPoints.Points;
-    // Èùåì åñòü ëè ïåðåñå÷åíèÿ ïðÿìîóãîëüíèêà ñ ëèíèåé
+    // Ð˜Ñ‰ÐµÐ¼ ÐµÑÑ‚ÑŒ Ð»Ð¸ Ð¿ÐµÑ€ÐµÑÐµÑ‡ÐµÐ½Ð¸Ñ Ð¿Ñ€ÑÐ¼Ð¾ÑƒÐ³Ð¾Ð»ÑŒÐ½Ð¸ÐºÐ° Ñ Ð»Ð¸Ð½Ð¸ÐµÐ¹
     if FCount > 1 then begin
       VPrevPoint := VPoints[0];
       for i := 1 to FCount - 1 do begin
@@ -571,7 +571,7 @@ begin
   end else begin
     Result := False;
     VPoints := FPoints.Points;
-    // Èùåì åñòü ëè ïåðåñå÷åíèÿ ïðÿìîóãîëüíèêà ñ ïîëèãîíîì
+    // Ð˜Ñ‰ÐµÐ¼ ÐµÑÑ‚ÑŒ Ð»Ð¸ Ð¿ÐµÑ€ÐµÑÐµÑ‡ÐµÐ½Ð¸Ñ Ð¿Ñ€ÑÐ¼Ð¾ÑƒÐ³Ð¾Ð»ÑŒÐ½Ð¸ÐºÐ° Ñ Ð¿Ð¾Ð»Ð¸Ð³Ð¾Ð½Ð¾Ð¼
     if FCount > 1 then begin
       VPrevPoint := VPoints[FCount - 1];
       for i := 0 to FCount - 1 do begin
@@ -669,8 +669,8 @@ begin
     end else begin
       VRectIn := False;
       Result := False;
-      // Èùåì åñòü ëè ïåðåñå÷åíèÿ ïðÿìîóãîëüíèêà ñ ïîëèãîíîì,
-      // è çàîäíî ïðîâåðÿåì ïîïàäàåò ëè ëåâûé âåðõíèé óãîë â ïîëèãîí
+      // Ð˜Ñ‰ÐµÐ¼ ÐµÑÑ‚ÑŒ Ð»Ð¸ Ð¿ÐµÑ€ÐµÑÐµÑ‡ÐµÐ½Ð¸Ñ Ð¿Ñ€ÑÐ¼Ð¾ÑƒÐ³Ð¾Ð»ÑŒÐ½Ð¸ÐºÐ° Ñ Ð¿Ð¾Ð»Ð¸Ð³Ð¾Ð½Ð¾Ð¼,
+      // Ð¸ Ð·Ð°Ð¾Ð´Ð½Ð¾ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ Ð¿Ð¾Ð¿Ð°Ð´Ð°ÐµÑ‚ Ð»Ð¸ Ð»ÐµÐ²Ñ‹Ð¹ Ð²ÐµÑ€Ñ…Ð½Ð¸Ð¹ ÑƒÐ³Ð¾Ð» Ð² Ð¿Ð¾Ð»Ð¸Ð³Ð¾Ð½
       if FCount > 1 then begin
         VPrevPoint := VPoints[FCount - 1];
         for i := 0 to FCount - 1 do begin

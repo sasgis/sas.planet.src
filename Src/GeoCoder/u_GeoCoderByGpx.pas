@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -257,12 +257,12 @@ begin
     AStrDateTime := Copy(string(VStrDateTime),0,20); //cut last space from DateTimeToStr
 
     if VTime = 0 then
-      AStrDateTime := Copy(AStrDateTime, 0, 11); // отрезаем время совсем
+      AStrDateTime := Copy(AStrDateTime, 0, 11); // РѕС‚СЂРµР·Р°РµРј РІСЂРµРјСЏ СЃРѕРІСЃРµРј
 
     if VShortTimeSearch then
-      AStrDateTime := Copy(AStrDateTime, 0, Length(AStrDateTime) - 4); // отрезаем секунды
+      AStrDateTime := Copy(AStrDateTime, 0, Length(AStrDateTime) - 4); // РѕС‚СЂРµР·Р°РµРј СЃРµРєСѓРЅРґС‹
     if VDate = 0 then
-      AStrDateTime := Copy(AStrDateTime, 11, 10); // отрезаем дату, оставляем только время
+      AStrDateTime := Copy(AStrDateTime, 11, 10); // РѕС‚СЂРµР·Р°РµРј РґР°С‚Сѓ, РѕСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ РІСЂРµРјСЏ
     Result := True;
   end else begin
     AStrDateTime := '';
@@ -642,7 +642,7 @@ begin
         if VNode.ChildNodes[I].NodeName = 'rte' then begin
           // TODO: search by name in rte
           //  <rte>
-          //    <name> Т о н н е л ь н а я  Р а е в с к а я  М. У т р и ш  А б р а у  С е в. О з е р е е в к а
+          //    <name> Рў Рѕ РЅ РЅ Рµ Р» СЊ РЅ Р° СЏ  Р  Р° Рµ РІ СЃ Рє Р° СЏ  Рњ. РЈ С‚ СЂ Рё С€  Рђ Р± СЂ Р° Сѓ  РЎ Рµ РІ. Рћ Р· Рµ СЂ Рµ Рµ РІ Рє Р°
           //    <link href="http://www.gpsies.com/map.do?fileId=dbdmweskjstcexnx">
           //      <type>trackOnWeb</type>
           //    </link>

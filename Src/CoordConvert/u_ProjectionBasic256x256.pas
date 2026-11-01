@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -369,21 +369,21 @@ procedure TProjectionBasic256x256.InternalValidatePixelPosFloat(
 );
 begin
   if APoint.X < 0 then begin
-    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.X := 0;
   end else begin
     if APoint.X > FPixelsFloat then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + FloatToStr(FPixelsFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FPixelsFloat));
       APoint.X := FPixelsFloat;
     end;
   end;
 
   if APoint.Y < 0 then begin
-    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.Y := 0;
   end else begin
     if APoint.Y > FPixelsFloat then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + FloatToStr(FPixelsFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FPixelsFloat));
       APoint.Y := FPixelsFloat;
     end;
   end;
@@ -392,21 +392,21 @@ end;
 procedure TProjectionBasic256x256.InternalValidatePixelPos(var APoint: TPoint);
 begin
   if APoint.X < 0 then begin
-    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.X := 0;
   end else begin
     if APoint.X > FPixels then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(FPixels));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FPixels));
       APoint.X := FPixels;
     end;
   end;
 
   if APoint.Y < 0 then begin
-    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.Y := 0;
   end else begin
     if APoint.Y > FPixels then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(FPixels));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FPixels));
       APoint.Y := FPixels;
     end;
   end;
@@ -417,41 +417,41 @@ procedure TProjectionBasic256x256.InternalValidatePixelRectFloat(
 );
 begin
   if ARect.Left < 0 then begin
-    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Left := 0;
   end else begin
     if (ARect.Left > FPixelsFloat) then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + FloatToStr(FPixelsFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FPixelsFloat));
       ARect.Left := FPixelsFloat;
     end;
   end;
 
   if ARect.Top < 0 then begin
-    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Top := 0;
   end else begin
     if (ARect.Top > FPixelsFloat) then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + FloatToStr(FPixelsFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FPixelsFloat));
       ARect.Top := FPixelsFloat;
     end;
   end;
 
   if ARect.Right < 0 then begin
-    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Right := 0;
   end else begin
     if (ARect.Right > FPixelsFloat) then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + FloatToStr(FPixelsFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FPixelsFloat));
       ARect.Right := FPixelsFloat;
     end;
   end;
 
   if ARect.Bottom < 0 then begin
-    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Bottom := 0;
   end else begin
     if (ARect.Bottom > FPixelsFloat) then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + FloatToStr(FPixelsFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FPixelsFloat));
       ARect.Bottom := FPixelsFloat;
     end;
   end;
@@ -460,41 +460,41 @@ end;
 procedure TProjectionBasic256x256.InternalValidatePixelRect(var ARect: TRect);
 begin
   if ARect.Left < 0 then begin
-    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Left := 0;
   end else begin
     if ARect.Left > FPixels then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(FPixels));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FPixels));
       ARect.Left := FPixels;
     end;
   end;
 
   if ARect.Top < 0 then begin
-    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Top := 0;
   end else begin
     if ARect.Top > FPixels then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(FPixels));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FPixels));
       ARect.Top := FPixels;
     end;
   end;
 
   if ARect.Right < 0 then begin
-    Assert(False, 'Координата X пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Right := 0;
   end else begin
     if ARect.Right > FPixels then begin
-      Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(FPixels));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FPixels));
       ARect.Right := FPixels;
     end;
   end;
 
   if ARect.Bottom < 0 then begin
-    Assert(False, 'Координата Y пиксела не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Bottom := 0;
   end else begin
     if ARect.Bottom > FPixels then begin
-      Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(FPixels));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y РїРёРєСЃРµР»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FPixels));
       ARect.Bottom := FPixels;
     end;
   end;
@@ -505,21 +505,21 @@ procedure TProjectionBasic256x256.InternalValidateRelativePos(
 );
 begin
   if APoint.X < 0 then begin
-    Assert(False, 'Относительная координата X не может быть меньше нуля');
+    Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° X РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.X := 0;
   end else begin
     if APoint.X > 1 then begin
-      Assert(False, 'Относительная координата X не может быть больше единицы');
+      Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° X РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РµРґРёРЅРёС†С‹');
       APoint.X := 1;
     end;
   end;
 
   if APoint.Y < 0 then begin
-    Assert(False, 'Относительная координата Y не может быть меньше нуля');
+    Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° Y РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.Y := 0;
   end else begin
     if APoint.Y > 1 then begin
-      Assert(False, 'Относительная координата Y не может быть больше единицы');
+      Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° Y РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РµРґРёРЅРёС†С‹');
       APoint.Y := 1;
     end;
   end;
@@ -530,41 +530,41 @@ procedure TProjectionBasic256x256.InternalValidateRelativeRect(
 );
 begin
   if ARect.Left < 0 then begin
-    Assert(False, 'Относительная координата X не может быть меньше нуля');
+    Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° X РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Left := 0;
   end else begin
     if ARect.Left > 1 then begin
-      Assert(False, 'Относительная координата X не может быть больше единицы');
+      Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° X РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РµРґРёРЅРёС†С‹');
       ARect.Left := 1;
     end;
   end;
 
   if ARect.Top < 0 then begin
-    Assert(False, 'Относительная координата Y не может быть меньше нуля');
+    Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° Y РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Top := 0;
   end else begin
     if ARect.Top > 1 then begin
-      Assert(False, 'Относительная координата Y не может быть больше единицы');
+      Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° Y РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РµРґРёРЅРёС†С‹');
       ARect.Top := 1;
     end;
   end;
 
   if ARect.Right < 0 then begin
-    Assert(False, 'Относительная координата X не может быть меньше нуля');
+    Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° X РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Right := 0;
   end else begin
     if ARect.Right > 1 then begin
-      Assert(False, 'Относительная координата X не может быть больше единицы');
+      Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° X РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РµРґРёРЅРёС†С‹');
       ARect.Right := 1;
     end;
   end;
 
   if ARect.Bottom < 0 then begin
-    Assert(False, 'Относительная координата Y не может быть меньше нуля');
+    Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° Y РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Bottom := 0;
   end else begin
     if ARect.Bottom > 1 then begin
-      Assert(False, 'Относительная координата Y не может быть больше единицы');
+      Assert(False, 'РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° Y РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РµРґРёРЅРёС†С‹');
       ARect.Bottom := 1;
     end;
   end;
@@ -575,20 +575,20 @@ procedure TProjectionBasic256x256.InternalValidateTilePosFloat(
 );
 begin
   if APoint.X < 0 then begin
-    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.X := 0;
   end else begin
     if APoint.X > FTilesFloat then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + FloatToStr(FTilesFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FTilesFloat));
       APoint.X := FTilesFloat;
     end;
   end;
   if APoint.Y < 0 then begin
-    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.Y := 0;
   end else begin
     if APoint.Y > FTilesFloat then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + FloatToStr(FTilesFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FTilesFloat));
       APoint.Y := FTilesFloat;
     end;
   end;
@@ -597,21 +597,21 @@ end;
 procedure TProjectionBasic256x256.InternalValidateTilePos(var APoint: TPoint);
 begin
   if APoint.X < 0 then begin
-    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.X := 0;
   end else begin
     if APoint.X > FTiles then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + IntToStr(FTiles));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FTiles));
       APoint.X := FTiles;
     end;
   end;
 
   if APoint.Y < 0 then begin
-    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.Y := 0;
   end else begin
     if APoint.Y > FTiles then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + IntToStr(FTiles));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FTiles));
       APoint.Y := FTiles;
     end;
   end;
@@ -622,20 +622,20 @@ procedure TProjectionBasic256x256.InternalValidateTilePosStrict(
 );
 begin
   if APoint.X < 0 then begin
-    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.X := 0;
   end else begin
     if APoint.X >= FTiles then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равной ' + IntToStr(FTiles));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅРѕР№ ' + IntToStr(FTiles));
       APoint.X := FTiles - 1;
     end;
   end;
   if APoint.Y < 0 then begin
-    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     APoint.Y := 0;
   end else begin
     if APoint.Y >= FTiles then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше или равной ' + IntToStr(FTiles));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅРѕР№ ' + IntToStr(FTiles));
       APoint.Y := FTiles - 1;
     end;
   end;
@@ -646,38 +646,38 @@ procedure TProjectionBasic256x256.InternalValidateTileRectFloat(
 );
 begin
   if ARect.Left < 0 then begin
-    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Left := 0;
   end else begin
     if ARect.Left > FTilesFloat then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше или равна ' + FloatToStr(FTilesFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅР° ' + FloatToStr(FTilesFloat));
       ARect.Left := FTilesFloat;
     end;
   end;
   if ARect.Top < 0 then begin
-    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Top := 0;
   end else begin
     if ARect.Top > FTilesFloat then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + FloatToStr(FTilesFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FTilesFloat));
       ARect.Top := FTilesFloat;
     end;
   end;
   if ARect.Right < 0 then begin
-    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Right := 0;
   end else begin
     if ARect.Right > FTilesFloat then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + FloatToStr(FTilesFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FTilesFloat));
       ARect.Right := FTilesFloat;
     end;
   end;
   if ARect.Bottom < 0 then begin
-    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Bottom := 0;
   end else begin
     if ARect.Bottom > FTilesFloat then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + FloatToStr(FTilesFloat));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + FloatToStr(FTilesFloat));
       ARect.Bottom := FTilesFloat;
     end;
   end;
@@ -686,38 +686,38 @@ end;
 procedure TProjectionBasic256x256.InternalValidateTileRect(var ARect: TRect);
 begin
   if ARect.Left < 0 then begin
-    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Left := 0;
   end else begin
     if ARect.Left > FTiles then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + IntToStr(FTiles));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FTiles));
       ARect.Left := FTiles;
     end;
   end;
   if ARect.Top < 0 then begin
-    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Top := 0;
   end else begin
     if ARect.Top > FTiles then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + IntToStr(FTiles));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FTiles));
       ARect.Top := FTiles;
     end;
   end;
   if ARect.Right < 0 then begin
-    Assert(False, 'Координата X тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Right := 0;
   end else begin
     if ARect.Right > FTiles then begin
-      Assert(False, 'Координата X тайла на этом зуме не может быть больше ' + IntToStr(FTiles));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° X С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FTiles));
       ARect.Right := FTiles;
     end;
   end;
   if ARect.Bottom < 0 then begin
-    Assert(False, 'Координата Y тайла не может быть меньше нуля');
+    Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ');
     ARect.Bottom := 0;
   end else begin
     if ARect.Bottom > FTiles then begin
-      Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + IntToStr(FTiles));
+      Assert(False, 'РљРѕРѕСЂРґРёРЅР°С‚Р° Y С‚Р°Р№Р»Р° РЅР° СЌС‚РѕРј Р·СѓРјРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ ' + IntToStr(FTiles));
       ARect.Bottom := FTiles;
     end;
   end;

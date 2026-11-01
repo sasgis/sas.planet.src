@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -54,16 +54,16 @@ type
       Data: Integer
     ); overload;
 
-    // Проверка наличия ID в списке
+    // РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ ID РІ СЃРїРёСЃРєРµ
     function IsExists(AId: NativeInt): Boolean; virtual;
 
-    // Удаление объекта, если нет с таким Id, то ничего не будет происходить
+    // РЈРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚Р°, РµСЃР»Рё РЅРµС‚ СЃ С‚Р°РєРёРј Id, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ Р±СѓРґРµС‚ РїСЂРѕРёСЃС…РѕРґРёС‚СЊ
     procedure Remove(AId: NativeInt); virtual;
 
-    // Очитска списка
+    // РћС‡РёС‚СЃРєР° СЃРїРёСЃРєР°
     procedure Clear; virtual;
 
-    // Получение итератора ID
+    // РџРѕР»СѓС‡РµРЅРёРµ РёС‚РµСЂР°С‚РѕСЂР° ID
     function GetIDEnum: IEnumID; virtual;
     property Capacity: Integer read FCapacity write SetCapacity;
     property Count: Integer read GetCount write SetCount;

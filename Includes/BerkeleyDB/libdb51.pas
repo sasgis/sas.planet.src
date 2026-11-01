@@ -1,4 +1,4 @@
-{===========================================================================}
+﻿{===========================================================================}
 { Berkeley DB 5.1.29 Header File                                            }
 {                                                                           }
 { http://www.oracle.com/technetwork/database/berkeleydb/                    }
@@ -10,7 +10,7 @@
 {                                                                           }
 { Translator:                                                               }
 {   JRL                                http://www.demonak.com/              }
-{   Copyright (c) 2011 Jose R. Lopez - A Coru�a, Spain                      }
+{   Copyright (c) 2011 Jose R. Lopez - A Coruña, Spain                      }
 {   All rights reserved.                                                    }
 {                                                                           }
 { With some (little) help from:                                             }

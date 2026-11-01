@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -171,7 +171,7 @@ type
     function GetIsReplaceIfDifSize: Boolean;
     function GetIsReplaceIfOlder: Boolean;
     function GetReplaceDate: TDateTime;
-    function GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
+    function GetAllowDownload(const AMapType: IMapType): boolean; // С‡РёСЃС‚Рѕ РґР»СЏ РїСЂРѕРІРµСЂРєРё
     function GetSessionAutosaveInterval: Integer;
     function GetSessionAutosaveFilePrefix: string;
     function GetSplitCount: Integer;
@@ -425,7 +425,7 @@ begin
   chkLoadIfTneOldClick(chkLoadIfTneOld);
 end;
 
-function TfrTilesDownload.GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
+function TfrTilesDownload.GetAllowDownload(const AMapType: IMapType): boolean; // С‡РёСЃС‚Рѕ РґР»СЏ РїСЂРѕРІРµСЂРєРё
 begin
   Result := (AMapType.StorageConfig.GetAllowAdd) and (AMapType.TileDownloadSubsystem.State.GetStatic.Enabled);
 end;

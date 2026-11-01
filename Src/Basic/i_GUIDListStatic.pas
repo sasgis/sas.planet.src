@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -24,7 +24,7 @@ unit i_GUIDListStatic;
 interface
 
 type
-  // Неизменяемый массив GUID-ов, порядок играет роль, нет быстрой проверки наличия
+  // РќРµРёР·РјРµРЅСЏРµРјС‹Р№ РјР°СЃСЃРёРІ GUID-РѕРІ, РїРѕСЂСЏРґРѕРє РёРіСЂР°РµС‚ СЂРѕР»СЊ, РЅРµС‚ Р±С‹СЃС‚СЂРѕР№ РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ
   IGUIDListStatic = interface
     ['{0197E18E-381E-426B-8575-4C50C6B7E11F}']
     function GetItem(AIndex: Integer): TGUID;
@@ -34,7 +34,7 @@ type
     property Count: Integer read GetCount;
   end;
 
-  // Набор GUID-ов порядок несущественный, дублей быть не может, быстрая проверка наличия
+  // РќР°Р±РѕСЂ GUID-РѕРІ РїРѕСЂСЏРґРѕРє РЅРµСЃСѓС‰РµСЃС‚РІРµРЅРЅС‹Р№, РґСѓР±Р»РµР№ Р±С‹С‚СЊ РЅРµ РјРѕР¶РµС‚, Р±С‹СЃС‚СЂР°СЏ РїСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ
   IGUIDSetStatic = interface
     ['{C4A0FDB6-8517-4CBE-8225-3ABE94127193}']
     function GetItem(AIndex: Integer): TGUID;
@@ -43,7 +43,7 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    // Проверка наличия GUID в списке
+    // РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ GUID РІ СЃРїРёСЃРєРµ
     function IsExists(const AGUID: TGUID): boolean;
   end;
 

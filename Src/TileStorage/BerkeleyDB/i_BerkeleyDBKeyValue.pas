@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -27,7 +27,7 @@ uses
   Types;
 
 type
-  // Бинарное представление key/value
+  // Р‘РёРЅР°СЂРЅРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ key/value
   IBerkeleyDBKeyValueBase = interface
     ['{D3EDE8C5-CF68-428F-A63B-B815F363F021}']
     function Assign(
@@ -43,21 +43,21 @@ type
     property Size: Integer read GetSize;
   end;
 
-  // Неверсионный key (8 байт)
+  // РќРµРІРµСЂСЃРёРѕРЅРЅС‹Р№ key (8 Р±Р°Р№С‚)
   IBerkeleyDBKey = interface(IBerkeleyDBKeyValueBase)
     ['{FD32450C-AC56-4B80-89C8-293C778A37C1}']
     function GetPoint: TPoint;
     property Point: TPoint read GetPoint;
   end;
 
-  // Версионный key (10 байт)
+  // Р’РµСЂСЃРёРѕРЅРЅС‹Р№ key (10 Р±Р°Р№С‚)
   IBerkeleyDBVersionedKey = interface(IBerkeleyDBKey)
     ['{3A4C614E-F835-40F1-8471-339C3807A629}']
     function GetVersionID: Word;
     property VersionID: Word read GetVersionID;
   end;
 
-  // Value для версионных и неверсионных ключей
+  // Value РґР»СЏ РІРµСЂСЃРёРѕРЅРЅС‹С… Рё РЅРµРІРµСЂСЃРёРѕРЅРЅС‹С… РєР»СЋС‡РµР№
   IBerkeleyDBValue = interface(IBerkeleyDBKeyValueBase)
     ['{47E2D6BD-598E-4C5A-892C-968117885975}']
     function GetTileBody: Pointer;
@@ -76,7 +76,7 @@ type
     property TileContentType: AnsiString read GetTileContentType;
   end;
 
-  // Метаинформация о хранилище - одна запись на файл (*.sdb)
+  // РњРµС‚Р°РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ С…СЂР°РЅРёР»РёС‰Рµ - РѕРґРЅР° Р·Р°РїРёСЃСЊ РЅР° С„Р°Р№Р» (*.sdb)
   IBerkeleyDBMetaKey = interface(IBerkeleyDBKey)
     ['{32DAFA1B-03DE-49AD-B66E-8FCBBBBD6B74}']
   end;
@@ -87,7 +87,7 @@ type
     property StorageEPSG: Integer read GetStorageEPSG;
   end;
 
-  // Метаинформация о версиях тайла - одна запись на тайл
+  // РњРµС‚Р°РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РІРµСЂСЃРёСЏС… С‚Р°Р№Р»Р° - РѕРґРЅР° Р·Р°РїРёСЃСЊ РЅР° С‚Р°Р№Р»
   IBerkeleyDBVersionedMetaKey = interface(IBerkeleyDBVersionedKey)
     ['{B86D06BF-F013-4B38-8FD7-0C09005C080D}']
   end;

@@ -1,15 +1,15 @@
-unit BMSearch;
+п»їunit BMSearch;
 
 (* -------------------------------------------------------------------
 
-Поиск строки методом Boyer-Moore.
+РџРѕРёСЃРє СЃС‚СЂРѕРєРё РјРµС‚РѕРґРѕРј Boyer-Moore.
 
-Это - один из самых быстрых алгоритмов поиска строки.
+Р­С‚Рѕ - РѕРґРёРЅ РёР· СЃР°РјС‹С… Р±С‹СЃС‚СЂС‹С… Р°Р»РіРѕСЂРёС‚РјРѕРІ РїРѕРёСЃРєР° СЃС‚СЂРѕРєРё.
 See a description in:
 
-R. Boyer и S. Moore.
-Быстрый алгоритм поиска строки.
-Communications of the ACM 20, 1977, страницы 762-772
+R. Boyer Рё S. Moore.
+Р‘С‹СЃС‚СЂС‹Р№ Р°Р»РіРѕСЂРёС‚Рј РїРѕРёСЃРєР° СЃС‚СЂРѕРєРё.
+Communications of the ACM 20, 1977, СЃС‚СЂР°РЅРёС†С‹ 762-772
 ------------------------------------------------------------------- *)
 
 interface
@@ -26,7 +26,7 @@ type
 type
   TSearchBM = class(TObject)
   private
-    FJumpTable: array[AnsiChar] of Byte; { таблица переходов }
+    FJumpTable: array[AnsiChar] of Byte; { С‚Р°Р±Р»РёС†Р° РїРµСЂРµС…РѕРґРѕРІ }
     FShift_1: integer;
     FPatternString: AnsiString;
     FPattern: PAnsiChar;
@@ -43,7 +43,7 @@ implementation
 uses SysUtils;
 
 (* -------------------------------------------------------------------
-Подготовка таблицы переходов
+РџРѕРґРіРѕС‚РѕРІРєР° С‚Р°Р±Р»РёС†С‹ РїРµСЂРµС…РѕРґРѕРІ
 ------------------------------------------------------------------- *)
 
 constructor TSearchBM.Create(const Pattern: AnsiString);
@@ -59,11 +59,11 @@ var
 begin
   FPattern := Pattern;
   FPatternLen := PatternLen;
-  { Данный алгоритм базируется на наборе из 256 символов }
+  { Р”Р°РЅРЅС‹Р№ Р°Р»РіРѕСЂРёС‚Рј Р±Р°Р·РёСЂСѓРµС‚СЃСЏ РЅР° РЅР°Р±РѕСЂРµ РёР· 256 СЃРёРјРІРѕР»РѕРІ }
   Assert(FPatternLen < 255);
   Assert(FPatternLen > 0);
 
-  { 2. Подготовка таблицы переходов }
+  { 2. РџРѕРґРіРѕС‚РѕРІРєР° С‚Р°Р±Р»РёС†С‹ РїРµСЂРµС…РѕРґРѕРІ }
 
   for c := #0 to #255 do
     FJumpTable[c] := FPatternLen;
@@ -89,7 +89,7 @@ begin
     FShift_1 := 1;
 end;
 
-{ Поиск последнего символа & просмотр справа налево }
+{ РџРѕРёСЃРє РїРѕСЃР»РµРґРЅРµРіРѕ СЃРёРјРІРѕР»Р° & РїСЂРѕСЃРјРѕС‚СЂ СЃРїСЂР°РІР° РЅР°Р»РµРІРѕ }
 
 function TSearchBM.Search(Text: PAnsiChar; TextLen: size_t): PAnsiChar;
 var
@@ -107,7 +107,7 @@ begin
   shift := 0;
   jumps := 0;
 
-  { Поиск последнего символа }
+  { РџРѕРёСЃРє РїРѕСЃР»РµРґРЅРµРіРѕ СЃРёРјРІРѕР»Р° }
 
   while jumps <= TextLen do
   begin
@@ -123,7 +123,7 @@ begin
       shift := FJumpTable[Text^];
     end;
 
-    { Сравниваем справа налево FPatternLen - 1 символов }
+    { РЎСЂР°РІРЅРёРІР°РµРј СЃРїСЂР°РІР° РЅР°Р»РµРІРѕ FPatternLen - 1 СЃРёРјРІРѕР»РѕРІ }
 
     if jumps >= m1 then
     begin

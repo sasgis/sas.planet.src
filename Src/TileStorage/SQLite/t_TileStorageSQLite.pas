@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -83,9 +83,9 @@ type
   PTileInfoShortEnumData = ^TTileInfoShortEnumData;
 
   TGetTileResult = record
-    // результат
+    // СЂРµР·СѓР»СЊС‚Р°С‚
     GTileInfo: ITileInfoBasic;
-    // дополнительные параметры, которые прочитаны, но которые возможно не запрашивались
+    // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹, РєРѕС‚РѕСЂС‹Рµ РїСЂРѕС‡РёС‚Р°РЅС‹, РЅРѕ РєРѕС‚РѕСЂС‹Рµ РІРѕР·РјРѕР¶РЅРѕ РЅРµ Р·Р°РїСЂР°С€РёРІР°Р»РёСЃСЊ
     GExtraMode: TGetTileInfoModeSQLite;
   end;
   PGetTileResult = ^TGetTileResult;

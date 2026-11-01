@@ -1,4 +1,4 @@
-unit LibJpeg62;
+ï»¿unit LibJpeg62;
 {
 libJPEG Header conversion by Steffen Xonna. (21-03-2008)
 
@@ -85,7 +85,7 @@ type
 
 { Types for JPEG compression parameters and working tables. }
 
-// TODO: Möglicherweise betrifft dies auch die Rückgabewerte?
+// TODO: MÃ¶glicherweise betrifft dies auch die RÃ¼ckgabewerte?
 
 { DCT coefficient quantization tables. }
 JQUANT_TBL = record 

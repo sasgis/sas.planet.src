@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -37,10 +37,10 @@ type
   private
     FTasks: TExportTaskJnxArray;
     FTargetFile: string;
-    FProductName: string; // копирайт
-    FMapName: string;  // имя карты
+    FProductName: string; // РєРѕРїРёСЂР°Р№С‚
+    FMapName: string;  // РёРјСЏ РєР°СЂС‚С‹
     FJNXVersion: Byte;  // 3..4
-    FZorder: Integer;   // для 4 версии
+    FZorder: Integer;   // РґР»СЏ 4 РІРµСЂСЃРёРё
     FProductID: Integer; // 0,2,3,4,5,6,7,8,9
     FBitmapPostProcessing: IBitmapPostProcessing;
 

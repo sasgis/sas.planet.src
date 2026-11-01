@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -478,8 +478,8 @@ begin
   end;
 
   AddRow(VRow, _('Up Time'), MinutesToStr(VUptime) );
-  AddRow(VRow, _('Azimuth'), Format('%.0f°', [VPos.Azimuth]) );
-  AddRow(VRow, _('Altitude'), Format('%.1f°', [VPos.Altitude]) );
+  AddRow(VRow, _('Azimuth'), Format('%.0fÂ°', [VPos.Azimuth]) );
+  AddRow(VRow, _('Altitude'), Format('%.1fÂ°', [VPos.Altitude]) );
   AddRow(VRow, _('Shadow, meters'), ShadowToStr(DegToRad(VPos.Altitude)) );
   AddRow(VRow, _('Illumination'), Format('%.0f%%', [VIllumination.Fraction * 100]) );
   AddRow(VRow, PhaseToStr(VIllumination.Phase), '');

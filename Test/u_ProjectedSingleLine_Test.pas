@@ -1,4 +1,4 @@
-unit u_ProjectedSingleLine_Test;
+п»їunit u_ProjectedSingleLine_Test;
 
 interface
 
@@ -127,7 +127,7 @@ procedure TestTProjectedPolygonLine.TestIsRectIntersectPolygonTouch;
 var
   VRect: TDoubleRect;
 begin
-  // Прямоугольник касается полигона. Случаи спорные. Можно менять поведение
+  // РџСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє РєР°СЃР°РµС‚СЃСЏ РїРѕР»РёРіРѕРЅР°. РЎР»СѓС‡Р°Рё СЃРїРѕСЂРЅС‹Рµ. РњРѕР¶РЅРѕ РјРµРЅСЏС‚СЊ РїРѕРІРµРґРµРЅРёРµ
   VRect := DoubleRect(4, 0, 5, 1);
   CheckTrue(FPolygon.IsRectIntersectPolygon(VRect));
 

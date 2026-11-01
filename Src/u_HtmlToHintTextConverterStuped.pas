@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -65,17 +65,17 @@ begin
   Result := StringReplace(Result, '&nbsp;', ' ', [rfReplaceAll]);
   Result := StringReplace(Result, '&#160;', ' ', [rfReplaceAll]);
 
-  Result := StringReplace(Result, '&raquo;', '»', [rfReplaceAll]);
-  Result := StringReplace(Result, '&#187;', '»', [rfReplaceAll]);
+  Result := StringReplace(Result, '&raquo;', 'Â»', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#187;', 'Â»', [rfReplaceAll]);
 
-  Result := StringReplace(Result, '&laquo;', '«', [rfReplaceAll]);
-  Result := StringReplace(Result, '&#171', '«', [rfReplaceAll]);
+  Result := StringReplace(Result, '&laquo;', 'Â«', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#171', 'Â«', [rfReplaceAll]);
 
-  Result := StringReplace(Result, '&copy;', '©', [rfReplaceAll]);
-  Result := StringReplace(Result, '&#169;', '©', [rfReplaceAll]);
+  Result := StringReplace(Result, '&copy;', 'Â©', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#169;', 'Â©', [rfReplaceAll]);
 
-  Result := StringReplace(Result, '&reg;', '®', [rfReplaceAll]);
-  Result := StringReplace(Result, '&#174;', '®', [rfReplaceAll]);
+  Result := StringReplace(Result, '&reg;', 'Â®', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#174;', 'Â®', [rfReplaceAll]);
 end;
 
 { THtmlToHintTextConverterStuped }

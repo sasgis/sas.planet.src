@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -33,7 +33,7 @@ uses
 type
   TMapVersionFactoryList = class(TBaseInterfacedObject, IMapVersionFactoryList)
   private
-    // существующие фабрики
+    // СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ С„Р°Р±СЂРёРєРё
     FSimpleVersionFactory: IMapVersionFactory;
   private
     function GetSimpleVersionFactory: IMapVersionFactory;

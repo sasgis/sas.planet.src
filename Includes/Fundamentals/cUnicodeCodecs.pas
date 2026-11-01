@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {                                                                              }
 {   Library:          Fundamentals 4.00                                        }
 {   File name:        cUnicodeCodecs.pas                                       }
@@ -6,7 +6,7 @@
 {   Description:      Unicode codecs                                           }
 {                                                                              }
 {   Copyright:        Copyright (c) 2002-2012                                  }
-{                     David J Butler and Dieter Köhler                         }
+{                     David J Butler and Dieter KÃ¶hler                         }
 {                     All rights reserved.                                     }
 {                     See license below.                                       }
 {                                                                              }
@@ -31,10 +31,10 @@
 { The Original Code is "cUnicodeCodecs.pas".                                   }
 {                                                                              }
 { The Initial Developers of the Original Code are David J Butler (Pretoria,    }
-{ South Africa, "http://fundementals.sourceforge.net/") and Dieter Köhler      }
+{ South Africa, "http://fundementals.sourceforge.net/") and Dieter KÃ¶hler      }
 { (Heidelberg, Germany, "http://www.philo.de/"). Portions created by the       }
 { Initial Developers are Copyright (C) 2002-2004 David J Butler and            }
-{ Dieter Köhler. All Rights Reserved.                                          }
+{ Dieter KÃ¶hler. All Rights Reserved.                                          }
 {                                                                              }
 { Alternatively, the contents of this file may be used under the terms of the  }
 { GNU General Public License Version 2 or later (the "GPL"), in which case the }

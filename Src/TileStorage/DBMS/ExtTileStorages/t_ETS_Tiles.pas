@@ -1,4 +1,4 @@
-{******************************************************************************}
+Ôªø{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -232,7 +232,7 @@ const
   // ETS_STO_HASH         = $00000008; // actual HASH (if provider stores HASH)
   // MD5             - 128 bit = 16 byte
   // SHA-1           - 160 bit = 20 byte
-  // √Œ—“ – 34.11-94 - 256 bit = 32 byte
+  // –ì–û–°–¢ –† 34.11-94 - 256 bit = 32 byte
   // Tiger/192       - 192 bit = 24 byte
   // MurmurHash 2A   -  32 bit =  4 byte
   // Adler-32        -  32 bit =  4 byte

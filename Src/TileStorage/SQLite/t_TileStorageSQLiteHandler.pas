@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -55,11 +55,11 @@ type
 
   TSelectTileInfoComplex = record
     TileResult: PGetTileResult;
-    RequestedVersionInfo: IMapVersionInfo; // запрошенная версия (как заготовка для читаемого тайла)
-    RequestedVersionAsInt: Int64;          // результат конвертации  требуемой версии в Int64
-    RequestedVersionIsInt: Boolean;        // признак, что требуемая версия целочисленная
-    RequestedVersionIsSet: Boolean;        // признак, что требуемая версия установлена (не пустая)
-    RequestedVersionToDB: AnsiString;      // версия для запроса к БД
+    RequestedVersionInfo: IMapVersionInfo; // Р·Р°РїСЂРѕС€РµРЅРЅР°СЏ РІРµСЂСЃРёСЏ (РєР°Рє Р·Р°РіРѕС‚РѕРІРєР° РґР»СЏ С‡РёС‚Р°РµРјРѕРіРѕ С‚Р°Р№Р»Р°)
+    RequestedVersionAsInt: Int64;          // СЂРµР·СѓР»СЊС‚Р°С‚ РєРѕРЅРІРµСЂС‚Р°С†РёРё  С‚СЂРµР±СѓРµРјРѕР№ РІРµСЂСЃРёРё РІ Int64
+    RequestedVersionIsInt: Boolean;        // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ С‚СЂРµР±СѓРµРјР°СЏ РІРµСЂСЃРёСЏ С†РµР»РѕС‡РёСЃР»РµРЅРЅР°СЏ
+    RequestedVersionIsSet: Boolean;        // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ С‚СЂРµР±СѓРµРјР°СЏ РІРµСЂСЃРёСЏ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° (РЅРµ РїСѓСЃС‚Р°СЏ)
+    RequestedVersionToDB: AnsiString;      // РІРµСЂСЃРёСЏ РґР»СЏ Р·Р°РїСЂРѕСЃР° Рє Р‘Р”
     SelectMode: TGetTileInfoModeSQLite;
   end;
   PSelectTileInfoComplex = ^TSelectTileInfoComplex;

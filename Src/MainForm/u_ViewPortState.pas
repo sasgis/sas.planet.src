@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -277,10 +277,10 @@ var
   VNeedNotify: Boolean;
 begin
   if ANewSize.X <= 0 then begin
-    raise Exception.Create('Îøèáî÷íûé ðàçìåð îòîáðàæàåìîé êàðòû');
+    raise Exception.Create('ÐžÑˆÐ¸Ð±Ð¾Ñ‡Ð½Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶Ð°ÐµÐ¼Ð¾Ð¹ ÐºÐ°Ñ€Ñ‚Ñ‹');
   end;
   if ANewSize.Y <= 0 then begin
-    raise Exception.Create('Îøèáî÷íûé ðàçìåð îòîáðàæàåìîé êàðòû');
+    raise Exception.Create('ÐžÑˆÐ¸Ð±Ð¾Ñ‡Ð½Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶Ð°ÐµÐ¼Ð¾Ð¹ ÐºÐ°Ñ€Ñ‚Ñ‹');
   end;
   VLocalRectNew := Rect(0, 0, ANewSize.X, ANewSize.Y);
   VNeedNotify := False;

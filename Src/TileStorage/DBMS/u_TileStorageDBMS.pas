@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -548,7 +548,7 @@ begin
         VTileVersion,
         VTileContentType
       );
-      // не сохраняем в MemCache
+      // РЅРµ СЃРѕС…СЂР°РЅСЏРµРј РІ MemCache
       PSelectTileCallbackInfo(ACallbackPointer)^.AllowSaveToMemCache := FALSE;
     end;
   end else if ((ASelectBufferOut^.dwOptionsOut and ETS_ROO_TNE_EXISTS) <> 0) then begin
@@ -573,18 +573,18 @@ end;
 
 procedure TTileStorageETS.CheckMalfunction;
 begin
-  // проверяем только перечисленное тут
+  // РїСЂРѕРІРµСЂСЏРµРј С‚РѕР»СЊРєРѕ РїРµСЂРµС‡РёСЃР»РµРЅРЅРѕРµ С‚СѓС‚
   case FETS_SERVICE_STORAGE_OPTIONS.malfunction_mode of
     ETS_PMM_INITIAL_MODE, ETS_PMM_NOT_COMPLETED: begin
-      // ошибка протокола связи с хранилищем
+      // РѕС€РёР±РєР° РїСЂРѕС‚РѕРєРѕР»Р° СЃРІСЏР·Рё СЃ С…СЂР°РЅРёР»РёС‰РµРј
       raise EETSNoRoutine.Create(SAS_ERR_ETS_NotImplemented);
     end;
     ETS_PMM_CONNECT_DEAD: begin
-      // соединение было, но оно разорвано и не восстанавливается
+      // СЃРѕРµРґРёРЅРµРЅРёРµ Р±С‹Р»Рѕ, РЅРѕ РѕРЅРѕ СЂР°Р·РѕСЂРІР°РЅРѕ Рё РЅРµ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ
       raise EETSDeadConnection.Create(SAS_ERR_ETS_ConnectionIsDead);
     end;
     ETS_PMM_FAILED_CONNECT: begin
-      // никак не получается подключиться
+      // РЅРёРєР°Рє РЅРµ РїРѕР»СѓС‡Р°РµС‚СЃСЏ РїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ
       raise EETSCannotConnect.Create(SAS_ERR_ETS_CannotConnect);
     end;
   end;
@@ -891,7 +891,7 @@ begin
   Result := 0;
 
   if (ETS_PMM_ESTABLISHED<>FETS_SERVICE_STORAGE_OPTIONS.malfunction_mode) then begin
-    // если нет подключения - запросы пускаем по очереди
+    // РµСЃР»Рё РЅРµС‚ РїРѕРґРєР»СЋС‡РµРЅРёСЏ - Р·Р°РїСЂРѕСЃС‹ РїСѓСЃРєР°РµРј РїРѕ РѕС‡РµСЂРµРґРё
     SetUpExclusiveFlag(Result);
     Exit;
   end;
@@ -1750,9 +1750,9 @@ begin
     // check response
     case VResult of
       ETS_RESULT_DISCONNECTED: begin
-        // соединение разорвано - попробуем переподключиться
+        // СЃРѕРµРґРёРЅРµРЅРёРµ СЂР°Р·РѕСЂРІР°РЅРѕ - РїРѕРїСЂРѕР±СѓРµРј РїРµСЂРµРїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ
         if (VDeadConnectionFound) then begin
-          // уже пробовали ((
+          // СѓР¶Рµ РїСЂРѕР±РѕРІР°Р»Рё ((
           raise EETSDeadConnection.Create(SAS_ERR_ETS_ConnectionIsDead);
         end;
         VDeadConnectionFound := TRUE;
@@ -2038,7 +2038,7 @@ begin
     Result := (ETS_RESULT_OK = FETSResult);
 
     if Result then begin
-      // в сасе зум на 1 меньше
+      // РІ СЃР°СЃРµ Р·СѓРј РЅР° 1 РјРµРЅСЊС€Рµ
       Dec(ATileInfo.FZoom);
     end;
   finally

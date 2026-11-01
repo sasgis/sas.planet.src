@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -230,7 +230,7 @@ type
     property GpsSystem: IGpsSystem read FGpsSystem;
     property GeoCalc: IGeoCalcChangeable read FGeoCalc;
 
-    // Список генераторов имен файлов с тайлами
+    // РЎРїРёСЃРѕРє РіРµРЅРµСЂР°С‚РѕСЂРѕРІ РёРјРµРЅ С„Р°Р№Р»РѕРІ СЃ С‚Р°Р№Р»Р°РјРё
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     property TileNameParser: ITileFileNameParsersList read FTileNameParser;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;

@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -58,16 +58,16 @@ type
       Data: Integer
     ); overload;
 
-    // Проверка наличия GUID в списке
+    // РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ GUID РІ СЃРїРёСЃРєРµ
     function IsExists(const AGUID: TGUID): boolean; virtual;
 
-    // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
+    // РЈРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚Р°, РµСЃР»Рё РЅРµС‚ СЃ С‚Р°РєРёРј GUID, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ Р±СѓРґРµС‚ РїСЂРѕРёСЃС…РѕРґРёС‚СЊ
     procedure Remove(const AGUID: TGUID); virtual;
 
-    // Очитска списка
+    // РћС‡РёС‚СЃРєР° СЃРїРёСЃРєР°
     procedure Clear; virtual;
 
-    // Получение итератора GUID-ов
+    // РџРѕР»СѓС‡РµРЅРёРµ РёС‚РµСЂР°С‚РѕСЂР° GUID-РѕРІ
     function GetGUIDEnum(): IEnumGUID; virtual;
     property Capacity: Integer read FCapacity write SetCapacity;
     property Count: Integer read GetCount write SetCount;

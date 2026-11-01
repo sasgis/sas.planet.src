@@ -1,4 +1,4 @@
-unit NTFiles;
+п»їunit NTFiles;
 
 interface
 
@@ -282,13 +282,13 @@ begin
 
   try
     if (0 = ARootHandle) then begin
-      // абсолютный путь - надо преобразовать в родной формат
+      // Р°Р±СЃРѕР»СЋС‚РЅС‹Р№ РїСѓС‚СЊ - РЅР°РґРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ РІ СЂРѕРґРЅРѕР№ С„РѕСЂРјР°С‚
       if (RtlDosPathNameToNtPathName_U(PCWSTR(AFilename), @VFileNameU, nil, nil) = False) then begin
-        // ошибка
+        // РѕС€РёР±РєР°
         Exit;
       end;
     end else begin
-      // относительный путь - не преобразовываем
+      // РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Р№ РїСѓС‚СЊ - РЅРµ РїСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°РµРј
       with VFileNameU do begin
         Length_ := Length(AFilename) * SizeOf(WideChar);
         MaximumLength := Length_;

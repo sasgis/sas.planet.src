@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -119,7 +119,7 @@ begin
     ATileIteratorFactory
   );
   if Length(AZooms) <= 1 then begin
-    raise Exception.Create('Íå âûáðàíî öåëåâûõ ìàñøòàáîâ');
+    raise Exception.Create('ÐÐµ Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð¾ Ñ†ÐµÐ»ÐµÐ²Ñ‹Ñ… Ð¼Ð°ÑÑˆÑ‚Ð°Ð±Ð¾Ð²');
   end;
   FBitmapFactory := ABitmapFactory;
   FIsReplace := AReplace;

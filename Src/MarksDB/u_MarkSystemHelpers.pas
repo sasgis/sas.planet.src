@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-procedure PrepareFromTreeForImport( // ToDo: придумать более внятное название
+procedure PrepareFromTreeForImport( // ToDo: РїСЂРёРґСѓРјР°С‚СЊ Р±РѕР»РµРµ РІРЅСЏС‚РЅРѕРµ РЅР°Р·РІР°РЅРёРµ
   const AMarkList: IInterfaceListSimple;
   const ADataItemTree: IVectorItemTree;
   const AImportConfig: IImportConfig;

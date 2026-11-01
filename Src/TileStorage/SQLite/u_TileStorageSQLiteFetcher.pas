@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -258,12 +258,12 @@ begin
     end;
   end;
 
-  // создадим версию или возьмём готовую
+  // СЃРѕР·РґР°РґРёРј РІРµСЂСЃРёСЋ РёР»Рё РІРѕР·СЊРјС‘Рј РіРѕС‚РѕРІСѓСЋ
   if Assigned(FLastSelectedVersion) and SameText(FLastSelectedVersion.StoreString, VVersionStr) then begin
-    // версия уже есть
+    // РІРµСЂСЃРёСЏ СѓР¶Рµ РµСЃС‚СЊ
     PTileInfo(ACallbackPtr).FVersionInfo := FLastSelectedVersion;
   end else begin
-    // версию надо создать
+    // РІРµСЂСЃРёСЋ РЅР°РґРѕ СЃРѕР·РґР°С‚СЊ
     PTileInfo(ACallbackPtr).FVersionInfo := FTileStorageSQLiteHolder.GetVersionInfo(VVersionStr);
   end;
 
@@ -318,18 +318,18 @@ begin
     Exit;
   end;
 
-  // кончился результат запроса - попробуем начать следующий
+  // РєРѕРЅС‡РёР»СЃСЏ СЂРµР·СѓР»СЊС‚Р°С‚ Р·Р°РїСЂРѕСЃР° - РїРѕРїСЂРѕР±СѓРµРј РЅР°С‡Р°С‚СЊ СЃР»РµРґСѓСЋС‰РёР№
   repeat
     InternalOpen;
-    // возможно, больше нечего тащить в принципе
+    // РІРѕР·РјРѕР¶РЅРѕ, Р±РѕР»СЊС€Рµ РЅРµС‡РµРіРѕ С‚Р°С‰РёС‚СЊ РІ РїСЂРёРЅС†РёРїРµ
     if not FPrepared then begin
       Exit;
     end;
-    // а нет, вроде ещё есть
+    // Р° РЅРµС‚, РІСЂРѕРґРµ РµС‰С‘ РµСЃС‚СЊ
     if Opened then begin
-      // потянули...
+      // РїРѕС‚СЏРЅСѓР»Рё...
       Result := inherited Fetch(ATileInfo);
-      // ...вытянули
+      // ...РІС‹С‚СЏРЅСѓР»Рё
       if Result then begin
         Exit;
       end;
@@ -350,27 +350,27 @@ begin
   end;
   Result := 'SELECT x,y,s,d';
 
-  // отсечка по версии тайла в БД
+  // РѕС‚СЃРµС‡РєР° РїРѕ РІРµСЂСЃРёРё С‚Р°Р№Р»Р° РІ Р‘Р”
   if FUseVersionFieldInDB and (FTBColInfoPtr.ModeV <> vcm_None) then begin
     Result := Result + ',v';
-    // есть отдельное поле версии
-    // тащим тайлы конкретной версии, так что версия должна быть передана
+    // РµСЃС‚СЊ РѕС‚РґРµР»СЊРЅРѕРµ РїРѕР»Рµ РІРµСЂСЃРёРё
+    // С‚Р°С‰РёРј С‚Р°Р№Р»С‹ РєРѕРЅРєСЂРµС‚РЅРѕР№ РІРµСЂСЃРёРё, С‚Р°Рє С‡С‚Рѕ РІРµСЂСЃРёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїРµСЂРµРґР°РЅР°
     if Assigned(FSingleVersionToScan) then begin
-      // передавали конкретную версию - только её и тащим
-      // один раз
+      // РїРµСЂРµРґР°РІР°Р»Рё РєРѕРЅРєСЂРµС‚РЅСѓСЋ РІРµСЂСЃРёСЋ - С‚РѕР»СЊРєРѕ РµС‘ Рё С‚Р°С‰РёРј
+      // РѕРґРёРЅ СЂР°Р·
       FLastSelectedVersion := FSingleVersionToScan;
       FSingleVersionToScan := nil;
     end else if Assigned(FAllVersions) and (FEnumVersionIndex < FAllVersions.Count) then begin
-      // тащим все версии по списку по очереди - берём следующую
+      // С‚Р°С‰РёРј РІСЃРµ РІРµСЂСЃРёРё РїРѕ СЃРїРёСЃРєСѓ РїРѕ РѕС‡РµСЂРµРґРё - Р±РµСЂС‘Рј СЃР»РµРґСѓСЋС‰СѓСЋ
       FLastSelectedVersion := FAllVersions.Item[FEnumVersionIndex];
       Inc(FEnumVersionIndex);
     end else begin
-      // нечего больше тащить
+      // РЅРµС‡РµРіРѕ Р±РѕР»СЊС€Рµ С‚Р°С‰РёС‚СЊ
       Result := '';
       Exit;
     end;
 
-    // парсим версию
+    // РїР°СЂСЃРёРј РІРµСЂСЃРёСЋ
     ParseSQLiteDBVersion(
       FUseVersionFieldInDB,
       FTBColInfoPtr.ModeV,
@@ -390,7 +390,7 @@ begin
       );
   end;
   if FTBColInfoPtr.HasC then begin
-    Result := Result + ',c'; // есть отдельное поле ContextType
+    Result := Result + ',c'; // РµСЃС‚СЊ РѕС‚РґРµР»СЊРЅРѕРµ РїРѕР»Рµ ContextType
   end;
   Result := Result + ',b FROM t';
   if Length(VWhere) > 0 then begin
@@ -426,10 +426,10 @@ begin
   FEnumVersionIndex := 0;
 
   if Assigned(FSingleVersionToScan) then begin
-    // работаем только по одной переданой версии
+    // СЂР°Р±РѕС‚Р°РµРј С‚РѕР»СЊРєРѕ РїРѕ РѕРґРЅРѕР№ РїРµСЂРµРґР°РЅРѕР№ РІРµСЂСЃРёРё
     FAllVersions := nil;
   end else begin
-    // работаем по списку всех версий в БД
+    // СЂР°Р±РѕС‚Р°РµРј РїРѕ СЃРїРёСЃРєСѓ РІСЃРµС… РІРµСЂСЃРёР№ РІ Р‘Р”
     FAllVersions := VObj.GetListOfVersions(nil);
   end;
   FTBColInfoPtr := VObj.GetTBColInfoPtr;

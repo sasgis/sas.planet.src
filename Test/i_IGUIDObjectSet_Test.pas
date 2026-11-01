@@ -1,4 +1,4 @@
-unit i_IGUIDObjectSet_Test;
+п»їunit i_IGUIDObjectSet_Test;
 
 interface
 
@@ -95,64 +95,64 @@ var
   VSource: TObject;
 begin
   VResult := FGUIDList.Add(G1, FG1);
-  Check(FGUIDList.Count = 1, 'После добавления должно быть элементов: 1');
-  Check(VResult = FG1, 'После добавления функция Add должна вернуть добавленный объект');
+  Check(FGUIDList.Count = 1, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЌР»РµРјРµРЅС‚РѕРІ: 1');
+  Check(VResult = FG1, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ С„СѓРЅРєС†РёСЏ Add РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ РґРѕР±Р°РІР»РµРЅРЅС‹Р№ РѕР±СЉРµРєС‚');
 
   FGUIDList.Add(G2, FG2);
-  Check(FGUIDList.Count = 2, 'После добавления должно быть элементов: 2');
+  Check(FGUIDList.Count = 2, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЌР»РµРјРµРЅС‚РѕРІ: 2');
 
   FGUIDList.Add(G3, FG3);
-  Check(FGUIDList.Count = 3, 'После добавления должно быть элементов: 3');
+  Check(FGUIDList.Count = 3, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЌР»РµРјРµРЅС‚РѕРІ: 3');
 
   FGUIDList.Add(G4, FG4);
-  Check(FGUIDList.Count = 4, 'После добавления должно быть элементов: 4');
+  Check(FGUIDList.Count = 4, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЌР»РµРјРµРЅС‚РѕРІ: 4');
 
   FGUIDList.Add(G5, FG5);
-  Check(FGUIDList.Count = 5, 'После добавления должно быть элементов: 5');
+  Check(FGUIDList.Count = 5, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЌР»РµРјРµРЅС‚РѕРІ: 5');
 
   FGUIDList.Add(G6, FG6);
-  Check(FGUIDList.Count = 6, 'После добавления должно быть элементов: 6');
+  Check(FGUIDList.Count = 6, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЌР»РµРјРµРЅС‚РѕРІ: 6');
 
   VSource := TSimple.Create(G2);
   try
     VResult := FGUIDList.Add(G1, VSource);
-    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
-    Check(VResult = FG1, 'Должно вернуть старый объект');
+    Check(FGUIDList.Count = 6, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРµСѓРЅРёРЅРєР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРµРЅСЏС‚СЊСЃСЏ РЅРµ РґРѕР»Р¶РЅРѕ');
+    Check(VResult = FG1, 'Р”РѕР»Р¶РЅРѕ РІРµСЂРЅСѓС‚СЊ СЃС‚Р°СЂС‹Р№ РѕР±СЉРµРєС‚');
   finally
     VSource.Free;
   end;
   VSource := TSimple.Create(G3);
   try
     FGUIDList.Add(G2, VSource);
-    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+    Check(FGUIDList.Count = 6, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРµСѓРЅРёРЅРєР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРµРЅСЏС‚СЊСЃСЏ РЅРµ РґРѕР»Р¶РЅРѕ');
   finally
     VSource.Free;
   end;
   VSource := TSimple.Create(G4);
   try
     FGUIDList.Add(G3, VSource);
-    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+    Check(FGUIDList.Count = 6, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРµСѓРЅРёРЅРєР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРµРЅСЏС‚СЊСЃСЏ РЅРµ РґРѕР»Р¶РЅРѕ');
   finally
     VSource.Free;
   end;
   VSource := TSimple.Create(G5);
   try
     FGUIDList.Add(G4, VSource);
-    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+    Check(FGUIDList.Count = 6, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРµСѓРЅРёРЅРєР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРµРЅСЏС‚СЊСЃСЏ РЅРµ РґРѕР»Р¶РЅРѕ');
   finally
     VSource.Free;
   end;
   VSource := TSimple.Create(G6);
   try
     FGUIDList.Add(G5, VSource);
-    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+    Check(FGUIDList.Count = 6, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРµСѓРЅРёРЅРєР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРµРЅСЏС‚СЊСЃСЏ РЅРµ РґРѕР»Р¶РЅРѕ');
   finally
     VSource.Free;
   end;
   VSource := TSimple.Create(G1);
   try
     FGUIDList.Add(G6, VSource);
-    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+    Check(FGUIDList.Count = 6, 'РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРµСѓРЅРёРЅРєР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРµРЅСЏС‚СЊСЃСЏ РЅРµ РґРѕР»Р¶РЅРѕ');
   finally
     VSource.Free;
   end;
@@ -167,13 +167,13 @@ begin
   FGUIDList.Add(G4, FG4);
   FGUIDList.Add(G3, FG3);
 
-  Check(FGUIDList.IsExists(G1), 'Ошбка проверки наличия элемента G1');
-  Check(FGUIDList.IsExists(G2), 'Ошбка проверки наличия элемента G2');
-  Check(FGUIDList.IsExists(G3), 'Ошбка проверки наличия элемента G3');
-  Check(FGUIDList.IsExists(G4), 'Ошбка проверки наличия элемента G4');
-  Check(FGUIDList.IsExists(G5), 'Ошбка проверки наличия элемента G5');
-  Check(FGUIDList.IsExists(G6), 'Ошбка проверки наличия элемента G6');
-  Check(not FGUIDList.IsExists(G7), 'Ошбка проверки наличия элемента G7');
+  Check(FGUIDList.IsExists(G1), 'РћС€Р±РєР° РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ СЌР»РµРјРµРЅС‚Р° G1');
+  Check(FGUIDList.IsExists(G2), 'РћС€Р±РєР° РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ СЌР»РµРјРµРЅС‚Р° G2');
+  Check(FGUIDList.IsExists(G3), 'РћС€Р±РєР° РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ СЌР»РµРјРµРЅС‚Р° G3');
+  Check(FGUIDList.IsExists(G4), 'РћС€Р±РєР° РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ СЌР»РµРјРµРЅС‚Р° G4');
+  Check(FGUIDList.IsExists(G5), 'РћС€Р±РєР° РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ СЌР»РµРјРµРЅС‚Р° G5');
+  Check(FGUIDList.IsExists(G6), 'РћС€Р±РєР° РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ СЌР»РµРјРµРЅС‚Р° G6');
+  Check(not FGUIDList.IsExists(G7), 'РћС€Р±РєР° РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ СЌР»РµРјРµРЅС‚Р° G7');
 end;
 
 procedure TestIGUIDObjectSet.TestGetByGUID;
@@ -188,31 +188,31 @@ begin
   FGUIDList.Add(G3, FG3);
 
   VI := TSimple(FGUIDList.GetByGUID(G1));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G1), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G1), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G2));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G2), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G2), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G3));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G3), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G3), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G4));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G4), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G4), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G5));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G5), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G5), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G6));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G6), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G6), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G7));
-  Check(VI = nil, 'Найден элемент, которого быть не должно было');
+  Check(VI = nil, 'РќР°Р№РґРµРЅ СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂРѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹Р»Рѕ');
 end;
 
 procedure TestIGUIDObjectSet.TestReplace;
@@ -234,31 +234,31 @@ begin
   FGUIDList.Replace(G6, FG1);
 
   VI := TSimple(FGUIDList.GetByGUID(G1));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G2), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G2), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G2));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G3), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G3), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G3));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G4), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G4), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G4));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G5), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G5), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G5));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G6), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G6), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G6));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G1), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G1), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G7));
-  Check(VI = nil, 'Найден элемент, которого быть не должно было');
+  Check(VI = nil, 'РќР°Р№РґРµРЅ СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂРѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹Р»Рѕ');
 end;
 
 procedure TestIGUIDObjectSet.TestRemove;
@@ -277,25 +277,25 @@ begin
   FGUIDList.Remove(G5);
 
   VI := TSimple(FGUIDList.GetByGUID(G1));
-  Check(VI = nil, 'Найден элемент, которого быть не должно было');
+  Check(VI = nil, 'РќР°Р№РґРµРЅ СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂРѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹Р»Рѕ');
 
   VI := TSimple(FGUIDList.GetByGUID(G2));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G2), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G2), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G3));
-  Check(VI = nil, 'Найден элемент, которого быть не должно было');
+  Check(VI = nil, 'РќР°Р№РґРµРЅ СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂРѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹Р»Рѕ');
 
   VI := TSimple(FGUIDList.GetByGUID(G4));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G4), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G4), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 
   VI := TSimple(FGUIDList.GetByGUID(G5));
-  Check(VI = nil, 'Найден элемент, которого быть не должно было');
+  Check(VI = nil, 'РќР°Р№РґРµРЅ СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂРѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹Р»Рѕ');
 
   VI := TSimple(FGUIDList.GetByGUID(G6));
-  Check(VI <> nil, 'Элемент не найден');
-  Check(IsEqualGUID(VI.GetGUID, G6), 'Найден ошибочный элемент');
+  Check(VI <> nil, 'Р­Р»РµРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ');
+  Check(IsEqualGUID(VI.GetGUID, G6), 'РќР°Р№РґРµРЅ РѕС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚');
 end;
 
 procedure TestIGUIDObjectSet.TestClear;
@@ -312,12 +312,12 @@ begin
   FGUIDList.Add(G3, FG3);
 
   FGUIDList.Clear;
-  Check(FGUIDList.Count = 0, 'Список не пустой после очистки');
+  Check(FGUIDList.Count = 0, 'РЎРїРёСЃРѕРє РЅРµ РїСѓСЃС‚РѕР№ РїРѕСЃР»Рµ РѕС‡РёСЃС‚РєРё');
 
   VEnum := FGUIDList.GetGUIDEnum;
-  Check(VEnum <> nil, 'Итератор не получен');
+  Check(VEnum <> nil, 'РС‚РµСЂР°С‚РѕСЂ РЅРµ РїРѕР»СѓС‡РµРЅ');
 
-  Check(VEnum.Next(1, VGUID, I) = S_FALSE, 'Лишний элемент в итераторе');
+  Check(VEnum.Next(1, VGUID, I) = S_FALSE, 'Р›РёС€РЅРёР№ СЌР»РµРјРµРЅС‚ РІ РёС‚РµСЂР°С‚РѕСЂРµ');
 end;
 
 procedure TestIGUIDObjectSet.TestGetGUIDEnum;
@@ -334,21 +334,21 @@ begin
   FGUIDList.Add(G3, FG3);
 
   VEnum := FGUIDList.GetGUIDEnum;
-  Check(VEnum <> nil, 'Итератор не получен');
+  Check(VEnum <> nil, 'РС‚РµСЂР°С‚РѕСЂ РЅРµ РїРѕР»СѓС‡РµРЅ');
 
-  Check(VEnum.Next(1, VGUID, I) = S_OK, 'Ошибка получения GUID');
-  Check(IsEqualGUID(VGUID, G1), 'Ошибочный элемент.');
-  Check(VEnum.Next(1, VGUID, I) = S_OK, 'Ошибка получения GUID');
-  Check(IsEqualGUID(VGUID, G2), 'Ошибочный элемент.');
-  Check(VEnum.Next(1, VGUID, I) = S_OK, 'Ошибка получения GUID');
-  Check(IsEqualGUID(VGUID, G3), 'Ошибочный элемент.');
-  Check(VEnum.Next(1, VGUID, I) = S_OK, 'Ошибка получения GUID');
-  Check(IsEqualGUID(VGUID, G4), 'Ошибочный элемент.');
-  Check(VEnum.Next(1, VGUID, I) = S_OK, 'Ошибка получения GUID');
-  Check(IsEqualGUID(VGUID, G5), 'Ошибочный элемент.');
-  Check(VEnum.Next(1, VGUID, I) = S_OK, 'Ошибка получения GUID');
-  Check(IsEqualGUID(VGUID, G6), 'Ошибочный элемент.');
-  Check(VEnum.Next(1, VGUID, I) = S_FALSE, 'Лишний элемент в итераторе');
+  Check(VEnum.Next(1, VGUID, I) = S_OK, 'РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ GUID');
+  Check(IsEqualGUID(VGUID, G1), 'РћС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚.');
+  Check(VEnum.Next(1, VGUID, I) = S_OK, 'РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ GUID');
+  Check(IsEqualGUID(VGUID, G2), 'РћС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚.');
+  Check(VEnum.Next(1, VGUID, I) = S_OK, 'РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ GUID');
+  Check(IsEqualGUID(VGUID, G3), 'РћС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚.');
+  Check(VEnum.Next(1, VGUID, I) = S_OK, 'РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ GUID');
+  Check(IsEqualGUID(VGUID, G4), 'РћС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚.');
+  Check(VEnum.Next(1, VGUID, I) = S_OK, 'РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ GUID');
+  Check(IsEqualGUID(VGUID, G5), 'РћС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚.');
+  Check(VEnum.Next(1, VGUID, I) = S_OK, 'РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ GUID');
+  Check(IsEqualGUID(VGUID, G6), 'РћС€РёР±РѕС‡РЅС‹Р№ СЌР»РµРјРµРЅС‚.');
+  Check(VEnum.Next(1, VGUID, I) = S_FALSE, 'Р›РёС€РЅРёР№ СЌР»РµРјРµРЅС‚ РІ РёС‚РµСЂР°С‚РѕСЂРµ');
 end;
 
 end.

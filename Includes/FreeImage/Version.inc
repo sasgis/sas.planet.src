@@ -1,9 +1,9 @@
-// ==========================================================
+﻿// ==========================================================
 // Delphi wrapper for FreeImage 3
 //
 // Design and implementation by
 // - Simon Beavis
-// - Peter Bystr�m
+// - Peter Byström
 // - Anatoliy Pulyaevskiy (xvel84@rambler.ru)
 //
 // Contributors:

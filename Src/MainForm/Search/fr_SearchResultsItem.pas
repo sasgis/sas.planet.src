@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -126,7 +126,7 @@ begin
   LabelDesc.Caption := FPlacemark.GetDesc;
   FMapGoto := AMapGoto;
   PanelDesc.Visible := FPlacemark.GetDesc <> '';
-  LabelFullDescImg.Visible := FPlacemark.GetInfoHTML <> ''; // есть ли вообще доп инфо...
+  LabelFullDescImg.Visible := FPlacemark.GetInfoHTML <> ''; // РµСЃС‚СЊ Р»Рё РІРѕРѕР±С‰Рµ РґРѕРї РёРЅС„Рѕ...
   LabelFullDescShort.Visible := FPlacemark.GetInfoHTML <> '';
   VConverter := FCoordToStringConverter.GetStatic;
 
@@ -148,9 +148,9 @@ begin
   end;
   PanelFullDescImg.Visible := imgIcon.Visible;
 
-  if imgIcon.Visible then begin // если еть картинка - вырубаем тонкую панель Full Description
+  if imgIcon.Visible then begin // РµСЃР»Рё РµС‚СЊ РєР°СЂС‚РёРЅРєР° - РІС‹СЂСѓР±Р°РµРј С‚РѕРЅРєСѓСЋ РїР°РЅРµР»СЊ Full Description
     PanelFullDescShort.Visible := False;
-  end else begin // иначе показываем панель при наличии ссылки
+  end else begin // РёРЅР°С‡Рµ РїРѕРєР°Р·С‹РІР°РµРј РїР°РЅРµР»СЊ РїСЂРё РЅР°Р»РёС‡РёРё СЃСЃС‹Р»РєРё
     PanelFullDescShort.Visible := LabelFullDescShort.Visible;
   end;
 end;

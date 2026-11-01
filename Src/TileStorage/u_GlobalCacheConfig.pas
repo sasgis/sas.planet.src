@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -35,10 +35,10 @@ type
   private
     FCacheGlobalPath: IPathConfig;
 
-    //Способ храения кэша по-умолчанию.
+    //РЎРїРѕСЃРѕР± С…СЂР°РµРЅРёСЏ РєСЌС€Р° РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ.
     FDefCache: Byte;
 
-    //Пути к кэшам разных типов
+    //РџСѓС‚Рё Рє РєСЌС€Р°Рј СЂР°Р·РЅС‹С… С‚РёРїРѕРІ
     FNewCPath: IPathConfig;
     FOldCPath: IPathConfig;
     FESCPath: IPathConfig;

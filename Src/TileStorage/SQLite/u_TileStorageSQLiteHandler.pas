@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -263,11 +263,11 @@ begin
   end;
   case ATBColInfoModeV of
     vcm_Int: begin
-      // версия в БД целочисленная
+      // РІРµСЂСЃРёСЏ РІ Р‘Р” С†РµР»РѕС‡РёСЃР»РµРЅРЅР°СЏ
       Result := 'v' + VOrder;
     end;
     vcm_Text: begin
-      // версия в БД текстовая
+      // РІРµСЂСЃРёСЏ РІ Р‘Р” С‚РµРєСЃС‚РѕРІР°СЏ
       Result := 'v COLLATE ' + cLogicalSortingCollation + VOrder;
     end;
   else
@@ -299,7 +299,7 @@ var
   VVer, VMax: RawByteString;
 begin
   if (ATBColInfoModeV = vcm_Int) and not ARequestedVersionIsInt then begin
-    // версия в БД целочисленная, но дали текстовую
+    // РІРµСЂСЃРёСЏ РІ Р‘Р” С†РµР»РѕС‡РёСЃР»РµРЅРЅР°СЏ, РЅРѕ РґР°Р»Рё С‚РµРєСЃС‚РѕРІСѓСЋ
     VVer := 'cast(v as TEXT)';
   end else begin
     VVer := 'v';
@@ -539,11 +539,11 @@ var
   VBinaryData: IBinaryData;
 begin
   // s,d[,v][,c][,b]
-  // здесь читаем только один тайл
+  // Р·РґРµСЃСЊ С‡РёС‚Р°РµРј С‚РѕР»СЊРєРѕ РѕРґРёРЅ С‚Р°Р№Р»
   AStmtData.Cancelled := True;
 
   with PSelectTileInfoComplex(ACallbackPtr).TileResult^ do begin
-    // размер и дату тащим даже без запроса пользователя
+    // СЂР°Р·РјРµСЂ Рё РґР°С‚Сѓ С‚Р°С‰РёРј РґР°Р¶Рµ Р±РµР· Р·Р°РїСЂРѕСЃР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
     GExtraMode := GExtraMode + [gtiiSize, gtiiLoadDate];
   end;
 
@@ -625,7 +625,7 @@ begin
   end;
 
   with PSelectTileInfoComplex(ACallbackPtr).TileResult^ do begin
-    // тип тайла тут всегда тащим
+    // С‚РёРї С‚Р°Р№Р»Р° С‚СѓС‚ РІСЃРµРіРґР° С‚Р°С‰РёРј
     GExtraMode := GExtraMode + [gtiiContentType];
   end;
 

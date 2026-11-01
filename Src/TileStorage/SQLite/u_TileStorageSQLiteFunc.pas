@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -110,7 +110,7 @@ begin
     end else if LocalTryStrToInt64(AInfo.RequestedVersionToDB, AInfo.RequestedVersionAsInt) then begin
       // as int - result ok
       if ATBColInfoModeV = vcm_Text then begin
-        // версия в БД текстовая
+        // РІРµСЂСЃРёСЏ РІ Р‘Р” С‚РµРєСЃС‚РѕРІР°СЏ
         AInfo.RequestedVersionToDB := QuotedStrA(AInfo.RequestedVersionToDB);
       end;
       AInfo.RequestedVersionIsInt := True;
@@ -134,22 +134,22 @@ function VersionFieldIsEqual(
   const AStrVersionToDB: AnsiString
 ): AnsiString;
 begin
-  // формируем кусок вида v = VERSION
+  // С„РѕСЂРјРёСЂСѓРµРј РєСѓСЃРѕРє РІРёРґР° v = VERSION
   case ATBColInfoModeV of
     vcm_Int: begin
-      // версия в БД целочисленная
+      // РІРµСЂСЃРёСЏ РІ Р‘Р” С†РµР»РѕС‡РёСЃР»РµРЅРЅР°СЏ
       if ARequestedVersionIsInt then begin
-        Result := 'v'; // если оба целые - значит так и будет
+        Result := 'v'; // РµСЃР»Рё РѕР±Р° С†РµР»С‹Рµ - Р·РЅР°С‡РёС‚ С‚Р°Рє Рё Р±СѓРґРµС‚
       end else begin
-        Result := 'cast(v as TEXT)'; // разные - значит всё конвертируем к строке
+        Result := 'cast(v as TEXT)'; // СЂР°Р·РЅС‹Рµ - Р·РЅР°С‡РёС‚ РІСЃС‘ РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј Рє СЃС‚СЂРѕРєРµ
       end;
     end;
     vcm_Text: begin
-      // версия в БД текстовая
+      // РІРµСЂСЃРёСЏ РІ Р‘Р” С‚РµРєСЃС‚РѕРІР°СЏ
       if not ARequestedVersionIsInt then begin
-        Result := 'v'; // если оба строки - значит так и будет
+        Result := 'v'; // РµСЃР»Рё РѕР±Р° СЃС‚СЂРѕРєРё - Р·РЅР°С‡РёС‚ С‚Р°Рє Рё Р±СѓРґРµС‚
       end else begin
-        Result := 'cast(v as TEXT)'; // разные - значит всё конвертируем к строке
+        Result := 'cast(v as TEXT)'; // СЂР°Р·РЅС‹Рµ - Р·РЅР°С‡РёС‚ РІСЃС‘ РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј Рє СЃС‚СЂРѕРєРµ
       end;
     end;
   else
@@ -157,7 +157,7 @@ begin
       Assert(False, IntToStr(Ord(ATBColInfoModeV)));
     end;
   end;
-  // формируем условие сравнения версий
+  // С„РѕСЂРјРёСЂСѓРµРј СѓСЃР»РѕРІРёРµ СЃСЂР°РІРЅРµРЅРёСЏ РІРµСЂСЃРёР№
   Result := Result + '=' + AStrVersionToDB;
 end;
 

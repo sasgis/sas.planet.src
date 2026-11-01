@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -108,8 +108,8 @@ begin
     if FSunCalcConfig.ShowCaptionNearSun then begin
       VSunPos := FSunCalcDataProvider.GetPosition(FDateTime, FLocation);
 
-      VAzimuth := Format('%.2f°', [VSunPos.Azimuth]);
-      VAltitude := Format('%.2f°', [VSunPos.Altitude]);
+      VAzimuth := Format('%.2fÂ°', [VSunPos.Azimuth]);
+      VAltitude := Format('%.2fÂ°', [VSunPos.Altitude]);
       VText := Format('%s: %s; %s: %s', [rsAltitude, VAltitude, rsAzimuth, VAzimuth]);
 
       FCaption.SetText(VText, FColor.BgColor, FFont.FontName, FFont.FontSize, FFont.TextColor);

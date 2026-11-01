@@ -1,4 +1,4 @@
-{******************************************************************************}
+ï»¿{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -941,13 +941,13 @@ type
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
 
-    FNLayerParamsItemList: IGUIDObjectSet; //Ïóíêò ãëàíîãî ìåíþ Ïàðàìåòðû/Ïàðàìåòðû ñëîÿ
-    FNDwnItemList: IGUIDObjectSet; //Ïóíêò êîíòåêñòíîãî ìåíþ Çàãðóçèòü òàéë ñëîÿ
-    FNDelItemList: IGUIDObjectSet; //Ïóíêò êîíòåêñòíîãî ìåíþ Óäàëèòü òàéë ñëîÿ
-    FNOpenDirItemList: IGUIDObjectSet; //Ïóíêò êîíòåêñòíîãî ìåíþ Îòêðûòü ïàïêó ñëîÿ
-    FNCopyLinkItemList: IGUIDObjectSet; //Ïóíêò êîíòåêñòíîãî ìåíþ êîïèðîâàòü ññûëêó íà òàéë ñëîÿ
-    FNLayerInfoItemList: IGUIDObjectSet; //Ïóíêò êîíòåêñòíîãî ìåíþ èíôîðìàöèÿ î ñëîå
-    FNLayerCenterItemList: IGUIDObjectSet; //Ïóíêò êîíòåêñòíîãî ìåíþ Ïåðåéòè ê öåíòðó ñëîÿ
+    FNLayerParamsItemList: IGUIDObjectSet; //ÐŸÑƒÐ½ÐºÑ‚ Ð³Ð»Ð°Ð½Ð¾Ð³Ð¾ Ð¼ÐµÐ½ÑŽ ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹/ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹ ÑÐ»Ð¾Ñ
+    FNDwnItemList: IGUIDObjectSet; //ÐŸÑƒÐ½ÐºÑ‚ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚Ð½Ð¾Ð³Ð¾ Ð¼ÐµÐ½ÑŽ Ð—Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ Ñ‚Ð°Ð¹Ð» ÑÐ»Ð¾Ñ
+    FNDelItemList: IGUIDObjectSet; //ÐŸÑƒÐ½ÐºÑ‚ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚Ð½Ð¾Ð³Ð¾ Ð¼ÐµÐ½ÑŽ Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ Ñ‚Ð°Ð¹Ð» ÑÐ»Ð¾Ñ
+    FNOpenDirItemList: IGUIDObjectSet; //ÐŸÑƒÐ½ÐºÑ‚ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚Ð½Ð¾Ð³Ð¾ Ð¼ÐµÐ½ÑŽ ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð¿Ð°Ð¿ÐºÑƒ ÑÐ»Ð¾Ñ
+    FNCopyLinkItemList: IGUIDObjectSet; //ÐŸÑƒÐ½ÐºÑ‚ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚Ð½Ð¾Ð³Ð¾ Ð¼ÐµÐ½ÑŽ ÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÑÑÑ‹Ð»ÐºÑƒ Ð½Ð° Ñ‚Ð°Ð¹Ð» ÑÐ»Ð¾Ñ
+    FNLayerInfoItemList: IGUIDObjectSet; //ÐŸÑƒÐ½ÐºÑ‚ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚Ð½Ð¾Ð³Ð¾ Ð¼ÐµÐ½ÑŽ Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ Ð¾ ÑÐ»Ð¾Ðµ
+    FNLayerCenterItemList: IGUIDObjectSet; //ÐŸÑƒÐ½ÐºÑ‚ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚Ð½Ð¾Ð³Ð¾ Ð¼ÐµÐ½ÑŽ ÐŸÐµÑ€ÐµÐ¹Ñ‚Ð¸ Ðº Ñ†ÐµÐ½Ñ‚Ñ€Ñƒ ÑÐ»Ð¾Ñ
 
     FShortCutManager: TShortcutManager;
     FLayersList: IMainFormLayersList;
@@ -2389,9 +2389,9 @@ begin
   OnGridLonLatChange;
   OnGridTileChange;
 
-  actViewGridLonLat_00_500.Caption := FloatToStr(0.5) + '°';
-  actViewGridLonLat_00_250.Caption := FloatToStr(0.25) + '°';
-  actViewGridLonLat_00_125.Caption := FloatToStr(0.125) + '°';
+  actViewGridLonLat_00_500.Caption := FloatToStr(0.5) + 'Â°';
+  actViewGridLonLat_00_250.Caption := FloatToStr(0.25) + 'Â°';
+  actViewGridLonLat_00_125.Caption := FloatToStr(0.125) + 'Â°';
 end;
 
 procedure TfrmMain.InitLayers;
@@ -3962,10 +3962,10 @@ begin
     VMousePPS := Sqrt(Sqr(AMouseMoveSpeed.X) + Sqr(AMouseMoveSpeed.Y));
 
     if (FConfig.MapMovingConfig.AnimateMove) and (VMousePPS > FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
-      // âðåìÿ ïðîøåäøåå ñ íà÷àëà àíèìàöèè
+      // Ð²Ñ€ÐµÐ¼Ñ Ð¿Ñ€Ð¾ÑˆÐµÐ´ÑˆÐµÐµ Ñ Ð½Ð°Ñ‡Ð°Ð»Ð° Ð°Ð½Ð¸Ð¼Ð°Ñ†Ð¸Ð¸
       VAnimationTime := 0;
 
-      // ìàêñèìàëüíîå âðåìÿ íà îòîáðàæåíèå àíèìàöèè
+      // Ð¼Ð°ÐºÑÐ¸Ð¼Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð²Ñ€ÐµÐ¼Ñ Ð½Ð° Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ Ð°Ð½Ð¸Ð¼Ð°Ñ†Ð¸Ð¸
       VAnimationTimeMax := FConfig.MapMovingConfig.AnimateMoveTime / 1000;
 
       if VMousePPS > FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
@@ -3975,19 +3975,19 @@ begin
       VMapDeltaMul.X := AMouseMoveSpeed.X / VMousePPS;
       VMapDeltaMul.Y := AMouseMoveSpeed.Y / VMousePPS;
 
-      // âðåìÿ ïîñëåäíåé èòåðàöèè (èíèöèàëèçèðóåòñÿ çíà÷åíèåì ÷óòü áîëüøå íóëÿ, ÷òîáû íå áûëî ñòàðòîâîãî ðûâêà)
+      // Ð²Ñ€ÐµÐ¼Ñ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ¹ Ð¸Ñ‚ÐµÑ€Ð°Ñ†Ð¸Ð¸ (Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÑ‚ÑÑ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ÐµÐ¼ Ñ‡ÑƒÑ‚ÑŒ Ð±Ð¾Ð»ÑŒÑˆÐµ Ð½ÑƒÐ»Ñ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ Ð±Ñ‹Ð»Ð¾ ÑÑ‚Ð°Ñ€Ñ‚Ð¾Ð²Ð¾Ð³Ð¾ Ñ€Ñ‹Ð²ÐºÐ°)
       VLastTime := 0.000000001;
 
       repeat
-        // ðàññòîÿíèå â ïèêñåëàõ, êîòîðîå ìû ïðîéäåì ñî ñêîðîñòüþ VMousePPS çà âðåìÿ àíèìàöèè
+        // Ñ€Ð°ÑÑÑ‚Ð¾ÑÐ½Ð¸Ðµ Ð² Ð¿Ð¸ÐºÑÐµÐ»Ð°Ñ…, ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ðµ Ð¼Ñ‹ Ð¿Ñ€Ð¾Ð¹Ð´ÐµÐ¼ ÑÐ¾ ÑÐºÐ¾Ñ€Ð¾ÑÑ‚ÑŒÑŽ VMousePPS Ð·Ð° Ð²Ñ€ÐµÐ¼Ñ Ð°Ð½Ð¸Ð¼Ð°Ñ†Ð¸Ð¸
         VDist := VMousePPS * VAnimationTimeMax;
 
-        // èç ýòîãî ðàññòîÿíèÿ âû÷ëåíÿåì òî, êîòîðîå ìû ïðîøëè çà âðåìÿ VLastTime
-        // (âðåìÿ ïîòðà÷åííîå íà ïîñëåäíåå ChangeMapPixelByLocalDelta)
+        // Ð¸Ð· ÑÑ‚Ð¾Ð³Ð¾ Ñ€Ð°ÑÑÑ‚Ð¾ÑÐ½Ð¸Ñ Ð²Ñ‹Ñ‡Ð»ÐµÐ½ÑÐµÐ¼ Ñ‚Ð¾, ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ðµ Ð¼Ñ‹ Ð¿Ñ€Ð¾ÑˆÐ»Ð¸ Ð·Ð° Ð²Ñ€ÐµÐ¼Ñ VLastTime
+        // (Ð²Ñ€ÐµÐ¼Ñ Ð¿Ð¾Ñ‚Ñ€Ð°Ñ‡ÐµÐ½Ð½Ð¾Ðµ Ð½Ð° Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐµ ChangeMapPixelByLocalDelta)
         VDist := VDist * (VLastTime / VAnimationTimeMax);
 
-        // çàìåäëÿåì ýêñïîíåíöèàëüíî, çäåñü -exp(-1) íóæíî äëÿ òîãî, ÷òîáû ê îêîí÷àíèþ âðåìåíè àíèìàöèè
-        // ó íàñ ñìåùåíèå áûëî ðàâíî 0
+        // Ð·Ð°Ð¼ÐµÐ´Ð»ÑÐµÐ¼ ÑÐºÑÐ¿Ð¾Ð½ÐµÐ½Ñ†Ð¸Ð°Ð»ÑŒÐ½Ð¾, Ð·Ð´ÐµÑÑŒ -exp(-1) Ð½ÑƒÐ¶Ð½Ð¾ Ð´Ð»Ñ Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ðº Ð¾ÐºÐ¾Ð½Ñ‡Ð°Ð½Ð¸ÑŽ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ Ð°Ð½Ð¸Ð¼Ð°Ñ†Ð¸Ð¸
+        // Ñƒ Ð½Ð°Ñ ÑÐ¼ÐµÑ‰ÐµÐ½Ð¸Ðµ Ð±Ñ‹Ð»Ð¾ Ñ€Ð°Ð²Ð½Ð¾ 0
         VDist := VDist * (exp(-VAnimationTime / VAnimationTimeMax) - exp(-1));
 
         VMapDelta.X := VMapDeltaMul.X * VDist;
@@ -4003,7 +4003,7 @@ begin
         VLastDrawTime := (VTimeEnd - VTimeStart) / FTimer.Freq;
         VAnimationTime := VAnimationTime + VLastDrawTime;
 
-        // âðåìÿ ïîñëåäíåé èòåðàöèè ñãëàæåííîå ñ ïðåäûäóùèìè (÷òîáû ïîìåíüøå áûëî ðûâêîâ âî âðåìÿ äâèæåíèÿ)
+        // Ð²Ñ€ÐµÐ¼Ñ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ¹ Ð¸Ñ‚ÐµÑ€Ð°Ñ†Ð¸Ð¸ ÑÐ³Ð»Ð°Ð¶ÐµÐ½Ð½Ð¾Ðµ Ñ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¼Ð¸ (Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿Ð¾Ð¼ÐµÐ½ÑŒÑˆÐµ Ð±Ñ‹Ð»Ð¾ Ñ€Ñ‹Ð²ÐºÐ¾Ð² Ð²Ð¾ Ð²Ñ€ÐµÐ¼Ñ Ð´Ð²Ð¸Ð¶ÐµÐ½Ð¸Ñ)
         VLastTime := VLastTime + 0.3 * (VLastDrawTime - VLastTime);
       until
         (VAnimationTime >= VAnimationTimeMax) or
@@ -4661,9 +4661,9 @@ var
   Vmin: integer;
   VDegScale: Double;
 begin
-   // convert to  ° ' "
+   // convert to  Â° ' "
   VDegScale := abs(aDeg / 100000000);
-  result := IntToStr(Trunc(VDegScale)) + '°';
+  result := IntToStr(Trunc(VDegScale)) + 'Â°';
   VDegScale := Frac(VDegScale + 0.0000000001) * 60;
   Vmin := Trunc(VDegScale);
   if Vmin < 10 then begin

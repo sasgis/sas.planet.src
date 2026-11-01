@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -30,12 +30,12 @@ uses
 type
   IGlobalCacheConfig = interface(IConfigDataElement)
     ['{DAE1C885-4548-4DD5-AC19-57825DFBECF6}']
-    //Способ храения кэша по-умолчанию.
+    //РЎРїРѕСЃРѕР± С…СЂР°РµРЅРёСЏ РєСЌС€Р° РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ.
     function GetDefCache: byte;
     procedure SetDefCache(const AValue: byte);
     property DefCache: byte read GetDefCache write SetDefCache;
 
-    //Пути к кэшам разных типов
+    //РџСѓС‚Рё Рє РєСЌС€Р°Рј СЂР°Р·РЅС‹С… С‚РёРїРѕРІ
     function GetNewCPath: IPathConfig;
     property NewCPath: IPathConfig read GetNewCPath;
 

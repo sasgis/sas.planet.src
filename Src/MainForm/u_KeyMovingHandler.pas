@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -211,17 +211,17 @@ begin
 
   Result := 0;
   if (FCurrDirection = 0) and (ADirection = 0) then begin
-    // Двигать ничего никуда не нужно
+    // Р”РІРёРіР°С‚СЊ РЅРёС‡РµРіРѕ РЅРёРєСѓРґР° РЅРµ РЅСѓР¶РЅРѕ
     Exit;
   end;
 
   if (FCurrDirection <> 0) and (ADirection = 0) then begin
-    // Двигались и отпустили кнопку
+    // Р”РІРёРіР°Р»РёСЃСЊ Рё РѕС‚РїСѓСЃС‚РёР»Рё РєРЅРѕРїРєСѓ
     if
       ((VConfig.StopTime < 0.1) or (FLastTick = 0) or (VConfig.MaxPixelPerSecond < 1) or
       (AFrequency = 0) or (ATick = 0))
     then begin
-      // Если не можем определить время или чудеса с настройками то просто останавливаемся
+      // Р•СЃР»Рё РЅРµ РјРѕР¶РµРј РѕРїСЂРµРґРµР»РёС‚СЊ РІСЂРµРјСЏ РёР»Рё С‡СѓРґРµСЃР° СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё С‚Рѕ РїСЂРѕСЃС‚Рѕ РѕСЃС‚Р°РЅР°РІР»РёРІР°РµРјСЃСЏ
       FCurrDirection := 0;
       FLastTick := 0;
       FCurrSpeed := 0;
@@ -233,14 +233,14 @@ begin
       end;
       VSpeedChange := VConfig.MaxPixelPerSecond / VConfig.StopTime * VTimeDelta;
       if FCurrSpeed < VSpeedChange then begin
-        // Полностью остановились
+        // РџРѕР»РЅРѕСЃС‚СЊСЋ РѕСЃС‚Р°РЅРѕРІРёР»РёСЃСЊ
         Result := FCurrDirection * FCurrSpeed * FCurrSpeed * VConfig.StopTime / VConfig.MaxPixelPerSecond / 2;
         FCurrDirection := 0;
         FLastTick := 0;
         FCurrSpeed := 0;
         Exit;
       end else begin
-        // Еще есть инерция
+        // Р•С‰Рµ РµСЃС‚СЊ РёРЅРµСЂС†РёСЏ
         Result := FCurrDirection * (FCurrSpeed - VSpeedChange / 2) * VTimeDelta;
         FCurrSpeed := FCurrSpeed - VSpeedChange;
         FLastTick := ATick;
@@ -250,7 +250,7 @@ begin
   end;
 
   if (FCurrDirection = 0) and (ADirection <> 0) then begin
-    // Стояли и начали двигаться
+    // РЎС‚РѕСЏР»Рё Рё РЅР°С‡Р°Р»Рё РґРІРёРіР°С‚СЊСЃСЏ
     Result := VConfig.FirstKeyPressDelta * ADirection;
     FCurrDirection := ADirection;
     FLastTick := ATick;
@@ -259,13 +259,13 @@ begin
   end;
 
   if FCurrDirection = ADirection then begin
-    // Клавиша движения все еще зажата
+    // РљР»Р°РІРёС€Р° РґРІРёР¶РµРЅРёСЏ РІСЃРµ РµС‰Рµ Р·Р°Р¶Р°С‚Р°
     if
       ((FLastTick = 0) or
       (VConfig.MaxPixelPerSecond < 1) or (VConfig.MinPixelPerSecond >= VConfig.MaxPixelPerSecond) or
       (AFrequency = 0) or (ATick = 0) or (ATick < FLastTick))
     then begin
-      // Если не можем определить время или чудеса с настройками то не сдвигаем
+      // Р•СЃР»Рё РЅРµ РјРѕР¶РµРј РѕРїСЂРµРґРµР»РёС‚СЊ РІСЂРµРјСЏ РёР»Рё С‡СѓРґРµСЃР° СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё С‚Рѕ РЅРµ СЃРґРІРёРіР°РµРј
       Result := 0;
       FLastTick := ATick;
       Exit;
@@ -275,7 +275,7 @@ begin
         VTimeDelta := 10;
       end;
       if (VConfig.SpeedChangeTime < 0.1) or (VConfig.MaxPixelPerSecond - VConfig.MinPixelPerSecond < 1) then begin
-        // Если никакого ускорения не предусмотрено
+        // Р•СЃР»Рё РЅРёРєР°РєРѕРіРѕ СѓСЃРєРѕСЂРµРЅРёСЏ РЅРµ РїСЂРµРґСѓСЃРјРѕС‚СЂРµРЅРѕ
         Result := ADirection * VConfig.MaxPixelPerSecond * VTimeDelta;
         FCurrSpeed := VConfig.MaxPixelPerSecond;
         FLastTick := ATick;
@@ -285,8 +285,8 @@ begin
         VAcceleration := (VConfig.MaxPixelPerSecond - VConfig.MinPixelPerSecond) / VConfig.SpeedChangeTime;
         VSpeedChange := VAcceleration * VTimeDelta;
         if (VSpeedLeft < 0) or (VSpeedLeft < VSpeedChange) then begin
-          // Достигли максимальной скорости и дальше двигаемся с нею
-            // сдвиг за время ускорения
+          // Р”РѕСЃС‚РёРіР»Рё РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ СЃРєРѕСЂРѕСЃС‚Рё Рё РґР°Р»СЊС€Рµ РґРІРёРіР°РµРјСЃСЏ СЃ РЅРµСЋ
+            // СЃРґРІРёРі Р·Р° РІСЂРµРјСЏ СѓСЃРєРѕСЂРµРЅРёСЏ
           Result := (VConfig.MaxPixelPerSecond * VConfig.MaxPixelPerSecond - FCurrSpeed * FCurrSpeed) / 2 / VAcceleration;
           VTimeDelta := VTimeDelta - VSpeedLeft / VAcceleration;
           Result := Result + VConfig.MaxPixelPerSecond * VTimeDelta;
@@ -295,7 +295,7 @@ begin
           FLastTick := ATick;
           Exit;
         end else begin
-          // Ускоряемся
+          // РЈСЃРєРѕСЂСЏРµРјСЃСЏ
           Result := ADirection * (FCurrSpeed + VSpeedChange / 2) * VTimeDelta;
           FCurrSpeed := FCurrSpeed + VSpeedChange;
           FLastTick := ATick;

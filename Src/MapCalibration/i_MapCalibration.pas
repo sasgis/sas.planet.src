@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -31,18 +31,18 @@ uses
 type
   IMapCalibration = interface
     ['{08085422-4267-49EC-913C-3A47866A46E9}']
-    // Имя для вывода в листбоксе для выбора при экспорте.
+    // РРјСЏ РґР»СЏ РІС‹РІРѕРґР° РІ Р»РёСЃС‚Р±РѕРєСЃРµ РґР»СЏ РІС‹Р±РѕСЂР° РїСЂРё СЌРєСЃРїРѕСЂС‚Рµ.
     function GetName: string;
     property Name: string read GetName;
 
-    // Более детальное описание привязки
+    // Р‘РѕР»РµРµ РґРµС‚Р°Р»СЊРЅРѕРµ РѕРїРёСЃР°РЅРёРµ РїСЂРёРІСЏР·РєРё
     function GetDescription: string;
     property Description: string read GetDescription;
 
     function GetStringSupport: TStringTypeSupport;
     property StringSupport: TStringTypeSupport read GetStringSupport;
 
-    // Генерирует привязку для склеенной карты.
+    // Р“РµРЅРµСЂРёСЂСѓРµС‚ РїСЂРёРІСЏР·РєСѓ РґР»СЏ СЃРєР»РµРµРЅРЅРѕР№ РєР°СЂС‚С‹.
     procedure SaveCalibrationInfo(
       const AFileName: string;
       const ATopLeft: TPoint;

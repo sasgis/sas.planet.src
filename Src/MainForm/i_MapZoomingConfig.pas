@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -29,12 +29,12 @@ uses
 type
   IMapZoomingConfig = interface(IConfigDataElement)
     ['{A322104E-A247-4EB3-83F6-C897F64E764C}']
-    // Фиксировать центр изменения масштаба под курсором мыши
+    // Р¤РёРєСЃРёСЂРѕРІР°С‚СЊ С†РµРЅС‚СЂ РёР·РјРµРЅРµРЅРёСЏ РјР°СЃС€С‚Р°Р±Р° РїРѕРґ РєСѓСЂСЃРѕСЂРѕРј РјС‹С€Рё
     function GetZoomingAtMousePos: Boolean;
     procedure SetZoomingAtMousePos(AValue: Boolean);
     property ZoomingAtMousePos: Boolean read GetZoomingAtMousePos write SetZoomingAtMousePos;
 
-    //Анимированный зум
+    //РђРЅРёРјРёСЂРѕРІР°РЅРЅС‹Р№ Р·СѓРј
     function GetAnimateZoom: Boolean;
     procedure SetAnimateZoom(AValue: Boolean);
     property AnimateZoom: Boolean read GetAnimateZoom write SetAnimateZoom;

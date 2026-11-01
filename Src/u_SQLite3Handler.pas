@@ -1,4 +1,4 @@
-{******************************************************************************}
+п»ї{******************************************************************************}
 {* This file is part of SAS.Planet project.                                   *}
 {*                                                                            *}
 {* Copyright (C) 2007-Present, SAS.Planet development team.                   *}
@@ -219,7 +219,7 @@ var
   V1Int, V2Int, VCounter, V1IntCount, V2IntCount: Integer;
   VSingleByte: Byte;
 begin
-  // Проверка на пустые строки
+  // РџСЂРѕРІРµСЂРєР° РЅР° РїСѓСЃС‚С‹Рµ СЃС‚СЂРѕРєРё
   if (z1 = nil) or (n1 = 0) then begin
     if (z2 = nil) or (n2 = 0) then begin
       Result := 0;  // z1 = z2
@@ -237,7 +237,7 @@ begin
   V2Cursor := z2;
 
   while True do begin
-    // проверки на конец строки
+    // РїСЂРѕРІРµСЂРєРё РЅР° РєРѕРЅРµС† СЃС‚СЂРѕРєРё
     if (V1Cursor^ = #0) or (n1 = 0) then begin
       if (V2Cursor^ = #0) or (n2 = 0) then begin
         Result := 0;
@@ -251,7 +251,7 @@ begin
       Exit;
     end;
 
-    // проверка на начало числа в обеих строках
+    // РїСЂРѕРІРµСЂРєР° РЅР° РЅР°С‡Р°Р»Рѕ С‡РёСЃР»Р° РІ РѕР±РµРёС… СЃС‚СЂРѕРєР°С…
     V1IsInt := CharInSet(V1Cursor^, ['0'..'9']);
     V2IsInt := CharInSet(V2Cursor^, ['0'..'9']);
     if V1IsInt and not V2IsInt then begin
@@ -262,7 +262,7 @@ begin
       Exit;
     end;
 
-    // посимвольное сравнение
+    // РїРѕСЃРёРјРІРѕР»СЊРЅРѕРµ СЃСЂР°РІРЅРµРЅРёРµ
     if not (V1IsInt and V2IsInt) then begin
       if V1Cursor^ = V2Cursor^ then begin
         Inc(V1Cursor);
@@ -280,7 +280,7 @@ begin
       end;
     end;
 
-    // вытаскиваем числа из обоих строк и сравниваем
+    // РІС‹С‚Р°СЃРєРёРІР°РµРј С‡РёСЃР»Р° РёР· РѕР±РѕРёС… СЃС‚СЂРѕРє Рё СЃСЂР°РІРЅРёРІР°РµРј
     V1Int := 0;
     VCounter := 1;
     V1IntCount := 0;
