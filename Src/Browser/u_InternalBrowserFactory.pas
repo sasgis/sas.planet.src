@@ -28,6 +28,7 @@ uses
   Controls,
   i_Listener,
   i_InetConfig,
+  i_PathConfig,
   i_ProxyConfig,
   i_InternalBrowserFactory,
   i_InternalDomainUrlHandler,
@@ -41,16 +42,17 @@ uses
 type
   TInternalBrowserFactory = class(TConfigDataElementBaseEmptySaveLoad, IInternalBrowserFactory)
   private const
-    CEdgeRuntimePath       = 'Edge\Runtime\';
-    CEdgeWebView2Exe       = 'Edge\Runtime\msedgewebview2.exe';
-    CEdgeUserDataPath      = 'Edge\UserData\';
-    CEdgeBlackListFileName = 'Edge\BlackList.txt';
+    CEdgeRuntimePath       = 'Runtime\';
+    CEdgeWebView2Exe       = 'Runtime\msedgewebview2.exe';
+    CEdgeUserDataPath      = 'UserData\';
+    CEdgeBlackListFileName = 'BlackList.txt';
     CEdgeBlackListMaxCount = 100;
   private
     FInetConfig: IInetConfig;
     FInetConfigStatic: IInetConfigStatic;
     FInternalDomainUrlHandler: IInternalDomainUrlHandler;
     FInternalDomainInfoProviderList: IInternalDomainInfoProviderList;
+    FEdgeBasePath: IPathConfig;
 
     FIeProtocol: TIeEmbeddedProtocolRegistration;
     FEdgeEnvironmentLoader: TEdgeBrowserEnvironmentLoaderGlobal;
@@ -73,6 +75,7 @@ type
   public
     constructor Create(
       const AInetConfig: IInetConfig;
+      const AEdgeBasePath: IPathConfig;
       const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
       const AInternalDomainInfoProviderList: IInternalDomainInfoProviderList
     );
@@ -96,16 +99,20 @@ uses
 
 constructor TInternalBrowserFactory.Create(
   const AInetConfig: IInetConfig;
+  const AEdgeBasePath: IPathConfig;
   const AInternalDomainUrlHandler: IInternalDomainUrlHandler;
   const AInternalDomainInfoProviderList: IInternalDomainInfoProviderList
 );
 begin
   inherited Create;
 
+  Assert(AEdgeBasePath <> nil);
+
   FInetConfig := AInetConfig;
   FInetConfigStatic := FInetConfig.GetStatic;
   FInternalDomainUrlHandler := AInternalDomainUrlHandler;
   FInternalDomainInfoProviderList := AInternalDomainInfoProviderList;
+  FEdgeBasePath := AEdgeBasePath;
 
   FOnInetConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FInetConfig.ChangeNotifier.Add(FOnInetConfigChangeListener);
@@ -185,7 +192,7 @@ function TInternalBrowserFactory.CreateBrowserImpl(
 ): TInternalBrowserImpl;
 var
   VEngine: TBrowserEngineType;
-  VAppPath: string;
+  VEdgeBasePath: string;
   VEdgeRuntimePath: string;
   VEdgeUserDataPath: string;
   VEdgeBlackListFile: string;
@@ -218,20 +225,20 @@ begin
 
     beEdge: begin
       if FEdgeEnvironmentLoader = nil then begin
-        VAppPath := ExtractFilePath(ParamStr(0));
+        VEdgeBasePath := IncludeTrailingPathDelimiter(FEdgeBasePath.FullPath);
 
         // Runtime
-        if FileExists(VAppPath + CEdgeWebView2Exe) then begin
-          VEdgeRuntimePath := VAppPath + CEdgeRuntimePath;
+        if FileExists(VEdgeBasePath + CEdgeWebView2Exe) then begin
+          VEdgeRuntimePath := VEdgeBasePath + CEdgeRuntimePath;
         end else begin
           VEdgeRuntimePath := '';
         end;
 
         // UserData
-        VEdgeUserDataPath := VAppPath + CEdgeUserDataPath;
+        VEdgeUserDataPath := VEdgeBasePath + CEdgeUserDataPath;
 
         // BlackList
-        VEdgeBlackListFile := VAppPath + CEdgeBlackListFileName;
+        VEdgeBlackListFile := VEdgeBasePath + CEdgeBlackListFileName;
         if FileExists(VEdgeBlackListFile) then begin
           VEdgeBlackList := TFile.ReadAllLines(VEdgeBlackListFile);
           if Length(VEdgeBlackList) > CEdgeBlackListMaxCount then begin

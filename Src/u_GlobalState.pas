@@ -881,6 +881,7 @@ begin
   FPathDetalizeTree :=
     TPathDetalizeProviderTreeSimple.Create(
       FGlobalConfig.PathDetalizeConfig,
+      FGlobalConfig.OsmScoutDataPath,
       FGlobalConfig.LanguageManager,
       FGlobalConfig.InetConfig,
       FBGTimerNotifier,
@@ -900,6 +901,7 @@ begin
 
   FInternalBrowserFactory := TInternalBrowserFactory.Create(
     FGlobalConfig.InetConfig,
+    FGlobalConfig.EdgeBasePath,
     VInternalDomainUrlHandler,
     VInternalDomainInfoProviderList
   );

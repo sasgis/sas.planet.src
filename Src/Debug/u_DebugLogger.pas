@@ -73,7 +73,9 @@ uses
   Classes,
   SyncObjs,
   Generics.Collections,
+  IniFiles,
   u_ExceptionManager,
+  u_FileSystemFunc,
   u_ReadableThreadNames,
   u_BaseInterfacedObject;
 
@@ -153,9 +155,58 @@ end;
 
 { TLog }
 
+var
+  GLogsBasePath: string = '';
+
 class function TLog.BasePath: string;
+const
+  CIniSection = 'PathToLogs';
+  CIniIdent = 'PrimaryPath';
+  CDefaultPath = '.\Logs';
+var
+  VIniFileName: string;
+  VIniFile: TMemIniFile;
+  VAppPath, VLogsPath: string;
 begin
-  Result := ExtractFilePath(ParamStr(0)) + 'log' + PathDelim;
+  if GLogsBasePath <> '' then begin
+    Result := GLogsBasePath;
+    Exit;
+  end;
+
+  // The log path is read directly from the main ini file on purpose:
+  // log messages can be written before TGlobalState is created and the config is loaded,
+  // so the logger must not depend on IGlobalConfig here.
+  // The section, key and default value must match TGlobalConfig.LogsPath
+
+  if ModuleIsLib then begin
+    VAppPath := ExtractFilePath(GetModuleName(HInstance));
+  end else begin
+    VAppPath := ExtractFilePath(ParamStr(0));
+  end;
+
+  VIniFileName := VAppPath + ChangeFileExt(ExtractFileName(ParamStr(0)), '.ini');
+
+  VLogsPath := '';
+  if FileExists(VIniFileName) then begin
+    VIniFile := TMemIniFile.Create(VIniFileName);
+    try
+      VLogsPath := VIniFile.ReadString(CIniSection, CIniIdent, '');
+    finally
+      VIniFile.Free;
+    end;
+  end;
+
+  if VLogsPath = '' then begin
+    VLogsPath := CDefaultPath;
+  end;
+
+  VLogsPath := ExpandEnvironmentVariables(VLogsPath);
+  if IsRelativePath(VLogsPath) then begin
+    VLogsPath := RelativeToAbsolutePath(VAppPath, VLogsPath);
+  end;
+
+  Result := IncludeTrailingPathDelimiter(VLogsPath);
+  GLogsBasePath := Result;
 end;
 
 class function TLog.Format(const AFormat: string; const AArgs: array of const): string;

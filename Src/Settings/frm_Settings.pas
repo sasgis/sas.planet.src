@@ -207,6 +207,9 @@ type
     pnlMarksDbPath: TPanel;
     pnlMarksIconsPath: TPanel;
     pnlMediaDataPath: TPanel;
+    pnlLogsPath: TPanel;
+    pnlOsmScoutPath: TPanel;
+    pnlEdgePath: TPanel;
     pnlNewCpath: TPanel;
     pnlOldCpath: TPanel;
     pnlEScPath: TPanel;
@@ -295,6 +298,9 @@ type
     FMapTypeEditor: IMapTypeConfigModalEdit;
 
     FfrMapPathSelect: TfrPathSelect;
+    FfrLogsPathSelect: TfrPathSelect;
+    FfrOsmScoutDataPathSelect: TfrPathSelect;
+    FfrEdgeBasePathSelect: TfrPathSelect;
     FfrTerrainDataPathSelect: TfrPathSelect;
     FfrUserDataPathSelect: TfrPathSelect;
     FfrTrackPathSelect: TfrPathSelect;
@@ -499,6 +505,25 @@ begin
       ALanguageManager,
       gettext_NoOp('Path to MediaData'),
       GState.Config.MediaDataPath
+    );
+
+  FfrLogsPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('Path to Logs'),
+      GState.Config.LogsPath
+    );
+  FfrOsmScoutDataPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('Path to OsmScout data'),
+      GState.Config.OsmScoutDataPath
+    );
+  FfrEdgeBasePathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      gettext_NoOp('Path to Edge'),
+      GState.Config.EdgeBasePath
     );
 
   FfrBaseCachePathSelect :=
@@ -843,6 +868,9 @@ begin
   FfrLocusCachePath.ApplyChanges;
 
   FfrMapPathSelect.ApplyChanges;
+  FfrLogsPathSelect.ApplyChanges;
+  FfrOsmScoutDataPathSelect.ApplyChanges;
+  FfrEdgeBasePathSelect.ApplyChanges;
   FfrTerrainDataPathSelect.ApplyChanges;
   FfrUserDataPathSelect.ApplyChanges;
   FfrTrackPathSelect.ApplyChanges;
@@ -941,6 +969,9 @@ begin
   FreeAndNil(FfrCacheTypesList);
 
   FreeAndNil(FfrMapPathSelect);
+  FreeAndNil(FfrLogsPathSelect);
+  FreeAndNil(FfrOsmScoutDataPathSelect);
+  FreeAndNil(FfrEdgeBasePathSelect);
   FreeAndNil(FfrTerrainDataPathSelect);
   FreeAndNil(FfrTrackPathSelect);
   FreeAndNil(FfrUserDataPathSelect);
@@ -991,6 +1022,9 @@ begin
   FfrFavoriteMapSetManager.Init;
 
   FfrMapPathSelect.Show(pnlMapsPath);
+  FfrLogsPathSelect.Show(pnlLogsPath);
+  FfrOsmScoutDataPathSelect.Show(pnlOsmScoutPath);
+  FfrEdgeBasePathSelect.Show(pnlEdgePath);
   FfrTerrainDataPathSelect.Show(pnlTerrainDataPath);
   FfrUserDataPathSelect.Show(pnlUserDataPath);
   FfrTrackPathSelect.Show(pnlTrackPath);

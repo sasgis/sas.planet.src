@@ -74,6 +74,8 @@ type
     FTerrainDataPath: IPathConfig;
     FUserDataPath: IPathConfig;
     FUpdatesPath: IPathConfig;
+    FOsmScoutDataPath: IPathConfig;
+    FEdgeBasePath: IPathConfig;
     FLastSelectionFileName: IPathConfig;
     FGpsRecorderFileName: IPathConfig;
     FGpsTrackRecorderFileName: IPathConfig;
@@ -124,6 +126,8 @@ type
     function GetTerrainDataPath: IPathConfig;
     function GetUserDataPath: IPathConfig;
     function GetUpdatesPath: IPathConfig;
+    function GetOsmScoutDataPath: IPathConfig;
+    function GetEdgeBasePath: IPathConfig;
     function GetLastSelectionFileName: IPathConfig;
     function GetGpsRecorderFileName: IPathConfig;
     function GetGpsTrackRecorderFileName: IPathConfig;
@@ -256,6 +260,12 @@ begin
 
   FUpdatesPath := TPathConfig.Create('PrimaryPath', '.\Updates', ABaseDataPath);
   Add(FUpdatesPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoUpdates'), False, False, False, False);
+
+  FOsmScoutDataPath := TPathConfig.Create('PrimaryPath', '.\OsmScout', ABaseApplicationPath);
+  Add(FOsmScoutDataPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToOsmScout'), False, False, False, False);
+
+  FEdgeBasePath := TPathConfig.Create('PrimaryPath', '.\Edge', ABaseApplicationPath);
+  Add(FEdgeBasePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PathToEdge'), False, False, False, False);
 
   FLastSelectionFileName := TPathConfig.Create('FileName', '.\LastSelection.hlg', ABaseDataPath);
   Add(FLastSelectionFileName, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSelection'), False, False, False, False);
@@ -548,6 +558,16 @@ end;
 function TGlobalConfig.GetUpdatesPath: IPathConfig;
 begin
   Result := FUpdatesPath;
+end;
+
+function TGlobalConfig.GetOsmScoutDataPath: IPathConfig;
+begin
+  Result := FOsmScoutDataPath;
+end;
+
+function TGlobalConfig.GetEdgeBasePath: IPathConfig;
+begin
+  Result := FEdgeBasePath;
 end;
 
 function TGlobalConfig.GetUserDataPath: IPathConfig;

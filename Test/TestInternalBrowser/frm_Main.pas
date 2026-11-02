@@ -47,6 +47,7 @@ type
     FInetConfig: IInetConfig;
     FInternalUrlHandler: IInternalDomainUrlHandler;
     FInternalDomainInfoProviderList: IInternalDomainInfoProviderList;
+    FEdgeBasePath: IPathConfig;
 
     FInternalBrowserFactory: IInternalBrowserFactory;
 
@@ -122,6 +123,7 @@ begin
   cbbSource.ItemIndex := 0;
 
   FMediaDataPath := TPathConfig.Create('PathToMediaData', FTestDataPath + 'MediaData\', nil);
+  FEdgeBasePath := TPathConfig.Create('PathToEdge', FTestDataPath + 'Edge\', nil);
 
   FInternalBrowserContent := TInternalBrowserLastContent.Create;
 
@@ -280,6 +282,7 @@ begin
   FInternalBrowserFactory :=
     TInternalBrowserFactory.Create(
       FInetConfig,
+      FEdgeBasePath,
       FInternalUrlHandler,
       FInternalDomainInfoProviderList
     );

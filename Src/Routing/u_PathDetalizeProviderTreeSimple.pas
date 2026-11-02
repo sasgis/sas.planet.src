@@ -24,6 +24,7 @@ unit u_PathDetalizeProviderTreeSimple;
 interface
 
 uses
+  i_PathConfig,
   i_PathDetalizeConfig,
   i_StaticTreeItem,
   i_LanguageManager,
@@ -48,6 +49,7 @@ type
 
     FArrayOfProjectOSRM: TArrayOfProjectOSRM;
     FPathDetalizeConfig: IPathDetalizeConfig;
+    FOsmScoutDataPath: IPathConfig;
     FProvidersSet: IGUIDInterfaceSet;
 
     procedure InitGuidLists;
@@ -72,6 +74,7 @@ type
   public
     constructor Create(
       const APathDetalizeConfig: IPathDetalizeConfig;
+      const AOsmScoutDataPath: IPathConfig;
       const ALanguageManager: ILanguageManager;
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
@@ -104,6 +107,7 @@ uses
 
 constructor TPathDetalizeProviderTreeSimple.Create(
   const APathDetalizeConfig: IPathDetalizeConfig;
+  const AOsmScoutDataPath: IPathConfig;
   const ALanguageManager: ILanguageManager;
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
@@ -115,6 +119,7 @@ constructor TPathDetalizeProviderTreeSimple.Create(
 begin
   inherited Create(ALanguageManager.ChangeNotifier);
   FPathDetalizeConfig := APathDetalizeConfig;
+  FOsmScoutDataPath := AOsmScoutDataPath;
   FArrayOfProjectOSRM := FPathDetalizeConfig.ArrayOfProjectOSRM;
 
   InitGuidLists;
@@ -186,6 +191,7 @@ procedure AddOsmScoutProvider(
   const AGuidList: TProviderGuidList;
   const AGCNotifier: INotifierTime;
   const APathDetalizeConfig: IPathDetalizeConfig;
+  const AOsmScoutDataPath: IPathConfig;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const ASet: IGUIDInterfaceSet
 );
@@ -195,12 +201,13 @@ var
   VOsmScoutRouteContext: IOsmScoutRouteContext;
 begin
   Assert(Length(AGuidList) = 3);
+  Assert(AOsmScoutDataPath <> nil);
 
   VOsmScoutRouteContext :=
     NewOsmScoutRouteContext(
       AGCNotifier,
       APathDetalizeConfig,
-      ExtractFilePath(ParamStr(0)) + 'osmscout\'
+      IncludeTrailingPathDelimiter(AOsmScoutDataPath.FullPath)
     );
 
   for I := Low(TRouteProfile) to High(TRouteProfile) do begin
@@ -293,6 +300,7 @@ begin
       FOsmScoutGuidList,
       AGCNotifier,
       FPathDetalizeConfig,
+      FOsmScoutDataPath,
       AVectorGeometryLonLatFactory,
       Result
     );

@@ -2157,6 +2157,36 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         TabOrder = 0
       end
+      object pnlLogsPath: TPanel
+        Left = 0
+        Top = 224
+        Width = 676
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 8
+      end
+      object pnlOsmScoutPath: TPanel
+        Left = 0
+        Top = 252
+        Width = 676
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 9
+      end
+      object pnlEdgePath: TPanel
+        Left = 0
+        Top = 280
+        Width = 676
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 10
+      end
     end
   end
   object pnlBottomButtons: TPanel

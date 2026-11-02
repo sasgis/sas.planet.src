@@ -97,6 +97,12 @@ type
     function GetUpdatesPath: IPathConfig;
     property UpdatesPath: IPathConfig read GetUpdatesPath;
 
+    function GetOsmScoutDataPath: IPathConfig;
+    property OsmScoutDataPath: IPathConfig read GetOsmScoutDataPath;
+
+    function GetEdgeBasePath: IPathConfig;
+    property EdgeBasePath: IPathConfig read GetEdgeBasePath;
+
     function GetLastSelectionFileName: IPathConfig;
     property LastSelectionFileName: IPathConfig read GetLastSelectionFileName;
 
