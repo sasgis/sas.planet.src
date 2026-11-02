@@ -3491,77 +3491,50 @@ object frmMain: TfrmMain
     Left = 208
     Top = 168
     object tbitmMarkEditProperties: TTBXItem
-      Caption = 'Edit Properties'
-      ImageIndex = 31
-      OnClick = tbitmMarkEditPropertiesClick
+      Action = actMarkEditProperties
     end
     object tbitmMarkEditPosition: TTBXItem
-      Caption = 'Edit Position'
-      ImageIndex = 31
-      OnClick = tbitmMarkEditPositionClick
+      Action = actMarkEditPosition
     end
     object NMarkDel: TTBXItem
-      Caption = 'Delete'
-      ImageIndex = 30
-      OnClick = NMarkDelClick
+      Action = actMarkDelete
     end
     object NMarkOper: TTBXItem
-      Caption = 'Selection Manager'
-      ImageIndex = 10
-      OnClick = NMarkOperClick
+      Action = actProcessSelection
     end
     object NMarkNav: TTBXItem
-      Caption = 'Navigate to Placemark'
-      ImageIndex = 33
-      OnClick = NMarkNavClick
+      Action = actMarkNavigate
     end
     object NMarkExport: TTBXItem
-      Caption = 'Placemark Export'
-      ImageIndex = 25
-      OnClick = NMarkExportClick
+      Action = actMarkExport
     end
     object NMarkPlay: TTBXItem
-      Caption = 'Play'
-      OnClick = NMarkPlayClick
+      Action = actMarkPlay
     end
     object tbitmMarkInfo: TTBXItem
-      Caption = 'Placemark Info'
-      ImageIndex = 27
-      OnClick = tbitmMarkInfoClick
+      Action = actMarkInfo
     end
     object tbitmFitMarkToScreen: TTBXItem
-      Caption = 'Fit to Screen'
-      ImageIndex = 43
-      OnClick = tbitmFitMarkToScreenClick
+      Action = actMarkFitToScreen
     end
     object tbxtmAddToMergePolygons: TTBXItem
-      Caption = 'Add to Merge Polygons (Ctrl+MLeft)'
-      ImageIndex = 62
-      OnClick = tbxtmAddToMergePolygonsClick
+      Action = actAddToMergePolygons
     end
     object tbxitmElevationProfile: TTBXItem
-      Caption = 'Show Elevation Profile'
-      ImageIndex = 81
-      OnClick = tbxitmElevationProfileClick
+      Action = actShowElevationProfile
     end
     object tbxFillingMap: TTBXSubmenuItem
-      Caption = 'Cached Tiles Map'
-      ImageIndex = 7
+      Action = actFillingMapUseSelectedPolygon
       Images = MenusImageList
       LinkSubitems = NFillMap
-      OnClick = tbxFillingMapClick
     end
     object tbitmHideThisMark: TTBXItem
-      Caption = 'Hide'
-      ImageIndex = 19
-      OnClick = tbitmHideThisMarkClick
+      Action = actMarkHide
     end
     object tbsprtMainPopUp0: TTBXSeparatorItem
     end
     object NaddPoint: TTBXItem
-      Caption = 'Add Placemark'
-      ImageIndex = 15
-      OnClick = NaddPointClick
+      Action = actMarksAddPointAtPos
     end
     object tbsprtMainPopUp1: TTBXSeparatorItem
     end
@@ -3576,8 +3549,7 @@ object frmMain: TfrmMain
       end
     end
     object tbitmGoToMapCenter: TTBXItem
-      Caption = 'Go to Map Center'
-      OnClick = tbitmGoToMapCenterClick
+      Action = actGoToMapCenter
     end
     object tbitmGoToLayerCenter: TTBXSubmenuItem
       Caption = 'Go to Overlay Layer Center'
@@ -3589,39 +3561,30 @@ object frmMain: TfrmMain
       ImageIndex = 28
       Images = MenusImageList
       object tbxCopyUrlToOpenStreetMap: TTBXItem
-        Caption = 'URL to OpenStreetMap'
-        OnClick = tbxCopyUrlToOpenStreetMapClick
+        Action = actCopyUrlToOpenStreetMap
       end
       object tbxCopyUrlToGoogleMaps: TTBXItem
-        Caption = 'URL to Google Maps'
-        OnClick = tbxCopyUrlToGoogleMapsClick
+        Action = actCopyUrlToGoogleMaps
       end
       object tbxCopyUrlToGoogleEarthWeb: TTBXItem
-        Caption = 'URL to Google Earth Web'
-        OnClick = tbxCopyUrlToGoogleEarthWebClick
+        Action = actCopyUrlToGoogleEarthWeb
       end
       object tbxCopyUrlToBingMaps: TTBXItem
-        Caption = 'URL to Bing Maps'
-        OnClick = tbxCopyUrlToBingMapsClick
+        Action = actCopyUrlToBingMaps
       end
       object tbxCopyUrlToYandexMaps: TTBXItem
-        Caption = 'URL to Yandex Maps'
-        OnClick = tbxCopyUrlToYandexMapsClick
+        Action = actCopyUrlToYandexMaps
       end
       object tbxCopyUrlToNakarteMe: TTBXItem
-        Caption = 'URL to nakarte.me'
-        OnClick = tbxCopyUrlToNakarteMeClick
+        Action = actCopyUrlToNakarteMe
       end
       object tbxCopyUrlToKosmosnimkiRu: TTBXItem
-        Caption = 'URL to kosmosnimki.ru'
-        OnClick = tbxCopyUrlToKosmosnimkiRuClick
+        Action = actCopyUrlToKosmosnimkiRu
       end
       object tbsprtCopyToClipboard0: TTBXSeparatorItem
       end
       object tbitmCopyToClipboardMainMapUrl: TTBXItem
-        Caption = 'URL to Primary Map Tile'
-        ImageIndex = 45
-        OnClick = tbitmCopyToClipboardMainMapUrlClick
+        Action = actCopyUrlToMainMapTile
       end
       object TBCopyLinkLayer: TTBXSubmenuItem
         Caption = 'URL to Layer Tile'
@@ -3631,36 +3594,28 @@ object frmMain: TfrmMain
       object TBSeparatorItem5: TTBSeparatorItem
       end
       object tbitmCopyToClipboardCoordinates: TTBXItem
-        Caption = '&Coordinates'
-        OnClick = tbitmCopyToClipboardCoordinatesClick
+        Action = actCopyCoordinates
       end
       object tbitmCopyToClipboardCoordinatesAndElev: TTBXItem
-        Caption = 'Coordinates and Elevation'
-        OnClick = tbitmCopyToClipboardCoordinatesAndElevClick
+        Action = actCopyCoordinatesAndElevation
       end
       object TBSeparatorItem6: TTBSeparatorItem
       end
       object tbitmCopyToClipboardMainMapTile: TTBXItem
-        Caption = 'Primary Map Tile'
-        OnClick = tbitmCopyToClipboardMainMapTileClick
+        Action = actCopyMainMapTile
       end
       object tbitmCopyToClipboardMainMapTileFileName: TTBXItem
-        Caption = 'Pathname to Tile in Cache'
-        OnClick = tbitmCopyToClipboardMainMapTileFileNameClick
+        Action = actCopyMainMapTileFileName
       end
       object tbitmCopyToClipboardGenshtabName: TTBXItem
-        Caption = 'Genshtab boundary name'
-        OnClick = tbitmCopyToClipboardGenshtabNameClick
+        Action = actCopyGenshtabName
       end
     end
     object Nopendir: TTBXItem
-      Caption = 'Show Primary Map Tile'
-      OnClick = NopendirClick
+      Action = actMapTileShow
     end
     object tbitmOpenFolderMainMapTile: TTBXItem
-      Caption = 'Open Primary Map Tile Folder'
-      ImageIndex = 34
-      OnClick = tbitmOpenFolderMainMapTileClick
+      Action = actMapTileOpenFolder
     end
     object TBOpenDirLayer: TTBXSubmenuItem
       Caption = 'Open Overlay Layer Tile Folder'
@@ -3671,56 +3626,43 @@ object frmMain: TfrmMain
     object tbitmAdditionalOperations: TTBXSubmenuItem
       Caption = 'Additional Operations'
       object NGTOPO30: TTBXItem
-        Caption = 'Current Altitude by GTOPO30 (~1 km accuracy)'
-        OnClick = NGTOPO30Click
+        Action = actShowAltitudeGTopo30
       end
       object NSRTM3: TTBXItem
-        Caption = 'Current Altitude by SRTM3 (~90 m accuracy)'
-        OnClick = NSRTM3Click
+        Action = actShowAltitudeSrtm3
       end
       object tbsprtAdditionalOperations0: TTBXSeparatorItem
       end
       object tbxWeatherUnderground: TTBXItem
-        Caption = 'Current and Forecast Meteorology (Weather Underground)'
-        OnClick = tbxWeatherUndergroundClick
+        Action = actShowWeatherUnderground
       end
       object tbxYandexWeather: TTBXItem
-        Caption = 'Current and Forecast Meteorology (Yandex Weather)'
-        OnClick = tbxYandexWeatherClick
+        Action = actShowYandexWeather
       end
     end
     object tbpmiVersions: TTBXSubmenuItem
       Caption = 'Version'
       OnPopup = tbpmiVersionsPopup
       object tbitmSelectVersionByMark: TTBXItem
-        Caption = 'Select by Placemark'
-        OnClick = tbitmSelectVersionByMarkClick
+        Action = actSelectVersionByMark
       end
       object tbitmMakeVersionByMark: TTBXItem
-        Caption = 'Make by Placemark'
-        OnClick = tbitmMakeVersionByMarkClick
+        Action = actMakeVersionByMark
       end
       object tbpmiShowOtherVersions: TTBXItem
-        AutoCheck = True
-        Caption = 'Show other Versions'
-        OnClick = tbpmiShowOtherVersionsClick
+        Action = actShowOtherVersions
       end
       object tbpmiClearVersion: TTBXItem
-        Caption = 'Reset'
-        OnClick = tbpmiClearVersionClick
+        Action = actResetVersion
       end
     end
     object tbsprtMainPopUp4: TTBXSeparatorItem
     end
     object tbitmDownloadMainMapTile: TTBXItem
-      Caption = 'Download Primary Map Tile to Cache (Ins+MLeft)'
-      ImageIndex = 21
-      OnClick = tbitmDownloadMainMapTileClick
+      Action = actMapTileDownload
     end
     object NDel: TTBXItem
-      Caption = 'Delete Primary Map Tile from Cache (Del+MLeft)'
-      ImageIndex = 22
-      OnClick = NDelClick
+      Action = actMapTileDelete
     end
     object ldm: TTBXSubmenuItem
       Caption = 'Download Overlay Layer Tile to Cache'
@@ -3733,14 +3675,10 @@ object frmMain: TfrmMain
     object tbsprtMainPopUp5: TTBXSeparatorItem
     end
     object NMapInfo: TTBXItem
-      Caption = 'Map Info'
-      ImageIndex = 27
-      OnClick = NMapInfoClick
+      Action = actMapInfo
     end
     object NMapStorageInfo: TTBXItem
-      Caption = 'Map Storage Info'
-      ImageIndex = 27
-      OnClick = NMapStorageInfoClick
+      Action = actMapStorageInfo
     end
     object TBLayerInfo: TTBXSubmenuItem
       Caption = 'Layer Info'
@@ -3770,16 +3708,13 @@ object frmMain: TfrmMain
     Left = 160
     Top = 264
     object tbitmCopySearchResultCoordinates: TTBXItem
-      Caption = 'Copy coordinates'
-      OnClick = tbitmCopySearchResultCoordinatesClick
+      Action = actCopySearchResultCoordinates
     end
     object tbitmCopySearchResultDescription: TTBXItem
-      Caption = 'Copy description'
-      OnClick = tbitmCopySearchResultDescriptionClick
+      Action = actCopySearchResultDescription
     end
     object tbitmCreatePlaceMarkBySearchResult: TTBXItem
-      Caption = 'Create placemark'
-      OnClick = tbitmCreatePlaceMarkBySearchResultClick
+      Action = actCreateMarkBySearchResult
     end
   end
   object actlstMain: TActionList
@@ -4622,6 +4557,250 @@ object frmMain: TfrmMain
       Category = 'Help'
       Caption = 'Command Line Parameters'
       OnExecute = actShowCmdLineArgsInfoExecute
+    end
+    object actMarkEditProperties: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Edit Properties'
+      ImageIndex = 31
+      OnExecute = actMarkEditPropertiesExecute
+    end
+    object actMarkEditPosition: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Edit Position'
+      ImageIndex = 31
+      OnExecute = actMarkEditPositionExecute
+    end
+    object actMarkDelete: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Delete'
+      ImageIndex = 30
+      OnExecute = actMarkDeleteExecute
+    end
+    object actMarkNavigate: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Navigate to Placemark'
+      ImageIndex = 33
+      OnExecute = actMarkNavigateExecute
+    end
+    object actMarkExport: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Placemark Export'
+      ImageIndex = 25
+      OnExecute = actMarkExportExecute
+    end
+    object actMarkPlay: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Play'
+      OnExecute = actMarkPlayExecute
+    end
+    object actMarkInfo: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Placemark Info'
+      ImageIndex = 27
+      OnExecute = actMarkInfoExecute
+    end
+    object actMarkFitToScreen: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Fit to Screen'
+      ImageIndex = 43
+      OnExecute = actMarkFitToScreenExecute
+    end
+    object actMarkHide: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Hide'
+      ImageIndex = 19
+      OnExecute = actMarkHideExecute
+    end
+    object actMarksAddPointAtPos: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Add Placemark'
+      ImageIndex = 15
+      OnExecute = actMarksAddPointAtPosExecute
+    end
+    object actProcessSelection: TAction
+      Category = 'MainPopup\Operations'
+      Caption = 'Selection Manager'
+      ImageIndex = 10
+      OnExecute = actProcessSelectionExecute
+    end
+    object actAddToMergePolygons: TAction
+      Category = 'MainPopup\Marks'
+      Caption = 'Add to Merge Polygons (Ctrl+MLeft)'
+      ImageIndex = 62
+      OnExecute = actAddToMergePolygonsExecute
+    end
+    object actShowElevationProfile: TAction
+      Category = 'MainPopup\Operations'
+      Caption = 'Show Elevation Profile'
+      ImageIndex = 81
+      OnExecute = actShowElevationProfileExecute
+    end
+    object actFillingMapUseSelectedPolygon: TAction
+      Category = 'MainPopup\Operations'
+      Caption = 'Cached Tiles Map'
+      ImageIndex = 7
+      OnExecute = actFillingMapUseSelectedPolygonExecute
+    end
+    object actMapTileShow: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Show Primary Map Tile'
+      OnExecute = actMapTileShowExecute
+    end
+    object actMapTileOpenFolder: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Open Primary Map Tile Folder'
+      ImageIndex = 34
+      OnExecute = actMapTileOpenFolderExecute
+    end
+    object actMapTileDownload: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Download Primary Map Tile to Cache (Ins+MLeft)'
+      ImageIndex = 21
+      OnExecute = actMapTileDownloadExecute
+    end
+    object actMapTileDelete: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Delete Primary Map Tile from Cache (Del+MLeft)'
+      ImageIndex = 22
+      OnExecute = actMapTileDeleteExecute
+    end
+    object actGoToMapCenter: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Go to Map Center'
+      OnExecute = actGoToMapCenterExecute
+    end
+    object actMapInfo: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Map Info'
+      ImageIndex = 27
+      OnExecute = actMapInfoExecute
+    end
+    object actMapStorageInfo: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Map Storage Info'
+      ImageIndex = 27
+      OnExecute = actMapStorageInfoExecute
+    end
+    object actShowOtherVersions: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Show other Versions'
+      OnExecute = actShowOtherVersionsExecute
+    end
+    object actSelectVersionByMark: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Select by Placemark'
+      OnExecute = actSelectVersionByMarkExecute
+    end
+    object actMakeVersionByMark: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Make by Placemark'
+      OnExecute = actMakeVersionByMarkExecute
+    end
+    object actResetVersion: TAction
+      Category = 'MainPopup\Maps'
+      Caption = 'Reset'
+      OnExecute = actResetVersionExecute
+    end
+    object actCopyUrlToOpenStreetMap: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'URL to OpenStreetMap'
+      OnExecute = actCopyUrlToOpenStreetMapExecute
+    end
+    object actCopyUrlToGoogleMaps: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'URL to Google Maps'
+      OnExecute = actCopyUrlToGoogleMapsExecute
+    end
+    object actCopyUrlToGoogleEarthWeb: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'URL to Google Earth Web'
+      OnExecute = actCopyUrlToGoogleEarthWebExecute
+    end
+    object actCopyUrlToBingMaps: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'URL to Bing Maps'
+      OnExecute = actCopyUrlToBingMapsExecute
+    end
+    object actCopyUrlToYandexMaps: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'URL to Yandex Maps'
+      OnExecute = actCopyUrlToYandexMapsExecute
+    end
+    object actCopyUrlToNakarteMe: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'URL to nakarte.me'
+      OnExecute = actCopyUrlToNakarteMeExecute
+    end
+    object actCopyUrlToKosmosnimkiRu: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'URL to kosmosnimki.ru'
+      OnExecute = actCopyUrlToKosmosnimkiRuExecute
+    end
+    object actCopyUrlToMainMapTile: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'URL to Primary Map Tile'
+      ImageIndex = 45
+      OnExecute = actCopyUrlToMainMapTileExecute
+    end
+    object actCopyCoordinates: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = '&Coordinates'
+      OnExecute = actCopyCoordinatesExecute
+    end
+    object actCopyCoordinatesAndElevation: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'Coordinates and Elevation'
+      OnExecute = actCopyCoordinatesAndElevationExecute
+    end
+    object actCopyMainMapTile: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'Primary Map Tile'
+      OnExecute = actCopyMainMapTileExecute
+    end
+    object actCopyMainMapTileFileName: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'Pathname to Tile in Cache'
+      OnExecute = actCopyMainMapTileFileNameExecute
+    end
+    object actCopyGenshtabName: TAction
+      Category = 'MainPopup\Clipboard'
+      Caption = 'Genshtab boundary name'
+      OnExecute = actCopyGenshtabNameExecute
+    end
+    object actShowAltitudeGTopo30: TAction
+      Category = 'MainPopup\Operations'
+      Caption = 'Current Altitude by GTOPO30 (~1 km accuracy)'
+      OnExecute = actShowAltitudeGTopo30Execute
+    end
+    object actShowAltitudeSrtm3: TAction
+      Category = 'MainPopup\Operations'
+      Caption = 'Current Altitude by SRTM3 (~90 m accuracy)'
+      OnExecute = actShowAltitudeSrtm3Execute
+    end
+    object actShowWeatherUnderground: TAction
+      Category = 'MainPopup\Operations'
+      Caption = 'Current and Forecast Meteorology (Weather Underground)'
+      OnExecute = actShowWeatherUndergroundExecute
+    end
+    object actShowYandexWeather: TAction
+      Category = 'MainPopup\Operations'
+      Caption = 'Current and Forecast Meteorology (Yandex Weather)'
+      OnExecute = actShowYandexWeatherExecute
+    end
+    object actCopySearchResultCoordinates: TAction
+      Category = 'SearchResultPopup\Operations'
+      Caption = 'Copy coordinates'
+      OnExecute = actCopySearchResultCoordinatesExecute
+    end
+    object actCopySearchResultDescription: TAction
+      Category = 'SearchResultPopup\Operations'
+      Caption = 'Copy description'
+      OnExecute = actCopySearchResultDescriptionExecute
+    end
+    object actCreateMarkBySearchResult: TAction
+      Category = 'SearchResultPopup\Operations'
+      Caption = 'Create placemark'
+      OnExecute = actCreateMarkBySearchResultExecute
     end
   end
   object tbxpmnScaleLine: TTBXPopupMenu

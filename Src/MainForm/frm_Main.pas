@@ -645,6 +645,51 @@ type
     tbitmGoToMapCenter: TTBXItem;
     tbxtmCmdLineArgs: TTBXItem;
     actShowCmdLineArgsInfo: TAction;
+    actMarkEditProperties: TAction;
+    actMarkEditPosition: TAction;
+    actMarkDelete: TAction;
+    actMarkNavigate: TAction;
+    actMarkExport: TAction;
+    actMarkPlay: TAction;
+    actMarkInfo: TAction;
+    actMarkFitToScreen: TAction;
+    actMarkHide: TAction;
+    actMarksAddPointAtPos: TAction;
+    actProcessSelection: TAction;
+    actAddToMergePolygons: TAction;
+    actShowElevationProfile: TAction;
+    actFillingMapUseSelectedPolygon: TAction;
+    actMapTileShow: TAction;
+    actMapTileOpenFolder: TAction;
+    actMapTileDownload: TAction;
+    actMapTileDelete: TAction;
+    actGoToMapCenter: TAction;
+    actMapInfo: TAction;
+    actMapStorageInfo: TAction;
+    actShowOtherVersions: TAction;
+    actSelectVersionByMark: TAction;
+    actMakeVersionByMark: TAction;
+    actResetVersion: TAction;
+    actCopyUrlToOpenStreetMap: TAction;
+    actCopyUrlToGoogleMaps: TAction;
+    actCopyUrlToGoogleEarthWeb: TAction;
+    actCopyUrlToBingMaps: TAction;
+    actCopyUrlToYandexMaps: TAction;
+    actCopyUrlToNakarteMe: TAction;
+    actCopyUrlToKosmosnimkiRu: TAction;
+    actCopyUrlToMainMapTile: TAction;
+    actCopyCoordinates: TAction;
+    actCopyCoordinatesAndElevation: TAction;
+    actCopyMainMapTile: TAction;
+    actCopyMainMapTileFileName: TAction;
+    actCopyGenshtabName: TAction;
+    actShowAltitudeGTopo30: TAction;
+    actShowAltitudeSrtm3: TAction;
+    actShowWeatherUnderground: TAction;
+    actShowYandexWeather: TAction;
+    actCopySearchResultCoordinates: TAction;
+    actCopySearchResultDescription: TAction;
+    actCreateMarkBySearchResult: TAction;
 
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -658,24 +703,26 @@ type
       DockingTo: TTBDock
     );
     procedure tbitmOnInterfaceOptionsClick(Sender: TObject);
-    procedure NaddPointClick(Sender: TObject);
-    procedure tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
-    procedure tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
-    procedure tbitmDownloadMainMapTileClick(Sender: TObject);
-    procedure NopendirClick(Sender: TObject);
-    procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
-    procedure NDelClick(Sender: TObject);
-    procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
-    procedure tbxCopyUrlToGoogleMapsClick(Sender: TObject);
+    procedure DoCopyUrlToClipboard(const AProvider: IUrlByCoordProvider);
+    procedure DoNavigateByProvider(const ATitle: string; const AProvider: IUrlByCoordProvider);
+    procedure actMarksAddPointAtPosExecute(Sender: TObject);
+    procedure actCopyMainMapTileExecute(Sender: TObject);
+    procedure actCopyMainMapTileFileNameExecute(Sender: TObject);
+    procedure actMapTileDownloadExecute(Sender: TObject);
+    procedure actMapTileShowExecute(Sender: TObject);
+    procedure actMapTileOpenFolderExecute(Sender: TObject);
+    procedure actMapTileDeleteExecute(Sender: TObject);
+    procedure actCopyCoordinatesExecute(Sender: TObject);
+    procedure actCopyUrlToGoogleMapsExecute(Sender: TObject);
     procedure mapResize(Sender: TObject);
-    procedure tbxCopyUrlToYandexMapsClick(Sender: TObject);
-    procedure tbxCopyUrlToKosmosnimkiRuClick(Sender: TObject);
+    procedure actCopyUrlToYandexMapsExecute(Sender: TObject);
+    procedure actCopyUrlToKosmosnimkiRuExecute(Sender: TObject);
     procedure mapDblClick(Sender: TObject);
-    procedure tbitmMarkEditPositionClick(Sender: TObject);
-    procedure NMarkDelClick(Sender: TObject);
-    procedure NMarkOperClick(Sender: TObject);
-    procedure tbxCopyUrlToBingMapsClick(Sender: TObject);
-    procedure tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
+    procedure actMarkEditPositionExecute(Sender: TObject);
+    procedure actMarkDeleteExecute(Sender: TObject);
+    procedure actProcessSelectionExecute(Sender: TObject);
+    procedure actCopyUrlToBingMapsExecute(Sender: TObject);
+    procedure actCopyUrlToMainMapTileExecute(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure mapMouseDown(
       Sender: TObject;
@@ -698,23 +745,23 @@ type
       Layer: TCustomLayer
     );
     procedure TBEditPathClose(Sender: TObject);
-    procedure NSRTM3Click(Sender: TObject);
-    procedure NGTOPO30Click(Sender: TObject);
-    procedure NMarkNavClick(Sender: TObject);
+    procedure actShowAltitudeSrtm3Execute(Sender: TObject);
+    procedure actShowAltitudeGTopo30Execute(Sender: TObject);
+    procedure actMarkNavigateExecute(Sender: TObject);
     procedure AdjustFont(
       Item: TTBCustomItem;
       Viewer: TTBItemViewer;
       Font: TFont;
       StateFlags: Integer
     );
-    procedure NMapInfoClick(Sender: TObject);
+    procedure actMapInfoExecute(Sender: TObject);
     procedure tbtpltCachedTilesMapCellClick(
       Sender: TTBXCustomToolPalette;
       var ACol, ARow: Integer;
       var AllowChange: Boolean
     );
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
-    procedure NMarkExportClick(Sender: TObject);
+    procedure actMarkExportExecute(Sender: TObject);
     procedure ZSliderMouseMove(
       Sender: TObject;
       Shift: TShiftState;
@@ -756,7 +803,7 @@ type
     );
     procedure TBSearchWindowClose(Sender: TObject);
     procedure TBEditSelectPolylineRadiusKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure tbxCopyUrlToOpenStreetMapClick(Sender: TObject);
+    procedure actCopyUrlToOpenStreetMapExecute(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
     procedure FormMouseWheel(
@@ -776,26 +823,26 @@ type
       Sender: TTBCustomItem;
       FromLink: Boolean
     );
-    procedure tbpmiClearVersionClick(Sender: TObject);
-    procedure tbitmCopySearchResultCoordinatesClick(Sender: TObject);
-    procedure tbitmMarkEditPropertiesClick(Sender: TObject);
-    procedure tbitmFitMarkToScreenClick(Sender: TObject);
-    procedure tbitmHideThisMarkClick(Sender: TObject);
-    procedure tbitmCopySearchResultDescriptionClick(Sender: TObject);
-    procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
-    procedure NMarkPlayClick(Sender: TObject);
-    procedure tbitmMarkInfoClick(Sender: TObject);
-    procedure tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
-    procedure tbxWeatherUndergroundClick(Sender: TObject);
-    procedure NMapStorageInfoClick(Sender: TObject);
-    procedure tbitmMakeVersionByMarkClick(Sender: TObject);
-    procedure tbitmSelectVersionByMarkClick(Sender: TObject);
-    procedure tbpmiShowOtherVersionsClick(Sender: TObject);
+    procedure actResetVersionExecute(Sender: TObject);
+    procedure actCopySearchResultCoordinatesExecute(Sender: TObject);
+    procedure actMarkEditPropertiesExecute(Sender: TObject);
+    procedure actMarkFitToScreenExecute(Sender: TObject);
+    procedure actMarkHideExecute(Sender: TObject);
+    procedure actCopySearchResultDescriptionExecute(Sender: TObject);
+    procedure actCreateMarkBySearchResultExecute(Sender: TObject);
+    procedure actMarkPlayExecute(Sender: TObject);
+    procedure actMarkInfoExecute(Sender: TObject);
+    procedure actCopyGenshtabNameExecute(Sender: TObject);
+    procedure actShowWeatherUndergroundExecute(Sender: TObject);
+    procedure actMapStorageInfoExecute(Sender: TObject);
+    procedure actMakeVersionByMarkExecute(Sender: TObject);
+    procedure actSelectVersionByMarkExecute(Sender: TObject);
+    procedure actShowOtherVersionsExecute(Sender: TObject);
     procedure tbMergePolygonsClose(Sender: TObject);
-    procedure tbxtmAddToMergePolygonsClick(Sender: TObject);
-    procedure tbxitmElevationProfileClick(Sender: TObject);
-    procedure tbxFillingMapClick(Sender: TObject);
-    procedure tbxYandexWeatherClick(Sender: TObject);
+    procedure actAddToMergePolygonsExecute(Sender: TObject);
+    procedure actShowElevationProfileExecute(Sender: TObject);
+    procedure actFillingMapUseSelectedPolygonExecute(Sender: TObject);
+    procedure actShowYandexWeatherExecute(Sender: TObject);
 
     procedure actSelectByRectExecute(Sender: TObject);
     procedure actSelectByPolygonExecute(Sender: TObject);
@@ -904,11 +951,11 @@ type
     procedure actEditPolygonLabelVisibleExecute(Sender: TObject);
     procedure actGeoCalcUseZmpDatumExecute(Sender: TObject);
     procedure actGeoCalcUseGpsDatumExecute(Sender: TObject);
-    procedure tbxCopyUrlToNakarteMeClick(Sender: TObject);
-    procedure tbitmCopyToClipboardCoordinatesAndElevClick(Sender: TObject);
-    procedure tbxCopyUrlToGoogleEarthWebClick(Sender: TObject);
+    procedure actCopyUrlToNakarteMeExecute(Sender: TObject);
+    procedure actCopyCoordinatesAndElevationExecute(Sender: TObject);
+    procedure actCopyUrlToGoogleEarthWebExecute(Sender: TObject);
     procedure actOfflineMapOpenExecute(Sender: TObject);
-    procedure tbitmGoToMapCenterClick(Sender: TObject);
+    procedure actGoToMapCenterExecute(Sender: TObject);
     procedure NPanelsPopup(Sender: TTBCustomItem; FromLink: Boolean);
     procedure actShowCmdLineArgsInfoExecute(Sender: TObject);
   private
@@ -2787,19 +2834,19 @@ begin
     VIcon18Index := FMapTypeIcons18List.GetIconIndexByGUID(VGUID);
     if VMapType.Zmp.IsLayer then begin
       // download the layer's tile
-      AddItem(ldm, FNDwnItemList, VGuid, VMapType, VIcon18Index, tbitmDownloadMainMapTileClick);
+      AddItem(ldm, FNDwnItemList, VGuid, VMapType, VIcon18Index, actMapTileDownloadExecute);
       // delete the layer's tile
-      AddItem(dlm, FNDelItemList, VGuid, VMapType, VIcon18Index, NDelClick);
+      AddItem(dlm, FNDelItemList, VGuid, VMapType, VIcon18Index, actMapTileDeleteExecute);
       // open dir with the layer's tile
-      AddItem(TBOpenDirLayer, FNOpenDirItemList, VGuid, VMapType, VIcon18Index, tbitmOpenFolderMainMapTileClick);
+      AddItem(TBOpenDirLayer, FNOpenDirItemList, VGuid, VMapType, VIcon18Index, actMapTileOpenFolderExecute);
       // copy link to the layer's tile
-      AddItem(TBCopyLinkLayer, FNCopyLinkItemList, VGuid, VMapType, VIcon18Index, tbitmCopyToClipboardMainMapUrlClick);
+      AddItem(TBCopyLinkLayer, FNCopyLinkItemList, VGuid, VMapType, VIcon18Index, actCopyUrlToMainMapTileExecute);
       // edit layer params
       AddItem(NLayerParams, FNLayerParamsItemList, VGuid, VMapType, VIcon18Index, actMapsEditMapParamsExecute);
       // show layer info
-      AddItem(TBLayerInfo, FNLayerInfoItemList, VGuid, VMapType, VIcon18Index, NMapInfoClick);
+      AddItem(TBLayerInfo, FNLayerInfoItemList, VGuid, VMapType, VIcon18Index, actMapInfoExecute);
       // go to the layer center
-      AddItem(tbitmGoToLayerCenter, FNLayerCenterItemList, VGuid, VMapType, VIcon18Index, tbitmGoToMapCenterClick);
+      AddItem(tbitmGoToLayerCenter, FNLayerCenterItemList, VGuid, VMapType, VIcon18Index, actGoToMapCenterExecute);
     end;
   end;
 end;
@@ -4015,12 +4062,12 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbpmiClearVersionClick(Sender: TObject);
+procedure TfrmMain.actResetVersionExecute(Sender: TObject);
 begin
   DoSelectSpecialVersion(nil);
 end;
 
-procedure TfrmMain.tbpmiShowOtherVersionsClick(Sender: TObject);
+procedure TfrmMain.actShowOtherVersionsExecute(Sender: TObject);
 var
   VMapType: IMapType;
 begin
@@ -4028,7 +4075,8 @@ begin
   VMapType := FMainMapState.ActiveMap.GetStatic;
 
   // apply this version or clear (uncheck) version
-  VMapType.VersionRequestConfig.ShowOtherVersions := tbpmiShowOtherVersions.Checked;
+  VMapType.VersionRequestConfig.ShowOtherVersions :=
+    not VMapType.VersionRequestConfig.ShowOtherVersions;
 end;
 
 procedure TfrmMain.tbpmiVersionsPopup(
@@ -4066,7 +4114,7 @@ begin
   // and add view items
   VMapType := FMainMapState.ActiveMap.GetStatic;
   VAllowListOfTileVersions := VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions;
-  tbpmiShowOtherVersions.Visible := VAllowListOfTileVersions;
+  actShowOtherVersions.Visible := VAllowListOfTileVersions;
 
   if VAllowListOfTileVersions then begin
     // to lonlat
@@ -4087,7 +4135,7 @@ begin
     // get current version
     VVersion := VMapType.VersionRequest.GetStatic;
     VCurrentVersion := VVersion.BaseVersion.StoreString;
-    tbpmiShowOtherVersions.Checked := VVersion.ShowOtherVersions;
+    actShowOtherVersions.Checked := VVersion.ShowOtherVersions;
     VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VMapProjection.Zoom, VVersion);
     VVersion := nil;
     // parse list
@@ -4291,7 +4339,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.NaddPointClick(Sender: TObject);
+procedure TfrmMain.actMarksAddPointAtPosExecute(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
@@ -4310,7 +4358,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
+procedure TfrmMain.actCopyMainMapTileExecute(Sender: TObject);
 var
   VMouseMapPoint: TDoublePoint;
   VProjection: IProjection;
@@ -4337,7 +4385,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
+procedure TfrmMain.actCopyCoordinatesExecute(Sender: TObject);
 var
   VMouseLonLat: TDoublePoint;
   VStr: string;
@@ -4354,7 +4402,7 @@ begin
   CopyStringToClipboard(Handle, VStr);
 end;
 
-procedure TfrmMain.tbitmCopyToClipboardCoordinatesAndElevClick(Sender: TObject);
+procedure TfrmMain.actCopyCoordinatesAndElevationExecute(Sender: TObject);
 var
   VMouseLonLat: TDoublePoint;
   VStr: string;
@@ -4374,7 +4422,7 @@ begin
   CopyStringToClipboard(Handle, VStr);
 end;
 
-procedure TfrmMain.tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
+procedure TfrmMain.actCopyGenshtabNameExecute(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VProjection: IProjection;
@@ -4395,7 +4443,7 @@ begin
   CopyStringToClipboard(Handle, VListName);
 end;
 
-procedure TfrmMain.tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
+procedure TfrmMain.actCopyMainMapTileFileNameExecute(Sender: TObject);
 var
   VMapProjection: IProjection;
   VMapType: IMapType;
@@ -4423,7 +4471,7 @@ begin
   CopyStringToClipboard(Handle, VMapType.TileStorage.GetTileFileName(VTile, VMapProjection.Zoom, VMapType.VersionRequest.GetStatic.BaseVersion));
 end;
 
-procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
+procedure TfrmMain.actMapTileDownloadExecute(Sender: TObject);
 var
   VPath: string;
   VMapType: IMapType;
@@ -4479,7 +4527,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmHideThisMarkClick(Sender: TObject);
+procedure TfrmMain.actMarkHideExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VMarkId: IMarkId;
@@ -4490,7 +4538,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmFitMarkToScreenClick(Sender: TObject);
+procedure TfrmMain.actMarkFitToScreenExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VLLRect: TDoubleRect;
@@ -4502,7 +4550,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmGoToMapCenterClick(Sender: TObject);
+procedure TfrmMain.actGoToMapCenterExecute(Sender: TObject);
 var
   VMapType: IMapType;
   VMapCoverage: IMapCoverageInfo;
@@ -4521,7 +4569,7 @@ begin
   FMapGoto.GotoPos(VMapCoverage.CenterPos, VMapType.ProjectionSet.Zooms[VMapCoverage.CenterZoom], False);
 end;
 
-procedure TfrmMain.NopendirClick(Sender: TObject);
+procedure TfrmMain.actMapTileShowExecute(Sender: TObject);
 var
   VMapProjection: IProjection;
   VLocalConverter: ILocalCoordConverter;
@@ -4557,7 +4605,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmOpenFolderMainMapTileClick(Sender: TObject);
+procedure TfrmMain.actMapTileOpenFolderExecute(Sender: TObject);
 var
   VTilePath: string;
   VTileFileName: string;
@@ -4690,7 +4738,7 @@ begin
   actViewGridLonLat_User.Execute;
 end;
 
-procedure TfrmMain.NDelClick(Sender: TObject);
+procedure TfrmMain.actMapTileDeleteExecute(Sender: TObject);
 var
   VPath: string;
   VMapType: IMapType;
@@ -4797,7 +4845,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbxFillingMapClick(Sender: TObject);
+procedure TfrmMain.actFillingMapUseSelectedPolygonExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
 begin
@@ -4989,7 +5037,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmMarkEditPositionClick(Sender: TObject);
+procedure TfrmMain.actMarkEditPositionExecute(Sender: TObject);
 begin
   Self.OnEditMarkPosition(FSelectedMark);
 end;
@@ -5026,7 +5074,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.NMarkExportClick(Sender: TObject);
+procedure TfrmMain.actMarkExportExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
 begin
@@ -5036,7 +5084,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.NMarkDelClick(Sender: TObject);
+procedure TfrmMain.actMarkDeleteExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
 begin
@@ -5046,7 +5094,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.NMarkOperClick(Sender: TObject);
+procedure TfrmMain.actProcessSelectionExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VSelectedWiki: IVectorDataItem;
@@ -5068,7 +5116,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.NMarkPlayClick(Sender: TObject);
+procedure TfrmMain.actMarkPlayExecute(Sender: TObject);
 begin
   if (nil = FSelectedMark) then begin
     Exit;
@@ -5079,27 +5127,17 @@ begin
   {FPlacemarkPlayerTask := }FPlacemarkPlayerPlugin.PlayByDescription(FSelectedMark.Desc);
 end;
 
-procedure TfrmMain.tbxWeatherUndergroundClick(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
+procedure TfrmMain.actShowWeatherUndergroundExecute(Sender: TObject);
 begin
-  VRequest := FUrlProviderWeatherUnderground.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    GState.InternalBrowser.NavigateByRequest(tbxWeatherUnderground.Caption, VRequest);
-  end;
+  DoNavigateByProvider(TCustomAction(Sender).Caption, FUrlProviderWeatherUnderground);
 end;
 
-procedure TfrmMain.tbxYandexWeatherClick(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
+procedure TfrmMain.actShowYandexWeatherExecute(Sender: TObject);
 begin
-  VRequest := FUrlProviderYandexWeather.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    GState.InternalBrowser.NavigateByRequest(tbxYandexWeather.Caption, VRequest);
-  end;
+  DoNavigateByProvider(TCustomAction(Sender).Caption, FUrlProviderYandexWeather);
 end;
 
-procedure TfrmMain.tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
+procedure TfrmMain.actCopyUrlToMainMapTileExecute(Sender: TObject);
 var
   VMapProjection: IProjection;
   VMapType: IMapType;
@@ -5257,7 +5295,7 @@ begin
   ShowErrorMessage(Handle, SAS_ERR_GpsCommunication);
 end;
 
-procedure TfrmMain.NMapStorageInfoClick(Sender: TObject);
+procedure TfrmMain.actMapStorageInfoExecute(Sender: TObject);
 var
   VMapType: IMapType;
   VInternalDomainOptions: IInternalDomainOptions;
@@ -5862,7 +5900,7 @@ begin
   PFile.Save(POleStr(UnicodeString(PathLink)), False);
 end;
 
-procedure TfrmMain.tbitmSelectVersionByMarkClick(Sender: TObject);
+procedure TfrmMain.actSelectVersionByMarkExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VMapType: IMapType;
@@ -5899,7 +5937,7 @@ begin
   FState.State := ao_movemap;
 end;
 
-procedure TfrmMain.NMarkNavClick(Sender: TObject);
+procedure TfrmMain.actMarkNavigateExecute(Sender: TObject);
 var
   VLonLat: TDoublePoint;
   VMark: IVectorDataItem;
@@ -5907,7 +5945,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    if (not NMarkNav.Checked) then begin
+    if (not actMarkNavigate.Checked) then begin
       VLonLat := VMark.Geometry.GetGoToPoint;
       VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
       FConfig.NavToPoint.StartNavToMark(VMarkStringID, VLonLat);
@@ -5981,7 +6019,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.NMapInfoClick(Sender: TObject);
+procedure TfrmMain.actMapInfoExecute(Sender: TObject);
 var
   VMapType: IMapType;
   VUrl: string;
@@ -6043,7 +6081,7 @@ begin
   actViewSensorsBarVisible.Checked := TTBXToolWindow(Sender).Visible;
 end;
 
-procedure TfrmMain.tbxtmAddToMergePolygonsClick(Sender: TObject);
+procedure TfrmMain.actAddToMergePolygonsExecute(Sender: TObject);
 var
   VMouseDownPos: TPoint;
   VVectorItems: IVectorItemSubset;
@@ -6057,7 +6095,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbxitmElevationProfileClick(Sender: TObject);
+procedure TfrmMain.actShowElevationProfileExecute(Sender: TObject);
 var
   I: Integer;
   VMouseDownPos: TPoint;
@@ -6082,7 +6120,7 @@ begin
   TBXSensorsBar.Visible := not TBXSensorsBar.Visible;
 end;
 
-procedure TfrmMain.tbitmMarkEditPropertiesClick(Sender: TObject);
+procedure TfrmMain.actMarkEditPropertiesExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VMarkModifed: IVectorDataItem;
@@ -6102,14 +6140,9 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbxCopyUrlToOpenStreetMapClick(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
+procedure TfrmMain.actCopyUrlToOpenStreetMapExecute(Sender: TObject);
 begin
-  VRequest := FUrlProviderOSM.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
-  end;
+  DoCopyUrlToClipboard(FUrlProviderOSM);
 end;
 
 procedure TfrmMain.ProcessOpenFiles(const AFiles: IStringListStatic);
@@ -6178,84 +6211,66 @@ begin
   end;
 end;
 
-procedure TfrmMain.NSRTM3Click(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
+procedure TfrmMain.actShowAltitudeSrtm3Execute(Sender: TObject);
 begin
-  VRequest := FUrlProviderSTRM3.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    //GState.DownloaderFactory.BuildDownloaderAsync(True, True, False, nil).DoRequestAsync()
-    GState.InternalBrowser.NavigateByRequest('http://api.geonames.org/srtm3', VRequest);
-  end;
+  DoNavigateByProvider('http://api.geonames.org/srtm3', FUrlProviderSTRM3);
 end;
 
-procedure TfrmMain.NGTOPO30Click(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
+procedure TfrmMain.actShowAltitudeGTopo30Execute(Sender: TObject);
 begin
-  VRequest := FUrlProviderGTopo30.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    GState.InternalBrowser.NavigateByRequest('http://api.geonames.org/gtopo30', VRequest);
-  end;
+  DoNavigateByProvider('http://api.geonames.org/gtopo30', FUrlProviderGTopo30);
 end;
 
-procedure TfrmMain.tbxCopyUrlToGoogleMapsClick(Sender: TObject);
+procedure TfrmMain.actCopyUrlToGoogleMapsExecute(Sender: TObject);
+begin
+  DoCopyUrlToClipboard(FUrlProviderGoogle);
+end;
+
+procedure TfrmMain.actCopyUrlToGoogleEarthWebExecute(Sender: TObject);
+begin
+  DoCopyUrlToClipboard(FUrlProviderGoogleEarthWeb);
+end;
+
+procedure TfrmMain.actCopyUrlToYandexMapsExecute(Sender: TObject);
+begin
+  DoCopyUrlToClipboard(FUrlProviderYandex);
+end;
+
+procedure TfrmMain.actCopyUrlToKosmosnimkiRuExecute(Sender: TObject);
+begin
+  DoCopyUrlToClipboard(FUrlProviderKosmosnimki);
+end;
+
+procedure TfrmMain.actCopyUrlToNakarteMeExecute(Sender: TObject);
+begin
+  DoCopyUrlToClipboard(FUrlProviderNakarte);
+end;
+
+procedure TfrmMain.actCopyUrlToBingMapsExecute(Sender: TObject);
+begin
+  DoCopyUrlToClipboard(FUrlProviderBing);
+end;
+
+procedure TfrmMain.DoCopyUrlToClipboard(const AProvider: IUrlByCoordProvider);
 var
   VRequest: IDownloadRequest;
 begin
-  VRequest := FUrlProviderGoogle.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  VRequest := AProvider.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
   if Assigned(VRequest) then begin
     CopyDownloadRequestToClipboard(Handle, VRequest);
   end;
 end;
 
-procedure TfrmMain.tbxCopyUrlToGoogleEarthWebClick(Sender: TObject);
+procedure TfrmMain.DoNavigateByProvider(
+  const ATitle: string;
+  const AProvider: IUrlByCoordProvider
+);
 var
   VRequest: IDownloadRequest;
 begin
-  VRequest := FUrlProviderGoogleEarthWeb.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  VRequest := AProvider.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
   if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
-  end;
-end;
-
-procedure TfrmMain.tbxCopyUrlToYandexMapsClick(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
-begin
-  VRequest := FUrlProviderYandex.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
-  end;
-end;
-
-procedure TfrmMain.tbxCopyUrlToKosmosnimkiRuClick(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
-begin
-  VRequest := FUrlProviderKosmosnimki.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
-  end;
-end;
-
-procedure TfrmMain.tbxCopyUrlToNakarteMeClick(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
-begin
-  VRequest := FUrlProviderNakarte.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
-  end;
-end;
-
-procedure TfrmMain.tbxCopyUrlToBingMapsClick(Sender: TObject);
-var
-  VRequest: IDownloadRequest;
-begin
-  VRequest := FUrlProviderBing.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
-  if Assigned(VRequest) then begin
-    CopyDownloadRequestToClipboard(Handle, VRequest);
+    GState.InternalBrowser.NavigateByRequest(ATitle, VRequest);
   end;
 end;
 
@@ -6331,50 +6346,50 @@ var
 begin
   VMark := FSelectedMark;
 
-  tbitmMarkEditPosition.Visible := VMark <> nil;
+  actMarkEditPosition.Visible := VMark <> nil;
 
-  tbitmFitMarkToScreen.Visible :=
+  actMarkFitToScreen.Visible :=
     Assigned(VMark) and
     (Supports(VMark.Geometry, IGeometryLonLatLine) or
     Supports(VMark.Geometry, IGeometryLonLatPolygon));
 
   if VMark <> nil then begin
-    tbitmHideThisMark.Visible := not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible;
+    actMarkHide.Visible := not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible;
   end else begin
-    tbitmHideThisMark.Visible := False;
+    actMarkHide.Visible := False;
   end;
 
-  tbxtmAddToMergePolygons.Visible :=
+  actAddToMergePolygons.Visible :=
     (Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatPolygon)) or
     (FSelectedWiki <> nil);
 
-  tbxitmElevationProfile.Visible :=
+  actShowElevationProfile.Visible :=
     Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatLine);
 
-  tbxFillingMap.Visible :=
+  actFillingMapUseSelectedPolygon.Visible :=
     (Assigned(VMark) and Supports(VMark.Geometry, IGeometryLonLatPolygon)) or
     (FSelectedWiki <> nil);
 
-  tbitmMarkEditProperties.Visible := VMark <> nil;
-  NMarkExport.Visible := VMark <> nil;
-  NMarkDel.Visible := VMark <> nil;
+  actMarkEditProperties.Visible := VMark <> nil;
+  actMarkExport.Visible := VMark <> nil;
+  actMarkDelete.Visible := VMark <> nil;
   tbsprtMainPopUp0.Visible := VMark <> nil;
-  NMarkOper.Visible := (VMark <> nil) or (FSelectedWiki <> nil);
-  NMarkNav.Visible := VMark <> nil;
-  NMarkPlay.Visible := (VMark <> nil) and (FPlacemarkPlayerPlugin <> nil) and (FPlacemarkPlayerPlugin.Available);
-  tbitmMarkInfo.Visible := (VMark <> nil);
+  actProcessSelection.Visible := (VMark <> nil) or (FSelectedWiki <> nil);
+  actMarkNavigate.Visible := VMark <> nil;
+  actMarkPlay.Visible := (VMark <> nil) and (FPlacemarkPlayerPlugin <> nil) and (FPlacemarkPlayerPlugin.Available);
+  actMarkInfo.Visible := (VMark <> nil);
 
-  tbitmCopyToClipboardGenshtabName.Visible := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
+  actCopyGenshtabName.Visible := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
 
   if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and (FConfig.NavToPoint.MarkId <> '') then begin
     VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
     if (VMarkStringID = FConfig.NavToPoint.MarkId) then begin
-      NMarkNav.Checked := True;
+      actMarkNavigate.Checked := True;
     end else begin
-      NMarkNav.Checked := False;
+      actMarkNavigate.Checked := False;
     end;
   end else begin
-    NMarkNav.Checked := False;
+    actMarkNavigate.Checked := False;
   end;
 
   ldm.Visible := False;
@@ -6430,24 +6445,24 @@ begin
   VMapType := FMainMapState.ActiveMap.GetStatic;
 
   // allow to view map info
-  NMapInfo.Enabled := VMapType.GUIConfig.InfoUrl.Value <> '';
+  actMapInfo.Enabled := VMapType.GUIConfig.InfoUrl.Value <> '';
 
   // allow to show Map Storage Info
-  NMapStorageInfo.Visible := Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions);
-  NMapStorageInfo.Enabled := NMapStorageInfo.Visible;
+  actMapStorageInfo.Visible := Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions);
+  NMapStorageInfo.Enabled := actMapStorageInfo.Visible;
 
   // allow to clear or select versions
-  tbpmiClearVersion.Visible := (0 < Length(VMapType.VersionRequest.GetStatic.BaseVersion.StoreString));
+  actResetVersion.Visible := (0 < Length(VMapType.VersionRequest.GetStatic.BaseVersion.StoreString));
 
   // make and select version by placemark
-  tbitmMakeVersionByMark.Visible := (VMark <> nil) and (VInternalDomainOptions <> nil);
-  tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;
+  actMakeVersionByMark.Visible := (VMark <> nil) and (VInternalDomainOptions <> nil);
+  actSelectVersionByMark.Visible := actMakeVersionByMark.Visible;
 
   // versions submenu
-  tbpmiVersions.Visible := (VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions) or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
+  tbpmiVersions.Visible := (VMapType.TileStorage.StorageTypeAbilities.VersionSupport = tstvsMultiVersions) or actResetVersion.Visible or actMakeVersionByMark.Visible;
 
   // go to map center (main map)
-  tbitmGoToMapCenter.Visible := (VMapType.Zmp.Coverage <> nil) and (not PointIsEmpty(VMapType.Zmp.Coverage.CenterPos));
+  actGoToMapCenter.Visible := (VMapType.Zmp.Coverage <> nil) and (not PointIsEmpty(VMapType.Zmp.Coverage.CenterPos));
 end;
 
 procedure TfrmMain.NPanelsPopup(Sender: TTBCustomItem; FromLink: Boolean);
@@ -6872,7 +6887,7 @@ end;
 
 // TrayIcon
 
-procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
+procedure TfrmMain.actCopySearchResultCoordinatesExecute(Sender: TObject);
 var
   VStr: string;
   VPlacemark: IVectorDataItem;
@@ -6884,7 +6899,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmCopySearchResultDescriptionClick(Sender: TObject);
+procedure TfrmMain.actCopySearchResultDescriptionExecute(Sender: TObject);
 var
   VStr: string;
   VPlacemark: IVectorDataItem;
@@ -6899,7 +6914,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
+procedure TfrmMain.actCreateMarkBySearchResultExecute(Sender: TObject);
 var
   VStr: string;
   VPlacemark: IVectorDataItem;
@@ -6930,7 +6945,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmMakeVersionByMarkClick(Sender: TObject);
+procedure TfrmMain.actMakeVersionByMarkExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VMapType: IMapType;
@@ -6962,7 +6977,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.tbitmMarkInfoClick(Sender: TObject);
+procedure TfrmMain.actMarkInfoExecute(Sender: TObject);
 var
   VMark: IVectorDataItem;
 begin
