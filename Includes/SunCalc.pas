@@ -387,39 +387,75 @@ begin
   Result := dt;
 end;
 
-// time the Sun reaches altitude h0 on the given side of transit (sign -1 = rise, +1 = set);
-// starts from the hour angle at transit and converges with Meeus' altitude correction (15.2).
-function getSetJ(const h0, dt: Double; const sign: Integer; const lw, phi, decT: Double): Double;
+// time the Sun reaches altitude h0 within the half day [a0, b0] between transit and nadir, given the
+// sine of its altitude at both ends; NaN if it doesn't cross h0 there (altitude is monotonic over the
+// half day, so a sign change means exactly one crossing). Seeds from the hour angle at transit
+// declination, then Newton on sin(h) kept inside a shrinking bracket, bisecting whenever a step
+// leaves it - on near-grazing days the slope is tiny and plain Newton steps land days away.
+function getSetJ(const h0, a0, b0, sa, sb, dt, lw, phi, decT: Double): Double;
 var
-  cosH0, d, hourAngle, alt, sinH: Double;
+  a, b, s0, cosHA0, ha0, d, hourAngle, k, f, den, step: Double;
+  rising: Boolean;
   c: TSunCoords;
-  i: Integer;
 begin
-  cosH0 := (sin(h0) - sin(phi) * sin(decT)) / (cos(phi) * cos(decT));
-  if (cosH0 < -1) or (cosH0 > 1) then begin
-    Result := NaN; // sun stays above / below this altitude all day
+  a := a0;
+  b := b0;
+  s0 := sin(h0);
+  rising := sa < sb;
+  if (sa - s0) * (sb - s0) > 0 then begin
+    Result := NaN; // sun stays above / below this altitude all half day
     Exit;
   end;
 
-  d := dt + sign * ArcCos(cosH0) / (2 * PI);
-  for i := 0 to 1 do begin
+  cosHA0 := (s0 - sin(phi) * sin(decT)) / (cos(phi) * cos(decT));
+  if cosHA0 <= -1 then ha0 := PI
+  else if cosHA0 >= 1 then ha0 := 0
+  else ha0 := ArcCos(cosHA0);
+  if rising then d := dt - ha0 / (2 * PI)
+  else d := dt + ha0 / (2 * PI);
+
+  while True do begin
     c := getSunCoords(toDaysTT(d));
-    hourAngle := wrapPi(getSiderealTime(d, lw) - c.ra);
-    alt := getAltitude(hourAngle, phi, c.dec);
-    sinH := cos(phi) * cos(c.dec) * sin(hourAngle);
-    if abs(sinH) < 1e-6 then Break; // grazing the horizon - correction is ill-conditioned
-    d := d + (alt - h0) / (2 * PI * sinH);
+    hourAngle := getSiderealTime(d, lw) - c.ra;
+    k := cos(phi) * cos(c.dec);
+    f := sin(phi) * sin(c.dec) + k * cos(hourAngle) - s0;
+    if (f < 0) = rising then a := d else b := d;
+
+    den := 2 * PI * k * sin(hourAngle);
+    // a zero slope would be an infinite step in JS; here it just means "bisect instead"
+    if den <> 0 then begin
+      step := f / den;
+      if (d + step > a) and (d + step < b) then begin
+        d := d + step;
+        if abs(step) < 1e-5 then begin // ~1 s step, so quadratic convergence leaves ~us error
+          Result := d;
+          Exit;
+        end;
+        Continue;
+      end;
+    end;
+
+    d := (a + b) / 2;
+    if b - a < 1e-8 then begin
+      Result := d;
+      Exit;
+    end;
   end;
-  Result := d;
 end;
 
 // start of the civil day containing ADate in a zone AUtcOffset minutes ahead of UTC, as a TDateTime
 function civilMidnight(const ADate: TDateTime; const AUtcOffset: Double): TDateTime;
+const
+  // Guards the exact-midnight boundary: ADate + offDays is a floating-point sum, and for
+  // non-dyadic offsets (e.g. 480 minutes) an instant that is mathematically exactly local
+  // midnight can land a few ulps below the integer day. That would make Floor choose the
+  // previous civil day. ~86 us is far below any meaningful input resolution.
+  cBoundaryEpsilon = 1E-9;
 var
   offDays: Double;
 begin
   offDays := AUtcOffset / (24 * 60);
-  Result := Floor(ADate + offDays) - offDays; // floor to a whole UTC day, then undo the shift
+  Result := Floor(ADate + offDays + cBoundaryEpsilon) - offDays; // floor to a whole UTC day, then undo the shift
 end;
 
 // solar transit (days since J2000) anchoring the day shared by GetTimes and GetMoonTimes: the one
@@ -443,7 +479,7 @@ end;
 function GetTimesImpl(const ADate: TDateTime; const ALat, ALon, AHeight: Double;
   const AHasUtcOffset: Boolean; const AUtcOffset: Double): TSunCalcTimes;
 var
-  lw, phi, dh, dt, dec, h0, jrise, jset, noonAlt, riseSetAlt: Double;
+  lw, phi, dh, dt, dec, h0, jrise, jset, noonAlt, riseSetAlt, sNoon, sNadir1, sNadir2: Double;
   i: TSunCalcTimesID;
 begin
   NewSunCalcTimes(Result);
@@ -457,6 +493,12 @@ begin
   dt := solarDayTransit(ADate, lw, AHasUtcOffset, AUtcOffset);
   dec := getSunCoords(toDaysTT(dt)).dec; // declination at transit, shared by every rise/set solve
 
+  // sine of the Sun's altitude at transit and at the nadirs either side (H = 0 and PI), bracketing
+  // every rise and set; the nadirs use their own declination, which matters on regime-boundary days
+  sNoon := cos(phi - dec);
+  sNadir1 := -cos(phi + getSunCoords(toDaysTT(dt - 0.5)).dec);
+  sNadir2 := -cos(phi + getSunCoords(toDaysTT(dt + 0.5)).dec);
+
   Result.Times[solarNoon].Value := fromJulian(dt + J2000);
   Result.Times[solarNoon].HasValue := True;
   Result.Times[nadir].Value := fromJulian(dt + J2000 - 0.5);
@@ -465,8 +507,8 @@ begin
   for i := Low(Result.Times) to High(Result.Times) do begin
     if (i <> solarNoon) and (i <> nadir) and Result.Times[i].IsRiseInfo then begin
       h0 := (Result.Times[i].Angle + dh) * cRad;
-      jrise := getSetJ(h0, dt, -1, lw, phi, dec);
-      jset  := getSetJ(h0, dt, 1, lw, phi, dec);
+      jrise := getSetJ(h0, dt - 0.5, dt, sNadir1, sNoon, dt, lw, phi, dec);
+      jset  := getSetJ(h0, dt, dt + 0.5, sNoon, sNadir2, dt, lw, phi, dec);
 
       // find the matching set entry for this rise angle (they share the same Angle value
       // and sit at consecutive indices, rise then set - see cSunCalcTimesInfo above)
