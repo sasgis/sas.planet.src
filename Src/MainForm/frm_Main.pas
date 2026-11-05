@@ -781,10 +781,10 @@ type
     procedure PrepareMainPopupContext(const APos: TPoint);
     procedure UpdateSelectedObjects(
       const ALocalConverter: ILocalCoordConverter;
-      const APos: TPoint;
-      const AFindMark: Boolean
+      const APos: TPoint
     );
     procedure UpdateMainPopupMenuState;
+    procedure ResetMainPopupMenuContext;
     procedure tbtpltCenterWithZoomCellClick(
       Sender: TTBXCustomToolPalette;
       var ACol, ARow: Integer;
@@ -5460,23 +5460,19 @@ begin
 
   if (VIsClickInMap) and (Button = mbRight) and (FState.State = ao_movemap) then begin
     FMainPopupPos := Point(X, Y);
-    UpdateSelectedObjects(VLocalConverter, FMainPopupPos, True);
+    UpdateSelectedObjects(VLocalConverter, FMainPopupPos);
     map.PopupMenu := MainPopupMenu;
   end else begin
     FState.MapMovingBegin(mmrDragging);
     FMapMovingButton := Button;
     FMoveByMouseStartPoint := Point(X, Y);
-    // reset popup menu globals
-    FMainPopupPos := Point(-1, -1);
-    UpdateSelectedObjects(VLocalConverter, FMainPopupPos, False);
-    map.PopupMenu := nil;
+    ResetMainPopupMenuContext;
   end;
 end;
 
 procedure TfrmMain.UpdateSelectedObjects(
   const ALocalConverter: ILocalCoordConverter;
-  const APos: TPoint;
-  const AFindMark: Boolean
+  const APos: TPoint
 );
 var
   VVectorItem: IVectorDataItem;
@@ -5484,10 +5480,6 @@ var
 begin
   FSelectedMark := nil;
   FSelectedWiki := nil;
-
-  if not AFindMark then begin
-    Exit;
-  end;
 
   VVectorItems := FLayerMapMarks.FindItems(ALocalConverter, APos);
   if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
@@ -6380,7 +6372,15 @@ end;
 procedure TfrmMain.PrepareMainPopupContext(const APos: TPoint);
 begin
   FMainPopupPos := APos;
-  UpdateSelectedObjects(FViewPortState.View.GetStatic, APos, True);
+  UpdateSelectedObjects(FViewPortState.View.GetStatic, APos);
+end;
+
+procedure TfrmMain.ResetMainPopupMenuContext;
+begin
+  FMainPopupPos := Point(-1, -1);
+  FSelectedMark := nil;
+  FSelectedWiki := nil;
+  map.PopupMenu := nil;
 end;
 
 function TfrmMain.TryExecuteMainPopupShortCut(const AShortCut: TShortCut): Boolean;
@@ -6402,7 +6402,9 @@ begin
 
   VPos := map.ScreenToClient(Mouse.CursorPos);
   if not Types.PtInRect(map.ClientRect, VPos) then begin
+    ResetMainPopupMenuContext;
     ShowErrorMessage(Handle, _('Mouse cursor is outside the map!'));
+    Result := True; // shortcut is handled
     Exit;
   end;
 
@@ -6414,6 +6416,12 @@ end;
 
 procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);
 begin
+  // As long as the menu is assigned to map.PopupMenu, the VCL handles
+  // its items' shortcuts itself, bypassing ShortcutManager, i.e. without
+  // updating FMainPopupPos/FSelectedMark/FSelectedWiki.
+  // The menu is already being displayed, so detach it from the control immediately.
+  map.PopupMenu := nil;
+
   UpdateMainPopupMenuState;
 end;
 
