@@ -2904,6 +2904,7 @@ begin
   Result.Add(TBCopyLinkLayer);
   Result.Add(TBLayerInfo);
   Result.Add(tbitmGoToLayerCenter);
+  Result.Add(tbxFillingMap);
 end;
 
 procedure TfrmMain.CreateViewTilesGridActions;
