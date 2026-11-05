@@ -118,6 +118,7 @@ object frmMain: TfrmMain
         Options = [tboDropdownArrow]
       end
       object TBLayerSel: TTBXSubmenuItem
+        Caption = 'Layers'
         Hint = 'Select overlay layers'
         ImageIndex = 3
         Images = PanelsImageList
@@ -952,6 +953,7 @@ object frmMain: TfrmMain
       Stretch = True
       TabOrder = 5
       object TBFavorite: TTBXSubmenuItem
+        Caption = 'Favorites'
         Hint = 'Favorite maps/layers'
         ImageIndex = 22
         Images = PanelsImageList

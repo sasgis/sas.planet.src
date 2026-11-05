@@ -777,6 +777,14 @@ type
       Layer: TCustomLayer
     );
     procedure MainPopupMenuPopup(Sender: TObject);
+    function TryExecuteMainPopupShortCut(const AShortCut: TShortCut): Boolean;
+    procedure PrepareMainPopupContext(const APos: TPoint);
+    procedure UpdateSelectedObjects(
+      const ALocalConverter: ILocalCoordConverter;
+      const APos: TPoint;
+      const AFindMark: Boolean
+    );
+    procedure UpdateMainPopupMenuState;
     procedure tbtpltCenterWithZoomCellClick(
       Sender: TTBXCustomToolPalette;
       var ACol, ARow: Integer;
@@ -1014,8 +1022,11 @@ type
 
     FMapMovingButton: TMouseButton;
     FMovePoint: Boolean;
+
+    FMainPopupPos: TPoint;
     FSelectedMark: IVectorDataItem;
     FSelectedWiki: IVectorDataItem;
+
     FEditMarkPoint: IVectorDataItem;
     FEditMarkLine: IVectorDataItem;
     FEditMarkPoly: IVectorDataItem;
@@ -1316,6 +1327,7 @@ uses
   i_DoublePointsAggregator,
   i_FavoriteMapSetItemStatic,
   i_MapCoverageInfo,
+  i_ShortCutSingleConfig,
   u_SortFunc,
   u_InterfaceListSimple,
   u_FavoriteMapSetHotKeyList,
@@ -2119,6 +2131,8 @@ begin
       TShortcutManager.Create(
         GState.Bitmap32StaticFactory,
         TBXMainMenu.Items,
+        MainPopupMenu.Items,
+        _('Context Menu'),
         GetIgnoredMenuItemsList
       );
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
@@ -2874,13 +2888,22 @@ function TfrmMain.GetIgnoredMenuItemsList: TList;
 begin
   Result := TList.Create;
   Result.Add(NSMB);
+  // Dynamic items have their own hotkey configuration
   Result.Add(tbiLayersList);
+  Result.Add(tbiFavoriteItems);
   Result.Add(tbiFillingMapMaps);
   Result.Add(NLayerParams);
   Result.Add(TBLang);
   if not GState.Config.InternalDebugConfig.IsShowDebugInfo then begin
     Result.Add(tbitmShowDebugInfo);
   end;
+  // Popup submenus filled at runtime
+  Result.Add(ldm);
+  Result.Add(dlm);
+  Result.Add(TBOpenDirLayer);
+  Result.Add(TBCopyLinkLayer);
+  Result.Add(TBLayerInfo);
+  Result.Add(tbitmGoToLayerCenter);
 end;
 
 procedure TfrmMain.CreateViewTilesGridActions;
@@ -3908,6 +3931,11 @@ begin
           Exit;
         end;
 
+        if TryExecuteMainPopupShortCut(VShortCut) then begin
+          Handled := True;
+          Exit;
+        end;
+
         VMapType := FMapHotKeyList.GetMapTypeByHotKey(VShortCut);
         if VMapType <> nil then begin
           if VMapType.Zmp.IsLayer then begin
@@ -4120,7 +4148,7 @@ begin
     // to lonlat
     VLocalConverter := FViewPortState.View.GetStatic;
     VProjection := VLocalConverter.Projection;
-    VMousePos := FMouseState.GetLastDownPos(mbRight);
+    VMousePos := FMainPopupPos;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, False);
     VLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4349,7 +4377,7 @@ var
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
   VPoint := GState.VectorGeometryLonLatFactory.CreateLonLatPoint(VMouseLonLat);
@@ -4368,7 +4396,7 @@ var
   VBitmapTile: IBitmap32Static;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
 
   VProjection := VLocalConverter.Projection;
   VMapType := FMainMapState.ActiveMap.GetStatic;
@@ -4395,7 +4423,7 @@ var
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
   VStr := GState.CoordToStringConverter.GetStatic.LonLatConvert(VMouseLonLat);
@@ -4413,7 +4441,7 @@ var
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VProjection := VLocalConverter.Projection;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
   VTerrainInfo := TTerrainInfo.Create(GState.Config.TerrainConfig, GState.TerrainProviderList);
@@ -4431,7 +4459,7 @@ var
   VListName: string;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
   VProjection := VLocalConverter.Projection;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4455,7 +4483,7 @@ var
 begin
   VMapType := FMainMapState.ActiveMap.GetStatic;
   VLocalConverter := FViewPortState.View.GetStatic;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
   VProjection := VLocalConverter.Projection;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4491,7 +4519,7 @@ begin
   end;
 
   VLocalConverter := FViewPortState.View.GetStatic;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
   VProjection := VLocalConverter.Projection;
   if VProjection.CheckPixelPosFloatStrict(VMouseMapPoint) then begin
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4583,7 +4611,7 @@ begin
   VMapType := FMainMapState.ActiveMap.GetStatic;
   if VMapType.TileStorage.StorageTypeAbilities.StorageClass = tstcInSeparateFiles then begin
     VLocalConverter := FViewPortState.View.GetStatic;
-    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
     VProjection := VLocalConverter.Projection;
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4624,7 +4652,7 @@ begin
   end;
 
   VLocalConverter := FViewPortState.View.GetStatic;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
   VProjection := VLocalConverter.Projection;
   VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
   VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4758,7 +4786,7 @@ begin
   end;
 
   VLocalConverter := FViewPortState.View.GetStatic;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
   VProjection := VLocalConverter.Projection;
   if VProjection.CheckPixelPosFloatStrict(VMouseMapPoint) then begin
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
@@ -4871,7 +4899,7 @@ var
 begin
   AllowChange := False;
   VZoom := ((5 * ARow) + ACol) - 1;
-  VMouseDownPoint := FMouseState.GetLastDownPos(mbRight);
+  VMouseDownPoint := FMainPopupPos;
   MapZoom(VZoom, VMouseDownPoint);
 end;
 
@@ -5156,7 +5184,7 @@ begin
   if VMapType.Zmp.TileDownloaderConfig.Enabled then begin
     VLocalConverter := FViewPortState.View.GetStatic;
     VProjection := VLocalConverter.Projection;
-    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMainPopupPos);
     VProjection.ValidatePixelPosFloatStrict(VMouseMapPoint, True);
     VMouseLonLat := VProjection.PixelPosFloat2LonLat(VMouseMapPoint);
     VMapProjection := VMapType.ProjectionSet.GetSuitableProjection(VProjection);
@@ -5430,31 +5458,49 @@ begin
   end;
 
   if (VIsClickInMap) and (Button = mbRight) and (FState.State = ao_movemap) then begin
-    VVectorItem := nil;
-    VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x, y));
-    if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
-      VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
-    end;
-    if not Supports(VVectorItem, IVectorDataItem, FSelectedMark) then begin
-      FSelectedMark := nil;
-    end;
+    FMainPopupPos := Point(X, Y);
+    UpdateSelectedObjects(VLocalConverter, FMainPopupPos, True);
     map.PopupMenu := MainPopupMenu;
   end else begin
     FState.MapMovingBegin(mmrDragging);
     FMapMovingButton := Button;
     FMoveByMouseStartPoint := Point(X, Y);
-    FSelectedMark := nil;
+    // reset popup menu globals
+    FMainPopupPos := Point(-1, -1);
+    UpdateSelectedObjects(VLocalConverter, FMainPopupPos, False);
     map.PopupMenu := nil;
   end;
+end;
 
-  if FSelectedMark <> nil then begin
-    // mark selected
-    FSelectedWiki := nil;
-  end else begin
-    // try to select wiki object
-    VVectorItems := FWikiLayer.FindItems(VLocalConverter, Point(x, y));
+procedure TfrmMain.UpdateSelectedObjects(
+  const ALocalConverter: ILocalCoordConverter;
+  const APos: TPoint;
+  const AFindMark: Boolean
+);
+var
+  VVectorItem: IVectorDataItem;
+  VVectorItems: IVectorItemSubset;
+begin
+  FSelectedMark := nil;
+  FSelectedWiki := nil;
+
+  if not AFindMark then begin
+    Exit;
+  end;
+
+  VVectorItems := FLayerMapMarks.FindItems(ALocalConverter, APos);
+  if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
+    VVectorItem := SelectForEdit(VVectorItems, ALocalConverter);
+    if not Supports(VVectorItem, IVectorDataItem, FSelectedMark) then begin
+      FSelectedMark := nil;
+    end;
+  end;
+
+  if FSelectedMark = nil then begin
+    // no mark - try to select wiki object
+    VVectorItems := FWikiLayer.FindItems(ALocalConverter, APos);
     if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
-      FSelectedWiki := SelectForEdit(VVectorItems, VLocalConverter);
+      FSelectedWiki := SelectForEdit(VVectorItems, ALocalConverter);
     end;
   end;
 end;
@@ -6088,7 +6134,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VMouseDownPos := FMouseState.GetLastDownPos(mbRight);
+  VMouseDownPos := FMainPopupPos;
   VVectorItems := FindItems(VLocalConverter, VMouseDownPos);
   if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
     FMergePolygonsPresenter.AddVectorItems(VVectorItems);
@@ -6103,7 +6149,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
-  VMouseDownPos := FMouseState.GetLastDownPos(mbRight);
+  VMouseDownPos := FMainPopupPos;
   VVectorItems := FindItems(VLocalConverter, VMouseDownPos);
   if VVectorItems <> nil then begin
     for I := 0 to VVectorItems.Count - 1 do begin
@@ -6255,7 +6301,7 @@ procedure TfrmMain.DoCopyUrlToClipboard(const AProvider: IUrlByCoordProvider);
 var
   VRequest: IDownloadRequest;
 begin
-  VRequest := AProvider.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  VRequest := AProvider.GetUrl(FViewPortState.View.GetStatic, FMainPopupPos);
   if Assigned(VRequest) then begin
     CopyDownloadRequestToClipboard(Handle, VRequest);
   end;
@@ -6268,7 +6314,7 @@ procedure TfrmMain.DoNavigateByProvider(
 var
   VRequest: IDownloadRequest;
 begin
-  VRequest := AProvider.GetUrl(FViewPortState.View.GetStatic, FMouseState.GetLastDownPos(mbRight));
+  VRequest := AProvider.GetUrl(FViewPortState.View.GetStatic, FMainPopupPos);
   if Assigned(VRequest) then begin
     GState.InternalBrowser.NavigateByRequest(ATitle, VRequest);
   end;
@@ -6330,7 +6376,47 @@ begin
   end;
 end;
 
+procedure TfrmMain.PrepareMainPopupContext(const APos: TPoint);
+begin
+  FMainPopupPos := APos;
+  UpdateSelectedObjects(FViewPortState.View.GetStatic, APos, True);
+end;
+
+function TfrmMain.TryExecuteMainPopupShortCut(const AShortCut: TShortCut): Boolean;
+var
+  VPos: TPoint;
+  VShortCutInfo: IShortCutSingleConfig;
+begin
+  Result := False;
+
+  // the popup menu is available only in this state, so are its hotkeys
+  if (AShortCut = 0) or (FShortCutManager = nil) or (FState.State <> ao_movemap) then begin
+    Exit;
+  end;
+
+  VShortCutInfo := FShortCutManager.GetPopupItemByShortCut(AShortCut);
+  if VShortCutInfo = nil then begin
+    Exit;
+  end;
+
+  VPos := map.ScreenToClient(Mouse.CursorPos);
+  if not Types.PtInRect(map.ClientRect, VPos) then begin
+    ShowErrorMessage(Handle, _('Mouse cursor is outside the map!'));
+    Exit;
+  end;
+
+  PrepareMainPopupContext(VPos);
+  UpdateMainPopupMenuState;
+
+  Result := FShortCutManager.TryExecute(VShortCutInfo);
+end;
+
 procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);
+begin
+  UpdateMainPopupMenuState;
+end;
+
+procedure TfrmMain.UpdateMainPopupMenuState;
 var
   I: Integer;
   VMapType: IMapType;

@@ -29,8 +29,14 @@ uses
   i_ConfigDataElement;
 
 type
+  TShortCutScope = (scMainMenu, scPopup);
+  TShortCutScopes = set of TShortCutScope;
+
   IShortCutSingleConfig = interface(IConfigDataElement)
     ['{B8B92915-98D2-4254-ACE7-92ACFC081513}']
+    function GetScope: TShortCutScope;
+    property Scope: TShortCutScope read GetScope;
+
     function GetCaption: String;
     property Caption: String read GetCaption;
 

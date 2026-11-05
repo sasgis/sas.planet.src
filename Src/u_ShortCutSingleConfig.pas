@@ -38,16 +38,23 @@ type
   private
     FIconBitmap: IBitmap32Static;
     FMenuItem: TTBCustomItem;
+    FCaptionPrefix: String;
+    FScope: TShortCutScope;
     FDefShortCut: TShortCut;
     FShortCut: TShortCut;
+    FAppliedShortCut: TShortCut;
     function GetBitmap(
       const ABitmapFactory: IBitmap32StaticFactory;
       AMenu: TTBCustomItem
     ): IBitmap32Static;
+    function GetActionShortCut: TShortCut;
+    procedure ApplyToAction;
+    procedure ApplyToMenuItem;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    function GetScope: TShortCutScope;
     function GetCaption: String;
     function GetIconBitmap: IBitmap32Static;
     function GetShortCut: TShortCut;
@@ -58,7 +65,9 @@ type
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
-      AMenuItem: TTBCustomItem
+      AMenuItem: TTBCustomItem;
+      const ACaptionPrefix: String;
+      const AScope: TShortCutScope
     );
   end;
 
@@ -74,13 +83,18 @@ uses
 
 constructor TShortCutSingleConfig.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
-  AMenuItem: TTBCustomItem
+  AMenuItem: TTBCustomItem;
+  const ACaptionPrefix: String;
+  const AScope: TShortCutScope
 );
 begin
   inherited Create;
   FMenuItem := AMenuItem;
+  FCaptionPrefix := ACaptionPrefix;
+  FScope := AScope;
   FDefShortCut := AMenuItem.ShortCut;
   FShortCut := FDefShortCut;
+  FAppliedShortCut := FDefShortCut;
   FIconBitmap := GetBitmap(ABitmapFactory, AMenuItem);
 end;
 
@@ -97,25 +111,53 @@ procedure TShortCutSingleConfig.DoWriteConfig(
 );
 begin
   inherited;
-  AConfigData.WriteInteger(FMenuItem.Name, FMenuItem.ShortCut);
+  AConfigData.WriteInteger(FMenuItem.Name, FShortCut);
+end;
+
+function TShortCutSingleConfig.GetActionShortCut: TShortCut;
+begin
+  if FMenuItem.Action is TCustomAction then begin
+    Result := TCustomAction(FMenuItem.Action).ShortCut;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+procedure TShortCutSingleConfig.ApplyToAction;
+begin
+  if FMenuItem.Action is TCustomAction then begin
+    if TCustomAction(FMenuItem.Action).ShortCut <> FShortCut then begin
+      TCustomAction(FMenuItem.Action).ShortCut := FShortCut;
+      SetChanged;
+    end;
+  end;
+end;
+
+procedure TShortCutSingleConfig.ApplyToMenuItem;
+var
+  VShortCut: TShortCut;
+begin
+  VShortCut := FShortCut;
+  if VShortCut = 0 then begin
+    VShortCut := GetActionShortCut;
+  end;
+  if FMenuItem.ShortCut <> VShortCut then begin
+    FMenuItem.ShortCut := VShortCut;
+    SetChanged;
+  end;
 end;
 
 procedure TShortCutSingleConfig.ApplyShortCut;
 begin
   LockWrite;
   try
-    if Assigned(FMenuItem.Action) then begin
-      if FMenuItem.Action is TCustomAction then begin
-        if TCustomAction(FMenuItem.Action).ShortCut <> FShortCut then begin
-          TCustomAction(FMenuItem.Action).ShortCut := FShortCut;
-          SetChanged;
-        end;
-      end;
+    FAppliedShortCut := FShortCut;
+    // popup items always keep their hotkey separately from the main menu one,
+    // even when both are linked to the same action
+    if (FScope = scMainMenu) and Assigned(FMenuItem.Action) then begin
+      ApplyToAction;
     end else begin
-      if FMenuItem.ShortCut <> FShortCut then begin
-        FMenuItem.ShortCut := FShortCut;
-        SetChanged;
-      end;
+      ApplyToMenuItem;
     end;
   finally
     UnlockWrite;
@@ -152,6 +194,11 @@ begin
   end;
 end;
 
+function TShortCutSingleConfig.GetScope: TShortCutScope;
+begin
+  Result := FScope;
+end;
+
 function TShortCutSingleConfig.GetCaption: String;
 var
   Menu: TTBCustomItem;
@@ -179,7 +226,11 @@ begin
       end else begin
         Menu := nil;
       end;
-    until not Assigned(Menu)
+    until not Assigned(Menu);
+
+    if (Result <> '') and (FCaptionPrefix <> '') then begin
+      Result := FCaptionPrefix + ' -> ' + Result;
+    end;
   finally
     UnlockRead;
   end;
@@ -204,8 +255,8 @@ procedure TShortCutSingleConfig.ResetShortCut;
 begin
   LockWrite;
   try
-    if FShortCut <> FMenuItem.ShortCut then begin
-      FShortCut := FMenuItem.ShortCut;
+    if FShortCut <> FAppliedShortCut then begin
+      FShortCut := FAppliedShortCut;
       SetChanged;
     end;
   finally
