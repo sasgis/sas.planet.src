@@ -4633,7 +4633,7 @@ object frmMain: TfrmMain
     end
     object actShowElevationProfile: TAction
       Category = 'MainPopup\Operations'
-      Caption = 'Show Elevation Profile'
+      Caption = 'Show Elevation Profile (Ctrl+MLeft)'
       ImageIndex = 81
       OnExecute = actShowElevationProfileExecute
     end
