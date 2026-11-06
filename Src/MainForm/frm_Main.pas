@@ -2129,6 +2129,7 @@ begin
         GState.Bitmap32StaticFactory,
         TBXMainMenu.Items,
         MainPopupMenu.Items,
+        MainPopupMenu.Images,
         _('Context Menu'),
         GetIgnoredMenuItemsList
       );

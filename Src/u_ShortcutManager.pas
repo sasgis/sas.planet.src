@@ -25,6 +25,7 @@ interface
 
 uses
   Classes,
+  ImgList,
   TB2Item,
   i_Bitmap32BufferFactory,
   i_ConfigDataProvider,
@@ -39,7 +40,8 @@ type
     FMenuItems: TList;
     procedure LoadItems(
       const ABitmapFactory: IBitmap32StaticFactory;
-      Menu: TTBCustomItem;
+      AMenu: TTBCustomItem;
+      AImages: TCustomImageList;
       const ACaptionPrefix: string;
       const AScope: TShortCutScope;
       AVisitedMenus: TList
@@ -54,6 +56,7 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       AMainMenu: TTBCustomItem;
       AMainPopupMenu: TTBCustomItem;
+      AMainPopupMenuImages: TCustomImageList;
       const APopupCaptionPrefix: string;
       AIgnoredItems: TList
     );
@@ -81,6 +84,7 @@ constructor TShortcutManager.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   AMainMenu: TTBCustomItem;
   AMainPopupMenu: TTBCustomItem;
+  AMainPopupMenuImages: TCustomImageList;
   const APopupCaptionPrefix: string;
   AIgnoredItems: TList
 );
@@ -95,8 +99,8 @@ begin
 
   VVisitedMenus := TList.Create;
   try
-    LoadItems(ABitmapFactory, AMainMenu, '', scMainMenu, VVisitedMenus);
-    LoadItems(ABitmapFactory, AMainPopupMenu, APopupCaptionPrefix, scPopup, VVisitedMenus);
+    LoadItems(ABitmapFactory, AMainMenu, nil, '', scMainMenu, VVisitedMenus);
+    LoadItems(ABitmapFactory, AMainPopupMenu, AMainPopupMenuImages, APopupCaptionPrefix, scPopup, VVisitedMenus);
   finally
     VVisitedMenus.Free;
   end;
@@ -233,7 +237,8 @@ end;
 
 procedure TShortcutManager.LoadItems(
   const ABitmapFactory: IBitmap32StaticFactory;
-  Menu: TTBCustomItem;
+  AMenu: TTBCustomItem;
+  AImages: TCustomImageList;
   const ACaptionPrefix: string;
   const AScope: TShortCutScope;
   AVisitedMenus: TList
@@ -245,13 +250,13 @@ var
   VSubMenu: TTBCustomItem;
 begin
   // protects from linked submenus loops as well
-  if AVisitedMenus.IndexOf(Menu) >= 0 then begin
+  if AVisitedMenus.IndexOf(AMenu) >= 0 then begin
     Exit;
   end;
-  AVisitedMenus.Add(Menu);
+  AVisitedMenus.Add(AMenu);
 
-  for I := 0 to Menu.Count - 1 do begin
-    VMenuItem := Menu.Items[I];
+  for I := 0 to AMenu.Count - 1 do begin
+    VMenuItem := AMenu.Items[I];
     if not (VMenuItem is TTBSeparatorItem) then begin
       if (FIgnoredItems = nil) or (FIgnoredItems.IndexOf(VMenuItem) < 0) then begin
         if
@@ -259,7 +264,7 @@ begin
           Assigned(VMenuItem.OnClick) or
           (VMenuItem.ClassName = 'TTBXVisibilityToggleItem')
         then begin
-          VShortCutInfo := TShortCutSingleConfig.Create(ABitmapFactory, VMenuItem, ACaptionPrefix, AScope);
+          VShortCutInfo := TShortCutSingleConfig.Create(ABitmapFactory, VMenuItem, AImages, ACaptionPrefix, AScope);
           // add item
           FItemsList.Add(VShortCutInfo);
           FMenuItems.Add(VMenuItem);
@@ -268,10 +273,10 @@ begin
         if Assigned(VMenuItem.LinkSubitems) then begin
           VSubMenu := VMenuItem.LinkSubitems;
           if (FIgnoredItems = nil) or (FIgnoredItems.IndexOf(VSubMenu) < 0) then begin
-            LoadItems(ABitmapFactory, VSubMenu, ACaptionPrefix, AScope, AVisitedMenus);
+            LoadItems(ABitmapFactory, VSubMenu, AImages, ACaptionPrefix, AScope, AVisitedMenus);
           end;
         end else if VMenuItem.Count > 0 then begin
-          LoadItems(ABitmapFactory, VMenuItem, ACaptionPrefix, AScope, AVisitedMenus);
+          LoadItems(ABitmapFactory, VMenuItem, AImages, ACaptionPrefix, AScope, AVisitedMenus);
         end;
       end;
     end;

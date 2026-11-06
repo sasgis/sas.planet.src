@@ -25,6 +25,7 @@ interface
 
 uses
   Classes,
+  ImgList,
   TB2Item,
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
@@ -45,7 +46,8 @@ type
     FAppliedShortCut: TShortCut;
     function GetBitmap(
       const ABitmapFactory: IBitmap32StaticFactory;
-      AMenu: TTBCustomItem
+      AMenu: TTBCustomItem;
+      AImages: TCustomImageList
     ): IBitmap32Static;
     function GetActionShortCut: TShortCut;
     procedure ApplyToAction;
@@ -67,6 +69,7 @@ type
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
       AMenuItem: TTBCustomItem;
+      AImages: TCustomImageList;
       const ACaptionPrefix: string;
       const AScope: TShortCutScope
     );
@@ -85,6 +88,7 @@ uses
 constructor TShortCutSingleConfig.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   AMenuItem: TTBCustomItem;
+  AImages: TCustomImageList;
   const ACaptionPrefix: string;
   const AScope: TShortCutScope
 );
@@ -96,7 +100,7 @@ begin
   FDefShortCut := AMenuItem.ShortCut;
   FShortCut := FDefShortCut;
   FAppliedShortCut := FDefShortCut;
-  FIconBitmap := GetBitmap(ABitmapFactory, AMenuItem);
+  FIconBitmap := GetBitmap(ABitmapFactory, AMenuItem, AImages);
 end;
 
 procedure TShortCutSingleConfig.DoReadConfig(
@@ -167,20 +171,32 @@ end;
 
 function TShortCutSingleConfig.GetBitmap(
   const ABitmapFactory: IBitmap32StaticFactory;
-  AMenu: TTBCustomItem
+  AMenu: TTBCustomItem;
+  AImages: TCustomImageList
 ): IBitmap32Static;
 var
+  VImages: TCustomImageList;
   VBitmap: TBitmap32;
   VBmp: TBitmap;
 begin
   Result := nil;
-  if (AMenu.Images <> nil) and (AMenu.ImageIndex >= 0) then begin
+
+  if AMenu.Images <> nil then begin
+    VImages := AMenu.Images;
+  end else begin
+    VImages := AImages;
+  end;
+
+  if (VImages <> nil) and (AMenu.ImageIndex >= 0) then begin
     VBitmap := TBitmap32.Create;
     try
       VBmp := TBitmap.Create;
       try
-        AMenu.Images.GetBitmap(AMenu.ImageIndex, VBmp);
-        VBitmap.Assign(VBmp);
+        if VImages.GetBitmap(AMenu.ImageIndex, VBmp) then begin
+          VBitmap.Assign(VBmp);
+        end else begin
+          Exit;
+        end;
       finally
         VBmp.Free;
       end;
