@@ -776,15 +776,7 @@ type
       X, Y: Integer;
       Layer: TCustomLayer
     );
-    procedure MainPopupMenuPopup(Sender: TObject);
-    function TryExecuteMainPopupShortCut(const AShortCut: TShortCut): Boolean;
-    procedure PrepareMainPopupContext(const APos: TPoint);
-    procedure UpdateSelectedObjects(
-      const ALocalConverter: ILocalCoordConverter;
-      const APos: TPoint
-    );
-    procedure UpdateMainPopupMenuState;
-    procedure ResetMainPopupMenuContext;
+    procedure OnMainPopupMenuPopup(Sender: TObject);
     procedure tbtpltCenterWithZoomCellClick(
       Sender: TTBXCustomToolPalette;
       var ACol, ARow: Integer;
@@ -1228,6 +1220,11 @@ type
     ): IVectorItemSubset;
 
     procedure ProcessOpenFiles(const AFiles: IStringListStatic);
+
+    function TryExecuteMainPopupShortCut(const AShortCut: TShortCut): Boolean;
+    procedure UpdateMainPopupMenuContext(const ALocalConverter: ILocalCoordConverter; const APos: TPoint);
+    procedure UpdateMainPopupMenuState;
+    procedure ResetMainPopupMenuContext;
 
     procedure SwitchSunCalc(const ACalcType: TSunCalcDataProviderType);
     procedure OnEditMarkPosition(const AMark: IVectorDataItem);
@@ -2898,13 +2895,14 @@ begin
     Result.Add(tbitmShowDebugInfo);
   end;
   // Popup submenus filled at runtime
-  Result.Add(ldm);
-  Result.Add(dlm);
-  Result.Add(TBOpenDirLayer);
-  Result.Add(TBCopyLinkLayer);
-  Result.Add(TBLayerInfo);
-  Result.Add(tbitmGoToLayerCenter);
-  Result.Add(tbxFillingMap);
+  Result.Add(ldm);                  // Download Overlay Layer Tile to Cache
+  Result.Add(dlm);                  // Delete Overlay Layer Tile from Cache
+  Result.Add(TBOpenDirLayer);       // Open Overlay Layer Tile Folder
+  Result.Add(TBCopyLinkLayer);      // URL to Layer Tile
+  Result.Add(TBLayerInfo);          // Layer Info
+  Result.Add(tbitmGoToLayerCenter); // Go to Overlay Layer Center
+  Result.Add(tbitmCenterWithZoom);  // Center With Zoom
+  Result.Add(tbxFillingMap);        // Cached Tiles Map
 end;
 
 procedure TfrmMain.CreateViewTilesGridActions;
@@ -5459,18 +5457,25 @@ begin
   end;
 
   if (VIsClickInMap) and (Button = mbRight) and (FState.State = ao_movemap) then begin
-    FMainPopupPos := Point(X, Y);
-    UpdateSelectedObjects(VLocalConverter, FMainPopupPos);
+    UpdateMainPopupMenuContext(VLocalConverter, Point(X, Y));
     map.PopupMenu := MainPopupMenu;
   end else begin
     FState.MapMovingBegin(mmrDragging);
     FMapMovingButton := Button;
     FMoveByMouseStartPoint := Point(X, Y);
     ResetMainPopupMenuContext;
+    map.PopupMenu := nil;
   end;
 end;
 
-procedure TfrmMain.UpdateSelectedObjects(
+procedure TfrmMain.ResetMainPopupMenuContext;
+begin
+  FMainPopupPos := Point(-1, -1);
+  FSelectedMark := nil;
+  FSelectedWiki := nil;
+end;
+
+procedure TfrmMain.UpdateMainPopupMenuContext(
   const ALocalConverter: ILocalCoordConverter;
   const APos: TPoint
 );
@@ -5478,6 +5483,8 @@ var
   VVectorItem: IVectorDataItem;
   VVectorItems: IVectorItemSubset;
 begin
+  FMainPopupPos := APos;
+
   FSelectedMark := nil;
   FSelectedWiki := nil;
 
@@ -6369,20 +6376,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.PrepareMainPopupContext(const APos: TPoint);
-begin
-  FMainPopupPos := APos;
-  UpdateSelectedObjects(FViewPortState.View.GetStatic, APos);
-end;
-
-procedure TfrmMain.ResetMainPopupMenuContext;
-begin
-  FMainPopupPos := Point(-1, -1);
-  FSelectedMark := nil;
-  FSelectedWiki := nil;
-  map.PopupMenu := nil;
-end;
-
 function TfrmMain.TryExecuteMainPopupShortCut(const AShortCut: TShortCut): Boolean;
 var
   VPos: TPoint;
@@ -6402,19 +6395,18 @@ begin
 
   VPos := map.ScreenToClient(Mouse.CursorPos);
   if not Types.PtInRect(map.ClientRect, VPos) then begin
-    ResetMainPopupMenuContext;
     ShowErrorMessage(Handle, _('Mouse cursor is outside the map!'));
     Result := True; // shortcut is handled
     Exit;
   end;
 
-  PrepareMainPopupContext(VPos);
+  UpdateMainPopupMenuContext(FViewPortState.View.GetStatic, VPos);
   UpdateMainPopupMenuState;
 
   Result := FShortCutManager.TryExecute(VShortCutInfo);
 end;
 
-procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);
+procedure TfrmMain.OnMainPopupMenuPopup(Sender: TObject);
 begin
   // As long as the menu is assigned to map.PopupMenu, the VCL handles
   // its items' shortcuts itself, bypassing ShortcutManager, i.e. without

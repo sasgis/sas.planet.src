@@ -3489,7 +3489,7 @@ object frmMain: TfrmMain
   end
   object MainPopupMenu: TTBXPopupMenu
     Images = MenusImageList
-    OnPopup = MainPopupMenuPopup
+    OnPopup = OnMainPopupMenuPopup
     Left = 208
     Top = 168
     object tbitmMarkEditProperties: TTBXItem

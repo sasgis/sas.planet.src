@@ -37,8 +37,8 @@ type
     function GetScope: TShortCutScope;
     property Scope: TShortCutScope read GetScope;
 
-    function GetCaption: String;
-    property Caption: String read GetCaption;
+    function GetCaption: string;
+    property Caption: string read GetCaption;
 
     function GetIconBitmap: IBitmap32Static;
     property IconBitmap: IBitmap32Static read GetIconBitmap;

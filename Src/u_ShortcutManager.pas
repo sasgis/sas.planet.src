@@ -49,10 +49,6 @@ type
       const AScopes: TShortCutScopes
     ): IShortCutSingleConfig;
     procedure ApplyScope(const AScope: TShortCutScope);
-    procedure AddItem(
-      const AShortCutInfo: IShortCutSingleConfig;
-      AMenuItem: TTBCustomItem
-    );
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -112,15 +108,6 @@ begin
   FreeAndNil(FMenuItems);
   FreeAndNil(FIgnoredItems);
   inherited;
-end;
-
-procedure TShortcutManager.AddItem(
-  const AShortCutInfo: IShortCutSingleConfig;
-  AMenuItem: TTBCustomItem
-);
-begin
-  FItemsList.Add(AShortCutInfo);
-  FMenuItems.Add(AMenuItem);
 end;
 
 function TShortcutManager.TryExecute(
@@ -273,7 +260,9 @@ begin
           (VMenuItem.ClassName = 'TTBXVisibilityToggleItem')
         then begin
           VShortCutInfo := TShortCutSingleConfig.Create(ABitmapFactory, VMenuItem, ACaptionPrefix, AScope);
-          AddItem(VShortCutInfo, VMenuItem);
+          // add item
+          FItemsList.Add(VShortCutInfo);
+          FMenuItems.Add(VMenuItem);
         end;
 
         if Assigned(VMenuItem.LinkSubitems) then begin

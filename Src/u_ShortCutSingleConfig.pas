@@ -38,7 +38,7 @@ type
   private
     FIconBitmap: IBitmap32Static;
     FMenuItem: TTBCustomItem;
-    FCaptionPrefix: String;
+    FCaptionPrefix: string;
     FScope: TShortCutScope;
     FDefShortCut: TShortCut;
     FShortCut: TShortCut;
@@ -54,8 +54,9 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    { IShortCutSingleConfig }
     function GetScope: TShortCutScope;
-    function GetCaption: String;
+    function GetCaption: string;
     function GetIconBitmap: IBitmap32Static;
     function GetShortCut: TShortCut;
     procedure SetShortCut(AValue: TShortCut);
@@ -66,7 +67,7 @@ type
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
       AMenuItem: TTBCustomItem;
-      const ACaptionPrefix: String;
+      const ACaptionPrefix: string;
       const AScope: TShortCutScope
     );
   end;
@@ -84,7 +85,7 @@ uses
 constructor TShortCutSingleConfig.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   AMenuItem: TTBCustomItem;
-  const ACaptionPrefix: String;
+  const ACaptionPrefix: string;
   const AScope: TShortCutScope
 );
 begin
@@ -103,7 +104,7 @@ procedure TShortCutSingleConfig.DoReadConfig(
 );
 begin
   inherited;
-  SetShortCut(AConfigData.ReadInteger(FMenuItem.name, FShortCut));
+  SetShortCut(AConfigData.ReadInteger(FMenuItem.Name, FShortCut));
 end;
 
 procedure TShortCutSingleConfig.DoWriteConfig(
@@ -199,34 +200,36 @@ begin
   Result := FScope;
 end;
 
-function TShortCutSingleConfig.GetCaption: String;
+function TShortCutSingleConfig.GetCaption: string;
 var
-  Menu: TTBCustomItem;
-  AddName: String;
+  I: Integer;
+  VMenu: TTBCustomItem;
+  VName: string;
 begin
   Result := '';
   LockRead;
   try
-    Menu := FMenuItem;
+    VMenu := FMenuItem;
     repeat
-      AddName := Menu.Caption;
-      if Pos('&', AddName) <> 0 then begin
-        Delete(AddName, Pos('&', AddName), 1);
+      VName := VMenu.Caption;
+      I := Pos('&', VName);
+      if I > 0 then begin
+        Delete(VName, I, 1);
       end;
       if Result = '' then begin
-        Result := AddName;
+        Result := VName;
       end else begin
-        if AddName <> '' then begin
-          Result := AddName + ' -> ' + Result;
+        if VName <> '' then begin
+          Result := VName + ' -> ' + Result;
         end;
       end;
 
-      if Menu.HasParent then begin
-        Menu := Menu.Parent;
+      if VMenu.HasParent then begin
+        VMenu := VMenu.Parent;
       end else begin
-        Menu := nil;
+        VMenu := nil;
       end;
-    until not Assigned(Menu);
+    until not Assigned(VMenu);
 
     if (Result <> '') and (FCaptionPrefix <> '') then begin
       Result := FCaptionPrefix + ' -> ' + Result;
