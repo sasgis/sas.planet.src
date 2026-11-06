@@ -129,6 +129,7 @@ implementation
 
 uses
   StrUtils,
+  NetEncoding,
   c_InternalBrowser,
   i_BinaryData,
   u_Dialogs,
@@ -345,6 +346,8 @@ begin
   VUrl := string(VUrlPtr);
   CoTaskMemFree(VUrlPtr);
 
+  VUrl := TNetEncoding.URL.Decode(VUrl);
+
   if (VUrl = '') or SameText(VUrl, CEmptyDocument) then begin
     Exit;
   end;
@@ -414,6 +417,8 @@ begin
 
   VUrl := string(VUrlPtr);
   CoTaskMemFree(VUrlPtr);
+
+  VUrl := TNetEncoding.URL.Decode(VUrl);
 
   if not StartsText(CSASInternalURLPrefix, VUrl) then begin
     _SetResponse(403, 'Blocked');
