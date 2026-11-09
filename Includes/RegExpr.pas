@@ -81,7 +81,7 @@ interface
   {$IFEND}
 {$ENDIF}
 
-{$DEFINE RegExpPCodeDump} // p-code dumping (see Dump method)
+{.$DEFINE RegExpPCodeDump} // debug: p-code dumping (see Dump method)
 {$IFNDEF FPC} // the option is not supported in FreePascal
  {$DEFINE reRealExceptionAddr} // exceptions will point to appropriate source line, not to Error procedure
 {$ENDIF}
@@ -108,28 +108,47 @@ interface
 {$IFDEF FPC} {$DEFINE OverMeth} {$ENDIF}
 
 uses
- {$IFDEF ForceAnsiStrings}
- Alcinoe.StringList,
- {$ELSE}
- Classes,  // TStrings in Split method
- {$ENDIF}
  SysUtils; // Exception
 
 type
  {$IFDEF UniCode}
  PRegExprChar = PWideChar;
- RegExprString = WideString;
+ RegExprString = {$IF CompilerVersion >= 20.0} UnicodeString {$ELSE} WideString {$IFEND};
  REChar = WideChar;
  {$ELSE}
  PRegExprChar = PAnsiChar;
  RegExprString = AnsiString; //###0.952 was string
  REChar = AnsiChar;
  {$ENDIF}
- {$IFDEF ForceAnsiStrings}
- TRegExprStrings = TALStringsA;
- {$ELSE}
- TRegExprStrings = TStrings;
- {$ENDIF}
+
+ // Minimal TStrings replacement
+ TRegExprStrings = class(TObject)
+ private type
+  TRegExprStrItem = record
+   FStr: RegExprString;
+   FObj: TObject;
+  end;
+  TRegExprStrItems = array of TRegExprStrItem;
+ private
+  FItems: TRegExprStrItems;
+  FCount: integer;
+  procedure CheckIndex(const AIndex: integer); inline;
+  procedure Grow; inline;
+  procedure InsertItem(const AIndex: integer; const AStr: RegExprString; AObject: TObject);
+  function GetStrings(const AIndex: integer): RegExprString;
+  procedure SetStrings(const AIndex: integer; const AStr: RegExprString);
+  function GetObjects(const AIndex: integer): TObject;
+  procedure SetObjects(const AIndex: integer; const AObject: TObject);
+ public
+  procedure Clear;
+  function Add(const AStr: RegExprString): integer;
+  procedure InsertObject(const AIndex: integer; const AStr: RegExprString; AObject: TObject);
+  procedure Delete(const AIndex: integer);
+  property Count: integer read FCount;
+  property Strings[const AIndex: integer]: RegExprString read GetStrings write SetStrings; default;
+  property Objects[const AIndex: integer]: TObject read GetObjects write SetObjects;
+ end;
+
  TREOp = REChar; // internal p-code type //###0.933
  PREOp = ^TREOp;
  TRENextOff = integer; // internal Next "pointer" (offset to current p-code) //###0.933
@@ -652,13 +671,101 @@ function RegExprSubExpressions (const ARegExpr : RegExprString;
 implementation
 
 uses
- {$IFDEF ForceAnsiStrings}
- Alcinoe.StringUtils,
-   {$IFDEF HAS_ANSISTRINGS}
-   AnsiStrings,
-   {$ENDIF}
- {$ENDIF}
+ {$IF DEFINED(ForceAnsiStrings) AND DEFINED(HAS_ANSISTRINGS)}
+ AnsiStrings,
+ {$IFEND}
  Windows; // CharUpper/Lower
+
+{=============================================================}
+{====================== TRegExprStrings ======================}
+{=============================================================}
+
+procedure TRegExprStrings.CheckIndex(const AIndex: integer);
+ begin
+  // single unsigned comparison covers both AIndex < 0 and AIndex >= FCount
+  if Cardinal(AIndex) >= Cardinal(FCount)
+   then raise ERangeError.CreateFmt('%s: index %d out of range [0..%d]', [Self.ClassName, AIndex, FCount]);
+ end;
+
+procedure TRegExprStrings.Grow;
+ begin
+  if FCount > (MaxInt - 16) div 2
+   then raise EOutOfMemory.CreateFmt('%s: too many items', [Self.ClassName]);
+  SetLength(FItems, FCount * 2 + 16);
+ end;
+
+procedure TRegExprStrings.InsertItem(const AIndex: integer; const AStr: RegExprString; AObject: TObject);
+ begin
+  if Cardinal(AIndex) > Cardinal(FCount)
+   then raise ERangeError.CreateFmt('%s: index %d out of range [0..%d]', [Self.ClassName, AIndex, FCount]);
+  if FCount = Length(FItems)
+    then Grow;
+  if AIndex < FCount then begin
+   Move(FItems[AIndex], FItems[AIndex + 1], (FCount - AIndex) * SizeOf(TRegExprStrItem));
+   FillChar(FItems[AIndex], SizeOf(TRegExprStrItem), 0);
+  end;
+  FItems[AIndex].FStr := AStr;
+  FItems[AIndex].FObj := AObject;
+  Inc(FCount);
+ end;
+
+procedure TRegExprStrings.Clear;
+ begin
+  FItems := nil;
+  FCount := 0;
+ end;
+
+function TRegExprStrings.Add(const AStr: RegExprString): integer;
+ begin
+  if FCount = Length(FItems)
+   then Grow;
+  Result := FCount;
+  FItems[Result].FStr := AStr;
+  FItems[Result].FObj := nil;
+  Inc(FCount);
+ end;
+
+procedure TRegExprStrings.InsertObject(const AIndex: integer; const AStr: RegExprString; AObject: TObject);
+ begin
+  InsertItem(AIndex, AStr, AObject);
+ end;
+
+procedure TRegExprStrings.Delete(const AIndex: integer);
+ begin
+  CheckIndex(AIndex);
+  FItems[AIndex].FStr := '';
+  FItems[AIndex].FObj := nil;
+  Dec(FCount);
+  if AIndex < FCount then begin
+   Move(FItems[AIndex + 1], FItems[AIndex], (FCount - AIndex) * SizeOf(TRegExprStrItem));
+   FillChar(FItems[FCount], SizeOf(TRegExprStrItem), 0);
+  end;
+ end;
+
+function TRegExprStrings.GetStrings(const AIndex: integer): RegExprString;
+ begin
+  CheckIndex(AIndex);
+  Result := FItems[AIndex].FStr;
+ end;
+
+procedure TRegExprStrings.SetStrings(const AIndex: integer; const AStr: RegExprString);
+ begin
+  CheckIndex(AIndex);
+  FItems[AIndex].FStr := AStr;
+ end;
+
+function TRegExprStrings.GetObjects(const AIndex: integer): TObject;
+ begin
+  CheckIndex(AIndex);
+  Result := FItems[AIndex].FObj;
+ end;
+
+procedure TRegExprStrings.SetObjects(const AIndex: integer; const AObject: TObject);
+ begin
+  CheckIndex(AIndex);
+  FItems[AIndex].FObj := AObject;
+ end;
+{=============================================================}
 
 const
  TRegExprVersionMajor : integer = 0;
@@ -3886,6 +3993,17 @@ function TRegExpr.Replace (AInputStr : RegExprString;
 {=============================================================}
 
 {$IFDEF RegExpPCodeDump}
+
+function FormatA(const AFormat: RegExprString; const AArgs: array of const): RegExprString;
+ begin
+  Result := RegExprString(Format(string(AFormat), AArgs));
+ end;
+
+function IntToStrA(const AValue: integer): RegExprString;
+ begin
+  Result := RegExprString(IntToStr(AValue));
+ end;
+
 function TRegExpr.DumpOp (op : TREOp) : RegExprString;
 // printable representation of opcode
  begin
@@ -3918,9 +4036,9 @@ function TRegExpr.DumpOp (op : TREOp) : RegExprString;
     BSUBEXP:      Result := 'BSUBEXP';
     BSUBEXPCI:    Result := 'BSUBEXP/CI';
     Succ (OPEN) .. TREOp (Ord (OPEN) + NSUBEXP - 1): //###0.929
-                  Result := ALFormatA ('OPEN[%d]', [ord (op) - ord (OPEN)]);
+                  Result := FormatA ('OPEN[%d]', [ord (op) - ord (OPEN)]);
     Succ (CLOSE) .. TREOp (Ord (CLOSE) + NSUBEXP - 1): //###0.929
-                  Result := ALFormatA ('CLOSE[%d]', [ord (op) - ord (CLOSE)]);
+                  Result := FormatA ('CLOSE[%d]', [ord (op) - ord (CLOSE)]);
     STAR:         Result := 'STAR';
     PLUS:         Result := 'PLUS';
     BRACES:       Result := 'BRACES';
@@ -3963,7 +4081,7 @@ function TRegExpr.Dump : RegExprString;
   s := programm + REOpSz;
   while op <> EEND do begin // While that wasn't END last time...
      op := s^;
-     Result := Result + ALFormatA ('%2d%s', [s - programm, DumpOp (s^)]); // Where, what.
+     Result := Result + FormatA ('%2d%s', [s - programm, DumpOp (s^)]); // Where, what.
      next := regnext (s);
      if next = nil // Next ptr.
       then Result := Result + ' (0)'
@@ -3971,7 +4089,7 @@ function TRegExpr.Dump : RegExprString;
         if next > s //###0.948 PWideChar subtraction workaround (see comments in Tail method for details)
          then Diff := next - s
          else Diff := - (s - next);
-        Result := Result + ALFormatA (' (%d) ', [(s - programm) + Diff]);
+        Result := Result + FormatA (' (%d) ', [(s - programm) + Diff]);
        end;
      inc (s, REOpSz + RENextOffSz);
      if (op = ANYOF) or (op = ANYOFCI) or (op = ANYBUT) or (op = ANYBUTCI)
@@ -3990,7 +4108,7 @@ function TRegExpr.Dump : RegExprString;
         end;
       end;
      if (op = BSUBEXP) or (op = BSUBEXPCI) then begin
-       Result := Result + ' \' + ALIntToStrA (Ord (s^));
+       Result := Result + ' \' + IntToStrA (Ord (s^));
        inc (s);
       end;
      {$IFDEF UseSetOfChar} //###0.929
@@ -3998,19 +4116,19 @@ function TRegExpr.Dump : RegExprString;
        for Ch := #0 to #255 do
         if Ch in PSetOfREChar (s)^ then
          if Ch < ' '
-          then Result := Result + '#' + ALIntToStrA (Ord (Ch)) //###0.936
+          then Result := Result + '#' + IntToStrA (Ord (Ch)) //###0.936
           else Result := Result + Ch;
        inc (s, SizeOf (TSetOfREChar));
       end;
      {$ENDIF}
      if (op = BRACES) or (op = BRACESNG) then begin //###0.941
        // show min/max argument of BRACES operator
-       Result := Result + ALFormatA ('{%d,%d}', [PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
+       Result := Result + FormatA ('{%d,%d}', [PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
        inc (s, REBracesArgSz * 2);
       end;
      {$IFDEF ComplexBraces}
      if (op = LOOP) or (op = LOOPNG) then begin //###0.940
-       Result := Result + ALFormatA (' -> (%d) {%d,%d}', [
+       Result := Result + FormatA (' -> (%d) {%d,%d}', [
         (s - programm - (REOpSz + RENextOffSz)) + PRENextOff (s + 2 * REBracesArgSz)^,
         PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
        inc (s, 2 * REBracesArgSz + RENextOffSz);
@@ -4033,7 +4151,7 @@ function TRegExpr.Dump : RegExprString;
    if Ch in FirstCharSet
     then begin
       if Ch < ' '
-       then Result := Result + '#' + ALIntToStrA(Ord(Ch)) //###0.948
+       then Result := Result + '#' + IntToStrA(Ord(Ch)) //###0.948
        else Result := Result + Ch;
     end;
   {$ENDIF}
