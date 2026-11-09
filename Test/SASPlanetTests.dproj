@@ -55,7 +55,7 @@
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Debug Console' or '$(Cfg_4)'!=''">
+    <PropertyGroup Condition="'$(Config)'=='Debug-Console' or '$(Cfg_4)'!=''">
         <Cfg_4>true</Cfg_4>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
@@ -106,7 +106,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Version>7.0</Version>
-        <DCC_Define>DEBUG;_CONSOLE_TESTRUNNER;$(DCC_Define)</DCC_Define>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\;$(DCC_ResourcePath)</DCC_ResourcePath>
         <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\;$(DCC_ObjPath)</DCC_ObjPath>
         <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\MarksDB\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\;..\Src\Vector\;..\Src\Marker\;$(DCC_IncludePath)</DCC_IncludePath>
@@ -221,7 +221,7 @@
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
-        <BuildConfiguration Include="Debug Console">
+        <BuildConfiguration Include="Debug-Console">
             <Key>Cfg_4</Key>
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
