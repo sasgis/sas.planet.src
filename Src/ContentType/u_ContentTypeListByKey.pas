@@ -39,7 +39,7 @@ type
       const AType: IContentTypeInfoBasic
     );
     function Get(const AKey: AnsiString): IContentTypeInfoBasic;
-    function GetEnumerator: TStringsEnumeratorA;
+    function GetEnumerator: TStringsEnumeratorA; inline;
   end;
 
 

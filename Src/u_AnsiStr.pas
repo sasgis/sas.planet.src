@@ -24,8 +24,8 @@ unit u_AnsiStr;
 interface
 
 uses
-  SysUtils,
-  AnsiStrings,
+  System.SysUtils,
+  System.AnsiStrings,
   Alcinoe.Localization,
   Alcinoe.StringUtils,
   Alcinoe.StringList;
