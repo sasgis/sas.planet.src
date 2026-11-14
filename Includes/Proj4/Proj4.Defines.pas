@@ -21,6 +21,10 @@ const
   // GOST P 51794-2008 (http://www.sasgis.org/mantis/view.php?id=3179)
   sk_42 = '+proj=longlat +ellps=krass +towgs84=23.57,-140.95,-79.8,0,0.35,0.79,-0.22 +no_defs';
 
+  // EPSG:4284 = Pulkovo 1942, the geographic datum of the SK-42
+  // Gauss-Kruger zones (EPSG:2492-2522) below
+  pulkovo_1942 = sk_42;
+
   // EPSG:2463-2491 = Pulkovo 1995 / Gauss-Kruger CM
   // EPSG:2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
   sk_42_gauss_kruger_fmt = '+proj=tmerc +lat_0=0 +lon_0=%d +k=1 +x_0=%d +y_0=%d +ellps=krass +units=m +no_defs';
@@ -64,6 +68,8 @@ begin
     3395: Result := epsg_3395;
 
     4269: Result := nad_83;
+
+    4284: Result := pulkovo_1942;
 
     4326: Result := wgs_84;
 

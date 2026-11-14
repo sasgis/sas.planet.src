@@ -42,6 +42,7 @@ type
     FGeoPJ: projPJ;
     FProjPJ: projPJ;
     FProj4InitStr: AnsiString;
+    FIsProjLatLong: Boolean;
   private
     { IProjConverter }
     function LonLat2XY(const ALonLat: TDoublePoint): TDoublePoint;
@@ -75,6 +76,7 @@ begin
   FCtx := nil;
   FProjPJ := nil;
   FGeoPJ := nil;
+  FIsProjLatLong := False;
 end;
 
 procedure TProjConverterByProj4.AfterConstruction;
@@ -102,6 +104,8 @@ begin
     VErrMsg := pj_strerrno(VErrNo);
     raise EProjConverterByDllError.CreateFmt(cProjectionInitError, [wgs_84, VErrMsg]);
   end;
+
+  FIsProjLatLong := (pj_is_latlong(FProjPJ) <> 0);
 end;
 
 destructor TProjConverterByProj4.Destroy;
@@ -145,8 +149,14 @@ begin
     );
   end;
 
-  Result.X := X;
-  Result.Y := Y;
+  if FIsProjLatLong then begin
+    // the target is geographic too, so pj_transform returned radians
+    Result.X := X * RAD_TO_DEG;
+    Result.Y := Y * RAD_TO_DEG;
+  end else begin
+    Result.X := X;
+    Result.Y := Y;
+  end;
 end;
 
 function TProjConverterByProj4.XY2LonLat(
@@ -159,8 +169,14 @@ begin
   Assert(FProjPJ <> nil);
   Assert(FGeoPJ <> nil);
 
-  X := AXY.X;
-  Y := AXY.Y;
+  if FIsProjLatLong then begin
+    // a geographic source holds degrees, but pj_transform expects radians
+    X := AXY.X * DEG_TO_RAD;
+    Y := AXY.Y * DEG_TO_RAD;
+  end else begin
+    X := AXY.X;
+    Y := AXY.Y;
+  end;
 
   VErrNo := pj_transform(FProjPJ, FGeoPJ, 1, 1, @X, @Y, nil); // Proj -> Geo
 

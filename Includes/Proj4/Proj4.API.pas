@@ -54,6 +54,7 @@ var
   pj_fwd: function(AProjLP: projLP; const AProjPJ: projPJ): projXY; cdecl;
   pj_inv: function(AProjXY: projXY; const AProjPJ: projPJ): projLP; cdecl;
   pj_free: function(AProjPJ: projPJ): Integer; cdecl;
+  pj_is_latlong: function(const AProjPJ: projPJ): Integer; cdecl;
   pj_strerrno: function(err_no: integer): PAnsiChar; cdecl;
   pj_ctx_alloc: function(): projCtx; cdecl;
   pj_ctx_free: procedure(ctx: projCtx); cdecl;
@@ -77,6 +78,7 @@ var
   function pj_fwd(AProjLP: projLP; const AProjPJ: projPJ): projXY; cdecl; external proj4_dll;
   function pj_inv(AProjXY: projXY; const AProjPJ: projPJ): projLP; cdecl; external proj4_dll;
   function pj_free(AProjPJ: projPJ): Integer; cdecl; external proj4_dll;
+  function pj_is_latlong(const AProjPJ: projPJ): Integer; cdecl; external proj4_dll;
   function pj_strerrno(err_no: integer): PAnsiChar; cdecl; external proj4_dll;
   function pj_ctx_alloc(): projCtx; cdecl; external proj4_dll;
   procedure pj_ctx_free(ctx: projCtx); cdecl; external proj4_dll;
@@ -209,6 +211,7 @@ begin
       pj_fwd := GetProcAddr('pj_fwd');
       pj_inv := GetProcAddr('pj_inv');
       pj_free := GetProcAddr('pj_free');
+      pj_is_latlong := GetProcAddr('pj_is_latlong');
       pj_strerrno := GetProcAddr('pj_strerrno');
       pj_ctx_alloc := GetProcAddr('pj_ctx_alloc');
       pj_ctx_free := GetProcAddr('pj_ctx_free');
@@ -228,6 +231,7 @@ begin
       (Addr(pj_transform) <> nil) and
       (Addr(pj_fwd) <> nil) and
       (Addr(pj_inv) <> nil) and
+      (Addr(pj_is_latlong) <> nil) and
       (Addr(pj_strerrno) <> nil) and
       (Addr(pj_ctx_alloc) <> nil) and
       (Addr(pj_ctx_free) <> nil) and
@@ -255,6 +259,7 @@ begin
     pj_fwd := nil;
     pj_inv := nil;
     pj_free := nil;
+    pj_is_latlong := nil;
     pj_strerrno := nil;
     pj_ctx_alloc := nil;
     pj_ctx_free := nil;

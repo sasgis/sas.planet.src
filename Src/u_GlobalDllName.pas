@@ -55,6 +55,7 @@ type
     ImageQuant: string;
     Zstd: string;
     BrotliDec: string;
+    Shp: string;
 
     procedure Init;
     procedure AddOrSetDllDirectory;
@@ -131,6 +132,7 @@ begin
     Self.ImageQuant := 'libimagequant.dll';
     Self.Zstd := 'libzstd.dll';
     Self.BrotliDec := 'libbrotlidec.dll';
+    Self.Shp := 'libshp.dll';
   end else begin
     FDllDirectory := VAppPath + {$IFDEF WIN32} 'lib32' {$ELSE} 'lib64' {$ENDIF} + PathDelim;
 
@@ -147,6 +149,7 @@ begin
     Self.ImageQuant := 'imagequant.dll';
     Self.Zstd := 'libzstd.dll';
     Self.BrotliDec := 'libbrotlidec.dll';
+    Self.Shp := 'libshp-4.dll';
   end;
 
   if not DirectoryExists(FDllDirectory) then begin

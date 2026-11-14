@@ -71,7 +71,8 @@ uses
   u_VectorItemTreeExporterList,
   u_VectorItemTreeExporterKmlKmz,
   u_VectorItemTreeExporterGPX,
-  u_VectorItemTreeExporterTCX;
+  u_VectorItemTreeExporterTCX,
+  u_VectorItemTreeExporterSHP;
 
 { TVectorItemTreeExporterListSimple }
 
@@ -149,6 +150,17 @@ begin
       [elioSaveToFile, elioAllowSeparateFiles],
       'tcx',
       'Training Center XML files (TCX)'
+    );
+  VList.Add(VItem);
+
+  VExporter := TVectorItemTreeExporterSHP.Create;
+  VItem :=
+    TVectorItemTreeExporterListItem.Create(
+      VExporter,
+      nil,
+      [elioSaveToDir],
+      'shp',
+      'ESRI Shapefile (SHP)'
     );
   VList.Add(VItem);
 

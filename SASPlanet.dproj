@@ -1847,6 +1847,7 @@
         <DCCReference Include="Src\VectorLoaders\u_WikimapiaPlainTextParser.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_XmlInfoSimpleParser.pas"/>
         <DCCReference Include="Src\VectorLoaders\u_XmlVectorObjects.pas"/>
+        <DCCReference Include="Src\Vector\c_ShpMarksCommon.pas"/>
         <DCCReference Include="Src\Vector\i_Appearance.pas"/>
         <DCCReference Include="Src\Vector\i_AppearanceHelper.pas"/>
         <DCCReference Include="Src\Vector\i_AppearanceOfMarkFactory.pas"/>
@@ -1876,10 +1877,12 @@
         <DCCReference Include="Src\Vector\u_ExportMarks2GPX.pas"/>
         <DCCReference Include="Src\Vector\u_ExportMarks2KML.pas"/>
         <DCCReference Include="Src\Vector\u_ExportMarks2KMLConfig.pas"/>
+        <DCCReference Include="Src\Vector\u_ExportMarks2SHP.pas"/>
         <DCCReference Include="Src\Vector\u_ExportMarks2TCX.pas"/>
         <DCCReference Include="Src\Vector\u_GpxFakeTimeGenerator.pas"/>
         <DCCReference Include="Src\Vector\u_GpxMarkProperties.pas"/>
         <DCCReference Include="Src\Vector\u_ImportConfig.pas"/>
+        <DCCReference Include="Src\Vector\u_ImportMarksFromSHP.pas"/>
         <DCCReference Include="Src\Vector\u_JpegWithExifImportConfig.pas"/>
         <DCCReference Include="Src\Vector\u_VectorDataFactoryForMap.pas"/>
         <DCCReference Include="Src\Vector\u_VectorDataFactorySimple.pas"/>
@@ -1893,12 +1896,14 @@
         <DCCReference Include="Src\Vector\u_VectorItemTreeExporterKmlKmz.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeExporterList.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeExporterListSimple.pas"/>
+        <DCCReference Include="Src\Vector\u_VectorItemTreeExporterSHP.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeExporterTCX.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterByVectorLoader.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterJpegWithExif.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterKMZ.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterList.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterListSimple.pas"/>
+        <DCCReference Include="Src\Vector\u_VectorItemTreeImporterSHP.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterXML.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeImporterXmlHelpers.pas"/>
         <DCCReference Include="Src\Vector\u_VectorItemTreeMarksDb.pas"/>

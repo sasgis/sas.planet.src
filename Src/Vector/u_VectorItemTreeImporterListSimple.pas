@@ -89,6 +89,7 @@ uses
   u_VectorItemTreeMarksDb,
   u_VectorItemTreeImporterXML,
   u_VectorItemTreeImporterKMZ,
+  u_VectorItemTreeImporterSHP,
   u_VectorDataLoaderWithCounter,
   u_GeoJsonParser,
   u_PLTSimpleParser,
@@ -96,7 +97,6 @@ uses
   u_HlgParser,
   u_MpSimpleParser,
   u_CsvParser;
-
 
 { TVectorItemTreeImporterListSimple }
 
@@ -183,6 +183,23 @@ begin
       VImporter,
       ['gpx'],
       'GPS Exchange files'
+    );
+  VList.Add(VItem);
+
+  // SHP
+  VImporter :=
+    TVectorItemTreeImporterSHP.Create(
+      AVectorDataItemMainInfoFactory,
+      AVectorDataFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorItemSubsetBuilderFactory,
+      AProjConverterFactory
+    );
+  VItem :=
+    TVectorItemTreeImporterListItem.Create(
+      VImporter,
+      ['shp'],
+      'ESRI Shapefile (SHP)'
     );
   VList.Add(VItem);
 
