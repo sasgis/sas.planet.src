@@ -36,6 +36,9 @@ type
     function GetShowAzimuth: Boolean;
     property ShowAzimuth: Boolean read GetShowAzimuth;
 
+    function GetShowDirection: Boolean;
+    property ShowDirection: Boolean read GetShowDirection;
+
     function GetShowIntermediateDist: Boolean;
     property ShowIntermediateDist: Boolean read GetShowIntermediateDist;
 
@@ -70,6 +73,10 @@ type
     function GetShowAzimuth: Boolean;
     procedure SetShowAzimuth(AValue: Boolean);
     property ShowAzimuth: Boolean read GetShowAzimuth write SetShowAzimuth;
+
+    function GetShowDirection: Boolean;
+    procedure SetShowDirection(AValue: Boolean);
+    property ShowDirection: Boolean read GetShowDirection write SetShowDirection;
 
     function GetShowIntermediateDist: Boolean;
     procedure SetShowIntermediateDist(const AValue: Boolean);

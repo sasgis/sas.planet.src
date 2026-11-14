@@ -123,6 +123,7 @@ implementation
 
 uses
   Math,
+  gnugettext,
   i_Datum,
   i_ProjectionType,
   u_GeoFunc,
@@ -135,6 +136,63 @@ const
   cDegreeSymbol = #176;
 begin
   Result := FloatToStrF(AAzimuth, ffNumber, 15, 2) + cDegreeSymbol;
+end;
+
+var
+  // 16-point compass rose, clockwise from North
+  GCompassDirections: array[0..15] of string;
+  GIsCompassDirectionsPrepared: Boolean = False;
+
+procedure EnsureCompassDirectionsPrepared;
+begin
+  if GIsCompassDirectionsPrepared then begin
+    Exit;
+  end;
+
+  GCompassDirections[0]  := pgettext('compass-direction', 'N');
+  GCompassDirections[1]  := pgettext('compass-direction', 'NNE');
+  GCompassDirections[2]  := pgettext('compass-direction', 'NE');
+  GCompassDirections[3]  := pgettext('compass-direction', 'ENE');
+  GCompassDirections[4]  := pgettext('compass-direction', 'E');
+  GCompassDirections[5]  := pgettext('compass-direction', 'ESE');
+  GCompassDirections[6]  := pgettext('compass-direction', 'SE');
+  GCompassDirections[7]  := pgettext('compass-direction', 'SSE');
+  GCompassDirections[8]  := pgettext('compass-direction', 'S');
+  GCompassDirections[9]  := pgettext('compass-direction', 'SSW');
+  GCompassDirections[10] := pgettext('compass-direction', 'SW');
+  GCompassDirections[11] := pgettext('compass-direction', 'WSW');
+  GCompassDirections[12] := pgettext('compass-direction', 'W');
+  GCompassDirections[13] := pgettext('compass-direction', 'WNW');
+  GCompassDirections[14] := pgettext('compass-direction', 'NW');
+  GCompassDirections[15] := pgettext('compass-direction', 'NNW');
+
+  GIsCompassDirectionsPrepared := True;
+end;
+
+function AzimuthToDirectionText(const AAzimuth: Double; const AUseLongFormat: Boolean): string;
+var
+  VAzimuth: Double;
+  VIndex: Integer;
+  VFrom, VTo: string;
+begin
+  EnsureCompassDirectionsPrepared;
+
+  // Normalize azimuth to [0; 360)
+  VAzimuth := AAzimuth - 360 * Floor(AAzimuth / 360);
+
+  // Round to the nearest of 16 compass directions (22.5-degree sectors)
+  VIndex := Trunc((VAzimuth + 11.25) / 22.5) mod 16;
+
+  // The azimuth points from the first point to the second point.
+  // Describe the same line as a view from the opposite direction.
+  VFrom := GCompassDirections[(VIndex + 8) mod 16];
+  VTo := GCompassDirections[VIndex];
+
+  if AUseLongFormat then begin
+    Result := Format(pgettext('compass-direction', 'From %0:s to %1:s'), [VFrom, VTo]);
+  end else begin
+    Result := Format('%s - %s', [VFrom, VTo]);
+  end;
 end;
 
 { TMapLayerCalcLineCaptions }
@@ -404,7 +462,7 @@ var
   VText: string;
   VProjectionType: IProjectionType;
   VDatum: IDatum;
-  VTextItems: array [0..2] of TTextItemInfo;
+  VTextItems: array [0..3] of TTextItemInfo;
   VPointIndex: Integer;
 begin
   VCount := ALine.Count;
@@ -432,6 +490,7 @@ begin
   VTextItems[0].Enabled := FConfig.ShowIntermediateDist;
   VTextItems[1].Enabled := FConfig.ShowDistIncrement;
   VTextItems[2].Enabled := FConfig.ShowAzimuth;
+  VTextItems[3].Enabled := FConfig.ShowDirection;
 
   for I := 1 to VCount - 1 do begin
     VCurrLonLat := VPoints[I];
@@ -492,7 +551,15 @@ begin
       VTextItems[2].Text := '';
     end;
 
-    VText := VTextItems[0].Text + VTextItems[1].Text + VTextItems[2].Text;
+    if VTextItems[3].Enabled and
+       ((VTextItems[0].Text <> '') or (VTextItems[1].Text <> '') or (VTextItems[2].Text <> ''))
+    then begin
+      VTextItems[3].Text := '; ' + AzimuthToDirectionText(ALastStartAzimuth, VIsLastPoint);
+    end else begin
+      VTextItems[3].Text := '';
+    end;
+
+    VText := VTextItems[0].Text + VTextItems[1].Text + VTextItems[2].Text + VTextItems[3].Text;
 
     APointsText[VPointIndex] := VText;
     Inc(VPointIndex);

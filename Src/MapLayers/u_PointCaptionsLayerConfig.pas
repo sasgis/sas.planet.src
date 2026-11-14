@@ -36,6 +36,7 @@ type
   private
     FVisible: Boolean;
     FShowAzimuth: Boolean;
+    FShowDirection: Boolean;
     FShowIntermediateDist: Boolean;
     FShowDistIncrement: Boolean;
     FShowPointHint: Boolean;
@@ -48,6 +49,7 @@ type
     { IPointCaptionsLayerConfigStatic }
     function GetVisible: Boolean;
     function GetShowAzimuth: Boolean;
+    function GetShowDirection: Boolean;
     function GetShowIntermediateDist: Boolean;
     function GetShowDistIncrement: Boolean;
     function GetShowPointHint: Boolean;
@@ -60,6 +62,7 @@ type
     constructor Create(
       const AVisible: Boolean;
       const AShowAzimuth: Boolean;
+      const AShowDirection: Boolean;
       const AShowIntermediateDist: Boolean;
       const AShowDistIncrement: Boolean;
       const AShowPointHint: Boolean;
@@ -75,6 +78,7 @@ type
   private
     FVisible: Boolean;
     FShowAzimuth: Boolean;
+    FShowDirection: Boolean;
     FShowIntermediateDist: Boolean;
     FShowDistIncrement: Boolean;
     FShowPointHint: Boolean;
@@ -95,6 +99,9 @@ type
 
     function GetShowAzimuth: Boolean;
     procedure SetShowAzimuth(AValue: Boolean);
+
+    function GetShowDirection: Boolean;
+    procedure SetShowDirection(AValue: Boolean);
 
     function GetShowIntermediateDist: Boolean;
     procedure SetShowIntermediateDist(const AValue: Boolean);
@@ -136,6 +143,7 @@ uses
 constructor TPointCaptionsLayerConfigStatic.Create(
   const AVisible: Boolean;
   const AShowAzimuth: Boolean;
+  const AShowDirection: Boolean;
   const AShowIntermediateDist: Boolean;
   const AShowDistIncrement: Boolean;
   const AShowPointHint: Boolean;
@@ -149,6 +157,7 @@ begin
   inherited Create;
   FVisible := AVisible;
   FShowAzimuth := AShowAzimuth;
+  FShowDirection := AShowDirection;
   FShowIntermediateDist := AShowIntermediateDist;
   FShowDistIncrement := AShowDistIncrement;
   FShowPointHint := AShowPointHint;
@@ -172,6 +181,11 @@ end;
 function TPointCaptionsLayerConfigStatic.GetLastPointFontSize: Integer;
 begin
   Result := FLastPointFontSize;
+end;
+
+function TPointCaptionsLayerConfigStatic.GetShowDirection: Boolean;
+begin
+  Result := FShowDirection;
 end;
 
 function TPointCaptionsLayerConfigStatic.GetShowIntermediateDist: Boolean;
@@ -216,6 +230,7 @@ begin
   inherited Create;
   FVisible := True;
   FShowAzimuth := True;
+  FShowDirection := True;
   FShowIntermediateDist := True;
   FShowDistIncrement := True;
   FShowPointHint := False;
@@ -234,6 +249,7 @@ begin
     TPointCaptionsLayerConfigStatic.Create(
       FVisible,
       FShowAzimuth,
+      FShowDirection,
       FShowIntermediateDist,
       FShowDistIncrement,
       FShowPointHint,
@@ -252,6 +268,7 @@ begin
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('VisibleCaptions', FVisible);
     FShowAzimuth := AConfigData.ReadBool('ShowAzimuth', FShowAzimuth);
+    FShowDirection := AConfigData.ReadBool('ShowDirection', FShowDirection);
     FShowIntermediateDist := AConfigData.ReadBool('ShowIntermediateDist', FShowIntermediateDist);
     FShowDistIncrement := AConfigData.ReadBool('ShowDistIncrement', FShowDistIncrement);
     FShowPointHint := AConfigData.ReadBool('ShowPointHint', FShowPointHint);
@@ -272,6 +289,7 @@ begin
   inherited;
   AConfigData.WriteBool('VisibleCaptions', FVisible);
   AConfigData.WriteBool('ShowAzimuth', FShowAzimuth);
+  AConfigData.WriteBool('ShowDirection', FShowDirection);
   AConfigData.WriteBool('ShowIntermediateDist', FShowIntermediateDist);
   AConfigData.WriteBool('ShowDistIncrement', FShowDistIncrement);
   AConfigData.WriteBool('ShowPointHint', FShowPointHint);
@@ -378,6 +396,16 @@ begin
   end;
 end;
 
+function TPointCaptionsLayerConfig.GetShowDirection: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowDirection;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TPointCaptionsLayerConfig.GetShowDistIncrement: Boolean;
 begin
   LockRead;
@@ -420,6 +448,19 @@ begin
   try
     if FLastPointFontSize <> AValue then begin
       FLastPointFontSize := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TPointCaptionsLayerConfig.SetShowDirection(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowDirection <> AValue then begin
+      FShowDirection := AValue;
       SetChanged;
     end;
   finally

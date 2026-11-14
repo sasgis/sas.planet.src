@@ -594,8 +594,10 @@ type
     tbxCalcLineShowDistIncrement: TTBXItem;
     tbxCalcLineShowIntermediateDist: TTBXItem;
     tbxCalcLineShowAzimuth: TTBXItem;
+    tbxCalcLineShowDirection: TTBXItem;
     actCalcLineLabelVisible: TAction;
     actCalcLineShowAzimuth: TAction;
+    actCalcLineShowDirection: TAction;
     actCalcLineShowDistIncrement: TAction;
     actCalcLineShowIntermediateDist: TAction;
     actEditPathLabelVisible: TAction;
@@ -928,6 +930,7 @@ type
     procedure actMarksEditDeleteGeometryPointExecute(Sender: TObject);
     procedure actCalcLineLabelVisibleExecute(Sender: TObject);
     procedure actCalcLineShowAzimuthExecute(Sender: TObject);
+    procedure actCalcLineShowDirectionExecute(Sender: TObject);
     procedure actCalcLineShowDistIncrementExecute(Sender: TObject);
     procedure actCalcLineShowIntermediateDistExecute(Sender: TObject);
     procedure actEditPathLabelVisibleExecute(Sender: TObject);
@@ -3551,6 +3554,7 @@ begin
     actCalcLineShowIntermediateDist.Checked := VConfig.ShowIntermediateDist;
     actCalcLineShowDistIncrement.Checked := VConfig.ShowDistIncrement;
     actCalcLineShowAzimuth.Checked := VConfig.ShowAzimuth;
+    actCalcLineShowDirection.Checked := VConfig.ShowDirection;
     actCalcLineLabelVisible.Checked := VConfig.Visible;
   finally
     VConfig.UnlockRead;
@@ -7329,6 +7333,12 @@ procedure TfrmMain.actCalcLineShowAzimuthExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowAzimuth :=
     not FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowAzimuth;
+end;
+
+procedure TfrmMain.actCalcLineShowDirectionExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowDirection :=
+    not FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.ShowDirection;
 end;
 
 procedure TfrmMain.actCalcLineShowDistIncrementExecute(Sender: TObject);

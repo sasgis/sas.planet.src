@@ -1173,6 +1173,9 @@ object frmMain: TfrmMain
         object tbxCalcLineShowAzimuth: TTBXItem
           Action = actCalcLineShowAzimuth
         end
+        object tbxCalcLineShowDirection: TTBXItem
+          Action = actCalcLineShowDirection
+        end
       end
       object tbxEditPolygonLabelVisible: TTBSubmenuItem
         Action = actEditPolygonLabelVisible
@@ -4423,6 +4426,12 @@ object frmMain: TfrmMain
       Caption = 'Show azimuth'
       Hint = 'Show azimuth'
       OnExecute = actCalcLineShowAzimuthExecute
+    end
+    object actCalcLineShowDirection: TAction
+      Category = 'Marks\Distance Calculation'
+      Caption = 'Show compass direction'
+      Hint = 'Show compass direction'
+      OnExecute = actCalcLineShowDirectionExecute
     end
     object actCalcLineShowDistIncrement: TAction
       Category = 'Marks\Distance Calculation'
