@@ -1156,6 +1156,9 @@ object frmMain: TfrmMain
         object tbxEditPathShowAzimuth: TTBXItem
           Action = actEditPathShowAzimuth
         end
+        object tbxEditPathShowDirection: TTBXItem
+          Action = actEditPathShowDirection
+        end
         object tbxEditPathShowPointHint: TTBXItem
           Action = actEditPathShowPointHint
         end
@@ -4457,6 +4460,12 @@ object frmMain: TfrmMain
       Caption = 'Show azimuth'
       Hint = 'Show azimuth'
       OnExecute = actEditPathShowAzimuthExecute
+    end
+    object actEditPathShowDirection: TAction
+      Category = 'Marks\Edit'
+      Caption = 'Show compass direction'
+      Hint = 'Show compass direction'
+      OnExecute = actEditPathShowDirectionExecute
     end
     object actEditPathShowDistIncrement: TAction
       Category = 'Marks\Edit'

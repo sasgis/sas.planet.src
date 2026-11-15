@@ -428,6 +428,7 @@ type
     tbxEditPathShowIntermediateDist: TTBXItem;
     tbxEditPathShowDistIncrement: TTBXItem;
     tbxEditPathShowAzimuth: TTBXItem;
+    tbxEditPathShowDirection: TTBXItem;
     tbitmPointProject: TTBXItem;
     TBXNextVer: TTBXItem;
     TBXPrevVer: TTBXItem;
@@ -602,6 +603,7 @@ type
     actCalcLineShowIntermediateDist: TAction;
     actEditPathLabelVisible: TAction;
     actEditPathShowAzimuth: TAction;
+    actEditPathShowDirection: TAction;
     actEditPathShowDistIncrement: TAction;
     actEditPathShowIntermediateDist: TAction;
     actSelectByGeometryFinish: TAction;
@@ -935,6 +937,7 @@ type
     procedure actCalcLineShowIntermediateDistExecute(Sender: TObject);
     procedure actEditPathLabelVisibleExecute(Sender: TObject);
     procedure actEditPathShowAzimuthExecute(Sender: TObject);
+    procedure actEditPathShowDirectionExecute(Sender: TObject);
     procedure actEditPathShowDistIncrementExecute(Sender: TObject);
     procedure actEditPathShowIntermediateDistExecute(Sender: TObject);
     procedure actSelectByGeometryFinishExecute(Sender: TObject);
@@ -3567,6 +3570,7 @@ begin
     actEditPathShowIntermediateDist.Checked := VConfig.ShowIntermediateDist;
     actEditPathShowDistIncrement.Checked := VConfig.ShowDistIncrement;
     actEditPathShowAzimuth.Checked := VConfig.ShowAzimuth;
+    actEditPathShowDirection.Checked := VConfig.ShowDirection;
     actEditPathShowPointHint.Checked := VConfig.ShowPointHint;
     actEditPathLabelVisible.Checked := VConfig.Visible;
   finally
@@ -7285,6 +7289,12 @@ procedure TfrmMain.actEditPathShowAzimuthExecute(Sender: TObject);
 begin
   FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowAzimuth :=
     not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowAzimuth;
+end;
+
+procedure TfrmMain.actEditPathShowDirectionExecute(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowDirection :=
+    not FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig.ShowDirection;
 end;
 
 procedure TfrmMain.actEditPathShowDistIncrementExecute(Sender: TObject);
