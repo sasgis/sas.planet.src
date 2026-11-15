@@ -27,7 +27,9 @@ uses
   Windows;
 
 type
-  TGPSOrigin = (gpsoNMEA, gpsoGarmin, gpsoFlyOnTrack, gpsoLocationAPI);
+  // do not change the order of the existing items - the value is saved to the config by its ordinal
+  TGPSOrigin = (gpsoNMEA, gpsoGarmin, gpsoFlyOnTrack, gpsoLocationAPI, gpsoTCPNMEA);
+  TGPSOriginSet = set of TGPSOrigin;
 
   IGPSModuleByCOMPortSettings = interface
     ['{1E9AF59D-8988-4747-9952-5D17A0B0DB33}']
@@ -49,6 +51,10 @@ type
 
     function GetLogPath: string; safecall;
     property LogPath: string read GetLogPath;
+
+    // TCP NMEA
+    function GetServerAddress: string; safecall;
+    property ServerAddress: string read GetServerAddress;
 
     // USBGarmin
     function GetGPSOrigin: TGPSOrigin; safecall;

@@ -28,6 +28,13 @@ object frGPSConfig: TfrGPSConfig
       BorderWidth = 3
       TabOrder = 0
       VerticalAlignment = taAlignTop
+      object lblGpsType: TLabel
+        Left = 3
+        Top = 44
+        Width = 48
+        Height = 13
+        Caption = 'GPS type:'
+      end
       object btnGPSSwitch: TButton
         Left = 3
         Top = 3
@@ -38,20 +45,22 @@ object frGPSConfig: TfrGPSConfig
         TabOrder = 1
         OnClick = btnGPSSwitchClick
       end
-      object rgConnectionType: TRadioGroup
-        Left = 0
-        Top = 41
-        Width = 150
-        Height = 113
-        Caption = 'GPS type'
+      object cbbGpsType: TComboBox
+        Left = 3
+        Top = 65
+        Width = 144
+        Height = 21
+        Style = csDropDownList
         ItemIndex = 0
+        TabOrder = 2
+        Text = 'COM NMEA'
+        OnChange = OnGpsTypeChange
         Items.Strings = (
           'COM NMEA'
           'USB Garmin'
           'Location API'
-          'Replay Track')
-        TabOrder = 2
-        OnClick = rgConnectionTypeClick
+          'Replay Track'
+          'TCP NMEA')
       end
       object pnlComParams: TPanel
         Left = 156
@@ -75,21 +84,21 @@ object frGPSConfig: TfrGPSConfig
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 25
-            Height = 15
+            Width = 24
+            Height = 13
             Caption = 'Port:'
           end
           object ComboBoxCOM: TComboBox
-            Left = 31
+            Left = 30
             Top = 0
             Width = 80
-            Height = 23
+            Height = 21
             TabOrder = 0
             Text = 'COM1'
           end
           object btnGPSAutodetectCOM: TButton
             AlignWithMargins = True
-            Left = 114
+            Left = 113
             Top = 0
             Width = 27
             Height = 21
@@ -105,7 +114,7 @@ object frGPSConfig: TfrGPSConfig
           Left = 5
           Top = 35
           Width = 251
-          Height = 23
+          Height = 21
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
@@ -114,16 +123,16 @@ object frGPSConfig: TfrGPSConfig
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 35
-            Height = 15
+            Width = 34
+            Height = 13
             Alignment = taRightJustify
             Caption = 'Speed:'
           end
           object ComboBoxBoudRate: TComboBox
-            Left = 41
+            Left = 40
             Top = 0
             Width = 80
-            Height = 23
+            Height = 21
             Style = csDropDownList
             ItemIndex = 5
             TabOrder = 0
@@ -207,6 +216,47 @@ object frGPSConfig: TfrGPSConfig
           end
         end
       end
+      object pnlTcpParams: TPanel
+        Left = 156
+        Top = 7
+        Width = 261
+        Height = 162
+        BevelOuter = bvNone
+        BorderWidth = 2
+        TabOrder = 4
+        Visible = False
+        object lblServerAddress: TLabel
+          AlignWithMargins = True
+          Left = 5
+          Top = 5
+          Width = 251
+          Height = 13
+          Align = alTop
+          Caption = 'Server address (host:port):'
+        end
+        object edServerAddress: TEdit
+          AlignWithMargins = True
+          Left = 5
+          Top = 24
+          Width = 251
+          Height = 21
+          Align = alTop
+          TabOrder = 0
+          TextHint = '192.168.1.10:10110'
+        end
+        object btnServerProbe: TButton
+          AlignWithMargins = True
+          Left = 5
+          Top = 51
+          Width = 251
+          Height = 25
+          Hint = 'Try to connect and check the server for nmea/gpsd data'
+          Align = alTop
+          Caption = 'Probe'
+          TabOrder = 1
+          OnClick = btnServerProbeClick
+        end
+      end
       object chkUseReplayTrackFile: TCheckBox
         Left = 6
         Top = 160
@@ -243,17 +293,6 @@ object frGPSConfig: TfrGPSConfig
       TabOrder = 2
       object tsCommon: TTabSheet
         Caption = 'Common'
-        object CBSensorsBarAutoShow: TCheckBox
-          AlignWithMargins = True
-          Left = 3
-          Top = 118
-          Width = 379
-          Height = 17
-          Margins.Top = 6
-          Align = alTop
-          Caption = 'Auto show/hide sensors toolbar'
-          TabOrder = 0
-        end
         object GB_GpsTrackSave: TGroupBox
           AlignWithMargins = True
           Left = 3
@@ -262,7 +301,7 @@ object frGPSConfig: TfrGPSConfig
           Height = 42
           Align = alTop
           Caption = 'Autosave track to:'
-          TabOrder = 1
+          TabOrder = 0
           object CB_GPSlogPLT: TCheckBox
             AlignWithMargins = True
             Left = 75
@@ -302,18 +341,18 @@ object frGPSConfig: TfrGPSConfig
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
-          TabOrder = 2
+          TabOrder = 1
           object Label6: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 106
-            Height = 23
+            Width = 98
+            Height = 20
             Align = alLeft
             Caption = 'Device timeout, sec:'
           end
           object SE_ConnectionTimeout: TSpinEdit
-            Left = 112
+            Left = 104
             Top = 0
             Width = 57
             Height = 26
@@ -335,18 +374,18 @@ object frGPSConfig: TfrGPSConfig
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
-          TabOrder = 3
+          TabOrder = 2
           object Label11: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 87
-            Height = 23
+            Width = 85
+            Height = 20
             Align = alLeft
             Caption = 'Refresh rate, ms:'
           end
           object SpinEdit1: TSpinEdit
-            Left = 93
+            Left = 91
             Top = 0
             Width = 57
             Height = 26
@@ -356,6 +395,17 @@ object frGPSConfig: TfrGPSConfig
             TabOrder = 0
             Value = 100
           end
+        end
+        object CBSensorsBarAutoShow: TCheckBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 118
+          Width = 379
+          Height = 17
+          Margins.Top = 6
+          Align = alTop
+          Caption = 'Auto show/hide sensors toolbar'
+          TabOrder = 3
         end
       end
       object tsTrackAndMarker: TTabSheet
@@ -373,7 +423,7 @@ object frGPSConfig: TfrGPSConfig
           object pnlTrackPoints: TPanel
             AlignWithMargins = True
             Left = 5
-            Top = 51
+            Top = 49
             Width = 369
             Height = 25
             Align = alTop
@@ -384,14 +434,13 @@ object frGPSConfig: TfrGPSConfig
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 198
+              Width = 173
               Height = 19
-              Margins.Bottom = 3
               Align = alLeft
               Caption = 'Maximum number of points to show:'
             end
             object SE_NumTrackPoints: TSpinEdit
-              Left = 204
+              Left = 179
               Top = 0
               Width = 73
               Height = 25
@@ -405,7 +454,7 @@ object frGPSConfig: TfrGPSConfig
           object pnlTrackWidth: TPanel
             AlignWithMargins = True
             Left = 5
-            Top = 20
+            Top = 18
             Width = 369
             Height = 25
             Align = alTop
@@ -416,14 +465,13 @@ object frGPSConfig: TfrGPSConfig
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 35
+              Width = 32
               Height = 19
-              Margins.Bottom = 3
               Align = alLeft
               Caption = 'Width:'
             end
             object SESizeTrack: TSpinEdit
-              Left = 41
+              Left = 38
               Top = 0
               Width = 57
               Height = 25
@@ -447,7 +495,7 @@ object frGPSConfig: TfrGPSConfig
           object pnlMarkerColor: TPanel
             AlignWithMargins = True
             Left = 5
-            Top = 51
+            Top = 49
             Width = 369
             Height = 22
             Align = alTop
@@ -458,13 +506,13 @@ object frGPSConfig: TfrGPSConfig
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 65
-              Height = 19
+              Width = 59
+              Height = 16
               Align = alLeft
               Caption = 'Arrow color:'
             end
             object ColorBoxGPSstr: TColorBox
-              Left = 71
+              Left = 65
               Top = 0
               Width = 105
               Height = 22
@@ -476,7 +524,7 @@ object frGPSConfig: TfrGPSConfig
           object pnlMarkerPointerSize: TPanel
             AlignWithMargins = True
             Left = 5
-            Top = 20
+            Top = 18
             Width = 369
             Height = 25
             Align = alTop
@@ -487,13 +535,13 @@ object frGPSConfig: TfrGPSConfig
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 63
-              Height = 22
+              Width = 59
+              Height = 19
               Align = alLeft
               Caption = 'Pointer size:'
             end
             object SESizeStr: TSpinEdit
-              Left = 69
+              Left = 65
               Top = 0
               Width = 57
               Height = 25
@@ -507,7 +555,7 @@ object frGPSConfig: TfrGPSConfig
           object pnlMarker2: TPanel
             AlignWithMargins = True
             Left = 5
-            Top = 79
+            Top = 77
             Width = 369
             Height = 25
             Align = alTop
@@ -518,13 +566,13 @@ object frGPSConfig: TfrGPSConfig
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 90
-              Height = 22
+              Width = 80
+              Height = 19
               Align = alLeft
               Caption = 'Number of rings:'
             end
             object seGPSMarkerRingsCount: TSpinEdit
-              Left = 96
+              Left = 86
               Top = 0
               Width = 105
               Height = 25
@@ -538,7 +586,7 @@ object frGPSConfig: TfrGPSConfig
           object pnlMarker3: TPanel
             AlignWithMargins = True
             Left = 5
-            Top = 110
+            Top = 108
             Width = 369
             Height = 24
             Align = alTop
@@ -549,13 +597,13 @@ object frGPSConfig: TfrGPSConfig
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 79
-              Height = 21
+              Width = 72
+              Height = 18
               Align = alLeft
               Caption = 'Ring radius, m:'
             end
             object seGPSMarkerRingRadius: TSpinEdit
-              Left = 85
+              Left = 78
               Top = 0
               Width = 105
               Height = 24

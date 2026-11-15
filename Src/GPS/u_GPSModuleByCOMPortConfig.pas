@@ -41,6 +41,7 @@ type
     FDelay: DWORD;
     FLowLevelLog: Boolean;
     FLogPath: IPathConfig;
+    FServerAddress: string;
     FGPSOrigin: TGPSOrigin;
     FAutodetectCOMOnConnect: Boolean;
     FAutodetectCOMFlags: DWORD;
@@ -66,6 +67,9 @@ type
     procedure SetLowLevelLog(const AValue: Boolean);
 
     function GetLogPath: string;
+
+    function GetServerAddress: string;
+    procedure SetServerAddress(const AValue: string);
 
     function GetStatic: IGPSModuleByCOMPortSettings;
 
@@ -97,6 +101,7 @@ begin
   FConnectionTimeout := 300;
   FDelay := 1000;
   FLowLevelLog := False;
+  FServerAddress := '';
   FGPSOrigin := gpsoNMEA;
   FAutodetectCOMOnConnect := FALSE;
   FAutodetectCOMFlags := 0;
@@ -114,6 +119,7 @@ begin
       FDelay,
       FLowLevelLog,
       FLogPath.FullPath,
+      FServerAddress,
       FGPSOrigin,
       FAutodetectCOMOnConnect,
       FAutodetectCOMFlags
@@ -132,6 +138,7 @@ begin
     SetConnectionTimeout(AConfigData.ReadInteger('timeout', FConnectionTimeout));
     SetDelay(AConfigData.ReadInteger('update', FDelay));
     SetLowLevelLog(AConfigData.ReadBool('NMEAlog', FLowLevelLog));
+    SetServerAddress(AConfigData.ReadString('ServerAddress', FServerAddress));
     SetGPSOrigin(TGPSOrigin(AConfigData.ReadInteger('USBGarmin', Ord(FGPSOrigin))));
     SetAutodetectCOMOnConnect(AConfigData.ReadBool('AutodetectCOMOnConnect', FAutodetectCOMOnConnect));
     SetAutodetectCOMFlags(AConfigData.ReadInteger('AutodetectCOMFlags', FAutodetectCOMFlags));
@@ -148,6 +155,7 @@ begin
   AConfigData.WriteInteger('timeout', FConnectionTimeout);
   AConfigData.WriteInteger('update', FDelay);
   AConfigData.WriteBool('NMEAlog', FLowLevelLog);
+  AConfigData.WriteString('ServerAddress', FServerAddress);
   AConfigData.WriteInteger('USBGarmin', Ord(FGPSOrigin));
   AConfigData.WriteBool('AutodetectCOMOnConnect', FAutodetectCOMOnConnect);
   AConfigData.WriteInteger('AutodetectCOMFlags', FAutodetectCOMFlags);
@@ -215,6 +223,29 @@ begin
     Result := FLowLevelLog;
   finally
     UnlockRead;
+  end;
+end;
+
+function TGPSModuleByCOMPortConfig.GetServerAddress: string;
+begin
+  LockRead;
+  try
+    Result := FServerAddress;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TGPSModuleByCOMPortConfig.SetServerAddress(const AValue: string);
+begin
+  LockWrite;
+  try
+    if FServerAddress <> AValue then begin
+      FServerAddress := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

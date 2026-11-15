@@ -76,6 +76,8 @@ type
     FLastDataReceiveTick: Cardinal;
     FDataReceiveCounter: IInternalPerformanceCounter;
 
+    FReconnectTick: Cardinal;
+
     procedure StartThreads;
     procedure SendTerminateToThreads;
 
@@ -125,11 +127,18 @@ type
 implementation
 
 uses
+  i_GPSModuleByCOMPortSettings,
   u_Notifier,
   u_ListenerNotifierLinksList,
   u_Synchronizer,
   u_ListenerTime,
   u_ListenerByEvent;
+
+const
+  // devices which are reconnected automatically after a connection loss
+  CGPSAutoReconnectOrigins: TGPSOriginSet = [gpsoTCPNMEA];
+  // delay between reconnect attempts
+  CReconnectDelayMSec = 5000;
 
 procedure TGpsSystem.AfterConstruction;
 begin
@@ -182,6 +191,7 @@ begin
   FDataRecived := False;
   FInternalState := isDisconnected;
   FLastDataReceiveTick := 0;
+  FReconnectTick := GetTickCount;
 
   VSync := GSync.SyncVariable.Make(Self.ClassName + 'Notifiers');
   FConnectingNotifier := TNotifierBase.Create(VSync);
@@ -385,7 +395,10 @@ procedure TGpsSystem.OnGpsDisconnected;
 var
   VPosition: IGPSPosition;
 begin
-  FConfig.GPSEnabled := False;
+  if not (FConfig.ModuleConfig.GPSOrigin in CGPSAutoReconnectOrigins) then begin
+    FConfig.GPSEnabled := False;
+  end;
+  FReconnectTick := GetTickCount;
   VPosition := FGPSModuleByCOM.Position;
   FGPSRecorder.AddPoint(VPosition);
   FGpsTrackRecorder.AddPoint(VPosition);
@@ -420,6 +433,7 @@ end;
 procedure TGpsSystem.OnTimer;
 var
   VNeedNotify: Boolean;
+  VNeedReconnect: Boolean;
   VInternalStateNew: TInternalState;
   VInternalStatePrev: TInternalState;
   VDataRecived: Boolean;
@@ -579,6 +593,27 @@ begin
     end;
     if VDataRecived then begin
       FDataReciveNotifier.Notify(nil);
+    end;
+
+    // auto-reconnect: only for the devices from CGPSAutoReconnectOrigins
+    // (e.g. a tcp server may come back without any user action) - keeps
+    // trying while the gps is enabled by the user; the delay counts from
+    // the last disconnect
+    FCS.BeginWrite;
+    try
+      VNeedReconnect :=
+        (FModuleState = msDisconnected) and
+        ((GetTickCount - FReconnectTick) > CReconnectDelayMSec);
+    finally
+      FCS.EndWrite;
+    end;
+    if VNeedReconnect then begin
+      if FConfig.GPSEnabled and
+         (FConfig.ModuleConfig.GPSOrigin in CGPSAutoReconnectOrigins) and
+         FGPSModuleByCOM.IsReadyToConnect
+      then begin
+        FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic, FConfig);
+      end;
     end;
   until not VNeedNotify;
 end;

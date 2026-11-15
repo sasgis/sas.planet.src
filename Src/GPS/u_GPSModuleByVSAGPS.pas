@@ -39,13 +39,9 @@ uses
   u_AnsiStr,
   u_GeoFunc,
   u_GPSModuleAbstract,
-{$if defined(VSAGPS_AS_DLL)}
-  vsagps_public_dll,
-{$else}
   vsagps_public_memory,
   vsagps_object,
   vsagps_track_writer,
-{$ifend}
   vsagps_public_base,
   vsagps_public_types,
   vsagps_public_tracks,
@@ -58,13 +54,8 @@ uses
 type
   TGPSModuleByVSAGPS = class(TGPSModuleAbstract, IGPSModuleByCOM)
   private
-{$if defined(VSAGPS_AS_DLL)}
-    FVSAGPS_HANDLE: TVSAGPS_HANDLE;
-    FVSAGPS_LOGGER: TVSAGPS_HANDLE;
-{$else}
     FVSAGPS_Object: Tvsagps_object;
     FVSAGPS_Logger: Tvsagps_track_writer;
-{$ifend}
     FSystemTime: ISystemTimeProvider;
     FSystemTimeChangeListener: IListener;
 
@@ -196,7 +187,6 @@ uses
   u_InetFunc,
   u_ResStrings,
   u_ListenerByEvent;
-
 
 function rVSAGPS_GARMIN_D800_HANDLER(const pUserPointer: Pointer;
                                      const btUnitIndex: Byte;
@@ -442,16 +432,11 @@ begin
   FGPSGPS_DevParams.pNMEA_VTG_HANDLER := rVSAGPS_NMEA_VTG_HANDLER;
 {$ifend}
 
-{$if defined(VSAGPS_AS_DLL)}
-  FVSAGPS_HANDLE := VSAGPS_Create(Self, @rVSAGPS_GPSState_DLL_Proc, @rVSAGPS_GPSTimeout_DLL_Proc);
-  FVSAGPS_LOGGER := nil;
-{$else}
   FVSAGPS_Object := Tvsagps_object.Create;
   FVSAGPS_Object.ALLDeviceUserPointer := Self;
   FVSAGPS_Object.OnGPSStateChanged := rVSAGPS_GPSState_DLL_Proc;
   FVSAGPS_Object.OnGPSTimeout := rVSAGPS_GPSTimeout_DLL_Proc;
   FVSAGPS_Logger := nil;
-{$ifend}
 
   InternalPrepareLoggerParams;
 
@@ -478,14 +463,7 @@ begin
   VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: kill object');
 {$ifend}
 
-{$if defined(VSAGPS_AS_DLL)}
-  if (nil<>FVSAGPS_HANDLE) then begin
-    VSAGPS_Destroy(FVSAGPS_HANDLE);
-    FVSAGPS_HANDLE := nil;
-  end;
-{$else}
   FreeAndNil(FVSAGPS_Object);
-{$ifend}
 
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
   VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: stop logger');
@@ -526,9 +504,6 @@ var
   VGPSOrigin: TGPSOrigin;
   VGPSDevType: DWORD;
   VGPSPortName: AnsiString;
-{$if defined(VSAGPS_AS_DLL)}
-  VszGPSPortName: PAnsiChar;
-{$ifend}
   VTimeout: DWORD;
   VFlyOnTrackSource: UnicodeString;
   VTrackTypes: TVSAGPS_TrackTypes;
@@ -580,10 +555,6 @@ begin
     if FConnectState <> gs_DoneDisconnected then
       Exit;
 
-{$if defined(VSAGPS_AS_DLL)}
-    VszGPSPortName := nil;
-{$ifend}
-
     VFlyOnTrackSource := '';
     if (gpsoFlyOnTrack = VGPSOrigin) then begin
       _LoadFlyOnTrackSource;
@@ -632,17 +603,17 @@ begin
     if (gpsoNMEA = VGPSOrigin) then begin
       // COM for NMEA
       VGPSPortName := 'COM' + IntToStrA(AConfig.Port);
-{$if defined(VSAGPS_AS_DLL)}
-      VGPSPortName := VGPSPortName + #0;
-      VszGPSPortName := PAnsiChar(VGPSPortName);
-{$ifend}
       FGPSGPS_DevParams.btAutodetectOnConnect := Ord(AConfig.AutodetectCOMOnConnect <> False);
       FGPSGPS_DevParams.dwAutodetectFlags := AConfig.AutodetectCOMFlags;
+    end else if (gpsoTCPNMEA = VGPSOrigin) then begin
+      // NMEA over TCP - "host:port"
+      VGPSPortName := AnsiString(Trim(AConfig.ServerAddress));
+      // no autodetect for tcp
+      FGPSGPS_DevParams.btAutodetectOnConnect := 0;
+      FGPSGPS_DevParams.dwAutodetectFlags := 0;
     end else begin
       // no COM
-{$if not defined(VSAGPS_AS_DLL)}
       VGPSPortName := '';
-{$ifend}
       // for garmin - always autodetect by internal algoritm
       FGPSGPS_DevParams.btAutodetectOnConnect := 0;
       FGPSGPS_DevParams.dwAutodetectFlags := 0;
@@ -666,6 +637,10 @@ begin
         // Location API (Windows 7+)
         VGPSDevType := gdt_LocationAPI;
       end;
+      gpsoTCPNMEA: begin
+        // NMEA via TCP client
+        VGPSDevType := gdt_TCP_NMEA0183;
+      end;
       else begin
         // unknown
         raise Exception.CreateFmt(SAS_MSG_UnknownGPSOrigin, [Integer(VGPSOrigin)]);
@@ -673,19 +648,6 @@ begin
     end;
 
     try
-{$if defined(VSAGPS_AS_DLL)}
-      if (not VSAGPS_Connect(
-                FVSAGPS_HANDLE,
-                VGPSDevType,
-                VszGPSPortName,
-                PWideChar(VFlyOnTrackSource),
-                @FGPSGPS_DevParams,
-                nil,
-                rVSAGPS_UNIT_INFO_DLL_Proc,
-                @FConnectedUnitindex,
-                nil
-      )) then
-{$else}
       if (not FVSAGPS_Object.GPSConnect(
                 VGPSDevType,
                 VGPSPortName,
@@ -696,22 +658,13 @@ begin
                 @FConnectedUnitindex,
                 nil
       )) then
-{$ifend}
       begin
         // not connected
         MessageDlg(SAS_MSG_NoGPSdetected,  mtError, [mbOK], 0);
-        {$if defined(VSAGPS_AS_DLL)}
-        VSAGPS_Disconnect(FVSAGPS_HANDLE);
-        {$else}
         FVSAGPS_Object.GPSDisconnect;
-        {$ifend}
       end;
     except
-{$if defined(VSAGPS_AS_DLL)}
-      VSAGPS_Disconnect(FVSAGPS_HANDLE);
-{$else}
       FVSAGPS_Object.GPSDisconnect;
-{$ifend}
       raise;
     end;
   finally
@@ -773,11 +726,7 @@ begin
       VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: GPSDisconnect');
 {$ifend}
 
-{$if defined(VSAGPS_AS_DLL)}
-      VSAGPS_Disconnect(FVSAGPS_HANDLE);
-{$else}
       FVSAGPS_Object.GPSDisconnect;
-{$ifend}
     end;
 
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
@@ -817,11 +766,7 @@ begin
           end;
         end;
         // run
-{$if defined(VSAGPS_AS_DLL)}
-        VSAGPS_AddLoggerTrackPoint(FVSAGPS_LOGGER, @tATP);
-{$else}
         FVSAGPS_Logger.AddTrackPoint(@tATP);
-{$ifend}
       finally
         VSAGPS_FreeAndNil_PAnsiChar(tATP.szSatsInfo);
       end;
@@ -863,11 +808,7 @@ begin
     LockLogger;
     try
       if (nil<>FVSAGPS_Logger) then begin
-{$if defined(VSAGPS_AS_DLL)}
-        VSAGPS_ExecuteLoggerCommand(FVSAGPS_LOGGER, AUnitIndex, ACommand, APointer);
-{$else}
         FVSAGPS_Logger.ExecuteLoggerCommand(AUnitIndex, ACommand, APointer);
-{$ifend}
       end;
     finally
       UnlockLogger;
@@ -878,17 +819,9 @@ begin
   LockConnect;
   try
     if (gs_DoneConnected =
-{$if defined(VSAGPS_AS_DLL)}
-    VSAGPS_GPSState(FVSAGPS_HANDLE)
-{$else}
     FVSAGPS_Object.GPSState
-{$ifend}
     ) then begin
-{$if defined(VSAGPS_AS_DLL)}
-      VSAGPS_ExecuteGPSCommand_OnUnit(FVSAGPS_HANDLE, FConnectedUnitindex, ACommand, APointer);
-{$else}
       FVSAGPS_Object.Execute_GPSCommand_OnUnit(FConnectedUnitindex, ACommand, APointer);
-{$ifend}
     end;
   finally
     UnLockConnect;
@@ -930,11 +863,7 @@ end;
 
 function TGPSModuleByVSAGPS.GetIsReadyToConnect: Boolean;
 begin
-{$if defined(VSAGPS_AS_DLL)}
-  Result := (nil=FVSAGPS_HANDLE) or (gs_DoneDisconnected=VSAGPS_GPSState(FVSAGPS_HANDLE))
-{$else}
   Result := (nil=FVSAGPS_Object) or (gs_DoneDisconnected=FVSAGPS_Object.GPSState);
-{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.GPSRecv_NMEA_GSV(const AUnitIndex: Byte; const pGSV: PNMEA_GSV);
@@ -1184,11 +1113,7 @@ begin
   LockLogger;
   try
     if Assigned(FVSAGPS_Logger) then begin
-{$if defined(VSAGPS_AS_DLL)}
-      VSAGPS_SetPausedLogger(FVSAGPS_LOGGER, FALSE);
-{$else}
       FVSAGPS_Logger.SetPaused(FALSE);
-{$ifend}
     end;
   finally
     UnlockLogger;
@@ -1225,14 +1150,6 @@ begin
         VLoggerPath := IncludeTrailingPathDelimiter(AConfig.LogPath);
         tCallbackFilter.seCallCallbackOnParams := [tpTrkSrc];
         // create new
-{$if defined(VSAGPS_AS_DLL)}
-        FVSAGPS_Logger := VSAGPS_MakeLogger(Self,
-                                          @FVSAGPS_LOG_WRITER_PARAMS,
-                                          @FVSAGPS_GPX_WRITER_PARAMS,
-                                          PWideChar(VLoggerPath),
-                                          rVSAGPS_LOGGER_TRACKPARAMS_EVENT,
-                                          @tCallbackFilter);
-{$else}
         FVSAGPS_Logger := Tvsagps_track_writer.Create;
         FVSAGPS_Logger.SetALLLoggerParams(Self,
                                           @FVSAGPS_LOG_WRITER_PARAMS,
@@ -1240,14 +1157,9 @@ begin
                                           PWideChar(VLoggerPath),
                                           rVSAGPS_LOGGER_TRACKPARAMS_EVENT,
                                           @tCallbackFilter);
-{$ifend}
       end else begin
         // close tracks (if opened)
-{$if defined(VSAGPS_AS_DLL)}
-        VSAGPS_CloseLogger(FVSAGPS_LOGGER);
-{$else}
         FVSAGPS_Logger.CloseALL;
-{$ifend}
       end;
 
       // define log type(s)
@@ -1262,7 +1174,7 @@ begin
 
       if AConfig.LowLevelLog then begin
         case AConfig.GPSOrigin of
-          gpsoNMEA: begin
+          gpsoNMEA, gpsoTCPNMEA: begin
             System.Include(VTrackTypes, ttNMEA);
           end;
           gpsoGarmin: begin
@@ -1275,11 +1187,7 @@ begin
       end;
 
       // create suspended
-{$if defined(VSAGPS_AS_DLL)}
-      VSAGPS_StartLogger(FVSAGPS_LOGGER, Byte(VTrackTypes), TRUE, nil);
-{$else}
       FVSAGPS_Logger.StartTracksEx(VTrackTypes, TRUE, nil);
-{$ifend}
     finally
       UnlockLogger;
     end;
@@ -1293,18 +1201,10 @@ procedure TGPSModuleByVSAGPS.InternalStopLogger;
 begin
   LockLogger;
   try
-{$if defined(VSAGPS_AS_DLL)}
-    if (nil<>FVSAGPS_LOGGER) then begin
-      VSAGPS_CloseLogger(FVSAGPS_LOGGER);
-      VSAGPS_Destroy(FVSAGPS_LOGGER);
-      FVSAGPS_LOGGER := nil;
-    end;
-{$else}
     if (nil<>FVSAGPS_Logger) then begin
       FVSAGPS_Logger.CloseALL;
       FreeAndNil(FVSAGPS_Logger);
     end;
-{$ifend}
   finally
     UnlockLogger;
   end;
@@ -1453,7 +1353,6 @@ begin
     VUTCDate := DateOf(VUTCTime);
     VUTCTime := TimeOf(VUTCTime);
 
-
     _UpdatePosTime(
       TRUE,
       VPoint,
@@ -1592,20 +1491,12 @@ procedure TGPSModuleByVSAGPS.GPSRecv_LowLevel(const AUnitIndex: Byte;
 
   function _Active: LongBool;
   begin
-{$if defined(VSAGPS_AS_DLL)}
-    Result := VSAGPS_ActiveLogger(FVSAGPS_LOGGER);
-{$else}
     Result := FVSAGPS_Logger.Active;
-{$ifend}
   end;
 
   procedure AddLoggerPacket(const p: Pointer; const ASize: DWORD);
   begin
-    {$if defined(VSAGPS_AS_DLL)}
-    VSAGPS_AddLoggerPacket(FVSAGPS_LOGGER, p, ASize, nil);
-    {$else}
     FVSAGPS_Logger.AddPacket(p, ASize, nil);
-    {$ifend}
   end;
 
   procedure InternalDumpByDevice;
@@ -1614,11 +1505,7 @@ procedure TGPSModuleByVSAGPS.GPSRecv_LowLevel(const AUnitIndex: Byte;
     VSize: DWORD;
   begin
     VSize := 0;
-    {$if defined(VSAGPS_AS_DLL)}
-    p := VSAGPS_SerializePacket(FVSAGPS_HANDLE, AUnitIndex, APacket, VSize, nil);
-    {$else}
     p := FVSAGPS_Object.SerializePacket(AUnitIndex, APacket, VSize, nil);
-    {$ifend}
     try
       AddLoggerPacket(p, VSize);
     finally
@@ -1634,7 +1521,7 @@ begin
       // write full dump of binary garmin packets (with header about packet type)
       // location api packets too
       InternalDumpByDevice;
-    end else if (gdt_COM_NMEA0183=(ADevType and gdt_COM_NMEA0183)) then begin
+    end else if (0 <> (ADevType and (gdt_COM_NMEA0183 or gdt_TCP_NMEA0183))) then begin
       // write full dump of binary nmea packets
       InternalDumpByDevice;
     end;

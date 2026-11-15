@@ -55,6 +55,11 @@ type
     function GetLogPath: string;
     property LogPath: string read GetLogPath;
 
+    // TCP NMEA
+    function GetServerAddress: string;
+    procedure SetServerAddress(const AValue: string);
+    property ServerAddress: string read GetServerAddress write SetServerAddress;
+
     function GetStatic: IGPSModuleByCOMPortSettings;
 
     // USBGarmin

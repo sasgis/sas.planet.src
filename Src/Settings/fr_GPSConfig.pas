@@ -73,10 +73,15 @@ type
     CBSensorsBarAutoShow: TCheckBox;
     pnlGpsRight: TPanel;
     GroupBox3: TGroupBox;
-    rgConnectionType: TRadioGroup;
+    lblGpsType: TLabel;
+    cbbGpsType: TComboBox;
     flwpnlComPort: TFlowPanel;
     flwpnlComPortSpeed: TFlowPanel;
     pnlComParams: TPanel;
+    pnlTcpParams: TPanel;
+    lblServerAddress: TLabel;
+    edServerAddress: TEdit;
+    btnServerProbe: TButton;
     grpAutodetectComPort: TGroupBox;
     chkAutodetectAll: TCheckBox;
     chkAutodetectBluetooth: TCheckBox;
@@ -107,8 +112,9 @@ type
     pnlMarker2: TPanel;
     pnlMarker3: TPanel;
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
+    procedure btnServerProbeClick(Sender: TObject);
     procedure btnGPSSwitchClick(Sender: TObject);
-    procedure rgConnectionTypeClick(Sender: TObject);
+    procedure OnGpsTypeChange(Sender: TObject);
     procedure OnAutodetectItemClick(Sender: TObject);
   private
     FGpsSystem: IGpsSystem;
@@ -119,9 +125,13 @@ type
 
     FAutodetecting: Boolean;
     FCancelAutodetect: Boolean;
+    FProbing: Boolean;
+    FCancelProbe: Boolean;
     FfrGpsSatellites: TfrGpsSatellites;
     FConnectListener: IListener;
     FDisconnectListener: IListener;
+    function ProbePumpMessages: Boolean;
+    function PrepareProbeSampleForReport(const ASample: AnsiString): string;
     procedure OnConnecting;
     procedure OnDisconnect;
     function GetAutodetectComFlags: DWORD;
@@ -158,11 +168,8 @@ uses
   gnugettext,
   vsagps_public_base,
   vsagps_public_tracks,
-{$if defined(VSAGPS_AS_DLL)}
-  vsagps_public_com_checker,
-{$else}
   vsagps_com_checker,
-{$ifend}
+  vsagps_tcp_checker,
   c_SensorsGUIDSimple,
   i_Sensor,
   i_GPSModuleByCOMPortSettings,
@@ -171,6 +178,7 @@ uses
 
 const
   CAutodetectComPortAllTag = 100;
+  CServerProbeDataTimeoutSec = 3;
 
 {$R *.dfm}
 
@@ -248,7 +256,7 @@ end;
 
 function TfrGPSConfig.CanClose: Boolean;
 begin
-  Result := not FAutodetecting;
+  Result := (not FAutodetecting) and (not FProbing);
 end;
 
 procedure TfrGPSConfig.ApplyChanges;
@@ -277,7 +285,7 @@ begin
 
   FGPSConfig.LockWrite;
   try
-    case rgConnectionType.ItemIndex of
+    case cbbGpsType.ItemIndex of
       1: begin
         VGPSType := gpsoGarmin;
       end;
@@ -286,6 +294,9 @@ begin
       end;
       3: begin
         VGPSType := gpsoFlyOnTrack;
+      end;
+      4: begin
+        VGPSType := gpsoTCPNMEA;
       end;
     else
       VGPSType := gpsoNMEA;
@@ -296,6 +307,7 @@ begin
     FGPSConfig.ModuleConfig.Delay := SpinEdit1.Value;
     FGPSConfig.ModuleConfig.Port := GetCOMPortNumber(ComboBoxCOM.Text);
     FGPSConfig.ModuleConfig.BaudRate := StrToint(ComboBoxBoudRate.Text);
+    FGPSConfig.ModuleConfig.ServerAddress := Trim(edServerAddress.Text);
     FGPSConfig.WriteLog[ttPLT] := CB_GPSlogPLT.Checked;
     FGPSConfig.WriteLog[ttGPX] := CB_GPSlogGPX.Checked;
     FGPSConfig.ModuleConfig.AutodetectCOMOnConnect := Self.IsAutodetectComEnabled;
@@ -354,20 +366,24 @@ begin
     SpinEdit1.Value := FGPSConfig.ModuleConfig.Delay;
     ComboBoxCOM.Text := 'COM' + IntToStr(FGPSConfig.ModuleConfig.Port);
     ComboBoxBoudRate.Text := IntToStr(FGPSConfig.ModuleConfig.BaudRate);
+    edServerAddress.Text := FGPSConfig.ModuleConfig.ServerAddress;
     CB_GPSlogPLT.Checked := FGPSConfig.WriteLog[ttPLT];
     CB_GPSlogGPX.Checked := FGPSConfig.WriteLog[ttGPX];
     case FGPSConfig.ModuleConfig.GPSOrigin of
       gpsoGarmin: begin
-        rgConnectionType.ItemIndex := 1;
+        cbbGpsType.ItemIndex := 1;
       end;
       gpsoLocationAPI: begin
-        rgConnectionType.ItemIndex := 2;
+        cbbGpsType.ItemIndex := 2;
       end;
       gpsoFlyOnTrack: begin
-        rgConnectionType.ItemIndex := 3;
+        cbbGpsType.ItemIndex := 3;
+      end;
+      gpsoTCPNMEA: begin
+        cbbGpsType.ItemIndex := 4;
       end;
     else
-      rgConnectionType.ItemIndex := 0;
+      cbbGpsType.ItemIndex := 0;
     end;
     VFlags := FGPSConfig.ModuleConfig.AutodetectComFlags;
     chkAutodetectAll.Checked := (VFlags = cCOM_src_All) and FGPSConfig.ModuleConfig.AutodetectCOMOnConnect;
@@ -384,7 +400,7 @@ begin
     chkAutodetectOthers.Checked := VOptions.CheckOthers;
   end;
 
-  rgConnectionTypeClick(Self);
+  OnGpsTypeChange(Self);
 end;
 
 procedure TfrGPSConfig.OnAutodetectItemClick(Sender: TObject);
@@ -518,6 +534,109 @@ begin
   end;
 end;
 
+function TfrGPSConfig.ProbePumpMessages: Boolean;
+begin
+  // called between the probe wait slices: keep the UI alive and check for
+  // the cancel request (the second click on the probe button)
+  Application.ProcessMessages;
+  Result := FCancelProbe;
+end;
+
+function TfrGPSConfig.PrepareProbeSampleForReport(const ASample: AnsiString): string;
+var
+  VS: string;
+  I: Integer;
+begin
+  // the first line of the server reply only, and not too long
+  VS := string(ASample);
+  I := Pos(#10, VS);
+  if I > 0 then begin
+    SetLength(VS, I - 1);
+  end;
+  I := Pos(#13, VS);
+  if I > 0 then begin
+    SetLength(VS, I - 1);
+  end;
+  VS := Trim(VS);
+  if Length(VS) > 100 then begin
+    VS := Copy(VS, 1, 100) + '...';
+  end;
+  Result := VS;
+end;
+
+procedure TfrGPSConfig.btnServerProbeClick(Sender: TObject);
+var
+  VProbeInfo: TTcpProbeInfo;
+  VConnectTimeoutMSec: DWORD;
+  VOldCaption, VOldHint: string;
+  VSample: string;
+begin
+  if FProbing then begin
+    FCancelProbe := True;
+    Exit;
+  end;
+
+  if Trim(edServerAddress.Text) = '' then begin
+    ShowWarningMessage(_('Enter the server address as host:port (e.g. 192.168.1.10:10110).'));
+    Exit;
+  end;
+
+  FProbing := True;
+  FCancelProbe := False;
+  VOldCaption := btnServerProbe.Caption;
+  VOldHint := btnServerProbe.Hint;
+  try
+    btnServerProbe.Caption := 'X';
+    btnServerProbe.Hint := _('Cancel the server probe');
+    btnGPSSwitch.Enabled := False;
+    try
+      // the connecting phase of the probe is limited: as long as the usual
+      // connection timeout allows, but no longer than 10 seconds
+      VConnectTimeoutMSec := DWORD(SE_ConnectionTimeout.Value) * 1000;
+      if VConnectTimeoutMSec > 10000 then begin
+        VConnectTimeoutMSec := 10000;
+      end;
+      TcpProbeExecute(
+        edServerAddress.Text,
+        VConnectTimeoutMSec,
+        CServerProbeDataTimeoutSec * 1000,
+        Self.ProbePumpMessages,
+        VProbeInfo
+      );
+      if VProbeInfo.Cancelled then begin
+        Exit;
+      end;
+      VSample := PrepareProbeSampleForReport(VProbeInfo.Sample);
+      case VProbeInfo.Kind of
+        tpr_Gpsd: begin
+          ShowInfoMessage(_('Connected: gpsd server detected (json banner received).'));
+        end;
+        tpr_Nmea: begin
+          ShowInfoMessage(Format(_('Connected: nmea data received: "%s"'), [VSample]));
+        end;
+        tpr_NoData: begin
+          if (0 < Length(VSample)) then begin
+            ShowWarningMessage(Format(_('Connected, but no nmea/gpsd data received in %d sec. The server sends: "%s"'), [CServerProbeDataTimeoutSec, VSample]));
+          end else begin
+            ShowWarningMessage(Format(_('Connected, but no data received in %d sec.'), [CServerProbeDataTimeoutSec]));
+          end;
+        end;
+        tpr_InvalidParams: begin
+          ShowWarningMessage(_('Enter the server address as host:port (e.g. 192.168.1.10:10110).'));
+        end;
+      else
+        ShowErrorMessage(Format(_('Connection failed (winsock error %d)'), [VProbeInfo.LastError]));
+      end;
+    finally
+      btnServerProbe.Caption := VOldCaption;
+      btnServerProbe.Hint := VOldHint;
+      btnGPSSwitch.Enabled := True;
+    end;
+  finally
+    FProbing := False;
+  end;
+end;
+
 procedure TfrGPSConfig.btnGPSSwitchClick(Sender: TObject);
 begin
   // save config
@@ -526,11 +645,12 @@ begin
   FGPSConfig.GPSEnabled := not FGPSConfig.GPSEnabled;
 end;
 
-procedure TfrGPSConfig.rgConnectionTypeClick(Sender: TObject);
+procedure TfrGPSConfig.OnGpsTypeChange(Sender: TObject);
 begin
-  SetControlEnabled(pnlComParams, rgConnectionType.ItemIndex = 0);
-  //chkUseReplayTrackFile.Enabled := rgConnectionType.ItemIndex = 3; // todo
-  if rgConnectionType.ItemIndex <> 3 then begin
+  SetControlEnabled(pnlComParams, cbbGpsType.ItemIndex = 0);
+  pnlTcpParams.Visible := (cbbGpsType.ItemIndex = 4);
+  //chkUseReplayTrackFile.Enabled := (cbbGpsType.ItemIndex = 3); // todo
+  if cbbGpsType.ItemIndex <> 3 then begin
     btnGPSSwitch.Caption := _('GPS On/Off');
   end else begin
     btnGPSSwitch.Caption := _('Track Play/Stop');
@@ -539,11 +659,13 @@ end;
 
 procedure TfrGPSConfig.RefreshTranslation;
 var
-  I: Integer;
+  I, J: Integer;
 begin
   I := ComboBoxBoudRate.ItemIndex;
+  J := cbbGpsType.ItemIndex;
   inherited RefreshTranslation;
   ComboBoxBoudRate.ItemIndex := I;
+  cbbGpsType.ItemIndex := J;
 end;
 
 end.

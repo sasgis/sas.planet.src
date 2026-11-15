@@ -37,6 +37,7 @@ type
     FDelay: DWORD;
     FLowLevelLog: Boolean;
     FLogPath: string;
+    FServerAddress: string;
     FGPSOrigin: TGPSOrigin;
     FAutodetectCOMOnConnect: Boolean;
     FAutodetectCOMFlags: DWORD;
@@ -47,6 +48,7 @@ type
     function GetDelay: DWORD; safecall;
     function GetLowLevelLog: Boolean; safecall;
     function GetLogPath: string; safecall;
+    function GetServerAddress: string; safecall;
     function GetGPSOrigin: TGPSOrigin; safecall;
     function GetAutodetectCOMOnConnect: Boolean; safecall;
     function GetAutodetectCOMFlags: DWORD; safecall;
@@ -58,6 +60,7 @@ type
       const ADelay: DWORD;
       const ALowLevelLog: Boolean;
       const ALogPath: string;
+      const AServerAddress: string;
       const AGPSOrigin: TGPSOrigin;
       const AAutodetectCOMOnConnect: Boolean;
       const AAutodetectCOMFlags: DWORD
@@ -75,6 +78,7 @@ constructor TGPSModuleByCOMPortSettings.Create(
   const ADelay: DWORD;
   const ALowLevelLog: Boolean;
   const ALogPath: string;
+  const AServerAddress: string;
   const AGPSOrigin: TGPSOrigin;
   const AAutodetectCOMOnConnect: Boolean;
   const AAutodetectCOMFlags: DWORD
@@ -87,6 +91,7 @@ begin
   FDelay := ADelay;
   FLowLevelLog := ALowLevelLog;
   FLogPath := ALogPath;
+  FServerAddress := AServerAddress;
   FGPSOrigin := AGPSOrigin;
   FAutodetectCOMOnConnect := AAutodetectCOMOnConnect;
   FAutodetectCOMFlags := AAutodetectCOMFlags;
@@ -130,6 +135,11 @@ end;
 function TGPSModuleByCOMPortSettings.GetPort: DWORD;
 begin
   Result := FPort;
+end;
+
+function TGPSModuleByCOMPortSettings.GetServerAddress: string;
+begin
+  Result := FServerAddress;
 end;
 
 function TGPSModuleByCOMPortSettings.GetGPSOrigin: TGPSOrigin;
