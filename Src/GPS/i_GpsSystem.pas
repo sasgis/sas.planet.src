@@ -28,6 +28,15 @@ uses
   i_GPS;
 
 type
+  TGpsConnectionState = (
+    gcsDisconnected,
+    gcsConnecting,
+    gcsConnected,
+    gcsConnectedNoData,
+    gcsDisconnecting,
+    gcsWaitingReconnect
+  );
+
   IGpsSystem = interface
     ['{F5255517-B74E-486D-AF34-8F48F510D30C}']
     function GetPosition: IGPSPosition;
@@ -54,8 +63,11 @@ type
     function GetConnectErrorNotifier: INotifier;
     property ConnectErrorNotifier: INotifier read GetConnectErrorNotifier;
 
-    function GetGPSUnitInfo: String;
-    property GPSUnitInfo: String read GetGPSUnitInfo;
+    function GetConnectionState: TGpsConnectionState;
+    property ConnectionState: TGpsConnectionState read GetConnectionState;
+
+    function GetGPSUnitInfo: string;
+    property GPSUnitInfo: string read GetGPSUnitInfo;
 
     procedure ApplyUTCDateTime;
     procedure ResetDGPS;

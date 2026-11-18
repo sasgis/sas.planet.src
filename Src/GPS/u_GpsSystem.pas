@@ -96,6 +96,7 @@ type
 
     procedure CreateModuleAndLinks;
   private
+    { IGpsSystem }
     function GetPosition: IGPSPosition;
     function GetConnectedNotifier: INotifier;
     function GetConnectErrorNotifier: INotifier;
@@ -104,7 +105,8 @@ type
     function GetDisconnectedNotifier: INotifier;
     function GetDisconnectingNotifier: INotifier;
     function GetTimeOutNotifier: INotifier;
-    function GetGPSUnitInfo: String;
+    function GetConnectionState: TGpsConnectionState;
+    function GetGPSUnitInfo: string;
     procedure ApplyUTCDateTime;
     procedure ResetDGPS;
     procedure ResetUnitInfo;
@@ -136,7 +138,7 @@ uses
 
 const
   // devices which are reconnected automatically after a connection loss
-  CGPSAutoReconnectOrigins: TGPSOriginSet = [gpsoTCPNMEA];
+  CGPSAutoReconnectOrigins: TGPSOriginSet = [gpsoTCPNMEA, gpsoUDPNMEA];
   // delay between reconnect attempts
   CReconnectDelayMSec = 5000;
 
@@ -276,6 +278,45 @@ end;
 function TGpsSystem.GetTimeOutNotifier: INotifier;
 begin
   Result := FTimeOutNotifier;
+end;
+
+function TGpsSystem.GetConnectionState: TGpsConnectionState;
+var
+  VNoDataTimeout: Integer;
+  VCurrTick: Cardinal;
+begin
+  VNoDataTimeout := FConfig.NoDataTimeOut;
+  VCurrTick := GetTickCount;
+  FCS.BeginRead;
+  try
+    case FInternalState of
+      isConnecting, isTimeOut, isConnectError: begin
+        Result := gcsConnecting;
+      end;
+      isConnected: begin
+        Result := gcsConnected;
+        if (FLastDataReceiveTick > 0) and
+           (FLastDataReceiveTick <= VCurrTick) and
+           (Integer(VCurrTick - FLastDataReceiveTick) > VNoDataTimeout)
+        then begin
+          Result := gcsConnectedNoData;
+        end;
+      end;
+      isDisconnecting: begin
+        Result := gcsDisconnecting;
+      end;
+    else
+      Result := gcsDisconnected;
+    end;
+  finally
+    FCS.EndRead;
+  end;
+  if (Result = gcsDisconnected) and
+     FConfig.GPSEnabled and
+     (FConfig.ModuleConfig.GPSOrigin in CGPSAutoReconnectOrigins)
+  then begin
+    Result := gcsWaitingReconnect;
+  end;
 end;
 
 procedure TGpsSystem.CreateModuleAndLinks;

@@ -28,7 +28,7 @@ uses
 
 type
   // do not change the order of the existing items - the value is saved to the config by its ordinal
-  TGPSOrigin = (gpsoNMEA, gpsoGarmin, gpsoFlyOnTrack, gpsoLocationAPI, gpsoTCPNMEA);
+  TGPSOrigin = (gpsoNMEA, gpsoGarmin, gpsoFlyOnTrack, gpsoLocationAPI, gpsoTCPNMEA, gpsoUDPNMEA);
   TGPSOriginSet = set of TGPSOrigin;
 
   IGPSModuleByCOMPortSettings = interface

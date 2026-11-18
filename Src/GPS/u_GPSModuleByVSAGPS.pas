@@ -611,6 +611,13 @@ begin
       // no autodetect for tcp
       FGPSGPS_DevParams.btAutodetectOnConnect := 0;
       FGPSGPS_DevParams.dwAutodetectFlags := 0;
+    end else if (gpsoUDPNMEA = VGPSOrigin) then begin
+      // NMEA over UDP - the local listener: "port", "address:port",
+      // "multicast_group:port" (see the device description)
+      VGPSPortName := AnsiString(Trim(AConfig.ServerAddress));
+      // no autodetect for udp
+      FGPSGPS_DevParams.btAutodetectOnConnect := 0;
+      FGPSGPS_DevParams.dwAutodetectFlags := 0;
     end else begin
       // no COM
       VGPSPortName := '';
@@ -640,6 +647,10 @@ begin
       gpsoTCPNMEA: begin
         // NMEA via TCP client
         VGPSDevType := gdt_TCP_NMEA0183;
+      end;
+      gpsoUDPNMEA: begin
+        // NMEA via UDP listener
+        VGPSDevType := gdt_UDP_NMEA0183;
       end;
       else begin
         // unknown
@@ -1174,7 +1185,7 @@ begin
 
       if AConfig.LowLevelLog then begin
         case AConfig.GPSOrigin of
-          gpsoNMEA, gpsoTCPNMEA: begin
+          gpsoNMEA, gpsoTCPNMEA, gpsoUDPNMEA: begin
             System.Include(VTrackTypes, ttNMEA);
           end;
           gpsoGarmin: begin
@@ -1521,7 +1532,7 @@ begin
       // write full dump of binary garmin packets (with header about packet type)
       // location api packets too
       InternalDumpByDevice;
-    end else if (0 <> (ADevType and (gdt_COM_NMEA0183 or gdt_TCP_NMEA0183))) then begin
+    end else if (0 <> (ADevType and (gdt_COM_NMEA0183 or gdt_TCP_NMEA0183 or gdt_UDP_NMEA0183))) then begin
       // write full dump of binary nmea packets
       InternalDumpByDevice;
     end;

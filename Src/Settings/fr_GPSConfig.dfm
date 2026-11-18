@@ -60,7 +60,8 @@ object frGPSConfig: TfrGPSConfig
           'USB Garmin'
           'Location API'
           'Replay Track'
-          'TCP NMEA')
+          'TCP NMEA'
+          'UDP NMEA')
       end
       object pnlComParams: TPanel
         Left = 156
@@ -232,7 +233,15 @@ object frGPSConfig: TfrGPSConfig
           Width = 251
           Height = 13
           Align = alTop
-          Caption = 'Server address (host:port):'
+          Caption = 'Address:'
+        end
+        object lblTcpConnectionState: TLabel
+          AlignWithMargins = True
+          Left = 5
+          Top = 82
+          Width = 251
+          Height = 13
+          Align = alTop
         end
         object edServerAddress: TEdit
           AlignWithMargins = True
@@ -242,7 +251,6 @@ object frGPSConfig: TfrGPSConfig
           Height = 21
           Align = alTop
           TabOrder = 0
-          TextHint = '192.168.1.10:10110'
         end
         object btnServerProbe: TButton
           AlignWithMargins = True
