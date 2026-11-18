@@ -1,6 +1,6 @@
 ﻿(*
 
-Copyright (c) 2014, Vladimir Agafonkin
+Copyright (c) 2026, Volodymyr Agafonkin
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are
@@ -23,20 +23,9 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABI
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-(c) 2011-2015, Vladimir Agafonkin
-SunCalc is a JavaScript library for calculating sun/moon position and light phases.
-https://github.com/mourner/suncalc
-
 --------------------------------------------------------------------------------------------
-Delphi port.
 
-Ported from suncalc.js (https://github.com/mourner/suncalc), which computes Sun and Moon
-position using full Meeus series for the Sun (ch. 25) and Moon (ch. 47), including a
-Terrestrial-Time correction (deltaT) for the position series, and an iterative
-(Newton-refined) rise/set solver. See suncalc.js source comments for the detailed
-derivations; this file mirrors its structure and naming closely so the two can be diffed
-against each other.
+Delphi port of suncalc.js (https://github.com/mourner/suncalc) version 2.1.4
 
 TSunPos.Azimuth/Altitude, TMoonPos.Azimuth/Altitude/ParallacticAngle, and
 TMoonIllumination.Angle are all returned in DEGREES.
@@ -144,6 +133,10 @@ type
 
 function GetPosition(const ADate: TDateTime; const ALat, ALon: Double): TSunPos;
 
+// Rarely, a sun event happens twice in one calendar day (e.g. at 00:05 and again at 23:58),
+// mostly above 60 deg latitude and for twilight around the solstices; GetTimes then returns the
+// one belonging to the solar day of that date's solar noon.
+//
 // Anchors the scanned solar day to the transit nearest the ADate instant itself - the original
 // (and still default) behaviour. AHeight: observer height in meters above the horizon.
 function GetTimes(const ADate: TDateTime; const ALat, ALon: Double;
@@ -390,11 +383,12 @@ end;
 // time the Sun reaches altitude h0 within the half day [a0, b0] between transit and nadir, given the
 // sine of its altitude at both ends; NaN if it doesn't cross h0 there (altitude is monotonic over the
 // half day, so a sign change means exactly one crossing). Seeds from the hour angle at transit
-// declination, then Newton on sin(h) kept inside a shrinking bracket, bisecting whenever a step
-// leaves it - on near-grazing days the slope is tiny and plain Newton steps land days away.
+// declination, then Newton on sin(h) kept inside a shrinking bracket, bisecting whenever a step leaves
+// it or fails to halve the previous step (as in rtsafe) - on near-grazing days the slope is tiny, so
+// plain Newton steps land days away or ping-pong inside the bracket, barely shrinking it.
 function getSetJ(const h0, a0, b0, sa, sb, dt, lw, phi, decT: Double): Double;
 var
-  a, b, s0, cosHA0, ha0, d, hourAngle, k, f, den, step: Double;
+  a, b, s0, cosHA0, ha0, d, dx, hourAngle, k, f, den, step: Double;
   rising: Boolean;
   c: TSunCoords;
 begin
@@ -402,8 +396,10 @@ begin
   b := b0;
   s0 := sin(h0);
   rising := sa < sb;
-  if (sa - s0) * (sb - s0) > 0 then begin
-    Result := NaN; // sun stays above / below this altitude all half day
+  // sun stays above / below this altitude all half day, or NaN input (tested explicitly: NaN
+  // comparisons are not reliably False in Delphi, and NaN here would make the loop below spin forever)
+  if IsNaN(sa) or IsNaN(sb) or IsNaN(s0) or ((sa - s0) * (sb - s0) > 0) then begin
+    Result := NaN;
     Exit;
   end;
 
@@ -413,6 +409,7 @@ begin
   else ha0 := ArcCos(cosHA0);
   if rising then d := dt - ha0 / (2 * PI)
   else d := dt + ha0 / (2 * PI);
+  dx := b - a;
 
   while True do begin
     c := getSunCoords(toDaysTT(d));
@@ -425,7 +422,8 @@ begin
     // a zero slope would be an infinite step in JS; here it just means "bisect instead"
     if den <> 0 then begin
       step := f / den;
-      if (d + step > a) and (d + step < b) then begin
+      if (d + step > a) and (d + step < b) and (abs(step) <= abs(dx) / 2) then begin
+        dx := step;
         d := d + step;
         if abs(step) < 1e-5 then begin // ~1 s step, so quadratic convergence leaves ~us error
           Result := d;
@@ -435,7 +433,8 @@ begin
       end;
     end;
 
-    d := (a + b) / 2;
+    dx := (b - a) / 2;
+    d := a + dx;
     if b - a < 1e-8 then begin
       Result := d;
       Exit;
@@ -480,9 +479,18 @@ function GetTimesImpl(const ADate: TDateTime; const ALat, ALon, AHeight: Double;
   const AHasUtcOffset: Boolean; const AUtcOffset: Double): TSunCalcTimes;
 var
   lw, phi, dh, dt, dec, h0, jrise, jset, noonAlt, riseSetAlt, sNoon, sNadir1, sNadir2: Double;
+  winStart, winEnd, dt2, dec2, sNoon2, nadirJ: Double;
+  hasPrev, hasNext: Boolean;
   i: TSunCalcTimesID;
 begin
   NewSunCalcTimes(Result);
+
+  // NaN or infinite input: no events (the solve below would never converge on it, and Floor/Round
+  // raise on NaN in Delphi), so return the empty result, with no values and no polar flags
+  if IsNaN(ADate) or IsInfinite(ADate) or IsNaN(ALat) or IsInfinite(ALat) or IsNaN(ALon) or
+    IsInfinite(ALon) or IsNaN(AHeight) or IsInfinite(AHeight) or
+    (AHasUtcOffset and (IsNaN(AUtcOffset) or IsInfinite(AUtcOffset))) then
+    Exit;
 
   lw  := cRad * (-ALon);
   phi := cRad * ALat;
@@ -499,9 +507,30 @@ begin
   sNadir1 := -cos(phi + getSunCoords(toDaysTT(dt - 0.5)).dec);
   sNadir2 := -cos(phi + getSunCoords(toDaysTT(dt + 0.5)).dec);
 
+  // the window is the solar day [dt - 0.5, dt + 0.5), or with an offset the civil day, which is just
+  // as long but shifted by up to half a day: it then also takes in the evening of the previous solar
+  // day or the morning of the next one, where events cut off from this solar day are looked up instead
+  if AHasUtcOffset then
+    winStart := toDays(civilMidnight(ADate, AUtcOffset))
+  else
+    winStart := dt - 0.5;
+  winEnd := winStart + 1;
+  hasPrev := winStart < dt - 0.5;
+  hasNext := winEnd > dt + 0.5;
+  if hasPrev then dt2 := solarTransit(dt - 1, lw)
+  else if hasNext then dt2 := solarTransit(dt + 1, lw)
+  else dt2 := dt;
+  if hasPrev or hasNext then dec2 := getSunCoords(toDaysTT(dt2)).dec
+  else dec2 := dec;
+  sNoon2 := cos(phi - dec2);
+
+  // solar days run up to ~30 s longer than 24 h, so a civil day can miss a nadir by seconds; keep
+  // this solar day's one then
+  if hasNext and (dt2 - 0.5 < winEnd) then nadirJ := dt2 else nadirJ := dt;
+
   Result.Times[solarNoon].Value := fromJulian(dt + J2000);
   Result.Times[solarNoon].HasValue := True;
-  Result.Times[nadir].Value := fromJulian(dt + J2000 - 0.5);
+  Result.Times[nadir].Value := fromJulian(nadirJ - 0.5 + J2000);
   Result.Times[nadir].HasValue := True;
 
   for i := Low(Result.Times) to High(Result.Times) do begin
@@ -509,14 +538,21 @@ begin
       h0 := (Result.Times[i].Angle + dh) * cRad;
       jrise := getSetJ(h0, dt - 0.5, dt, sNadir1, sNoon, dt, lw, phi, dec);
       jset  := getSetJ(h0, dt, dt + 0.5, sNoon, sNadir2, dt, lw, phi, dec);
+      // NaN comparisons are not reliably False in Delphi (x87 'unordered' can read as '<'), so the
+      // window checks below test IsNaN explicitly
+      if hasNext and not (not IsNaN(jrise) and (jrise >= winStart)) then
+        jrise := getSetJ(h0, dt + 0.5, dt2, sNadir2, sNoon2, dt2, lw, phi, dec2);
+      if hasPrev and not (not IsNaN(jset) and (jset < winEnd)) then
+        jset := getSetJ(h0, dt2, dt - 0.5, sNoon2, sNadir1, dt2, lw, phi, dec2);
 
       // find the matching set entry for this rise angle (they share the same Angle value
-      // and sit at consecutive indices, rise then set - see cSunCalcTimesInfo above)
-      if not IsNaN(jrise) then begin
+      // and sit at consecutive indices, rise then set - see cSunCalcTimesInfo above).
+      // NaN (the Sun never reaches this altitude) or outside the window: no value
+      if not IsNaN(jrise) and (jrise >= winStart) and (jrise < winEnd) then begin
         Result.Times[i].Value := fromJulian(jrise + J2000);
         Result.Times[i].HasValue := True;
       end;
-      if not IsNaN(jset) then begin
+      if not IsNaN(jset) and (jset >= winStart) and (jset < winEnd) then begin
         Result.Times[Succ(i)].Value := fromJulian(jset + J2000);
         Result.Times[Succ(i)].HasValue := True;
       end;
@@ -526,7 +562,7 @@ begin
   // polar day/night: when the Sun never crosses the standard rise/set altitude, flag which
   // side it stays on by comparing its altitude at solar noon (its daily maximum) against
   // that threshold.
-  if not Result.Times[sunrise].HasValue then begin
+  if not Result.Times[sunrise].HasValue and not Result.Times[sunset].HasValue then begin
     noonAlt := getAltitude(0, phi, dec);
     riseSetAlt := (Result.Times[sunrise].Angle + dh) * cRad;
     Result.AlwaysUp := noonAlt > riseSetAlt;
