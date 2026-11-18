@@ -39,6 +39,7 @@ uses
   u_ProjectedPolygonWithRect_Test in 'u_ProjectedPolygonWithRect_Test.pas',
   u_ProjectedSingleLine_Test in 'u_ProjectedSingleLine_Test.pas',
   u_ProjectionSet_Test in 'u_ProjectionSet_Test.pas',
+  u_LocalCoordConverterFactorySimpe_Test in 'u_LocalCoordConverterFactorySimpe_Test.pas',
   u_ProjectionType_Test in 'u_ProjectionType_Test.pas',
   u_RegularExpressions_Test in 'u_RegularExpressions_Test.pas',
   u_SASTestCase in 'u_SASTestCase.pas',

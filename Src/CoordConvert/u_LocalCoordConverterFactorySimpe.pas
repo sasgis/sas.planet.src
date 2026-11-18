@@ -386,7 +386,6 @@ function TLocalCoordConverterFactorySimpe.CreateConverter(
 ): ILocalCoordConverter;
 var
   VLocalCenterMapPixelFloat: TDoublePoint;
-  VLocalCenterMapPixel: TPoint;
   VLocalCenter: TDoublePoint;
   VTopLeftMapPixelFloat: TDoublePoint;
   VTopLeftMapPixel: TPoint;
@@ -397,12 +396,14 @@ begin
     if (Abs(AMapPixelAtLocalZero.X - VTopLeftMapPixel.X) < 0.001) and
       (Abs(AMapPixelAtLocalZero.Y - VTopLeftMapPixel.Y) < 0.001)
     then begin
+      // Calculate the center using float numbers, not integers.
+      // When the window width or height is an odd number, the center is a .5 value.
+      // If we round it to an integer, the top-left position moves by 1 pixel.
       VLocalCenterMapPixelFloat.X := AMapPixelAtLocalZero.X + VLocalCenter.X;
       VLocalCenterMapPixelFloat.Y := AMapPixelAtLocalZero.Y + VLocalCenter.Y;
-      VLocalCenterMapPixel := PointFromDoublePoint(VLocalCenterMapPixelFloat, prClosest);
-      AProjection.ValidatePixelPosStrict(VLocalCenterMapPixel, False);
-      VTopLeftMapPixelFloat.X := VLocalCenterMapPixel.X - VLocalCenter.X;
-      VTopLeftMapPixelFloat.Y := VLocalCenterMapPixel.Y - VLocalCenter.Y;
+      AProjection.ValidatePixelPosFloatStrict(VLocalCenterMapPixelFloat, False);
+      VTopLeftMapPixelFloat.X := VLocalCenterMapPixelFloat.X - VLocalCenter.X;
+      VTopLeftMapPixelFloat.Y := VLocalCenterMapPixelFloat.Y - VLocalCenter.Y;
       VTopLeftMapPixel := PointFromDoublePoint(VTopLeftMapPixelFloat, prClosest);
       Result :=
         FFactory.CreateNoScaleIntDelta(
