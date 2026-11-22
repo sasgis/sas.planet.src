@@ -78,6 +78,8 @@ type
 
     FReconnectTick: Cardinal;
 
+    function GetIsAutoReconnectOrigin: Boolean;
+
     procedure StartThreads;
     procedure SendTerminateToThreads;
 
@@ -129,7 +131,8 @@ type
 implementation
 
 uses
-  i_GPSModuleByCOMPortSettings,
+  t_GPSModuleByCOMPortSettings,
+  i_GPSModuleByCOMPortConfig,
   u_Notifier,
   u_ListenerNotifierLinksList,
   u_Synchronizer,
@@ -137,8 +140,6 @@ uses
   u_ListenerByEvent;
 
 const
-  // devices which are reconnected automatically after a connection loss
-  CGPSAutoReconnectOrigins: TGPSOriginSet = [gpsoTCPNMEA, gpsoUDPNMEA];
   // delay between reconnect attempts
   CReconnectDelayMSec = 5000;
 
@@ -280,6 +281,23 @@ begin
   Result := FTimeOutNotifier;
 end;
 
+function TGpsSystem.GetIsAutoReconnectOrigin: Boolean;
+var
+  VConfig: IGPSModuleByCOMPortConfig;
+begin
+  VConfig := FConfig.ModuleConfig;
+  case VConfig.GPSOrigin of
+    gpsoTCPNMEA: begin
+      Result := VConfig.TcpSettings.AutoReconnect;
+    end;
+    gpsoUDPNMEA: begin
+      Result := VConfig.UdpSettings.AutoReconnect;
+    end;
+  else
+    Result := False;
+  end;
+end;
+
 function TGpsSystem.GetConnectionState: TGpsConnectionState;
 var
   VNoDataTimeout: Integer;
@@ -313,7 +331,7 @@ begin
   end;
   if (Result = gcsDisconnected) and
      FConfig.GPSEnabled and
-     (FConfig.ModuleConfig.GPSOrigin in CGPSAutoReconnectOrigins)
+     GetIsAutoReconnectOrigin
   then begin
     Result := gcsWaitingReconnect;
   end;
@@ -436,13 +454,20 @@ procedure TGpsSystem.OnGpsDisconnected;
 var
   VPosition: IGPSPosition;
 begin
-  if not (FConfig.ModuleConfig.GPSOrigin in CGPSAutoReconnectOrigins) then begin
+  if not GetIsAutoReconnectOrigin then begin
     FConfig.GPSEnabled := False;
+  end else if FConfig.GPSEnabled then begin
+    FWasError := True;
   end;
+
   FReconnectTick := GetTickCount;
+
   VPosition := FGPSModuleByCOM.Position;
-  FGPSRecorder.AddPoint(VPosition);
-  FGpsTrackRecorder.AddPoint(VPosition);
+  if VPosition <> nil then begin
+    FGPSRecorder.AddPoint(VPosition);
+    FGpsTrackRecorder.AddPoint(VPosition);
+  end;
+
   FCS.BeginWrite;
   try
     FModuleState := msDisconnected;
@@ -636,10 +661,9 @@ begin
       FDataReciveNotifier.Notify(nil);
     end;
 
-    // auto-reconnect: only for the devices from CGPSAutoReconnectOrigins
-    // (e.g. a tcp server may come back without any user action) - keeps
-    // trying while the gps is enabled by the user; the delay counts from
-    // the last disconnect
+    // auto-reconnect: only for the origins which have the auto reconnect
+    // enabled in the settings - keeps trying while the gps is enabled by
+    // the user; the delay counts from the last disconnect
     FCS.BeginWrite;
     try
       VNeedReconnect :=
@@ -650,7 +674,7 @@ begin
     end;
     if VNeedReconnect then begin
       if FConfig.GPSEnabled and
-         (FConfig.ModuleConfig.GPSOrigin in CGPSAutoReconnectOrigins) and
+         GetIsAutoReconnectOrigin and
          FGPSModuleByCOM.IsReadyToConnect
       then begin
         FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic, FConfig);

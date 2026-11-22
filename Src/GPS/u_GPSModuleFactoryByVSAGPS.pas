@@ -49,7 +49,7 @@ implementation
 uses
   u_GPSModuleByVSAGPS;
 
-{ TGPSModuleFactoryByZylGPS }
+{ TGPSModuleFactoryByVSAGPS }
 
 constructor TGPSModuleFactoryByVSAGPS.Create(
   const ASystemTime: ISystemTimeProvider;

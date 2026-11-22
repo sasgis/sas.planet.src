@@ -112,9 +112,9 @@ type
     procedure InternalStopLogger;
     procedure InternalResumeLogger;
     procedure InternalStartLogger(const AConfig: IGPSModuleByCOMPortSettings;
-                                  const ALogConfig: IGPSConfig);
+                                  const AGpsConfig: IGPSConfig);
     function InternalGetLoggerState(const AConfig: IGPSModuleByCOMPortSettings;
-                                    const ALogConfig: IGPSConfig;
+                                    const AGpsConfig: IGPSConfig;
                                     out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
     // to fill track log params
     procedure Do_VSAGPS_LOGGER_TRACKPARAMS_EVENT(const pLogger: Pointer;
@@ -151,7 +151,7 @@ type
                                    );
   protected
     procedure Connect(const AConfig: IGPSModuleByCOMPortSettings;
-                      const ALogConfig: IGPSConfig); safecall;
+                      const AGpsConfig: IGPSConfig); safecall;
     procedure Disconnect; safecall;
     function GetIsReadyToConnect: Boolean; safecall;
     function GetGPSUnitInfo: String; override;
@@ -184,6 +184,7 @@ uses
   vsagps_public_debugstring,
 {$ifend}
   t_GeoTypes,
+  t_GPSModuleByCOMPortSettings,
   u_InetFunc,
   u_ResStrings,
   u_ListenerByEvent;
@@ -497,9 +498,7 @@ begin
 end;
 
 procedure TGPSModuleByVSAGPS.Connect(const AConfig: IGPSModuleByCOMPortSettings;
-                                     const ALogConfig: IGPSConfig);
-const
-  CFlyOnTrackCFG = 'ReplayTrack.txt';
+                                     const AGpsConfig: IGPSConfig);
 var
   VGPSOrigin: TGPSOrigin;
   VGPSDevType: DWORD;
@@ -511,10 +510,10 @@ var
   procedure _LoadFlyOnTrackSource;
   var sl: TStringList;
   begin
-    if FileExists(CFlyOnTrackCFG) then begin
+    if FileExists(CReplayTrackListFileName) then begin
       sl := TStringList.Create;
       try
-        sl.LoadFromFile(CFlyOnTrackCFG);
+        sl.LoadFromFile(CReplayTrackListFileName);
         // TODO: check encoding
         VFlyOnTrackSource := sl.Text;
       finally
@@ -533,19 +532,31 @@ var
       #13#10 +
       'Yes - to create and edit %s' + #13#10 +
       'Close - to close this message'
-      ), [CFlyOnTrackCFG, CFlyOnTrackCFG]), mtError, [mbYes, mbClose], 0
+      ), [CReplayTrackListFileName, CReplayTrackListFileName]), mtError, [mbYes, mbClose], 0
     );
     if VResult = mrYes then begin
-      with TFileStream.Create(CFlyOnTrackCFG, fmCreate) do begin
+      with TFileStream.Create(CReplayTrackListFileName, fmCreate) do begin
         Free;
       end;
-      OpenFileInDefaultProgram(CFlyOnTrackCFG);
+      OpenFileInDefaultProgram(CReplayTrackListFileName);
     end;
+  end;
+
+  procedure _NotifyDisconnected;
+  begin
+    DisconnectedNotifier.Notify(nil);
+  end;
+
+  procedure _OnServerAddressNotSet;
+  begin
+    AGpsConfig.GPSEnabled := False;
+    MessageDlg(SAS_ERR_GpsServerAddressNotSet, mtError, [mbOK], 0);
+    _NotifyDisconnected;
   end;
 
 begin
   Assert(Assigned(AConfig));
-  Assert(Assigned(ALogConfig));
+  Assert(Assigned(AGpsConfig));
 
   VGPSOrigin := AConfig.GPSOrigin;
 
@@ -555,16 +566,35 @@ begin
     if FConnectState <> gs_DoneDisconnected then
       Exit;
 
+    ConnectingNotifier.Notify(nil);
+
     VFlyOnTrackSource := '';
     if (gpsoFlyOnTrack = VGPSOrigin) then begin
-      _LoadFlyOnTrackSource;
-      if Length(VFlyOnTrackSource) = 0 then begin
-        _OnLoadFlyOnTrackError;
-        Exit;
+      if AConfig.ReplaySettings.UseTrackList then begin
+        // list of track files/paths from the ReplayTrack.txt
+        _LoadFlyOnTrackSource;
+        if Length(VFlyOnTrackSource) = 0 then begin
+          _OnLoadFlyOnTrackError;
+          _NotifyDisconnected;
+          Exit;
+        end;
+      end else begin
+        // the single track file selected in the settings
+        VFlyOnTrackSource := AConfig.ReplaySettings.TrackFile;
+        if (Length(VFlyOnTrackSource) = 0) or (not FileExists(VFlyOnTrackSource)) then begin
+          MessageDlg(Format(SAS_MSG_ReplayTrackFileNotFound, [VFlyOnTrackSource]), mtError, [mbOK], 0);
+          _NotifyDisconnected;
+          Exit;
+        end;
       end;
     end else begin
-      // logger (create suspended)
-      InternalStartLogger(AConfig, ALogConfig);
+      try
+        // logger (create suspended)
+        InternalStartLogger(AConfig, AGpsConfig);
+      except
+        _NotifyDisconnected;
+        raise;
+      end;
     end;
 
     // timeouts
@@ -582,7 +612,7 @@ begin
       VTimeout := $FFFF;
     FGPSGPS_DevParams.wWorkerThreadTimeoutMSec := VTimeout;
 
-    FGPSGPS_DevParams.iBaudRate := AConfig.BaudRate;
+    FGPSGPS_DevParams.iBaudRate := AConfig.ComSettings.BaudRate;
 
     // upper limit
     if FGPSGPS_DevParams.wWorkerThreadTimeoutMSec>cWorkingThread_MaxDelay_Msec then
@@ -592,9 +622,13 @@ begin
     if (gpsoFlyOnTrack = VGPSOrigin) then begin
       FGPSGPS_DevParams.pLowLevelHandler := nil;
       FGPSGPS_DevParams.pTrackPointHandler := rVSAGPS_TRACKPOINT_HANDLER;
+      FGPSGPS_DevParams.dwSourceFileSpeedMultiplier := AConfig.ReplaySettings.PlaybackSpeedMultiplier;
+      if AConfig.ReplaySettings.LoopPlayback then
+        FGPSGPS_DevParams.dwSourceFileFlagsIn := FGPSGPS_DevParams.dwSourceFileFlagsIn or dpsffi_LoopPlayback;
     end else begin
       FGPSGPS_DevParams.pTrackPointHandler := nil;
-      if InternalGetLoggerState(AConfig, ALogConfig, VTrackTypes) then
+      FGPSGPS_DevParams.dwSourceFileSpeedMultiplier := 0;
+      if InternalGetLoggerState(AConfig, AGpsConfig, VTrackTypes) then
         FGPSGPS_DevParams.pLowLevelHandler := rLowLevelHandler
       else
         FGPSGPS_DevParams.pLowLevelHandler := nil;
@@ -602,19 +636,26 @@ begin
 
     if (gpsoNMEA = VGPSOrigin) then begin
       // COM for NMEA
-      VGPSPortName := 'COM' + IntToStrA(AConfig.Port);
-      FGPSGPS_DevParams.btAutodetectOnConnect := Ord(AConfig.AutodetectCOMOnConnect <> False);
-      FGPSGPS_DevParams.dwAutodetectFlags := AConfig.AutodetectCOMFlags;
+      VGPSPortName := 'COM' + IntToStrA(AConfig.ComSettings.Port);
+      FGPSGPS_DevParams.btAutodetectOnConnect := Ord(AConfig.ComSettings.AutodetectCOMOnConnect <> False);
+      FGPSGPS_DevParams.dwAutodetectFlags := AConfig.ComSettings.AutodetectCOMFlags;
     end else if (gpsoTCPNMEA = VGPSOrigin) then begin
       // NMEA over TCP - "host:port"
-      VGPSPortName := AnsiString(Trim(AConfig.ServerAddress));
+      VGPSPortName := AnsiString(Trim(AConfig.TcpSettings.ServerAddress));
+      if (0 = Length(VGPSPortName)) then begin
+        _OnServerAddressNotSet;
+        Exit;
+      end;
       // no autodetect for tcp
       FGPSGPS_DevParams.btAutodetectOnConnect := 0;
       FGPSGPS_DevParams.dwAutodetectFlags := 0;
     end else if (gpsoUDPNMEA = VGPSOrigin) then begin
-      // NMEA over UDP - the local listener: "port", "address:port",
-      // "multicast_group:port" (see the device description)
-      VGPSPortName := AnsiString(Trim(AConfig.ServerAddress));
+      // NMEA over UDP - the local listener: "port", "address:port"
+      VGPSPortName := AnsiString(Trim(AConfig.UdpSettings.ServerAddress));
+      if (0 = Length(VGPSPortName)) then begin
+        _OnServerAddressNotSet;
+        Exit;
+      end;
       // no autodetect for udp
       FGPSGPS_DevParams.btAutodetectOnConnect := 0;
       FGPSGPS_DevParams.dwAutodetectFlags := 0;
@@ -652,10 +693,10 @@ begin
         // NMEA via UDP listener
         VGPSDevType := gdt_UDP_NMEA0183;
       end;
-      else begin
-        // unknown
-        raise Exception.CreateFmt(SAS_MSG_UnknownGPSOrigin, [Integer(VGPSOrigin)]);
-      end;
+    else
+      // unknown
+      _NotifyDisconnected;
+      raise Exception.CreateFmt(SAS_MSG_UnknownGPSOrigin, [Integer(VGPSOrigin)]);
     end;
 
     try
@@ -667,15 +708,17 @@ begin
                 nil,
                 rVSAGPS_UNIT_INFO_DLL_Proc,
                 @FConnectedUnitindex,
-                nil
-      )) then
-      begin
-        // not connected
-        MessageDlg(SAS_MSG_NoGPSdetected,  mtError, [mbOK], 0);
+                nil))
+      then begin
+        if not AConfig.ConnectErrorDialogSuppressed then begin
+          MessageDlg(SAS_MSG_NoGPSdetected,  mtError, [mbOK], 0);
+        end;
         FVSAGPS_Object.GPSDisconnect;
+        _NotifyDisconnected;
       end;
     except
       FVSAGPS_Object.GPSDisconnect;
+      _NotifyDisconnected;
       raise;
     end;
   finally
@@ -1087,11 +1130,11 @@ end;
 
 function TGPSModuleByVSAGPS.InternalGetLoggerState(
   const AConfig: IGPSModuleByCOMPortSettings;
-  const ALogConfig: IGPSConfig;
+  const AGpsConfig: IGPSConfig;
   out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
 begin
-  if Assigned(ALogConfig) then
-    Result := ALogConfig.AllowWriteLog(ATrackTypes) and (ATrackTypes<>[])
+  if Assigned(AGpsConfig) then
+    Result := AGpsConfig.AllowWriteLog(ATrackTypes) and (ATrackTypes<>[])
   else begin
     Result := FALSE;
     ATrackTypes := [];
@@ -1146,13 +1189,13 @@ begin
 end;
 
 procedure TGPSModuleByVSAGPS.InternalStartLogger(const AConfig: IGPSModuleByCOMPortSettings;
-                                                 const ALogConfig: IGPSConfig);
+                                                 const AGpsConfig: IGPSConfig);
 var
   VTrackTypes: TVSAGPS_TrackTypes;
   VLoggerPath: UnicodeString;
   tCallbackFilter: TVSAGPS_LOGGER_GETVALUES_CALLBACK_FILTER;
 begin
-  if InternalGetLoggerState(AConfig, ALogConfig, VTrackTypes) then begin
+  if InternalGetLoggerState(AConfig, AGpsConfig, VTrackTypes) then begin
     LockLogger;
     try
       // create or stop running
@@ -1174,7 +1217,7 @@ begin
       end;
 
       // define log type(s)
-      if Assigned(ALogConfig) then begin
+      if Assigned(AGpsConfig) then begin
         // get types
         System.Exclude(VTrackTypes, ttGarmin);
         System.Exclude(VTrackTypes, ttNMEA);

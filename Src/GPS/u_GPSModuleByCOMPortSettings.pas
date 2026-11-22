@@ -25,45 +25,45 @@ interface
 
 uses
   Windows,
+  t_GPSModuleByCOMPortSettings,
   i_GPSModuleByCOMPortSettings,
   u_BaseInterfacedObject;
 
 type
   TGPSModuleByCOMPortSettings = class(TBaseInterfacedObject, IGPSModuleByCOMPortSettings)
   private
-    FPort: DWORD;
-    FBaudRate: DWORD;
+    FGPSOrigin: TGPSOrigin;
     FConnectionTimeout: DWORD;
     FDelay: DWORD;
     FLowLevelLog: Boolean;
     FLogPath: string;
-    FServerAddress: string;
-    FGPSOrigin: TGPSOrigin;
-    FAutodetectCOMOnConnect: Boolean;
-    FAutodetectCOMFlags: DWORD;
+    FComSettings: TGPSComSettings;
+    FTcpSettings: TGPSNetworkSettings;
+    FUdpSettings: TGPSNetworkSettings;
+    FReplaySettings: TGPSReplaySettings;
   private
-    function GetPort: DWORD; safecall;
-    function GetBaudRate: DWORD; safecall;
-    function GetConnectionTimeout: DWORD; safecall;
-    function GetDelay: DWORD; safecall;
-    function GetLowLevelLog: Boolean; safecall;
-    function GetLogPath: string; safecall;
-    function GetServerAddress: string; safecall;
-    function GetGPSOrigin: TGPSOrigin; safecall;
-    function GetAutodetectCOMOnConnect: Boolean; safecall;
-    function GetAutodetectCOMFlags: DWORD; safecall;
+    { IGPSModuleByCOMPortSettings }
+    function GetGPSOrigin: TGPSOrigin;
+    function GetConnectionTimeout: DWORD;
+    function GetDelay: DWORD;
+    function GetLowLevelLog: Boolean;
+    function GetLogPath: string;
+    function GetComSettings: TGPSComSettings;
+    function GetTcpSettings: TGPSNetworkSettings;
+    function GetUdpSettings: TGPSNetworkSettings;
+    function GetReplaySettings: TGPSReplaySettings;
+    function GetConnectErrorDialogSuppressed: Boolean;
   public
     constructor Create(
-      const APort: DWORD;
-      const ABaudRate: DWORD;
+      const AGPSOrigin: TGPSOrigin;
       const AConnectionTimeout: DWORD;
       const ADelay: DWORD;
       const ALowLevelLog: Boolean;
       const ALogPath: string;
-      const AServerAddress: string;
-      const AGPSOrigin: TGPSOrigin;
-      const AAutodetectCOMOnConnect: Boolean;
-      const AAutodetectCOMFlags: DWORD
+      const AComSettings: TGPSComSettings;
+      const ATcpSettings: TGPSNetworkSettings;
+      const AUdpSettings: TGPSNetworkSettings;
+      const AReplaySettings: TGPSReplaySettings
     );
   end;
 
@@ -72,44 +72,32 @@ implementation
 { TGPSModuleByCOMPortSettings }
 
 constructor TGPSModuleByCOMPortSettings.Create(
-  const APort: DWORD;
-  const ABaudRate: DWORD;
+  const AGPSOrigin: TGPSOrigin;
   const AConnectionTimeout: DWORD;
   const ADelay: DWORD;
   const ALowLevelLog: Boolean;
   const ALogPath: string;
-  const AServerAddress: string;
-  const AGPSOrigin: TGPSOrigin;
-  const AAutodetectCOMOnConnect: Boolean;
-  const AAutodetectCOMFlags: DWORD
+  const AComSettings: TGPSComSettings;
+  const ATcpSettings: TGPSNetworkSettings;
+  const AUdpSettings: TGPSNetworkSettings;
+  const AReplaySettings: TGPSReplaySettings
 );
 begin
   inherited Create;
-  FPort := APort;
-  FBaudRate := ABaudRate;
+  FGPSOrigin := AGPSOrigin;
   FConnectionTimeout := AConnectionTimeout;
   FDelay := ADelay;
   FLowLevelLog := ALowLevelLog;
   FLogPath := ALogPath;
-  FServerAddress := AServerAddress;
-  FGPSOrigin := AGPSOrigin;
-  FAutodetectCOMOnConnect := AAutodetectCOMOnConnect;
-  FAutodetectCOMFlags := AAutodetectCOMFlags;
+  FComSettings := AComSettings;
+  FTcpSettings := ATcpSettings;
+  FUdpSettings := AUdpSettings;
+  FReplaySettings := AReplaySettings;
 end;
 
-function TGPSModuleByCOMPortSettings.GetAutodetectCOMFlags: DWORD;
+function TGPSModuleByCOMPortSettings.GetComSettings: TGPSComSettings;
 begin
-  Result := FAutodetectCOMFlags;
-end;
-
-function TGPSModuleByCOMPortSettings.GetAutodetectCOMOnConnect: Boolean;
-begin
-  Result := FAutodetectCOMOnConnect;
-end;
-
-function TGPSModuleByCOMPortSettings.GetBaudRate: DWORD;
-begin
-  Result := FBaudRate;
+  Result := FComSettings;
 end;
 
 function TGPSModuleByCOMPortSettings.GetConnectionTimeout: DWORD;
@@ -132,14 +120,33 @@ begin
   Result := FLowLevelLog;
 end;
 
-function TGPSModuleByCOMPortSettings.GetPort: DWORD;
+function TGPSModuleByCOMPortSettings.GetTcpSettings: TGPSNetworkSettings;
 begin
-  Result := FPort;
+  Result := FTcpSettings;
 end;
 
-function TGPSModuleByCOMPortSettings.GetServerAddress: string;
+function TGPSModuleByCOMPortSettings.GetUdpSettings: TGPSNetworkSettings;
 begin
-  Result := FServerAddress;
+  Result := FUdpSettings;
+end;
+
+function TGPSModuleByCOMPortSettings.GetReplaySettings: TGPSReplaySettings;
+begin
+  Result := FReplaySettings;
+end;
+
+function TGPSModuleByCOMPortSettings.GetConnectErrorDialogSuppressed: Boolean;
+begin
+  case FGPSOrigin of
+    gpsoTCPNMEA: begin
+      Result := FTcpSettings.AutoReconnect and FTcpSettings.SilentMode;
+    end;
+    gpsoUDPNMEA: begin
+      Result := FUdpSettings.AutoReconnect and FUdpSettings.SilentMode;
+    end;
+  else
+    Result := False;
+  end;
 end;
 
 function TGPSModuleByCOMPortSettings.GetGPSOrigin: TGPSOrigin;

@@ -448,6 +448,7 @@
         <DCCReference Include="Src\GPS\i_GPSPositionFactory.pas"/>
         <DCCReference Include="Src\GPS\i_GPSRecorder.pas"/>
         <DCCReference Include="Src\GPS\i_GpsSystem.pas"/>
+        <DCCReference Include="Src\GPS\t_GPSModuleByCOMPortSettings.pas"/>
         <DCCReference Include="Src\GPS\u_GPSConfig.pas"/>
         <DCCReference Include="Src\GPS\u_GPSModuleAbstract.pas"/>
         <DCCReference Include="Src\GPS\u_GPSModuleByCOMPortConfig.pas"/>
@@ -1566,6 +1567,7 @@
             <Form>frmShortCutEdit</Form>
         </DCCReference>
         <DCCReference Include="Src\Settings\i_ShortCutModalEdit.pas"/>
+        <DCCReference Include="Src\Settings\u_GPSDeviceParamsFrame.pas"/>
         <DCCReference Include="Src\Settings\u_ShortCutModalEditByForm.pas"/>
         <DCCReference Include="Src\Synchronize\i_ReadWriteSyncFactory.pas"/>
         <DCCReference Include="Src\Synchronize\i_Synchronizer.pas"/>
@@ -2011,6 +2013,21 @@
         <DCCReference Include="Src\u_UTF8Str.pas"/>
         <DCCReference Include="Src\u_UsedMarksConfig.pas"/>
         <DCCReference Include="Src\u_UsedMarksConfigStatic.pas"/>
+        <DCCReference Include="Src\Settings\fr_GPSDeviceCom.pas">
+            <Form>frGPSDeviceCom</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Settings\fr_GPSDeviceNetwork.pas">
+            <Form>frGPSDeviceNetwork</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Settings\fr_GPSDeviceReplay.pas">
+            <Form>frGPSDeviceReplay</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

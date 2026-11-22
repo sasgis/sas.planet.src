@@ -5253,7 +5253,7 @@ begin
   VPosition := GState.GPSRecorder.CurrentPosition;
 
   // no position?
-  if not VPosition.PositionOK then begin
+  if (VPosition = nil) or not VPosition.PositionOK then begin
     Exit;
   end;
 
@@ -5322,13 +5322,17 @@ end;
 
 procedure TfrmMain.GPSReceiverConnectError;
 begin
-  ShowErrorMessage(Handle, SAS_ERR_GpsConnecting);
+  if not GState.Config.GPSConfig.ModuleConfig.GetStatic.ConnectErrorDialogSuppressed then begin
+    ShowErrorMessage(Handle, SAS_ERR_GpsConnecting);
+  end;
 end;
 
 procedure TfrmMain.GPSReceiverTimeout;
 begin
   actGpsConnect.Enabled := True;
-  ShowErrorMessage(Handle, SAS_ERR_GpsCommunication);
+  if not GState.Config.GPSConfig.ModuleConfig.GetStatic.ConnectErrorDialogSuppressed then begin
+    ShowErrorMessage(Handle, SAS_ERR_GpsCommunication);
+  end;
 end;
 
 procedure TfrmMain.actMapStorageInfoExecute(Sender: TObject);

@@ -25,6 +25,7 @@ interface
 
 uses
   Windows,
+  t_GPSModuleByCOMPortSettings,
   i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -35,27 +36,24 @@ uses
 type
   TGPSModuleByCOMPortConfig = class(TConfigDataElementWithStaticBase, IGPSModuleByCOMPortConfig)
   private
-    FPort: DWORD;
-    FBaudRate: DWORD;
+    FGPSOrigin: TGPSOrigin;
     FConnectionTimeout: DWORD;
     FDelay: DWORD;
     FLowLevelLog: Boolean;
     FLogPath: IPathConfig;
-    FServerAddress: string;
-    FGPSOrigin: TGPSOrigin;
-    FAutodetectCOMOnConnect: Boolean;
-    FAutodetectCOMFlags: DWORD;
+    FComSettings: TGPSComSettings;
+    FTcpSettings: TGPSNetworkSettings;
+    FUdpSettings: TGPSNetworkSettings;
+    FReplaySettings: TGPSReplaySettings;
   protected
     function CreateStatic: IInterface; override;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetPort: DWORD;
-    procedure SetPort(const AValue: DWORD);
-
-    function GetBaudRate: DWORD;
-    procedure SetBaudRate(const AValue: DWORD);
+    { IGPSModuleByCOMPortConfig }
+    function GetGPSOrigin: TGPSOrigin;
+    procedure SetGPSOrigin(const AValue: TGPSOrigin);
 
     function GetConnectionTimeout: DWORD;
     procedure SetConnectionTimeout(const AValue: DWORD);
@@ -68,19 +66,19 @@ type
 
     function GetLogPath: string;
 
-    function GetServerAddress: string;
-    procedure SetServerAddress(const AValue: string);
+    function GetComSettings: TGPSComSettings;
+    procedure SetComSettings(const AValue: TGPSComSettings);
+
+    function GetTcpSettings: TGPSNetworkSettings;
+    procedure SetTcpSettings(const AValue: TGPSNetworkSettings);
+
+    function GetUdpSettings: TGPSNetworkSettings;
+    procedure SetUdpSettings(const AValue: TGPSNetworkSettings);
+
+    function GetReplaySettings: TGPSReplaySettings;
+    procedure SetReplaySettings(const AValue: TGPSReplaySettings);
 
     function GetStatic: IGPSModuleByCOMPortSettings;
-
-    function GetGPSOrigin: TGPSOrigin;
-    procedure SetGPSOrigin(const AValue: TGPSOrigin);
-
-    function GetAutodetectCOMOnConnect: Boolean;
-    procedure SetAutodetectCOMOnConnect(const AValue: Boolean);
-
-    function GetAutodetectCOMFlags: DWORD;
-    procedure SetAutodetectCOMFlags(const AValue: DWORD);
   public
     constructor Create(const ALogPath: IPathConfig);
   end;
@@ -90,104 +88,172 @@ implementation
 uses
   u_GPSModuleByCOMPortSettings;
 
+function ReadNetworkSettings(
+  const AConfigData: IConfigDataProvider;
+  const AKeyPrefix: string;
+  const ADefaults: TGPSNetworkSettings
+): TGPSNetworkSettings;
+begin
+  Result := ADefaults;
+  Result.ServerAddress := AConfigData.ReadString(AKeyPrefix + 'ServerAddress', Result.ServerAddress);
+  Result.AutoReconnect := AConfigData.ReadBool(AKeyPrefix + 'AutoReconnect', Result.AutoReconnect);
+  Result.SilentMode := AConfigData.ReadBool(AKeyPrefix + 'SilentMode', Result.SilentMode);
+end;
+
+procedure WriteNetworkSettings(
+  const AConfigData: IConfigDataWriteProvider;
+  const AKeyPrefix: string;
+  const ASettings: TGPSNetworkSettings
+);
+begin
+  AConfigData.WriteString(AKeyPrefix + 'ServerAddress', ASettings.ServerAddress);
+  AConfigData.WriteBool(AKeyPrefix + 'AutoReconnect', ASettings.AutoReconnect);
+  AConfigData.WriteBool(AKeyPrefix + 'SilentMode', ASettings.SilentMode);
+end;
+
 { TGPSModuleByCOMPortConfig }
 
 constructor TGPSModuleByCOMPortConfig.Create(const ALogPath: IPathConfig);
 begin
   inherited Create;
-  FLogPath := ALogPath;
-  FPort := 1;
-  FBaudRate := 4800;
+
+  FGPSOrigin := gpsoNMEA; // COM NMEA
+
   FConnectionTimeout := 300;
   FDelay := 1000;
+
+  FLogPath := ALogPath;
   FLowLevelLog := False;
-  FServerAddress := '';
-  FGPSOrigin := gpsoNMEA;
-  FAutodetectCOMOnConnect := FALSE;
-  FAutodetectCOMFlags := 0;
+
+  FComSettings.Port := 1;
+  FComSettings.BaudRate := 4800;
+  FComSettings.AutodetectCOMOnConnect := False;
+  FComSettings.AutodetectCOMFlags := 0;
+
+  FTcpSettings.ServerAddress := '';
+  FTcpSettings.AutoReconnect := True;
+  FTcpSettings.SilentMode := False;
+
+  FUdpSettings.ServerAddress := '';
+  FUdpSettings.AutoReconnect := True;
+  FUdpSettings.SilentMode := False;
+
+  FReplaySettings.UseTrackList := True;
+  FReplaySettings.TrackFile := '';
+  FReplaySettings.PlaybackSpeedMultiplier := 10;
+  FReplaySettings.LoopPlayback := False;
 end;
 
 function TGPSModuleByCOMPortConfig.CreateStatic: IInterface;
-var
-  VStatic: IGPSModuleByCOMPortSettings;
 begin
-  VStatic :=
+  Result :=
     TGPSModuleByCOMPortSettings.Create(
-      FPort,
-      FBaudRate,
+      FGPSOrigin,
       FConnectionTimeout,
       FDelay,
       FLowLevelLog,
       FLogPath.FullPath,
-      FServerAddress,
-      FGPSOrigin,
-      FAutodetectCOMOnConnect,
-      FAutodetectCOMFlags
-    );
-  Result := VStatic;
+      FComSettings,
+      FTcpSettings,
+      FUdpSettings,
+      FReplaySettings
+    ) as IGPSModuleByCOMPortSettings;
 end;
 
-procedure TGPSModuleByCOMPortConfig.DoReadConfig(
-  const AConfigData: IConfigDataProvider
-);
+procedure TGPSModuleByCOMPortConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+var
+  VComSettings: TGPSComSettings;
+  VNetworkSettings: TGPSNetworkSettings;
+  VReplaySettings: TGPSReplaySettings;
 begin
   inherited;
-  if AConfigData <> nil then begin
-    SetPort(AConfigData.ReadInteger('COM', FPort));
-    SetBaudRate(AConfigData.ReadInteger('BaudRate', FBaudRate));
+
+  if AConfigData = nil then begin
+    Exit;
+  end;
+
+  Self.StopNotify;
+  try
+    SetGPSOrigin(TGPSOrigin(AConfigData.ReadInteger('GpsOrigin', Ord(FGPSOrigin))));
+
     SetConnectionTimeout(AConfigData.ReadInteger('timeout', FConnectionTimeout));
     SetDelay(AConfigData.ReadInteger('update', FDelay));
     SetLowLevelLog(AConfigData.ReadBool('NMEAlog', FLowLevelLog));
-    SetServerAddress(AConfigData.ReadString('ServerAddress', FServerAddress));
-    SetGPSOrigin(TGPSOrigin(AConfigData.ReadInteger('USBGarmin', Ord(FGPSOrigin))));
-    SetAutodetectCOMOnConnect(AConfigData.ReadBool('AutodetectCOMOnConnect', FAutodetectCOMOnConnect));
-    SetAutodetectCOMFlags(AConfigData.ReadInteger('AutodetectCOMFlags', FAutodetectCOMFlags));
+
+    VComSettings := FComSettings;
+    VComSettings.Port := AConfigData.ReadInteger('COM', VComSettings.Port);
+    VComSettings.BaudRate := AConfigData.ReadInteger('BaudRate', VComSettings.BaudRate);
+    VComSettings.AutodetectCOMOnConnect := AConfigData.ReadBool('AutodetectCOMOnConnect', VComSettings.AutodetectCOMOnConnect);
+    VComSettings.AutodetectCOMFlags := AConfigData.ReadInteger('AutodetectCOMFlags', VComSettings.AutodetectCOMFlags);
+    SetComSettings(VComSettings);
+
+    VNetworkSettings := ReadNetworkSettings(AConfigData, 'Tcp', FTcpSettings);
+    SetTcpSettings(VNetworkSettings);
+
+    VNetworkSettings := ReadNetworkSettings(AConfigData, 'Udp', FUdpSettings);
+    SetUdpSettings(VNetworkSettings);
+
+    VReplaySettings := FReplaySettings;
+    VReplaySettings.UseTrackList := AConfigData.ReadBool('ReplayUseTrackList', VReplaySettings.UseTrackList);
+    VReplaySettings.TrackFile := AConfigData.ReadString('ReplayTrackFile', VReplaySettings.TrackFile);
+    VReplaySettings.PlaybackSpeedMultiplier := AConfigData.ReadInteger('ReplayPlaybackSpeedMultiplier', VReplaySettings.PlaybackSpeedMultiplier);
+    VReplaySettings.LoopPlayback := AConfigData.ReadBool('ReplayLoopPlayback', VReplaySettings.LoopPlayback);
+    SetReplaySettings(VReplaySettings);
+
+    SetChanged;
+  finally
+    Self.StartNotify;
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider
-);
+procedure TGPSModuleByCOMPortConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteInteger('COM', FPort);
-  AConfigData.WriteInteger('BaudRate', FBaudRate);
+  AConfigData.WriteInteger('GpsOrigin', Ord(FGPSOrigin));
   AConfigData.WriteInteger('timeout', FConnectionTimeout);
   AConfigData.WriteInteger('update', FDelay);
   AConfigData.WriteBool('NMEAlog', FLowLevelLog);
-  AConfigData.WriteString('ServerAddress', FServerAddress);
-  AConfigData.WriteInteger('USBGarmin', Ord(FGPSOrigin));
-  AConfigData.WriteBool('AutodetectCOMOnConnect', FAutodetectCOMOnConnect);
-  AConfigData.WriteInteger('AutodetectCOMFlags', FAutodetectCOMFlags);
+  AConfigData.WriteInteger('COM', FComSettings.Port);
+  AConfigData.WriteInteger('BaudRate', FComSettings.BaudRate);
+  AConfigData.WriteBool('AutodetectCOMOnConnect', FComSettings.AutodetectCOMOnConnect);
+  AConfigData.WriteInteger('AutodetectCOMFlags', FComSettings.AutodetectCOMFlags);
+  WriteNetworkSettings(AConfigData, 'Tcp', FTcpSettings);
+  WriteNetworkSettings(AConfigData, 'Udp', FUdpSettings);
+  AConfigData.WriteBool('ReplayUseTrackList', FReplaySettings.UseTrackList);
+  AConfigData.WriteString('ReplayTrackFile', FReplaySettings.TrackFile);
+  AConfigData.WriteInteger('ReplayPlaybackSpeedMultiplier', FReplaySettings.PlaybackSpeedMultiplier);
+  AConfigData.WriteBool('ReplayLoopPlayback', FReplaySettings.LoopPlayback);
 end;
 
-function TGPSModuleByCOMPortConfig.GetAutodetectCOMFlags: DWORD;
+function TGPSModuleByCOMPortConfig.GetComSettings: TGPSComSettings;
 begin
   LockRead;
   try
-    Result := FAutodetectCOMFlags;
+    Result := FComSettings;
   finally
     UnlockRead;
   end;
 end;
 
-function TGPSModuleByCOMPortConfig.GetAutodetectCOMOnConnect: Boolean;
+procedure TGPSModuleByCOMPortConfig.SetComSettings(const AValue: TGPSComSettings);
+var
+  VValue: TGPSComSettings;
 begin
-  LockRead;
+  LockWrite;
   try
-    Result := FAutodetectCOMOnConnect;
+    VValue := AValue;
+    if (VValue.Port = 0) or (VValue.Port > 255) then begin
+      VValue.Port := FComSettings.Port;
+    end;
+    if (VValue.BaudRate = 0) or (VValue.BaudRate > 1000000) then begin
+      VValue.BaudRate := FComSettings.BaudRate;
+    end;
+    if FComSettings <> VValue then begin
+      FComSettings := VValue;
+      SetChanged;
+    end;
   finally
-    UnlockRead;
-  end;
-end;
-
-function TGPSModuleByCOMPortConfig.GetBaudRate: DWORD;
-begin
-  LockRead;
-  try
-    Result := FBaudRate;
-  finally
-    UnlockRead;
+    UnlockWrite;
   end;
 end;
 
@@ -226,22 +292,22 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortConfig.GetServerAddress: string;
+function TGPSModuleByCOMPortConfig.GetTcpSettings: TGPSNetworkSettings;
 begin
   LockRead;
   try
-    Result := FServerAddress;
+    Result := FTcpSettings;
   finally
     UnlockRead;
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.SetServerAddress(const AValue: string);
+procedure TGPSModuleByCOMPortConfig.SetTcpSettings(const AValue: TGPSNetworkSettings);
 begin
   LockWrite;
   try
-    if FServerAddress <> AValue then begin
-      FServerAddress := AValue;
+    if FTcpSettings <> AValue then begin
+      FTcpSettings := AValue;
       SetChanged;
     end;
   finally
@@ -249,13 +315,49 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortConfig.GetPort: DWORD;
+function TGPSModuleByCOMPortConfig.GetUdpSettings: TGPSNetworkSettings;
 begin
   LockRead;
   try
-    Result := FPort;
+    Result := FUdpSettings;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TGPSModuleByCOMPortConfig.SetUdpSettings(const AValue: TGPSNetworkSettings);
+begin
+  LockWrite;
+  try
+    if FUdpSettings <> AValue then begin
+      FUdpSettings := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TGPSModuleByCOMPortConfig.GetReplaySettings: TGPSReplaySettings;
+begin
+  LockRead;
+  try
+    Result := FReplaySettings;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TGPSModuleByCOMPortConfig.SetReplaySettings(const AValue: TGPSReplaySettings);
+begin
+  LockWrite;
+  try
+    if FReplaySettings <> AValue then begin
+      FReplaySettings := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 
@@ -271,47 +373,6 @@ begin
     Result := FGPSOrigin;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TGPSModuleByCOMPortConfig.SetAutodetectCOMFlags(const AValue: DWORD);
-begin
-  LockWrite;
-  try
-    if FAutodetectCOMFlags <> AValue then begin
-      FAutodetectCOMFlags := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TGPSModuleByCOMPortConfig.SetAutodetectCOMOnConnect(const AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FAutodetectCOMOnConnect <> AValue then begin
-      FAutodetectCOMOnConnect := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TGPSModuleByCOMPortConfig.SetBaudRate(const AValue: DWORD);
-begin
-  if (AValue > 0) and (AValue <= 1000000) then begin
-    LockWrite;
-    try
-      if FBaudRate <> AValue then begin
-        FBaudRate := AValue;
-        SetChanged;
-      end;
-    finally
-      UnlockWrite;
-    end;
   end;
 end;
 
@@ -355,21 +416,6 @@ begin
     end;
   finally
     UnlockWrite;
-  end;
-end;
-
-procedure TGPSModuleByCOMPortConfig.SetPort(const AValue: DWORD);
-begin
-  if (AValue > 0) and (AValue <= 255) then begin
-    LockWrite;
-    try
-      if FPort <> AValue then begin
-        FPort := AValue;
-        SetChanged;
-      end;
-    finally
-      UnlockWrite;
-    end;
   end;
 end;
 

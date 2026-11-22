@@ -65,6 +65,10 @@ resourcestring
 
   SAS_MSG_UnknownGPSOrigin = 'GPS origin misconfiguration: unknown mode %d';
   SAS_MSG_NoGPSdetected = 'GPS receiver has not been found!';
+  SAS_ERR_GpsServerAddressNotSet = 'The server address of the GPS source is not set!';
+  SAS_MSG_ReplayTrackFileNotFound = 'Track file not found:' + #13#10 + '%s';
+  SAS_MSG_ReplayTrackListIsEmpty = 'The track list file is missing or empty:' + #13#10 + '%s' + #13#10#13#10 +
+                                   'Add the list of track files or paths to it.';
   SAS_ERR_GpsConnecting = 'An error occured when connecting to the GPS device!';
   SAS_ERR_GpsCommunication = 'An error occured when communicating with the GPS device!';
 

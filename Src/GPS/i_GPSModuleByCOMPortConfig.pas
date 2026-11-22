@@ -25,19 +25,16 @@ interface
 
 uses
   Windows,
+  t_GPSModuleByCOMPortSettings,
   i_GPSModuleByCOMPortSettings,
   i_ConfigDataElement;
 
 type
   IGPSModuleByCOMPortConfig = interface(IConfigDataElement)
     ['{75AC2DE2-4C88-4A0C-A1D1-D99E51995C78}']
-    function GetPort: DWORD;
-    procedure SetPort(const AValue: DWORD);
-    property Port: DWORD read GetPort write SetPort;
-
-    function GetBaudRate: DWORD;
-    procedure SetBaudRate(const AValue: DWORD);
-    property BaudRate: DWORD read GetBaudRate write SetBaudRate;
+    function GetGPSOrigin: TGPSOrigin;
+    procedure SetGPSOrigin(const AValue: TGPSOrigin);
+    property GPSOrigin: TGPSOrigin read GetGPSOrigin write SetGPSOrigin;
 
     function GetConnectionTimeout: DWORD;
     procedure SetConnectionTimeout(const AValue: DWORD);
@@ -47,7 +44,7 @@ type
     procedure SetDelay(const AValue: DWORD);
     property Delay: DWORD read GetDelay write SetDelay;
 
-    // NMEALog
+    // NMEA Log
     function GetLowLevelLog: Boolean;
     procedure SetLowLevelLog(const AValue: Boolean);
     property LowLevelLog: Boolean read GetLowLevelLog write SetLowLevelLog;
@@ -55,25 +52,27 @@ type
     function GetLogPath: string;
     property LogPath: string read GetLogPath;
 
+    // COM NMEA
+    function GetComSettings: TGPSComSettings;
+    procedure SetComSettings(const AValue: TGPSComSettings);
+    property ComSettings: TGPSComSettings read GetComSettings write SetComSettings;
+
     // TCP NMEA
-    function GetServerAddress: string;
-    procedure SetServerAddress(const AValue: string);
-    property ServerAddress: string read GetServerAddress write SetServerAddress;
+    function GetTcpSettings: TGPSNetworkSettings;
+    procedure SetTcpSettings(const AValue: TGPSNetworkSettings);
+    property TcpSettings: TGPSNetworkSettings read GetTcpSettings write SetTcpSettings;
+
+    // UDP NMEA
+    function GetUdpSettings: TGPSNetworkSettings;
+    procedure SetUdpSettings(const AValue: TGPSNetworkSettings);
+    property UdpSettings: TGPSNetworkSettings read GetUdpSettings write SetUdpSettings;
+
+    // Replay Track
+    function GetReplaySettings: TGPSReplaySettings;
+    procedure SetReplaySettings(const AValue: TGPSReplaySettings);
+    property ReplaySettings: TGPSReplaySettings read GetReplaySettings write SetReplaySettings;
 
     function GetStatic: IGPSModuleByCOMPortSettings;
-
-    // USBGarmin
-    function GetGPSOrigin: TGPSOrigin;
-    procedure SetGPSOrigin(const AValue: TGPSOrigin);
-    property GPSOrigin: TGPSOrigin read GetGPSOrigin write SetGPSOrigin;
-
-    function GetAutodetectCOMOnConnect: Boolean;
-    procedure SetAutodetectCOMOnConnect(const AValue: Boolean);
-    property AutodetectCOMOnConnect: Boolean read GetAutodetectCOMOnConnect write SetAutodetectCOMOnConnect;
-
-    function GetAutodetectCOMFlags: DWORD;
-    procedure SetAutodetectCOMFlags(const AValue: DWORD);
-    property AutodetectCOMFlags: DWORD read GetAutodetectCOMFlags write SetAutodetectCOMFlags;
   end;
 
 implementation

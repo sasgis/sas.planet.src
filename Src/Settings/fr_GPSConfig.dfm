@@ -28,20 +28,19 @@ object frGPSConfig: TfrGPSConfig
       BorderWidth = 3
       TabOrder = 0
       VerticalAlignment = taAlignTop
-      object lblGpsType: TLabel
+      object lblGpsSource: TLabel
         Left = 3
         Top = 44
-        Width = 48
+        Width = 58
         Height = 13
-        Caption = 'GPS type:'
+        Caption = 'GPS source:'
       end
       object btnGPSSwitch: TButton
         Left = 3
         Top = 3
         Width = 147
         Height = 32
-        Hint = 'Disable or enable GPS'
-        Caption = 'GPS On/Off'
+        Caption = 'GPS On'
         TabOrder = 1
         OnClick = btnGPSSwitchClick
       end
@@ -63,219 +62,15 @@ object frGPSConfig: TfrGPSConfig
           'TCP NMEA'
           'UDP NMEA')
       end
-      object pnlComParams: TPanel
+      object pnlDeviceParams: TPanel
         Left = 156
         Top = 7
-        Width = 261
-        Height = 162
-        BevelOuter = bvNone
-        BorderWidth = 2
-        TabOrder = 0
-        object flwpnlComPort: TFlowPanel
-          AlignWithMargins = True
-          Left = 5
-          Top = 5
-          Width = 251
-          Height = 24
-          Align = alTop
-          AutoSize = True
-          BevelOuter = bvNone
-          TabOrder = 0
-          object Label4: TLabel
-            AlignWithMargins = True
-            Left = 3
-            Top = 3
-            Width = 24
-            Height = 13
-            Caption = 'Port:'
-          end
-          object ComboBoxCOM: TComboBox
-            Left = 30
-            Top = 0
-            Width = 80
-            Height = 21
-            TabOrder = 0
-            Text = 'COM1'
-          end
-          object btnGPSAutodetectCOM: TButton
-            AlignWithMargins = True
-            Left = 113
-            Top = 0
-            Width = 27
-            Height = 21
-            Hint = 'Autodetect device COM port'
-            Margins.Top = 0
-            Caption = '?'
-            TabOrder = 1
-            OnClick = btnGPSAutodetectCOMClick
-          end
-        end
-        object flwpnlComPortSpeed: TFlowPanel
-          AlignWithMargins = True
-          Left = 5
-          Top = 35
-          Width = 251
-          Height = 21
-          Align = alTop
-          AutoSize = True
-          BevelOuter = bvNone
-          TabOrder = 1
-          object Label65: TLabel
-            AlignWithMargins = True
-            Left = 3
-            Top = 3
-            Width = 34
-            Height = 13
-            Alignment = taRightJustify
-            Caption = 'Speed:'
-          end
-          object ComboBoxBoudRate: TComboBox
-            Left = 40
-            Top = 0
-            Width = 80
-            Height = 21
-            Style = csDropDownList
-            ItemIndex = 5
-            TabOrder = 0
-            Text = '4800'
-            Items.Strings = (
-              '110'
-              '300'
-              '600'
-              '1200'
-              '2400'
-              '4800'
-              '9600'
-              '14400'
-              '19200'
-              '38400'
-              '57600'
-              '115200'
-              '230400')
-          end
-        end
-        object grpAutodetectComPort: TGroupBox
-          Left = 0
-          Top = 64
-          Width = 243
-          Height = 83
-          Caption = 'Autodetect port on connect'
-          TabOrder = 2
-          object chkAutodetectAll: TCheckBox
-            Left = 8
-            Top = 16
-            Width = 122
-            Height = 17
-            Caption = 'All sources'
-            TabOrder = 0
-            OnClick = OnAutodetectItemClick
-          end
-          object chkAutodetectBluetooth: TCheckBox
-            Left = 8
-            Top = 39
-            Width = 97
-            Height = 17
-            Caption = 'Bluetooth'
-            TabOrder = 1
-            OnClick = OnAutodetectItemClick
-          end
-          object chkAutodetectUsb: TCheckBox
-            Left = 8
-            Top = 62
-            Width = 97
-            Height = 17
-            Caption = 'USB'
-            TabOrder = 2
-            OnClick = OnAutodetectItemClick
-          end
-          object chkAutodetectCom: TCheckBox
-            Left = 136
-            Top = 16
-            Width = 104
-            Height = 17
-            Caption = 'COM'
-            TabOrder = 3
-            OnClick = OnAutodetectItemClick
-          end
-          object chkAutodetectComVirtual: TCheckBox
-            Left = 136
-            Top = 39
-            Width = 104
-            Height = 17
-            Caption = 'COM Virtual'
-            TabOrder = 4
-            OnClick = OnAutodetectItemClick
-          end
-          object chkAutodetectOthers: TCheckBox
-            Left = 136
-            Top = 62
-            Width = 104
-            Height = 17
-            Caption = 'Others'
-            TabOrder = 5
-            OnClick = OnAutodetectItemClick
-          end
-        end
-      end
-      object pnlTcpParams: TPanel
-        Left = 156
-        Top = 7
-        Width = 261
-        Height = 162
-        BevelOuter = bvNone
-        BorderWidth = 2
-        TabOrder = 4
-        Visible = False
-        object lblServerAddress: TLabel
-          AlignWithMargins = True
-          Left = 5
-          Top = 5
-          Width = 251
-          Height = 13
-          Align = alTop
-          Caption = 'Address:'
-        end
-        object lblTcpConnectionState: TLabel
-          AlignWithMargins = True
-          Left = 5
-          Top = 82
-          Width = 251
-          Height = 13
-          Align = alTop
-        end
-        object edServerAddress: TEdit
-          AlignWithMargins = True
-          Left = 5
-          Top = 24
-          Width = 251
-          Height = 21
-          Align = alTop
-          TabOrder = 0
-        end
-        object btnServerProbe: TButton
-          AlignWithMargins = True
-          Left = 5
-          Top = 51
-          Width = 251
-          Height = 25
-          Hint = 'Try to connect and check the server for nmea/gpsd data'
-          Align = alTop
-          Caption = 'Probe'
-          TabOrder = 1
-          OnClick = btnServerProbeClick
-        end
-      end
-      object chkUseReplayTrackFile: TCheckBox
-        Left = 6
-        Top = 160
-        Width = 393
-        Height = 17
+        Width = 236
+        Height = 172
         Align = alCustom
-        Caption = 'Get list of tracks to replay from ReplayTrack.txt'
-        Checked = True
-        Enabled = False
-        State = cbChecked
-        TabOrder = 3
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        BevelOuter = bvNone
+        TabOrder = 0
       end
     end
     object flwpnlGpsParams: TFlowPanel

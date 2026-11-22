@@ -24,47 +24,50 @@ unit i_GPSModuleByCOMPortSettings;
 interface
 
 uses
-  Windows;
+  Windows,
+  t_GPSModuleByCOMPortSettings;
+
+const
+  // the name of the file with the list of tracks/paths to replay
+  CReplayTrackListFileName = 'ReplayTrack.txt';
 
 type
-  // do not change the order of the existing items - the value is saved to the config by its ordinal
-  TGPSOrigin = (gpsoNMEA, gpsoGarmin, gpsoFlyOnTrack, gpsoLocationAPI, gpsoTCPNMEA, gpsoUDPNMEA);
-  TGPSOriginSet = set of TGPSOrigin;
-
   IGPSModuleByCOMPortSettings = interface
     ['{1E9AF59D-8988-4747-9952-5D17A0B0DB33}']
-    function GetPort: DWORD; safecall;
-    property Port: DWORD read GetPort;
-
-    function GetBaudRate: DWORD; safecall;
-    property BaudRate: DWORD read GetBaudRate;
-
-    function GetConnectionTimeout: DWORD; safecall;
-    property ConnectionTimeout: DWORD read GetConnectionTimeout;
-
-    function GetDelay: DWORD; safecall;
-    property Delay: DWORD read GetDelay;
-
-    // NMEALog
-    function GetLowLevelLog: Boolean; safecall;
-    property LowLevelLog: Boolean read GetLowLevelLog;
-
-    function GetLogPath: string; safecall;
-    property LogPath: string read GetLogPath;
-
-    // TCP NMEA
-    function GetServerAddress: string; safecall;
-    property ServerAddress: string read GetServerAddress;
-
-    // USBGarmin
-    function GetGPSOrigin: TGPSOrigin; safecall;
+    function GetGPSOrigin: TGPSOrigin;
     property GPSOrigin: TGPSOrigin read GetGPSOrigin;
 
-    function GetAutodetectCOMOnConnect: Boolean; safecall;
-    property AutodetectCOMOnConnect: Boolean read GetAutodetectCOMOnConnect;
+    function GetConnectionTimeout: DWORD;
+    property ConnectionTimeout: DWORD read GetConnectionTimeout;
 
-    function GetAutodetectCOMFlags: DWORD; safecall;
-    property AutodetectCOMFlags: DWORD read GetAutodetectCOMFlags;
+    function GetDelay: DWORD;
+    property Delay: DWORD read GetDelay;
+
+    // NMEA Log
+    function GetLowLevelLog: Boolean;
+    property LowLevelLog: Boolean read GetLowLevelLog;
+
+    function GetLogPath: string;
+    property LogPath: string read GetLogPath;
+
+    // COM NMEA
+    function GetComSettings: TGPSComSettings;
+    property ComSettings: TGPSComSettings read GetComSettings;
+
+    // TCP NMEA
+    function GetTcpSettings: TGPSNetworkSettings;
+    property TcpSettings: TGPSNetworkSettings read GetTcpSettings;
+
+    // UDP NMEA
+    function GetUdpSettings: TGPSNetworkSettings;
+    property UdpSettings: TGPSNetworkSettings read GetUdpSettings;
+
+    // Replay Track
+    function GetReplaySettings: TGPSReplaySettings;
+    property ReplaySettings: TGPSReplaySettings read GetReplaySettings;
+
+    function GetConnectErrorDialogSuppressed: Boolean;
+    property ConnectErrorDialogSuppressed: Boolean read GetConnectErrorDialogSuppressed;
   end;
 
 implementation
