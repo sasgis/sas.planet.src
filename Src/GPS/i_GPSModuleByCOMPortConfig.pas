@@ -44,6 +44,10 @@ type
     procedure SetDelay(const AValue: DWORD);
     property Delay: DWORD read GetDelay write SetDelay;
 
+    function GetAutoReconnect: Boolean;
+    procedure SetAutoReconnect(const AValue: Boolean);
+    property AutoReconnect: Boolean read GetAutoReconnect write SetAutoReconnect;
+
     // NMEA Log
     function GetLowLevelLog: Boolean;
     procedure SetLowLevelLog(const AValue: Boolean);

@@ -35,6 +35,7 @@ type
     FGPSOrigin: TGPSOrigin;
     FConnectionTimeout: DWORD;
     FDelay: DWORD;
+    FAutoReconnect: Boolean;
     FLowLevelLog: Boolean;
     FLogPath: string;
     FComSettings: TGPSComSettings;
@@ -46,18 +47,20 @@ type
     function GetGPSOrigin: TGPSOrigin;
     function GetConnectionTimeout: DWORD;
     function GetDelay: DWORD;
+    function GetAutoReconnect: Boolean;
+    function GetConnectErrorDialogSuppressed: Boolean;
     function GetLowLevelLog: Boolean;
     function GetLogPath: string;
     function GetComSettings: TGPSComSettings;
     function GetTcpSettings: TGPSNetworkSettings;
     function GetUdpSettings: TGPSNetworkSettings;
     function GetReplaySettings: TGPSReplaySettings;
-    function GetConnectErrorDialogSuppressed: Boolean;
   public
     constructor Create(
       const AGPSOrigin: TGPSOrigin;
       const AConnectionTimeout: DWORD;
       const ADelay: DWORD;
+      const AAutoReconnect: Boolean;
       const ALowLevelLog: Boolean;
       const ALogPath: string;
       const AComSettings: TGPSComSettings;
@@ -75,6 +78,7 @@ constructor TGPSModuleByCOMPortSettings.Create(
   const AGPSOrigin: TGPSOrigin;
   const AConnectionTimeout: DWORD;
   const ADelay: DWORD;
+  const AAutoReconnect: Boolean;
   const ALowLevelLog: Boolean;
   const ALogPath: string;
   const AComSettings: TGPSComSettings;
@@ -87,6 +91,7 @@ begin
   FGPSOrigin := AGPSOrigin;
   FConnectionTimeout := AConnectionTimeout;
   FDelay := ADelay;
+  FAutoReconnect := AAutoReconnect;
   FLowLevelLog := ALowLevelLog;
   FLogPath := ALogPath;
   FComSettings := AComSettings;
@@ -135,18 +140,14 @@ begin
   Result := FReplaySettings;
 end;
 
+function TGPSModuleByCOMPortSettings.GetAutoReconnect: Boolean;
+begin
+  Result := FAutoReconnect;
+end;
+
 function TGPSModuleByCOMPortSettings.GetConnectErrorDialogSuppressed: Boolean;
 begin
-  case FGPSOrigin of
-    gpsoTCPNMEA: begin
-      Result := FTcpSettings.AutoReconnect and FTcpSettings.SilentMode;
-    end;
-    gpsoUDPNMEA: begin
-      Result := FUdpSettings.AutoReconnect and FUdpSettings.SilentMode;
-    end;
-  else
-    Result := False;
-  end;
+  Result := FAutoReconnect and (FGPSOrigin <> gpsoFlyOnTrack);
 end;
 
 function TGPSModuleByCOMPortSettings.GetGPSOrigin: TGPSOrigin;

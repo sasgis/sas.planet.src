@@ -41,8 +41,6 @@ type
 
   TGPSNetworkSettings = record
     ServerAddress: string;
-    AutoReconnect: Boolean;
-    SilentMode: Boolean; // suppress the connection error messages
     class operator Equal(const A, B: TGPSNetworkSettings): Boolean; inline;
     class operator NotEqual(const A, B: TGPSNetworkSettings): Boolean; inline;
   end;
@@ -79,9 +77,7 @@ end;
 class operator TGPSNetworkSettings.Equal(const A, B: TGPSNetworkSettings): Boolean;
 begin
   Result :=
-    (A.ServerAddress = B.ServerAddress) and
-    (A.AutoReconnect = B.AutoReconnect) and
-    (A.SilentMode = B.SilentMode);
+    (A.ServerAddress = B.ServerAddress);
 end;
 
 class operator TGPSNetworkSettings.NotEqual(const A, B: TGPSNetworkSettings): Boolean;

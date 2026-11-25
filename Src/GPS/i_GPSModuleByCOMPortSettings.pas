@@ -43,6 +43,12 @@ type
     function GetDelay: DWORD;
     property Delay: DWORD read GetDelay;
 
+    function GetAutoReconnect: Boolean;
+    property AutoReconnect: Boolean read GetAutoReconnect;
+
+    function GetConnectErrorDialogSuppressed: Boolean;
+    property ConnectErrorDialogSuppressed: Boolean read GetConnectErrorDialogSuppressed;
+
     // NMEA Log
     function GetLowLevelLog: Boolean;
     property LowLevelLog: Boolean read GetLowLevelLog;
@@ -65,9 +71,6 @@ type
     // Replay Track
     function GetReplaySettings: TGPSReplaySettings;
     property ReplaySettings: TGPSReplaySettings read GetReplaySettings;
-
-    function GetConnectErrorDialogSuppressed: Boolean;
-    property ConnectErrorDialogSuppressed: Boolean read GetConnectErrorDialogSuppressed;
   end;
 
 implementation

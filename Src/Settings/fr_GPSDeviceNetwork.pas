@@ -48,17 +48,12 @@ type
     lblServerAddress: TLabel;
     edtServerAddress: TEdit;
     btnServerProbe: TButton;
-    chkAutoReconnect: TCheckBox;
-    chkSilentMode: TCheckBox;
-    lblConnectionState: TLabel;
     procedure btnServerProbeClick(Sender: TObject);
-    procedure OnAutoReconnectClick(Sender: TObject);
   private
     FProbing: Boolean;
     FCancelProbe: Boolean;
     function ReadSettings: TGPSNetworkSettings;
     function ProbePumpMessages: Boolean;
-    procedure UpdateConnectionStateLabel(const AState: TGpsConnectionState);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -189,8 +184,6 @@ var
 begin
   VSettings := ReadSettings;
   edtServerAddress.Text := VSettings.ServerAddress;
-  chkAutoReconnect.Checked := VSettings.AutoReconnect;
-  chkSilentMode.Checked := VSettings.SilentMode;
 end;
 
 procedure TfrGPSDeviceNetwork.ApplyChanges;
@@ -198,8 +191,6 @@ var
   VSettings: TGPSNetworkSettings;
 begin
   VSettings.ServerAddress := Trim(edtServerAddress.Text);
-  VSettings.AutoReconnect := chkAutoReconnect.Checked;
-  VSettings.SilentMode := chkSilentMode.Checked;
 
   FGPSConfig.LockWrite;
   try
@@ -231,7 +222,6 @@ procedure TfrGPSDeviceNetwork.UpdateControlsState(const AState: TGpsConnectionSt
 var
   VGpsOn: Boolean;
 begin
-  UpdateConnectionStateLabel(AState);
   VGpsOn := GetIsGpsOn(AState);
 
   // the gps module was enabled (e.g. from the main form toolbar) while
@@ -244,14 +234,9 @@ begin
   // only when the gps module is off
   btnServerProbe.Enabled := FProbing or (not VGpsOn);
 
-  // the address and the checkboxes are locked together with the probe
-  // button (and while the probe itself is running)
+  // the address is locked together with the probe button
+  // (and while the probe itself is running)
   edtServerAddress.Enabled := not (FProbing or VGpsOn);
-  chkAutoReconnect.Enabled := not (FProbing or VGpsOn);
-
-  // the silent mode suppresses the error messages
-  // only while the auto reconnect is enabled
-  chkSilentMode.Enabled := chkAutoReconnect.Checked and (not (FProbing or VGpsOn));
 end;
 
 function TfrGPSDeviceNetwork.IsBusy: Boolean;
@@ -264,45 +249,6 @@ begin
   Result := Trim(edtServerAddress.Text) <> '';
   if not Result then begin
     ShowServerAddressHint(FOrigin);
-  end;
-end;
-
-procedure TfrGPSDeviceNetwork.OnAutoReconnectClick(Sender: TObject);
-begin
-  chkSilentMode.Enabled := chkAutoReconnect.Checked;
-end;
-
-procedure TfrGPSDeviceNetwork.UpdateConnectionStateLabel(const AState: TGpsConnectionState);
-const
-  cMsgCtxt = 'gps-conn-state';
-var
-  VText: string;
-begin
-  if FProbing then begin
-    VText := pgettext(cMsgCtxt, 'probing the server...');
-  end else begin
-    case AState of
-      gcsConnecting: begin
-        VText := pgettext(cMsgCtxt, 'connecting...');
-      end;
-      gcsConnected: begin
-        VText := pgettext(cMsgCtxt, 'connected');
-      end;
-      gcsConnectedNoData: begin
-        VText := pgettext(cMsgCtxt, 'connected, no data');
-      end;
-      gcsDisconnecting: begin
-        VText := pgettext(cMsgCtxt, 'disconnecting...');
-      end;
-      gcsWaitingReconnect: begin
-        VText := pgettext(cMsgCtxt, 'waiting before auto reconnect');
-      end;
-    else
-      VText := pgettext(cMsgCtxt, 'not connected');
-    end;
-  end;
-  if lblConnectionState.Caption <> VText then begin
-    lblConnectionState.Caption := VText;
   end;
 end;
 

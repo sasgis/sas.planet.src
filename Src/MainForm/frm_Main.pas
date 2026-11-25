@@ -538,6 +538,7 @@ type
     actMapsEditMapParams: TAction;
     actConfigOptionsShow: TAction;
     actGpsConnect: TAction;
+    actGpsConnectionLost: TAction;
     actConfigGpsShowTrack: TAction;
     actConfigGpsFollowPosition: TAction;
     actConfigGpsFollowPositionAtCenter: TAction;
@@ -905,6 +906,7 @@ type
     procedure actMapsEditMapParamsExecute(Sender: TObject);
     procedure actConfigOptionsShowExecute(Sender: TObject);
     procedure actGpsConnectExecute(Sender: TObject);
+    procedure actGpsConnectionLostExecute(Sender: TObject);
     procedure actConfigGpsShowTrackExecute(Sender: TObject);
     procedure actConfigGpsFollowPositionExecute(Sender: TObject);
     procedure actConfigGpsFollowPositionAtCenterExecute(Sender: TObject);
@@ -1124,9 +1126,7 @@ type
 
     procedure CreateProjectionMenu;
 
-    procedure GPSReceiverDisconnect;
-    procedure GPSReceiverStateChange;
-    procedure GPSReceiverConnect;
+    procedure GPSReceiverStateChanged;
     procedure GPSReceiverTimeout;
     procedure GPSReceiverConnectError;
     procedure GPSReceiverReceive;
@@ -1318,6 +1318,7 @@ uses
   i_TerrainInfo,
   i_DownloadRequest,
   i_GPS,
+  i_GpsSystem,
   i_GeoCoder,
   i_GeoCalcConfig,
   i_GPSRecorder,
@@ -2217,7 +2218,7 @@ begin
       TNotifyEventListenerSync.Create(
         GState.GUISyncronizedTimerNotifier,
         500,
-        Self.GPSReceiverStateChange
+        Self.GPSReceiverStateChanged
       );
     FLinksList.Add(
       VGPSReceiverStateChangeListener,
@@ -2225,17 +2226,21 @@ begin
     );
     FLinksList.Add(
       VGPSReceiverStateChangeListener,
-      GState.GpsSystem.DisconnectedNotifier
-    );
-
-    FLinksList.Add(
-      TNotifyEventListenerSync.Create(GState.GUISyncronizedTimerNotifier, 500, Self.GPSReceiverConnect),
       GState.GpsSystem.ConnectedNotifier
     );
     FLinksList.Add(
-      TNotifyEventListenerSync.Create(GState.GUISyncronizedTimerNotifier, 500, Self.GPSReceiverDisconnect),
+      VGPSReceiverStateChangeListener,
+      GState.GpsSystem.DisconnectingNotifier
+    );
+    FLinksList.Add(
+      VGPSReceiverStateChangeListener,
       GState.GpsSystem.DisconnectedNotifier
     );
+    FLinksList.Add(
+      VGPSReceiverStateChangeListener,
+      GState.Config.GPSConfig.GetChangeNotifier
+    );
+
     FLinksList.Add(
       TNotifyEventListenerSync.Create(GState.GUISyncronizedTimerNotifier, 500, Self.GPSReceiverConnectError),
       GState.GpsSystem.ConnectErrorNotifier
@@ -5221,13 +5226,24 @@ begin
   FMapHintWindow.HideHint;
 end;
 
-procedure TfrmMain.GPSReceiverDisconnect;
+procedure TfrmMain.GPSReceiverStateChanged;
+var
+  VState: TGpsConnectionState;
+  VGpsOn: Boolean;
 begin
+  VState := GState.GpsSystem.ConnectionState;
+  VGpsOn := GState.Config.GPSConfig.GPSEnabled;
+
+  actGpsConnect.Enabled := not (VState in [gcsConnecting, gcsDisconnecting]);
+  actGpsConnect.Checked := VGpsOn;
+
+  actGpsConnectionLost.Visible :=
+    (VState = gcsWaitingReconnect) and
+    (GState.GpsSystem.ReconnectDelayLeftMSec > 0);
+
   if FConfig.GPSBehaviour.SensorsAutoShow then begin
-    TBXSensorsBar.Visible := False;
+    TBXSensorsBar.Visible := VGpsOn;
   end;
-  actGpsConnect.Enabled := True;
-  actGpsConnect.Checked := False;
 end;
 
 procedure TfrmMain.GPSReceiverReceive;
@@ -5303,20 +5319,6 @@ begin
         end;
       end;
     end;
-  end;
-end;
-
-procedure TfrmMain.GPSReceiverStateChange;
-begin
-  actGpsConnect.Enabled := False;
-end;
-
-procedure TfrmMain.GPSReceiverConnect;
-begin
-  actGpsConnect.Enabled := True;
-  actGpsConnect.Checked := True;
-  if FConfig.GPSBehaviour.SensorsAutoShow then begin
-    TBXSensorsBar.Visible := True;
   end;
 end;
 
@@ -7418,9 +7420,13 @@ end;
 
 procedure TfrmMain.actGpsConnectExecute(Sender: TObject);
 begin
-  GState.Config.GPSConfig.GPSEnabled :=
-    not GState.Config.GPSConfig.GPSEnabled;
+  GState.Config.GPSConfig.GPSEnabled := not GState.Config.GPSConfig.GPSEnabled;
   TCustomAction(Sender).Enabled := False;
+end;
+
+procedure TfrmMain.actGpsConnectionLostExecute(Sender: TObject);
+begin
+  ShowErrorMessage(Handle, SAS_ERR_GpsConnectionLost);
 end;
 
 procedure TfrmMain.actGpsMarkPointAddExecute(Sender: TObject);

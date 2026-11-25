@@ -33,6 +33,7 @@ uses
   Spin,
   ExtCtrls,
   i_Listener,
+  i_ListenerTime,
   i_Notifier,
   i_NotifierTime,
   i_LanguageManager,
@@ -58,6 +59,7 @@ type
     btnGPSSwitch: TButton;
     lblGpsSource: TLabel;
     cbbGpsType: TComboBox;
+    lblConnectionState: TLabel;
     pnlDeviceParams: TPanel;
     flwpnlGpsParams: TFlowPanel;
     SE_ConnectionTimeout: TSpinEdit;
@@ -68,6 +70,7 @@ type
     CB_GPSlogPLT: TCheckBox;
     CB_GPSlogNmea: TCheckBox;
     CB_GPSlogGPX: TCheckBox;
+    chkAutoReconnect: TCheckBox;
     CBSensorsBarAutoShow: TCheckBox;
     pnlGpsRight: TPanel;
     GroupBox3: TGroupBox;
@@ -100,6 +103,7 @@ type
     procedure OnGpsTypeChange(Sender: TObject);
   private
     FGpsSystem: IGpsSystem;
+    FTimerNotifier: INotifierTime;
     FGPSConfig: IGPSConfig;
     FGPSTrackConfig: IMapLayerGPSTrackConfig;
     FGPSMarkerConfig: IMapLayerGPSMarkerConfig;
@@ -112,13 +116,16 @@ type
 
     FfrGpsSatellites: TfrGpsSatellites;
     FStateListener: IListener;
+    FStateTimerListener: IListenerTime;
     function GetConnectionTimeoutSec: DWORD;
     function GetActiveDeviceFrame: TGPSDeviceParamsFrame;
     procedure SetDeviceFrame(const AFrame: TGPSDeviceParamsFrame);
     procedure HideDeviceFrames;
     procedure OnDeviceFrameBusyChanged(Sender: TObject);
     procedure UpdateControlsState;
+    procedure UpdateConnectionStateLabel(const AState: TGpsConnectionState);
     procedure OnGpsStateChanged;
+    procedure OnGpsStateTimer;
   protected
     procedure RefreshTranslation; override;
   public
@@ -144,12 +151,14 @@ implementation
 
 uses
   GR32,
+  Math,
   gnugettext,
   vsagps_public_tracks,
   c_SensorsGUIDSimple,
   t_GPSModuleByCOMPortSettings,
   i_Sensor,
-  u_ListenerByEvent;
+  u_ListenerByEvent,
+  u_ListenerTime;
 
 const
   // how often the gps state change is delivered to the gui
@@ -217,6 +226,7 @@ begin
   inherited Create(ALanguageManager);
 
   FGpsSystem := AGpsSystem;
+  FTimerNotifier := AGUISyncronizedTimerNotifier;
   FGPSConfig := AGPSConfig;
   FGPSTrackConfig := AGPSTrackConfig;
   FGPSMarkerConfig := AGPSMarkerConfig;
@@ -264,6 +274,10 @@ begin
   FGpsSystem.ConnectedNotifier.Add(FStateListener);
   FGpsSystem.DisconnectingNotifier.Add(FStateListener);
   FGpsSystem.DisconnectedNotifier.Add(FStateListener);
+
+  // refresh the reconnect countdown while the gps waits for the next attempt
+  FStateTimerListener := TListenerTimeCheck.Create(Self.OnGpsStateTimer, 1000);
+  AGUISyncronizedTimerNotifier.Add(FStateTimerListener);
 end;
 
 destructor TfrGPSConfig.Destroy;
@@ -274,6 +288,11 @@ begin
     FGpsSystem.DisconnectingNotifier.Remove(FStateListener);
     FGpsSystem.DisconnectedNotifier.Remove(FStateListener);
   end;
+  if Assigned(FTimerNotifier) and Assigned(FStateTimerListener) then begin
+    FTimerNotifier.Remove(FStateTimerListener);
+  end;
+  FStateTimerListener := nil;
+  FTimerNotifier := nil;
   FreeAndNil(FfrGpsSatellites);
   FreeAndNil(FfrDeviceCom);
   FreeAndNil(FfrDeviceTcp);
@@ -325,6 +344,7 @@ begin
     FGPSConfig.ModuleConfig.ConnectionTimeout := SE_ConnectionTimeout.Value;
     FGPSConfig.ModuleConfig.LowLevelLog := CB_GPSlogNmea.Checked;
     FGPSConfig.ModuleConfig.Delay := SpinEdit1.Value;
+    FGPSConfig.ModuleConfig.AutoReconnect := chkAutoReconnect.Checked;
     FGPSConfig.WriteLog[ttPLT] := CB_GPSlogPLT.Checked;
     FGPSConfig.WriteLog[ttGPX] := CB_GPSlogGPX.Checked;
   finally
@@ -370,6 +390,7 @@ begin
     SE_ConnectionTimeout.Value := FGPSConfig.ModuleConfig.ConnectionTimeout;
     CB_GPSlogNmea.Checked := FGPSConfig.ModuleConfig.LowLevelLog;
     SpinEdit1.Value := FGPSConfig.ModuleConfig.Delay;
+    chkAutoReconnect.Checked := FGPSConfig.ModuleConfig.AutoReconnect;
     CB_GPSlogPLT.Checked := FGPSConfig.WriteLog[ttPLT];
     CB_GPSlogGPX.Checked := FGPSConfig.WriteLog[ttGPX];
     cbbGpsType.ItemIndex := GetIndexByOrigin(FGPSConfig.ModuleConfig.GPSOrigin);
@@ -487,6 +508,8 @@ begin
     end;
   end;
 
+  UpdateConnectionStateLabel(VState);
+
   // the per-device controls are updated by their own frames
   VFrame := GetActiveDeviceFrame;
   if VFrame <> nil then begin
@@ -494,9 +517,48 @@ begin
   end;
 end;
 
+procedure TfrGPSConfig.UpdateConnectionStateLabel(const AState: TGpsConnectionState);
+const
+  cMsgCtxt = 'gps-conn-state';
+var
+  VText: string;
+  VDelayLeftMSec: Integer;
+begin
+  case AState of
+    gcsConnecting: begin
+      VText := pgettext(cMsgCtxt, 'connecting...');
+    end;
+    gcsConnected: begin
+      VText := pgettext(cMsgCtxt, 'connected');
+    end;
+    gcsConnectedNoData: begin
+      VText := pgettext(cMsgCtxt, 'connected, no data');
+    end;
+    gcsDisconnecting: begin
+      VText := pgettext(cMsgCtxt, 'disconnecting...');
+    end;
+    gcsWaitingReconnect: begin
+      VDelayLeftMSec := FGpsSystem.ReconnectDelayLeftMSec;
+      VText := Format(pgettext(cMsgCtxt, 'retrying in %d sec.'), [Ceil(VDelayLeftMSec / 1000)]);
+    end;
+  else
+    VText := pgettext(cMsgCtxt, 'not connected');
+  end;
+  if lblConnectionState.Caption <> VText then begin
+    lblConnectionState.Caption := VText;
+  end;
+end;
+
 procedure TfrGPSConfig.OnGpsStateChanged;
 begin
   UpdateControlsState;
+end;
+
+procedure TfrGPSConfig.OnGpsStateTimer;
+begin
+  if FGpsSystem.ConnectionState = gcsWaitingReconnect then begin
+    UpdateConnectionStateLabel(gcsWaitingReconnect);
+  end;
 end;
 
 procedure TfrGPSConfig.btnGPSSwitchClick(Sender: TObject);

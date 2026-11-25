@@ -35,6 +35,13 @@ object frGPSConfig: TfrGPSConfig
         Height = 13
         Caption = 'GPS source:'
       end
+      object lblConnectionState: TLabel
+        Left = 3
+        Top = 90
+        Width = 69
+        Height = 13
+        Caption = 'not connected'
+      end
       object btnGPSSwitch: TButton
         Left = 3
         Top = 3
@@ -198,6 +205,22 @@ object frGPSConfig: TfrGPSConfig
             TabOrder = 0
             Value = 100
           end
+        end
+        object chkAutoReconnect: TCheckBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 144
+          Width = 379
+          Height = 17
+          Hint = 'Delay doubles from 1 up to 30 seconds between attempts'
+          Margins.Top = 6
+          Align = alTop
+          Caption = 'Auto reconnect on connection loss'
+          Checked = True
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 4
         end
         object CBSensorsBarAutoShow: TCheckBox
           AlignWithMargins = True

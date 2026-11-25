@@ -72,13 +72,15 @@ type
     FWasError: Boolean;
     FWasTimeOut: Boolean;
     FDataRecived: Boolean;
+    FDataRecivedEver: Boolean;
     FInternalState: TInternalState;
     FLastDataReceiveTick: Cardinal;
     FDataReceiveCounter: IInternalPerformanceCounter;
 
     FReconnectTick: Cardinal;
+    FReconnectAttempt: Integer;
 
-    function GetIsAutoReconnectOrigin: Boolean;
+    function GetIsAutoReconnectAllowed: Boolean;
 
     procedure StartThreads;
     procedure SendTerminateToThreads;
@@ -108,6 +110,7 @@ type
     function GetDisconnectingNotifier: INotifier;
     function GetTimeOutNotifier: INotifier;
     function GetConnectionState: TGpsConnectionState;
+    function GetReconnectDelayLeftMSec: Integer;
     function GetGPSUnitInfo: string;
     procedure ApplyUTCDateTime;
     procedure ResetDGPS;
@@ -140,8 +143,23 @@ uses
   u_ListenerByEvent;
 
 const
-  // delay between reconnect attempts
-  CReconnectDelayMSec = 5000;
+  CReconnectDelayInitialMSec = 1000;
+  CReconnectDelayMaxMSec = 30000;
+
+function CalcReconnectDelayMSec(const AAttempt: Integer): Cardinal;
+var
+  I: Integer;
+begin
+  Result := CReconnectDelayInitialMSec;
+  // double the delay for each subsequent attempt up to the max delay
+  for I := 2 to AAttempt do begin
+    Result := Result * 2;
+    if Result >= CReconnectDelayMaxMSec then begin
+      Result := CReconnectDelayMaxMSec;
+      Break;
+    end;
+  end;
+end;
 
 procedure TGpsSystem.AfterConstruction;
 begin
@@ -192,9 +210,11 @@ begin
   FWasError := False;
   FWasTimeOut := False;
   FDataRecived := False;
+  FDataRecivedEver := False;
   FInternalState := isDisconnected;
   FLastDataReceiveTick := 0;
   FReconnectTick := GetTickCount;
+  FReconnectAttempt := 0;
 
   VSync := GSync.SyncVariable.Make(Self.ClassName + 'Notifiers');
   FConnectingNotifier := TNotifierBase.Create(VSync);
@@ -281,20 +301,41 @@ begin
   Result := FTimeOutNotifier;
 end;
 
-function TGpsSystem.GetIsAutoReconnectOrigin: Boolean;
+function TGpsSystem.GetIsAutoReconnectAllowed: Boolean;
 var
   VConfig: IGPSModuleByCOMPortConfig;
 begin
   VConfig := FConfig.ModuleConfig;
-  case VConfig.GPSOrigin of
-    gpsoTCPNMEA: begin
-      Result := VConfig.TcpSettings.AutoReconnect;
+  Result := VConfig.AutoReconnect and (VConfig.GPSOrigin <> gpsoFlyOnTrack);
+end;
+
+function TGpsSystem.GetReconnectDelayLeftMSec: Integer;
+var
+  VModuleState: TModuleState;
+  VReconnectTick: Cardinal;
+  VReconnectAttempt: Integer;
+  VDelayMSec: Integer;
+begin
+  Result := -1; // not waiting for the reconnect
+
+  FCS.BeginRead;
+  try
+    VModuleState := FModuleState;
+    VReconnectTick := FReconnectTick;
+    VReconnectAttempt := FReconnectAttempt;
+  finally
+    FCS.EndRead;
+  end;
+
+  if (VModuleState = msDisconnected) and
+     FConfig.GPSEnabled and
+     GetIsAutoReconnectAllowed
+  then begin
+    VDelayMSec := Integer(CalcReconnectDelayMSec(VReconnectAttempt + 1));
+    Result := VDelayMSec - Integer(GetTickCount - VReconnectTick);
+    if Result < 0 then begin
+      Result := 0;
     end;
-    gpsoUDPNMEA: begin
-      Result := VConfig.UdpSettings.AutoReconnect;
-    end;
-  else
-    Result := False;
   end;
 end;
 
@@ -331,7 +372,7 @@ begin
   end;
   if (Result = gcsDisconnected) and
      FConfig.GPSEnabled and
-     GetIsAutoReconnectOrigin
+     GetIsAutoReconnectAllowed
   then begin
     Result := gcsWaitingReconnect;
   end;
@@ -403,6 +444,8 @@ begin
   try
     FModuleState := msConnected;
     FLastDataReceiveTick := GetTickCount;
+    FReconnectAttempt := 0;
+    FDataRecivedEver := False;
   finally
     FCS.EndWrite;
   end;
@@ -441,6 +484,7 @@ begin
     FCS.BeginWrite;
     try
       FDataRecived := True;
+      FDataRecivedEver := True;
       FLastDataReceiveTick := GetTickCount;
     finally
       FCS.EndWrite;
@@ -454,10 +498,15 @@ procedure TGpsSystem.OnGpsDisconnected;
 var
   VPosition: IGPSPosition;
 begin
-  if not GetIsAutoReconnectOrigin then begin
-    FConfig.GPSEnabled := False;
-  end else if FConfig.GPSEnabled then begin
+  if FDataRecivedEver and
+     FConfig.GPSEnabled and
+     GetIsAutoReconnectAllowed
+  then begin
+    // the link was lost after some data was received - keep trying
+    // to reconnect while the gps remains enabled by the user
     FWasError := True;
+  end else begin
+    FConfig.GPSEnabled := False;
   end;
 
   FReconnectTick := GetTickCount;
@@ -661,20 +710,23 @@ begin
       FDataReciveNotifier.Notify(nil);
     end;
 
-    // auto-reconnect: only for the origins which have the auto reconnect
-    // enabled in the settings - keeps trying while the gps is enabled by
-    // the user; the delay counts from the last disconnect
+    // auto-reconnect: keeps trying while the gps is enabled by the user and
+    // the current origin allows the auto reconnect; the delay doubles with
+    // each failed attempt and counts from the last disconnect
     FCS.BeginWrite;
     try
       VNeedReconnect :=
         (FModuleState = msDisconnected) and
-        ((GetTickCount - FReconnectTick) > CReconnectDelayMSec);
+        ((GetTickCount - FReconnectTick) >= CalcReconnectDelayMSec(FReconnectAttempt + 1));
+      if VNeedReconnect then begin
+        Inc(FReconnectAttempt);
+      end;
     finally
       FCS.EndWrite;
     end;
     if VNeedReconnect then begin
       if FConfig.GPSEnabled and
-         GetIsAutoReconnectOrigin and
+         GetIsAutoReconnectAllowed and
          FGPSModuleByCOM.IsReadyToConnect
       then begin
         FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic, FConfig);

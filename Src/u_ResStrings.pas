@@ -71,6 +71,8 @@ resourcestring
                                    'Add the list of track files or paths to it.';
   SAS_ERR_GpsConnecting = 'An error occured when connecting to the GPS device!';
   SAS_ERR_GpsCommunication = 'An error occured when communicating with the GPS device!';
+  SAS_ERR_GpsConnectionLost = 'Connection to the GPS receiver is lost.' + #13#10 +
+                              'A reconnect attempt will be made in a few seconds.';
 
   SAS_MSG_GarminMaxTilesWarning =
     'The number of JPEG tiles in KMZ file will exceed 100!' + #13#10 +

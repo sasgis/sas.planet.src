@@ -45,6 +45,7 @@ type
     FTcpSettings: TGPSNetworkSettings;
     FUdpSettings: TGPSNetworkSettings;
     FReplaySettings: TGPSReplaySettings;
+    FAutoReconnect: Boolean;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -60,6 +61,9 @@ type
 
     function GetDelay: DWORD;
     procedure SetDelay(const AValue: DWORD);
+
+    function GetAutoReconnect: Boolean;
+    procedure SetAutoReconnect(const AValue: Boolean);
 
     function GetLowLevelLog: Boolean;
     procedure SetLowLevelLog(const AValue: Boolean);
@@ -96,8 +100,6 @@ function ReadNetworkSettings(
 begin
   Result := ADefaults;
   Result.ServerAddress := AConfigData.ReadString(AKeyPrefix + 'ServerAddress', Result.ServerAddress);
-  Result.AutoReconnect := AConfigData.ReadBool(AKeyPrefix + 'AutoReconnect', Result.AutoReconnect);
-  Result.SilentMode := AConfigData.ReadBool(AKeyPrefix + 'SilentMode', Result.SilentMode);
 end;
 
 procedure WriteNetworkSettings(
@@ -107,8 +109,6 @@ procedure WriteNetworkSettings(
 );
 begin
   AConfigData.WriteString(AKeyPrefix + 'ServerAddress', ASettings.ServerAddress);
-  AConfigData.WriteBool(AKeyPrefix + 'AutoReconnect', ASettings.AutoReconnect);
-  AConfigData.WriteBool(AKeyPrefix + 'SilentMode', ASettings.SilentMode);
 end;
 
 { TGPSModuleByCOMPortConfig }
@@ -131,17 +131,15 @@ begin
   FComSettings.AutodetectCOMFlags := 0;
 
   FTcpSettings.ServerAddress := '';
-  FTcpSettings.AutoReconnect := True;
-  FTcpSettings.SilentMode := False;
 
   FUdpSettings.ServerAddress := '';
-  FUdpSettings.AutoReconnect := True;
-  FUdpSettings.SilentMode := False;
 
   FReplaySettings.UseTrackList := True;
   FReplaySettings.TrackFile := '';
   FReplaySettings.PlaybackSpeedMultiplier := 10;
   FReplaySettings.LoopPlayback := False;
+
+  FAutoReconnect := True;
 end;
 
 function TGPSModuleByCOMPortConfig.CreateStatic: IInterface;
@@ -151,6 +149,7 @@ begin
       FGPSOrigin,
       FConnectionTimeout,
       FDelay,
+      FAutoReconnect,
       FLowLevelLog,
       FLogPath.FullPath,
       FComSettings,
@@ -178,6 +177,7 @@ begin
 
     SetConnectionTimeout(AConfigData.ReadInteger('timeout', FConnectionTimeout));
     SetDelay(AConfigData.ReadInteger('update', FDelay));
+    SetAutoReconnect(AConfigData.ReadBool('AutoReconnect', FAutoReconnect));
     SetLowLevelLog(AConfigData.ReadBool('NMEAlog', FLowLevelLog));
 
     VComSettings := FComSettings;
@@ -212,6 +212,7 @@ begin
   AConfigData.WriteInteger('GpsOrigin', Ord(FGPSOrigin));
   AConfigData.WriteInteger('timeout', FConnectionTimeout);
   AConfigData.WriteInteger('update', FDelay);
+  AConfigData.WriteBool('AutoReconnect', FAutoReconnect);
   AConfigData.WriteBool('NMEAlog', FLowLevelLog);
   AConfigData.WriteInteger('COM', FComSettings.Port);
   AConfigData.WriteInteger('BaudRate', FComSettings.BaudRate);
@@ -425,6 +426,29 @@ begin
   try
     if FGPSOrigin <> AValue then begin
       FGPSOrigin := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TGPSModuleByCOMPortConfig.GetAutoReconnect: Boolean;
+begin
+  LockRead;
+  try
+    Result := FAutoReconnect;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TGPSModuleByCOMPortConfig.SetAutoReconnect(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FAutoReconnect <> AValue then begin
+      FAutoReconnect := AValue;
       SetChanged;
     end;
   finally

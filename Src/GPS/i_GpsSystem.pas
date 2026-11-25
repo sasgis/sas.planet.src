@@ -66,6 +66,9 @@ type
     function GetConnectionState: TGpsConnectionState;
     property ConnectionState: TGpsConnectionState read GetConnectionState;
 
+    function GetReconnectDelayLeftMSec: Integer;
+    property ReconnectDelayLeftMSec: Integer read GetReconnectDelayLeftMSec;
+
     function GetGPSUnitInfo: string;
     property GPSUnitInfo: string read GetGPSUnitInfo;
 
