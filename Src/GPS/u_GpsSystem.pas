@@ -445,7 +445,7 @@ begin
     FModuleState := msConnected;
     FLastDataReceiveTick := GetTickCount;
     FReconnectAttempt := 0;
-    FDataRecivedEver := False;
+    FDataRecivedEver := (FConfig.ModuleConfig.GPSOrigin in [gpsoUDPNMEA]);
   finally
     FCS.EndWrite;
   end;
