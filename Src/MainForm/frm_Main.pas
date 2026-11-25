@@ -2445,7 +2445,7 @@ begin
     Self.Touch.InteractiveGestures := Self.Touch.InteractiveGestures + [igZoom];
     {$IFEND}
 
-    ProcessCmdLineArgs;
+    TThread.ForceQueue(nil, ProcessCmdLineArgs);
 
     FStartedNormal := True;
   finally
